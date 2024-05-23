@@ -44,7 +44,7 @@ workflow snm3C {
     }
 
     # version of the pipeline
-    String pipeline_version = "4.0.2"
+    String pipeline_version = "4.0.1"
 
     call Demultiplexing {
         input:
@@ -72,10 +72,8 @@ workflow snm3C {
                 r2_right_cut = r2_right_cut,
                 plate_id = plate_id,
                 docker = docker_prefix + m3c_yap_hisat_docker,
-
                 cromwell_root_dir = cromwell_root_dir,
                 cloud_provider = cloud_provider,
-
         }
 
         call Hisat_single_end as Hisat_single_end {
@@ -85,10 +83,8 @@ workflow snm3C {
                 genome_fa = genome_fa,
                 plate_id = plate_id,
                 docker = docker_prefix + m3c_yap_hisat_docker,
-
                 cromwell_root_dir = cromwell_root_dir,
                 cloud_provider = cloud_provider
-
         }
 
         call Merge_sort_analyze as Merge_sort_analyze {
@@ -259,7 +255,6 @@ task Hisat_paired_end {
         File chromosome_sizes
         String plate_id
         String docker
-
         String cromwell_root_dir
         String cloud_provider
 
@@ -276,10 +271,7 @@ task Hisat_paired_end {
         Int preemptible_tries = 2
         String cpu_platform =  "Intel Ice Lake"
     }
-    
-    cromwell_root_dir=$(pwd)
-    batch_dir=$cromwell_root_dir/batch*
-    
+
     command <<<
         set -euo pipefail
         WORKING_DIR=`pwd`
@@ -322,7 +314,6 @@ task Hisat_paired_end {
 
         echo "lsing cromwell root dir"
         ls -lR ~{cromwell_root_dir}
-
 
         # define lists of r1 and r2 fq files
         if [ ~{cloud_provider} = "gcp" ]; then

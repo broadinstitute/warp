@@ -1,7 +1,3 @@
-# 4.0.2
-2024-05-20 (Date of Last Commit)
-* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to support ToA. This change does not affect the snM3C pipeline.
-
 # 4.0.1
 2024-04-18 (Date of Last Commit)
 * Updated the snM3C wdl to run on Azure. This change does not affect the snM3C pipeline.
