@@ -30,7 +30,7 @@ workflow ATAC {
     Int num_threads_bwa = 128
     Int mem_size_bwa = 512
     String cpu_platform_bwa = "Intel Ice Lake"
-    String vm_size = "Standard_M128s"
+    String vm_size
 
     # GTF for SnapATAC2 to calculate TSS sites of fragment file
     File annotations_gtf

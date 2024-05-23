@@ -36,7 +36,7 @@ workflow Multiome {
         Array[File] atac_r2_fastq
         Array[File] atac_r3_fastq
         # VM size used for several ATAC tasks
-        String vm_size
+        String vm_size = "Standard_M128s"
         # BWA tar reference
         File tar_bwa_reference
         # Chromosone sizes 
