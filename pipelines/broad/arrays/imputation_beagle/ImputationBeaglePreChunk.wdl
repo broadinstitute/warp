@@ -13,16 +13,11 @@ workflow ImputationBeagle {
 
         File multi_sample_vcf
 
-        Boolean perform_extra_qc_steps = false # these are optional additional extra QC steps from Amit's group that should only be
-        # run for large sample sets, especially a diverse set of samples (it's further limiting called at sites to 95% and by HWE)
-        Float optional_qc_max_missing = 0.05
-        Float optional_qc_hwe = 0.000001
         File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
         Array[String] contigs
         String reference_panel_path # path to the bucket where the reference panel files are stored for all contigs
         String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
         String output_basename # the basename for intermediate and output files
-        Boolean split_output_to_single_sample = false
 
         Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
 
@@ -77,21 +72,10 @@ workflow ImputationBeagle {
             Int start = PreChunkVcf.starts[i]
             Int end = PreChunkVcf.ends[i]
 
-            if (perform_extra_qc_steps) {
-                call tasks.OptionalQCSites {
-                    input:
-                        input_vcf = PreChunkVcf.generate_chunk_vcfs[i],
-                        input_vcf_index = PreChunkVcf.generate_chunk_vcf_indices[i],
-                        output_vcf_basename = chunk_basename,
-                        optional_qc_max_missing = optional_qc_max_missing,
-                        optional_qc_hwe = optional_qc_hwe
-                }
-            }
-
             call tasks.CountVariantsInChunksBeagle {
                 input:
-                    vcf = select_first([OptionalQCSites.output_vcf,  PreChunkVcf.generate_chunk_vcfs[i]]),
-                    vcf_index = select_first([OptionalQCSites.output_vcf_index, PreChunkVcf.generate_chunk_vcf_indices[i]]),
+                    vcf = PreChunkVcf.generate_chunk_vcfs[i],
+                    vcf_index =PreChunkVcf.generate_chunk_vcf_indices[i],
                     panel_interval_list = referencePanelContig.interval_list
             }
 
@@ -113,51 +97,55 @@ workflow ImputationBeagle {
                     output_basename = "imputed_sites"
             }
 
-            if (CheckChunksBeagle.valid) {
-                call tasks.PhaseAndImputeBeagle {
+            if (!CheckChunksBeagle.valid) {
+                call utils.ErrorWithMessage as FailedChunk {
                     input:
-                        dataset_vcf = select_first([OptionalQCSites.output_vcf,  PreChunkVcf.generate_chunk_vcfs[i]]),
-                        ref_panel_bref3 = referencePanelContig.bref3,
-                        chrom = referencePanelContig.contig,
-                        basename = chunk_basename,
-                        genetic_map_file = referencePanelContig.genetic_map,
-                        start = start,
-                        end = end
+                        message = chunk_basename + " was not a valid chunk"
                 }
+            }
+            call tasks.PhaseAndImputeBeagle {
+                input:
+                    dataset_vcf = PreChunkVcf.generate_chunk_vcfs[i],
+                    ref_panel_bref3 = referencePanelContig.bref3,
+                    chrom = referencePanelContig.contig,
+                    basename = chunk_basename,
+                    genetic_map_file = referencePanelContig.genetic_map,
+                    start = start,
+                    end = end
+            }
 
-                call tasks.UpdateHeader {
-                    input:
-                        vcf = PhaseAndImputeBeagle.vcf,
-                        vcf_index = PhaseAndImputeBeagle.vcf_index,
-                        ref_dict = ref_dict,
-                        basename = chunk_basename + "_imputed"
-                }
+            call tasks.UpdateHeader {
+                input:
+                    vcf = PhaseAndImputeBeagle.vcf,
+                    vcf_index = PhaseAndImputeBeagle.vcf_index,
+                    ref_dict = ref_dict,
+                    basename = chunk_basename + "_imputed"
+            }
 
-                call tasks.SeparateMultiallelics {
-                    input:
-                        original_vcf = UpdateHeader.output_vcf,
-                        original_vcf_index = UpdateHeader.output_vcf_index,
-                        output_basename = chunk_basename + "_imputed"
-                }
+            call tasks.SeparateMultiallelics {
+                input:
+                    original_vcf = UpdateHeader.output_vcf,
+                    original_vcf_index = UpdateHeader.output_vcf_index,
+                    output_basename = chunk_basename + "_imputed"
+            }
 
-                call tasks.RemoveSymbolicAlleles {
-                    input:
-                        original_vcf = SeparateMultiallelics.output_vcf,
-                        original_vcf_index = SeparateMultiallelics.output_vcf_index,
-                        output_basename = chunk_basename + "_imputed"
-                }
+            call tasks.RemoveSymbolicAlleles {
+                input:
+                    original_vcf = SeparateMultiallelics.output_vcf,
+                    original_vcf_index = SeparateMultiallelics.output_vcf_index,
+                    output_basename = chunk_basename + "_imputed"
+            }
 
-                call tasks.SetIDs {
-                    input:
-                        vcf = RemoveSymbolicAlleles.output_vcf,
-                        output_basename = chunk_basename + "_imputed"
-                }
+            call tasks.SetIDs {
+                input:
+                    vcf = RemoveSymbolicAlleles.output_vcf,
+                    output_basename = chunk_basename + "_imputed"
+            }
 
-                call tasks.ExtractIDs {
-                    input:
-                        vcf = SetIDs.output_vcf,
-                        output_basename = "imputed_sites"
-                }
+            call tasks.ExtractIDs {
+                input:
+                    vcf = SetIDs.output_vcf,
+                    output_basename = "imputed_sites"
             }
             call tasks.FindSitesUniqueToFileTwoOnly {
                 input:
@@ -206,29 +194,10 @@ workflow ImputationBeagle {
             basename = output_basename
     }
 
-    Int n_failed_chunks_int = read_int(StoreChunksInfo.n_failed_chunks)
-
-    if (n_failed_chunks_int >= chunks_fail_threshold) {
-        call utils.ErrorWithMessage as FailQCNChunks {
-            input:
-                message = n_failed_chunks_int + " chunks failed imputation, QC threshold was set to " + chunks_fail_threshold
-        }
-    }
-
-    if (split_output_to_single_sample) {
-        call tasks.SplitMultiSampleVcf {
-            input:
-                multiSampleVcf = GatherVcfs.output_vcf,
-                nSamples = CountSamples.nSamples
-        }
-    }
-
     output {
         File imputed_multi_sample_vcf = GatherVcfs.output_vcf
         File imputed_multi_sample_vcf_index = GatherVcfs.output_vcf_index
         File chunks_info = StoreChunksInfo.chunks_info
-        File failed_chunks = StoreChunksInfo.failed_chunks
-        Int n_failed_chunks = n_failed_chunks_int
     }
 
     meta {
