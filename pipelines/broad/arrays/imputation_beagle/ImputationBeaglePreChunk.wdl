@@ -102,49 +102,51 @@ workflow ImputationBeagle {
                 }
             }
 
-            call tasks.PhaseAndImputeBeagle {
-                input:
-                    dataset_vcf = PreChunkVcf.generate_chunk_vcfs[i],
-                    ref_panel_bref3 = referencePanelContig.bref3,
-                    chrom = referencePanelContig.contig,
-                    basename = chunk_basename,
-                    genetic_map_file = referencePanelContig.genetic_map,
-                    start = start,
-                    end = end
-            }
+            if (!CheckChunksBeagle.valid) {
+                call tasks.PhaseAndImputeBeagle {
+                    input:
+                        dataset_vcf = PreChunkVcf.generate_chunk_vcfs[i],
+                        ref_panel_bref3 = referencePanelContig.bref3,
+                        chrom = referencePanelContig.contig,
+                        basename = chunk_basename,
+                        genetic_map_file = referencePanelContig.genetic_map,
+                        start = start,
+                        end = end
+                }
 
-            call tasks.UpdateHeader {
-                input:
-                    vcf = PhaseAndImputeBeagle.vcf,
-                    vcf_index = PhaseAndImputeBeagle.vcf_index,
-                    ref_dict = ref_dict,
-                    basename = chunk_basename + "_imputed"
-            }
+                call tasks.UpdateHeader {
+                    input:
+                        vcf = PhaseAndImputeBeagle.vcf,
+                        vcf_index = PhaseAndImputeBeagle.vcf_index,
+                        ref_dict = ref_dict,
+                        basename = chunk_basename + "_imputed"
+                }
 
-            call tasks.SeparateMultiallelics {
-                input:
-                    original_vcf = UpdateHeader.output_vcf,
-                    original_vcf_index = UpdateHeader.output_vcf_index,
-                    output_basename = chunk_basename + "_imputed"
-            }
+                call tasks.SeparateMultiallelics {
+                    input:
+                        original_vcf = UpdateHeader.output_vcf,
+                        original_vcf_index = UpdateHeader.output_vcf_index,
+                        output_basename = chunk_basename + "_imputed"
+                }
 
-            call tasks.RemoveSymbolicAlleles {
-                input:
-                    original_vcf = SeparateMultiallelics.output_vcf,
-                    original_vcf_index = SeparateMultiallelics.output_vcf_index,
-                    output_basename = chunk_basename + "_imputed"
-            }
+                call tasks.RemoveSymbolicAlleles {
+                    input:
+                        original_vcf = SeparateMultiallelics.output_vcf,
+                        original_vcf_index = SeparateMultiallelics.output_vcf_index,
+                        output_basename = chunk_basename + "_imputed"
+                }
 
-            call tasks.SetIDs {
-                input:
-                    vcf = RemoveSymbolicAlleles.output_vcf,
-                    output_basename = chunk_basename + "_imputed"
-            }
+                call tasks.SetIDs {
+                    input:
+                        vcf = RemoveSymbolicAlleles.output_vcf,
+                        output_basename = chunk_basename + "_imputed"
+                }
 
-            call tasks.ExtractIDs {
-                input:
-                    vcf = SetIDs.output_vcf,
-                    output_basename = "imputed_sites"
+                call tasks.ExtractIDs {
+                    input:
+                        vcf = SetIDs.output_vcf,
+                        output_basename = "imputed_sites"
+                }
             }
             call tasks.FindSitesUniqueToFileTwoOnly {
                 input:
