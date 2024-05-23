@@ -7,7 +7,7 @@ slug: /Pipelines/Optimus_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v6.6.1](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | March, 2024 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [optimus_v6.6.2](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | May, 2024 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
 ![Optimus_diagram](Optimus_diagram.png)
@@ -95,7 +95,7 @@ The example configuration files also contain metadata for the reference files, d
 | annotations_gtf | GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | N/A |
 | tenx_chemistry_version | Integer that specifies if data was generated with 10x v2 or v3 chemistry. Optimus validates this chemistry by examining the UMIs and CBs in the first read 1 FASTQ file. If the chemistry does not match, the pipeline will fail. You can remove the check by setting "ignore_r1_read_length = true" in the input JSON. | 2 or 3 |
 | mt_genes | Optional file containing mitochondrial gene names for a specific species. This is used for calculating gene metrics. | N/A |
-| soloMultiMappers | Optional string describing whether or not the Optimus (GEX) pipeline should run STARsolo with the `--soloMultiMappers` flag. | N/A |
+| soloMultiMappers | Optional string describing whether or not the Optimus (GEX) pipeline should run STARsolo with the `--soloMultiMappers` flag; default is "Uniform". | N/A |
 | counting_mode | String describing whether data is single-cell or single-nucleus. Single-cell mode counts reads aligned to the gene transcript, whereas single-nucleus counts whole transcript to account for nuclear pre-mRNA. | "sc_rna" or "sn_rna" |
 | output_bam_basename | String used as a basename for output BAM file; the default is set to the string used for the `input_id` parameter. | N/A |
 | star_strand_mode | Optional string for running the workflow on forward stranded, reverse stranded, or unstranded data; default is "Forward". | "Forward" (default), "Reverse", and "Unstranded" |

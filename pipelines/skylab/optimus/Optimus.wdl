@@ -30,7 +30,7 @@ workflow Optimus {
     File tar_star_reference
     File annotations_gtf
     File? mt_genes
-    String? soloMultiMappers
+    String? soloMultiMappers = "Uniform"
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -65,7 +65,7 @@ workflow Optimus {
   # version of this pipeline
 
 
-  String pipeline_version = "6.6.1"
+  String pipeline_version = "7.1.0"
 
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
