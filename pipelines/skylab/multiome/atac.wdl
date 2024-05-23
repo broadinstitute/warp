@@ -30,6 +30,7 @@ workflow ATAC {
     Int num_threads_bwa = 128
     Int mem_size_bwa = 512
     String cpu_platform_bwa = "Intel Ice Lake"
+    String vm_size = "Standard_M128s"
 
     # GTF for SnapATAC2 to calculate TSS sites of fragment file
     File annotations_gtf
@@ -83,7 +84,8 @@ workflow ATAC {
     input:
        nthreads = num_threads_bwa, 
        mem_size = mem_size_bwa,
-       cpu_platform = cpu_platform_bwa
+       cpu_platform = cpu_platform_bwa,
+       vm_size = vm_size
   }
 
   call FastqProcessing.FastqProcessATAC as SplitFastq {
@@ -119,7 +121,8 @@ workflow ATAC {
         mem_size = mem_size_bwa,
         cpu_platform = cpu_platform_bwa,
         docker_path = docker_prefix + samtools_docker,
-        cloud_provider = cloud_provider
+        cloud_provider = cloud_provider,
+        vm_size = vm_size
   }
 
   if (preindex) {
@@ -168,12 +171,14 @@ task GetNumSplits {
     Int mem_size
     String cpu_platform 
     String docker_image = "ubuntu:latest"
+    String vm_size
   }
 
   parameter_meta {
     docker_image: "the ubuntu docker image (default: ubuntu:latest)"
     nthreads: "Number of threads per node (default: 128)"
     mem_size: "the size of memory used during alignment"
+    vm_size: "the virtual machine used for the task"
   }
 
   command <<<
@@ -238,7 +243,7 @@ task GetNumSplits {
     cpu: nthreads
     cpuPlatform: cpu_platform
     memory: "${mem_size} GiB"
-    vm_size: "Standard_M128s"
+    vm_size: vm_size
   }
 
   output {
@@ -329,7 +334,8 @@ task BWAPairedEndAlignment {
     Int disk_size = 2000
     Int nthreads
     Int mem_size
-    String cpu_platform 
+    String cpu_platform
+    String vm_size
   }
 
   parameter_meta {
@@ -344,6 +350,7 @@ task BWAPairedEndAlignment {
     output_base_name: "basename to be used for the output of the task"
     docker_path: "The docker image path containing the runtime environment for this task"
     cloud_provider: "The cloud provider for the pipeline."
+    vm_size: "the virtual machine used for the task"
   }
 
   String bam_aligned_output_name = output_base_name + ".bam"
@@ -473,7 +480,7 @@ task BWAPairedEndAlignment {
     cpu: nthreads
     cpuPlatform: cpu_platform
     memory: "${mem_size} GiB"
-    vm_size: "Standard_M128s"
+    vm_size: vm_size
   }
 
   output {

@@ -35,6 +35,8 @@ workflow Multiome {
         Array[File] atac_r1_fastq
         Array[File] atac_r2_fastq
         Array[File] atac_r3_fastq
+        # VM size used for several ATAC tasks
+        String vm_size
         # BWA tar reference
         File tar_bwa_reference
         # Chromosone sizes 
@@ -111,7 +113,8 @@ workflow Multiome {
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3
+            adapter_seq_read3 = adapter_seq_read3,
+            vm_size = vm_size
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
