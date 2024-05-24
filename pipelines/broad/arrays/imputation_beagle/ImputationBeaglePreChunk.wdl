@@ -102,7 +102,7 @@ workflow ImputationBeagle {
                 }
             }
 
-            if (!CheckChunksBeagle.valid) {
+            if (CheckChunksBeagle.valid) {
                 call tasks.PhaseAndImputeBeagle {
                     input:
                         dataset_vcf = PreChunkVcf.generate_chunk_vcfs[i],
