@@ -1,4 +1,4 @@
-version 1.1
+version 1.0
 
 ## Copyright Broad Institute, 2018
 ##
@@ -218,6 +218,10 @@ task ErrorWithMessage {
 
   runtime {
     docker: "ubuntu:20.04"
+  }
+
+  output {
+    String throw_away_output = "throw_away"
   }
 }
 

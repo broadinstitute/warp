@@ -1,4 +1,4 @@
-version 1.1
+version 1.0
 
 import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
 import "../../../../tasks/broad/Utilities.wdl" as utils
@@ -115,10 +115,11 @@ workflow ImputationBeagle {
             call tasks.ExtractIDs as ExtractIdsVcfToImpute {
                 input:
                     vcf = SetIdsVcfToImpute.output_vcf[i],
-                    output_basename = "imputed_sites"
+                    output_basename = "imputed_sites",
+                    for_dependency = FailQCNChunks.throw_away_output
             }
 
-            call tasks.PhaseAndImputeBeagle after FailQCNChunks {
+            call tasks.PhaseAndImputeBeagle {
                 input:
                     dataset_vcf = PreChunkVcf.generate_chunk_vcfs[i],
                     ref_panel_bref3 = referencePanelContig.bref3,

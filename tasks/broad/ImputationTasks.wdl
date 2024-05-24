@@ -1,4 +1,4 @@
-version 1.1
+version 1.0
 
 task CalculateChromosomeLength {
   input {
@@ -884,6 +884,7 @@ task ExtractIDs {
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
     Int cpu = 1
     Int memory_mb = 4000
+    String for_dependency = "doesnt matter"
   }
   command <<<
     bcftools query -f "%ID\n" ~{vcf} -o ~{output_basename}.ids.txt
