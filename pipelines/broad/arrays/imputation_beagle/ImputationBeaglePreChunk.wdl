@@ -90,7 +90,7 @@ workflow ImputationBeagle {
             }
         }
 
-        call tasks.StoreChunksInfo as ContigLevelChunksInfo {
+        call tasks.StoreChunksInfo2 {
             input:
                 chroms = chunk_contig,
                 starts = start,
@@ -101,7 +101,7 @@ workflow ImputationBeagle {
                 basename = output_basename
         }
 
-        Int n_failed_chunks_int = read_int(ContigLevelChunksInfo.n_failed_chunks)
+        Int n_failed_chunks_int = read_int(StoreChunksInfo2.n_failed_chunks)
 
         if (n_failed_chunks_int > 0) {
             call utils.ErrorWithMessage as FailQCNChunks {
@@ -117,7 +117,7 @@ workflow ImputationBeagle {
             Int start = PreChunkVcf.starts[i]
             Int end = PreChunkVcf.ends[i]
 
-            call tasks.ExtractIDs as ExtractIdsVcfToImpute {
+            call tasks.ExtractIDs as ExtractIdsVcfToImpute  {
                 input:
                     vcf = SetIdsVcfToImpute.output_vcf[i],
                     output_basename = "imputed_sites",

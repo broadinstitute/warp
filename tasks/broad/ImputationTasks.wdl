@@ -760,6 +760,48 @@ task StoreChunksInfo {
   }
 }
 
+task StoreChunksInfo2 {
+  input {
+    Array[String] chroms
+    Array[Int] starts
+    Array[Int] ends
+    Array[Int] vars_in_array
+    Array[Int] vars_in_panel
+    Array[Boolean] valids
+    String basename
+
+    String rtidyverse_docker = "rocker/tidyverse:4.1.0"
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 10
+  }
+  command <<<
+    Rscript -<< "EOF"
+    library(dplyr)
+    library(readr)
+
+    chunk_info <- tibble(chrom = c("~{sep='", "' chroms}"), start = c("~{sep='", "' starts}"), ends = c("~{sep='", "' ends}"), vars_in_array = c("~{sep='", "' vars_in_array}"), vars_in_panel = c("~{sep='", "' vars_in_panel}"), chunk_was_imputed = as.logical(c("~{sep='", "' valids}")))
+    failed_chunks <- chunk_info %>% filter(!chunk_was_imputed) %>% select(-chunk_was_imputed)
+    n_failed_chunks <- nrow(failed_chunks)
+    write_tsv(chunk_info, "~{basename}_chunk_info.tsv")
+    write_tsv(failed_chunks, "~{basename}_failed_chunks.tsv")
+    write(n_failed_chunks, "n_failed_chunks.txt")
+    EOF
+  >>>
+  runtime {
+    docker: rtidyverse_docker
+    disks : "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible : 3
+  }
+  output {
+    File chunks_info = "~{basename}_chunk_info.tsv"
+    File failed_chunks = "~{basename}_failed_chunks.tsv"
+    File n_failed_chunks = "n_failed_chunks.txt"
+  }
+}
+
 task MergeImputationQCMetrics {
   input {
     Array[File] metrics
