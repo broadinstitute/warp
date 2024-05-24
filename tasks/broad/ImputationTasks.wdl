@@ -760,48 +760,6 @@ task StoreChunksInfo {
   }
 }
 
-task StoreChunksInfo2 {
-  input {
-    Array[String] chroms
-    Array[Int] starts
-    Array[Int] ends
-    Array[Int] vars_in_array
-    Array[Int] vars_in_panel
-    Array[Boolean] valids
-    String basename
-
-    String rtidyverse_docker = "rocker/tidyverse:4.1.0"
-    Int cpu = 1
-    Int memory_mb = 2000
-    Int disk_size_gb = 10
-  }
-  command <<<
-    Rscript -<< "EOF"
-    library(dplyr)
-    library(readr)
-
-    chunk_info <- tibble(chrom = c("~{sep='", "' chroms}"), start = c("~{sep='", "' starts}"), ends = c("~{sep='", "' ends}"), vars_in_array = c("~{sep='", "' vars_in_array}"), vars_in_panel = c("~{sep='", "' vars_in_panel}"), chunk_was_imputed = as.logical(c("~{sep='", "' valids}")))
-    failed_chunks <- chunk_info %>% filter(!chunk_was_imputed) %>% select(-chunk_was_imputed)
-    n_failed_chunks <- nrow(failed_chunks)
-    write_tsv(chunk_info, "~{basename}_chunk_info.tsv")
-    write_tsv(failed_chunks, "~{basename}_failed_chunks.tsv")
-    write(n_failed_chunks, "n_failed_chunks.txt")
-    EOF
-  >>>
-  runtime {
-    docker: rtidyverse_docker
-    disks : "local-disk ${disk_size_gb} HDD"
-    memory: "${memory_mb} MiB"
-    cpu: cpu
-    preemptible : 3
-  }
-  output {
-    File chunks_info = "~{basename}_chunk_info.tsv"
-    File failed_chunks = "~{basename}_failed_chunks.tsv"
-    File n_failed_chunks = "n_failed_chunks.txt"
-  }
-}
-
 task MergeImputationQCMetrics {
   input {
     Array[File] metrics
@@ -917,59 +875,7 @@ task SetIDs {
   }
 }
 
-task SetIDs2 {
-  input {
-    File vcf
-    String output_basename
-
-    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
-    Int cpu = 1
-    Int memory_mb = 4000
-    Int disk_size_gb = 100 + ceil(2.2 * size(vcf, "GiB"))
-  }
-  command <<<
-    set -e -o pipefail
-    bcftools annotate ~{vcf} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Oz -o ~{output_basename}.vcf.gz
-    bcftools index -t ~{output_basename}.vcf.gz
-  >>>
-  runtime {
-    docker: bcftools_docker
-    disks: "local-disk ${disk_size_gb} HDD"
-    memory: "${memory_mb} MiB"
-    cpu: cpu
-  }
-  output {
-    File output_vcf = "~{output_basename}.vcf.gz"
-    File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
-  }
-}
-
 task ExtractIDs {
-  input {
-    File vcf
-    String output_basename
-
-    Int disk_size_gb = 2*ceil(size(vcf, "GiB")) + 100
-    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
-    Int cpu = 1
-    Int memory_mb = 4000
-    String for_dependency = "doesnt matter"
-  }
-  command <<<
-    bcftools query -f "%ID\n" ~{vcf} -o ~{output_basename}.ids.txt
-  >>>
-  output {
-    File ids = "~{output_basename}.ids.txt"
-  }
-  runtime {
-    docker: bcftools_docker
-    disks: "local-disk ${disk_size_gb} HDD"
-    memory: "${memory_mb} MiB"
-    cpu: cpu
-  }
-}
-
-task ExtractIDs2 {
   input {
     File vcf
     String output_basename

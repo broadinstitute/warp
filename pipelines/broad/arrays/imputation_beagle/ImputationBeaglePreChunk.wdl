@@ -83,14 +83,14 @@ workflow ImputationBeagle {
                     var_also_in_reference = CountVariantsInChunksBeagle.var_also_in_reference
             }
 
-            call tasks.SetIDs2 as SetIdsVcfToImpute {
+            call tasks.SetIDs as SetIdsVcfToImpute {
                 input:
                     vcf = PreChunkVcf.subset_vcfs[i],
                     output_basename = "input_samples_with_variant_ids"
             }
         }
 
-        call tasks.StoreChunksInfo2 {
+        call tasks.StoreChunksInfo as StoreContigLevelChunksInfo {
             input:
                 chroms = chunk_contig,
                 starts = start,
@@ -101,7 +101,7 @@ workflow ImputationBeagle {
                 basename = output_basename
         }
 
-        Int n_failed_chunks_int = read_int(StoreChunksInfo2.n_failed_chunks)
+        Int n_failed_chunks_int = read_int(StoreContigLevelChunksInfo.n_failed_chunks)
 
         if (n_failed_chunks_int > 0) {
             call utils.ErrorWithMessage as FailQCNChunks {
@@ -111,13 +111,13 @@ workflow ImputationBeagle {
         }
 
         scatter (i in range(length(PreChunkVcf.generate_chunk_vcfs))) {
-            String chunk_contig_2 = referencePanelContig.contig
+
             String chunk_basename_2 = referencePanelContig.contig + "_chunk_" + i
 
             Int start2 = PreChunkVcf.starts[i]
             Int end2 = PreChunkVcf.ends[i]
 
-            call tasks.ExtractIDs2 as ExtractIdsVcfToImpute  {
+            call tasks.ExtractIDs as ExtractIdsVcfToImpute  {
                 input:
                     vcf = SetIdsVcfToImpute.output_vcf[i],
                     output_basename = "imputed_sites",
