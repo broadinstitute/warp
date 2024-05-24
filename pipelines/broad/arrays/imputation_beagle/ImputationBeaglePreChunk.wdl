@@ -5,8 +5,6 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow ImputationBeagle {
 
-    String pipeline_version = "0.0.1"
-
     input {
         Int chunkLength = 25000000
         Int chunkOverlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
@@ -170,7 +168,7 @@ workflow ImputationBeagle {
 
             call tasks.FindSitesUniqueToFileTwoOnly {
                 input:
-                    file1 = select_first([ExtractIDs.ids, write_lines([])]),
+                    file1 = ExtractIDs.ids,
                     file2 = ExtractIdsVcfToImpute.ids
             }
 
@@ -190,12 +188,12 @@ workflow ImputationBeagle {
 
             call tasks.InterleaveVariants {
                 input:
-                    vcfs = select_all([RemoveAnnotations.output_vcf, SetIDs.output_vcf]),
+                    vcfs = [RemoveAnnotations.output_vcf, SetIDs.output_vcf],
                     basename = output_basename
             }
         }
 
-        Array[File] chromosome_vcfs = select_all(InterleaveVariants.output_vcf)
+        Array[File] chromosome_vcfs = InterleaveVariants.output_vcf
     }
 
     call tasks.GatherVcfs {
