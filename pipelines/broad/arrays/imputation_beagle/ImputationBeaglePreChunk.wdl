@@ -92,12 +92,12 @@ workflow ImputationBeagle {
 
         call tasks.StoreChunksInfo as ContigLevelChunksInfo {
             input:
-                chroms = flatten(chunk_contig),
-                starts = flatten(start),
-                ends = flatten(end),
-                vars_in_array = flatten(CountVariantsInChunksBeagle.var_in_original),
-                vars_in_panel = flatten(CountVariantsInChunksBeagle.var_also_in_reference),
-                valids = flatten(CheckChunksBeagle.valid),
+                chroms = chunk_contig,
+                starts = start,
+                ends = end,
+                vars_in_array = CountVariantsInChunksBeagle.var_in_original,
+                vars_in_panel = CountVariantsInChunksBeagle.var_also_in_reference,
+                valids = CheckChunksBeagle.valid,
                 basename = output_basename
         }
 
