@@ -83,7 +83,7 @@ workflow ImputationBeagle {
                     var_also_in_reference = CountVariantsInChunksBeagle.var_also_in_reference
             }
 
-            call tasks.SetIDs as SetIdsVcfToImpute {
+            call tasks.SetIDs2 as SetIdsVcfToImpute {
                 input:
                     vcf = PreChunkVcf.subset_vcfs[i],
                     output_basename = "input_samples_with_variant_ids"
@@ -117,7 +117,7 @@ workflow ImputationBeagle {
             Int start = PreChunkVcf.starts[i]
             Int end = PreChunkVcf.ends[i]
 
-            call tasks.ExtractIDs as ExtractIdsVcfToImpute  {
+            call tasks.ExtractIDs2 as ExtractIdsVcfToImpute  {
                 input:
                     vcf = SetIdsVcfToImpute.output_vcf[i],
                     output_basename = "imputed_sites",
