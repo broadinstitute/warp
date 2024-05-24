@@ -118,7 +118,7 @@ workflow ImputationBeagle {
                 input:
                     vcf = SetIdsVcfToImpute.output_vcf[i],
                     output_basename = "imputed_sites",
-                    for_dependency = FailQCNChunks.throw_away_output
+                    for_dependency = FailQCNChunks.done
             }
 
             call tasks.PhaseAndImputeBeagle {

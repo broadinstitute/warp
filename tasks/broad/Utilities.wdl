@@ -221,7 +221,7 @@ task ErrorWithMessage {
   }
 
   output {
-    String throw_away_output = "throw_away"
+    Boolean done = true
   }
 }
 
