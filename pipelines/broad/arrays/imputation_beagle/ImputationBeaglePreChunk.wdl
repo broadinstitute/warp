@@ -111,6 +111,11 @@ workflow ImputationBeagle {
         }
 
         scatter (i in range(length(PreChunkVcf.generate_chunk_vcfs))) {
+            String chunk_contig_2 = referencePanelContig.contig
+            String chunk_basename_2 = referencePanelContig.contig + "_chunk_" + i
+
+            Int start = PreChunkVcf.starts[i]
+            Int end = PreChunkVcf.ends[i]
 
             call tasks.ExtractIDs as ExtractIdsVcfToImpute {
                 input:
@@ -124,7 +129,7 @@ workflow ImputationBeagle {
                     dataset_vcf = PreChunkVcf.generate_chunk_vcfs[i],
                     ref_panel_bref3 = referencePanelContig.bref3,
                     chrom = referencePanelContig.contig,
-                    basename = chunk_basename,
+                    basename = chunk_basename_2,
                     genetic_map_file = referencePanelContig.genetic_map,
                     start = start,
                     end = end
@@ -135,27 +140,27 @@ workflow ImputationBeagle {
                     vcf = PhaseAndImputeBeagle.vcf,
                     vcf_index = PhaseAndImputeBeagle.vcf_index,
                     ref_dict = ref_dict,
-                    basename = chunk_basename + "_imputed"
+                    basename = chunk_basename_2 + "_imputed"
             }
 
             call tasks.SeparateMultiallelics {
                 input:
                     original_vcf = UpdateHeader.output_vcf,
                     original_vcf_index = UpdateHeader.output_vcf_index,
-                    output_basename = chunk_basename + "_imputed"
+                    output_basename = chunk_basename_2 + "_imputed"
             }
 
             call tasks.RemoveSymbolicAlleles {
                 input:
                     original_vcf = SeparateMultiallelics.output_vcf,
                     original_vcf_index = SeparateMultiallelics.output_vcf_index,
-                    output_basename = chunk_basename + "_imputed"
+                    output_basename = chunk_basename_2 + "_imputed"
             }
 
             call tasks.SetIDs {
                 input:
                     vcf = RemoveSymbolicAlleles.output_vcf,
-                    output_basename = chunk_basename + "_imputed"
+                    output_basename = chunk_basename_2 + "_imputed"
             }
 
             call tasks.ExtractIDs {
