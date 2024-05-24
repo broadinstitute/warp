@@ -114,8 +114,8 @@ workflow ImputationBeagle {
             String chunk_contig_2 = referencePanelContig.contig
             String chunk_basename_2 = referencePanelContig.contig + "_chunk_" + i
 
-            Int start = PreChunkVcf.starts[i]
-            Int end = PreChunkVcf.ends[i]
+            Int start2 = PreChunkVcf.starts[i]
+            Int end2 = PreChunkVcf.ends[i]
 
             call tasks.ExtractIDs2 as ExtractIdsVcfToImpute  {
                 input:
@@ -131,8 +131,8 @@ workflow ImputationBeagle {
                     chrom = referencePanelContig.contig,
                     basename = chunk_basename_2,
                     genetic_map_file = referencePanelContig.genetic_map,
-                    start = start,
-                    end = end
+                    start = start2,
+                    end = end2
             }
 
             call tasks.UpdateHeader {
