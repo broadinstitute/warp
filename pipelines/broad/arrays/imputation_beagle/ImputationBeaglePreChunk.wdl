@@ -88,18 +88,34 @@ workflow ImputationBeagle {
                     vcf = PreChunkVcf.subset_vcfs[i],
                     output_basename = "input_samples_with_variant_ids"
             }
+        }
+
+        call tasks.StoreChunksInfo as ContigLevelChunksInfo {
+            input:
+                chroms = flatten(chunk_contig),
+                starts = flatten(start),
+                ends = flatten(end),
+                vars_in_array = flatten(CountVariantsInChunksBeagle.var_in_original),
+                vars_in_panel = flatten(CountVariantsInChunksBeagle.var_also_in_reference),
+                valids = flatten(CheckChunksBeagle.valid),
+                basename = output_basename
+        }
+
+        Int n_failed_chunks_int = read_int(ContigLevelChunksInfo.n_failed_chunks)
+
+        if (n_failed_chunks_int > 0) {
+            call utils.ErrorWithMessage as FailQCNChunks {
+                input:
+                    message = n_failed_chunks_int + " chunks failed imputation, failing workflow"
+            }
+        }
+
+        scatter (i in range(length(PreChunkVcf.generate_chunk_vcfs))) {
 
             call tasks.ExtractIDs as ExtractIdsVcfToImpute {
                 input:
-                    vcf = SetIdsVcfToImpute.output_vcf,
+                    vcf = SetIdsVcfToImpute.output_vcf[i],
                     output_basename = "imputed_sites"
-            }
-
-            if (!CheckChunksBeagle.valid) {
-                call utils.ErrorWithMessage as FailedChunk {
-                    input:
-                        message = chunk_basename + " was not a valid chunk"
-                }
             }
 
             if (CheckChunksBeagle.valid) {
