@@ -118,7 +118,7 @@ workflow ImputationBeagle {
                 input:
                     vcf = SetIdsVcfToImpute.output_vcf[i],
                     output_basename = "imputed_sites",
-                    for_dependency = FailQCNChunks.done
+                    for_dependency = FailQCNChunks.done # these shenanigans can be replaced with `after` in wdl 1.1
             }
 
             call tasks.PhaseAndImputeBeagle {
