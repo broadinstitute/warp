@@ -312,10 +312,6 @@ task Hisat_paired_end {
         elapsed=$((end - start))
         echo "Elapsed time to untar: $elapsed seconds"
 
-        echo "lsing cromwell root dir"
-        ls -lR ~{cromwell_root_dir}
-
-        # define lists of r1 and r2 fq files
         if [ ~{cloud_provider} = "gcp" ]; then
             batch_dir="~{cromwell_root_dir}~{cromwell_root_dir}/batch*/"
         else
@@ -426,7 +422,6 @@ task Hisat_paired_end {
       for file in "${R1_files[@]}"; do
         (
           echo "starting task $file.."
-          du -h  $batch_dir/$file
           task "$file"
           sleep $(( (RANDOM % 3) + 1))
         ) &
@@ -568,10 +563,6 @@ task Hisat_single_end {
         R1_files=($(ls | grep "\.hisat3n_dna.split_reads.R1.fastq"))
         R2_files=($(ls | grep "\.hisat3n_dna.split_reads.R2.fastq"))
 
-        echo "Found R1 files: $R1_files"
-        echo "Found R2 files: $R2_files"
-
-
         task() {
           BASE=$(basename "$file" ".hisat3n_dna.split_reads.R1.fastq")
           echo $BASE
@@ -650,18 +641,13 @@ task Hisat_single_end {
          elapsed=$((end - start))
          echo "Elapsed time to run samtools -q 10 $elapsed seconds"
 
-         # remove_overlap_read_parts
-         echo "recusively ls cromwell root"
-         ls -lR ~{cromwell_root_dir}
-
          if [ ~{cloud_provider} = "gcp" ]; then
             bam_path_prefix="~{cromwell_root_dir}"
          else
             bam_path_prefix=$WORKING_DIR
          fi
 
-         echo "bam_path_prefix $bam_path_prefix"
-
+         # remove_overlap_read_parts
          echo "call remove_overlap_read_parts"
          start=$(date +%s)
          python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path="'"$BASE"'.name_sorted.filtered.bam",out_bam_path="'"$BASE"'.hisat3n_dna.split_reads.read_overlap.bam")'
@@ -869,16 +855,11 @@ task Merge_sort_analyze {
         elapsed=$((end - start))
         echo "Elapsed time to chromatin contacts $elapsed seconds"
 
-        echo "recursively ls cromwell root"
-        ls -lR ~{cromwell_root_dir}
-
         if [ ~{cloud_provider} = "gcp" ]; then
             reference_fasta="~{cromwell_root_dir}/reference/~{genome_base}"
           else
             reference_fasta="$WORKING_DIR/reference/~{genome_base}"
         fi
-
-        echo "reference fast location: $reference_fasta"
 
         start=$(date +%s)
         echo "Call allcools bam-to-allc from deduped.bams"
@@ -1018,11 +999,6 @@ task Summary {
     command <<<
         set -euo pipefail
 
-        echo "recursively lsing cromwell root in summary task"
-        ls -lR ~{cromwell_root_dir}
-        echo "lsing current dir"
-        ls -lrt
-
         WORKING_DIR=`pwd`
 
         if [ ~{cloud_provider} = "gcp" ]; then
@@ -1034,10 +1010,6 @@ task Summary {
             matrix_files_dir="$WORKING_DIR~{cromwell_root_dir}/output_bams"
             allc_index_dir="$WORKING_DIR~{cromwell_root_dir}/allc-*"
         fi
-        echo "matrix files dir: $matrix_files_dir"
-        echo "allc_index_dir: $allc_index_dir"
-        echo "base directory is: $base_directory"
-
 
         mkdir $base_directory/fastq
         mkdir $base_directory/bam
@@ -1051,9 +1023,7 @@ task Summary {
                     return
             fi
             for tar in "${@}"; do
-                echo "unstarring this file now: $tar"
                 tar -xvf "$tar"
-                echo "removing this tar file now: $tar"
                 rm "$tar"
             done
         }
@@ -1067,12 +1037,6 @@ task Summary {
         extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
 
-        echo "lsing cromwell root again"
-        ls -lRt ~{cromwell_root_dir}
-
-        echo "lsing current directory again"
-        ls -lRt
-
         mv *.trimmed.stats.txt $base_directory/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt $base_directory/bam
         mv $matrix_files_dir/*.hisat3n_dna.all_reads.deduped.matrix.txt $base_directory/bam
@@ -1080,34 +1044,7 @@ task Summary {
         mv *.allc.tsv.gz.count.csv $base_directory/allc
         mv $allc_index_dir/*.allc.tsv.gz.tbi $base_directory/allc
 
-        cwd=`pwd`
-        echo "current working dir is: $cwd"
-
-
-        python3 <<CODE
-        from cemba_data.hisat3n import *
-        import os
-        working_dir = os.getcwd()
-        print(f"Current working direcetory is: {working_dir}")
-
-        print("Calling summary function")
-        snm3c_summary()
-
-        print("Called summary function")
-
-        working_dir = os.getcwd()
-        print(f"Current working direcetory is: {working_dir}")
-        print("These are the files located here:")
-        files = os.listdir()
-        print(files)
-
-        CODE
-
-        cwd=`pwd`
-        echo "current working dir is: $cwd"
-        echo "recursively lsing cromwell root"
-        ls -lRt ~{cromwell_root_dir}
-
+        python3 -c 'from cemba_data.hisat3n import *;snm3c_summary()'
         mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
 
     >>>
