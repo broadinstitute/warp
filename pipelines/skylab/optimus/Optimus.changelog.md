@@ -1,4 +1,9 @@
-# 6.6.2
+# 7.1.0
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this does not impact the Optimus workflow
+
+# 7.0.0
 2024-04-24 (Date of Last Commit)
 
 * Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering

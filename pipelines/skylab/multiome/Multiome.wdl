@@ -7,7 +7,7 @@ import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/c
 
 workflow Multiome {
 
-    String pipeline_version = "3.4.4"
+    String pipeline_version = "5.0.0"
 
     input {
         String input_id
@@ -47,7 +47,6 @@ workflow Multiome {
 
         # CellBender
         Boolean run_cellbender = false
-
     }
 
     # Call the Optimus workflow
@@ -80,10 +79,10 @@ workflow Multiome {
             read3_fastq_gzipped = atac_r3_fastq,
             input_id = input_id + "_atac",
             tar_bwa_reference = tar_bwa_reference,
-            annotations_gtf = annotations_gtf,
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
+            annotations_gtf = annotations_gtf,
             adapter_seq_read3 = adapter_seq_read3
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {

@@ -227,11 +227,13 @@ task ParseBarcodes {
     # import anndata to manipulate h5ad files
     import anndata as ad
     import pandas as pd
+    import snapatac2 as snap    
     print("Reading ATAC h5ad:")
     atac_data = ad.read_h5ad("~{atac_h5ad}")
     print("Reading ATAC fragment file:")
     test_fragment = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
-      
+
+
     # Separate out CB and preindex in the h5ad and identify sample barcodes assigned to more than one cell barcode
     print("Setting preindex and CB columns in h5ad")
     df_h5ad = atac_data.obs
@@ -271,7 +273,7 @@ task ParseBarcodes {
   >>>
 
   runtime {
-      docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
+      docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.9-2.6.3-1715865353"
       disks: "local-disk ~{disk} HDD"
       memory: "${machine_mem_mb} MiB"
       cpu: nthreads
