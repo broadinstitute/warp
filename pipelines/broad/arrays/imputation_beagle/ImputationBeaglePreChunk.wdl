@@ -119,7 +119,7 @@ workflow ImputationBeagle {
                 input:
                     vcf = SetIdsVcfToImpute.output_vcf[i],
                     output_basename = "imputed_sites",
-                    for_dependency = FailQCNChunks.done # these shenanigans can be replaced with `after` in wdl 1.1
+                    for_dependency = select_first([FailQCNChunks.done, true]) # these shenanigans can be replaced with `after` in wdl 1.1
             }
 
             call tasks.PhaseAndImputeBeagle {
@@ -164,7 +164,8 @@ workflow ImputationBeagle {
             call tasks.ExtractIDs {
                 input:
                     vcf = SetIDs.output_vcf,
-                    output_basename = "imputed_sites"
+                    output_basename = "imputed_sites",
+                    for_dependency = true
             }
 
             call tasks.FindSitesUniqueToFileTwoOnly {
