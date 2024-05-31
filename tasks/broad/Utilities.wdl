@@ -219,10 +219,6 @@ task ErrorWithMessage {
   runtime {
     docker: "ubuntu:20.04"
   }
-
-  output {
-    Boolean done = true
-  }
 }
 
 # This task is unused for now, going to keep it in here though if we need it in the future

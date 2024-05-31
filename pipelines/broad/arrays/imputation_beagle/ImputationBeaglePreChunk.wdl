@@ -101,11 +101,10 @@ workflow ImputationBeagle {
         # if any chunk for any chromosome fail CheckChunks, then we will not impute run any task in the next scatter,
         # namely phasing and imputing which would be the most costly to throw away
         Int n_failed_chunks_int = read_int(StoreContigLevelChunksInfo.n_failed_chunks)
-        if (n_failed_chunks_int > 0) {
-            call utils.ErrorWithMessage as FailQCNChunks {
-                input:
-                    message = n_failed_chunks_int + " chunks failed imputation, failing workflow"
-            }
+        call tasks.ErrorWithMessageIfErrorCountNotZero as FailQCNChunks {
+            input:
+                errorCount = n_failed_chunks_int,
+                message = "contig " + referencePanelContig.contig + " had " + n_failed_chunks_int + " failing chunks"
         }
 
         scatter (i in range(length(PreChunkVcf.generate_chunk_vcfs))) {
@@ -119,7 +118,7 @@ workflow ImputationBeagle {
                 input:
                     vcf = SetIdsVcfToImpute.output_vcf[i],
                     output_basename = "imputed_sites",
-                    for_dependency = select_first([FailQCNChunks.done, true]) # these shenanigans can be replaced with `after` in wdl 1.1
+                    for_dependency = FailQCNChunks.done # these shenanigans can be replaced with `after` in wdl 1.1
             }
 
             call tasks.PhaseAndImputeBeagle {
