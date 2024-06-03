@@ -391,7 +391,7 @@ task PhaseAndImputeBeagle {
     nthreads=~{cpu} \
     seed=-99999
 
-    # notes: 
+    # notes:
     # rename output file to "phased_{basename}" if phasing without imputing
     # `chrom` not needed if ref and targ files have been chunked and you are using the entire chunk
     # set impute=false if you wish to phase without imputing ungenotyped markers
@@ -884,6 +884,7 @@ task ExtractIDs {
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
     Int cpu = 1
     Int memory_mb = 4000
+    Boolean for_dependency = true
   }
   command <<<
     bcftools query -f "%ID\n" ~{vcf} -o ~{output_basename}.ids.txt
@@ -1213,5 +1214,27 @@ task PreChunkVcf {
     Array[File] subset_vcfs = glob("subset_vcf/*.vcf.gz")
     Array[String] starts = read_lines("start.txt")
     Array[String] ends = read_lines("end.txt")
+  }
+}
+
+task ErrorWithMessageIfErrorCountNotZero {
+  input {
+    Int errorCount
+    String message
+  }
+  command <<<
+    if [[ ~{errorCount} -gt 0 ]]; then
+      >&2 echo "Error: ~{message}"
+      exit 1
+    else
+      exit 0
+    fi
+  >>>
+
+  runtime {
+    docker: "ubuntu:20.04"
+  }
+  output {
+    Boolean done = true
   }
 }
