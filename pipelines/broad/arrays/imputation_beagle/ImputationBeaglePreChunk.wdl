@@ -5,6 +5,8 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow ImputationBeagle {
 
+    String pipeline_version = "0.0.1"
+
     input {
         Int chunkLength = 25000000
         Int chunkOverlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
@@ -70,7 +72,7 @@ workflow ImputationBeagle {
             call tasks.CountVariantsInChunksBeagle {
                 input:
                     vcf = PreChunkVcf.generate_chunk_vcfs[i],
-                    vcf_index =PreChunkVcf.generate_chunk_vcf_indices[i],
+                    vcf_index = PreChunkVcf.generate_chunk_vcf_indices[i],
                     panel_interval_list = referencePanelContig.interval_list
             }
 
