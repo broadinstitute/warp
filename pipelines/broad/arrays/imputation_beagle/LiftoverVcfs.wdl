@@ -57,6 +57,7 @@ task LiftOverArrays {
     Int max_retries
     Int preemptible_tries
     Int min_disk_size
+    Int mem_gb = 64
   }
 
   Int disk_size_from_file = (ceil(size(input_vcf, "GiB") + size(liftover_chain, "GiB") + size(reference_fasta, "GiB")) * 2) + 20
@@ -84,7 +85,7 @@ task LiftOverArrays {
 
   runtime {
     docker: docker
-    memory: "16 GiB"
+    memory: "~{mem_gb} GiB"
     cpu: "1"
     disks: "local-disk ~{disk_size} HDD"
     maxRetries: max_retries
