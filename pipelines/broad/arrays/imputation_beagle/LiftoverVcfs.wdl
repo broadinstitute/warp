@@ -59,6 +59,8 @@ task LiftOverArrays {
     Int min_disk_size
     Int mem_gb = 64
   }
+  Int command_mem_gb = mem_gb - 2
+  Int max_heap_gb = mem_gb - 1
 
   Int disk_size_from_file = (ceil(size(input_vcf, "GiB") + size(liftover_chain, "GiB") + size(reference_fasta, "GiB")) * 2) + 20
   Int disk_size = if ( disk_size_from_file > min_disk_size ) then disk_size_from_file else min_disk_size
@@ -67,7 +69,7 @@ task LiftOverArrays {
   command <<<
     set -euo pipefail
 
-    gatk --java-options "-Xms4g -Xmx15g" \
+    gatk --java-options "-Xms~{command_mem_gb}g -Xmx~{max_heap_gb}g" \
     LiftoverVcf \
     --INPUT ~{input_vcf} \
     --OUTPUT ~{output_basename}.liftedover.vcf \
