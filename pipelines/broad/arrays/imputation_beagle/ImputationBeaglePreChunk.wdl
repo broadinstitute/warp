@@ -24,6 +24,8 @@ workflow ImputationBeagle {
         String bref3_suffix = ".bref3"
 
         String gatk_docker = "broadinstitute/gatk-nightly:2024-06-06-4.5.0.0-36-g2a420e483-NIGHTLY-SNAPSHOT"
+
+        Int? error_count_override
     }
 
     call tasks.CountSamples {
@@ -107,7 +109,7 @@ workflow ImputationBeagle {
 
         # if any chunk for any chromosome fail CheckChunks, then we will not impute run any task in the next scatter,
         # namely phasing and imputing which would be the most costly to throw away
-        Int n_failed_chunks_int = read_int(StoreContigLevelChunksInfo.n_failed_chunks)
+        Int n_failed_chunks_int = select_first([error_count_override, read_int(StoreContigLevelChunksInfo.n_failed_chunks)])
         call tasks.ErrorWithMessageIfErrorCountNotZero as FailQCNChunks {
             input:
                 errorCount = n_failed_chunks_int,
