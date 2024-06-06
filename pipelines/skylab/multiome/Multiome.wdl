@@ -73,6 +73,14 @@ workflow Multiome {
         }
     }
 
+    # if run_cellbender is true and cloud_provider is not gcp, raise an error
+    if ((run_cellbender) && (cloud_provider != "gcp")) {
+        call utils.ErrorWithMessage as ErrorMessageCellBenderNotSupported {
+            input:
+                message = "CellBender is only supported on GCP."
+        }
+    }
+
     # Call the Optimus workflow
     call optimus.Optimus as Optimus {
         input:
