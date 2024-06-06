@@ -230,11 +230,13 @@ task ParseBarcodes {
     # import anndata to manipulate h5ad files
     import anndata as ad
     import pandas as pd
+    import snapatac2 as snap
     print("Reading ATAC h5ad:")
     atac_data = ad.read_h5ad("~{atac_h5ad}")
     print("Reading ATAC fragment file:")
     test_fragment = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
-      
+
+
     # Separate out CB and preindex in the h5ad and identify sample barcodes assigned to more than one cell barcode
     print("Setting preindex and CB columns in h5ad")
     df_h5ad = atac_data.obs

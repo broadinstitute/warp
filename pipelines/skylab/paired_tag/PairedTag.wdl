@@ -2,11 +2,12 @@ version 1.0
 
 import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
-    String pipeline_version = "0.6.1"
+    String pipeline_version = "0.7.0"
 
     input {
         String input_id
@@ -27,6 +28,7 @@ workflow PairedTag {
         Boolean count_exons = false
         File gex_whitelist = if cloud_provider == "gcp" then "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt" else "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_gex.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
 
+        String? soloMultiMappers = "Uniform"
         # ATAC inputs
         # Array of input fastq files
         Array[File] atac_r1_fastq
@@ -87,6 +89,7 @@ workflow PairedTag {
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
             cloud_provider = cloud_provider,
+            soloMultiMappers = soloMultiMappers
     }
 
     scatter (idx in range(length(atac_r1_fastq))) {
@@ -97,8 +100,7 @@ workflow PairedTag {
               barcodes_fastq = atac_r2_fastq[idx],
               input_id = input_id,
               whitelist = atac_whitelist,
-              preindex = preindex,
-              docker_path = docker_prefix + upstools_docker
+              preindex = preindex
         }
     }
 
@@ -110,13 +112,13 @@ workflow PairedTag {
             read3_fastq_gzipped = demultiplex.fastq3,
             input_id = input_id + "_atac",
             tar_bwa_reference = tar_bwa_reference,
-            annotations_gtf = annotations_gtf,
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
             adapter_seq_read3 = adapter_seq_read3,
+            annotations_gtf = annotations_gtf,
             preindex = preindex,
-            cloud_provider = cloud_provider,
+            cloud_provider = cloud_provider
     }
 
     if (preindex) {
@@ -154,5 +156,9 @@ workflow PairedTag {
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = Optimus.h5ad_output_file
         File? library_metrics = Optimus.library_metrics
+        Array[File?] multimappers_EM_matrix = Optimus.multimappers_EM_matrix
+        Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
+        Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
+        Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
     }
 }

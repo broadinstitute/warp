@@ -31,10 +31,10 @@ workflow ATAC {
     Int mem_size_bwa = 512
     String cpu_platform_bwa = "Intel Ice Lake"
 
-    # GTF for SnapATAC2 to calculate TSS sites of fragment file
-    File annotations_gtf
     # Text file containing chrom_sizes for genome build (i.e. hg38)
     File chrom_sizes
+    #File for annotations for calculating ATAC TSSE
+    File annotations_gtf
     # Whitelist
     File whitelist
 
@@ -43,7 +43,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "1.2.3"
+  String pipeline_version = "2.0.0"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -55,7 +55,7 @@ workflow ATAC {
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
-  String snap_atac_docker = "snapatac2:1.0.5-2.3.2-1709230223"
+  String snap_atac_docker = "snapatac2:1.0.9-2.6.3-1715865353"
 
   # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
   if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
@@ -486,10 +486,11 @@ task CreateFragmentFile {
     File bam
     File annotations_gtf
     File chrom_sizes
+    File annotations_gtf
     Boolean preindex
     Int disk_size = 500
     Int mem_size = 16
-    Int nthreads = 1
+    Int nthreads = 4
     String cpuPlatform = "Intel Cascade Lake"
     String docker_path
   }
@@ -498,8 +499,8 @@ task CreateFragmentFile {
 
   parameter_meta {
     bam: "Aligned bam with CB in CB tag. This is the output of the BWAPairedEndAlignment task."
-    annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
     chrom_sizes: "Text file containing chrom_sizes for genome build (i.e. hg38)."
+    annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
     disk_size: "Disk size used in create fragment file step."
     mem_size: "The size of memory used in create fragment file."
     docker_path: "The docker image path containing the runtime environment for this task"
@@ -511,10 +512,10 @@ task CreateFragmentFile {
     python3 <<CODE
 
     # set parameters
-    atac_gtf = "~{annotations_gtf}"
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
     chrom_sizes = "~{chrom_sizes}"
+    atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
 
     # calculate chrom size dictionary based on text file
@@ -527,6 +528,7 @@ task CreateFragmentFile {
     # use snap atac2
     import snapatac2.preprocessing as pp
     import snapatac2 as snap
+    import anndata as ad
 
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
@@ -537,7 +539,12 @@ task CreateFragmentFile {
 
     # calculate quality metrics; note min_num_fragments and min_tsse are set to 0 instead of default
     # those settings allow us to retain all barcodes
-    pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{annotations_gtf}", min_num_fragments=0, min_tsse=0)
+    pp.import_data("~{bam_base_name}.fragments.tsv", file="temp_metrics.h5ad", chrom_sizes=chrom_size_dict, min_num_fragments=0)
+    atac_data = ad.read_h5ad("temp_metrics.h5ad")
+    # calculate tsse metrics
+    snap.metrics.tsse(atac_data, atac_gtf)
+    # Write new atac file
+    atac_data.write_h5ad("~{bam_base_name}.metrics.h5ad")
 
     CODE
   >>>

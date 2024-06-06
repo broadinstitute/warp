@@ -1,3 +1,8 @@
+# 2.0.0
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this impacts the workflow output metrics
+
 # 1.2.3
 2024-05-14 (Date of Last Commit)
 

@@ -1,14 +1,15 @@
-# 6.6.4
-2024-05-20 (Date of Last Commit)
-
-* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers. This change does not affect this pipeline.
-
-# 6.6.3
-2024-05-08 (Date of Last Commit)
+# 7.1.2
+2024-06-06 (Date of Last Commit)
 
 * Updated the Optimus.wdl to run on Azure
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers. This change does not affect this pipeline.
 
-# 6.6.2
+# 7.1.0
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this does not impact the Optimus workflow
+
+# 7.0.0
 2024-04-24 (Date of Last Commit)
 
 * Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering
