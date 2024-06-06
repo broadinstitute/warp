@@ -22,6 +22,8 @@ workflow ImputationBeagle {
         # file extensions used to find reference panel files
         String interval_list_suffix = ".interval_list"
         String bref3_suffix = ".bref3"
+
+        String gatk_docker = "broadinstitute/gatk-nightly:2024-06-06-4.5.0.0-36-g2a420e483-NIGHTLY-SNAPSHOT"
     }
 
     call tasks.CountSamples {
@@ -32,7 +34,8 @@ workflow ImputationBeagle {
     call tasks.PreSplitVcf {
         input:
             contigs = contigs,
-            vcf = multi_sample_vcf
+            vcf = multi_sample_vcf,
+            gatk_docker = gatk_docker
     }
 
     scatter (contig_index in range(length(contigs))) {
@@ -60,7 +63,8 @@ workflow ImputationBeagle {
                 chunk_overlap = chunkOverlaps,
                 chrom = contigs[contig_index],
                 vcf = PreSplitVcf.chr_split_vcfs[contig_index],
-                vcf_index = PreSplitVcf.chr_split_vcf_indices[contig_index]
+                vcf_index = PreSplitVcf.chr_split_vcf_indices[contig_index],
+                gatk_docker = gatk_docker
         }
 
         scatter (i in range(length(PreChunkVcf.generate_chunk_vcfs))) {
@@ -73,7 +77,8 @@ workflow ImputationBeagle {
                 input:
                     vcf = PreChunkVcf.generate_chunk_vcfs[i],
                     vcf_index = PreChunkVcf.generate_chunk_vcf_indices[i],
-                    panel_interval_list = referencePanelContig.interval_list
+                    panel_interval_list = referencePanelContig.interval_list,
+                    gatk_docker = gatk_docker
             }
 
             call tasks.CheckChunksBeagle {
@@ -139,7 +144,8 @@ workflow ImputationBeagle {
                     vcf = PhaseAndImputeBeagle.vcf,
                     vcf_index = PhaseAndImputeBeagle.vcf_index,
                     ref_dict = ref_dict,
-                    basename = chunk_basename + "_imputed"
+                    basename = chunk_basename + "_imputed",
+                    gatk_docker = gatk_docker
             }
 
             call tasks.SeparateMultiallelics {
@@ -153,7 +159,8 @@ workflow ImputationBeagle {
                 input:
                     original_vcf = SeparateMultiallelics.output_vcf,
                     original_vcf_index = SeparateMultiallelics.output_vcf_index,
-                    output_basename = chunk_basename + "_imputed"
+                    output_basename = chunk_basename + "_imputed",
+                    gatk_docker = gatk_docker
             }
 
             call tasks.SetIDs {
@@ -180,7 +187,8 @@ workflow ImputationBeagle {
                     vcf = SetIdsVcfToImpute.output_vcf[i],
                     vcf_index = SetIdsVcfToImpute.output_vcf_index[i],
                     ids = FindSitesUniqueToFileTwoOnly.missing_sites,
-                    basename = "imputed_sites_to_recover"
+                    basename = "imputed_sites_to_recover",
+                    gatk_docker = gatk_docker
             }
 
             call tasks.RemoveAnnotations {
@@ -192,7 +200,8 @@ workflow ImputationBeagle {
             call tasks.InterleaveVariants {
                 input:
                     vcfs = [RemoveAnnotations.output_vcf, SetIDs.output_vcf],
-                    basename = output_basename
+                    basename = output_basename,
+                    gatk_docker = gatk_docker
             }
         }
 
@@ -202,7 +211,8 @@ workflow ImputationBeagle {
     call tasks.GatherVcfs {
         input:
             input_vcfs = flatten(chromosome_vcfs),
-            output_vcf_basename = output_basename + ".imputed"
+            output_vcf_basename = output_basename + ".imputed",
+            gatk_docker = gatk_docker
     }
 
     call tasks.StoreChunksInfo {
