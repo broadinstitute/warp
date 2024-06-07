@@ -42,12 +42,12 @@ workflow ImputationBeagle {
 
     scatter (contig_index in range(length(contigs))) {
         # these are specific to hg38 - contig is format 'chr1'
-        String reference_filename = reference_panel_path + "sim.10k." + contigs[contig_index]
+        String reference_basename = reference_panel_path + "sim.10k." + contigs[contig_index]
         String genetic_map_filename = genetic_maps_path + "plink." + contigs[contig_index] + ".GRCh38.withchr.map"
 
         ReferencePanelContig referencePanelContig = {
-                                                        "interval_list": reference_filename + interval_list_suffix,
-                                                        "bref3": reference_filename + bref3_suffix,
+                                                        "interval_list": reference_basename + interval_list_suffix,
+                                                        "bref3": reference_basename  + bref3_suffix,
                                                         "contig": contigs[contig_index],
                                                         "genetic_map": genetic_map_filename
                                                     }
