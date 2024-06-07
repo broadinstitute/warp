@@ -1,3 +1,8 @@
+# 5.0.1
+2024-06-07 (Date of Last Commit)
+
+* Updated the atac.wdl to run on Azure
+
 # 2.0.0
 2024-05-20 (Date of Last Commit)
 

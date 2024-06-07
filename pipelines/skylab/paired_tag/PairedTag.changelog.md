@@ -1,3 +1,8 @@
+# 0.7.1
+2024-06-07 (Date of Last Commit)
+
+* Updated the PairedTag.wdl to run on Azure
+
 # 0.7.0
 2024-05-20
 

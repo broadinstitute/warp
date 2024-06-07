@@ -43,11 +43,11 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.0.0"
+  String pipeline_version = "2.0.1"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
-  String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
+  String acr_docker_prefix = "dsppipeli nedev.azurecr.io/"
   String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
   # Docker image names

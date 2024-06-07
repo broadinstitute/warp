@@ -7,7 +7,7 @@ import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
-    String pipeline_version = "0.7.0"
+    String pipeline_version = "0.7.1"
 
     input {
         String input_id
