@@ -51,7 +51,7 @@ workflow PairedTag {
     }
 
     # All docker images that are needed for tasks in this workflow
-    String upstools_docker = "upstools:1.2.0-2023.03.03-1704723060"
+    String upstools_docker = "upstools:2.0.0"
     String snapatac_docker = "snapatac2:1.0.4-2.3.1-1700590229"
 
     # Prefixes based on cloud env
@@ -100,7 +100,8 @@ workflow PairedTag {
               barcodes_fastq = atac_r2_fastq[idx],
               input_id = input_id,
               whitelist = atac_whitelist,
-              preindex = preindex
+              preindex = preindex,
+              docker_path = docker_prefix + upstools_docker
         }
     }
 
