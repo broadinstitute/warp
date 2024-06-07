@@ -4,6 +4,7 @@ import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
+import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
@@ -46,7 +47,9 @@ workflow Multiome {
         File atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
 
         # CellBender
-        Boolean run_cellbender = false
+        Boolean run_cellbender = true
+
+        String cloud_provider = "azure"
     }
 
     # Call the Optimus workflow
@@ -92,6 +95,13 @@ workflow Multiome {
             gex_whitelist = gex_whitelist,
             atac_whitelist = atac_whitelist,
             atac_fragment = Atac.fragment_file
+    }
+    # if run_cellbender is true and cloud_provider is not gcp, raise an error
+    if ((run_cellbender) && (cloud_provider != "gcp")) {
+        call utils.ErrorWithMessage as ErrorMessageCellBenderNotSupported {
+            input:
+                message = "CellBender is only supported on GCP."
+        }
     }
 
     # Call CellBender
