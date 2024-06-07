@@ -1,11 +1,21 @@
+# 7.1.0
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this does not impact the Optimus workflow
+
+# 7.0.0
+2024-04-24 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering
+* Added "Uniform" as the default string for STARsolo multimapping parameters
 
 # 6.6.1
-20240326 (Date of Last Commit)
+2024-03-26 (Date of Last Commit)
 
 * Updated the median umi per cell metric for STARsolo library-level metrics
 
 # 6.6.0
-20240315 (Date of Last Commit)
+2024-03-15 (Date of Last Commit)
 
 * Added cell metrics to the library-level metrics
 

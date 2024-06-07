@@ -1,15 +1,35 @@
+# 5.0.0
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this impacts the workflow output metrics
+
+# 4.0.2
+2024-05-14 (Date of Last Commit)
+
+* Updated the Paired-tag Demultiplex task so that some intermediate input names have been renamed; this change does not impact the Multiome workflow
+
+# 4.0.1
+2024-05-10 (Date of Last Commit)
+
+* Updated the Paired-tag Demultiplex task; this change does not impact the Multiome workflow
+
+# 4.0.0
+2024-04-24 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering
+* Added "Uniform" as the default string for STARsolo multimapping parameters
 
 # 3.4.2
-20240403 (Date of Last Commit)
+2024-04-03 (Date of Last Commit)
 * Modified adaptor trimming in Paired-tag WDL; this does not impact Multiome
 
 # 3.4.1
-20240326 (Date of Last Commit)
+2024-03-26 (Date of Last Commit)
 
 * Updated the median umi per cell metric for STARsolo library-level metrics
 
 # 3.4.0 
-20240315 (Date of Last Commit)
+2024-03-15 (Date of Last Commit)
 
 * Added cell metrics to the library-level metrics
 

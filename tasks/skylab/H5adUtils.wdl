@@ -223,6 +223,7 @@ task JoinMultiomeBarcodes {
     # import anndata to manipulate h5ad files
     import anndata as ad
     import pandas as pd
+    import snapatac2 as snap
     print("Reading ATAC h5ad:")
     print("~{atac_h5ad}")
     print("Read ATAC fragment file:")
@@ -234,7 +235,7 @@ task JoinMultiomeBarcodes {
     atac_tsv = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
     whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
     whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
-
+    
     # get dataframes
     df_atac = atac_data.obs
     df_gex = gex_data.obs
@@ -261,6 +262,7 @@ task JoinMultiomeBarcodes {
     # set gene_data.obs to new dataframe
     print("Setting Optimus obs to new dataframe")
     gex_data.obs = df_gex
+
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
@@ -277,7 +279,7 @@ task JoinMultiomeBarcodes {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.9-2.6.3-1715865353"
     disks: "local-disk ~{disk} HDD"
     memory: "${machine_mem_mb} MiB"
     cpu: nthreads

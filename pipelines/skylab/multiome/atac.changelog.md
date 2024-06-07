@@ -1,9 +1,24 @@
+# 2.0.0
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this impacts the workflow output metrics
+
+# 1.2.3
+2024-05-14 (Date of Last Commit)
+
+* Updated the demultiplex task so that some intermediate input names have been renamed, this does not impact the ATAC workflow
+
+# 1.2.2
+2024-05-10 (Date of Last Commit)
+
+* Updated the Paired-tag Demultiplex task; this does not impact the ATAC workflow
+
 # 1.2.1
-20240403 (Date of Last Commit)
+2024-04-03 (Date of Last Commit)
 * Modified adaptor trimming in Paired-tag WDL; this does not impact ATAC
 
 # 1.2.0
-20240315 (Date of Last Commit)
+2024-03-15 (Date of Last Commit)
 
 * Added cell metrics to the library-level metrics
 
