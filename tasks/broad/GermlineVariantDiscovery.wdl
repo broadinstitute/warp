@@ -206,26 +206,26 @@ task Reblock {
     String docker_image = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int additional_disk = 20
     String? annotations_to_keep_command
-    String? annotations_to_remove_command
+    String? annotations_to_remove_command = "--format-annotations-to-remove PRI"
     Float? tree_score_cutoff
     Boolean move_filters_to_genotypes = false
   }
-
   Int disk_size = ceil((size(gvcf, "GiB")) * 4) + additional_disk
-  String gvcf_basename = basename(gvcf)
-  String gvcf_index_basename = basename(gvcf_index)
 
   command {
     set -e 
 
+    basenameGVCF=$(basename ~{gvcf})
+    basenameIndex=$(basename ~{gvcf_index}) 
+
     # We can't always assume the index was located with the gvcf, so make a link so that the paths look the same
-    ln -s ~{gvcf} ~{gvcf_basename}
-    ln -s ~{gvcf_index} ~{gvcf_index_basename}
+    ln -s ~{gvcf} $basenameGVCF
+    ln -s ~{gvcf_index} $basenameIndex
 
     gatk --java-options "-Xms3000m -Xmx3000m" \
       ReblockGVCF \
       -R ~{ref_fasta} \
-      -V ~{gvcf_basename} \
+      -V $basenameGVCF \
       -do-qual-approx \
       --floor-blocks -GQB 20 -GQB 30 -GQB 40 \
       ~{annotations_to_keep_command} \
