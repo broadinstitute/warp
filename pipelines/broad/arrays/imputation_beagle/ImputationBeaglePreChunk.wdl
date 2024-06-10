@@ -15,7 +15,7 @@ workflow ImputationBeagle {
 
         File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
         Array[String] contigs
-        String reference_panel_path # path to the bucket where the reference panel files are stored for all contigs
+        String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
         String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
         String output_basename # the basename for intermediate and output files
 
@@ -42,7 +42,7 @@ workflow ImputationBeagle {
 
     scatter (contig_index in range(length(contigs))) {
         # these are specific to hg38 - contig is format 'chr1'
-        String reference_basename = reference_panel_path + "sim.10k." + contigs[contig_index]
+        String reference_basename = reference_panel_path_prefix + "." + contigs[contig_index]
         String genetic_map_filename = genetic_maps_path + "plink." + contigs[contig_index] + ".GRCh38.withchr.map"
 
         ReferencePanelContig referencePanelContig = {
