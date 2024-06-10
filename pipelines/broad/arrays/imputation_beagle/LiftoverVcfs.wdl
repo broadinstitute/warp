@@ -62,7 +62,6 @@ task LiftOverArrays {
   Int disk_size_from_file = (ceil(size(input_vcf, "GiB") + size(liftover_chain, "GiB") + size(reference_fasta, "GiB")) * 2) + 20
   Int disk_size = if ( disk_size_from_file > min_disk_size ) then disk_size_from_file else min_disk_size
 
-    
   command <<<
     set -euo pipefail
 
