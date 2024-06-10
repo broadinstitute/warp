@@ -15,7 +15,7 @@ workflow ImputationBeagle {
 
         File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
         Array[String] contigs
-        String reference_panel_path # path to the bucket where the reference panel files are stored for all contigs
+        String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
         String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
         String output_basename # the basename for intermediate and output files
 
@@ -24,6 +24,8 @@ workflow ImputationBeagle {
         String bref3_suffix = ".bref3"
 
         String gatk_docker = "broadinstitute/gatk-nightly:2024-06-06-4.5.0.0-36-g2a420e483-NIGHTLY-SNAPSHOT"
+
+        Int? error_count_override
     }
 
     call tasks.CountSamples {
@@ -40,12 +42,12 @@ workflow ImputationBeagle {
 
     scatter (contig_index in range(length(contigs))) {
         # these are specific to hg38 - contig is format 'chr1'
-        String reference_filename = reference_panel_path + "hgdp.tgp.gwaspy.merged." + contigs[contig_index] + ".merged.AN_added.bcf.ac2"
+        String reference_basename = reference_panel_path_prefix + "." + contigs[contig_index]
         String genetic_map_filename = genetic_maps_path + "plink." + contigs[contig_index] + ".GRCh38.withchr.map"
 
         ReferencePanelContig referencePanelContig = {
-                                                        "interval_list": reference_filename + interval_list_suffix,
-                                                        "bref3": reference_filename + bref3_suffix,
+                                                        "interval_list": reference_basename + interval_list_suffix,
+                                                        "bref3": reference_basename  + bref3_suffix,
                                                         "contig": contigs[contig_index],
                                                         "genetic_map": genetic_map_filename
                                                     }
@@ -107,7 +109,7 @@ workflow ImputationBeagle {
 
         # if any chunk for any chromosome fail CheckChunks, then we will not impute run any task in the next scatter,
         # namely phasing and imputing which would be the most costly to throw away
-        Int n_failed_chunks_int = read_int(StoreContigLevelChunksInfo.n_failed_chunks)
+        Int n_failed_chunks_int = select_first([error_count_override, read_int(StoreContigLevelChunksInfo.n_failed_chunks)])
         call tasks.ErrorWithMessageIfErrorCountNotZero as FailQCNChunks {
             input:
                 errorCount = n_failed_chunks_int,
