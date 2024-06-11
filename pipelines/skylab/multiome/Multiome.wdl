@@ -8,7 +8,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "3.4.4"
+    String pipeline_version = "5.0.1"
 
     input {
         String cloud_provider
@@ -47,7 +47,6 @@ workflow Multiome {
 
         # CellBender
         Boolean run_cellbender = false
-
     }
 
     # Determine docker prefix based on cloud provider
@@ -109,12 +108,12 @@ workflow Multiome {
             read3_fastq_gzipped = atac_r3_fastq,
             input_id = input_id + "_atac",
             tar_bwa_reference = tar_bwa_reference,
-            annotations_gtf = annotations_gtf,
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
             adapter_seq_read3 = adapter_seq_read3,
-            vm_size = vm_size
+            vm_size = vm_size,
+            annotations_gtf = annotations_gtf
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:

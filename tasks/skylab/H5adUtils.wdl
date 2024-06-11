@@ -224,6 +224,7 @@ task JoinMultiomeBarcodes {
     # import anndata to manipulate h5ad files
     import anndata as ad
     import pandas as pd
+    import snapatac2 as snap
     print("Reading ATAC h5ad:")
     print("~{atac_h5ad}")
     print("Read ATAC fragment file:")
@@ -262,6 +263,7 @@ task JoinMultiomeBarcodes {
     # set gene_data.obs to new dataframe
     print("Setting Optimus obs to new dataframe")
     gex_data.obs = df_gex
+
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")

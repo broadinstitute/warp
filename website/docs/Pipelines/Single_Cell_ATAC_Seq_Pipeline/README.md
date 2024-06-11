@@ -7,7 +7,7 @@ slug: /Pipelines/Single_Cell_ATAC_Seq_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [scATAC 1.2.0 ](https://github.com/broadinstitute/warp/releases) | January 04 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [scATAC 1.3.2](https://github.com/broadinstitute/warp/releases) | May 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![scATAC_diagram](./scATAC_diagram.png)
 
@@ -129,6 +129,7 @@ The main outputs of the scATAC workflow are the Snap file, Snap QC metrics, and 
 | breakout_binCoordinates | Text file with the AM session ('Cell x bin accessibility' matrix) binChrom and binStart fields |
 | breakout_binCounts  | Text file with the AM session ('Cell x bin accessibility' matrix) idx, idy, and count fields |
 | breakout_barcodesSection  | Text file with the data from the BD session ('Barcode session' table) |
+| output_pipeline_version | Strong describing the version of the scATAC pipeline used. | 
 
 ##### Snap QC Metrics
 

@@ -1,8 +1,17 @@
-# 1.2.3
-2024-05-12 (Date of Last Commit)
+# 2.0.1
+2024-06-07 (Date of Last Commit)
 
-*  Updated the Optimus.wdl to run on Azure. This change does not affect the ATAC pipeline.
-*  Updated the PairedTag.wdl to run on Azure. This change does not affect the ATAC pipeline.
+* Updated the atac.wdl to run on Azure
+
+# 2.0.0
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this impacts the workflow output metrics
+
+# 1.2.3
+2024-05-14 (Date of Last Commit)
+
+* Updated the demultiplex task so that some intermediate input names have been renamed, this does not impact the ATAC workflow
 
 # 1.2.2
 2024-05-10 (Date of Last Commit)
