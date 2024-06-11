@@ -13,9 +13,9 @@ slug: /Pipelines/snm3C/README
 
 The Single Nucleus Methly-Seq and Chromatin Capture (snm3C) workflow is an open-source, cloud-optimized computational workflow for processing single-nucleus methylome and chromatin contact (snm3C) sequencing data. The workflow is designed to demultiplex and align raw sequencing reads, call chromatin contacts, and generate summary metrics. 
 
-The workflow is developed in collaboration with Hanqing Liu, Wei Tian, Wubin Ding, Huaming Chen, Chongyuan Luo, Jingtian Zhou, and the entire laboratory of Joseph Ecker. 
+The workflow is developed in collaboration with Hanqing Liu, Wei Tian, Wubin Ding, Huaming Chen, Chongyuan Luo, Jingtian Zhou, and the entire laboratory of Joseph Ecker. Please see the [Acknowledgments](#acknowledgements) section below.
 
-For more information about the snm3C tools and analysis, please see the [YAP documentation](https://hq-1.gitbook.io/mc/) or the [cemba_data](https://github.com/lhqing/cemba_data) GitHub repository created by Hanqing Liu.
+For more information about the snm3C tools and analysis, please see the [YAP documentation](https://hq-1.gitbook.io/mc/) or the cemba_data GitHub repositories created by [Hanqing Liu](https://github.com/lhqing/cemba_data) and [Wubin Ding](https://github.com/DingWB/cemba_data).
 
 ## Quickstart table
 The following table provides a quick glance at the Multiome pipeline features:

@@ -1,7 +1,20 @@
-# 0.6.1
-2024-05-12 (Date of Last Commit)
+# 0.7.1
+2024-06-07 (Date of Last Commit)
 
-* Updated the PairedTag.wdl to run in Azure 
+* Updated the PairedTag.wdl to run on Azure
+
+# 0.7.0
+2024-05-20
+
+* Updated SnapATAC2 docker and tasks to run SnapATAC v2.6.3 
+* Added testing infrastructure for paired-tag plumbing data and example data sets
+
+
+# 0.6.1
+2024-05-14 (Date of Last Commit)
+
+* Updated the demultiplex task so that some intermediate input names have been renamed. There is no change to the outputs.
+
 
 # 0.6.0
 2024-05-10 (Date)
