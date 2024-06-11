@@ -78,7 +78,7 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | adapter_seq_read1 | Optional string describing the adapter sequence for ATAC read 1 paired-end reads to be used during adapter trimming with Cutadapt; default is "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG".                                                                        | String |
 | adapter_seq_read3 | Optional string describing the adapter sequence for ATAC read 2 paired-end reads to be used during adapter trimming with Cutadapt; default is "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG".                                                                         | String |
 | run_cellbender | Optional boolean used to determine if the Optimus (GEX) pipeline should run CellBender on the output gene expression h5ad file, `h5ad_output_file_gex`; default is "false".                                                                                | Boolean |
-| vm_size | String defining the virtual machine family for the workflow (default: "Standard_M128s").                                                                                                                                                                   | String |
+| vm_size | String defining the Azure virtual machine family for the workflow (default: "Standard_M128s").                                                                                                                                                                   | String |
 
 
 #### Sample inputs for analyses in a Terra Workspace
