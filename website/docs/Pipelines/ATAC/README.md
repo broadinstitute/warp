@@ -44,23 +44,24 @@ ATAC can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/
 ## Input Variables
 The following describes the inputs of the ATAC workflow. For more details on how default inputs are set for the Multiome workflow, see the [Multiome overview](../Multiome_Pipeline/README).
 
-| Variable name | Description |
-| --- | --- |
-| read1_fastq_gzipped | Fastq inputs (array of compressed read 1 FASTQ files). |
-| read2_fastq_gzipped | Fastq inputs (array of compressed read 2 FASTQ files containing cellular barcodes). |
-| read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files). |
-| input_id | Output prefix/base name for all intermediate files and pipeline outputs. |
+| Variable name | Description                                                                                                    |
+| --- |----------------------------------------------------------------------------------------------------------------|
+| read1_fastq_gzipped | Fastq inputs (array of compressed read 1 FASTQ files).                                                         |
+| read2_fastq_gzipped | Fastq inputs (array of compressed read 2 FASTQ files containing cellular barcodes).                            |
+| read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files).                                                         |
+| input_id | Output prefix/base name for all intermediate files and pipeline outputs.                                       |
 | cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
-| preindex | Boolean used for paired-tag data and not applicable to ATAC data types; default is set to false. | 
-| tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files). |
-| num_threads_bwa | Optional integer defining the number of CPUs per node for the BWA-mem alignment task (default: 128). |
-| mem_size_bwa | Optional integer defining the memory size for the BWA-mem alignment task in GB (default: 512). |
-| cpu_platform_bwa | Optional string defining the CPU platform for the BWA-mem alignment task (default: "Intel Ice Lake"). |
-| annotations_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file.|
-| chrom_sizes | CreateFragmentFile input variable: Text file containing chrom_sizes for genome build (i.e., hg38) |
-| whitelist | Whitelist file for ATAC cellular barcodes. |
-| adapter_seq_read1 | TrimAdapters input: Sequence adapter for read 1 fastq. |
-| adapter_seq_read3 | TrimAdapters input: Sequence adapter for read 3 fastq. |
+| preindex | Boolean used for paired-tag data and not applicable to ATAC data types; default is set to false.               | 
+| tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files).                                   |
+| num_threads_bwa | Optional integer defining the number of CPUs per node for the BWA-mem alignment task (default: 128).           |
+| mem_size_bwa | Optional integer defining the memory size for the BWA-mem alignment task in GB (default: 512).                 |
+| cpu_platform_bwa | Optional string defining the CPU platform for the BWA-mem alignment task (default: "Intel Ice Lake").          |
+| annotations_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file.             |
+| chrom_sizes | CreateFragmentFile input variable: Text file containing chrom_sizes for genome build (i.e., hg38)              |
+| whitelist | Whitelist file for ATAC cellular barcodes.                                                                     |
+| adapter_seq_read1 | TrimAdapters input: Sequence adapter for read 1 fastq.                                                         |
+| adapter_seq_read3 | TrimAdapters input: Sequence adapter for read 3 fastq.                                                         |
+| vm_size | String defining the virtual machine family for the workflow (default: "Standard_M128s"). | String |
 
 ## ATAC tasks and tools
 
