@@ -938,9 +938,9 @@ task Summary_PerCellOutput {
         Array[File] name_sorted_bams
         Array[File] unique_reads_cgn_extraction_allc
         Array[File] unique_reads_cgn_extraction_tbi
-        Array[File] all_reads_dedup_contacts
+        #Array[File] all_reads_dedup_contacts
         Array[File] all_reads_3C_contacts
-        Array[File] chromatin_contact_stats 
+        #Array[File] chromatin_contact_stats 
         Array[File] unique_reads_cgn_extraction_allc_extract
         Array[File] unique_reads_cgn_extraction_tbi_extract
 
@@ -968,7 +968,8 @@ task Summary_PerCellOutput {
                     mkdir /cromwell_root/"${tarred_file%.tar.gz}"
                 fi
                 # untar file and remove it
-                tar -xf "$tarred_file" -C "${tarred_file%.tar.gz}"
+                ### tar -xf "$tarred_file" -C "${tarred_file%.tar.gz}"
+                pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"${tarred_file%.tar.gz}"
                 rm "$tarred_file"
             done
         }
@@ -981,11 +982,7 @@ task Summary_PerCellOutput {
         ls
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
         ls
-        extract_and_remove ~{sep=' ' all_reads_dedup_contacts}
-        ls
         extract_and_remove ~{sep=' ' all_reads_3C_contacts}
-        ls
-        extract_and_remove ~{sep=' ' chromatin_contact_stats}
         ls
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc_extract}
         ls
@@ -998,9 +995,9 @@ task Summary_PerCellOutput {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
         cpu: cpu
-        memory: "${mem_size} GiB"
-        preemptible: preemptible_tries
-    } 
+        memory: "${mem_size} GiB"    
+    }
+
 }
 
 
