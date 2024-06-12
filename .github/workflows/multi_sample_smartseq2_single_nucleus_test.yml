@@ -1,0 +1,169 @@
+name: MultiSampleSmartSeq2SingleNucleus CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "develop" and "master" branch
+  pull_request:
+    #Runs on PR to develop, master, and staging
+    branches: [ "develop", "master", "staging" ]
+    #Only run if files in this path changed: pipelines/skylab/smartseq2_single_nucleus_multisample
+    paths:
+      - 'pipelines/skylab/smartseq2_single_nucleus_multisample/**'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      #Test Type: Indicates the type of test to run. 
+      test_type:
+        description: 'Test Type: Indicates the type of test to run. This is a required option and enables the user to specify the category of the test, such as plumbing or scientific.'
+        required: true
+        default: 'plumbing'
+      #Branch: Specifies the branch of truth data to test against.
+      branch:
+        description: 'Branch: Specifies the branch of truth data to test against. This option is optional and defaults to the develop branch if not provided. It allows for testing against different sets of expected results or data.'
+        required: false
+        default: 'develop'
+      #Environment: Required option that specifies the environment in which the workflow should run. 
+      environment:
+        description: 'Environment: Required option that specifies the environment in which the workflow should run. This could be a reference to different Cromwell environments, allowing for tests to be run in development, staging, or production-like settings.'
+        required: true
+        default: 'dev'
+      #Update Truth: An optional flag that, when set, indicates the truth data should be updated with the results of this run.
+      update_truth:
+        description: 'Update Truth: An optional flag that, when set, indicates the truth data should be updated with the results of this run. This is useful for maintaining up-to-date expected results for tests.'
+        required: false
+        default: 'false'
+      #Uncached: An optional flag that disables call-caching for the main workflow run. 
+      uncached:
+        description: 'Uncached: An optional flag that disables call-caching for the main workflow run. This ensures that all tasks are executed afresh, which is particularly useful for testing changes or for performance measurements.'
+        required: false
+        default: 'false'
+      image_tag:
+        description: 'Docker Image Tag (default: branch_name)' 
+
+env:
+  PROJECT_NAME: MultiSample SmartSeq2 Single Nucleus
+  # The tag for the Docker imageAZURE_SUBSCRIPTION_ID="d44cb7d1-184a-4202-b1de-1ffe54218e99"
+  #TODO: Make these secrets
+  AZURE_RESOURCE_GROUP_NAME: dsp-pipeline-dev
+  AZURE_AKS_NAME: pdt-a1b950246124be
+  AZURE_SUBSCRIPTION_ID: d44cb7d1-184a-4202-b1de-1ffe54218e99
+
+  TAG: ${{ github.event.inputs.image_tag || github.head_ref || github.ref_name }}
+
+  # A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  run-on-azure:
+    runs-on: ubuntu-latest
+    # defaults:
+    #   run:
+    #     working-directory: 3rd-party-tools/zcall
+    steps:
+    # checkout the repo
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@v3
+      
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: 'Create Release Package'
+      run: |
+        pwd
+        scripts/build_pipeline_release.sh -w MultiSampleSmartSeq2SingleNucleus.wdl -v 1.0 -o release -e dev
+        ls -lhta release/MultiSampleSmartSeq2SingleNucleus
+        tree release || true
+    
+    - name: 'Connect to Kube and Show Pods'
+      run: |
+        az aks get-credentials --resource-group ${AZURE_RESOURCE_GROUP_NAME} --name ${AZURE_AKS_NAME} --subscription ${AZURE_SUBSCRIPTION_ID} --file ~/.kube/config
+        kubectl -n coa get svc
+
+    - name: 'Set-up Port Forwarding and Run Cromshell'
+      run: |
+        
+        #install cromshell
+        pip install cromshell
+
+        kubectl port-forward -n coa svc/cromwell 8000:8000 2>&1 &
+        pid=$!
+        echo pid: $pid
+        while ! nc -vz localhost 8000 > /dev/null 2>&1 ; do
+          # echo sleeping
+          sleep 1
+        done
+        echo "Cromwell is up!"
+        #curl -s -X POST "http://localhost:8000/api/workflows/v1/query" -H "accept: application/json" -H "Content-Type: application/json" -d "[{\"status\":\"Running\"},{\"status\":\"Submitted\"}]" | jq
+        # cromshell --help
+        cromshell submit --help
+
+        #Run cromshell
+        export CROMWELL_URL=http://localhost:8000
+        echo $CROMWELL_URL is the cromwell url
+
+        echo ZIP contents:
+        #unzip -l release/MultiSampleSmartSeq2SingleNucleus/MultiSampleSmartSeq2SingleNucleus_1.0.zip || true
+        unzip release/MultiSampleSmartSeq2SingleNucleus/MultiSampleSmartSeq2SingleNucleus_1.0.zip -d release/MultiSampleSmartSeq2SingleNucleus || true
+        tree release/MultiSampleSmartSeq2SingleNucleus || true
+        
+        #echo WDL content:
+        #cat release/MultiSampleSmartSeq2SingleNucleus/MultiSampleSmartSeq2SingleNucleus_1.0.wdl || true
+
+        cp test_inputs/Plumbing/mouse_example_azure.json release/MultiSampleSmartSeq2SingleNucleus
+        cd release/MultiSampleSmartSeq2SingleNucleus
+
+        ls -lht ~/.cromshell || true
+        tree ~/.cromshell || true
+        cat ~/.cromshell/all.workflow.database.tsv || true
+        
+        CRUN=$(cromshell --no_turtle --cromwell_url http://localhost:8000 submit --no-validation -op MultiSampleSmartSeq2SingleNucleus_1.0.options.json -d MultiSampleSmartSeq2SingleNucleus_1.0.zip MultiSampleSmartSeq2SingleNucleus_1.0.wdl mouse_example_azure.json)
+        echo CRUN = $CRUN
+        
+        tree ~/.cromshell || true
+        
+        
+        cromshell alias -- -1 ss_proto_1 || true
+        cromshell list
+        #wait for the job to start
+        sleep 3 
+        SECONDS=0
+        while true; do
+            status_json=$(cromshell --no_turtle status ss_proto_1)
+            
+            # Use jq to extract the status from the JSON
+            status=$(echo "$status_json" | jq -r '.status')
+
+            if [[ $status != "Running" && $status != "Submitted" ]]; then
+                break
+            fi
+
+            # Sleep for some time before checking again
+            sleep 300
+        done
+        t=$SECONDS
+        echo "The status is now: $status"
+        printf 'Time taken: %d days, %d minutes\n' "$(( t/86400 ))" "$(( t/60 - 1440*(t/86400) ))"
+        CSTATUS=$status
+        
+        echo CSTATUS = $CSTATUS
+        #CSTATUS=$(cromshell --cromwell_url http://localhost:8000 status 113556d4-ac73-492e-bf9d-03eb5edcf469)
+        ALL_JOBS=$(curl -s -X POST "http://localhost:8000/api/workflows/v1/query" -H "accept: application/json" -H "Content-Type: application/json" -d "[{\"status\":\"Running\"},{\"status\":\"Submitted\"}]" | jq )
+        
+        #Print Summary in Github UI
+        echo "### :rocket: Summary of Azure Jobs :rocket:" >> $GITHUB_STEP_SUMMARY
+        echo "### Azure Cromwell Job Submitted $CRUN" >> $GITHUB_STEP_SUMMARY
+        echo "### Job Details " >> $GITHUB_STEP_SUMMARY
+        echo "| Name | Value |" >> $GITHUB_STEP_SUMMARY
+        echo "| ----------- | ----------- |" >> $GITHUB_STEP_SUMMARY
+        echo "| Workflow Alias | ss_proto_1 |" >> $GITHUB_STEP_SUMMARY
+        echo "| Status | $CSTATUS |" >> $GITHUB_STEP_SUMMARY
+        echo "| Total Runtime (seconds) | $t |" >> $GITHUB_STEP_SUMMARY
+        echo "### All Azure Jobs (Running/Pending) = $ALL_JOBS" >> $GITHUB_STEP_SUMMARY
+        kill $pid
+        
+    
+    #doesn't work because we need to pass env vars across steps, which we'll do in the non-prototype version of this
+    # - name: 'Write the Summary'
+    #   run: |
+    #     echo "### Hello world! :rocket:" >> $GITHUB_STEP_SUMMARY
+    #     echo "### CSTATUS = $CSTATUS" >> $GITHUB_STEP_SUMMARY
