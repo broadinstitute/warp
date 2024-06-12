@@ -947,10 +947,9 @@ task Summary_PerCellOutput {
 
         String docker
         String plate_id
-        Int disk_size = 80
-        Int mem_size = 5
-        Int preemptible_tries = 3
-        Int cpu = 4
+        Int disk_size = 1000
+        Int mem_size = 30
+        Int cpu = 16
     }
     command <<<
         set -euo pipefail
@@ -993,7 +992,7 @@ task Summary_PerCellOutput {
 
     runtime {
         docker: docker
-        disks: "local-disk ${disk_size} HDD"
+        disks: "local-disk ${disk_size} SSD"
         cpu: cpu
         memory: "${mem_size} GiB"    
     }
