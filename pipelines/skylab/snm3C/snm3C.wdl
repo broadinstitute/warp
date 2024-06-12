@@ -83,6 +83,13 @@ workflow snm3C {
     call Summary_PerCellOutput {
        input:
             name_sorted_bams = Merge_sort_analyze.name_sorted_bam,
+            unique_reads_cgn_extraction_allc= Merge_sort_analyze.allc,
+            unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi,
+            all_reads_dedup_contacts = Merge_sort_analyze.all_reads_dedup_contacts,
+            all_reads_3C_contacts = Merge_sort_analyze.all_reads_3C_contacts,
+            chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats,
+            unique_reads_cgn_extraction_allc_extract = Merge_sort_analyze.extract_allc_output_allc_tar,
+            unique_reads_cgn_extraction_tbi_extract = Merge_sort_analyze.extract_allc_output_tbi_tar,
             plate_id = plate_id,
             docker = docker
     }
