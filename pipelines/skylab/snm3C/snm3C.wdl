@@ -929,7 +929,15 @@ task Merge_sort_analyze {
 task Summary_PerCellOutput {
     input {
         Array[File] name_sorted_bams
-      
+        Array[File] unique_reads_cgn_extraction_allc
+        Array[File] unique_reads_cgn_extraction_tbi
+        Array[File] all_reads_dedup_contacts
+        Array[File] all_reads_3C_contacts
+        Array[File] chromatin_contact_stats 
+        Array[File] unique_reads_cgn_extraction_allc_extract
+        Array[File] unique_reads_cgn_extraction_tbi_extract
+
+
         String docker
         String plate_id
         Int disk_size = 80
@@ -953,15 +961,29 @@ task Summary_PerCellOutput {
                     mkdir /cromwell_root/"${tarred_file%.tar.gz}"
                 fi
                 # untar file and remove it
-                tar -xf "$tar" -C "${tarred_file%.tar.gz}"
-                rm "$tar"
+                tar -xf "$tarred_file" -C "${tarred_file%.tar.gz}"
+                rm "$tarred_file"
             done
         }
         
         ls -R 
         pwd
         extract_and_remove ~{sep=' ' name_sorted_bams}
-        ls -R 
+        ls
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc}
+        ls
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
+        ls
+        extract_and_remove ~{sep=' ' all_reads_dedup_contacts}
+        ls
+        extract_and_remove ~{sep=' ' all_reads_3C_contacts}
+        ls
+        extract_and_remove ~{sep=' ' chromatin_contact_stats}
+        ls
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc_extract}
+        ls
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract}
+        ls
         pwd
     >>>
 
