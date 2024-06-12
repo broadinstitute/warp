@@ -958,6 +958,8 @@ task Summary_PerCellOutput {
             fi
             for tarred_file in "${@}"; do
                 # if directory doesnt exist, make it
+                echo $tarred_file
+                echo "${tarred_file%.tar.gz}"
                 if [ ! -d "${tarred_file%.tar.gz}" ]; then
                     mkdir /cromwell_root/"${tarred_file%.tar.gz}"
                 fi
@@ -991,9 +993,7 @@ task Summary_PerCellOutput {
         cpu: cpu
         memory: "${mem_size} GiB"    
     }
-
 }
-
 
 task Summary {
     input {
