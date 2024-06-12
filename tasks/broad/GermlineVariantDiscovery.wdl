@@ -216,18 +216,17 @@ task Reblock {
   command {
     set -e 
 
-    basenameGVCF=$(basename ~{gvcf})
-    basenameIndex=$(basename ~{gvcf_index}) 
-
     # We can't always assume the index was located with the gvcf, so make a link so that the paths look the same
-    ln -s ~{gvcf} $basenameGVCF
-    ln -s ~{gvcf_index} $basenameIndex
+    BASENAME_GVCF=$(basename ~{gvcf})
+    BASENAME_GVCF_IDX=$(basename ~{gvcf_index}) 
+    ln -s ~{gvcf} $BASENAME_GVCF
+    ln -s ~{gvcf_index} $BASENAME_GVCF_IDX
 
     # gatk --java-options "-Xms3000m -Xmx3000m" \
     java -jar -Xms3000m -Xmx3000m ~{gatk_jar_remove_this} \
       ReblockGVCF \
       -R ~{ref_fasta} \
-      -V $basenameGVCF \
+      -V $BASENAME_GVCF \
       -do-qual-approx \
       --floor-blocks -GQB 20 -GQB 30 -GQB 40 \
       ~{annotations_to_keep_command} \

@@ -625,7 +625,6 @@ task ValidateVCF {
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int machine_mem_mb = 7000
   }
-
   String calling_interval_list_basename = basename(calling_interval_list)
   String calling_interval_list_index_basename = if calling_intervals_defined then "" else basename(select_first([calling_interval_list_index]))
 
@@ -638,9 +637,11 @@ task ValidateVCF {
     
     if [ ~{calling_intervals_defined} == "false" ]; then
       # We can't always assume the index was located with the vcf, so make a link so that the paths look the same
-      ln -s ~{calling_interval_list} ~{calling_interval_list_basename}
-      ln -s ~{calling_interval_list_index} ~{calling_interval_list_index_basename}
-      gatk VcfToIntervalList -I ~{calling_interval_list_basename} -O intervals_from_gvcf.interval_list
+      BASENAME_INTERVALS=$(basename ~{calling_interval_list})
+      BASENAME_INTERVALS_IDX=$(basename ~{calling_interval_list_basename}) 
+      ln -s ~{calling_interval_list} $BASENAME_INTERVALS
+      ln -s ~{calling_interval_list_index} $BASENAME_INTERVALS_IDX
+      gatk VcfToIntervalList -I $BASENAME_INTERVALS -O intervals_from_gvcf.interval_list
       INTERVALS="intervals_from_gvcf.interval_list"
     else
       INTERVALS="~{calling_interval_list}"
