@@ -80,6 +80,13 @@ workflow snm3C {
         }
     }
 
+    call Summary_PerCellOutput {
+       input:
+            name_sorted_bams = Merge_sort_analyze.name_sorted_bam,
+            plate_id = plate_id,
+            docker = docker
+    }
+
     call Summary {
         input:
             trimmed_stats = Hisat_paired_end.trim_stats_tar,
@@ -917,6 +924,56 @@ task Merge_sort_analyze {
         File extract_allc_output_allc_tar  = "~{plate_id}.extract-allc.tar.gz"
      }
 }
+
+
+task Summary_PerCellOutput {
+    input {
+        Array[File] name_sorted_bams
+      
+        String docker
+        String plate_id
+        Int disk_size = 80
+        Int mem_size = 5
+        Int preemptible_tries = 3
+        Int cpu = 4
+    }
+    command <<<
+        set -euo pipefail
+        set -x
+
+        extract_and_remove() {
+            if [ $# -eq 0 ];
+                then
+                    echo "No files exist"
+                    return
+            fi
+            for tarred_file in "${@}"; do
+                # if directory doesnt exist, make it
+                if [ ! -d "${tarred_file%.tar.gz}" ]; then
+                    mkdir /cromwell_root/"${tarred_file%.tar.gz}"
+                fi
+                # untar file and remove it
+                tar -xf "$tar" -C "${tarred_file%.tar.gz}"
+                rm "$tar"
+            done
+        }
+        
+        ls -R 
+        pwd
+        extract_and_remove ~{sep=' ' name_sorted_bams}
+        ls -R 
+        pwd
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} HDD"
+        cpu: cpu
+        memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
+    } 
+}
+
 
 task Summary {
     input {
