@@ -936,12 +936,9 @@ task Summary_PerCellOutput {
         Array[File] name_sorted_bams
         Array[File] unique_reads_cgn_extraction_allc
         Array[File] unique_reads_cgn_extraction_tbi
-        #Array[File] all_reads_dedup_contacts
         Array[File] all_reads_3C_contacts
-        #Array[File] chromatin_contact_stats 
         Array[File] unique_reads_cgn_extraction_allc_extract
         Array[File] unique_reads_cgn_extraction_tbi_extract
-
 
         String docker
         String plate_id
