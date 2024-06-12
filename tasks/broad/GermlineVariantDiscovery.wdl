@@ -209,6 +209,7 @@ task Reblock {
     String? annotations_to_remove_command = "--format-annotations-to-remove PRI"
     Float? tree_score_cutoff
     Boolean move_filters_to_genotypes = false
+    File gatk_jar_remove_this = ""
   }
   Int disk_size = ceil((size(gvcf, "GiB")) * 4) + additional_disk
 
@@ -222,7 +223,8 @@ task Reblock {
     ln -s ~{gvcf} $basenameGVCF
     ln -s ~{gvcf_index} $basenameIndex
 
-    gatk --java-options "-Xms3000m -Xmx3000m" \
+    # gatk --java-options "-Xms3000m -Xmx3000m" \
+    java -jar -Xms3000m -Xmx3000m ~{gatk_jar_remove_this} \
       ReblockGVCF \
       -R ~{ref_fasta} \
       -V $basenameGVCF \
