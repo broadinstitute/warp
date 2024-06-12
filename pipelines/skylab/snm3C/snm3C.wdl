@@ -958,14 +958,14 @@ task Summary_PerCellOutput {
             fi
             for tarred_file in "${@}"; do
                 # if directory doesnt exist, make it
-                echo $tarred_file
-                echo "${tarred_file%.tar.gz}"
-                if [ ! -d "${tarred_file%.tar.gz}" ]; then
-                    mkdir /cromwell_root/"${tarred_file%.tar.gz}"
+                dir_name=`basename "${tarred_file%.tar.gz}"`
+                echo $dir_name
+                if [ ! -d "$dir_name" ]; then
+                    mkdir /cromwell_root/"$dir_name"
                 fi
                 # untar file and remove it
                 ### tar -xf "$tarred_file" -C "${tarred_file%.tar.gz}"
-                pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"${tarred_file%.tar.gz}"
+                pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"$dir_name"
                 rm "$tarred_file"
             done
         }
