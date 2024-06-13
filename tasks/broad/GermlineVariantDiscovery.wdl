@@ -27,6 +27,8 @@ task HaplotypeCaller_GATK35_GVCF {
     Float? contamination
     Int preemptible_tries
     Int hc_scatter
+    #Setting default docker value for workflows that haven't yet been azurized. 
+    String docker = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
   }
 
   parameter_meta {
@@ -66,7 +68,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --read_filter OverclippedRead
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
+    docker: docker
     preemptible: preemptible_tries
     memory: "10000 MiB"
     cpu: "1"
@@ -96,6 +98,7 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean use_dragen_hard_filtering = false
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model
+    #Setting default docker value for workflows that haven't yet been azurized. 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int memory_multiplier = 1
   }
@@ -170,6 +173,8 @@ task MergeVCFs {
     Array[File] input_vcfs_indexes
     String output_vcf_name
     Int preemptible_tries = 3
+    #Setting default docker value for workflows that haven't yet been azurized. 
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
   }
 
   Int disk_size = ceil(size(input_vcfs, "GiB") * 2.5) + 10
@@ -183,7 +188,7 @@ task MergeVCFs {
       OUTPUT=~{output_vcf_name}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: docker
     preemptible: preemptible_tries
     memory: "3000 MiB"
     disks: "local-disk ~{disk_size} HDD"
@@ -292,7 +297,7 @@ task DragenHardFilterVcf {
     Boolean make_gvcf
     String vcf_basename
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String gatk_docker 
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20

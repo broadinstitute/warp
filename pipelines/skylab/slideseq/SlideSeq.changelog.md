@@ -1,6 +1,18 @@
-# 3.1.5
-2024-04-02 (Date of Last Commit)
+# 3.1.7
+2023-06-06 (Date of Last Commit)
+
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers. This change does not affect this pipeline.
 * Updated the Optimus.wdl to run on Azure. This change does not affect the SlideSeq pipeline.
+
+# 3.1.6
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this does not impact the SlideSeq workflow
+
+# 3.1.5
+2024-04-12 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering
 
 # 3.1.4
 2024-03-26 (Date of Last Commit)
