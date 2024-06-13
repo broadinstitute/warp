@@ -950,7 +950,10 @@ task Summary_PerCellOutput {
             fi
             for tarred_file in "${@}"; do
                 # if directory doesnt exist, make it
+                # fix: combine two commands into one 
                 dir_name=`basename "${tarred_file%.tar.gz}"`
+                dir_name=~{plate_id}_$dir_name
+
                 echo $dir_name
                 if [ ! -d "$dir_name" ]; then
                     mkdir /cromwell_root/"$dir_name"
