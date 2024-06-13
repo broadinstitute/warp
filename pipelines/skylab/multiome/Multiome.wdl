@@ -157,6 +157,9 @@ workflow Multiome {
         }           
     }
 
+    File cellbender_cell_barcodes_csv = select_first([CellBender.cell_csv, CellBender_no_cuda.cell_csv])
+
+
     meta {
         allowNestedInputs: true
     }
@@ -191,7 +194,7 @@ workflow Multiome {
         File? mtx_files = Optimus.mtx_files
 
         # cellbender outputs
-        File? cell_barcodes_csv = CellBender.cell_csv
+        File? cell_barcodes_csv = cellbender_cell_barcodes_csv
         File? checkpoint_file = CellBender.ckpt_file
         Array[File]? h5_array = CellBender.h5_array
         Array[File]? html_report_array = CellBender.report_array
