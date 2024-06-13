@@ -391,14 +391,6 @@ task Hisat_paired_end {
       R1_files=($(ls batch*/ | grep "\-R1.fq.gz"))
       R2_files=($(ls batch*/ | grep "\-R2.fq.gz"))
 
-      # for file in "${R1_files[@]}"; do
-      # (
-      #   echo "starting task $file.."
-      #   du -h  batch*/$file
-      #   task "$file"
-      # ) 
-      # done
-
       # run 6 instances of task in parallel 
       for file in "${R1_files[@]}"; do
         (
@@ -962,9 +954,11 @@ task Summary_PerCellOutput {
                 echo $dir_name
                 if [ ! -d "$dir_name" ]; then
                     mkdir /cromwell_root/"$dir_name"
+                    touch /cromwell_root/"$dir_name".txt
                 fi
                 # untar file and remove it
                 pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"$dir_name"
+                find /cromwell_root/"$dir_name" -maxdepth 1 -type f >> /cromwell_root/"$dir_name".txt
                 rm "$tarred_file"
             done
         }
@@ -987,6 +981,7 @@ task Summary_PerCellOutput {
         cpu: cpu
         memory: "${mem_size} GiB"    
     }
+
 }
 
 task Summary {
