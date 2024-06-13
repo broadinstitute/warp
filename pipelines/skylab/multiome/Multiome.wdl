@@ -157,7 +157,7 @@ workflow Multiome {
         }           
     }
 
-    File cellbender_cell_barcodes_csv = select_first([CellBender.cell_csv, CellBender_no_cuda.cell_csv])
+    File? cellbender_cell_barcodes_csv = select_first([CellBender.cell_csv, CellBender_no_cuda.cell_csv])
 
 
     meta {
