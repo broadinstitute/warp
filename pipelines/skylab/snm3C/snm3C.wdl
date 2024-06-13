@@ -973,6 +973,8 @@ task Summary_PerCellOutput {
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract}
         ls -R
         pwd
+
+        cat /cromwell_root/test.hisat3n_dna.all_reads.name_sort.txt
     >>>
 
     runtime {
