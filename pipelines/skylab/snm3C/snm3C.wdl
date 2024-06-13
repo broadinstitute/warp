@@ -975,6 +975,7 @@ task Summary_PerCellOutput {
         pwd
 
         cat /cromwell_root/test.hisat3n_dna.all_reads.name_sort.txt
+        wc -l /cromwell_root/test.hisat3n_dna.all_reads.name_sort.txt
     >>>
 
     runtime {
