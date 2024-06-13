@@ -3,7 +3,8 @@ version 1.0
 import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
-import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender
+import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender_no_cuda
+import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
@@ -124,19 +125,36 @@ workflow Multiome {
 
     # Call CellBender
     if (run_cellbender) {
-        call CellBender.run_cellbender_remove_background_gpu as CellBender {
-            input:
-                sample_name = input_id,
-                input_file_unfiltered = Optimus.h5ad_output_file,
-                hardware_boot_disk_size_GB = 20,
-                hardware_cpu_count = 4,
-                hardware_disk_size_GB = 50,
-                hardware_gpu_type = "nvidia-tesla-t4",
-                hardware_memory_GB = 32,
-                hardware_preemptible_tries = 2,
-                hardware_zones = "us-central1-a us-central1-c",
-                nvidia_driver_version = "470.82.01"
-        }
+        if (cloud_provider = "gcp") {
+            call CellBender.run_cellbender_remove_background_gpu as CellBender {
+                input:
+                    sample_name = input_id,
+                    input_file_unfiltered = Optimus.h5ad_output_file,
+                    hardware_boot_disk_size_GB = 20,
+                    hardware_cpu_count = 4,
+                    hardware_disk_size_GB = 50,
+                    hardware_gpu_type = "nvidia-tesla-t4",
+                    hardware_memory_GB = 32,
+                    hardware_preemptible_tries = 2,
+                    hardware_zones = "us-central1-a us-central1-c",
+                    nvidia_driver_version = "470.82.01"
+            }
+        } 
+        if (cloud_provider = "azure") {
+            call CellBender_no_cuda.run_cellbender_remove_background_gpu as CellBender {
+                input:
+                    sample_name = input_id,
+                    input_file_unfiltered = Optimus.h5ad_output_file,
+                    hardware_boot_disk_size_GB = 20,
+                    hardware_cpu_count = 4,
+                    hardware_disk_size_GB = 50,
+                    hardware_gpu_type = "nvidia-tesla-t4",
+                    hardware_memory_GB = 32,
+                    hardware_preemptible_tries = 2,
+                    hardware_zones = "us-central1-a us-central1-c",
+                    nvidia_driver_version = "470.82.01"
+            }
+        }           
     }
 
     meta {
