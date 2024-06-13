@@ -964,7 +964,6 @@ task Summary_PerCellOutput {
                     mkdir /cromwell_root/"$dir_name"
                 fi
                 # untar file and remove it
-                ### tar -xf "$tarred_file" -C "${tarred_file%.tar.gz}"
                 pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"$dir_name"
                 rm "$tarred_file"
             done
@@ -973,17 +972,12 @@ task Summary_PerCellOutput {
         ls -R 
         pwd
         extract_and_remove ~{sep=' ' name_sorted_bams}
-        ls
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc}
-        ls
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
-        ls
         extract_and_remove ~{sep=' ' all_reads_3C_contacts}
-        ls
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc_extract}
-        ls
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract}
-        ls
+        ls -R
         pwd
     >>>
 
