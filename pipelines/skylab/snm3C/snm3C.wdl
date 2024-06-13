@@ -958,7 +958,7 @@ task Summary_PerCellOutput {
                 fi
                 # untar file and remove it
                 pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"$dir_name"
-                find /cromwell_root/"$dir_name" -maxdepth 1 -type f >> /cromwell_root/"$dir_name".txt
+                find /cromwell_root/"$dir_name" -maxdepth 1 -type f > /cromwell_root/"$dir_name".txt
                 rm "$tarred_file"
             done
         }
