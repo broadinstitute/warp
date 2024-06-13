@@ -327,7 +327,7 @@ task STARsoloFastq {
         --soloBarcodeReadLength 0 \
         --soloCellReadStats Standard \
         ~{"--soloMultiMappers " + soloMultiMappers} \
-        --soloUMIfiltering MultiGeneUMI_CR
+        --soloUMIfiltering MultiGeneUMI_CR \
         --soloCellFilter EmptyDrops_CR
       
     echo "UMI LEN " $UMILen
