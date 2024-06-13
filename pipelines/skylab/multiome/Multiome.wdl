@@ -125,7 +125,7 @@ workflow Multiome {
 
     # Call CellBender
     if (run_cellbender) {
-        if (cloud_provider = "gcp") {
+        if (cloud_provider == "gcp") {
             call CellBender.run_cellbender_remove_background_gpu as CellBender {
                 input:
                     sample_name = input_id,
@@ -140,8 +140,8 @@ workflow Multiome {
                     nvidia_driver_version = "470.82.01"
             }
         } 
-        if (cloud_provider = "azure") {
-            call CellBender_no_cuda.run_cellbender_remove_background_gpu as CellBender {
+        if (cloud_provider == "azure") {
+            call CellBender_no_cuda.run_cellbender_remove_background_gpu as CellBender_no_cuda {
                 input:
                     sample_name = input_id,
                     input_file_unfiltered = Optimus.h5ad_output_file,
@@ -161,6 +161,7 @@ workflow Multiome {
         allowNestedInputs: true
     }
 
+    
     output {
         
         String multiome_pipeline_version_out = pipeline_version
