@@ -969,8 +969,14 @@ task Summary_PerCellOutput {
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc}
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
         extract_and_remove ~{sep=' ' all_reads_3C_contacts}
+
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc_extract}
+        find /cromwell_root/test.extract-allc -maxdepth 2 -type f > /cromwell_root/test.extract-allc.txt
+        ls
+        pwd
+
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract}
+        find /cromwell_root/test.extract-allc_tbi -maxdepth 2 -type f > /cromwell_root/test.extract-allc_tbi.txt
         ls -R
         pwd
 
@@ -983,6 +989,10 @@ task Summary_PerCellOutput {
         disks: "local-disk ${disk_size} SSD"
         cpu: cpu
         memory: "${mem_size} GiB"    
+    }
+
+    output {
+        Array[String] name_sorted_bams = read_lines("/cromwell_root/*.hisat3n_dna.all_reads.name_sort.txt")
     }
 
 }
