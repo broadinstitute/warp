@@ -80,7 +80,7 @@ task RunValidation {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+        docker: "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
 
         memory: machine_mem + " MiB"
         disks: "local-disk " + select_first([disk_space, 100]) + if use_ssd then " SSD" else " HDD"

@@ -15,7 +15,7 @@ workflow AnnotationFiltration {
     File ref_dict
     File? funcotator_interval_list
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String gatk_docker = "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
     File? custom_data_source_tar_gz
   }
 

@@ -96,7 +96,7 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean use_dragen_hard_filtering = false
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String gatk_docker = "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
     Int memory_multiplier = 1
   }
   
@@ -203,7 +203,7 @@ task Reblock {
     File ref_fasta
     File ref_fasta_index
     String output_vcf_filename
-    String docker_image = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String docker_image = "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
     Int additional_disk = 20
     String? annotations_to_keep_command
     String? annotations_to_remove_command
@@ -256,7 +256,7 @@ task HardFilterVcf {
     String vcf_basename
     File interval_list
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String gatk_docker = "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
@@ -292,7 +292,7 @@ task DragenHardFilterVcf {
     Boolean make_gvcf
     String vcf_basename
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String gatk_docker = "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
@@ -332,7 +332,7 @@ task CNNScoreVariants {
     File ref_fasta_index
     File ref_dict
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String gatk_docker = "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
   }
 
   Int disk_size = ceil(size(bamout, "GiB") + size(ref_fasta, "GiB") + (size(input_vcf, "GiB") * 2))
@@ -389,7 +389,7 @@ task FilterVariantTranches {
     File dbsnp_resource_vcf_index
     String info_key
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String gatk_docker = "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
   }
 
   Int disk_size = ceil(size(hapmap_resource_vcf, "GiB") +
