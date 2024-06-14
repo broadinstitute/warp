@@ -974,12 +974,10 @@ task Summary_PerCellOutput {
         extract_and_remove ~{sep=' ' all_reads_3C_contacts}
 
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc_extract}
-        #find /cromwell_root/test.extract-allc -maxdepth 1 -type f > /cromwell_root/test.extract-allc.txt
         #ls
         #pwd
 
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract}
-        #find /cromwell_root/test.extract-allc_tbi -maxdepth 1 -type f > /cromwell_root/test.extract-allc_tbi.txt
         ls -R
         pwd
 
