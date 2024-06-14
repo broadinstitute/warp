@@ -34,6 +34,9 @@ workflow PairedTag {
         Array[File] atac_r1_fastq
         Array[File] atac_r2_fastq
         Array[File] atac_r3_fastq
+
+        String vm_size = "Standard_M128s"
+
         # BWA input
         File tar_bwa_reference
         File chrom_sizes
@@ -119,7 +122,8 @@ workflow PairedTag {
             adapter_seq_read3 = adapter_seq_read3,
             annotations_gtf = annotations_gtf,
             preindex = preindex,
-            cloud_provider = cloud_provider
+            cloud_provider = cloud_provider,
+            vm_size = vm_size
     }
 
     if (preindex) {
