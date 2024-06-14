@@ -82,6 +82,17 @@ workflow snm3C {
 
     call Summary_PerCellOutput {
        input:
+            # inputs needed for summary 
+            trimmed_stats = Hisat_paired_end.trim_stats_tar,
+            hisat3n_stats = Hisat_paired_end.hisat3n_paired_end_stats_tar,
+            r1_hisat3n_stats = Hisat_single_end.hisat3n_dna_split_reads_summary_R1_tar,
+            r2_hisat3n_stats = Hisat_single_end.hisat3n_dna_split_reads_summary_R2_tar,
+            dedup_stats = Merge_sort_analyze.dedup_stats_tar,
+            chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats,
+            
+            # inputs needed to output at a per cell level
+            allc_uniq_reads_stats = Merge_sort_analyze.allc_uniq_reads_stats,
+            unique_reads_cgn_extraction_tbi = Merge_sort_analyze.extract_allc_output_tbi_tar,
             name_sorted_bams = Merge_sort_analyze.name_sorted_bam,
             unique_reads_cgn_extraction_allc = Merge_sort_analyze.allc,
             unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi,
@@ -111,7 +122,7 @@ workflow snm3C {
     }
 
     output {
-        File MappingSummary = Summary.mapping_summary
+        File MappingSummary = Summary_PerCellOutput.mapping_summary
         Array[File] reference_version = Hisat_paired_end.reference_version
         Array[File] name_sorted_bam_array = Summary_PerCellOutput.name_sorted_bam_array
         Array[File] unique_reads_cgn_extraction_allc_array = Summary_PerCellOutput.unique_reads_cgn_extraction_allc_array
@@ -928,6 +939,17 @@ task Merge_sort_analyze {
 
 task Summary_PerCellOutput {
     input {
+        # to generate summary output file
+        Array[File] trimmed_stats
+        Array[File] hisat3n_stats
+        Array[File] r1_hisat3n_stats
+        Array[File] r2_hisat3n_stats
+        Array[File] dedup_stats
+        Array[File] chromatin_contact_stats
+        Array[File] allc_uniq_reads_stats
+        Array[File] unique_reads_cgn_extraction_tbi
+
+        # to generate list of files per file type
         Array[File] name_sorted_bams
         Array[File] unique_reads_cgn_extraction_allc
         Array[File] unique_reads_cgn_extraction_tbi
@@ -946,6 +968,8 @@ task Summary_PerCellOutput {
         set -x
 
         extract_and_remove() {
+            local output_percell=$1
+            
             if [ $# -eq 0 ];
                 then
                     echo "No files exist"
@@ -959,33 +983,57 @@ task Summary_PerCellOutput {
 
                 if [ ! -d "$dir_name" ]; then
                     mkdir /cromwell_root/"$dir_name"
-                    touch /cromwell_root/"$dir_name".txt
+                    
+                    if [ "$output_percell" = true ]; then
+                        touch /cromwell_root/"$dir_name".txt
+                    fi
                 fi
                 # untar file and remove it
                 pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"$dir_name"
                 rm "$tarred_file"
                 
                 # if dir in untarred directory, find files and write to txt, else access directly from dir
-                if [ -d /cromwell_root/"$dir_name"/cromwell_root ]; then
-                    find /cromwell_root/"$dir_name" -maxdepth 3 -type f > /cromwell_root/"$dir_name".txt
-                else
-                    find /cromwell_root/"$dir_name" -maxdepth 1 -type f > /cromwell_root/"$dir_name".txt
+                if [ "$output_percell" = true ]; then
+                    if [ -d /cromwell_root/"$dir_name"/cromwell_root ]; then
+                        find /cromwell_root/"$dir_name" -maxdepth 3 -type f > /cromwell_root/"$dir_name".txt
+                    else
+                        find /cromwell_root/"$dir_name" -maxdepth 1 -type f > /cromwell_root/"$dir_name".txt
+                    fi
                 fi
             done
         }
         
         ls -R 
         pwd
-        extract_and_remove ~{sep=' ' name_sorted_bams}
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc}
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
-        extract_and_remove ~{sep=' ' all_reads_3C_contacts}
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc_extract}
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract}
+        # generate summary output file from the files below 
+        echo "Untar files needed for the summary output file"
+        extract_and_remove ~{sep=' ' trimmed_stats} false
+        extract_and_remove ~{sep=' ' hisat3n_stats} false
+        extract_and_remove ~{sep=' ' r1_hisat3n_stats} false
+        extract_and_remove ~{sep=' ' r2_hisat3n_stats} false
+        extract_and_remove ~{sep=' ' dedup_stats} false
+        extract_and_remove ~{sep=' ' chromatin_contact_stats} false
+        extract_and_remove ~{sep=' ' allc_uniq_reads_stats} false
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi} false
+
+        python3 -c 'from cemba_data.hisat3n import *;snm3c_summary()'
+        mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
+
+        ls -R 
+        pwd
+        # output files at a cell level
+        echo "Untar files needed at per cell level"
+        extract_and_remove ~{sep=' ' name_sorted_bams} true
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc} true
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi} true
+        extract_and_remove ~{sep=' ' all_reads_3C_contacts} true
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc_extract} true
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract} true
         ls -R
         pwd
+        wc -l /cromwell_root/~{plate_id}.hisat3n_dna.all_reads.name_sort.txt
+        
 
-        wc -l /cromwell_root/test.hisat3n_dna.all_reads.name_sort.txt
     >>>
 
     runtime {
@@ -996,12 +1044,13 @@ task Summary_PerCellOutput {
     }
 
     output {
-        Array[File] name_sorted_bam_array = read_lines("test.hisat3n_dna.all_reads.name_sort.txt")
-        Array[File] unique_reads_cgn_extraction_allc_array = read_lines("test.allc.tsv.txt")
-        Array[File] unique_reads_cgn_extraction_tbi_array = read_lines("test.allc.tbi.txt")
-        Array[File] all_reads_3C_contacts_array = read_lines("test.hisat3n_dna.all_reads.3C.contact.txt")
-        Array[File] unique_reads_cgn_extraction_allc_extract_array = read_lines("test.extract-allc.txt")
-        Array[File] unique_reads_cgn_extraction_tbi_extract_array = read_lines("test.extract-allc_tbi.txt")
+        File mapping_summary = "~{plate_id}_MappingSummary.csv.gz"
+        Array[File] name_sorted_bam_array = read_lines("~{plate_id}.hisat3n_dna.all_reads.name_sort.txt")
+        Array[File] unique_reads_cgn_extraction_allc_array = read_lines("~{plate_id}.allc.tsv.txt")
+        Array[File] unique_reads_cgn_extraction_tbi_array = read_lines("~{plate_id}.allc.tbi.txt")
+        Array[File] all_reads_3C_contacts_array = read_lines("~{plate_id}.hisat3n_dna.all_reads.3C.contact.txt")
+        Array[File] unique_reads_cgn_extraction_allc_extract_array = read_lines("~{plate_id}.extract-allc.txt")
+        Array[File] unique_reads_cgn_extraction_tbi_extract_array = read_lines("~{plate_id}.extract-allc_tbi.txt")
     }
 
 }
