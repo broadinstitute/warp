@@ -6,9 +6,11 @@ on:
   pull_request:
     #Runs on PR to develop, master, and staging
     branches: [ "develop", "master", "staging" ]
-    #Only run if files in this path changed: pipelines/skylab/smartseq2_single_nucleus_multisample
+    #Only run if files in these paths changed: pipelines/skylab/smartseq2_single_nucleus_multisample, tasks, verification
     paths:
       - 'pipelines/skylab/smartseq2_single_nucleus_multisample/**'
+      - 'tasks/**'
+      - 'verification/**'
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
