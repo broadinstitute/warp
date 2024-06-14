@@ -116,7 +116,9 @@ workflow snm3C {
         Array[File] unique_reads_cgn_extraction_allc_array = Summary_PerCellOutput.unique_reads_cgn_extraction_allc_array
         Array[File] unique_reads_cgn_extraction_tbi_array = Summary_PerCellOutput.unique_reads_cgn_extraction_tbi_array
         Array[File] all_reads_3C_contacts_array = Summary_PerCellOutput.all_reads_3C_contacts_array
-        
+        Array[File] unique_reads_cgn_extraction_allc_extract_array = Summary_PerCellOutput.extract_allc_output_allc_tar
+        Array[File] unique_reads_cgn_extraction_tbi_extract_array = Summary_PerCellOutput.extract_allc_output_tbi_tar
+
         # Array[File] name_sorted_bams = Merge_sort_analyze.name_sorted_bam
         # Array[File] unique_reads_cgn_extraction_allc= Merge_sort_analyze.allc
         # Array[File] unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi
@@ -125,12 +127,10 @@ workflow snm3C {
         Array[File] reference_version = Hisat_paired_end.reference_version
         
         # do we need these?
-        Array[File] all_reads_dedup_contacts = Merge_sort_analyze.all_reads_dedup_contacts
-        Array[File] chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats
+        #Array[File] all_reads_dedup_contacts = Merge_sort_analyze.all_reads_dedup_contacts
+        #Array[File] chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats
 
-        Array[File] unique_reads_cgn_extraction_allc_extract = Merge_sort_analyze.extract_allc_output_allc_tar
-        Array[File] unique_reads_cgn_extraction_tbi_extract = Merge_sort_analyze.extract_allc_output_tbi_tar
-
+   
     }
 }
 
@@ -969,8 +969,14 @@ task Summary_PerCellOutput {
                 fi
                 # untar file and remove it
                 pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"$dir_name"
-                find /cromwell_root/"$dir_name" -maxdepth 1 -type f > /cromwell_root/"$dir_name".txt
                 rm "$tarred_file"
+                
+                # if dir in untarred directory, find files and write to txt, else access directly from dir
+                if [ -d /cromwell_root/"$dir_name"/cromwell_root ]; then
+                    find /cromwell_root/"$dir_name" -maxdepth 3 -type f > /cromwell_root/"$dir_name".txt
+                else
+                    find /cromwell_root/"$dir_name" -maxdepth 1 -type f > /cromwell_root/"$dir_name".txt
+                fi
             done
         }
         
@@ -980,17 +986,12 @@ task Summary_PerCellOutput {
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc}
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
         extract_and_remove ~{sep=' ' all_reads_3C_contacts}
-
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc_extract}
-        #ls
-        #pwd
-
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract}
         ls -R
         pwd
 
         wc -l /cromwell_root/test.hisat3n_dna.all_reads.name_sort.txt
-        cat /cromwell_root/test.extract-allc.txt
     >>>
 
     runtime {
@@ -1005,6 +1006,8 @@ task Summary_PerCellOutput {
         Array[File] unique_reads_cgn_extraction_allc_array = read_lines("test.allc.tsv.txt")
         Array[File] unique_reads_cgn_extraction_tbi_array = read_lines("test.allc.tbi.txt")
         Array[File] all_reads_3C_contacts_array = read_lines("test.hisat3n_dna.all_reads.3C.contact.txt")
+        Array[File] unique_reads_cgn_extraction_allc_extract_array = read_lines("test.extract-allc.txt")
+        Array[File] unique_reads_cgn_extraction_tbi_extract_array = read_lines("test.extract-allc_tbi.txt")
     }
 
 }
