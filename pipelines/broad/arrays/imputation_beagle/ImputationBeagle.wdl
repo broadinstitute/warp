@@ -1,12 +1,11 @@
 version 1.0
 
-import "../../../../structs/imputation/ImputationStructs.wdl" as structs
 import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
 import "../../../../tasks/broad/Utilities.wdl" as utils
 
-workflow Imputation {
+workflow ImputationBeagle {
 
-  String pipeline_version = "1.1.12"
+  String pipeline_version = "0.0.1"
 
   input {
     Int chunkLength = 25000000
@@ -29,7 +28,7 @@ workflow Imputation {
     File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
     Array[String] contigs
     String reference_panel_path # path to the bucket where the reference panel files are stored for all contigs
-    File genetic_maps_eagle
+    String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
     String output_callset_name # the output callset name
     Boolean split_output_to_single_sample = false
     Int merge_ssvcf_mem_mb = 3000 # the memory allocation for MergeSingleSampleVcfs (in mb)
@@ -40,9 +39,7 @@ workflow Imputation {
     # file extensions used to find reference panel files
     String vcf_suffix = ".vcf.gz"
     String vcf_index_suffix = ".vcf.gz.tbi"
-    String bcf_suffix = ".bcf"
-    String bcf_index_suffix =  ".bcf.csi"
-    String m3vcf_suffix = ".cleaned.m3vcf.gz"
+    String bref3_suffix = ".bref3"
   }
 
   if (defined(single_sample_vcfs) && defined(multi_sample_vcf)) {
@@ -77,20 +74,19 @@ workflow Imputation {
       vcf = vcf_to_impute,
   }
 
-
   Float chunkLengthFloat = chunkLength
 
   scatter (contig in contigs) {
 
     String reference_filename = reference_panel_path + "ALL.chr" + contig + ".phase3_integrated.20130502.genotypes.cleaned"
+    String genetic_map_filename = genetic_maps_path + "plink.chr" + contig + ".GRCh37.map"
 
     ReferencePanelContig referencePanelContig = {
       "vcf": reference_filename + vcf_suffix,
       "vcf_index": reference_filename + vcf_index_suffix,
-      "bcf": reference_filename + bcf_suffix,
-      "bcf_index": reference_filename + bcf_index_suffix,
-      "m3vcf": reference_filename + m3vcf_suffix,
-      "contig": contig
+      "bref3": reference_filename + bref3_suffix,
+      "contig": contig,
+      "genetic_map": genetic_map_filename
     }
 
     call tasks.CalculateChromosomeLength {
@@ -107,6 +103,7 @@ workflow Imputation {
       Int startWithOverlaps = if (start - chunkOverlaps < 1) then 1 else start - chunkOverlaps
       Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
       Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < end + chunkOverlaps) then CalculateChromosomeLength.chrom_length else end + chunkOverlaps
+      String chunk_basename = "chrom_" + referencePanelContig.contig + "_chunk_" + i
 
       call tasks.GenerateChunk {
         input:
@@ -115,7 +112,7 @@ workflow Imputation {
           start = startWithOverlaps,
           end = endWithOverlaps,
           chrom = referencePanelContig.contig,
-          basename = "chrom_" + referencePanelContig.contig + "_chunk_" + i
+          basename = chunk_basename
       }
 
       if (perform_extra_qc_steps) {
@@ -123,7 +120,7 @@ workflow Imputation {
           input:
             input_vcf = GenerateChunk.output_vcf,
             input_vcf_index = GenerateChunk.output_vcf_index,
-            output_vcf_basename =  "chrom_" + referencePanelContig.contig + "_chunk_" + i,
+            output_vcf_basename = chunk_basename,
             optional_qc_max_missing = optional_qc_max_missing,
             optional_qc_hwe = optional_qc_hwe
         }
@@ -136,7 +133,7 @@ workflow Imputation {
           panel_vcf = referencePanelContig.vcf,
           panel_vcf_index = referencePanelContig.vcf_index
       }
-      call tasks.CheckChunks {
+      call tasks.CheckChunksBeagle {
         input:
           vcf = select_first([OptionalQCSites.output_vcf,  GenerateChunk.output_vcf]),
           vcf_index = select_first([OptionalQCSites.output_vcf_index, GenerateChunk.output_vcf_index]),
@@ -168,63 +165,44 @@ workflow Imputation {
           output_basename = "imputed_sites"
       }
 
-      if (CheckChunks.valid) {
-        call tasks.PhaseVariantsEagle {
+      if (CheckChunksBeagle.valid) {
+        call tasks.PhaseAndImputeBeagle {
           input:
-            dataset_bcf = CheckChunks.valid_chunk_bcf,
-            dataset_bcf_index = CheckChunks.valid_chunk_bcf_index,
-            reference_panel_bcf = referencePanelContig.bcf,
-            reference_panel_bcf_index = referencePanelContig.bcf_index,
+            dataset_vcf = select_first([OptionalQCSites.output_vcf,  GenerateChunk.output_vcf]),
+            ref_panel_bref3 = referencePanelContig.bref3,
             chrom = referencePanelContig.contig,
-            genetic_map_file = genetic_maps_eagle,
-            start = startWithOverlaps,
-            end = endWithOverlaps
-        }
-
-        call tasks.Minimac4 {
-          input:
-            ref_panel = referencePanelContig.m3vcf,
-            phased_vcf = PhaseVariantsEagle.dataset_prephased_vcf,
-            prefix = "chrom_" + referencePanelContig.contig + "_chunk_" + i +"_imputed",
-            chrom = referencePanelContig.contig,
-            start = start,
-            end = end,
-            window = chunkOverlaps
-        }
-
-        call tasks.AggregateImputationQCMetrics {
-          input:
-            infoFile = Minimac4.info,
-            nSamples = CountSamples.nSamples,
-            basename = output_callset_name + "chrom_" + referencePanelContig.contig + "_chunk_" + i
+            basename = chunk_basename,
+            genetic_map_file = referencePanelContig.genetic_map,
+            start = start, # was startWithOverlaps, same with end
+            end = end
         }
 
         call tasks.UpdateHeader {
           input:
-            vcf = Minimac4.vcf,
-            vcf_index = Minimac4.vcf_index,
+            vcf = PhaseAndImputeBeagle.vcf,
+            vcf_index = PhaseAndImputeBeagle.vcf_index,
             ref_dict = ref_dict,
-            basename = "chrom_" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
+            basename = chunk_basename + "_imputed"
         }
 
         call tasks.SeparateMultiallelics {
           input:
             original_vcf = UpdateHeader.output_vcf,
             original_vcf_index = UpdateHeader.output_vcf_index,
-            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
+            output_basename = chunk_basename + "_imputed"
         }
 
         call tasks.RemoveSymbolicAlleles {
           input:
             original_vcf = SeparateMultiallelics.output_vcf,
             original_vcf_index = SeparateMultiallelics.output_vcf_index,
-            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
+            output_basename = chunk_basename + "_imputed"
         }
 
         call tasks.SetIDs {
           input:
             vcf = RemoveSymbolicAlleles.output_vcf,
-            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
+            output_basename = chunk_basename + "_imputed"
         }
 
         call tasks.ExtractIDs {
@@ -259,7 +237,7 @@ workflow Imputation {
           basename = output_callset_name
       }
     }
-    Array[File] aggregatedImputationMetrics = select_all(AggregateImputationQCMetrics.aggregated_metrics)
+    # Array[File] aggregatedImputationMetrics = select_all(AggregateImputationQCMetrics.aggregated_metrics)
     Array[File] chromosome_vcfs = select_all(InterleaveVariants.output_vcf)
   }
 
@@ -325,21 +303,21 @@ workflow Imputation {
   call tasks.GatherVcfs {
     input:
       input_vcfs = unsorted_vcfs,
-      output_vcf_basename = output_callset_name
+      output_vcf_basename = output_callset_name + ".imputed"
   }
 
-  call tasks.MergeImputationQCMetrics {
-    input:
-      metrics = flatten(aggregatedImputationMetrics),
-      basename = output_callset_name
-  }
+#   call tasks.MergeImputationQCMetrics {
+#     input:
+#       metrics = flatten(aggregatedImputationMetrics),
+#       basename = output_callset_name
+#   }
 
-  if (MergeImputationQCMetrics.frac_above_maf_5_percent_well_imputed < frac_above_maf_5_percent_well_imputed_threshold) {
-    call utils.ErrorWithMessage as FailQCWellImputedFrac {
-      input:
-        message = "Well imputed fraction was " + MergeImputationQCMetrics.frac_above_maf_5_percent_well_imputed + ", QC failure threshold was set at " + frac_above_maf_5_percent_well_imputed_threshold
-    }
-  }
+#   if (MergeImputationQCMetrics.frac_above_maf_5_percent_well_imputed < frac_above_maf_5_percent_well_imputed_threshold) {
+#     call utils.ErrorWithMessage as FailQCWellImputedFrac {
+#       input:
+#         message = "Well imputed fraction was " + MergeImputationQCMetrics.frac_above_maf_5_percent_well_imputed + ", QC failure threshold was set at " + frac_above_maf_5_percent_well_imputed_threshold
+#     }
+#   }
 
   call tasks.StoreChunksInfo {
     input:
@@ -348,7 +326,7 @@ workflow Imputation {
       ends = flatten(end),
       vars_in_array = flatten(CountVariantsInChunks.var_in_original),
       vars_in_panel = flatten(CountVariantsInChunks.var_in_reference),
-      valids = flatten(CheckChunks.valid),
+      valids = flatten(CheckChunksBeagle.valid),
       basename = output_callset_name
   }
   
@@ -374,8 +352,8 @@ workflow Imputation {
     Array[File]? imputed_single_sample_vcfs = SplitMultiSampleVcf.single_sample_vcfs
     Array[File]? imputed_single_sample_vcf_indices = SplitMultiSampleVcf.single_sample_vcf_indices
     File imputed_multisample_vcf = GatherVcfs.output_vcf
-    File imputed_multisample_vcf_index = GatherVcfs.output_vcf_index
-    File aggregated_imputation_metrics = MergeImputationQCMetrics.aggregated_metrics
+    File imputed_multisample_vcf_index = select_first([GatherVcfs.output_vcf_index])
+    # File aggregated_imputation_metrics = MergeImputationQCMetrics.aggregated_metrics
     File chunks_info = StoreChunksInfo.chunks_info
     File failed_chunks = StoreChunksInfo.failed_chunks
     File n_failed_chunks = StoreChunksInfo.n_failed_chunks
@@ -385,4 +363,12 @@ workflow Imputation {
     allowNestedInputs: true
   }
 
+}
+
+struct ReferencePanelContig {
+  File vcf
+  File vcf_index
+  File bref3
+  String contig
+  File genetic_map
 }

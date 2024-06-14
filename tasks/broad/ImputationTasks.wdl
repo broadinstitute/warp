@@ -261,6 +261,90 @@ task Minimac4 {
   }
 }
 
+task CheckChunksBeagle {
+  input {
+    File vcf
+    File vcf_index
+    File panel_vcf
+    File panel_vcf_index
+    Int var_in_original
+    Int var_in_reference
+
+    Int disk_size_gb = ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
+    Int cpu = 1
+    Int memory_mb = 4000
+  }
+  command <<<
+    set -e -o pipefail
+
+    if [ $(( ~{var_in_reference} * 2 - ~{var_in_original})) -gt 0 ] && [ ~{var_in_reference} -gt 3 ]; then
+      echo true > valid_file.txt
+    else
+      echo false > valid_file.txt
+    fi
+  >>>
+  output {
+    Boolean valid = read_boolean("valid_file.txt")
+  }
+  runtime {
+    docker: bcftools_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+}
+
+task PhaseAndImputeBeagle {
+  input {
+    File dataset_vcf
+    File ref_panel_bref3
+    File genetic_map_file
+    String basename
+    String chrom             # not needed if ref file has been chunked and you are using the entire chunk
+    Int start                # not needed if ref file has been chunked and you are using the entire chunk
+    Int end                  # not needed if ref file has been chunked and you are using the entire chunk
+
+    String beagle_docker = "us-central1-docker.pkg.dev/morgan-fieldeng-gcp/imputation-beagle-development/imputation-beagle:0.0.1-01Mar24.d36-wip-temp-20240301"
+    Int cpu = 8                    # This parameter can be higher or lower
+    Int memory_mb = 32000          # value depends on chunk size, the number of samples in ref and target panel, and whether imputation is performed
+    Int xmx_mb = 29000             # I suggest setting this parameter to be 85-90% of the memory_mb parameter
+    Int disk_size_gb = ceil(3 * size([dataset_vcf, ref_panel_bref3], "GiB")) + 50         # value may need to be adjusted
+  }
+
+  command <<<
+    set -e -o pipefail
+
+    java -ea -Xmx~{xmx_mb}m \
+    -jar /usr/gitc/beagle.01Mar24.d36.jar \
+    gt=~{dataset_vcf} \
+    ref=~{ref_panel_bref3} \
+    map=~{genetic_map_file} \
+    out=imputed_~{basename} \
+    chrom=~{chrom}:~{start}-~{end} \
+    impute=true \
+    nthreads=~{cpu}
+
+    # notes: 
+    # rename output file to "phased_{basename}" if phasing without imputing
+    # `chrom` not needed if ref and targ files have been chunked and you are using the entire chunk
+    # set impute=false if you wish to phase without imputing ungenotyped markers
+
+    bcftools index -t imputed_~{basename}.vcf.gz
+  >>>
+  output {
+    File vcf = "imputed_~{basename}.vcf.gz"
+    File vcf_index = "imputed_~{basename}.vcf.gz.tbi"
+    File log = "imputed_~{basename}.log"
+  }
+  runtime {
+    docker: beagle_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+}
+
 task GatherVcfs {
   input {
     Array[File] input_vcfs
@@ -285,7 +369,6 @@ task GatherVcfs {
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
-
   >>>
   runtime {
     docker: gatk_docker
@@ -751,6 +834,7 @@ task ExtractIDs {
 task SelectVariantsByIds {
   input {
     File vcf
+    File vcf_index
     File ids
     String basename
 
@@ -761,6 +845,10 @@ task SelectVariantsByIds {
   }
   parameter_meta {
     vcf: {
+      description: "vcf",
+      localization_optional: true
+    }
+    vcf_index: {
       description: "vcf",
       localization_optional: true
     }
