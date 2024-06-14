@@ -39,12 +39,11 @@ on:
         description: 'Uncached: An optional flag that disables call-caching for the main workflow run. This ensures that all tasks are executed afresh, which is particularly useful for testing changes or for performance measurements.'
         required: false
         default: 'false'
-      image_tag:
-        description: 'Docker Image Tag (default: branch_name)' 
+      warp_tester_docker_path:
+        description: 'Docker image that is pre-configured with all tools needed for an automated pipeline run (default: dsppipelinedev.azurecr.io/warp-tester:1.0)' 
 
 env:
   PROJECT_NAME: MultiSample SmartSeq2 Single Nucleus
-  # The tag for the Docker imageAZURE_SUBSCRIPTION_ID="d44cb7d1-184a-4202-b1de-1ffe54218e99"
   #TODO: Make these secrets
   AZURE_RESOURCE_GROUP_NAME: dsp-pipeline-dev
   AZURE_AKS_NAME: pdt-a1b950246124be
