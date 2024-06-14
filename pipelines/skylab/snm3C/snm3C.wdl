@@ -994,7 +994,7 @@ task Summary_PerCellOutput {
     }
 
     output {
-        Array[String] name_sorted_bams = read_lines("/cromwell_root/*.hisat3n_dna.all_reads.name_sort.txt")
+        Array[String] name_sorted_bams = read_lines("/cromwell_root/test_test.hisat3n_dna.all_reads.name_sort.txt")
     }
 
 }
