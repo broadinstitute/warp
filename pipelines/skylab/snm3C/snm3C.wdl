@@ -952,9 +952,8 @@ task Summary_PerCellOutput {
                 # if directory doesnt exist, make it
                 # fix: combine two commands into one 
                 dir_name=`basename "${tarred_file%.tar.gz}"`
-                dir_name=~{plate_id}_$dir_name
-
                 echo $dir_name
+
                 if [ ! -d "$dir_name" ]; then
                     mkdir /cromwell_root/"$dir_name"
                     touch /cromwell_root/"$dir_name".txt
@@ -981,9 +980,9 @@ task Summary_PerCellOutput {
         ls -R
         pwd
 
-        cat /cromwell_root/~{plate_id}_test.hisat3n_dna.all_reads.name_sort.txt
-        wc -l /cromwell_root/~{plate_id}_test.hisat3n_dna.all_reads.name_sort.txt
-        cat /cromwell_root/~{plate_id}_test.extract-allc.txt
+        cat /cromwell_root/test.hisat3n_dna.all_reads.name_sort.txt
+        wc -l /cromwell_root/test.hisat3n_dna.all_reads.name_sort.txt
+        cat /cromwell_root/test.extract-allc.txt
     >>>
 
     runtime {
@@ -994,7 +993,7 @@ task Summary_PerCellOutput {
     }
 
     output {
-        Array[String] name_sorted_bams = read_lines("/cromwell_root/test_test.hisat3n_dna.all_reads.name_sort.txt")
+        Array[File] name_sorted_bam_array = read_lines("test.hisat3n_dna.all_reads.name_sort.txt")
     }
 
 }
