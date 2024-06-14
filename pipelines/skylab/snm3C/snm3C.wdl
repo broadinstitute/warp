@@ -83,7 +83,7 @@ workflow snm3C {
     call Summary_PerCellOutput {
        input:
             name_sorted_bams = Merge_sort_analyze.name_sorted_bam,
-            unique_reads_cgn_extraction_allc= Merge_sort_analyze.allc,
+            unique_reads_cgn_extraction_allc = Merge_sort_analyze.allc,
             unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi,
             all_reads_3C_contacts = Merge_sort_analyze.all_reads_3C_contacts,
             unique_reads_cgn_extraction_allc_extract = Merge_sort_analyze.extract_allc_output_allc_tar,
@@ -112,19 +112,13 @@ workflow snm3C {
 
     output {
         File MappingSummary = Summary.mapping_summary
+        Array[File] reference_version = Hisat_paired_end.reference_version
         Array[File] name_sorted_bam_array = Summary_PerCellOutput.name_sorted_bam_array
         Array[File] unique_reads_cgn_extraction_allc_array = Summary_PerCellOutput.unique_reads_cgn_extraction_allc_array
         Array[File] unique_reads_cgn_extraction_tbi_array = Summary_PerCellOutput.unique_reads_cgn_extraction_tbi_array
         Array[File] all_reads_3C_contacts_array = Summary_PerCellOutput.all_reads_3C_contacts_array
-        Array[File] unique_reads_cgn_extraction_allc_extract_array = Summary_PerCellOutput.extract_allc_output_allc_tar
-        Array[File] unique_reads_cgn_extraction_tbi_extract_array = Summary_PerCellOutput.extract_allc_output_tbi_tar
-
-        # Array[File] name_sorted_bams = Merge_sort_analyze.name_sorted_bam
-        # Array[File] unique_reads_cgn_extraction_allc= Merge_sort_analyze.allc
-        # Array[File] unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi
-        #Array[File] all_reads_3C_contacts = Merge_sort_analyze.all_reads_3C_contacts
-
-        Array[File] reference_version = Hisat_paired_end.reference_version
+        Array[File] unique_reads_cgn_extraction_allc_extract_array = Summary_PerCellOutput.unique_reads_cgn_extraction_allc_extract_array
+        Array[File] unique_reads_cgn_extraction_tbi_extract_array = Summary_PerCellOutput.unique_reads_cgn_extraction_tbi_extract_array
         
         # do we need these?
         #Array[File] all_reads_dedup_contacts = Merge_sort_analyze.all_reads_dedup_contacts
