@@ -641,7 +641,8 @@ task ValidateVCF {
       # We can't always assume the index was located with the vcf, so make a link so that the paths look the same
       ln -s ~{calling_interval_list} ~{calling_interval_list_basename}
       ln -s ~{calling_interval_list_index} ~{calling_interval_list_index_basename}
-      gatk VcfToIntervalList -I ~{calling_interval_list_basename} -O intervals_from_gvcf.interval_list
+      gatk --java-options "-Xms~{command_mem_mb}m -Xmx~{command_mem_mb}m" \
+        VcfToIntervalList -I ~{calling_interval_list_basename} -O intervals_from_gvcf.interval_list
       INTERVALS="intervals_from_gvcf.interval_list"
     else
       INTERVALS="~{calling_interval_list}"
