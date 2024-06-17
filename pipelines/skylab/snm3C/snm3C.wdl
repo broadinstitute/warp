@@ -968,7 +968,7 @@ task Summary_PerCellOutput {
         set -x
 
         extract_and_remove() {
-            local output_percell=$1
+            local output_percell=$0
             shift 
 
             if [ $# -eq 0 ];
@@ -1008,14 +1008,14 @@ task Summary_PerCellOutput {
         pwd
         # generate summary output file from the files below 
         echo "Untar files needed for the summary output file"
-        extract_and_remove ~{sep=' ' trimmed_stats} false
-        extract_and_remove ~{sep=' ' hisat3n_stats} false
-        extract_and_remove ~{sep=' ' r1_hisat3n_stats} false
-        extract_and_remove ~{sep=' ' r2_hisat3n_stats} false
-        extract_and_remove ~{sep=' ' dedup_stats} false
-        extract_and_remove ~{sep=' ' chromatin_contact_stats} false
-        extract_and_remove ~{sep=' ' allc_uniq_reads_stats} false
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi} false
+        extract_and_remove false ~{sep=' ' trimmed_stats}
+        extract_and_remove false ~{sep=' ' hisat3n_stats} 
+        extract_and_remove false ~{sep=' ' r1_hisat3n_stats} 
+        extract_and_remove false ~{sep=' ' r2_hisat3n_stats} 
+        extract_and_remove false ~{sep=' ' dedup_stats}
+        extract_and_remove false ~{sep=' ' chromatin_contact_stats}
+        extract_and_remove false ~{sep=' ' allc_uniq_reads_stats} 
+        extract_and_remove false ~{sep=' ' unique_reads_cgn_extraction_tbi}
 
         python3 -c 'from cemba_data.hisat3n import *;snm3c_summary()'
         mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
@@ -1024,12 +1024,12 @@ task Summary_PerCellOutput {
         pwd
         # output files at a cell level
         echo "Untar files needed at per cell level"
-        extract_and_remove ~{sep=' ' name_sorted_bams} true
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc} true
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi} true
-        extract_and_remove ~{sep=' ' all_reads_3C_contacts} true
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc_extract} true
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract} true
+        extract_and_remove true ~{sep=' ' name_sorted_bams} 
+        extract_and_remove true ~{sep=' ' unique_reads_cgn_extraction_allc}
+        extract_and_remove true ~{sep=' ' unique_reads_cgn_extraction_tbi}
+        extract_and_remove true ~{sep=' ' all_reads_3C_contacts}
+        extract_and_remove true ~{sep=' ' unique_reads_cgn_extraction_allc_extract}
+        extract_and_remove true ~{sep=' ' unique_reads_cgn_extraction_tbi_extract}
         ls -R
         pwd
         wc -l /cromwell_root/~{plate_id}.hisat3n_dna.all_reads.name_sort.txt
