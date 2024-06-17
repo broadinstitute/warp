@@ -587,7 +587,7 @@ task CalculateReadGroupChecksum {
     Int preemptible_tries
   }
 
-  Int disk_size = ceil(size(input_bam, "GiB")) + 40
+  Int disk_size = (ceil(size(input_bam, "GiB")) * 2) + 40
 
   command {
     java -Xms1000m -Xmx3500m -jar /usr/picard/picard.jar \
@@ -598,7 +598,7 @@ task CalculateReadGroupChecksum {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
-    memory: "4000 MiB"
+    memory: "8000 MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
