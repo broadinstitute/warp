@@ -969,25 +969,26 @@ task Summary_PerCellOutput {
 
         extract_and_remove() {
             local output_percell=$1
-            
+            shift 
+
             if [ $# -eq 0 ];
                 then
                     echo "No files exist"
                     return
             fi
+
             for tarred_file in "${@}"; do
                 # if directory doesnt exist, make it
                 # fix: combine two commands into one 
                 dir_name=`basename "${tarred_file%.tar.gz}"`
                 echo $dir_name
 
-                if [ ! -d "$dir_name" ]; then
-                    mkdir /cromwell_root/"$dir_name"
-                    
-                    if [ "$output_percell" = true ]; then
-                        touch /cromwell_root/"$dir_name".txt
-                    fi
+                mkdir -p /cromwell_root/"$dir_name" 
+            
+                if [ "$output_percell" = true ]; then
+                    touch /cromwell_root/"$dir_name".txt
                 fi
+                
                 # untar file and remove it
                 pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"$dir_name"
                 rm "$tarred_file"
