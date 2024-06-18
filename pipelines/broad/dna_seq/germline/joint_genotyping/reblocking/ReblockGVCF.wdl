@@ -51,7 +51,7 @@ workflow ReblockGVCF {
         calling_intervals_defined = defined(calling_interval_list),
         is_gvcf = true,
         extra_args = "--no-overlaps",
-        gatk_docker = "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
+        gatk_docker = "mshand/genomesinthecloud:gatk_e99cc7d42"
     }
 
   output {

@@ -326,7 +326,7 @@ task HardThresholdVCF {
     String output_basename
     String score_key
     Int disk_size
-    String docker = "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
+    String docker = "mshand/genomesinthecloud:gatk_e99cc7d42"
   }
 
   command <<<
@@ -384,7 +384,7 @@ task AnnotateSampleVCF {
         File input_vcf_index
         String output_basename
         Int disk_size = ceil(size(input_vcf, "GB") * 2) + 50
-        String docker = "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
+        String docker = "mshand/genomesinthecloud:gatk_e99cc7d42"
         File ref_fasta
         File ref_fasta_index
         File ref_dict

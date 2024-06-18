@@ -168,7 +168,7 @@ workflow UltimaGenomicsJointGenotyping {
       extract_extra_args = "--mode SNP",
       train_extra_args = "--mode SNP",
       score_extra_args = "--mode SNP",
-      gatk_docker = "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
+      gatk_docker = "mshand/genomesinthecloud:gatk_e99cc7d42"
   }
 
   call Filtering.JointVcfFiltering as TrainAndApplyFilteringModelINDELs {
@@ -184,7 +184,7 @@ workflow UltimaGenomicsJointGenotyping {
       extract_extra_args = "--mode INDEL",
       train_extra_args = "--mode INDEL",
       score_extra_args = "--mode INDEL",
-      gatk_docker = "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
+      gatk_docker = "mshand/genomesinthecloud:gatk_e99cc7d42"
   }
 
   call FilteringThreshold.ExtractOptimizeSingleSample as FindFilteringThresholdAndFilter {

@@ -533,7 +533,7 @@ task gatk_baserecalibrator {
     }
 
     runtime {
-        docker: "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
+        docker: "mshand/genomesinthecloud:gatk_e99cc7d42"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
@@ -580,7 +580,7 @@ task gatk_applybqsr {
     }
     
     runtime {
-        docker: "mshand/genomesinthecloud:gatk_pre_mix_ploidy"
+        docker: "mshand/genomesinthecloud:gatk_e99cc7d42"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
