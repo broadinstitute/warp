@@ -122,7 +122,6 @@ jobs:
         
         tree ~/.cromshell || true
         
-        
         cromshell alias -- -1 ss_proto_1 || true
         cromshell list
         #wait for the job to start
@@ -161,10 +160,4 @@ jobs:
         echo "| Total Runtime (seconds) | $t |" >> $GITHUB_STEP_SUMMARY
         echo "### All Azure Jobs (Running/Pending) = $ALL_JOBS" >> $GITHUB_STEP_SUMMARY
         kill $pid
-        
-    
-    #doesn't work because we need to pass env vars across steps, which we'll do in the non-prototype version of this
-    # - name: 'Write the Summary'
-    #   run: |
-    #     echo "### Hello world! :rocket:" >> $GITHUB_STEP_SUMMARY
-    #     echo "### CSTATUS = $CSTATUS" >> $GITHUB_STEP_SUMMARY
+
