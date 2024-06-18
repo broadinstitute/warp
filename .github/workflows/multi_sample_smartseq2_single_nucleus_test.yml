@@ -72,7 +72,7 @@ jobs:
     - name: 'Create Release Package'
       run: |
         pwd
-        scripts/build_pipeline_release.sh -w MultiSampleSmartSeq2SingleNucleus.wdl -v 1.0 -o release -e dev
+        scripts/build_pipeline_release.sh -w pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl -v 1.0 -o release -e dev
         ls -lhta release/MultiSampleSmartSeq2SingleNucleus
         tree release || true
     
