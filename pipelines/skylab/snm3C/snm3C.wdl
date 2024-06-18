@@ -82,8 +82,6 @@ workflow snm3C {
 
     call Summary_PerCellOutput {
        input:
-            allc_uniq_reads_stats = Merge_sort_analyze.allc_uniq_reads_stats,
-            unique_reads_cgn_extraction_tbi = Merge_sort_analyze.extract_allc_output_tbi_tar,
             name_sorted_bams = Merge_sort_analyze.name_sorted_bam,
             unique_reads_cgn_extraction_allc = Merge_sort_analyze.allc,
             unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi,
