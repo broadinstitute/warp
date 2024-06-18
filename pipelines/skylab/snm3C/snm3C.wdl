@@ -997,7 +997,7 @@ task Summary_PerCellOutput {
                         find /cromwell_root/"$dir_name" -maxdepth 1 -type f > /cromwell_root/"$dir_name".txt
                     fi
                 else
-                    pigz -dc "$tarred_file" | tar -xvf - 
+                    tar -xf "$tarred_file"
                 fi
                 # remove file
                 rm "$tarred_file"
