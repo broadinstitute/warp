@@ -978,34 +978,29 @@ task Summary_PerCellOutput {
             fi
 
             for tarred_file in "${@}"; do
-                # if directory doesnt exist, make it
-                # fix: combine two commands into one 
-                dir_name=`basename "${tarred_file%.tar.gz}"`
-                echo $dir_name
-
-                mkdir -p /cromwell_root/"$dir_name" 
-            
                 if [ "$output_percell" = true ]; then
+                    dir_name=`basename "${tarred_file%.tar.gz}"`
+                    echo $dir_name
                     touch /cromwell_root/"$dir_name".txt
-                fi
-                
-                # untar file and remove it
-                pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"$dir_name"
-                rm "$tarred_file"
-                
-                # if dir in untarred directory, find files and write to txt, else access directly from dir
-                if [ "$output_percell" = true ]; then
+                    mkdir -p /cromwell_root/"$dir_name" 
+                    pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"$dir_name"
+                    # if the directory has another directory, then find files in the subdirectory
                     if [ -d /cromwell_root/"$dir_name"/cromwell_root ]; then
                         find /cromwell_root/"$dir_name" -maxdepth 3 -type f > /cromwell_root/"$dir_name".txt
                     else
                         find /cromwell_root/"$dir_name" -maxdepth 1 -type f > /cromwell_root/"$dir_name".txt
                     fi
+                else
+                    pigz -dc "$tarred_file" | tar -xvf - 
                 fi
+                # remove file
+                rm "$tarred_file"
             done
         }
         
         ls -R 
         pwd
+        # move from other task 
         # generate summary output file from the files below 
         echo "Untar files needed for the summary output file"
         extract_and_remove false ~{sep=' ' trimmed_stats}
@@ -1016,7 +1011,24 @@ task Summary_PerCellOutput {
         extract_and_remove false ~{sep=' ' chromatin_contact_stats}
         extract_and_remove false ~{sep=' ' allc_uniq_reads_stats} 
         extract_and_remove false ~{sep=' ' unique_reads_cgn_extraction_tbi}
+        ls -R 
+        pwd
 
+        # make directories
+        mkdir /cromwell_root/fastq
+        mkdir /cromwell_root/bam
+        mkdir /cromwell_root/allc
+        mkdir /cromwell_root/hic
+
+        # move files to directories
+        mv *.trimmed.stats.txt /cromwell_root/fastq
+        mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
+        mv output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt /cromwell_root/bam
+        mv *.hisat3n_dna.all_reads.contact_stats.csv /cromwell_root/hic
+        mv *.allc.tsv.gz.count.csv /cromwell_root/allc
+        mv cromwell_root/allc-CGN/*.allc.tsv.gz.tbi /cromwell_root/allc
+    
+        # calling mapping summary
         python3 -c 'from cemba_data.hisat3n import *;snm3c_summary()'
         mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
 
