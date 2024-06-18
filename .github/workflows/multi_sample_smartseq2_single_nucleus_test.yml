@@ -111,7 +111,7 @@ jobs:
         #echo WDL content:
         #cat release/MultiSampleSmartSeq2SingleNucleus/MultiSampleSmartSeq2SingleNucleus_1.0.wdl || true
 
-        cp test_inputs/Plumbing/mouse_example_azure.json release/MultiSampleSmartSeq2SingleNucleus
+        cp pipelines/skylab/smartseq2_single_nucleus_multisample/test_inputs/Plumbing/mouse_example_azure.json release/MultiSampleSmartSeq2SingleNucleus
         cd release/MultiSampleSmartSeq2SingleNucleus
 
         ls -lht ~/.cromshell || true
