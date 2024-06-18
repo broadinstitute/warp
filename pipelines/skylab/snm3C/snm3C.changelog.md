@@ -1,3 +1,7 @@
+# 4.0.1
+2024-06-18 (Date of Last Commit)
+* Added task to untar files and output files at cell level 
+
 # 4.0.0
 2024-03-15 (Date of Last Commit)
 * Reconstructed code and merged tasks to optimize pipeline and reduce cost 
