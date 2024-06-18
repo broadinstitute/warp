@@ -967,8 +967,14 @@ task Summary_PerCellOutput {
         set -euo pipefail
         set -x
 
+        # make directories for summary task
+        mkdir /cromwell_root/fastq
+        mkdir /cromwell_root/bam
+        mkdir /cromwell_root/allc
+        mkdir /cromwell_root/hic
+
         extract_and_remove() {
-            local output_percell=$0
+            local output_percell=$1
             shift 
 
             if [ $# -eq 0 ];
@@ -1014,12 +1020,7 @@ task Summary_PerCellOutput {
         ls -R 
         pwd
 
-        # make directories
-        mkdir /cromwell_root/fastq
-        mkdir /cromwell_root/bam
-        mkdir /cromwell_root/allc
-        mkdir /cromwell_root/hic
-
+   
         # move files to directories
         mv *.trimmed.stats.txt /cromwell_root/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
