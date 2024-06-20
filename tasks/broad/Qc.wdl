@@ -622,7 +622,7 @@ task ValidateVCF {
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
-    String gatk_docker = "mshand/genomesinthecloud:gatk_e99cc7d42"
+    String gatk_docker = "mshand/genomesinthecloud:gatk_post_mix_ploidy"
     Int machine_mem_mb = 7000
   }
 

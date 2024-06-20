@@ -278,7 +278,7 @@ task GetSampleName {
   input {
     File bam
 
-    String docker = "mshand/genomesinthecloud:gatk_e99cc7d42"
+    String docker = "mshand/genomesinthecloud:gatk_post_mix_ploidy"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
@@ -852,7 +852,7 @@ task CalculateContamination {
     File population_vcf
     File population_vcf_index
     # runtime
-    String docker = "mshand/genomesinthecloud:gatk_e99cc7d42"
+    String docker = "mshand/genomesinthecloud:gatk_post_mix_ploidy"
     Int cpu = 1
     Int memory_mb = 8192
     Int disk_size_gb = 256

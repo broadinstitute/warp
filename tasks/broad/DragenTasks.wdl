@@ -24,7 +24,7 @@ task CalibrateDragstrModel {
     File str_table_file
     File alignment ## can handle cram or bam.
     File alignment_index
-    String docker = "mshand/genomesinthecloud:gatk_e99cc7d42"
+    String docker = "mshand/genomesinthecloud:gatk_post_mix_ploidy"
     Int preemptible_tries = 3
     Int threads = 4
     Int? memory_mb

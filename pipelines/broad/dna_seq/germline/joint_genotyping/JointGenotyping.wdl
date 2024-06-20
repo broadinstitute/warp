@@ -214,7 +214,7 @@ workflow JointGenotyping {
         extract_extra_args = extract_extra_args,
         resource_args = resource_args,
         output_prefix = callset_name,
-        gatk_docker = "mshand/genomesinthecloud:gatk_e99cc7d42"
+        gatk_docker = "mshand/genomesinthecloud:gatk_post_mix_ploidy"
     }
   } 
   if (!run_vets) {

@@ -183,7 +183,7 @@ workflow VariantCalling {
       calling_interval_list = calling_interval_list,
       is_gvcf = make_gvcf,
       extra_args = if (skip_reblocking == false) then "--no-overlaps" else "",
-      gatk_docker = "mshand/genomesinthecloud:gatk_e99cc7d42",
+      gatk_docker = "mshand/genomesinthecloud:gatk_post_mix_ploidy",
       preemptible_tries = agg_preemptible_tries
   }
 
