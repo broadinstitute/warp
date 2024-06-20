@@ -928,7 +928,7 @@ task Summary_PerCellOutput {
         Array[File] all_reads_3C_contacts
         Array[File] unique_reads_cgn_extraction_allc_extract
         Array[File] unique_reads_cgn_extraction_tbi_extract
-        String root_dir = "~{default=runtime.workingDir}"
+        String? root_dir
 
         String docker
         String plate_id
@@ -939,8 +939,15 @@ task Summary_PerCellOutput {
     command <<<
         set -euo pipefail
         set -x
-        echo ~{root_dir}
-        
+
+        # If root_dir is not set, use the current working directory
+        if [ -z "~{root_dir}" ]; then
+            root_dir=$(pwd)
+        else
+            root_dir="~{root_dir}"
+        fi
+        echo ${root_dir}
+
         extract_and_remove() {
             if [ $# -eq 0 ];
                 then
