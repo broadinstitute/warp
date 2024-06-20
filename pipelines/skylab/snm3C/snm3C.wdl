@@ -942,7 +942,6 @@ task Summary_PerCellOutput {
 
         # Set root_dir to current working directory
         root_dir=$(pwd)
-        echo "This is the root directory " "$root_dir"
         
         extract_and_remove() {
             if [ $# -eq 0 ];
