@@ -928,6 +928,7 @@ task Summary_PerCellOutput {
         Array[File] all_reads_3C_contacts
         Array[File] unique_reads_cgn_extraction_allc_extract
         Array[File] unique_reads_cgn_extraction_tbi_extract
+        String root_dir = "~{default=runtime.workingDir}"
 
         String docker
         String plate_id
@@ -938,7 +939,8 @@ task Summary_PerCellOutput {
     command <<<
         set -euo pipefail
         set -x
-
+        echo ~{root_dir}
+        
         extract_and_remove() {
             if [ $# -eq 0 ];
                 then
