@@ -935,13 +935,15 @@ task Summary_PerCellOutput {
         Int mem_size = 30
         Int cpu = 16
     }
+
+    String root_dir=$(pwd)
     command <<<
         set -euo pipefail
         set -x
 
         # Set root_dir to current working directory
-        root_dir=$(pwd)
-        echo ${root_dir} > root_dir.txt
+        # root_dir=$(pwd)
+        # echo ${root_dir} > root_dir.txt
         echo "This is the root directory " ${root_dir}
         
         extract_and_remove() {
@@ -983,12 +985,13 @@ task Summary_PerCellOutput {
     }
 
     output {
-        Array[File] name_sorted_bam_array = read_lines("root_dir.txt") + glob("~{plate_id}.hisat3n_dna.all_reads.name_sort/*")
-        #Array[File] unique_reads_cgn_extraction_allc_array = read_lines("root_dir.txt") + glob("~{plate_id}.allc.tsv/*")
-        #Array[File] unique_reads_cgn_extraction_tbi_array = glob("${root_dir}/~{plate_id}.allc.tbi/*")
-        #Array[File] all_reads_3C_contacts_array = glob("${root_dir}/~{plate_id}.hisat3n_dna.all_reads.3C.contact/*")
-        #Array[File] unique_reads_cgn_extraction_allc_extract_array = glob("${root_dir}/~{plate_id}.extract-allc/cromwell_root/allc-CGN/*")
-        #Array[File] unique_reads_cgn_extraction_tbi_extract_array = glob("${root_dir}/~{plate_id}.extract-allc_tbi/cromwell_root/allc-CGN/*")
+        #String root_dir = read_string("root_dir.txt")
+        Array[File] name_sorted_bam_array = glob(root_dir+ "~{plate_id}.hisat3n_dna.all_reads.name_sort/*")
+        # Array[File] unique_reads_cgn_extraction_allc_array = glob("${root_dir}/~{plate_id}.allc.tsv/*")
+        # Array[File] unique_reads_cgn_extraction_tbi_array = glob("${root_dir}/~{plate_id}.allc.tbi/*")
+        # Array[File] all_reads_3C_contacts_array = glob("${root_dir}/~{plate_id}.hisat3n_dna.all_reads.3C.contact/*")
+        # Array[File] unique_reads_cgn_extraction_allc_extract_array = glob("${root_dir}/~{plate_id}.extract-allc/cromwell_root/allc-CGN/*")
+        # Array[File] unique_reads_cgn_extraction_tbi_extract_array = glob("${root_dir}/~{plate_id}.extract-allc_tbi/cromwell_root/allc-CGN/*")
     }
 
 }
