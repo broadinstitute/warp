@@ -941,11 +941,7 @@ task Summary_PerCellOutput {
         set -x
 
         # If root_dir is not set, use the current working directory
-        if [ -z "~{root_dir}" ]; then
-            root_dir=$(pwd)
-        else
-            root_dir="~{root_dir}"
-        fi
+        root_dir=$(pwd)
         echo "This is the root directory " ${root_dir}
 
         extract_and_remove() {
