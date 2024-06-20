@@ -946,7 +946,7 @@ task Summary_PerCellOutput {
         else
             root_dir="~{root_dir}"
         fi
-        echo ${root_dir}
+        echo "This is the root directory " ${root_dir}
 
         extract_and_remove() {
             if [ $# -eq 0 ];
