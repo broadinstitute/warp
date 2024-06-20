@@ -940,6 +940,9 @@ task Summary_PerCellOutput {
         set -euo pipefail
         set -x
         
+        # Set root_dir to current working directory
+        root_dir=$(pwd)
+        
         extract_and_remove() {
             if [ $# -eq 0 ];
                 then
@@ -947,8 +950,6 @@ task Summary_PerCellOutput {
                     return
             fi
             
-            # Set root_dir to current working directory
-            root_dir=$(pwd)
             for tarred_file in "${@}"; do
                 dir_name=`basename "${tarred_file%.tar.gz}"`
                 echo $dir_name
