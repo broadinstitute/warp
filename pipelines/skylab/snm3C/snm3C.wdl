@@ -942,6 +942,7 @@ task Summary_PerCellOutput {
         
         # Set root_dir to current working directory
         root_dir=$(pwd)
+        echo "This is the root directory " $root_dir
         
         extract_and_remove() {
             if [ $# -eq 0 ];
@@ -958,10 +959,7 @@ task Summary_PerCellOutput {
                 rm "$tarred_file"
             done
         }
-        
-        ls -R 
-        pwd
-
+    
         # output files at a cell level
         echo "Untar files needed at per cell level"
         extract_and_remove ~{sep=' ' name_sorted_bams} 
@@ -970,8 +968,7 @@ task Summary_PerCellOutput {
         extract_and_remove ~{sep=' ' all_reads_3C_contacts}
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc_extract}
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract}
-        ls -R
-        pwd
+
     >>>
 
     runtime {
