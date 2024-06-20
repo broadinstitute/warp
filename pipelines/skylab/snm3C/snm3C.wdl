@@ -949,18 +949,9 @@ task Summary_PerCellOutput {
             for tarred_file in "${@}"; do
                 dir_name=`basename "${tarred_file%.tar.gz}"`
                 echo $dir_name
-
-                touch /cromwell_root/"$dir_name".txt
                 mkdir -p /cromwell_root/"$dir_name" 
                 pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"$dir_name"
                 rm "$tarred_file"
-
-                # if the directory has another directory, then find files in the subdirectory
-                if [ -d /cromwell_root/"$dir_name"/cromwell_root ]; then
-                    find /cromwell_root/"$dir_name" -maxdepth 3 -type f > /cromwell_root/"$dir_name".txt
-                else
-                    find /cromwell_root/"$dir_name" -maxdepth 1 -type f > /cromwell_root/"$dir_name".txt
-                fi
             done
         }
         
@@ -977,7 +968,6 @@ task Summary_PerCellOutput {
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract}
         ls -R
         pwd
-        wc -l /cromwell_root/~{plate_id}.hisat3n_dna.all_reads.name_sort.txt
     >>>
 
     runtime {
@@ -988,12 +978,12 @@ task Summary_PerCellOutput {
     }
 
     output {
-        Array[File] name_sorted_bam_array = read_lines("~{plate_id}.hisat3n_dna.all_reads.name_sort.txt")
-        Array[File] unique_reads_cgn_extraction_allc_array = read_lines("~{plate_id}.allc.tsv.txt")
-        Array[File] unique_reads_cgn_extraction_tbi_array = read_lines("~{plate_id}.allc.tbi.txt")
-        Array[File] all_reads_3C_contacts_array = read_lines("~{plate_id}.hisat3n_dna.all_reads.3C.contact.txt")
-        Array[File] unique_reads_cgn_extraction_allc_extract_array = read_lines("~{plate_id}.extract-allc.txt")
-        Array[File] unique_reads_cgn_extraction_tbi_extract_array = read_lines("~{plate_id}.extract-allc_tbi.txt")
+        Array[File] name_sorted_bam_array = glob("/cromwell_root/~{plate_id}.hisat3n_dna.all_reads.name_sort/*")
+        Array[File] unique_reads_cgn_extraction_allc_array = glob("/cromwell_root/~{plate_id}.allc.tsv/*")
+        Array[File] unique_reads_cgn_extraction_tbi_array = glob("/cromwell_root/~{plate_id}.allc.tbi/*")
+        Array[File] all_reads_3C_contacts_array = glob("/cromwell_root/~{plate_id}.hisat3n_dna.all_reads.3C.contact/*")
+        Array[File] unique_reads_cgn_extraction_allc_extract_array = glob("/cromwell_root/~{plate_id}.extract-allc/cromwell_root/allc-CGN/*")
+        Array[File] unique_reads_cgn_extraction_tbi_extract_array = glob("/cromwell_root/~{plate_id}.extract-allc_tbi/cromwell_root/allc-CGN/*")
     }
 
 }
