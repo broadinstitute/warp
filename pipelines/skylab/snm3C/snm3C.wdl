@@ -983,12 +983,11 @@ task Summary_PerCellOutput {
     output {
         Array[File] name_sorted_bam_array = glob("~{plate_id}.hisat3n_dna.all_reads.name_sort/*")
         Array[File] unique_reads_cgn_extraction_allc_array = glob("~{plate_id}.allc.tsv/*")
-        Array[File] unique_reads_cgn_extraction_tbi_array = glob("$~{plate_id}.allc.tbi/*")
+        Array[File] unique_reads_cgn_extraction_tbi_array = glob("~{plate_id}.allc.tbi/*")
         Array[File] all_reads_3C_contacts_array = glob("~{plate_id}.hisat3n_dna.all_reads.3C.contact/*")
         Array[File] unique_reads_cgn_extraction_allc_extract_array = glob("~{plate_id}.extract-allc/cromwell_root/allc-CGN/*")
         Array[File] unique_reads_cgn_extraction_tbi_extract_array = glob("~{plate_id}.extract-allc_tbi/cromwell_root/allc-CGN/*")
     }
-
 }
 
 task Summary {
