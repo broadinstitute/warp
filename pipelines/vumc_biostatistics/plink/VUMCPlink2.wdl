@@ -21,6 +21,8 @@ workflow VUMCPlink2 {
     String target_prefix
 
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+
+    Int? memory_size=10
   }
 
   scatter(suffix in suffix_list){
@@ -48,7 +50,9 @@ workflow VUMCPlink2 {
 
       expected_files = expect_file,
 
-      docker = docker
+      docker = docker,
+
+      memory_size = memory_size
   }
 
   output {
@@ -78,6 +82,8 @@ task Plink2 {
     Array[String] expected_files
 
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+
+    Int? memory_size=10
   }
 
   Int disk_size = ceil(size(source_bed, "GB") * 2) + 2
@@ -100,7 +106,7 @@ plink2 \
     docker: docker
     preemptible: 1
     disks: "local-disk " + disk_size + " HDD"
-    memory: "2 GiB"
+    memory: memory_size + " GiB"
   }
   output {
     Array[File] output_files = expected_files
