@@ -936,14 +936,12 @@ task Summary_PerCellOutput {
         Int cpu = 16
     }
 
-    String root_dir=$(pwd)
     command <<<
         set -euo pipefail
         set -x
 
         # Set root_dir to current working directory
-        # root_dir=$(pwd)
-        # echo ${root_dir} > root_dir.txt
+        root_dir=$(pwd)
         echo "This is the root directory " ${root_dir}
         
         extract_and_remove() {
@@ -956,8 +954,8 @@ task Summary_PerCellOutput {
             for tarred_file in "${@}"; do
                 dir_name=`basename "${tarred_file%.tar.gz}"`
                 echo $dir_name
-                mkdir -p /cromwell_root/"$dir_name" 
-                pigz -dc "$tarred_file" | tar -xvf - -C /cromwell_root/"$dir_name"
+                mkdir -p "$root_dir"/"$dir_name" 
+                pigz -dc "$tarred_file" | tar -xvf - -C "$root_dir"/"$dir_name"
                 rm "$tarred_file"
             done
         }
@@ -986,7 +984,7 @@ task Summary_PerCellOutput {
 
     output {
         #String root_dir = read_string("root_dir.txt")
-        Array[File] name_sorted_bam_array = glob(root_dir+ "~{plate_id}.hisat3n_dna.all_reads.name_sort/*")
+        Array[File] name_sorted_bam_array = glob("~{plate_id}.hisat3n_dna.all_reads.name_sort/*")
         # Array[File] unique_reads_cgn_extraction_allc_array = glob("${root_dir}/~{plate_id}.allc.tsv/*")
         # Array[File] unique_reads_cgn_extraction_tbi_array = glob("${root_dir}/~{plate_id}.allc.tbi/*")
         # Array[File] all_reads_3C_contacts_array = glob("${root_dir}/~{plate_id}.hisat3n_dna.all_reads.3C.contact/*")
