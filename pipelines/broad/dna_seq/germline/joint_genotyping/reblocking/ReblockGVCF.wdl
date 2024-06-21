@@ -22,8 +22,6 @@ workflow ReblockGVCF {
     String gvcf_file_extension = ".g.vcf.gz"
   }
 
-  String gvcf_basename = basename(gvcf, gvcf_file_extension)
-
   call Calling.Reblock as Reblock {
     input:
       gvcf = gvcf,
@@ -35,7 +33,7 @@ workflow ReblockGVCF {
       annotations_to_keep_command = annotations_to_keep_command,
       annotations_to_remove_command = annotations_to_remove_command,
       move_filters_to_genotypes = move_filters_to_genotypes,
-      output_vcf_filename = gvcf_basename + ".rb.g.vcf.gz"
+      gvcf_file_extension = gvcf_file_extension
   }
 
     # Validate the (g)VCF output of HaplotypeCaller

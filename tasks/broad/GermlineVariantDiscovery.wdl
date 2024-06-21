@@ -210,11 +210,15 @@ task Reblock {
     Float? tree_score_cutoff
     Boolean move_filters_to_genotypes = false
     File gatk_jar_remove_this = ""
+    String gvcf_file_extension
   }
   Int disk_size = ceil((size(gvcf, "GiB")) * 4) + additional_disk
 
   command {
     set -e 
+
+    # All basename calls of DRS files must be inside of the command block so that the full path is resolved
+    OUTPUT_BASENAME=$(basename ~{gvcf} ~{gvcf_file_extension})
 
     # We can't always assume the index was located with the gvcf, so make a link so that the paths look the same
     BASENAME_GVCF=$(basename ~{gvcf})
@@ -233,7 +237,7 @@ task Reblock {
       ~{annotations_to_remove_command} \
       ~{"--tree-score-threshold-to-no-call " + tree_score_cutoff} \
       ~{if move_filters_to_genotypes then "--add-site-filters-to-genotype" else ""} \
-      -O ~{output_vcf_filename}
+      -O $OUTPUT_BASENAME.rb.g.vcf.gz
   }
 
   runtime {
