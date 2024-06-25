@@ -103,13 +103,13 @@ task HaplotypeCaller_GATK4_VCF {
     Int memory_multiplier = 1
   }
   
-  Int memory_size_mb = ceil(8000 * memory_multiplier)
+  Int memory_size_mb = ceil(8000 * memory_multiplier) + 2000
 
   String output_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
   String output_file_name = vcf_basename + output_suffix
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(((size(input_bam, "GiB") + 30) / hc_scatter) + ref_size) + 20
+  Int disk_size = ceil(((size(input_bam, "GiB") + 30) / hc_scatter) + ref_size) + 50
 
   String bamout_arg = if make_bamout then "-bamout ~{vcf_basename}.bamout.bam" else ""
 
