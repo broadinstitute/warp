@@ -328,7 +328,7 @@ task STARsoloFastq {
         --soloCellReadStats Standard \
         ~{"--soloMultiMappers " + soloMultiMappers} \
         --soloUMIfiltering MultiGeneUMI_CR \
-        --soloCellFilter EmptyDrops_CR
+        --soloCellFilter EmptyDrops_CR 5000
       
     echo "UMI LEN " $UMILen
 
@@ -492,7 +492,7 @@ task MergeStarOutput {
 
     # Running star for combined cell matrix
     # outputs will be called outputbarcodes.tsv. outputmatrix.mtx, and outputfeatures.tsv
-    STAR --runMode soloCellFiltering ./matrix ./output --soloCellFilter EmptyDrops_CR
+    STAR --runMode soloCellFiltering ./matrix ./output --soloCellFilter EmptyDrops_CR 5000
     
     #list files
     echo "listing files"
