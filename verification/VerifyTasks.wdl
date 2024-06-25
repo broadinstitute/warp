@@ -113,12 +113,12 @@ task CompareTabix {
   }
   command <<<
     exit_code=0
-    a=$(md5sum "~{test_fragment_file}" | awk '{ print $1 }')
-    b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
+    a=$(sort "~{test_fragment_file}" | md5sum | awk '{ print $1 }')
+    b=$(sort "~{truth_fragment_file}" | md5sum | awk '{ print $1 }')
     if [[ $a = $b ]]; then
-      echo equal 
+      echo "The fragment files are equal"
     else 
-      echo different
+      echo "The fragment files are NOT equal"
       exit_code=1
     fi
     exit $exit_code
