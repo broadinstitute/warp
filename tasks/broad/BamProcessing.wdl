@@ -158,7 +158,8 @@ task BaseRecalibrator {
       -O ~{recalibration_report_filename} \
       --known-sites ~{dbsnp_vcf} \
       --known-sites ~{sep=" -known-sites " known_indels_sites_vcfs} \
-      -L ~{sep=" -L " sequence_group_interval}
+      -L ~{sep=" -L " sequence_group_interval} \
+      --maximum-cycle-value 1000
   }
   runtime {
     docker: gatk_docker
@@ -224,7 +225,8 @@ task ApplyBQSR {
       ~{true='--static-quantized-quals 30' false='' bin_base_qualities} \
       ~{true='--static-quantized-quals 40' false='' bin_somatic_base_qualities} \
       ~{true='--static-quantized-quals 50' false='' bin_somatic_base_qualities} \
-      -L ~{sep=" -L " sequence_group_interval}
+      -L ~{sep=" -L " sequence_group_interval} \
+      --maximum-cycle-value 1000
   }
   runtime {
     docker: gatk_docker
