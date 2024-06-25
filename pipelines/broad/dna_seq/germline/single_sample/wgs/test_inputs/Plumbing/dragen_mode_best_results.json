@@ -62,5 +62,6 @@
   },
 
   "WholeGenomeGermlineSingleSample.dragen_maximum_quality_mode": true,
-  "WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
+  "WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true,
+  "WholeGenomeGermlineSingleSample.cloud_provider": "gcp"
 }

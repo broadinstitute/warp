@@ -79,6 +79,8 @@ task ScatterIntervalList {
     File interval_list
     Int scatter_count
     Int break_bands_at_multiples_of
+    #Setting default docker value for workflows that haven't yet been azurized. 
+    String docker = "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1663951039"
   }
 
   command <<<
@@ -110,7 +112,7 @@ task ScatterIntervalList {
     Int interval_count = read_int(stdout())
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1663951039"
+    docker: docker
     memory: "2000 MiB"
   }
 }

@@ -1,3 +1,8 @@
+# 5.0.1
+2024-05-20 (Date of Last Commit)
+
+* Updated the Multiome.wdl to run on Azure
+
 # 5.0.0
 2024-05-20 (Date of Last Commit)
 

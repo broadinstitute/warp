@@ -1,3 +1,9 @@
+# 7.1.2
+2024-06-06 (Date of Last Commit)
+
+* Updated the Optimus.wdl to run on Azure
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers. This change does not affect this pipeline.
+
 # 7.1.0
 2024-05-20 (Date of Last Commit)
 

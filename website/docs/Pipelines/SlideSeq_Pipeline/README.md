@@ -69,6 +69,7 @@ The Slide-seq workflow inputs are specified in JSON configuration files. Example
 | output_bam_basename | Optional string used for the output BAM file basename. | String |
 | count_exons | Optional boolean indicating if the workflow should calculate exon counts; default is set to “true” and produces an h5ad file containing both whole-gene counts and exon counts in an additional layer; when set to “false”, an h5ad file containing only whole-gene counts is produced. | Boolean |
 | bead_locations | Whitelist TSV file containing bead barcodes and XY coordinates on a single line for each bead; determined by sequencing prior to mRNA transfer and library preparation. | File |
+| cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
 
 #### Pseudogene handling
 

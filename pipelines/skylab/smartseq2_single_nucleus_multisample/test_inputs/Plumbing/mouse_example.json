@@ -18,5 +18,6 @@
     "SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA",
     "SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT"
   ],
-  "MultiSampleSmartSeq2SingleNucleus.batch_id": "SM-GE644"
+  "MultiSampleSmartSeq2SingleNucleus.batch_id": "SM-GE644",
+  "MultiSampleSmartSeq2SingleNucleus.cloud_provider": "gcp"
 }

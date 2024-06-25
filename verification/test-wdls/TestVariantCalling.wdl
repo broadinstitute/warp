@@ -39,6 +39,7 @@ workflow TestVariantCalling {
       Boolean update_truth
       String vault_token_path
       String google_account_vault_path
+      String cloud_provider
     }
 
     meta {
@@ -69,7 +70,8 @@ workflow TestVariantCalling {
         make_bamout = make_bamout,
         use_gatk3_haplotype_caller = use_gatk3_haplotype_caller,
         skip_reblocking = skip_reblocking,
-        use_dragen_hard_filtering = use_dragen_hard_filtering
+        use_dragen_hard_filtering = use_dragen_hard_filtering,
+        cloud_provider = cloud_provider
   
     }
 

@@ -11,7 +11,8 @@ task FastqProcessing {
     String read_struct
 
     #using the latest build of warp-tools in GCR
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+    String warp_tools_docker_path
+
     #runtime values
     Int machine_mem_mb = 40000
     Int cpu = 16   
@@ -34,7 +35,7 @@ task FastqProcessing {
     whitelist: "10x genomics cell barcode whitelist"
     chemistry: "chemistry employed, currently can be tenX_v2 or tenX_v3, the latter implies NO feature barcodes"
     sample_id: "name of sample matching this file, inserted into read group header"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    warp_tools_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -111,7 +112,7 @@ task FastqProcessing {
   }
   
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -235,18 +236,15 @@ task FastqProcessingSlidSeq {
 task FastqProcessATAC {
 
     input {
-        Array[String] read1_fastq
-        Array[String] read3_fastq
-        Array[String] barcodes_fastq
+        Array[File] read1_fastq
+        Array[File] read3_fastq
+        Array[File] barcodes_fastq
         String read_structure = "16C"
         String barcode_orientation = "FIRST_BP_RC"
         String output_base_name
         File whitelist
         String barcode_index1 = basename(barcodes_fastq[0])
-
-        # [?] copied from corresponding optimus wdl for fastqprocessing
-        # using the latest build of warp-tools in GCR
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+        String docker_path
 
         # Runtime attributes [?]
         Int mem_size = 5
@@ -272,7 +270,7 @@ task FastqProcessATAC {
         read_structure: "A string that specifies the barcode (C) positions in the Read 2 fastq"
         barcode_orientation: "A string that specifies the orientation of barcode needed for scATAC data. The default is FIRST_BP. Other options include LAST_BP, FIRST_BP_RC or LAST_BP_RC."
         whitelist: "10x genomics cell barcode whitelist for scATAC"
-        docker: "(optional) the docker image containing the runtime environment for this task"
+        docker_path: "The docker image path containing the runtime environment for this task"
         mem_size: "(optional) the amount of memory (MiB) to provision for this task"
         cpu: "(optional) the number of cpus to provision for this task"
         disk_size: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -296,12 +294,39 @@ task FastqProcessATAC {
 
         echo $read1_fastq_files
         # Make downsample fq for barcode orientation check of R2 barcodes
-        mkdir /cromwell_root/input_fastq
-        gcloud storage cp $read1_fastq_files /cromwell_root/input_fastq
-        gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
-        gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
+        mkdir -p input_fastqs
 
-        path="/cromwell_root/input_fastq/"
+        # Function to move files into the input_fastqs directory
+        move_files_to_input_dir() {
+            local -n array=$1  # Reference to the array passed as argument
+            local destination_dir=$2
+
+            for file in "${array[@]}"; do
+                if [ -f "$file" ]; then  # Check if file exists
+                    echo "Moving $file to $destination_dir"
+                    mv "$file" "$destination_dir"
+                else
+                    echo "File $file not found"
+                fi
+            done
+        }
+
+        # Move files from FASTQ1_ARRAY to input_fastqs directory
+        move_files_to_input_dir FASTQ1_ARRAY input_fastqs
+
+        # Move files from FASTQ2_ARRAY to input_fastqs directory
+        move_files_to_input_dir FASTQ2_ARRAY input_fastqs
+
+        # Move files from FASTQ3_ARRAY to input_fastqs directory
+        move_files_to_input_dir FASTQ3_ARRAY input_fastqs
+
+        echo "All files moved to input_fastqs directory"
+
+        #gcloud storage cp $read1_fastq_files /cromwell_root/input_fastqs
+        #gcloud storage cp $read2_fastq_files /cromwell_root/input_fastqs
+        #gcloud storage cp $read3_fastq_files /cromwell_root/input_fastqs
+
+        path="input_fastqs/"
         barcode_index="~{barcode_index1}"
         file="${path}${barcode_index}"
         zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
@@ -311,7 +336,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ2_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R1 /cromwell_root/input_fastq/$BASE`
+            BASE=`echo --R1 input_fastqs/$BASE`
             R1_FILES_CONCAT+="$BASE "
         done
         echo $R1_FILES_CONCAT
@@ -321,7 +346,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ1_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R2 /cromwell_root/input_fastq/$BASE`
+            BASE=`echo --R2 input_fastqs/$BASE`
             R2_FILES_CONCAT+="$BASE "
         done
         echo $R2_FILES_CONCAT
@@ -331,12 +356,12 @@ task FastqProcessATAC {
         for fastq in "${FASTQ3_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R3 /cromwell_root/input_fastq/$BASE`
+            BASE=`echo --R3 input_fastqs/$BASE`
             R3_FILES_CONCAT+="$BASE "
         done
         echo $R3_FILES_CONCAT
 
-        python3 /warptools/scripts/dynamic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
+        python3 /warptools/scripts/dynamic-barcode-orientation.py downsample.fq "~{whitelist}" best_match.txt
         
         cat best_match.txt
         barcode_choice=$(<best_match.txt)
@@ -344,8 +369,6 @@ task FastqProcessATAC {
 
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
-        mkdir /cromwell_root/output_fastq
-        cd /cromwell_root/output_fastq
 
         fastqprocess \
         --num-output-files ~{num_output_files} \
@@ -361,7 +384,7 @@ task FastqProcessATAC {
     >>>
 
     runtime {
-        docker: docker
+        docker: docker_path
         cpu: cpu
         memory: "${mem_size} MiB"
         disks: "local-disk ${disk_size} HDD"
@@ -369,8 +392,8 @@ task FastqProcessATAC {
     }
 
     output {
-        Array[File] fastq_R1_output_array = glob("/cromwell_root/output_fastq/fastq_R1_*")
-        Array[File] fastq_R3_output_array = glob("/cromwell_root/output_fastq/fastq_R3_*")
+        Array[File] fastq_R1_output_array = glob("fastq_R1_*")
+        Array[File] fastq_R3_output_array = glob("fastq_R3_*")
     }
 }
 

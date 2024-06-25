@@ -1,3 +1,7 @@
+# 4.0.1
+2024-04-18 (Date of Last Commit)
+* Updated the snM3C wdl to run on Azure. This change does not affect the snM3C pipeline.
+
 # 4.0.0
 2024-03-15 (Date of Last Commit)
 * Reconstructed code and merged tasks to optimize pipeline and reduce cost 
@@ -12,7 +16,7 @@
 # 2.0.1
 2024-2-15 (Date of Last Commit)
 
-* Updated the snM3C task memory, disk, and CPUs
+* Updated the snM3C task memory, disk, and CPUs 
 
 # 2.0.0
 2024-2-13 (Date of Last Commit)

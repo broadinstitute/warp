@@ -1,3 +1,14 @@
+# 1.0.18
+2024-05-20 (Date of Last Commit)
+
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers. This change does not affect this pipeline.
+
+
+# 1.0.17
+2024-04-08 (Date of Last Commit)
+
+* Changed ReblockGVCFs.wdl to be multicloud
+
 # 1.0.16
 2024-03-26 (Date of Last Commit)
 
