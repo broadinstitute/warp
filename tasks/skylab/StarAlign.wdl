@@ -442,6 +442,7 @@ task MergeStarOutput {
     String? counting_mode
     
     String input_id
+    Int expected_cells = 3000
     File barcodes_single = barcodes[0]
     File features_single = features[0]
 
@@ -567,7 +568,8 @@ task MergeStarOutput {
       ~{counting_mode} \
       ~{input_id} \
       outputbarcodes.tsv \
-      outputmatrix.mtx 
+      outputmatrix.mtx \
+      ~{expected_cells}
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
     else
       echo "No text files found in the folder."
