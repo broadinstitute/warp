@@ -1,3 +1,8 @@
+# 1.0.0
+2024-06-26
+
+* Official release of the PairedTag pipeline
+
 # 0.7.0
 2024-05-20
 
