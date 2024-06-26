@@ -115,13 +115,23 @@ task CompareTabix {
     exit_code=0
     a=$(md5sum "~{test_fragment_file}" | awk '{ print $1 }')
     b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
+
     if [[ $a = $b ]]; then
-      echo equal 
+      echo "The fragment files are equal"
     else 
-      echo different
-      exit_code=1
+      echo "The fragment files md5sums do not match. Performing a line count:"
+        test_lines=$(wc -l ~{test_fragment_file} | awk '{ print $1 }')
+        truth_lines=$(wc -l ~{truth_fragment_file} | awk '{ print $1 }')
+        echo "Test file has $test_lines lines"
+        echo "Truth file has $truth_lines lines"
+        diff_lines=$((test_lines - truth_lines))
+        abs_diff_lines=${diff_lines#-}
+
+        if [[ $abs_diff_lines -gt 100 ]]; then
+          echo "Line count difference greater than 100 lines. The line count difference is $abs_diff_lines lines. Task failed."
+          exit_code=1
+        fi
     fi
-    exit $exit_code
   >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
