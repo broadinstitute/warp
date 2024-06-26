@@ -225,8 +225,7 @@ task ApplyBQSR {
       ~{true='--static-quantized-quals 30' false='' bin_base_qualities} \
       ~{true='--static-quantized-quals 40' false='' bin_somatic_base_qualities} \
       ~{true='--static-quantized-quals 50' false='' bin_somatic_base_qualities} \
-      -L ~{sep=" -L " sequence_group_interval} \
-      --maximum-cycle-value 1000
+      -L ~{sep=" -L " sequence_group_interval}
   }
   runtime {
     docker: gatk_docker
