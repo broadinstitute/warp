@@ -43,10 +43,12 @@ jobs:
           echo "PREVIOUS_COMMIT_HASH=$PREVIOUS_COMMIT_HASH" >> $GITHUB_ENV
 
       - name: Get modified pipelines
+        id: get_pipelines
         run: |
           source scripts/common.sh
           CHANGED_PIPELINES=$(get_modified_pipelines ${{ env.PREVIOUS_COMMIT_HASH }})
           echo "CHANGED_PIPELINES=$CHANGED_PIPELINES" >> $GITHUB_ENV
+          echo "::set-output name=changed_pipelines::$CHANGED_PIPELINES"
 
       - name: Echo branch info
         run: |
@@ -57,8 +59,9 @@ jobs:
       - name: Release changed pipelines
         if: ${{ env.ENV == 'prod' }}
         run: |
-          if [[ -n "${{ env.CHANGED_PIPELINES[@] }}" ]]; then
-            for pipeline in ${{ env.CHANGED_PIPELINES[@] }}; do
+          if [[ -n "${{ steps.get_pipelines.outputs.changed_pipelines }}" ]]; then
+            IFS=',' read -r -a pipelines <<< "${{ steps.get_pipelines.outputs.changed_pipelines }}"
+            for pipeline in "${pipelines[@]}"; do
               sleep 60
               scripts/release_pipeline_to_github.sh -p $pipeline -e ${{ env.ENV }}
             done
