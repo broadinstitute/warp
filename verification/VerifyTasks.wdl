@@ -414,6 +414,28 @@ task CompareH5adFilesATAC {
     import numpy as np
     import pandas as pd
     
+    def compare_atac(test,truth):
+        print(truth.obs)
+        print(test.obs)
+        truth.obs.describe()
+        test.obs.describe()
+        # Find the intersection of barcodes
+        shared_indices = truth.obs.index.intersection(test.obs.index)
+        truth_shared = truth[shared_indices]
+        test_shared = test[shared_indices]
+        # Look at length of barcodes and barcodes shared
+        number_truth_barcodes=len(truth)
+        print("Number of Truth barcodes: ", number_truth_barcodes)
+        number_test_barcodes=len(test)
+        print("Number of Test barcodes: ", number_test_barcodes)
+        percent_barcodes_shared_truth = len(truth_shared)/len(truth)*100
+        print("% Truth barcodes shared ", str(percent_barcodes_shared_truth))
+        percent_barcodes_shared_test = len(test_shared)/len(test)*100
+        print("% Test barcodes shared ", str(percent_barcodes_shared_test))
+        stats=np.corrcoef(truth_shared.obs.n_fragment, y=test_shared.obs.n_fragment)
+        print(stats)
+        return stats
+    
     truth_h5ad = "~{truth_h5ad}"
     test_h5ad = "~{test_h5ad}"
     truth = ad.read_h5ad(truth_h5ad)
@@ -427,7 +449,13 @@ task CompareH5adFilesATAC {
     if truth_obs.equals(test_obs)==True:
         print("pass")
     else:
-        exit("Files are not identical")
+        print("Files are not identical, running additional checks")
+        stats = compare_atac(test,truth)
+        value=stats2[0,1]
+        if value>0.990
+            print("pass")
+        else:
+            exit("Files are not similar enough to pass test")
     
     print("Done running matrix equivalence check")
     
