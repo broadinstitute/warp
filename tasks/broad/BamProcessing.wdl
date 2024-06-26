@@ -159,7 +159,7 @@ task BaseRecalibrator {
       --known-sites ~{dbsnp_vcf} \
       --known-sites ~{sep=" -known-sites " known_indels_sites_vcfs} \
       -L ~{sep=" -L " sequence_group_interval} \
-      --maximum-cycle-value 1000
+      --maximum-cycle-value 5000
   }
   runtime {
     docker: gatk_docker
