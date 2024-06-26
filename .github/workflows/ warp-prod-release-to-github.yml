@@ -5,7 +5,7 @@ on:
     branches:
       - develop
       - master
-      - np-test-branch
+      - np_add-warp-prod-release-to-github-to-Github-actions
 
 jobs:
   release-pipeline:
