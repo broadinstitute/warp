@@ -1,0 +1,67 @@
+name: Release Pipeline to GitHub
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+
+jobs:
+  release-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up environment variables
+        run: |
+          echo "VAULT_ADDR=https://clotho.broadinstitute.org:8200" >> $GITHUB_ENV
+          echo "ENV=prod" >> $GITHUB_ENV
+
+      - name: Export VAULT_TOKEN
+        run: |
+          VAULT_TOKEN=$(cat /local/scratch/jenkins/vault-token-dsde)
+          echo "VAULT_TOKEN=$VAULT_TOKEN" >> $GITHUB_ENV
+
+      - name: Export GITHUB_TOKEN from Vault
+        run: |
+          GITHUB_TOKEN=$(vault read -field token secret/dsde/gotc/dev/dsde-jenkins/api-access-token)
+          echo "GITHUB_TOKEN=$GITHUB_TOKEN" >> $GITHUB_ENV
+
+      - name: Set PATH for vault
+        run: echo "$PATH:/seq/software/vault/current" >> $GITHUB_PATH
+
+      - name: Source common.sh script
+        run: source scripts/common.sh
+
+      - name: Get previous commit hash
+        id: prev_commit
+        run: |
+          PREVIOUS_COMMIT_HASH=$(git rev-parse HEAD^1)
+          echo "PREVIOUS_COMMIT_HASH=$PREVIOUS_COMMIT_HASH" >> $GITHUB_ENV
+
+      - name: Get modified pipelines
+        run: |
+          source scripts/common.sh
+          CHANGED_PIPELINES=$(get_modified_pipelines ${{ env.PREVIOUS_COMMIT_HASH }})
+          echo "CHANGED_PIPELINES=$CHANGED_PIPELINES" >> $GITHUB_ENV
+
+      - name: Echo branch info
+        run: |
+          echo "branch: ${{ github.ref }}"
+          echo "previous_commit_hash: ${{ env.PREVIOUS_COMMIT_HASH }}"
+          echo "env: ${{ env.ENV }}"
+
+      - name: Release changed pipelines
+        if: ${{ env.ENV == 'prod' }}
+        run: |
+          if [[ -n "${{ env.CHANGED_PIPELINES[@] }}" ]]; then
+            for pipeline in ${{ env.CHANGED_PIPELINES[@] }}; do
+              sleep 60
+              scripts/release_pipeline_to_github.sh -p $pipeline -e ${{ env.ENV }}
+            done
+          else
+            echo "There are no changed pipelines to release."
+          fi
+        shell: bash
