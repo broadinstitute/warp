@@ -452,7 +452,7 @@ task CompareH5adFilesATAC {
         print("Files are not identical, running additional checks")
         stats = compare_atac(test,truth)
         value=stats2[0,1]
-        if value>0.990
+        if value>0.990:
             print("pass")
         else:
             exit("Files are not similar enough to pass test")
