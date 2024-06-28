@@ -448,7 +448,7 @@ task MergeStarOutput {
     File features_single = features[0]
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star-merge-npz:lk-PD-2653-add-multiome-gex-metrics"
+    String docker = "us.gcr.io/broad-gotc-prod/star-merge-npz:1.2"
     Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
