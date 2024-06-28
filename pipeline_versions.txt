@@ -1,1 +1,1 @@
-pipeline name\tversion\tdate of last commit
+pipeline name	version	date of last commit
