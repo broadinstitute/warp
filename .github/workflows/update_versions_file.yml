@@ -16,9 +16,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # This step checks out the code
+      # This step checks out the code - explicitly fetch the history and checkout the branch to enable us to push files back to the repo
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }} # This fetches the branch name that triggered the workflow
+          fetch-depth: 0 # This fetches all history for all branches and tags
 
       # This step sets up Python environment
       - name: Set up Python
