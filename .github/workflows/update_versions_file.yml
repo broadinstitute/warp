@@ -5,10 +5,12 @@ name: Update Pipeline Versions
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - develop
+      - master
+      - develop #added develop to make sure this is working before a release
+  # uncomment for testing
+  # pull_request:
+  #   branches:
+  #     - develop
   workflow_dispatch:
 
 jobs:
