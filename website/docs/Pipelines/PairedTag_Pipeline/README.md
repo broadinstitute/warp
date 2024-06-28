@@ -7,7 +7,7 @@ slug: /Pipelines/PairedTag_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [PairedTag_v0.7.0](https://github.com/broadinstitute/warp/releases) | May, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+| [PairedTag_v1.0.0](https://github.com/broadinstitute/warp/releases) | June, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
 ## Introduction to the Paired-Tag workflow
@@ -18,13 +18,10 @@ The workflow is a wrapper WDL script that calls two subworkflows: the Optimus wo
 
 The [Optimus workflow](../Optimus_Pipeline/README) (GEX) corrects cell barcodes (CBs) and Unique Molecular Identifiers (UMIs), aligns reads to the genome, calculates per-barcode and per-gene quality metrics, and produces a raw cell-by-gene count matrix.
 
-The [ATAC workflow](../ATAC/README) (histone modification) corrects CBs, aligns reads to the genome, calculates per-barcode quality metrics, and produces a fragment file.
+The [ATAC workflow](../ATAC/README) (histone modification) performs demultiplexing for samples that have a preindex barcode, corrects CBs, aligns reads to the genome, calculates per-barcode quality metrics, and produces a fragment file.
 
 The [wrapper WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/paired_tag/PairedTag.wdl) is available in the [WARP repository](https://github.com/broadinstitute/warp).
 
-:::info NOTE
-The Paired-Tag WDL is under active development (beta); it is not officially released and is undergoing scientific validation.
-:::
 
 ## Quickstart table
 The following table provides a quick glance at the Paired-Tag pipeline features:
