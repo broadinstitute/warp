@@ -100,10 +100,13 @@ task CollectReadgroupBamQualityMetrics {
     File ref_fasta_index
     Boolean collect_gc_bias_metrics = true
     Int preemptible_tries
+    Int additional_disk = 20
+    Int memory_multiplier = 1
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
+  Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + additional_disk
+  Int memory_size = ceil(7000 * memory_multiplier)
 
   command {
     # These are optionally generated, but need to exist for Cromwell's sake
@@ -125,7 +128,7 @@ task CollectReadgroupBamQualityMetrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
-    memory: "7000 MiB"
+    memory: "~{memory_size} MiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
   }
@@ -585,9 +588,12 @@ task CalculateReadGroupChecksum {
     File input_bam_index
     String read_group_md5_filename
     Int preemptible_tries
+    Int additional_disk = 40
+    Int memory_multiplier = 1
   }
 
-  Int disk_size = ceil(size(input_bam, "GiB")) + 40
+  Int disk_size = ceil(size(input_bam, "GiB")) + additional_disk
+  Int memory_size = ceil(4000 * memory_multiplier)
 
   command {
     java -Xms1000m -Xmx3500m -jar /usr/picard/picard.jar \
@@ -598,7 +604,7 @@ task CalculateReadGroupChecksum {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
-    memory: "4000 MiB"
+    memory: "~{memory_size} MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
