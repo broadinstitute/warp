@@ -19,6 +19,7 @@ task CalculateChromosomeLength {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     Int chrom_length = read_int(stdout())
@@ -328,6 +329,7 @@ task CountVariantsInChunksBeagle {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
 }
 
@@ -357,6 +359,7 @@ task CheckChunksBeagle {
     disks: "local-disk 10 HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
 }
 
@@ -408,6 +411,7 @@ task PhaseAndImputeBeagle {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
 }
 
@@ -441,6 +445,7 @@ task GatherVcfs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
@@ -507,6 +512,7 @@ task UpdateHeader {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -541,6 +547,7 @@ task RemoveSymbolicAlleles {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
 }
 
@@ -570,6 +577,7 @@ task SeparateMultiallelics {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
 }
 
@@ -660,6 +668,7 @@ task CountSamples {
     Int memory_mb = 3000
     Int disk_size_gb = 100 + ceil(size(vcf, "GiB"))
   }
+
   command <<<
     bcftools query -l ~{vcf} | wc -l
   >>>
@@ -668,6 +677,7 @@ task CountSamples {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     Int nSamples = read_int(stdout())
@@ -752,6 +762,7 @@ task StoreChunksInfo {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible : 3
+    maxRetries: 2
   }
   output {
     File chunks_info = "~{basename}_chunk_info.tsv"
@@ -868,6 +879,7 @@ task SetIDs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     File output_vcf = "~{output_basename}.vcf.gz"
@@ -897,6 +909,7 @@ task ExtractIDs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
 }
 
@@ -937,6 +950,7 @@ task SelectVariantsByIds {
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -965,6 +979,7 @@ task RemoveAnnotations {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -996,6 +1011,7 @@ task InterleaveVariants {
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -1021,6 +1037,7 @@ task FindSitesUniqueToFileTwoOnly {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     File missing_sites = "missing_sites.ids"
@@ -1105,6 +1122,7 @@ task PreSplitVcf {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     Array[File] chr_split_vcfs = glob("split_vcfs/*.vcf.gz")
@@ -1207,6 +1225,7 @@ task PreChunkVcf {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     Array[File] generate_chunk_vcfs = glob("generate_chunk/*.vcf.gz")
