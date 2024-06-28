@@ -27,7 +27,7 @@ workflow snm3C {
     }
 
     # version of the pipeline
-    String pipeline_version = "4.0.0"
+    String pipeline_version = "4.0.1"
 
     call Demultiplexing {
         input:
@@ -80,6 +80,18 @@ workflow snm3C {
         }
     }
 
+    call Summary_PerCellOutput {
+       input:
+            name_sorted_bams = Merge_sort_analyze.name_sorted_bam,
+            unique_reads_cgn_extraction_allc = Merge_sort_analyze.allc,
+            unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi,
+            all_reads_3C_contacts = Merge_sort_analyze.all_reads_3C_contacts,
+            unique_reads_cgn_extraction_allc_extract = Merge_sort_analyze.extract_allc_output_allc_tar,
+            unique_reads_cgn_extraction_tbi_extract = Merge_sort_analyze.extract_allc_output_tbi_tar,
+            plate_id = plate_id,
+            docker = docker
+    }
+
     call Summary {
         input:
             trimmed_stats = Hisat_paired_end.trim_stats_tar,
@@ -100,16 +112,13 @@ workflow snm3C {
 
     output {
         File MappingSummary = Summary.mapping_summary
-        Array[File] name_sorted_bams = Merge_sort_analyze.name_sorted_bam
-        Array[File] unique_reads_cgn_extraction_allc= Merge_sort_analyze.allc
-        Array[File] unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi
         Array[File] reference_version = Hisat_paired_end.reference_version
-        Array[File] all_reads_dedup_contacts = Merge_sort_analyze.all_reads_dedup_contacts
-        Array[File] all_reads_3C_contacts = Merge_sort_analyze.all_reads_3C_contacts
-        Array[File] chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats
-        Array[File] unique_reads_cgn_extraction_allc_extract = Merge_sort_analyze.extract_allc_output_allc_tar
-        Array[File] unique_reads_cgn_extraction_tbi_extract = Merge_sort_analyze.extract_allc_output_tbi_tar
-
+        Array[File] name_sorted_bam_array = Summary_PerCellOutput.name_sorted_bam_array
+        Array[File] unique_reads_cgn_extraction_allc_array = Summary_PerCellOutput.unique_reads_cgn_extraction_allc_array
+        Array[File] unique_reads_cgn_extraction_tbi_array = Summary_PerCellOutput.unique_reads_cgn_extraction_tbi_array
+        Array[File] all_reads_3C_contacts_array = Summary_PerCellOutput.all_reads_3C_contacts_array
+        Array[File] unique_reads_cgn_extraction_allc_extract_array = Summary_PerCellOutput.unique_reads_cgn_extraction_allc_extract_array
+        Array[File] unique_reads_cgn_extraction_tbi_extract_array = Summary_PerCellOutput.unique_reads_cgn_extraction_tbi_extract_array
     }
 }
 
@@ -378,14 +387,6 @@ task Hisat_paired_end {
       # define lists of r1 and r2 fq files
       R1_files=($(ls batch*/ | grep "\-R1.fq.gz"))
       R2_files=($(ls batch*/ | grep "\-R2.fq.gz"))
-
-      # for file in "${R1_files[@]}"; do
-      # (
-      #   echo "starting task $file.."
-      #   du -h  batch*/$file
-      #   task "$file"
-      # ) 
-      # done
 
       # run 6 instances of task in parallel 
       for file in "${R1_files[@]}"; do
@@ -916,6 +917,75 @@ task Merge_sort_analyze {
         File extract_allc_output_tbi_tar = "~{plate_id}.extract-allc_tbi.tar.gz"
         File extract_allc_output_allc_tar  = "~{plate_id}.extract-allc.tar.gz"
      }
+}
+
+task Summary_PerCellOutput {
+    input {
+        # to generate list of files per file type
+        Array[File] name_sorted_bams
+        Array[File] unique_reads_cgn_extraction_allc
+        Array[File] unique_reads_cgn_extraction_tbi
+        Array[File] all_reads_3C_contacts
+        Array[File] unique_reads_cgn_extraction_allc_extract
+        Array[File] unique_reads_cgn_extraction_tbi_extract
+
+        String docker
+        String plate_id
+        Int disk_size = 1000
+        Int mem_size = 30
+        Int cpu = 16
+    }
+
+    command <<<
+        set -euo pipefail
+        set -x
+        
+        # Set root_dir to current working directory
+        root_dir=$(pwd)
+        echo "This is the root directory " $root_dir
+        
+        extract_and_remove() {
+            if [ $# -eq 0 ];
+                then
+                    echo "No files exist"
+                    return
+            fi
+            
+            for tarred_file in "${@}"; do
+                dir_name=`basename "${tarred_file%.tar.gz}"`
+                echo $dir_name
+                mkdir -p "$root_dir"/"$dir_name" 
+                pigz -dc "$tarred_file" | tar -xvf - -C "$root_dir"/"$dir_name"
+                rm "$tarred_file"
+            done
+        }
+    
+        # output files at a cell level
+        echo "Untar files needed at per cell level"
+        extract_and_remove ~{sep=' ' name_sorted_bams} 
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc}
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
+        extract_and_remove ~{sep=' ' all_reads_3C_contacts}
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc_extract}
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract}
+
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} SSD"
+        cpu: cpu
+        memory: "${mem_size} GiB"    
+    }
+
+    output {
+        Array[File] name_sorted_bam_array = glob("~{plate_id}.hisat3n_dna.all_reads.name_sort/*")
+        Array[File] unique_reads_cgn_extraction_allc_array = glob("~{plate_id}.allc.tsv/*")
+        Array[File] unique_reads_cgn_extraction_tbi_array = glob("~{plate_id}.allc.tbi/*")
+        Array[File] all_reads_3C_contacts_array = glob("~{plate_id}.hisat3n_dna.all_reads.3C.contact/*")
+        Array[File] unique_reads_cgn_extraction_allc_extract_array = glob("~{plate_id}.extract-allc/cromwell_root/allc-CGN/*")
+        Array[File] unique_reads_cgn_extraction_tbi_extract_array = glob("~{plate_id}.extract-allc_tbi/cromwell_root/allc-CGN/*")
+    }
 }
 
 task Summary {
