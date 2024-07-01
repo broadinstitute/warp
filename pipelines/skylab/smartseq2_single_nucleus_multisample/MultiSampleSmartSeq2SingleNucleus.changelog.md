@@ -1,3 +1,8 @@
+# 1.3.5
+2024-06-28 (Date of Last Commit)
+
+* Updated the STARsolo parameters for estimating cells to Emptydrops_CR; this does not impact the snSS2 pipeline
+
 # 1.3.4
 2024-04-12 (Date of Last Commit)
 
