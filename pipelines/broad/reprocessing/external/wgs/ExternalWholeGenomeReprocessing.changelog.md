@@ -1,3 +1,8 @@
+# 2.1.22
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk
+
 # 2.1.21
 2024-03-26 (Date of Last Commit)
 

@@ -1,4 +1,9 @@
 # 3.1.21
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
+
+# 3.1.21
 2024-03-26 (Date of Last Commit)
 
 * ValidateVcfs requires less memory when run without interval list; this does not affect this pipeline
