@@ -9,6 +9,8 @@ workflow PairedTag {
 
     input {
         String input_id
+        # Additional library aliquot id
+        String nhash_id = "1"
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -63,7 +65,8 @@ workflow PairedTag {
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
-            soloMultiMappers = soloMultiMappers
+            soloMultiMappers = soloMultiMappers,
+            gex_nhash_id = nhash_id
     }
 
     # Call the ATAC workflow
@@ -91,7 +94,8 @@ workflow PairedTag {
             adapter_seq_read1 = adapter_seq_read1,
             adapter_seq_read3 = adapter_seq_read3,
             annotations_gtf = annotations_gtf,
-            preindex = preindex
+            preindex = preindex,
+            atac_nhash_id = nhash_id
     }
 
     if (preindex) {

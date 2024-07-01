@@ -18,6 +18,8 @@ workflow ATAC {
 
     # Output prefix/base name for all intermediate files and pipeline outputs
     String input_id
+    # Additional library aliquot ID
+    String atac_nhash_id = "1"
 
     # Option for running files with preindex
     Boolean preindex = false
@@ -105,7 +107,8 @@ workflow ATAC {
         bam = BBTag.bb_bam,
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf,
-        preindex = preindex
+        preindex = preindex,
+        atac_nhash_id = atac_nhash_id
     }
   }
   if (!preindex) {
@@ -114,7 +117,8 @@ workflow ATAC {
         bam = BWAPairedEndAlignment.bam_aligned_output,
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf,
-        preindex = preindex
+        preindex = preindex,
+        atac_nhash_id = atac_nhash_id
 
     }
   }
@@ -443,6 +447,7 @@ task CreateFragmentFile {
     Int mem_size = 16
     Int nthreads = 4
     String cpuPlatform = "Intel Cascade Lake"
+    String atac_nhash_id
   }
 
   String bam_base_name = basename(bam, ".bam")
@@ -490,6 +495,8 @@ task CreateFragmentFile {
     # those settings allow us to retain all barcodes
     pp.import_data("~{bam_base_name}.fragments.tsv", file="temp_metrics.h5ad", chrom_sizes=chrom_size_dict, min_num_fragments=0)
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
+    # Add nhash_id to h5ad file as unstructured metadata
+    data_data.uns['NHashID'] = ~{atac_nhash_id}
     # calculate tsse metrics
     snap.metrics.tsse(atac_data, atac_gtf)
     # Write new atac file

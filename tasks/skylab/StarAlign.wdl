@@ -443,6 +443,8 @@ task MergeStarOutput {
     String? counting_mode
     
     String input_id
+    # additional library aliquot id
+    String gex_nhash_id = ""
     Int expected_cells = 3000
     File barcodes_single = barcodes[0]
     File features_single = features[0]
@@ -583,6 +585,11 @@ task MergeStarOutput {
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
         --input_id ~{input_id}
+    
+    cp ~{input_id}_library_metrics.csv ~{input_id}_library_metrics_backup.csv
+
+    # Add the header and append the original file content
+    { echo ~{gex_nhash_id}; cat ~{input_id}_library_metrics.csv; } > ~{input_id}_{gex_nhash_id}_library_metrics.csv
   >>>
 
   runtime {
@@ -599,7 +606,7 @@ task MergeStarOutput {
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
-    File? library_metrics="~{input_id}_library_metrics.csv"
+    File? library_metrics="~{input_id}_{gex_nhash_id}_library_metrics.csv"
     File? mtx_files ="~{input_id}.mtx_files.tar"
   }
 }
