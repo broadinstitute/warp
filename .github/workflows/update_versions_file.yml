@@ -3,14 +3,11 @@
 
 name: Update Pipeline Versions
 on:
-  push:
+  pull_request:
+    # This workflow will run on PR to master and staging branches
     branches:
       - master
-      - develop #added develop to make sure this is working before a release
-  # uncomment for testing
-  # pull_request:
-  #   branches:
-  #     - develop
+      - staging
   workflow_dispatch:
 
 jobs:
