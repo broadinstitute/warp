@@ -1,3 +1,9 @@
+# 1.1.0
+2024-06-28 (Date of Last Commit)
+
+* Updated the STARsolo parameters for estimating cells to Emptydrops_CR
+* Added an optional input for expected cells which is used for metric calculation
+
 # 1.0.0
 2024-06-26
 
