@@ -19,7 +19,7 @@ workflow ATAC {
     # Output prefix/base name for all intermediate files and pipeline outputs
     String input_id
     # Additional library aliquot ID
-    String atac_nhash_id = "1"
+    String? atac_nhash_id
 
     # Option for running files with preindex
     Boolean preindex = false
@@ -447,7 +447,7 @@ task CreateFragmentFile {
     Int mem_size = 16
     Int nthreads = 4
     String cpuPlatform = "Intel Cascade Lake"
-    String atac_nhash_id
+    String atac_nhash_id = ""
   }
 
   String bam_base_name = basename(bam, ".bam")

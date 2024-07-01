@@ -9,7 +9,7 @@ task OptimusH5adGeneration {
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
     # name of the sample
     String input_id
-    String gex_nhash_id
+    String gex_nhash_id = ""
     # user provided id
     String? input_name
     String? input_id_metadata_field
@@ -125,7 +125,7 @@ task SingleNucleusOptimusH5adOutput {
         # name of the sample
         String input_id
         # additional aliquot id
-        String gex_nhash_id
+        String gex_nhash_id = ""
         # user provided id
         String? input_name
         String? input_id_metadata_field

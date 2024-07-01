@@ -12,7 +12,7 @@ workflow Multiome {
     input {
         String input_id
         # Additional library aliquot ID
-        String nhash_id = "1"
+        String? nhash_id
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
