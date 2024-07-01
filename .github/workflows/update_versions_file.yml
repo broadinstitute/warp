@@ -3,10 +3,6 @@
 
 name: Update Pipeline Versions
 on:
-  # This didn't work because of branch protection rules
-  # push:
-  #   branches:
-  #     - master
   pull_request:
     # This workflow will run on PR to master and staging branches
     branches:
