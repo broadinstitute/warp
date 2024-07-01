@@ -1,4 +1,4 @@
-# 3.1.21
+# 3.1.22
 2024-07-01 (Date of Last Commit)
 
 * CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
