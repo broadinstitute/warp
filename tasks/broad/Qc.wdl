@@ -622,8 +622,8 @@ task ValidateVCF {
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
-    #Setting default docker value for workflows that haven't yet been azurized. 
-    String docker_path = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    #Setting default docker value for workflows that haven't yet been azurized.
+    String docker_path = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
     Int machine_mem_mb = 7000
   }
 
@@ -679,7 +679,7 @@ task CollectVariantCallingMetrics {
     File evaluation_interval_list
     Boolean is_gvcf = true
     Int preemptible_tries
-    #Setting default docker value for workflows that haven't yet been azurized. 
+    #Setting default docker value for workflows that haven't yet been azurized.
     String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
   }
 
