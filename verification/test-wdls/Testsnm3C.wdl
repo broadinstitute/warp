@@ -74,13 +74,12 @@ workflow Testsnm3C {
                                     ],
                                     # Array[File] outputs
                                     snm3C.reference_version,
-                                    snm3C.unique_reads_cgn_extraction_allc,
-                                    snm3C.unique_reads_cgn_extraction_tbi,
-                                    snm3C.unique_reads_cgn_extraction_allc_extract,
-                                    snm3C.unique_reads_cgn_extraction_tbi_extract,
-                                    snm3C.name_sorted_bams,
-                                    snm3C.all_reads_dedup_contacts,
-                                    snm3C.all_reads_3C_contacts,
+                                    snm3C.unique_reads_cgn_extraction_allc_array,
+                                    snm3C.unique_reads_cgn_extraction_tbi_array,
+                                    snm3C.unique_reads_cgn_extraction_allc_extract_array,
+                                    snm3C.unique_reads_cgn_extraction_tbi_extract_array,
+                                    snm3C.name_sorted_bam_array,
+                                    snm3C.all_reads_3C_contacts_array,
     ])
 
     
