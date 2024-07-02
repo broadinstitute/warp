@@ -622,7 +622,7 @@ task ValidateVCF {
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
     Int machine_mem_mb = 7000
   }
 
