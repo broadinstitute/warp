@@ -2,6 +2,7 @@ version 1.0
 
 import "../verification/VerifyMetrics.wdl" as MetricsVerification
 import "../verification/VerifyTasks.wdl" as Tasks
+import "../verification/VerifyNA12878.wdl" as VerifyNA12878
 
 workflow VerifyUltimaGenomicsWholeGenomeGermline {
 
@@ -15,12 +16,18 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
     File truth_crai
 
     File test_vcf
+    File test_vcf_index
     File truth_vcf
+    File truth_vcf_index
     File test_filtered_vcf
+    File test_filtered_vcf_index
     File truth_filtered_vcf
+    File truth_filtered_vcf_index
 
     File test_gvcf
+    File test_gvcf_index
     File truth_gvcf
+    File truth_gvcf_index
 
     Boolean? done
   }
@@ -90,18 +97,29 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
       patternForLinesToExcludeFromComparison = "^##GATKCommandLine"
   }
 
-  call Tasks.CompareVcfs as CompareFilteredVcfs {
+  call Tasks.CompareVCFsVerbosely as CompareFilteredVcfs {
     input:
-      file1 = test_filtered_vcf,
-      file2 = truth_filtered_vcf,
-      patternForLinesToExcludeFromComparison = "^##"
+      actual = test_filtered_vcf,
+      actual_index = test_filtered_vcf_index,
+      expected = truth_filtered_vcf,
+      expected_index = truth_filtered_vcf_index,
+      extra_args = " --ignore-attribute TREE_SCORE "
   }
 
-  call Tasks.CompareVcfs as CompareGvcfs {
+  call Tasks.CompareVCFsVerbosely as CompareGvcfs {
     input:
-      file1 = test_gvcf,
-      file2 = truth_gvcf,
-      patternForLinesToExcludeFromComparison = "^##"
+      actual = test_gvcf,
+      actual_index = test_gvcf_index,
+      expected = truth_gvcf,
+      expected_index = truth_gvcf_index,
+      extra_args = " --ignore-attribute TREE_SCORE "
+  }
+
+  call VerifyNA12878.VerifyNA12878 {
+    input:
+      vcf_files = [test_filtered_vcf, truth_filtered_vcf],
+      vcf_file_indexes = [test_filtered_vcf_index, truth_filtered_vcf_index],
+      vcf_names = ["test","truth"]
   }
 
   meta {
