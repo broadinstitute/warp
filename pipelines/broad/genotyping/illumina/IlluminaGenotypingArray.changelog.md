@@ -1,3 +1,8 @@
+# 1.12.18
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
+
 # 1.12.17
 2024-03-26 (Date of Last Commit)
 
