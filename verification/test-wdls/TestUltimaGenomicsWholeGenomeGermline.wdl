@@ -66,7 +66,7 @@ workflow TestUltimaGenomicsWholeGenomeGermline {
                                     UltimaGenomicsWholeGenomeGermline.output_vcf_index,
                                     UltimaGenomicsWholeGenomeGermline.output_vcf,
                                     UltimaGenomicsWholeGenomeGermline.output_gvcf_index,
-                                    UltimaGenomicsWholeGenomeGermline.output_gvcf,
+                                    UltimaGenomicsWholeGenomeGermline.output_gvcf
                                     ],
                                     # File? outputs
                                     select_all([UltimaGenomicsWholeGenomeGermline.agg_alignment_summary_pdf]),
@@ -188,6 +188,7 @@ workflow TestUltimaGenomicsWholeGenomeGermline {
           truth_gvcf_index = GetGvcfIndex.truth_file,
           test_gvcf = GetGvcf.results_file,
           test_gvcf_index = GetGvcfIndex.results_file,
+          sample_name = UltimaGenomicsWholeGenomeGermline.sample_name,
           done = CopyToTestResults.done
       }
     }
