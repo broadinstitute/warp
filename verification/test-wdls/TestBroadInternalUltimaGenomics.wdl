@@ -206,6 +206,7 @@ workflow TestBroadInternalUltimaGenomics {
           truth_gvcf_index = GetGvcfIndex.truth_file,
           test_gvcf = GetGvcf.results_file,
           test_gvcf_index = GetGvcfIndex.results_file,
+          sample_name = BroadInternalUltimaGenomics.sample_name,
           done = CopyToTestResults.done
       }
     }

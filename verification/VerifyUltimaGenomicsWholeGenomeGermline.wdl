@@ -29,6 +29,8 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
     File truth_gvcf
     File truth_gvcf_index
 
+    String sample_name
+
     Boolean? done
   }
 
@@ -97,13 +99,11 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
       patternForLinesToExcludeFromComparison = "^##GATKCommandLine"
   }
 
-  call Tasks.CompareVCFsVerbosely as CompareFilteredVcfs {
+  call Tasks.CompareVcfs as CompareFilteredVcfs {
     input:
-      actual = test_filtered_vcf,
-      actual_index = test_filtered_vcf_index,
-      expected = truth_filtered_vcf,
-      expected_index = truth_filtered_vcf_index,
-      extra_args = " --ignore-attribute TREE_SCORE "
+      file1 = test_filtered_vcf,
+      file2 = truth_filtered_vcf,
+      patternForLinesToExcludeFromComparison = "^##GATKCommandLine"
   }
 
   call Tasks.CompareVCFsVerbosely as CompareGvcfs {
@@ -119,7 +119,8 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
     input:
       vcf_files = [test_filtered_vcf, truth_filtered_vcf],
       vcf_file_indexes = [test_filtered_vcf_index, truth_filtered_vcf_index],
-      vcf_names = ["test","truth"]
+      vcf_names = ["test","truth"],
+      sample_name = sample_name
   }
 
   meta {
