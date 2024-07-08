@@ -92,6 +92,7 @@ task OptimusH5adGeneration {
 
     # set parameters
     gex_h5ad = "~{input_id}.h5ad"
+    gex_nhash_id = "~{gex_nhash_id}"
 
     # import anndata to manipulate h5ad files
     import anndata as ad
@@ -99,7 +100,7 @@ task OptimusH5adGeneration {
     print("Reading Optimus h5ad:")
     print(gex_h5ad)
     gex_data = ad.read_h5ad(gex_h5ad)
-    gex_data.uns['NHashID'] = ~{gex_nhash_id}
+    gex_data.uns['NHashID'] = gex_nhash_id
     gex_data.write("~{input_id}.h5ad")
     CODE 
   >>>
@@ -192,6 +193,7 @@ task SingleNucleusOptimusH5adOutput {
 
         # set parameters
         gex_h5ad = "~{input_id}.h5ad"
+        gex_nhash_id = "~{gex_nhash_id}"
 
         # import anndata to manipulate h5ad files
         import anndata as ad
@@ -199,7 +201,7 @@ task SingleNucleusOptimusH5adOutput {
         print("Reading Optimus h5ad:")
         print(gex_h5ad)
         gex_data = ad.read_h5ad(gex_h5ad)
-        gex_data.uns['NHashID'] = ~{gex_nhash_id}
+        gex_data.uns['NHashID'] = gex_nhash_id
         gex_data.write("~{input_id}.h5ad")
         CODE
     }
