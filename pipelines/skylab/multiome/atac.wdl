@@ -148,7 +148,6 @@ task GetNumSplits {
 
   command <<<
     set -euo pipefail
-    set -x
     
     # steps taken from https://github.com/IntelLabs/Open-Omics-Acceleration-Framework/blob/main/pipelines/fq2sortedbam/print_config.sh
     num_nodes=1
