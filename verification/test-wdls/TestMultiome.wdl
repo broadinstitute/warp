@@ -87,9 +87,7 @@ workflow TestMultiome {
         atac_whitelist = atac_whitelist,
         run_cellbender = run_cellbender,
         soloMultiMappers = soloMultiMappers,
-        nhash_id = nhash_id,
         nhash_id = nhash_id
-  
     }
 
     

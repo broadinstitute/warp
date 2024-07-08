@@ -15,7 +15,7 @@
   "Optimus.input_id": "8k_pbmc",
   "Optimus.tenx_chemistry_version": "2",
   "Optimus.star_strand_mode": "Forward",
-  "Optimus.nhash_id":"1234-example",
+  "Optimus.gex_nhash_id":"example_1234",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/gencode.v27.primary_assembly.annotation.gtf"
 }
 
