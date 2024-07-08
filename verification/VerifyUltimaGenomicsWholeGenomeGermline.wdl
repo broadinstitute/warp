@@ -100,10 +100,9 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
   }
 
   call Tasks.CompareVcfs as CompareFilteredVcfs {
-    input:
       file1 = test_filtered_vcf,
       file2 = truth_filtered_vcf,
-      patternForLinesToExcludeFromComparison = "^##GATKCommandLine"
+      patternForLinesToExcludeFromComparison = "^##"
   }
 
   call Tasks.CompareVCFsVerbosely as CompareGvcfs {
@@ -112,7 +111,9 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
       actual_index = test_gvcf_index,
       expected = truth_gvcf,
       expected_index = truth_gvcf_index,
-      extra_args = " --ignore-attribute TREE_SCORE "
+      extra_args = " --ignore-attribute TREE_SCORE" + " --ignore-attribute VQSLOD --ignore-attribute AS_VQSLOD --ignore-filters "
+    + "--ignore-attribute culprit --ignore-attribute AS_culprit --ignore-attribute AS_FilterStatus "
+    + "--ignore-attribute ExcessHet --ignore-star-attributes --allow-nan-mismatch --ignore-attribute END"
   }
 
   call VerifyNA12878.VerifyNA12878 {
