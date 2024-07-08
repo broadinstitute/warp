@@ -152,6 +152,7 @@ task GetNumSplits {
     echo "#############################################"
     echo "Machine specs for bwa-mem2 task"
 
+
     # steps taken from https://github.com/IntelLabs/Open-Omics-Acceleration-Framework/blob/main/pipelines/fq2sortedbam/print_config.sh
     num_nodes=1
     lscpu
