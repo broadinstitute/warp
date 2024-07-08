@@ -7,6 +7,8 @@ workflow CreateImputationRefPanelBeagle {
     Array[File] ref_vcf_index
     Int disk_size
 
+    String? output_basename
+
     Boolean make_brefs = true
     Boolean make_interval_lists = true
   }
@@ -16,7 +18,9 @@ workflow CreateImputationRefPanelBeagle {
       call BuildBref3 {
         input:
           vcf = ref_vcf[idx],
-          disk_size = disk_size
+          disk_size = disk_size,
+          output_basename = output_basename,
+          chr = idx + 1
         }
       }
         
@@ -38,10 +42,14 @@ workflow CreateImputationRefPanelBeagle {
 task BuildBref3 {
   input {
     File vcf
+    String? output_basename
+    Int? chr
     Int disk_size
   }
 
-  String name = basename(vcf, ".vcf.gz")
+  String name_from_file = basename(vcf, ".vcf.gz")
+  String? custom_basename_with_chr = output_basename + ".chr" + chr
+  String name = select_first([custom_basename_with_chr, name_from_file])
 
   command <<<
     java -jar /usr/gitc/bref3.22Jul22.46e.jar ~{vcf} > ~{name}.bref3
