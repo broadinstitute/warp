@@ -1,71 +1,83 @@
-name: Release Pipeline to GitHub
 
+# This action releases from develop for all changed pipelines
+name: WARP Release from Master
+
+# Controls when the workflow will run
 on:
   push:
-    branches:
-      - develop
-      - master
-      - np_add-warp-prod-release-to-github-to-Github-actions
+    #runs on PRs to develop, staging, and master
+    branches: [ "master"]
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  PROJECT_NAME: WARP
+  # Github repo name
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  release-pipeline:
+  release-dev:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up environment variables
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch all history for all tags and branches
+      - name: Check working directory
         run: |
-          echo "VAULT_ADDR=https://clotho.broadinstitute.org:8200" >> $GITHUB_ENV
-          echo "ENV=prod" >> $GITHUB_ENV
-
-      - name: Export VAULT_TOKEN
+          echo "Current directory: "
+          pwd
+          ls -lht
+      - name: Set up Git
         run: |
-          VAULT_TOKEN=$(cat /local/scratch/jenkins/vault-token-dsde)
-          echo "VAULT_TOKEN=$VAULT_TOKEN" >> $GITHUB_ENV
-
-      - name: Export GITHUB_TOKEN from Vault
+          git fetch --all
+      - name: Release from develop
+        id: release_dev_script
         run: |
-          GITHUB_TOKEN=$(vault read -field token secret/dsde/gotc/dev/dsde-jenkins/api-access-token)
-          echo "GITHUB_TOKEN=$GITHUB_TOKEN" >> $GITHUB_ENV
-
-      - name: Set PATH for vault
-        run: echo "$PATH:/seq/software/vault/current" >> $GITHUB_PATH
-
-      - name: Source common.sh script
-        run: source scripts/common.sh
-
-      - name: Get previous commit hash
-        id: prev_commit
-        run: |
-          PREVIOUS_COMMIT_HASH=$(git rev-parse HEAD^1)
-          echo "PREVIOUS_COMMIT_HASH=$PREVIOUS_COMMIT_HASH" >> $GITHUB_ENV
-
-      - name: Get modified pipelines
-        id: get_pipelines
-        run: |
+          #!/bin/bash
           source scripts/common.sh
-          CHANGED_PIPELINES=$(get_modified_pipelines ${{ env.PREVIOUS_COMMIT_HASH }})
-          echo "CHANGED_PIPELINES=$CHANGED_PIPELINES" >> $GITHUB_ENV
-          echo "::set-output name=changed_pipelines::$CHANGED_PIPELINES"
-
-      - name: Echo branch info
-        run: |
-          echo "branch: ${{ github.ref }}"
-          echo "previous_commit_hash: ${{ env.PREVIOUS_COMMIT_HASH }}"
-          echo "env: ${{ env.ENV }}"
-
-      - name: Release changed pipelines
-        if: ${{ env.ENV == 'prod' }}
-        run: |
-          if [[ -n "${{ steps.get_pipelines.outputs.changed_pipelines }}" ]]; then
-            IFS=',' read -r -a pipelines <<< "${{ steps.get_pipelines.outputs.changed_pipelines }}"
-            for pipeline in "${pipelines[@]}"; do
-              sleep 60
-              scripts/release_pipeline_to_github.sh -p $pipeline -e ${{ env.ENV }}
-            done
+          set -e
+          set -x
+          ENV=dev
+          echo $ENV
+          echo "Getting all changed pipelines since last commit before releasing from develop"
+          previous_commit_hash=$(git rev-parse HEAD^1)
+          changed_pipelines=$(get_modified_pipelines ${previous_commit_hash})
+          echo branch: ${GIT_BRANCH} previous_commit_hash: ${previous_commit_hash} env: ${ENV}
+          if [[ -n ${ENV} ]]; then
+              if [[ -n ${changed_pipelines[@]} ]]; then
+                  for pipeline in ${changed_pipelines[@]}; do
+                      scripts/release_pipeline_to_github.sh -p ${pipeline} -e ${ENV}
+                  done
+              else
+                  echo "There are no changed pipelines to release."
+              fi
           else
-            echo "There are no changed pipelines to release."
+              echo "Releases are only made on merge to develop and master"
           fi
-        shell: bash
+
+      - name: Post validation results as a comment
+        if: always()  # This ensures it runs regardless of previous step success/failure
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              const output = "${{ steps.validate_script.outputs.result }}".replace(/\\n/g, '\n').replace(/\\r/g, '\r');
+              const issue_number = context.payload.pull_request.number;
+              const message = `### 🔍Version Validation Results:\n\`\`\`\n${output}\n\`\`\``;
+              github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue_number,
+                body: message
+              });
+            } catch (error) {
+              console.error('Failed to post comment:', error);
+            }
+      - name: Fail if validation failed
+        if: contains(steps.validate_script.outputs.result, 'validation_failed')
+        run: exit 1
+
