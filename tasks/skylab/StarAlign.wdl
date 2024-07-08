@@ -573,6 +573,10 @@ task MergeStarOutput {
       outputbarcodes.tsv \
       outputmatrix.mtx \
       ~{expected_cells}
+      echo "Adding NHashID to library metrics"
+      cp ~{input_id}_library_metrics.csv ~{input_id}_library_metrics_backup.csv
+      { echo ~{gex_nhash_id}; cat ~{input_id}_library_metrics.csv; } > ~{input_id}_{gex_nhash_id}_library_metrics.csv
+      echo "tarring STAR txt files"
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
     else
       echo "No text files found in the folder."
@@ -585,11 +589,6 @@ task MergeStarOutput {
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
         --input_id ~{input_id}
-    
-    cp ~{input_id}_library_metrics.csv ~{input_id}_library_metrics_backup.csv
-
-    # Add the header and append the original file content
-    { echo ~{gex_nhash_id}; cat ~{input_id}_library_metrics.csv; } > ~{input_id}_{gex_nhash_id}_library_metrics.csv
   >>>
 
   runtime {
