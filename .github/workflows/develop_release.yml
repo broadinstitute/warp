@@ -37,6 +37,9 @@ jobs:
         echo "Current directory: "
         pwd
         ls -lht
+    - name: Set up Git
+      run: |
+        git fetch --all
     - name: Release from develop
       id: release_dev_script
       run: |
