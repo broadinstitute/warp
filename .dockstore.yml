@@ -87,6 +87,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ImputationBeagle.wdl
 
+  - name: ImputationBeaglePreChunk
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ImputationBeaglePreChunk.wdl
+
   - name: CreateImputationRefPanelBeagle
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/CreateImputationRefPanelBeagle.wdl
