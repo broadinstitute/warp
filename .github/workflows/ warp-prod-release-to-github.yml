@@ -5,8 +5,7 @@ name: WARP Release from Master
 # Controls when the workflow will run
 on:
   push:
-    #runs on PRs to develop, staging, and master
-    branches: [ "master", "develop"]
+    branches: [ "master", "np_add-warp-prod-release-to-github-to-Github-actions"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
