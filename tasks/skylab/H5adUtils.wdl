@@ -101,6 +101,7 @@ task OptimusH5adGeneration {
     gex_data = ad.read_h5ad(gex_h5ad)
     gex_data.uns['NHashID'] = ~{gex_nhash_id}
     gex_data.write("~{input_id}.h5ad")
+    CODE 
   >>>
 
   runtime {
@@ -200,6 +201,7 @@ task SingleNucleusOptimusH5adOutput {
         gex_data = ad.read_h5ad(gex_h5ad)
         gex_data.uns['NHashID'] = ~{gex_nhash_id}
         gex_data.write("~{input_id}.h5ad")
+        CODE
     }
 
     runtime {

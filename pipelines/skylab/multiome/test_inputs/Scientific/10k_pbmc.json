@@ -31,5 +31,5 @@
   "Multiome.Atac.cpu_platform_bwa":"Intel Cascade Lake",
   "Multiome.Atac.num_threads_bwa":"24",
   "Multiome.Atac.mem_size_bwa":"175",
-  "Multiome.nhash_id":"1234-example"
+  "Multiome.nhash_id":"example_1234"
 }
