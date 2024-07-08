@@ -471,6 +471,7 @@ task CreateFragmentFile {
     chrom_sizes = "~{chrom_sizes}"
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
+    atac_nhash_id = "~{atac_nhash_id}"
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -496,7 +497,7 @@ task CreateFragmentFile {
     pp.import_data("~{bam_base_name}.fragments.tsv", file="temp_metrics.h5ad", chrom_sizes=chrom_size_dict, min_num_fragments=0)
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
     # Add nhash_id to h5ad file as unstructured metadata
-    data_data.uns['NHashID'] = ~{atac_nhash_id}
+    data_data.uns['NHashID'] = atac_nhash_id
     # calculate tsse metrics
     snap.metrics.tsse(atac_data, atac_gtf)
     # Write new atac file
