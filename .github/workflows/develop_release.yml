@@ -46,7 +46,6 @@ jobs:
         #!/bin/bash
         source scripts/common.sh
         set -e
-        set -x
         ENV=dev
         echo $ENV
         echo "Getting all changed pipelines since last commit before releasing from develop"
