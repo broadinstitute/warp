@@ -1,6 +1,6 @@
 
-# This action releases from develop for all changed pipelines
-name: WARP Release from Develop
+# This action releases from develop/master for all changed pipelines
+name: WARP Release
 
 # Controls when the workflow will run
 on:
@@ -38,10 +38,13 @@ jobs:
     - name: Release from develop
       id: release_dev_script
       run: |
-        #!/bin/bash
         source scripts/common.sh
         set -e
-        ENV=dev
+        if [[ "${GIT_BRANCH}" == "develop" ]]; then
+            ENV=dev
+        elif [[ "${GIT_BRANCH}" == "master" ]]; then
+            ENV=prod
+        fi
         echo $ENV
         echo "Getting all changed pipelines since last commit before releasing from develop"
         previous_commit_hash=$(git rev-parse HEAD^1)
@@ -53,34 +56,12 @@ jobs:
                     scripts/release_pipeline_to_github.sh -p ${pipeline} -e ${ENV}
                 done
             else
-                echo "There are no changed pipelines to release." 
+                echo "There are no changed pipelines to release" 
             fi
         else
             echo "Releases are only made on merge to develop and master" 
         fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Post validation results as a comment
-      if: always()  # This ensures it runs regardless of previous step success/failure
-      uses: actions/github-script@v7
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          try {
-            const output = "${{ steps.validate_script.outputs.result }}".replace(/\\n/g, '\n').replace(/\\r/g, '\r');
-            const issue_number = context.payload.pull_request.number;
-            const message = `### 🔍Version Validation Results:\n\`\`\`\n${output}\n\`\`\``;
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue_number,
-              body: message
-            });
-          } catch (error) {
-            console.error('Failed to post comment:', error);
-          }
-    - name: Fail if validation failed
-      if: contains(steps.validate_script.outputs.result, 'validation_failed')
-      run: exit 1
       
       
