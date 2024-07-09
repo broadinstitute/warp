@@ -7,7 +7,7 @@ import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
-    String pipeline_version = "0.7.1"
+    String pipeline_version = "1.1.1"
 
     input {
         String input_id
@@ -95,6 +95,8 @@ workflow PairedTag {
             soloMultiMappers = soloMultiMappers
     }
 
+    # Call the ATAC workflow
+        # Call the ATAC workflow
     scatter (idx in range(length(atac_r1_fastq))) {
         call Demultiplexing.PairedTagDemultiplex as demultiplex {
             input:

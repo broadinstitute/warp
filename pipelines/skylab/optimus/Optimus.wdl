@@ -34,6 +34,7 @@ workflow Optimus {
     File annotations_gtf
     File? mt_genes
     String? soloMultiMappers = "Uniform"
+    Int? expected_cells
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -48,27 +49,27 @@ workflow Optimus {
 
     # Set to true to override input checks and allow pipeline to proceed with invalid input
     Boolean force_no_check = false
-
+    
     # Check that tenx_chemistry_version matches the length of the read 1 fastq;
     # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26 bp) or v3 (28 bp).
     Boolean ignore_r1_read_length = false
 
     # Set to Forward, Reverse, or Unstranded to account for stranded library preparations (per STARsolo documentation)
     String star_strand_mode = "Forward"
-
+    
 # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
     # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
-    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times.
+    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
   }
 
   # version of this pipeline
 
 
-  String pipeline_version = "7.1.2"
+  String pipeline_version = "7.2.1"
 
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
@@ -219,8 +220,8 @@ workflow Optimus {
       umipercell = STARsoloFastq.umipercell,
       input_id = input_id,
       counting_mode = counting_mode,
-      star_merge_docker_path = docker_prefix + star_merge_docker
-
+      star_merge_docker_path = docker_prefix + star_merge_docker,
+      expected_cells = expected_cells
   }
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {

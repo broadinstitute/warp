@@ -1,7 +1,12 @@
-# 2.1.22
-2024-04-08 (Date of Last Commit)
+# 2.1.23
+2024-07-09 (Date of Last Commit)
 
-* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers; this does not affect this pipeline.  
+* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers.
+
+# 2.1.22
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk
 
 # 2.1.21
 2024-03-26 (Date of Last Commit)

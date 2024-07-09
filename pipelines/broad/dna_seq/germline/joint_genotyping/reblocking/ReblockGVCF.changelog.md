@@ -1,7 +1,12 @@
-# 2.2.0
-2024-04-08 (Date of Last Commit)
+# 2.1.14
+2024-07-09 (Date of Last Commit)
 
 * Updated ReblockGVCF.wdl to run in Azure.
+
+# 2.1.13
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
 
 # 2.1.12
 2024-03-26 (Date of Last Commit)

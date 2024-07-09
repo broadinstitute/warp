@@ -1,12 +1,12 @@
 # 3.1.21
-2024-05-21 (Date of Last Commit)
+2024-07-09 (Date of Last Commit)
 
-* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers. This change does not affect this pipeline.
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers.
 
 # 3.1.20
-2024-04-08 (Date of Last Commit)
+2024-07-01 (Date of Last Commit)
 
-* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers; this does not affect this pipeline  
+* CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
 
 # 3.1.19
 2024-03-26 (Date of Last Commit)

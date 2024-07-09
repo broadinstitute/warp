@@ -327,7 +327,8 @@ task STARsoloFastq {
         --soloBarcodeReadLength 0 \
         --soloCellReadStats Standard \
         ~{"--soloMultiMappers " + soloMultiMappers} \
-        --soloUMIfiltering MultiGeneUMI_CR
+        --soloUMIfiltering MultiGeneUMI_CR \
+        --soloCellFilter EmptyDrops_CR
       
     echo "UMI LEN " $UMILen
 
@@ -452,8 +453,9 @@ task MergeStarOutput {
     Array[File]? align_features
     Array[File]? umipercell
     String? counting_mode
-
+    
     String input_id
+    Int expected_cells = 3000
     File barcodes_single = barcodes[0]
     File features_single = features[0]
 
@@ -499,16 +501,14 @@ task MergeStarOutput {
     cp ~{input_id}.uniform.mtx ./matrix/matrix.mtx
     cp ~{barcodes_single} ./matrix/barcodes.tsv
     cp ~{features_single} ./matrix/features.tsv
-    echo "doing another ls"
-    ls -lR
 
     tar -zcvf ~{input_id}.mtx_files.tar ./matrix/*
 
 
     # Running star for combined cell matrix
     # outputs will be called outputbarcodes.tsv. outputmatrix.mtx, and outputfeatures.tsv
-    STAR --runMode soloCellFiltering ./matrix ./output --soloCellFilter CellRanger2.2
-
+    STAR --runMode soloCellFiltering ./matrix ./output --soloCellFilter EmptyDrops_CR
+    
     #list files
     echo "listing files"
     ls
@@ -583,7 +583,8 @@ task MergeStarOutput {
       ~{counting_mode} \
       ~{input_id} \
       outputbarcodes.tsv \
-      outputmatrix.mtx
+      outputmatrix.mtx \
+      ~{expected_cells}
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
     else
       echo "No text files found in the folder."

@@ -1,7 +1,18 @@
-# 0.7.1
-2024-06-07 (Date of Last Commit)
+# 1.1.1
+2024-07-09 (Date of Last Commit)
 
 * Updated the PairedTag.wdl to run on Azure
+
+# 1.1.0
+2024-06-28 (Date of Last Commit)
+
+* Updated the STARsolo parameters for estimating cells to Emptydrops_CR
+* Added an optional input for expected cells which is used for metric calculation
+
+# 1.0.0
+2024-06-26
+
+* Official release of the PairedTag pipeline
 
 # 0.7.0
 2024-05-20
@@ -42,9 +53,10 @@
 2024-03-15 (Date of Last Commit)
 
 * Added cell metrics to the library-level metrics
-* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
-* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
 
+* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
+
+* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
 # 0.3.0
 
 2024-03-01 (Date of Last Commit)
