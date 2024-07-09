@@ -50,7 +50,7 @@ workflow SlideSeq {
     String picard_cloud_docker = "picard-cloud:2.26.10"
     String warp_tools_docker_2_0_1 = "warp-tools:2.0.1"
     String warp_tools_docker_2_0_2 = "warp-tools:2.0.2-1709308985"
-    String star_merge_docker = "star-merge-npz:1.1"
+    String star_merge_docker = "star-merge-npz:1.2"
 
     String ubuntu_docker = "ubuntu_16_0_4:latest"
     String gcp_ubuntu_docker_prefix = "gcr.io/gcp-runtimes/"
