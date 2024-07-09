@@ -112,7 +112,7 @@ workflow snm3C {
             unique_reads_cgn_extraction_allc_extract = Merge_sort_analyze.extract_allc_output_allc_tar,
             unique_reads_cgn_extraction_tbi_extract = Merge_sort_analyze.extract_allc_output_tbi_tar,
             plate_id = plate_id,
-            docker = docker
+            docker = docker_prefix + m3c_yap_hisat_docker
     }
 
     call Summary {
