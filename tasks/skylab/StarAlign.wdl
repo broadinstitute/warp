@@ -323,7 +323,7 @@ task STARsoloFastq {
         --soloCBmatchWLtype 1MM_multi \
         --soloUMIdedup 1MM_CR \
         --outSAMtype BAM SortedByCoordinate \
-        --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
+        --outSAMattributes UB UR UY CR CB CY NH GX GN sF cN \
         --soloBarcodeReadLength 0 \
         --soloCellReadStats Standard \
         ~{"--soloMultiMappers " + soloMultiMappers} \
