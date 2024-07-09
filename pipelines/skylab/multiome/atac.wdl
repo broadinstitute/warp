@@ -41,7 +41,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.0.1"
+  String pipeline_version = "2.0.2"
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -151,7 +151,7 @@ task GetNumSplits {
     echo "Get number of splits for bwa-mem2"
     echo "#############################################"
     echo "Machine specs for bwa-mem2 task"
-
+    echo "#############################################"
 
     # steps taken from https://github.com/IntelLabs/Open-Omics-Acceleration-Framework/blob/main/pipelines/fq2sortedbam/print_config.sh
     num_nodes=1
