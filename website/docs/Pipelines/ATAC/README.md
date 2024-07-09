@@ -50,6 +50,7 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | read2_fastq_gzipped | Fastq inputs (array of compressed read 2 FASTQ files containing cellular barcodes). |
 | read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files). |
 | input_id | Output prefix/base name for all intermediate files and pipeline outputs. |
+| atac_nhash_id | String that represents an optional library aliquot identifier. When used, it is echoed in the h5ad unstructured data. |
 | preindex | Boolean used for paired-tag data and not applicable to ATAC data types; default is set to false. | 
 | tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files). |
 | num_threads_bwa | Optional integer defining the number of CPUs per node for the BWA-mem alignment task (default: 128). |
