@@ -1,6 +1,7 @@
 # 5.1.1
 2024-07-09 (Date of Last Commit)
 
+* Added test statements again for GH action (to release from develop). Will probably revert
 * Updated the Multiome.wdl to run on Azure
 
 # 5.1.0

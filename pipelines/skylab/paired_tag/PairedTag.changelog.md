@@ -2,6 +2,7 @@
 2024-07-09 (Date of Last Commit)
 
 * Updated the PairedTag.wdl to run on Azure
+* Added test statements again for GH action (to release from develop). Will probably revert
 
 # 1.1.0
 2024-06-28 (Date of Last Commit)
