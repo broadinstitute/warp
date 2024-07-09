@@ -68,7 +68,7 @@ workflow Optimus {
   # version of this pipeline
 
 
-  String pipeline_version = "7.2.0"
+  String pipeline_version = "7.3.0"
 
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays

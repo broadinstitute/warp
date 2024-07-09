@@ -1,3 +1,8 @@
+# 2.1.0
+2024-07-09 (Date of Last Commit)
+
+* Added new optional input parameter of atac_nhash_id, an identifier for a library aliquot that is echoed in the atac fragment metrics h5ad (in the data.uns); default is set to null 
+
 # 2.0.0
 2024-05-20 (Date of Last Commit)
 
