@@ -60,7 +60,6 @@ jobs:
         fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Post validation results as a comment
       if: always()  # This ensures it runs regardless of previous step success/failure
       uses: actions/github-script@v7
