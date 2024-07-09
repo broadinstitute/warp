@@ -1,7 +1,7 @@
-# 2.0.1
-2024-07-08 (Date of Last Commit)
+# 2.0.2
+2024-07-09 (Date of Last Commit)
 
-* Added test statements for GH action (to release from develop). Will probably revert
+* Added test statements again for GH action (to release from develop). Will probably revert
 
 # 2.0.0
 2024-05-20 (Date of Last Commit)
