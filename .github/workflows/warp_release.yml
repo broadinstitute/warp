@@ -56,7 +56,7 @@ jobs:
                     scripts/release_pipeline_to_github.sh -p ${pipeline} -e ${ENV}
                 done
             else
-                echo "There are no changed pipelines to release." 
+                echo "There are no changed pipelines to release" 
             fi
         else
             echo "Releases are only made on merge to develop and master" 
