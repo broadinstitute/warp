@@ -1,3 +1,8 @@
+# 1.1.2
+2024-07-09 (Date of Last Commit)
+
+* Added test statements again for GH action (to release from develop). Will probably revert
+
 # 1.1.0
 2024-06-28 (Date of Last Commit)
 
