@@ -5,7 +5,7 @@ task CalculateChromosomeLength {
     File ref_dict
     String chrom
 
-    String ubuntu_docker = "ubuntu:20.04"
+    String ubuntu_docker = "ubuntu.azurecr.io/ubuntu:20.04"
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
@@ -31,7 +31,7 @@ task GetMissingContigList {
     File ref_dict
     File included_contigs
 
-    String ubuntu_docker = "ubuntu:20.04"
+    String ubuntu_docker = "ubuntu.azurecr.io/ubuntu:20.04"
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
@@ -1024,7 +1024,7 @@ task FindSitesUniqueToFileTwoOnly {
     File file1
     File file2
 
-    String ubuntu_docker = "ubuntu:20.04"
+    String ubuntu_docker = "ubuntu.azurecr.io/ubuntu:20.04"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(file1, "GiB") + 2*size(file2, "GiB")) + 100
@@ -1251,7 +1251,7 @@ task ErrorWithMessageIfErrorCountNotZero {
   >>>
 
   runtime {
-    docker: "ubuntu:20.04"
+    docker: "ubuntu.azurecr.io/ubuntu:20.04"
   }
   output {
     Boolean done = true
