@@ -22,6 +22,8 @@ workflow Optimus {
     Array[File] r2_fastq
     Array[File]? i1_fastq
     String input_id
+    # String for additional library aliquot ID
+    String? gex_nhash_id = ""
     String output_bam_basename = input_id
     String? input_name
     String? input_id_metadata_field
@@ -66,7 +68,7 @@ workflow Optimus {
   # version of this pipeline
 
 
-  String pipeline_version = "7.2.0"
+  String pipeline_version = "7.3.0"
 
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
@@ -170,7 +172,8 @@ workflow Optimus {
       umipercell = STARsoloFastq.umipercell,
       input_id = input_id,
       counting_mode = counting_mode,
-      expected_cells = expected_cells
+      expected_cells = expected_cells,
+      gex_nhash_id = gex_nhash_id
   }
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {
@@ -186,6 +189,7 @@ workflow Optimus {
     call H5adUtils.OptimusH5adGeneration{
       input:
         input_id = input_id,
+        gex_nhash_id = gex_nhash_id,
         input_name = input_name,
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
@@ -212,11 +216,13 @@ workflow Optimus {
         summary = STARsoloFastq.summary_sn_rna,
         align_features = STARsoloFastq.align_features_sn_rna,
         umipercell = STARsoloFastq.umipercell_sn_rna,
-        input_id = input_id     
+        input_id = input_id,
+        gex_nhash_id = gex_nhash_id     
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
         input_id = input_id,
+        gex_nhash_id = gex_nhash_id,
         input_name = input_name,
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
