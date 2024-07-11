@@ -25,5 +25,6 @@
   "Optimus.star_strand_mode": "Unstranded",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_vM32.annotation.gtf",
   "Optimus.counting_mode": "sn_rna",
+  "Optimus.gex_nhash_id":"example_1234",
   "Optimus.count_exons": true
 }

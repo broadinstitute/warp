@@ -6,10 +6,13 @@ import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 
 workflow Multiome {
-    String pipeline_version = "5.1.2"
+
+    String pipeline_version = "5.2.0"
 
     input {
         String input_id
+        # Additional library aliquot ID
+        String? nhash_id
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -57,6 +60,7 @@ workflow Multiome {
             i1_fastq = gex_i1_fastq,
             input_id = input_id + "_gex",
             output_bam_basename = input_id + "_gex",
+            gex_nhash_id = nhash_id,
             tar_star_reference = tar_star_reference,
             annotations_gtf = annotations_gtf,
             mt_genes = mt_genes,
@@ -82,6 +86,7 @@ workflow Multiome {
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
             annotations_gtf = annotations_gtf,
+            atac_nhash_id = nhash_id,
             adapter_seq_read3 = adapter_seq_read3
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {

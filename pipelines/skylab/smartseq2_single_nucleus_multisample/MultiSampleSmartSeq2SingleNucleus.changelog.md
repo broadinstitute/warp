@@ -1,3 +1,7 @@
+# 1.3.6
+2024-07-09 (Date of Last Commit)
+* Added new optional input parameter of gex_nhash_id to the STARAlign task; this does not impact the MultiSampleSmartSeq2SingleNucleus workflow 
+
 # 1.3.5
 2024-06-28 (Date of Last Commit)
 

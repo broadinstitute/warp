@@ -11,6 +11,7 @@ To produce the library-level metrics here, the [combined_mtx.py script](https://
 
 | Metric | Description |
 | ---| --- |
+| nhash_id | The first line of of the metrics CSV echos the NHash ID if specified in the workflow run |
 | number_of_reads | Total number of reads.|
 | sequencing_saturation | Proportion of unique molecular identifiers (UMIs) observed relative to the total number of possible UMIs. |
 | fraction_of_unique_reads_mapped_to_genome | Fraction of unique reads that map to the genome. |

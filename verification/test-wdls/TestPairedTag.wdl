@@ -10,6 +10,7 @@ workflow TestPairedTag {
 
     input {
       String input_id
+      String nhash_id
 
       # Optimus Inputs
       String counting_mode = "sn_rna"
@@ -86,7 +87,8 @@ workflow TestPairedTag {
         adapter_seq_read3 = adapter_seq_read3,
         chrom_sizes = chrom_sizes,
         atac_whitelist = atac_whitelist,
-        soloMultiMappers = soloMultiMappers
+        soloMultiMappers = soloMultiMappers,
+        nhash_id = nhash_id
     }
 
     
