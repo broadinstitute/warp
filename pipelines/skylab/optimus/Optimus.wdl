@@ -31,6 +31,7 @@ workflow Optimus {
     File annotations_gtf
     File? mt_genes
     String? soloMultiMappers = "Uniform"
+    Int? expected_cells
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -65,7 +66,7 @@ workflow Optimus {
   # version of this pipeline
 
 
-  String pipeline_version = "7.1.0"
+  String pipeline_version = "7.2.0"
 
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
@@ -168,7 +169,8 @@ workflow Optimus {
       align_features = STARsoloFastq.align_features,
       umipercell = STARsoloFastq.umipercell,
       input_id = input_id,
-      counting_mode = counting_mode
+      counting_mode = counting_mode,
+      expected_cells = expected_cells
   }
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {
