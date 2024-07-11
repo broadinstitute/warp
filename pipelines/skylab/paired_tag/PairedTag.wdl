@@ -7,10 +7,14 @@ import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
-    String pipeline_version = "1.1.1"
+
+    String pipeline_version = "1.2.1"
+
 
     input {
         String input_id
+        # Additional library aliquot id
+        String? nhash_id
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -92,7 +96,8 @@ workflow PairedTag {
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
             cloud_provider = cloud_provider,
-            soloMultiMappers = soloMultiMappers
+            soloMultiMappers = soloMultiMappers,
+            gex_nhash_id = nhash_id
     }
 
     # Call the ATAC workflow
@@ -125,7 +130,8 @@ workflow PairedTag {
             annotations_gtf = annotations_gtf,
             preindex = preindex,
             cloud_provider = cloud_provider,
-            vm_size = vm_size
+            vm_size = vm_size,
+            atac_nhash_id = nhash_id
     }
 
     if (preindex) {

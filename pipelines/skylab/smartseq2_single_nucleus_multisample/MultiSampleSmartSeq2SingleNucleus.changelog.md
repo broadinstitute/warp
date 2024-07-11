@@ -1,7 +1,8 @@
 # 1.3.6
-2024-07-09 (Date of Last Commit)
+2024-07-11 (Date of Last Commit)
 
 * Updated the PairedTag.wdl to run on Azure. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
+* Added new optional input parameter of gex_nhash_id to the STARAlign task; this does not impact the MultiSampleSmartSeq2SingleNucleus workflow 
 
 # 1.3.5
 2024-06-28 (Date of Last Commit)

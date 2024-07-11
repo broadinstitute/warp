@@ -62,6 +62,7 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | adapter_seq_read1 | TrimAdapters input: Sequence adapter for read 1 fastq.                                                          |
 | adapter_seq_read3 | TrimAdapters input: Sequence adapter for read 3 fastq.                                                          |
 | vm_size | String defining the Azure virtual machine family for the workflow (default: "Standard_M128s").                  | String |
+| atac_nhash_id | String that represents an optional library aliquot identifier. When used, it is echoed in the h5ad unstructured data. |
 
 ## ATAC tasks and tools
 

@@ -1,8 +1,11 @@
-# 5.1.1
+# 5.2.1
+* Updated the Multiome.wdl to run on Azure
+
+# 5.2.0
 2024-07-09 (Date of Last Commit)
 
+* Added new optional input parameter of nhash_id, an optional identifier for a library aliquot that is echoed in the ATAC fragment h5ad, the gene expression h5ad (in the data.uns), and the gene expression library metrics CSV output; default is set to null
 * Added test statements again for GH action (to release from develop). Will probably revert
-* Updated the Multiome.wdl to run on Azure
 
 # 5.1.0
 2024-06-28 (Date of Last Commit)

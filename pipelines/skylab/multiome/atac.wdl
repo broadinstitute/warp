@@ -20,6 +20,8 @@ workflow ATAC {
     # Output prefix/base name for all intermediate files and pipeline outputs
     String input_id
     String cloud_provider
+    # Additional library aliquot ID
+    String? atac_nhash_id
 
     # Option for running files with preindex
     Boolean preindex = false
@@ -66,6 +68,7 @@ workflow ATAC {
     }
   }
 
+  String pipeline_version = "2.1.1"
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -136,7 +139,8 @@ workflow ATAC {
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf,
         preindex = preindex,
-        docker_path = docker_prefix + snap_atac_docker
+        docker_path = docker_prefix + snap_atac_docker,
+        atac_nhash_id = atac_nhash_id
     }
   }
   if (!preindex) {
@@ -146,7 +150,8 @@ workflow ATAC {
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf,
         preindex = preindex,
-        docker_path = docker_prefix + snap_atac_docker
+        docker_path = docker_prefix + snap_atac_docker,
+        atac_nhash_id = atac_nhash_id
 
     }
   }
@@ -505,6 +510,7 @@ task CreateFragmentFile {
     Int nthreads = 4
     String cpuPlatform = "Intel Cascade Lake"
     String docker_path
+    String atac_nhash_id = ""
   }
 
   String bam_base_name = basename(bam, ".bam")
@@ -529,6 +535,7 @@ task CreateFragmentFile {
     chrom_sizes = "~{chrom_sizes}"
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
+    atac_nhash_id = "~{atac_nhash_id}"
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -553,6 +560,8 @@ task CreateFragmentFile {
     # those settings allow us to retain all barcodes
     pp.import_data("~{bam_base_name}.fragments.tsv", file="temp_metrics.h5ad", chrom_sizes=chrom_size_dict, min_num_fragments=0)
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
+    # Add nhash_id to h5ad file as unstructured metadata
+    atac_data.uns['NHashID'] = atac_nhash_id
     # calculate tsse metrics
     snap.metrics.tsse(atac_data, atac_gtf)
     # Write new atac file

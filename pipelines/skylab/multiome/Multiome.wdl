@@ -9,12 +9,14 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "5.1.1"
+    String pipeline_version = "5.2.1"
 
 
     input {
         String cloud_provider
         String input_id
+        # Additional library aliquot ID
+        String? nhash_id
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -87,6 +89,7 @@ workflow Multiome {
             i1_fastq = gex_i1_fastq,
             input_id = input_id + "_gex",
             output_bam_basename = input_id + "_gex",
+            gex_nhash_id = nhash_id,
             tar_star_reference = tar_star_reference,
             annotations_gtf = annotations_gtf,
             mt_genes = mt_genes,
@@ -113,9 +116,10 @@ workflow Multiome {
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3,
             vm_size = vm_size,
-            annotations_gtf = annotations_gtf
+            annotations_gtf = annotations_gtf,
+            atac_nhash_id = nhash_id,
+            adapter_seq_read3 = adapter_seq_read3
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:

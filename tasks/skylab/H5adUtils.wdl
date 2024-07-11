@@ -9,6 +9,7 @@ task OptimusH5adGeneration {
     String warp_tools_docker_path
     # name of the sample
     String input_id
+    String gex_nhash_id = ""
     # user provided id
     String? input_name
     String? input_id_metadata_field
@@ -85,6 +86,23 @@ task OptimusH5adGeneration {
           --expression_data_type "whole_transcript"\
           --pipeline_version ~{pipeline_version}
     fi
+
+    # modify h5ad
+    python3 <<CODE
+
+    # set parameters
+    gex_h5ad = "~{input_id}.h5ad"
+    gex_nhash_id = "~{gex_nhash_id}"
+
+    # import anndata to manipulate h5ad files
+    import anndata as ad
+    import pandas as pd
+    print("Reading Optimus h5ad:")
+    print(gex_h5ad)
+    gex_data = ad.read_h5ad(gex_h5ad)
+    gex_data.uns['NHashID'] = gex_nhash_id
+    gex_data.write("~{input_id}.h5ad")
+    CODE 
   >>>
 
   runtime {
@@ -108,6 +126,8 @@ task SingleNucleusOptimusH5adOutput {
         String warp_tools_docker_path
         # name of the sample
         String input_id
+        # additional aliquot id
+        String gex_nhash_id = ""
         # user provided id
         String? input_name
         String? input_id_metadata_field
@@ -167,6 +187,23 @@ task SingleNucleusOptimusH5adOutput {
         ~{"--input_name_metadata_field " + input_name_metadata_field} \
         --expression_data_type "whole_transcript" \
         --pipeline_version ~{pipeline_version}
+
+        # modify h5ad
+        python3 <<CODE
+
+        # set parameters
+        gex_h5ad = "~{input_id}.h5ad"
+        gex_nhash_id = "~{gex_nhash_id}"
+
+        # import anndata to manipulate h5ad files
+        import anndata as ad
+        import pandas as pd
+        print("Reading Optimus h5ad:")
+        print(gex_h5ad)
+        gex_data = ad.read_h5ad(gex_h5ad)
+        gex_data.uns['NHashID'] = gex_nhash_id
+        gex_data.write("~{input_id}.h5ad")
+        CODE
     }
 
     runtime {
