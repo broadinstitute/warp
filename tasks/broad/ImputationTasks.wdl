@@ -20,6 +20,7 @@ task CalculateChromosomeLength {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
   output {
     Int chrom_length = read_int(stdout())
@@ -330,6 +331,7 @@ task CountVariantsInChunksBeagle {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
 }
 
@@ -360,6 +362,7 @@ task CheckChunksBeagle {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
 }
 
@@ -412,6 +415,7 @@ task PhaseAndImputeBeagle {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
 }
 
@@ -446,6 +450,7 @@ task GatherVcfs {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
@@ -513,6 +518,7 @@ task UpdateHeader {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -548,6 +554,7 @@ task RemoveSymbolicAlleles {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
 }
 
@@ -578,6 +585,7 @@ task SeparateMultiallelics {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
 }
 
@@ -721,7 +729,7 @@ task AggregateImputationQCMetrics {
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible : 3
+    preemptible: 3
   }
   output {
     File aggregated_metrics = "~{basename}_aggregated_imputation_metrics.tsv"
@@ -761,7 +769,7 @@ task StoreChunksInfo {
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible : 3
+    preemptible: 3
     maxRetries: 2
   }
   output {
@@ -800,7 +808,7 @@ task MergeImputationQCMetrics {
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible : 3
+    preemptible: 3
   }
   output {
     File aggregated_metrics = "~{basename}_aggregated_imputation_metrics.tsv"
@@ -880,6 +888,7 @@ task SetIDs {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
   output {
     File output_vcf = "~{output_basename}.vcf.gz"
@@ -910,6 +919,7 @@ task ExtractIDs {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
 }
 
@@ -951,6 +961,7 @@ task SelectVariantsByIds {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -980,6 +991,7 @@ task RemoveAnnotations {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -1012,6 +1024,7 @@ task InterleaveVariants {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -1038,6 +1051,7 @@ task FindSitesUniqueToFileTwoOnly {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
   output {
     File missing_sites = "missing_sites.ids"
@@ -1123,6 +1137,7 @@ task PreSplitVcf {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
   output {
     Array[File] chr_split_vcfs = glob("split_vcfs/*.vcf.gz")
@@ -1226,6 +1241,7 @@ task PreChunkVcf {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
+    preemptible: 3
   }
   output {
     Array[File] generate_chunk_vcfs = glob("generate_chunk/*.vcf.gz")
@@ -1252,6 +1268,7 @@ task ErrorWithMessageIfErrorCountNotZero {
 
   runtime {
     docker: "ubuntu.azurecr.io/ubuntu:20.04"
+    preemptible: 3
   }
   output {
     Boolean done = true
