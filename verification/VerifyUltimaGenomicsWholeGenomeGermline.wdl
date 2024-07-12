@@ -100,6 +100,7 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
   }
 
   call Tasks.CompareVcfs as CompareFilteredVcfs {
+    input:
       file1 = test_filtered_vcf,
       file2 = truth_filtered_vcf,
       patternForLinesToExcludeFromComparison = "^##"
