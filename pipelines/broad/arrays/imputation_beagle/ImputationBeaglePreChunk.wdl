@@ -23,7 +23,7 @@ workflow ImputationBeagle {
         String interval_list_suffix = ".interval_list"
         String bref3_suffix = ".bref3"
 
-        String gatk_docker = "broadinstitute/gatk-nightly:2024-06-06-4.5.0.0-36-g2a420e483-NIGHTLY-SNAPSHOT"
+        String gatk_docker = "terrapublic.azurecr.io/gatk:4.5-squashed" # "broadinstitute/gatk-nightly:2024-06-06-4.5.0.0-36-g2a420e483-NIGHTLY-SNAPSHOT"
 
         Int? error_count_override
     }
