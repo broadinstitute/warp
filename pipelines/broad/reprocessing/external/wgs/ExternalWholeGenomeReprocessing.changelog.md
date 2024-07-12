@@ -1,3 +1,8 @@
+# 2.2.1
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs; this does not affect this pipeline
+
 # 2.2.0
 2024-07-09 (Date of Last Commit)
 
