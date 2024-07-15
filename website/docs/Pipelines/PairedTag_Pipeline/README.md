@@ -6,7 +6,7 @@ slug: /Pipelines/PairedTag_Pipeline/README
 # Paired-Tag Overview
 
 |                          Pipeline Version                           | Date Updated | Documentation Author | Questions or Feedback |
-|:-------------------------------------------------------------------:| :---: | :----: | :--------------: |
+|:---:| :---: | :---: | :---: |
 | [PairedTag_v1.0.1](https://github.com/broadinstitute/warp/releases) | June, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
@@ -91,7 +91,7 @@ The Paired-Tag workflow inputs are specified in JSON configuration files. Exampl
 The Paired-Tag workflow calls two WARP subworkflows and an additional task which are described briefly in the table below. For more details on each subworkflow and task, see the documentation and WDL scripts linked in the table.
 
 | Subworkflow/Task | Software | Description | 
-| ----------- | -------- | ----------- |
+| --- | --- | --- |
 | Optimus ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.wdl) and [documentation](../Optimus_Pipeline/README)) | fastqprocess, STARsolo, Emptydrops | Workflow used to analyze 10x single-cell GEX data. |
 | PairedTagDemultiplex as demultiplex ([WDL](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/PairedTagUtils.wdl)) | UPStools | Task used to check the length of the read2 FASTQ (should be either 27 or 24 bp). If `preindex` is set to true, the task will perform demultiplexing of the 3-bp sample barcode from the read2 ATAC fastq files and stores it in the readname. It will then perform barcode orientation checking. The ATAC workflow will then add a combined 3 bp sample barcode and cellular barcode to the BB tag of the BAM. If `preindex` is false and then length is 27 bp, the task will perform trimming and subsequent barcode orientation checking. |
 | ATAC ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) and [documentation](../ATAC/README)) | fastqprocess, bwa-mem, SnapATAC2 | Workflow used to analyze single-nucleus paired-tag DNA (histone modifications) data. |

@@ -44,8 +44,8 @@ ATAC can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/
 ## Input Variables
 The following describes the inputs of the ATAC workflow. For more details on how default inputs are set for the Multiome workflow, see the [Multiome overview](../Multiome_Pipeline/README).
 
-| Variable name | Description                                                                                                     |
-| --- |-----------------------------------------------------------------------------------------------------------------|
+| Variable name | Description |
+| --- |--- |
 | read1_fastq_gzipped | Fastq inputs (array of compressed read 1 FASTQ files).                                                          |
 | read2_fastq_gzipped | Fastq inputs (array of compressed read 2 FASTQ files containing cellular barcodes).                             |
 | read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files).                                                          |
