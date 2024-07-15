@@ -1,7 +1,7 @@
 # 3.1.21
 2024-07-09 (Date of Last Commit)
 
-* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers.
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers
 
 # 3.1.20
 2024-07-01 (Date of Last Commit)

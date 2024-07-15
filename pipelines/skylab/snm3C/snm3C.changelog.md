@@ -1,7 +1,7 @@
 # 4.0.2
 2024-07-09 (Date of Last Commit)
 
-* Updated the snM3C wdl to run on Azure. This change does not affect the snM3C pipeline.
+* Updated the snM3C wdl to run on Azure; this change does not affect the snM3C pipeline
 
 # 4.0.1
 2024-06-26 (Date of Last Commit)

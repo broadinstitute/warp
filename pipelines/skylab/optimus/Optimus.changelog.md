@@ -2,7 +2,7 @@
 2024-07-11 (Date of Last Commit)
 
 * Updated the Optimus.wdl to run on Azure. cloud_provider is a new, required input.
-* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers.
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers
 
 # 7.3.0
 2024-07-09 (Date of Last Commit)

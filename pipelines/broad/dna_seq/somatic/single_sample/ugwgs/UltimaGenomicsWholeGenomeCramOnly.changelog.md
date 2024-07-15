@@ -1,7 +1,7 @@
 # 1.0.18
 2024-07-09 (Date of Last Commit)
 
-* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers; this does not affect this pipeline.
+* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers; this does not affect this pipeline
 
 # 1.0.17
 2024-07-01 (Date of Last Commit)
