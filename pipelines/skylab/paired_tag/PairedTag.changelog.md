@@ -1,7 +1,7 @@
-# 1.2.1
+# 1.3.0
 2024-07-11 (Date of Last Commit)
 
-* Updated the PairedTag.wdl to run on Azure
+* Updated the PairedTag.wdl to run on Azure. cloud_provider is a new, required input.
 
 # 1.2.0
 2024-07-09 (Date of Last Commit)
