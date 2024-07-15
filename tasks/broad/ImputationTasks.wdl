@@ -450,7 +450,6 @@ task GatherVcfs {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
-    preemptible: 3
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
