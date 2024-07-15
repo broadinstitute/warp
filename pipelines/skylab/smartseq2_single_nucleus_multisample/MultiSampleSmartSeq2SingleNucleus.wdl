@@ -43,7 +43,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       String cloud_provider
   }
 
-  String ubuntu_docker = "ubuntu_16_0_4:latest"
+  String ubuntu_docker = "ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
   String gcp_ubuntu_docker_prefix = "gcr.io/gcp-runtimes/"
   String acr_ubuntu_docker_prefix = "dsppipelinedev.azurecr.io/"
   String ubuntu_docker_prefix = if cloud_provider == "gcp" then gcp_ubuntu_docker_prefix else acr_ubuntu_docker_prefix

@@ -96,12 +96,12 @@ workflow Optimus {
   String star_merge_docker = "star-merge-npz:1.2"
 
   #TODO how do we handle these?
-  String alpine_docker = "alpine-bash:latest"
+  String alpine_docker = "alpine-bash@sha256:965a718a07c700a5204c77e391961edee37477634ce2f9cf652a8e4c2db858ff"
   String gcp_alpine_docker_prefix = "bashell/"
   String acr_alpine_docker_prefix = "dsppipelinedev.azurecr.io/"
   String alpine_docker_prefix = if cloud_provider == "gcp" then gcp_alpine_docker_prefix else acr_alpine_docker_prefix
 
-  String ubuntu_docker = "ubuntu_16_0_4:latest"
+  String ubuntu_docker = "ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
   String gcp_ubuntu_docker_prefix = "gcr.io/gcp-runtimes/"
   String acr_ubuntu_docker_prefix = "dsppipelinedev.azurecr.io/"
   String ubuntu_docker_prefix = if cloud_provider == "gcp" then gcp_ubuntu_docker_prefix else acr_ubuntu_docker_prefix

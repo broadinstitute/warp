@@ -41,7 +41,7 @@ workflow VariantCalling {
 
   # docker images
   String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
-  String gatk_docker_azure = "dsppipelinedev.azurecr.io/gatk_reduced_layers:latest"
+  String gatk_docker_azure = "dsppipelinedev.azurecr.io/gatk_reduced_layers:1.0.0"
   String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
   
   String gatk_1_3_docker_gcp = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
