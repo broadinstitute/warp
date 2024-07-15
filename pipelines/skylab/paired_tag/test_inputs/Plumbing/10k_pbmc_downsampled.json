@@ -23,5 +23,6 @@
   "PairedTag.Atac_preindex.cpu_platform_bwa":"Intel Cascade Lake",
   "PairedTag.Atac_preindex.num_threads_bwa":"16",
   "PairedTag.Atac_preindex.mem_size_bwa":"64", 
-  "PairedTag.soloMultiMappers":"Uniform"
+  "PairedTag.soloMultiMappers":"Uniform",
+  "PairedTag.nhash_id":"example_1234"
 }

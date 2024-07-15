@@ -55,6 +55,7 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | Input name | Description | Type |
 | --- | --- | --- |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | String |
+| nhash_id | Optional identifier for the library aliquot; when specified, the workflow will echo the ID in the ATAC and gene expression output h5ads (in the adata.uns section) and in the library-level metrics CSV. |
 | annotations_gtf | GTF file containing gene annotations used for GEX cell metric calculation and ATAC fragment metrics; must match the GTF used to build the STAR aligner. | File |
 | gex_r1_fastq | Array of read 1 FASTQ files representing a single GEX 10x library. | Array[File] |
 | gex_r2_fastq | Array of read 2 FASTQ files representing a single GEX 10x library.| Array[File] |
@@ -120,7 +121,7 @@ The Multiome workflow calls two WARP subworkflows, one external subworkflow (opt
 | multimappers_PropUnique_matrix | `UniqueAndMult-PropUnique.mtx` | Optional output produced when `soloMultiMappers` is "PropUnique"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.|
 | gex_aligner_metrics | `<input_id>.star_metrics.tar` | Text file containing per barcode metrics (`CellReads.stats`) produced by the GEX pipeline STARsolo aligner. |
 | mtx_files | `<input_id>.mtx_files.tar` | TAR file with STARsolo matrix market files (barcodes.tsv, features.tsv, and matrix.mtx) | TAR |
-| library_metrics | `<input_id>_library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. |
+| library_metrics | `<input_id>_<nhash_id>_library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. |
 | cell_barcodes_csv | `<cell_csv>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information.|
 | checkpoint_file | `<ckpt_file>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 | h5_array | `<h5_array>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |

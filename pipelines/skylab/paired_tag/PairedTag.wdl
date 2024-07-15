@@ -5,10 +5,12 @@ import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
 workflow PairedTag {
-    String pipeline_version = "1.1.2"
+    String pipeline_version = "1.2.0"
 
     input {
         String input_id
+        # Additional library aliquot id
+        String? nhash_id
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -63,7 +65,8 @@ workflow PairedTag {
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
-            soloMultiMappers = soloMultiMappers
+            soloMultiMappers = soloMultiMappers,
+            gex_nhash_id = nhash_id
     }
 
     # Call the ATAC workflow
@@ -91,7 +94,8 @@ workflow PairedTag {
             adapter_seq_read1 = adapter_seq_read1,
             adapter_seq_read3 = adapter_seq_read3,
             annotations_gtf = annotations_gtf,
-            preindex = preindex
+            preindex = preindex,
+            atac_nhash_id = nhash_id
     }
 
     if (preindex) {
