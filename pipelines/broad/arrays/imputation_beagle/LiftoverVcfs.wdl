@@ -13,6 +13,7 @@ workflow LiftoverVcfs {
 
     String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
     Int min_disk_size = 100
+    Int mem_gb = 16
 
     File hg38_reference_fasta
     File hg38_reference_fasta_index
@@ -36,7 +37,8 @@ workflow LiftoverVcfs {
       docker = docker,
       max_retries = max_retries,
       preemptible_tries = preemptible_tries,
-      min_disk_size = min_disk_size
+      min_disk_size = min_disk_size,
+      mem_gb = mem_gb
   }
 
   output {
@@ -57,15 +59,17 @@ task LiftOverArrays {
     Int max_retries
     Int preemptible_tries
     Int min_disk_size
+    Int mem_gb
   }
 
   Int disk_size_from_file = (ceil(size(input_vcf, "GiB") + size(liftover_chain, "GiB") + size(reference_fasta, "GiB")) * 2) + 20
   Int disk_size = if ( disk_size_from_file > min_disk_size ) then disk_size_from_file else min_disk_size
+  Int max_mem_gb = mem_gb - 1
 
   command <<<
     set -euo pipefail
 
-    gatk --java-options "-Xms4g -Xmx15g" \
+    gatk --java-options "-Xms4g -Xmx~{max_mem_gb}g" \
     LiftoverVcf \
     --INPUT ~{input_vcf} \
     --OUTPUT ~{output_basename}.liftedover.vcf \
@@ -83,7 +87,7 @@ task LiftOverArrays {
 
   runtime {
     docker: docker
-    memory: "16 GiB"
+    memory: "~{mem_gb} GiB"
     cpu: "1"
     disks: "local-disk ~{disk_size} HDD"
     maxRetries: max_retries
