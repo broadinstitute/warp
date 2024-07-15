@@ -7,16 +7,22 @@ workflow CreateImputationRefPanelBeagle {
     Array[File] ref_vcf_index
     Int disk_size
 
+    String? output_basename
+
     Boolean make_brefs = true
     Boolean make_interval_lists = true
   }
 
   scatter (idx in range(length(ref_vcf))) {
+    Int? chr = idx + 1
+    String? custom_basename_with_chr = output_basename + ".chr" + chr
+
     if (make_brefs) {
       call BuildBref3 {
         input:
           vcf = ref_vcf[idx],
-          disk_size = disk_size
+          disk_size = disk_size,
+          output_basename = custom_basename_with_chr
         }
       }
         
@@ -24,7 +30,8 @@ workflow CreateImputationRefPanelBeagle {
         call CreateRefPanelIntervalLists {
           input:
             ref_panel_vcf = ref_vcf[idx],
-            ref_panel_vcf_index = ref_vcf_index[idx]
+            ref_panel_vcf_index = ref_vcf_index[idx],
+            output_basename = custom_basename_with_chr,
         }
       }
   }
@@ -38,10 +45,12 @@ workflow CreateImputationRefPanelBeagle {
 task BuildBref3 {
   input {
     File vcf
+    String? output_basename
     Int disk_size
   }
 
-  String name = basename(vcf, ".vcf.gz")
+  String name_from_file = basename(vcf, ".vcf.gz")
+  String name = select_first([output_basename, name_from_file])
 
   command <<<
     java -jar /usr/gitc/bref3.22Jul22.46e.jar ~{vcf} > ~{name}.bref3
@@ -64,6 +73,8 @@ task CreateRefPanelIntervalLists {
     File ref_panel_vcf
     File ref_panel_vcf_index
 
+    String? output_basename
+
     Int disk_size_gb = ceil(2*size(ref_panel_vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
     Int cpu = 1
     Int memory_mb = 8000
@@ -73,7 +84,8 @@ task CreateRefPanelIntervalLists {
   Int command_mem = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
-  String basename = basename(ref_panel_vcf, '.vcf.gz')
+  String name_from_file = basename(ref_panel_vcf, ".vcf.gz")
+  String basename = select_first([output_basename, name_from_file])
 
   command {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
