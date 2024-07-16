@@ -146,12 +146,13 @@ task CountVariantsInChunks {
   input {
     File vcf
     File vcf_index
-    File panel_bed_file
+    File panel_vcf
+    File panel_vcf_index
 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int cpu = 1
     Int memory_mb = 4000
-    Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_bed_file], "GiB")) + 20
+    Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB")) + 20
   }
   Int command_mem = memory_mb - 1000
   Int max_heap = memory_mb - 500
@@ -160,7 +161,7 @@ task CountVariantsInChunks {
     set -e -o pipefail
 
     echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
-    bedtools intersect -a ~{vcf} -b ~{panel_bed_file} | wc -l > var_in_reference
+    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_vcf} | sed 's/Tool returned://') > var_in_reference
   >>>
   output {
     Int var_in_original = read_int("var_in_original")
@@ -301,12 +302,12 @@ task CountVariantsInChunksBeagle {
   input {
     File vcf
     File vcf_index
-    File panel_interval_list
+    File panel_bed_file
 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int cpu = 1
-    Int memory_mb = 8000
-    Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_interval_list], "GiB")) + 20
+    Int memory_mb = 4000
+    Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_bed_file], "GiB")) + 20
   }
   Int command_mem = memory_mb - 1000
   Int max_heap = memory_mb - 500
@@ -314,12 +315,10 @@ task CountVariantsInChunksBeagle {
   command <<<
     set -e -o pipefail
 
-    ln -sf ~{vcf} input.vcf.gz
-    ln -sf ~{vcf_index} input.vcf.gz.tbi
-
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V input.vcf.gz | tail -n 1 > var_in_original
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V input.vcf.gz -L ~{panel_interval_list} | tail -n 1 > var_also_in_reference
+    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
+    bedtools intersect -a ~{vcf} -b ~{panel_bed_file} | wc -l > var_in_reference
   >>>
+
   output {
     Int var_in_original = read_int("var_in_original")
     Int var_also_in_reference = read_int("var_also_in_reference")
