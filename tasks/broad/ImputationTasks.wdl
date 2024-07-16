@@ -319,7 +319,7 @@ task CountVariantsInChunksBeagle {
     ln -sf ~{vcf_index} input.vcf.gz.tbi
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V input.vcf.gz | tail -n 1 > var_in_original
-    bedtools intersect -a ~{vcf} -b ~{panel_bed_file} | wc -l > var_in_reference
+    bedtools intersect -a ~{vcf} -b ~{panel_bed_file} | wc -l > var_also_in_reference
   >>>
 
   output {
