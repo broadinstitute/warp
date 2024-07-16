@@ -11,6 +11,7 @@ workflow CreateImputationRefPanelBeagle {
 
     Boolean make_brefs = true
     Boolean make_interval_lists = true
+    Boolean make_bed_files = true
   }
 
   scatter (idx in range(length(ref_vcf))) {
@@ -38,7 +39,7 @@ workflow CreateImputationRefPanelBeagle {
     if (make_bed_files) {
       call CreateRefPanelBedFiles {
         input:
-          ref_panel_interval_list = CreateRefPanelIntervalLists.interval_list[idx]
+          ref_panel_interval_list = CreateRefPanelIntervalLists.interval_list
       }
     }
   }
