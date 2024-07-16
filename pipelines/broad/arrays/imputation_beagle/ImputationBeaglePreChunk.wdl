@@ -20,7 +20,7 @@ workflow ImputationBeagle {
         String output_basename # the basename for intermediate and output files
 
         # file extensions used to find reference panel files
-        String interval_list_suffix = ".interval_list"
+        String bed_suffix = ".bed"
         String bref3_suffix = ".bref3"
 
         String gatk_docker = "terrapublic.azurecr.io/gatk:4.5-squashed" # "broadinstitute/gatk-nightly:2024-06-06-4.5.0.0-36-g2a420e483-NIGHTLY-SNAPSHOT"
@@ -46,7 +46,7 @@ workflow ImputationBeagle {
         String genetic_map_filename = genetic_maps_path + "plink." + contigs[contig_index] + ".GRCh38.withchr.map"
 
         ReferencePanelContig referencePanelContig = {
-                                                        "interval_list": reference_basename + interval_list_suffix,
+                                                        "bed": reference_basename + bed_suffix,
                                                         "bref3": reference_basename  + bref3_suffix,
                                                         "contig": contigs[contig_index],
                                                         "genetic_map": genetic_map_filename
@@ -79,7 +79,7 @@ workflow ImputationBeagle {
                 input:
                     vcf = PreChunkVcf.generate_chunk_vcfs[i],
                     vcf_index = PreChunkVcf.generate_chunk_vcf_indices[i],
-                    panel_interval_list = referencePanelContig.interval_list,
+                    panel_bed_file = referencePanelContig.bed,
                     gatk_docker = gatk_docker
             }
 
@@ -241,7 +241,7 @@ workflow ImputationBeagle {
 }
 
 struct ReferencePanelContig {
-    File interval_list
+    File bed
     File bref3
     String contig
     File genetic_map
