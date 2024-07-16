@@ -1,3 +1,8 @@
+# 1.0.19
+2024-07-09 (Date of Last Commit)
+
+* Updated ReblockGVCF.wdl to run in Azure.
+
 # 1.0.18
 2024-07-01 (Date of Last Commit)
 

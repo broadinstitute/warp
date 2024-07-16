@@ -33,6 +33,8 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
       Boolean update_truth
       String vault_token_path
       String google_account_vault_path
+
+      String cloud_provider
     }
 
     meta {
@@ -57,7 +59,8 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
         species = species,
         organ = organ,
         input_name_metadata_field = input_name_metadata_field,
-        input_id_metadata_field = input_id_metadata_field
+        input_id_metadata_field = input_id_metadata_field,
+        cloud_provider = cloud_provider
   
     }
 

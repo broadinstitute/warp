@@ -1,6 +1,7 @@
 {
   "Multiome.annotations_gtf":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf",
   "Multiome.input_id":"10k_PBMC_downsampled",
+  "Multiome.cloud_provider":"gcp",
   "Multiome.gex_r1_fastq":[
     "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R1_gex.fastq.gz"
   ],
