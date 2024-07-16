@@ -99,9 +99,15 @@ jobs:
         cd release/MultiSampleSmartSeq2SingleNucleus
 
     - name: 'Submit Workflow with Cromshell'
-      uses: kevinpalis/cromshell-action@v1
+      uses: kevinpalis/cromshell-action@v1.0.1
+      id: submit-workflow
       with:
         command: 'cromshell --no_turtle --cromwell_url http://localhost:8000 submit --no-validation -op MultiSampleSmartSeq2SingleNucleus_1.0.options.json -d MultiSampleSmartSeq2SingleNucleus_1.0.zip MultiSampleSmartSeq2SingleNucleus_1.0.wdl mouse_example_azure.json'
+
+    - name: 'Set Alias for Workflow'
+      uses: kevinpalis/cromshell-action@v1.0.1
+      with:
+        command: 'cromshell alias -- -1 ss_proto_1'
 
     - name: 'Check Workflow Status'
       run: |
