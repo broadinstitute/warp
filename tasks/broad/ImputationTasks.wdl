@@ -146,13 +146,12 @@ task CountVariantsInChunks {
   input {
     File vcf
     File vcf_index
-    File panel_vcf
-    File panel_vcf_index
+    File panel_bed_file
 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int cpu = 1
     Int memory_mb = 4000
-    Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB")) + 20
+    Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_bed_file], "GiB")) + 20
   }
   Int command_mem = memory_mb - 1000
   Int max_heap = memory_mb - 500
@@ -161,7 +160,7 @@ task CountVariantsInChunks {
     set -e -o pipefail
 
     echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
-    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_vcf}  | sed 's/Tool returned://') > var_in_reference
+    bedtools intersect -a ~{vcf} -b ~{panel_bed_file} | wc -l > var_in_reference
   >>>
   output {
     Int var_in_original = read_int("var_in_original")

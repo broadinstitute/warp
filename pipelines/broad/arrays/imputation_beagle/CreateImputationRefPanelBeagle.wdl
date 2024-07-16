@@ -34,12 +34,13 @@ workflow CreateImputationRefPanelBeagle {
           ref_panel_vcf_index = ref_vcf_index[idx],
           output_basename = custom_basename_with_chr
       }
+      File interval_list = select_first([CreateRefPanelIntervalLists.interval_list])
     }
 
     if (make_bed_files) {
       call CreateRefPanelBedFiles {
         input:
-          ref_panel_interval_list = CreateRefPanelIntervalLists.interval_list
+          ref_panel_interval_list = interval_list
       }
     }
   }
