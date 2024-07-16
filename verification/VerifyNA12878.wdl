@@ -75,12 +75,16 @@ task RunValidation {
             --remove-unused-alternates -O ${names[i]}.NA12878.vcf.gz
 
             gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" Concordance -eval ${names[i]}.NA12878.vcf.gz \
-            --truth ~{truth_vcf} -L ~{truth_intervals} --summary ${names[i]}.summary.tsv
+            --truth ~{truth_vcf} -L ~{truth_intervals} --summary ${names[i]}.summary.tsv -tpfn ${names[i]}.tpfn.vcf.gz -tpfp ${names[i]}.tpfp.vcf.gz
         done
     >>>
 
     output {
         Array[File] concordance_tables = glob("./*.summary.tsv")
+        Array[File] tpfn = glob("./*.tpfn.vcf.gz")
+        Array[File] tpfn_index = glob("./*.tpfn.vcf.gz.tbi")
+        Array[File] tpfp = glob("./*.tpfp.vcf.gz")
+        Array[File] tpfp_index = glob("./*.tpfp.vcf.gz.tbi")
     }
 
     runtime {
