@@ -2,7 +2,6 @@ name: MultiSampleSmartSeq2SingleNucleus CI
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "develop" and "master" branch
   pull_request:
     #Runs on PR to develop, master, and staging
     branches: [ "develop", "master", "staging" ]
@@ -81,51 +80,31 @@ jobs:
         az aks get-credentials --resource-group ${AZURE_RESOURCE_GROUP_NAME} --name ${AZURE_AKS_NAME} --subscription ${AZURE_SUBSCRIPTION_ID} --file ~/.kube/config
         kubectl -n coa get svc
 
-    - name: 'Set-up Port Forwarding and Run Cromshell'
+    - name: 'Set up Port Forwarding'
       run: |
-        
-        #install cromshell
-        pip install cromshell
-
         kubectl port-forward -n coa svc/cromwell 8000:8000 2>&1 &
         pid=$!
         echo pid: $pid
         while ! nc -vz localhost 8000 > /dev/null 2>&1 ; do
-          # echo sleeping
           sleep 1
         done
         echo "Cromwell is up!"
-        #curl -s -X POST "http://localhost:8000/api/workflows/v1/query" -H "accept: application/json" -H "Content-Type: application/json" -d "[{\"status\":\"Running\"},{\"status\":\"Submitted\"}]" | jq
-        # cromshell --help
-        cromshell submit --help
-
-        #Run cromshell
         export CROMWELL_URL=http://localhost:8000
         echo $CROMWELL_URL is the cromwell url
 
-        echo ZIP contents:
-        #unzip -l release/MultiSampleSmartSeq2SingleNucleus/MultiSampleSmartSeq2SingleNucleus_1.0.zip || true
+    - name: 'Unzip Release Package'
+      run: |
         unzip release/MultiSampleSmartSeq2SingleNucleus/MultiSampleSmartSeq2SingleNucleus_1.0.zip -d release/MultiSampleSmartSeq2SingleNucleus || true
-        tree release/MultiSampleSmartSeq2SingleNucleus || true
-        
-        #echo WDL content:
-        #cat release/MultiSampleSmartSeq2SingleNucleus/MultiSampleSmartSeq2SingleNucleus_1.0.wdl || true
-
         cp pipelines/skylab/smartseq2_single_nucleus_multisample/test_inputs/Plumbing/mouse_example_azure.json release/MultiSampleSmartSeq2SingleNucleus
         cd release/MultiSampleSmartSeq2SingleNucleus
 
-        ls -lht ~/.cromshell || true
-        tree ~/.cromshell || true
-        cat ~/.cromshell/all.workflow.database.tsv || true
-        
-        CRUN=$(cromshell --no_turtle --cromwell_url http://localhost:8000 submit --no-validation -op MultiSampleSmartSeq2SingleNucleus_1.0.options.json -d MultiSampleSmartSeq2SingleNucleus_1.0.zip MultiSampleSmartSeq2SingleNucleus_1.0.wdl mouse_example_azure.json)
-        echo CRUN = $CRUN
-        
-        tree ~/.cromshell || true
-        
-        cromshell alias -- -1 ss_proto_1 || true
-        cromshell list
-        #wait for the job to start
+    - name: 'Submit Workflow with Cromshell'
+      uses: kevinpalis/cromshell-action@v1
+      with:
+        command: 'cromshell --no_turtle --cromwell_url http://localhost:8000 submit --no-validation -op MultiSampleSmartSeq2SingleNucleus_1.0.options.json -d MultiSampleSmartSeq2SingleNucleus_1.0.zip MultiSampleSmartSeq2SingleNucleus_1.0.wdl mouse_example_azure.json'
+
+    - name: 'Check Workflow Status'
+      run: |
         sleep 3 
         SECONDS=0
         while true; do
@@ -161,4 +140,3 @@ jobs:
         echo "| Total Runtime (seconds) | $t |" >> $GITHUB_STEP_SUMMARY
         echo "### All Azure Jobs (Running/Pending) = $ALL_JOBS" >> $GITHUB_STEP_SUMMARY
         kill $pid
-
