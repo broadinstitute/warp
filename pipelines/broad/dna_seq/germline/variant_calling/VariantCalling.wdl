@@ -9,7 +9,7 @@ import "../../../../../tasks/broad/DragenTasks.wdl" as DragenTasks
 workflow VariantCalling {
 
 
-  String pipeline_version = "2.2.0"
+  String pipeline_version = "2.2.1"
 
 
   input {
@@ -43,7 +43,7 @@ workflow VariantCalling {
   String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   String gatk_docker_azure = "dsppipelinedev.azurecr.io/gatk_reduced_layers:1.0.0"
   String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
-  
+
   String gatk_1_3_docker_gcp = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
   String gatk_1_3_docker_azure = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
   String gatk_1_3_docker = if cloud_provider == "gcp" then gatk_1_3_docker_gcp else gatk_1_3_docker_azure
@@ -55,7 +55,7 @@ workflow VariantCalling {
   String picard_cloud_docker_gcp = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
   String picard_cloud_docker_azure = "dsppipelinedev.azurecr.io/picard-cloud:2.26.10"
   String picard_cloud_docker = if cloud_provider == "gcp" then picard_cloud_docker_gcp else picard_cloud_docker_azure
-  
+
 
   # make sure either gcp or azr is supplied as cloud_provider input
   if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
