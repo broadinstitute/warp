@@ -82,6 +82,7 @@ The table below details the Multi-snSS2 inputs. The pipeline is designed to take
 | species | Optional description of the species from which the cells were derived. | Array of strings |
 | input_name_metadata_field | Optional input describing, when applicable, the metadata field containing the `input_names`. | String |
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the `input_ids`. | String |
+| cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
 
 ## Multi-snSS2 tasks and tools
 

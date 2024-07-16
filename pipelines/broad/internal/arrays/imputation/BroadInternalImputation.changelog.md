@@ -1,3 +1,8 @@
+# 1.1.11
+2024-05-21 (Date of Last Commit)
+
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers; this change does not affect this pipeline
+
 # 1.1.10
 2023-12-18 (Date of Last Commit)
 

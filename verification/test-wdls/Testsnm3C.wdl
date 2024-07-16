@@ -36,7 +36,7 @@ workflow Testsnm3C {
       String vault_token_path
       String google_account_vault_path
 
-      String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.4"
+      String cloud_provider
     }
 
     meta {
@@ -63,7 +63,7 @@ workflow Testsnm3C {
         num_downstr_bases = num_downstr_bases,
         compress_level = compress_level,
         batch_number = batch_number,
-        docker = docker
+        cloud_provider = cloud_provider
     }
 
     
@@ -74,13 +74,12 @@ workflow Testsnm3C {
                                     ],
                                     # Array[File] outputs
                                     snm3C.reference_version,
-                                    snm3C.unique_reads_cgn_extraction_allc,
-                                    snm3C.unique_reads_cgn_extraction_tbi,
-                                    snm3C.unique_reads_cgn_extraction_allc_extract,
-                                    snm3C.unique_reads_cgn_extraction_tbi_extract,
-                                    snm3C.name_sorted_bams,
-                                    snm3C.all_reads_dedup_contacts,
-                                    snm3C.all_reads_3C_contacts,
+                                    snm3C.unique_reads_cgn_extraction_allc_array,
+                                    snm3C.unique_reads_cgn_extraction_tbi_array,
+                                    snm3C.unique_reads_cgn_extraction_allc_extract_array,
+                                    snm3C.unique_reads_cgn_extraction_tbi_extract_array,
+                                    snm3C.name_sorted_bam_array,
+                                    snm3C.all_reads_3C_contacts_array,
     ])
 
     

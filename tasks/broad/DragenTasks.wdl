@@ -24,6 +24,7 @@ task CalibrateDragstrModel {
     File str_table_file
     File alignment ## can handle cram or bam.
     File alignment_index
+    #Setting default docker value for workflows that haven't yet been azurized. 
     String docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int preemptible_tries = 3
     Int threads = 4
