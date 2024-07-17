@@ -111,7 +111,7 @@ task OptimusH5adGeneration {
 
     # calculate TSO frac
     print("Calculating TSO frac")
-    tso_reads = gex_data.tso_reads.sum()/data.n_reads.sum()
+    tso_reads = gex_data.obs.tso_reads.sum()/gex_data.obs.n_reads.sum()
     print("TSO reads:")
     print(tso_reads)
     dictionary = library.set_index(0)[1].to_dict()
@@ -234,7 +234,7 @@ task SingleNucleusOptimusH5adOutput {
 
         # calculate TSO frac
         print("Caclulating TSO frac")
-        tso_reads = gex_data.tso_reads.sum()/data.n_reads.sum()
+        tso_reads = gex_data.obs.tso_reads.sum()/gex_data.obs.n_reads.sum()
         print("TSO reads:")
         print(tso_reads)
         dictionary = library.set_index(0)[1].to_dict()
