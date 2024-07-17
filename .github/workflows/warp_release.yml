@@ -1,0 +1,68 @@
+# This action releases from develop/master for all changed pipelines
+name: WARP Release
+
+# Controls when the workflow will run
+on:
+  # push to develop branch and master branch
+  push:
+    branches:
+      - develop
+      - master
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  PROJECT_NAME: WARP
+  # Github repo name
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  release-dev:
+    runs-on: ubuntu-latest
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Fetch all history for all tags and branches
+    - name: Check working directory
+      run: |
+        echo "Current directory: "
+        pwd
+        ls -lht
+    - name: Set up Git
+      run: |
+        git fetch --all
+    - name: Release from develop
+      id: release_dev_script
+      run: |
+        source scripts/common.sh
+        set -e
+        BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}")
+        if [[ "${BRANCH_NAME}" == "develop" ]]; then
+            ENV=dev
+        elif [[ "${BRANCH_NAME}" == "master" ]]; then
+            ENV=prod
+        else
+            echo "Error: Branch ${BRANCH_NAME} is not a valid release branch."
+            exit 1
+        fi
+        echo $ENV
+        echo "Getting all changed pipelines since last commit before releasing from develop"
+        previous_commit_hash=$(git rev-parse HEAD^1)
+        changed_pipelines=$(get_modified_pipelines ${previous_commit_hash})
+        echo branch: ${BRANCH_NAME} previous_commit_hash: ${previous_commit_hash} env: ${ENV}
+        if [[ -n ${ENV} ]]; then
+            if [[ -n ${changed_pipelines[@]} ]]; then
+                for pipeline in ${changed_pipelines[@]}; do
+                    scripts/release_pipeline_to_github.sh -p ${pipeline} -e ${ENV}
+                done
+            else
+                echo "There are no changed pipelines to release" 
+            fi
+        else
+            echo "Releases are only made on merge to develop and master" 
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,3 +1,12 @@
+# 2.6.26
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs; this does not affect this pipeline
+
+# 2.6.25
+2024-07-09
+* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers; this does not affect this pipeline.
+
 # 2.6.24
 2024-07-01 (Date of Last Commit)
 
