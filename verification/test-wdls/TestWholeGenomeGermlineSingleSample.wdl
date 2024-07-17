@@ -32,6 +32,7 @@ workflow TestWholeGenomeGermlineSingleSample {
     Boolean use_bwa_mem = true
     Boolean allow_empty_ref_alt = false
     Boolean use_dragen_hard_filtering = false
+    String cloud_provider
 
     # These values will be determined and injected into the inputs by the scala test framework
     String truth_path
@@ -66,7 +67,8 @@ workflow TestWholeGenomeGermlineSingleSample {
       perform_bqsr                       = perform_bqsr,
       use_bwa_mem                        = use_bwa_mem,
       allow_empty_ref_alt                = allow_empty_ref_alt,
-      use_dragen_hard_filtering          = use_dragen_hard_filtering
+      use_dragen_hard_filtering          = use_dragen_hard_filtering,
+      cloud_provider                     = cloud_provider
   }
 
   # Collect all of the pipeline outputs into a single Array[String]

@@ -54,6 +54,7 @@ workflow TestPairedTag {
       String vault_token_path
       String google_account_vault_path
       Boolean run_cellbender = false
+      String cloud_provider
 
     }
 
@@ -88,6 +89,7 @@ workflow TestPairedTag {
         chrom_sizes = chrom_sizes,
         atac_whitelist = atac_whitelist,
         soloMultiMappers = soloMultiMappers,
+        cloud_provider = cloud_provider,
         nhash_id = nhash_id
     }
 

@@ -6,7 +6,7 @@ task OptimusH5adGeneration {
 
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:lk-PD-2654-tso-metrics"
+    String warp_tools_docker_path
     # name of the sample
     String input_id
     String gex_nhash_id = ""
@@ -125,7 +125,7 @@ task OptimusH5adGeneration {
   >>>
 
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     cpu: cpu  # note that only 1 thread is supported by pseudobam
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
@@ -143,7 +143,7 @@ task SingleNucleusOptimusH5adOutput {
 
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:lk-PD-2654-tso-metrics"
+        String warp_tools_docker_path
         # name of the sample
         String input_id
         # additional aliquot id
@@ -248,7 +248,7 @@ task SingleNucleusOptimusH5adOutput {
       >>>
 
     runtime {
-        docker: docker
+        docker: warp_tools_docker_path
         cpu: cpu  # note that only 1 thread is supported by pseudobam
         memory: "~{machine_mem_mb} MiB"
         disks: "local-disk ~{disk} HDD"
@@ -263,7 +263,7 @@ task SingleNucleusOptimusH5adOutput {
 }
 
 task JoinMultiomeBarcodes {
-    input {
+  input {
     File atac_h5ad
     File atac_fragment
     File gex_h5ad
@@ -274,10 +274,11 @@ task JoinMultiomeBarcodes {
     String cpuPlatform = "Intel Cascade Lake"
     Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
     Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
+    String docker_path
   }
-    String gex_base_name = basename(gex_h5ad, ".h5ad")
-    String atac_base_name = basename(atac_h5ad, ".h5ad")
-    String atac_fragment_base = basename(atac_fragment, ".tsv")
+  String gex_base_name = basename(gex_h5ad, ".h5ad")
+  String atac_base_name = basename(atac_h5ad, ".h5ad")
+  String atac_fragment_base = basename(atac_fragment, ".tsv")
 
   parameter_meta {
     atac_h5ad: "The resulting h5ad from the ATAC workflow."
@@ -314,7 +315,7 @@ task JoinMultiomeBarcodes {
     atac_tsv = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
     whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
     whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
-    
+
     # get dataframes
     df_atac = atac_data.obs
     df_gex = gex_data.obs
@@ -358,7 +359,7 @@ task JoinMultiomeBarcodes {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.9-2.6.3-1715865353"
+    docker: docker_path
     disks: "local-disk ~{disk} HDD"
     memory: "${machine_mem_mb} MiB"
     cpu: nthreads

@@ -58,5 +58,6 @@
 
   "WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true,
   "WholeGenomeGermlineSingleSample.CollectWgsMetrics.read_length": 250,
-  "WholeGenomeGermlineSingleSample.CollectRawWgsMetrics.read_length": 250
+  "WholeGenomeGermlineSingleSample.CollectRawWgsMetrics.read_length": 250,
+  "WholeGenomeGermlineSingleSample.cloud_provider": "gcp"
 }

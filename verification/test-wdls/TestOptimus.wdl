@@ -60,6 +60,8 @@ workflow TestOptimus {
     String vault_token_path
     String google_account_vault_path
 
+    String cloud_provider
+
   }
 
   meta {
@@ -86,6 +88,7 @@ workflow TestOptimus {
       count_exons                = count_exons,
       ignore_r1_read_length      = ignore_r1_read_length,
       soloMultiMappers           = soloMultiMappers,
+      cloud_provider             = cloud_provider,
       gex_nhash_id               = gex_nhash_id
   }
 
