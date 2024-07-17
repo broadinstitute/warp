@@ -81,10 +81,8 @@ task RunValidation {
 
     output {
         Array[File] concordance_tables = glob("./*.summary.tsv")
-        Array[File] tpfn = glob("./*.tpfn.vcf.gz")
-        Array[File] tpfn_index = glob("./*.tpfn.vcf.gz.tbi")
-        Array[File] tpfp = glob("./*.tpfp.vcf.gz")
-        Array[File] tpfp_index = glob("./*.tpfp.vcf.gz.tbi")
+        Array[File] tpfn = glob("./*.tpfn.vcf.gz*")
+        Array[File] tpfp = glob("./*.tpfp.vcf.gz*")
     }
 
     runtime {
