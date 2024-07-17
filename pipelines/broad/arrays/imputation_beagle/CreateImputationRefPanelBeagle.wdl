@@ -120,7 +120,7 @@ task CreateRefPanelBedFiles {
   input {
     File ref_panel_interval_list
 
-    Int disk_size_gb = ceil(2*size(ref_panel_interval_list, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
+    Int disk_size_gb = ceil(2*size(ref_panel_interval_list, "GiB")) + 50
     Int cpu = 1
     Int memory_mb = 8000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
