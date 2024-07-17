@@ -16,18 +16,14 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
     File truth_crai
 
     File test_vcf
-    File test_vcf_index
     File truth_vcf
-    File truth_vcf_index
     File test_filtered_vcf
     File test_filtered_vcf_index
     File truth_filtered_vcf
     File truth_filtered_vcf_index
 
     File test_gvcf
-    File test_gvcf_index
     File truth_gvcf
-    File truth_gvcf_index
 
     String sample_name
 
@@ -106,15 +102,11 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
       patternForLinesToExcludeFromComparison = "^##"
   }
 
-  call Tasks.CompareVCFsVerbosely as CompareGvcfs {
+  call Tasks.CompareVcfs as CompareGvcfs {
     input:
-      actual = test_gvcf,
-      actual_index = test_gvcf_index,
-      expected = truth_gvcf,
-      expected_index = truth_gvcf_index,
-      extra_args = " --ignore-attribute TREE_SCORE" + " --ignore-attribute VQSLOD --ignore-attribute AS_VQSLOD --ignore-filters "
-    + "--ignore-attribute culprit --ignore-attribute AS_culprit --ignore-attribute AS_FilterStatus "
-    + "--ignore-attribute ExcessHet --ignore-star-attributes --allow-nan-mismatch --ignore-attribute END"
+      file1 = test_gvcf,
+      file2 = truth_gvcf,
+      patternForLinesToExcludeFromComparison = "^##"
   }
 
   call VerifyNA12878.VerifyNA12878 {
