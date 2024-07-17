@@ -16,7 +16,8 @@ task OptimusH5adGeneration {
     String? input_name_metadata_field
     # gene annotation file in GTF format
     File annotation_file
-    # the file "merged-cell-metrics.csv.gz" that contains the cellwise metrics
+    File? library_metrics
+   # the file "merged-cell-metrics.csv.gz" that contains the cellwise metrics
     File cell_metrics
     # the file "merged-gene-metrics.csv.gz" that contains the  genwise metrics
     File gene_metrics
@@ -93,6 +94,8 @@ task OptimusH5adGeneration {
     # set parameters
     gex_h5ad = "~{input_id}.h5ad"
     gex_nhash_id = "~{gex_nhash_id}"
+    library_csv = "~{library_metrics}"
+    input_id = "~{input_id}"
 
     # import anndata to manipulate h5ad files
     import anndata as ad
@@ -102,6 +105,19 @@ task OptimusH5adGeneration {
     gex_data = ad.read_h5ad(gex_h5ad)
     gex_data.uns['NHashID'] = gex_nhash_id
     gex_data.write("~{input_id}.h5ad")
+    # import library metrics
+    print("Reading library metrics")
+    library = pd.read_csv(library_csv, header=None)
+
+    # calculate TSO frac
+    tso_reads = gex_data.tso_reads.sum()/data.n_reads.sum()
+    dictionary = library.set_index(0)[1].to_dict()
+    dictionary['frac_tso'] = tso_reads
+    new_dictionary={"NHashID": [gex_nhash_id]}
+    new_dictionary.update(dictionary)
+    new_dictionary=pd.DataFrame(new_dictionary)
+    new_dictionary.transpose().to_csv(input_id+"_"+gex_nhash_id+"_library_metrics.csv", header=None)  
+    
     CODE 
   >>>
 
@@ -116,6 +132,7 @@ task OptimusH5adGeneration {
 
   output {
     File h5ad_output = "~{input_id}.h5ad"
+    File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
   }
 }
 
@@ -150,6 +167,8 @@ task SingleNucleusOptimusH5adOutput {
         File cell_id_exon
         # file (.npy) that contains the array of gene names
         File gene_id_exon
+        # library-level metrics
+        File? library_metrics
 
         String pipeline_version
 
@@ -167,7 +186,7 @@ task SingleNucleusOptimusH5adOutput {
         preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
     }
 
-    command {
+    command <<<
         set -euo pipefail
 
         python3 /warptools/scripts/create_snrna_optimus_exons_h5ad.py \
@@ -194,6 +213,8 @@ task SingleNucleusOptimusH5adOutput {
         # set parameters
         gex_h5ad = "~{input_id}.h5ad"
         gex_nhash_id = "~{gex_nhash_id}"
+        library_csv = "~{library_metrics}"
+        input_id = "~{input_id}"
 
         # import anndata to manipulate h5ad files
         import anndata as ad
@@ -203,8 +224,22 @@ task SingleNucleusOptimusH5adOutput {
         gex_data = ad.read_h5ad(gex_h5ad)
         gex_data.uns['NHashID'] = gex_nhash_id
         gex_data.write("~{input_id}.h5ad")
+        
+        # import library metrics
+        print("Reading library metrics")
+        library = pd.read_csv(library_csv, header=None)
+
+        # calculate TSO frac
+        tso_reads = gex_data.tso_reads.sum()/data.n_reads.sum()
+        dictionary = library.set_index(0)[1].to_dict()
+        dictionary['frac_tso'] = tso_reads
+        new_dictionary={"NHashID": [gex_nhash_id]}
+        new_dictionary.update(dictionary)
+        new_dictionary=pd.DataFrame(new_dictionary)
+        new_dictionary.transpose().to_csv(input_id+"_"+gex_nhash_id+"_library_metrics.csv", header=None)
+
         CODE
-    }
+      >>>
 
     runtime {
         docker: docker
@@ -217,6 +252,7 @@ task SingleNucleusOptimusH5adOutput {
 
     output {
         File h5ad_output = "~{input_id}.h5ad"
+        File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
     }
 }
 

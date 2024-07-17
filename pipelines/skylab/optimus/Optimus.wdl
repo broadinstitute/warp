@@ -194,6 +194,7 @@ workflow Optimus {
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
+        library_metrics = MergeStarOutputs.library_metrics,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
         sparse_count_matrix = MergeStarOutputs.sparse_counts,
@@ -216,8 +217,7 @@ workflow Optimus {
         summary = STARsoloFastq.summary_sn_rna,
         align_features = STARsoloFastq.align_features_sn_rna,
         umipercell = STARsoloFastq.umipercell_sn_rna,
-        input_id = input_id,
-        gex_nhash_id = gex_nhash_id     
+        gex_nhash_id = gex_nhash_id
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
@@ -227,6 +227,7 @@ workflow Optimus {
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
+        library_metrics = MergeStarOutputs.library_metrics,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
         sparse_count_matrix = MergeStarOutputs.sparse_counts,
@@ -240,6 +241,7 @@ workflow Optimus {
   }
 
   File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
+  File final_library_metrics = select_first([OptimusH5adGenerationWithExons.library_metrics, OptimusH5adGeneration.library_metrics])
 
 
   output {
@@ -254,7 +256,7 @@ workflow Optimus {
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
     File? aligner_metrics = MergeStarOutputs.cell_reads_out
-    File? library_metrics = MergeStarOutputs.library_metrics
+    File library_metrics = final_library_metrics
     File? mtx_files = MergeStarOutputs.mtx_files
     Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
     Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix

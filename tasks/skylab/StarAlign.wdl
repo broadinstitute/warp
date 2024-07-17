@@ -573,9 +573,7 @@ task MergeStarOutput {
       outputbarcodes.tsv \
       outputmatrix.mtx \
       ~{expected_cells}
-      echo "Adding NHashID to library metrics"
-      cp ~{input_id}_library_metrics.csv ~{input_id}_library_metrics_backup.csv
-      { echo -e "~{gex_nhash_id}\n"; cat ~{input_id}_library_metrics.csv; } > ~{input_id}_~{gex_nhash_id}_library_metrics.csv
+
       echo "tarring STAR txt files"
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
     else
@@ -605,7 +603,7 @@ task MergeStarOutput {
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
-    File? library_metrics="~{input_id}_~{gex_nhash_id}_library_metrics.csv"
+    File? library_metrics="~{input_id}_library_metrics.csv"
     File? mtx_files ="~{input_id}.mtx_files.tar"
   }
 }
