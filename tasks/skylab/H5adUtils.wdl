@@ -110,7 +110,10 @@ task OptimusH5adGeneration {
     library = pd.read_csv(library_csv, header=None)
 
     # calculate TSO frac
+    print("Calculating TSO frac")
     tso_reads = gex_data.tso_reads.sum()/data.n_reads.sum()
+    print("TSO reads:")
+    print(tso_reads)
     dictionary = library.set_index(0)[1].to_dict()
     dictionary['frac_tso'] = tso_reads
     new_dictionary={"NHashID": [gex_nhash_id]}
@@ -230,7 +233,10 @@ task SingleNucleusOptimusH5adOutput {
         library = pd.read_csv(library_csv, header=None)
 
         # calculate TSO frac
+        print("Caclulating TSO frac")
         tso_reads = gex_data.tso_reads.sum()/data.n_reads.sum()
+        print("TSO reads:")
+        print(tso_reads)
         dictionary = library.set_index(0)[1].to_dict()
         dictionary['frac_tso'] = tso_reads
         new_dictionary={"NHashID": [gex_nhash_id]}
