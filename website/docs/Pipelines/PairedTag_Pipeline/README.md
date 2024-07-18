@@ -60,7 +60,7 @@ The Paired-Tag workflow inputs are specified in JSON configuration files. Exampl
 | Parameter name | Description | Type |
 | --- | --- | --- |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | String |
-| nash_id | Optional identifier that can be used to demarcate the library aliquot or sample. |
+| nhash_id | Optional identifier that can be used to demarcate the library aliquot or sample. |
 | counting_mode | Optional string that determines whether the Optimus (GEX) pipeline should be run in single-cell mode (sc_rna) or single-nucleus mode (sn_rna); default is "sn_rna". | String |
 | gex_r1_fastq | Array of read 1 FASTQ files representing a single GEX 10x library. | Array[File] |
 | gex_r2_fastq | Array of read 2 FASTQ files representing a single GEX 10x library.| Array[File] |
