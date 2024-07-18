@@ -6,7 +6,7 @@
 # 5.3.0
 2024-07-11 (Date of Last Commit)
 
-* Updated the Multiome.wdl to run on Azure. cloud_provider is a new, required input.
+* Updated the Multiome.wdl to run on Azure; cloud_provider is a new, required input
 
 # 5.2.0
 2024-07-09 (Date of Last Commit)
