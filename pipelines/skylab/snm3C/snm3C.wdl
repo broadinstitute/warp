@@ -259,7 +259,33 @@ task Hisat_paired_end {
         set -euo pipefail
         set -x
         lscpu
-  
+        
+        # check google bucket (gs://warp-testing-public/snM3C/checkpoints) to see which cells have been analyzed and which have not
+        
+
+        # check if there are files in the checkpoints directory
+        if gsutil ls gs://warp-testing-public/snM3C/checkpoints/**; then
+            # get the most up to date file
+            sample_id_file=$(gsutil ls -l gs://warp-testing-public/snM3C/checkpoints | sort -k2 | tail -n 1 | awk '{print $NF}')
+            echo "The most up to date file is $sample_id_file"
+            # check if the sample_id_file files exist
+            if gsutil ls "${sample_id_file}.trimmed.stats.txt" && gsutil ls "${sample_id_file}.hisat3n_dna.unique_aligned.bam"
+            
+            ; then
+                echo "Sample files exist"
+            else
+                echo "Sample files do not exist"
+            fi
+        else
+            echo "Checkpoints directory is empty"
+        fi
+       
+        # output files per cell to check for: 
+        #${sample_id}.trimmed.stats.txt,
+        #${sample_id}.hisat3n_dna.unique_aligned.bam
+        #${sample_id}*split_reads*.fastq
+        #${sample_id}*hisat3n_dna_summary.txt
+
         # check genomic reference version and print to output txt file
         STRING=~{genome_fa}
         BASE=$(basename $STRING .fa)
@@ -387,7 +413,8 @@ task Hisat_paired_end {
       # define lists of r1 and r2 fq files
       R1_files=($(ls batch*/ | grep "\-R1.fq.gz"))
       R2_files=($(ls batch*/ | grep "\-R2.fq.gz"))
-
+       
+      # start loop from point it was preempted, rather than the first iteration 
       # run 6 instances of task in parallel 
       for file in "${R1_files[@]}"; do
         (
