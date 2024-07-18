@@ -6,7 +6,7 @@ slug: /Pipelines/snm3C/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [snm3C_v4.0.0](https://github.com/broadinstitute/warp/releases) | March, 2024 | [Kaylee Mathews](mailto:warp-pipelines-help@broadinsitute.org) | Please file GitHub issues in the [WARP repository](https://github.com/broadinstitute/warp/issues) |
+| [snm3C_v4.0.0](https://github.com/broadinstitute/warp/releases) | March, 2024 | Kaylee Mathews | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
 
 ## Introduction to snm3C
@@ -180,11 +180,11 @@ Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konw
 ## Consortia support
 This pipeline is supported by the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN). 
 
-If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org).
+If your organization also uses this pipeline, we would like to list you! Please reach out to us by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues).
 
 ## Acknowledgements
 We are immensely grateful to the members of the BRAIN Initiative ([BICAN](https://brainblog.nih.gov/brain-blog/brain-issues-suite-funding-opportunities-advance-brain-cell-atlases-through-centers) Sequencing Working Group) and [SCORCH](https://nida.nih.gov/about-nida/organization/divisions/division-neuroscience-behavior-dnb/basic-research-hiv-substance-use-disorder/scorch-program) for their invaluable and exceptional contributions to this pipeline. Our heartfelt appreciation goes to our collaborators and the developers of these tools, Hanqing Liu, Wei Tian, Wubin Ding, Huaming Chen, Chongyuan Luo, Jingtian Zhou, and the entire laboratory of Joseph Ecker. 
 
 ## Feedback
 
-For questions, suggestions, or feedback related to the snm3C pipeline, please contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org). Your feedback is valuable for improving the pipeline and addressing any issues that may arise during its usage.
+For questions, suggestions, or feedback related to the snm3C pipeline, please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). Your feedback is valuable for improving the pipeline and addressing any issues that may arise during its usage.

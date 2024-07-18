@@ -7,7 +7,7 @@ slug: /Pipelines/PairedTag_Pipeline/README
 
 |                          Pipeline Version                           | Date Updated | Documentation Author | Questions or Feedback |
 |:---:| :---: | :---: | :---: |
-| [PairedTag_v1.0.1](https://github.com/broadinstitute/warp/releases) | June, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+| [PairedTag_v1.0.1](https://github.com/broadinstitute/warp/releases) | June, 2024 | Kaylee Mathews | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
 
 ## Introduction to the Paired-Tag workflow
@@ -141,7 +141,7 @@ Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konw
 ## Consortia support
 This pipeline is supported by the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN). 
 
-If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org).
+If your organization also uses this pipeline, we would like to list you! Please reach out to us by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues).
 
 
 ## Acknowledgements
@@ -150,4 +150,4 @@ We are immensely grateful to the members of the BRAIN Initiative (BICAN Sequenci
 
 ## Feedback
 
-Please help us make our tools better by contacting the [WARP Pipelines Team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues); we welcome pipeline-related suggestions or questions.
