@@ -13,12 +13,12 @@ workflow Testsnm3C {
       Array[File] fastq_input_read2
       File random_primer_indexes
       String plate_id
+      String cloud_provider
       File tarred_index_files
       File genome_fa
       File chromosome_sizes
       String r1_adapter = "AGATCGGAAGAGCACACGTCTGAAC"
       String r2_adapter = "AGATCGGAAGAGCGTCGTGTAGGGA"
-      #Int batch_number
       Int r1_left_cut = 10
       Int r1_right_cut = 10
       Int r2_left_cut = 10
@@ -35,8 +35,6 @@ workflow Testsnm3C {
       Boolean update_truth
       String vault_token_path
       String google_account_vault_path
-
-      String cloud_provider
     }
 
     meta {
@@ -44,29 +42,30 @@ workflow Testsnm3C {
     }
   
     call snm3C.snm3C {
-      input:
-        fastq_input_read1 = fastq_input_read1,
-        fastq_input_read2 = fastq_input_read2,
-        random_primer_indexes = random_primer_indexes,
-        plate_id = plate_id,
-        tarred_index_files = tarred_index_files,
-        genome_fa = genome_fa,
-        chromosome_sizes = chromosome_sizes,
-        r1_adapter = r1_adapter,
-        r2_adapter = r2_adapter,
-        r1_left_cut = r1_left_cut,
-        r1_right_cut = r1_right_cut,
-        r2_left_cut = r2_left_cut,
-        r2_right_cut = r2_right_cut,
-        min_read_length = min_read_length,
-        num_upstr_bases = num_upstr_bases,
-        num_downstr_bases = num_downstr_bases,
-        compress_level = compress_level,
-        batch_number = batch_number,
-        cloud_provider = cloud_provider
+        input:
+          fastq_input_read1 = fastq_input_read1,
+          fastq_input_read2 = fastq_input_read2,
+          random_primer_indexes = random_primer_indexes,
+          plate_id = plate_id,
+          cloud_provider = cloud_provider,
+          tarred_index_files = tarred_index_files,
+          genome_fa = genome_fa,
+          chromosome_sizes = chromosome_sizes,
+          r1_adapter = r1_adapter,
+          r2_adapter = r2_adapter,
+          r1_left_cut = r1_left_cut,
+          r1_right_cut = r1_right_cut,
+          r2_left_cut = r2_left_cut,
+          r2_right_cut = r2_right_cut,
+          min_read_length = min_read_length,
+          num_upstr_bases = num_upstr_bases,
+          num_downstr_bases = num_downstr_bases,
+          compress_level = compress_level,
+          batch_number = batch_number
+
     }
 
-    
+
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
@@ -79,7 +78,7 @@ workflow Testsnm3C {
                                     snm3C.unique_reads_cgn_extraction_allc_extract_array,
                                     snm3C.unique_reads_cgn_extraction_tbi_extract_array,
                                     snm3C.name_sorted_bam_array,
-                                    snm3C.all_reads_3C_contacts_array,
+                                    snm3C.all_reads_3C_contacts_array
     ])
 
     
@@ -112,12 +111,28 @@ workflow Testsnm3C {
             results_path = results_path,
             truth_path = truth_path
         }
+        call Utilities.GetValidationInputs as GetNameSortedBamArray {
+            input:
+                input_files = snm3C.name_sorted_bam_array,
+                results_path = results_path,
+                truth_path = truth_path
+        }
+        call Utilities.GetValidationInputs as GetUniqueReadsCgnExtractionAllcArray {
+            input:
+                input_file = snm3C.unique_reads_cgn_extraction_allc_array,
+                results_path = results_path,
+                truth_path = truth_path
+        }
 
-      call Verifysnm3C.Verifysnm3C as Verify {
-        input:
-          truth_mapping_summary = GetMappingSummary.truth_file, 
-          test_mapping_summary = GetMappingSummary.results_file,
-          done = CopyToTestResults.done
-      }
+        call Verifysnm3C.Verifysnm3C as Verify {
+            input:
+                truth_mapping_summary = GetMappingSummary.truth_file,
+                test_mapping_summary = GetMappingSummary.results_file,
+                truth_name_sorted_bam_array = GetNameSortedBamArray.truth_files,
+                test_name_sorted_bam_array = GetNameSortedBamArray.results_files,
+                truth_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.truth_file,
+                test_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.results_file,
+                done = CopyToTestResults.done
+        }
     }
 }
