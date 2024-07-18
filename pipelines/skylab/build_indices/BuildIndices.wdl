@@ -125,7 +125,7 @@ task BuildStarSingleNucleus {
     --output-gtf annotation_modified.gtf \
     --biotypes ~{biotypes}
 
-    # Line added for Armadillo and Pig 
+    # Line added for Armadillo
     # GTF file uses NC_080673.1 and FASTA file uses CM059747.1 
     sed 's/NC_080673.1/CM059747.1/g' annotation_modified.gtf > ~{annotation_gtf_modified}
     ls 
