@@ -14,6 +14,9 @@ workflow Verifysnm3C {
         Array[File] test_unique_reads_cgn_extraction_allc_array
         Array[File] truth_unique_reads_cgn_extraction_allc_array
 
+        Array[File] test_unique_reads_cgn_extraction_allc_extract_array
+        Array[File] truth_unique_reads_cgn_extraction_allc_extract_array
+
         Boolean? done
     }
 
@@ -38,4 +41,13 @@ workflow Verifysnm3C {
                 truth_fragment_file  = truth_unique_reads_cgn_extraction_allc_array[idx]
         }
     }
+
+    scatter (idx in range(length(truth_unique_reads_cgn_extraction_allc_extract_array))){
+        call VerifyTasks.CompareTabix as Compare_unique_reads_cgn_extraction_allc_extract_array {
+            input:
+                test_fragment_file   = test_unique_reads_cgn_extraction_allc_extract_array[idx],
+                truth_fragment_file  = truth_unique_reads_cgn_extraction_allc_extract_array[idx]
+        }
+    }
+
 }

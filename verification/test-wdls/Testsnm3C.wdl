@@ -124,6 +124,13 @@ workflow Testsnm3C {
                 truth_path = truth_path
         }
 
+        call Utilities.GetValidationInputs as GetUniqueReadsCgnExtractionAllcExtractArray {
+            input:
+                input_files = snm3C.unique_reads_cgn_extraction_allc_extract_array,
+                results_path = results_path,
+                truth_path = truth_path
+        }
+
         call Verifysnm3C.Verifysnm3C as Verify {
             input:
                 truth_mapping_summary = GetMappingSummary.truth_file,
