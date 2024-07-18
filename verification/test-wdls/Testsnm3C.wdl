@@ -119,7 +119,7 @@ workflow Testsnm3C {
         }
         call Utilities.GetValidationInputs as GetUniqueReadsCgnExtractionAllcArray {
             input:
-                input_file = snm3C.unique_reads_cgn_extraction_allc_array,
+                input_files = snm3C.unique_reads_cgn_extraction_allc_array,
                 results_path = results_path,
                 truth_path = truth_path
         }
@@ -130,8 +130,8 @@ workflow Testsnm3C {
                 test_mapping_summary = GetMappingSummary.results_file,
                 truth_name_sorted_bam_array = GetNameSortedBamArray.truth_files,
                 test_name_sorted_bam_array = GetNameSortedBamArray.results_files,
-                truth_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.truth_file,
-                test_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.results_file,
+                truth_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.truth_files,
+                test_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.results_files,
                 done = CopyToTestResults.done
         }
     }

@@ -11,8 +11,8 @@ workflow Verifysnm3C {
         Array[File] test_name_sorted_bam_array
         Array[File] truth_name_sorted_bam_array
 
-        File test_unique_reads_cgn_extraction_allc_array
-        File truth_unique_reads_cgn_extraction_allc_array
+        Array[File] test_unique_reads_cgn_extraction_allc_array
+        Array[File] truth_unique_reads_cgn_extraction_allc_array
 
         Boolean? done
     }
@@ -31,9 +31,11 @@ workflow Verifysnm3C {
         }
    }
 
-    call VerifyTasks.CompareTabix as Compare_unique_reads_cgn_extraction_allc_array {
-        input:
-            test_fragment_file   = test_unique_reads_cgn_extraction_allc_array,
-            truth_fragment_file  = truth_unique_reads_cgn_extraction_allc_array
+    scatter (idx in range(length(truth_unique_reads_cgn_extraction_allc_array))){
+        call VerifyTasks.CompareTabix as Compare_unique_reads_cgn_extraction_allc_array {
+            input:
+                test_fragment_file   = test_unique_reads_cgn_extraction_allc_array[idx],
+                truth_fragment_file  = truth_unique_reads_cgn_extraction_allc_array[idx]
+        }
     }
 }
