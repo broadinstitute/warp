@@ -120,11 +120,6 @@ task BuildStarSingleNucleus {
 
     set -eo pipefail
 
-    python3 /script/modify_gtf.py  \
-    --input-gtf ~{annotation_gtf} \
-    --output-gtf ~{annotation_gtf_modified} \
-    --biotypes ~{biotypes}
-
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
