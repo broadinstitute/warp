@@ -120,6 +120,16 @@ task BuildStarSingleNucleus {
 
     set -eo pipefail
 
+    python3 /script/modify_gtf.py  \
+    --input-gtf ~{annotation_gtf} \
+    --output-gtf annotation_modified.gtf \
+    --biotypes ~{biotypes}
+
+    # Line added for Armadillo and Pig 
+    # GTF file uses NC_080673.1 and FASTA file uses CM059747.1 
+    sed 's/NC_080673.1/CM059747.1/g' annotation_modified.gtf > ~{annotation_gtf_modified}
+    ls 
+
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
