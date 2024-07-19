@@ -11,6 +11,7 @@ workflow CreateImputationRefPanelBeagle {
 
     Boolean make_brefs = true
     Boolean make_interval_lists = true
+    Boolean make_bed_files = true
   }
 
   scatter (idx in range(length(ref_vcf))) {
@@ -26,19 +27,28 @@ workflow CreateImputationRefPanelBeagle {
         }
       }
         
-      if (make_interval_lists) {
-        call CreateRefPanelIntervalLists {
-          input:
-            ref_panel_vcf = ref_vcf[idx],
-            ref_panel_vcf_index = ref_vcf_index[idx],
-            output_basename = custom_basename_with_chr,
-        }
+    if (make_interval_lists || make_bed_files) {
+      call CreateRefPanelIntervalLists {
+        input:
+          ref_panel_vcf = ref_vcf[idx],
+          ref_panel_vcf_index = ref_vcf_index[idx],
+          output_basename = custom_basename_with_chr
       }
+    }
+
+    if (make_bed_files) {
+      File interval_list = select_first([CreateRefPanelIntervalLists.interval_list])
+      call CreateRefPanelBedFiles {
+        input:
+          ref_panel_interval_list = interval_list
+      }
+    }
   }
 
   output {
     Array[File?] bref3s = BuildBref3.out_bref3
     Array[File?] interval_lists = CreateRefPanelIntervalLists.interval_list
+    Array[File?] bed_files = CreateRefPanelBedFiles.bed_file
   }
 }
 
@@ -96,6 +106,41 @@ task CreateRefPanelIntervalLists {
 
   output {
     File interval_list = "~{basename}.interval_list"
+  }
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+}
+
+task CreateRefPanelBedFiles {
+  input {
+    File ref_panel_interval_list
+
+    Int disk_size_gb = ceil(2*size(ref_panel_interval_list, "GiB")) + 50
+    Int cpu = 1
+    Int memory_mb = 8000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+  }
+
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
+  String basename = basename(ref_panel_interval_list, ".interval_list")
+
+
+  command {
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    IntervalListToBed \
+    -I ~{ref_panel_interval_list} \
+    -O ~{basename}.bed
+  }
+
+  output {
+    File bed_file = "~{basename}.bed"
   }
 
   runtime {
