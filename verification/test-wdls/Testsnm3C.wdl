@@ -139,6 +139,8 @@ workflow Testsnm3C {
                 test_name_sorted_bam_array = GetNameSortedBamArray.results_files,
                 truth_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.truth_files,
                 test_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.results_files,
+                truth_unique_reads_cgn_extraction_allc_extract_array = GetUniqueReadsCgnExtractionAllcExtractArray.truth_files,
+                test_unique_reads_cgn_extraction_allc_extract_array = GetUniqueReadsCgnExtractionAllcExtractArray.results_files,
                 done = CopyToTestResults.done
         }
     }
