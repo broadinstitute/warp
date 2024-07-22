@@ -40,16 +40,16 @@ workflow Verifysnm3C {
     scatter (idx in range(length(truth_unique_reads_cgn_extraction_allc_array))){
         call VerifyTasks.CompareCompressedTextFiles as Compare_unique_reads_cgn_extraction_allc_array {
             input:
-                test_fragment_file   = test_unique_reads_cgn_extraction_allc_array[idx],
-                truth_fragment_file  = truth_unique_reads_cgn_extraction_allc_array[idx]
+                test_zip   = test_unique_reads_cgn_extraction_allc_array[idx],
+                truth_zip  = truth_unique_reads_cgn_extraction_allc_array[idx]
         }
     }
 
     scatter (idx in range(length(truth_unique_reads_cgn_extraction_allc_extract_array))){
         call VerifyTasks.CompareCompressedTextFiles as Compare_unique_reads_cgn_extraction_allc_extract_array {
             input:
-                test_fragment_file   = test_unique_reads_cgn_extraction_allc_extract_array[idx],
-                truth_fragment_file  = truth_unique_reads_cgn_extraction_allc_extract_array[idx]
+                test_zip   = test_unique_reads_cgn_extraction_allc_extract_array[idx],
+                truth_zip  = truth_unique_reads_cgn_extraction_allc_extract_array[idx]
         }
     }
 
