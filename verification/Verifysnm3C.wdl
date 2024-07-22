@@ -38,7 +38,7 @@ workflow Verifysnm3C {
    }
 
     scatter (idx in range(length(truth_unique_reads_cgn_extraction_allc_array))){
-        call VerifyTasks.CompareTabix as Compare_unique_reads_cgn_extraction_allc_array {
+        call VerifyTasks.CompareCompressedTextFiles as Compare_unique_reads_cgn_extraction_allc_array {
             input:
                 test_fragment_file   = test_unique_reads_cgn_extraction_allc_array[idx],
                 truth_fragment_file  = truth_unique_reads_cgn_extraction_allc_array[idx]
@@ -46,7 +46,7 @@ workflow Verifysnm3C {
     }
 
     scatter (idx in range(length(truth_unique_reads_cgn_extraction_allc_extract_array))){
-        call VerifyTasks.CompareTabix as Compare_unique_reads_cgn_extraction_allc_extract_array {
+        call VerifyTasks.CompareCompressedTextFiles as Compare_unique_reads_cgn_extraction_allc_extract_array {
             input:
                 test_fragment_file   = test_unique_reads_cgn_extraction_allc_extract_array[idx],
                 truth_fragment_file  = truth_unique_reads_cgn_extraction_allc_extract_array[idx]
@@ -54,10 +54,10 @@ workflow Verifysnm3C {
     }
 
 scatter (idx in range(length(truth_all_reads_3C_contacts_array))){
-        call VerifyTasks.CompareTabix as Compare_all_reads_3C_contacts_array {
+        call VerifyTasks.CompareCompressedTextFiles as Compare_all_reads_3C_contacts_array {
             input:
-                test_fragment_file   = test_all_reads_3C_contacts_array[idx],
-                truth_fragment_file  = truth_all_reads_3C_contacts_array[idx]
+                test_zip   = test_all_reads_3C_contacts_array[idx],
+                truth_zip  = truth_all_reads_3C_contacts_array[idx]
         }
     }
 

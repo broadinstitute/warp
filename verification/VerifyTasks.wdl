@@ -118,7 +118,7 @@ task CompareTabix {
 
     if [[ $a = $b ]]; then
       echo "The files are equal. The md5sum for ~{test_fragment_file} is $a and ~{truth_fragment_file} is $b"
-    else 
+    else
       echo "The files md5sums do not match. Performing a line count:"
         test_lines=$(wc -l ~{test_fragment_file} | awk '{ print $1 }')
         truth_lines=$(wc -l ~{truth_fragment_file} | awk '{ print $1 }')
@@ -317,6 +317,17 @@ task CompareCompressedTextFiles {
 
   command {
     diff <(gunzip -c ~{test_zip} | sort) <(gunzip -c ~{truth_zip} | sort)
+
+    diff_output=$(diff <(gunzip -c ~{test_zip}  | sort) <(gunzip -c ~{truth_zip} | sort))
+
+    if [ $? -eq 0 ]; then
+        echo "Comparison succeeded: The files are identical."
+    else
+        echo "Comparison failed: The files differ."
+        echo "Here are the differences:"
+        echo "$diff_output"
+        exit
+    fi
   }
 
   runtime {
