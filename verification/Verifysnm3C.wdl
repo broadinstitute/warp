@@ -17,6 +17,9 @@ workflow Verifysnm3C {
         Array[File] test_unique_reads_cgn_extraction_allc_extract_array
         Array[File] truth_unique_reads_cgn_extraction_allc_extract_array
 
+        Array[File] test_all_reads_3C_contacts_array
+        Array[File] truth_all_reads_3C_contacts_array
+
         Boolean? done
     }
 
@@ -50,4 +53,15 @@ workflow Verifysnm3C {
         }
     }
 
+scatter (idx in range(length(truth_all_reads_3C_contacts_array))){
+        call VerifyTasks.CompareTabix as Compare_all_reads_3C_contacts_array {
+            input:
+                test_fragment_file   = test_all_reads_3C_contacts_array[idx],
+                truth_fragment_file  = truth_all_reads_3C_contacts_array[idx]
+        }
+    }
+
+    output {
+        Boolean done = true
+    }
 }
