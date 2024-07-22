@@ -117,9 +117,9 @@ task CompareTabix {
     b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
 
     if [[ $a = $b ]]; then
-      echo "The files are equal. The md5sum for ~{test_fragment_file} is $a and ~{truth_fragment_file} is $b"
+      echo "The fragment files are equal"
     else
-      echo "The files md5sums do not match. Performing a line count:"
+      echo "The fragment files md5sums do not match. Performing a line count:"
         test_lines=$(wc -l ~{test_fragment_file} | awk '{ print $1 }')
         truth_lines=$(wc -l ~{truth_fragment_file} | awk '{ print $1 }')
         echo "Test file has $test_lines lines"
