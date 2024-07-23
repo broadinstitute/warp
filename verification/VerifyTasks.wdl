@@ -318,14 +318,10 @@ task CompareCompressedTextFiles {
   command {
     diff <(gunzip -c ~{test_zip} | sort) <(gunzip -c ~{truth_zip} | sort)
 
-    diff_output=$(diff <(gunzip -c ~{test_zip}  | sort) <(gunzip -c ~{truth_zip} | sort))
-
     if [ $? -eq 0 ]; then
         echo "Comparison succeeded: The files are identical."
     else
         echo "Comparison failed: The files differ."
-        echo "Here are the differences:"
-        echo "$diff_output"
         exit 1
     fi
   }
