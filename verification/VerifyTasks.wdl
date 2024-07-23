@@ -260,22 +260,32 @@ task CompareBams {
     set -e
     set -o pipefail
 
-    truth_bam=~{truth_bam}
-    test_bam=~{test_bam}
+    truth_bam="${truth_bam}"
+    test_bam="${test_bam}"
 
     # Get the sizes of the BAM files in bytes
-    truth_size=$(stat -c %s ~{truth_bam})
-    test_size=$(stat -c %s ~{test_bam})
+    truth_size=$(stat -c %s "${truth_bam}")
+    test_size=$(stat -c %s "${test_bam}")
+
+    echo "Truth BAM size in bytes: ${truth_size}"
+    echo "Test BAM size in bytes: ${test_size}"
 
     # Convert sizes to megabytes using awk for floating point division
     truth_size_mb=$(awk "BEGIN {printf \"%.2f\", ${truth_size} / (1024 * 1024)}")
     test_size_mb=$(awk "BEGIN {printf \"%.2f\", ${test_size} / (1024 * 1024)}")
 
+    echo "Truth BAM size in MB: ${truth_size_mb}"
+    echo "Test BAM size in MB: ${test_size_mb}"
+
     # Calculate the difference in megabytes using awk
     size_difference_mb=$(awk "BEGIN {printf \"%.2f\", ${truth_size_mb} - ${test_size_mb}}")
 
+    echo "Size difference in MB: ${size_difference_mb}"
+
     # Calculate the absolute value of the difference using awk
     abs_size_difference_mb=$(awk "BEGIN {print (${size_difference_mb} < 0) ? -${size_difference_mb} : ${size_difference_mb}}")
+
+    echo "Absolute size difference in MB: ${abs_size_difference_mb}"
 
     # Compare the sizes and fail fast if the difference is greater than 200 MB
     if awk "BEGIN {exit (${abs_size_difference_mb} > 200)}"; then
