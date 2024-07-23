@@ -263,43 +263,33 @@ task CompareBams {
     truth_bam=~{truth_bam}
     test_bam=~{test_bam}
 
-    echo "Truth BAM size in bytes: ${truth_size}"
-    echo "Test BAM size in bytes: ${test_size}"
+    # Get the sizes of the BAM files in bytes
+    truth_size=$(stat -c %s ~{truth_bam})
+    test_size=$(stat -c %s ~{test_bam})
 
-    # Convert sizes to megabytes using awk for floating point division
-    truth_size_mb=$(awk "BEGIN {printf \"%.2f\", ${truth_size} / (1024 * 1024)}")
-    test_size_mb=$(awk "BEGIN {printf \"%.2f\", ${test_size} / (1024 * 1024)}")
+    # Calculate the difference in bytes
+    size_difference=$((truth_size - test_size))
 
-    echo "Truth BAM size in MB: ${truth_size_mb}"
-    echo "Test BAM size in MB: ${test_size_mb}"
+    # Calculate the absolute value of the difference
+    abs_size_difference=$((size_difference < 0 ? -size_difference : size_difference))
 
-    # Calculate the difference in megabytes using awk
-    size_difference_mb=$(awk "BEGIN {printf \"%.2f\", ${truth_size_mb} - ${test_size_mb}}")
-
-    echo "Size difference in MB: ${size_difference_mb}"
-
-    # Calculate the absolute value of the difference using awk
-    abs_size_difference_mb=$(awk "BEGIN {print (${size_difference_mb} < 0) ? -${size_difference_mb} : ${size_difference_mb}}")
-
-    echo "Absolute size difference in MB: ${abs_size_difference_mb}"
-
-    # Compare the sizes and fail fast if the difference is greater than 200 MB
-    if (( $(awk "BEGIN {print (${abs_size_difference_mb} > 200)}") )); then
-        echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. ${truth_bam} is ${truth_size_mb} MB and ${test_bam} is ${test_size_mb} MB. Exiting."
+    # Compare the sizes and fail fast if the difference is greater than 200 * 1024 * 1024 bytes (200 MB)
+    if [ "$abs_size_difference" -gt $((200 * 1024 * 1024)) ]; then
+        echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Exiting."
         exit 1
-    elif (( $(awk "BEGIN {print (${abs_size_difference_mb} > 0)}") )); then
-        echo "WARNING: BAM file sizes differ by more than 0 MB but less than 200 MB. ${truth_bam} is ${truth_size_mb} MB and ${test_bam} is ${test_size_mb} MB. Proceeding to CompareSAMs:"
-        java -Xms${java_memory_size}m -Xmx${max_heap}m -jar /usr/picard/picard.jar \
-        CompareSAMs \
-            "${test_bam}" \
-            "${truth_bam}" \
-            O=comparison.tsv \
-            LENIENT_HEADER=${lenient_header} \
-            LENIENT_LOW_MQ_ALIGNMENT=${lenient_low_mq} \
-            MAX_RECORDS_IN_RAM=300000
     else
-        echo "BAM file sizes are identical."
+        echo "WARNING: BAM file sizes differ by more than 0 bytes but less than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Proceeding to CompareSAMs:"
+
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
+        CompareSAMs \
+        ~{test_bam} \
+        ~{truth_bam} \
+        O=comparison.tsv \
+        LENIENT_HEADER=~{lenient_header} \
+        LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
+        MAX_RECORDS_IN_RAM=300000
     fi
+
   >>>
 
 
