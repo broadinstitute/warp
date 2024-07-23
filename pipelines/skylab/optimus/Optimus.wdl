@@ -91,7 +91,7 @@ workflow Optimus {
   String pytools_docker = "pytools:1.0.0-1661263730"
   String empty_drops_docker = "empty-drops:1.0.1-4.2"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
-  String warp_tools_docker_2_0_1 = "warp-tools:1.0.8-1721618097"
+  String warp_tools_docker_2_0_1 = "warp-tools:1.0.8-1721759814"
   String warp_tools_docker_2_0_2 = "warp-tools:2.0.2-1709308985"
   String star_merge_docker = "star-merge-npz:1.2"
 
