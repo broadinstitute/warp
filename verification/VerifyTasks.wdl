@@ -280,14 +280,14 @@ task CompareBams {
     else
         echo "WARNING: BAM file sizes differ by less than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Proceeding to CompareSAMs:"
 
-    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
+        java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
         CompareSAMs \
-        ~{test_bam} \
-        ~{truth_bam} \
-        O=comparison.tsv \
-        LENIENT_HEADER=~{lenient_header} \
-        LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
-        MAX_RECORDS_IN_RAM=300000
+            ~{test_bam} \
+            ~{truth_bam} \
+            O=comparison.tsv \
+            LENIENT_HEADER=~{lenient_header} \
+            LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
+            MAX_RECORDS_IN_RAM=300000
     fi
 
   >>>
