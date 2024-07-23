@@ -33,7 +33,8 @@ workflow Verifysnm3C {
         call VerifyTasks.CompareBams as CompareBams {
             input:
                 test_bam   = test_name_sorted_bam_array[idx],
-                truth_bam  = truth_name_sorted_bam_array[idx]
+                truth_bam  = truth_name_sorted_bam_array[idx],
+                lenient_header = true
         }
    }
 
