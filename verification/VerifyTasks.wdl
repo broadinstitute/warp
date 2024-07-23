@@ -288,7 +288,7 @@ task CompareBams {
     echo "Absolute size difference in MB: ${abs_size_difference_mb}"
 
     # Compare the sizes and fail fast if the difference is greater than 200 MB
-    if awk "BEGIN {exit (${abs_size_difference_mb} > 200)}"; then
+    if (( $(awk "BEGIN {print (${abs_size_difference_mb} > 200)}") )); then
         echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. ${truth_bam} is ${truth_size_mb} MB and ${test_bam} is ${test_size_mb} MB. Exiting."
         exit 1
     else
