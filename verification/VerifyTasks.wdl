@@ -294,7 +294,7 @@ task CompareBams {
             LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
             MAX_RECORDS_IN_RAM=300000
     fi
-  }
+
     >>>
 
   runtime {
