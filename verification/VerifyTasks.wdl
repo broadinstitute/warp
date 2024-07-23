@@ -260,12 +260,12 @@ task CompareBams {
     set -e
     set -o pipefail
 
-    truth_bam="${truth_bam}"
-    test_bam="${test_bam}"
+    truth_bam=~{truth_bam}
+    test_bam=~{test_bam}
 
     # Get the sizes of the BAM files in bytes
-    truth_size=$(stat -c %s "${truth_bam}")
-    test_size=$(stat -c %s "${test_bam}")
+    truth_size=$(stat -c %s ~{truth_bam})
+    test_size=$(stat -c %s ~{test_bam})
 
     echo "Truth BAM size in bytes: ${truth_size}"
     echo "Test BAM size in bytes: ${test_size}"
