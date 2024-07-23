@@ -267,35 +267,34 @@ task CompareBams {
     truth_size=$(stat -c %s ~{truth_bam})
     test_size=$(stat -c %s ~{test_bam})
 
-    # Convert sizes to megabytes using bc for floating point division
-    truth_size_mb=$(echo "scale=2; $truth_size / (1024 * 1024)" | bc)
-    test_size_mb=$(echo "scale=2; $test_size / (1024 * 1024)" | bc)
+    # Convert sizes to megabytes using awk for floating point division
+    truth_size_mb=$(awk "BEGIN {printf \"%.2f\", ${truth_size} / (1024 * 1024)}")
+    test_size_mb=$(awk "BEGIN {printf \"%.2f\", ${test_size} / (1024 * 1024)}")
 
-    # Calculate the difference in megabytes
-    size_difference_mb=$(echo "$truth_size_mb - $test_size_mb" | bc)
+    # Calculate the difference in megabytes using awk
+    size_difference_mb=$(awk "BEGIN {printf \"%.2f\", ${truth_size_mb} - ${test_size_mb}}")
 
-    # Calculate the absolute value of the difference:
-    # First, check if the difference is negative. If negative, make it positive. If the differnce is positive, leave it as is.
-    abs_size_difference_mb=$(echo "$size_difference_mb" | awk '{print ($1 < 0) ? -$1 : $1}')
+    # Calculate the absolute value of the difference using awk
+    abs_size_difference_mb=$(awk "BEGIN {print (${size_difference_mb} < 0) ? -${size_difference_mb} : ${size_difference_mb}}")
 
     # Compare the sizes and fail fast if the difference is greater than 200 MB
-    if (( $(echo "$abs_size_difference_mb > 200" | bc -l) )); then
-        echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Exiting."
+    if awk "BEGIN {exit (${abs_size_difference_mb} > 200)}"; then
+        echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. ${truth_bam} is ${truth_size_mb} MB and ${test_bam} is ${test_size_mb} MB. Exiting."
         exit 1
     else
-        echo "WARNING: BAM file sizes differ by more than 0 MB but less than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Proceeding to CompareSAMs:"
+        echo "WARNING: BAM file sizes differ by more than 0 MB but less than 200 MB. ${truth_bam} is ${truth_size_mb} MB and ${test_bam} is ${test_size_mb} MB. Proceeding to CompareSAMs:"
 
-        java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
-        CompareSAMs \
-            ~{test_bam} \
-            ~{truth_bam} \
-            O=comparison.tsv \
-            LENIENT_HEADER=~{lenient_header} \
-            LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
-            MAX_RECORDS_IN_RAM=300000
+    java -Xms${java_memory_size}m -Xmx${max_heap}m -jar /usr/picard/picard.jar \
+    CompareSAMs \
+        "${test_bam}" \
+        "${truth_bam}" \
+        O=comparison.tsv \
+        LENIENT_HEADER=${lenient_header} \
+        LENIENT_LOW_MQ_ALIGNMENT=${lenient_low_mq} \
+        MAX_RECORDS_IN_RAM=300000
     fi
+  >>>
 
-    >>>
 
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
