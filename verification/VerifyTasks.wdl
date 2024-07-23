@@ -326,7 +326,7 @@ task CompareCompressedTextFiles {
         echo "Comparison failed: The files differ."
         echo "Here are the differences:"
         echo "$diff_output"
-        exit
+        exit 1
     fi
   }
 
