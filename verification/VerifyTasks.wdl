@@ -263,10 +263,6 @@ task CompareBams {
     truth_bam=~{truth_bam}
     test_bam=~{test_bam}
 
-    # Get the sizes of the BAM files in bytes
-    truth_size=$(stat -c %s ~{truth_bam})
-    test_size=$(stat -c %s ~{test_bam})
-
     echo "Truth BAM size in bytes: ${truth_size}"
     echo "Test BAM size in bytes: ${test_size}"
 
@@ -291,17 +287,18 @@ task CompareBams {
     if (( $(awk "BEGIN {print (${abs_size_difference_mb} > 200)}") )); then
         echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. ${truth_bam} is ${truth_size_mb} MB and ${test_bam} is ${test_size_mb} MB. Exiting."
         exit 1
-    else
+    elif (( $(awk "BEGIN {print (${abs_size_difference_mb} > 0)}") )); then
         echo "WARNING: BAM file sizes differ by more than 0 MB but less than 200 MB. ${truth_bam} is ${truth_size_mb} MB and ${test_bam} is ${test_size_mb} MB. Proceeding to CompareSAMs:"
-
-    java -Xms${java_memory_size}m -Xmx${max_heap}m -jar /usr/picard/picard.jar \
-    CompareSAMs \
-        "${test_bam}" \
-        "${truth_bam}" \
-        O=comparison.tsv \
-        LENIENT_HEADER=${lenient_header} \
-        LENIENT_LOW_MQ_ALIGNMENT=${lenient_low_mq} \
-        MAX_RECORDS_IN_RAM=300000
+        java -Xms${java_memory_size}m -Xmx${max_heap}m -jar /usr/picard/picard.jar \
+        CompareSAMs \
+            "${test_bam}" \
+            "${truth_bam}" \
+            O=comparison.tsv \
+            LENIENT_HEADER=${lenient_header} \
+            LENIENT_LOW_MQ_ALIGNMENT=${lenient_low_mq} \
+            MAX_RECORDS_IN_RAM=300000
+    else
+        echo "BAM file sizes are identical."
     fi
   >>>
 
