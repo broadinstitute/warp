@@ -198,7 +198,7 @@ workflow Optimus {
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_0
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
@@ -207,7 +207,7 @@ workflow Optimus {
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_0
   }
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
@@ -254,7 +254,7 @@ workflow Optimus {
         empty_drops_result = RunEmptyDrops.empty_drops_result,
         counting_mode = counting_mode,
         pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_0
     }
   }
   if (count_exons  && counting_mode=="sn_rna") {
@@ -290,7 +290,7 @@ workflow Optimus {
         cell_id_exon = MergeStarOutputsExons.row_index,
         gene_id_exon = MergeStarOutputsExons.col_index,
         pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_0
     }
   }
 
