@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../pipelines/skylab/multiome/atac.wdl" as atac
+import "../../../pipelines/skylab/atac/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
@@ -8,7 +8,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "1.3.0"
+    String pipeline_version = "1.3.1"
 
 
     input {

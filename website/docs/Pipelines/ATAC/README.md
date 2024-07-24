@@ -8,7 +8,7 @@ slug: /Pipelines/ATAC/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [2.0.0](https://github.com/broadinstitute/warp/releases) | May, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [2.0.0](https://github.com/broadinstitute/warp/releases) | May, 2024 | Kaylee Mathews | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
 
 ## Introduction to the ATAC workflow
@@ -23,7 +23,7 @@ The following table provides a quick glance at the ATAC pipeline features:
 | Pipeline features | Description | Source |
 |--- | --- | --- |
 | Assay type | 10x single cell or single nucleus ATAC | [10x Genomics](https://www.10xgenomics.com)
-| Overall workflow  | Barcode correction, read alignment, and fragment quantification | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl)
+| Overall workflow  | Barcode correction, read alignment, and fragment quantification | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl)
 | Workflow language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence | GRCh38 human genome primary sequence | GENCODE |
 | Aligner | bwa-mem2 | [Li H. and Durbin R., 2009](http://www.ncbi.nlm.nih.gov/pubmed/19451168) |
@@ -79,11 +79,11 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | ------------------------------------ | 
-| [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | Bash | Bash | Uses the virtual machine type to determine the optimal number of FASTQ files for performing the BWA-mem alignment step. This allows BWA-mem to run in parallel on multiple FASTQ files in the subsequent workflow steps. |
-| [FastqProcessing as SplitFastq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastqprocess | custom | Dynamically selects the correct barcode orientation, corrects cell barcodes, and splits FASTQ files by the optimal number determined in the [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) task. The smaller FASTQ files are grouped by cell barcode with each read having the corrected (CB) and raw barcode (CR) in the read name. |
-| [TrimAdapters](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | Cutadapt v4.4 | cutadapt | Trims adaptor sequences. |
-| [BWAPairedEndAlignment](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | bwa-mem2 | mem | Aligns reads from each set of partitioned FASTQ files to the genome and outputs a BAM with ATAC barcodes in the CB:Z tag. |
-| [CreateFragmentFile](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | make_fragment_file, import_data | SnapATAC2 | Generates a fragment file from the final aligned BAM and outputs per barcode quality metrics in h5ad. A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
+| [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | Bash | Bash | Uses the virtual machine type to determine the optimal number of FASTQ files for performing the BWA-mem alignment step. This allows BWA-mem to run in parallel on multiple FASTQ files in the subsequent workflow steps. |
+| [FastqProcessing as SplitFastq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastqprocess | custom | Dynamically selects the correct barcode orientation, corrects cell barcodes, and splits FASTQ files by the optimal number determined in the [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) task. The smaller FASTQ files are grouped by cell barcode with each read having the corrected (CB) and raw barcode (CR) in the read name. |
+| [TrimAdapters](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | Cutadapt v4.4 | cutadapt | Trims adaptor sequences. |
+| [BWAPairedEndAlignment](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | bwa-mem2 | mem | Aligns reads from each set of partitioned FASTQ files to the genome and outputs a BAM with ATAC barcodes in the CB:Z tag. |
+| [CreateFragmentFile](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | make_fragment_file, import_data | SnapATAC2 | Generates a fragment file from the final aligned BAM and outputs per barcode quality metrics in h5ad. A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
 
 
 ## Output variables

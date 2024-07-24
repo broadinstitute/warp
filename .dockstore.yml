@@ -121,7 +121,7 @@ workflows:
     
   - name: atac
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/multiome/atac.wdl
+    primaryDescriptorPath: /pipelines/skylab/atac/atac.wdl
 
   - name: VariantCalling
     subclass: WDL
