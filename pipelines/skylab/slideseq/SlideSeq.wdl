@@ -48,8 +48,7 @@ workflow SlideSeq {
     # docker images
     String pytools_docker = "pytools:1.0.0-1661263730"
     String picard_cloud_docker = "picard-cloud:2.26.10"
-    String warp_tools_docker_2_0_1 = "warp-tools:2.0.1"
-    String warp_tools_docker_2_0_2 = "warp-tools:2.0.2-1709308985"
+    String warp_tools_docker_2_1_0 = "warp-tools:2.1.0"
     String star_merge_docker = "star-merge-npz:1.2"
 
     String ubuntu_docker = "ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"

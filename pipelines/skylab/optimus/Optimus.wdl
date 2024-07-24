@@ -91,8 +91,7 @@ workflow Optimus {
   String pytools_docker = "pytools:1.0.0-1661263730"
   String empty_drops_docker = "empty-drops:1.0.1-4.2"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
-  String warp_tools_docker_2_0_1 = "warp-tools:lk-PD-2654-tso-metrics"
-  String warp_tools_docker_2_0_2 = "warp-tools:2.0.2-1709308985"
+  String warp_tools_docker_2_1_0 = "warp-tools:2.1.0"
   String star_merge_docker = "star-merge-npz:1.2"
 
   #TODO how do we handle these?
@@ -167,7 +166,7 @@ workflow Optimus {
       chemistry = tenx_chemistry_version,
       sample_id = input_id,
       read_struct = read_struct,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_0
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
