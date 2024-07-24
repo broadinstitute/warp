@@ -118,7 +118,6 @@ function main() {
   local -r gittish=${1}
   local -r test_all=${2}
   local -r test=${3}
-
   local -a changed_pipeline_paths=()
   local -a args=()
 
