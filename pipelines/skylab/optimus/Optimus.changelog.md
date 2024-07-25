@@ -1,3 +1,14 @@
+# 7.4.0
+2024-07-11 (Date of Last Commit)
+
+* Updated the Optimus.wdl to run on Azure. cloud_provider is a new, required input.
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers
+
+# 7.3.0
+2024-07-09 (Date of Last Commit)
+
+* Added new optional input parameter of gex_nhash_id, a string identifier for a library aliquot that is echoed in the h5ad cell by gene matrix (in the data.uns) and the library metrics CSV output; default is set to null 
+
 # 7.2.0
 2024-06-28 (Date of Last Commit)
 

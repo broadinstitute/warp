@@ -17,6 +17,7 @@ workflow TestOptimus {
     Array[File] r2_fastq
     Array[File]? i1_fastq
     String input_id
+    String gex_nhash_id
     String output_bam_basename = input_id
     String? input_name
     String? input_id_metadata_field
@@ -59,6 +60,8 @@ workflow TestOptimus {
     String vault_token_path
     String google_account_vault_path
 
+    String cloud_provider
+
   }
 
   meta {
@@ -84,7 +87,9 @@ workflow TestOptimus {
       star_strand_mode           = star_strand_mode,
       count_exons                = count_exons,
       ignore_r1_read_length      = ignore_r1_read_length,
-      soloMultiMappers           = soloMultiMappers
+      soloMultiMappers           = soloMultiMappers,
+      cloud_provider             = cloud_provider,
+      gex_nhash_id               = gex_nhash_id
   }
 
   # Collect all of the pipeling output into single Array

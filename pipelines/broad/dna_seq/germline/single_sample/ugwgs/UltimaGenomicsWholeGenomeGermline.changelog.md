@@ -1,3 +1,13 @@
+# 1.0.19
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs; this does not affect this pipeline
+
+# 1.0.18
+2024-07-09 (Date of Last Commit)
+
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers. This change does not affect this pipeline
+
 # 1.0.17
 2024-07-01 (Date of Last Commit)
 

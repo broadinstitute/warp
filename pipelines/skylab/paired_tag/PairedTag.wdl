@@ -1,14 +1,20 @@
 version 1.0
 
-import "../../../pipelines/skylab/multiome/atac.wdl" as atac
+import "../../../pipelines/skylab/atac/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
+import "../../../tasks/broad/Utilities.wdl" as utils
+
 workflow PairedTag {
-    String pipeline_version = "1.1.0"
+
+    String pipeline_version = "1.3.1"
+
 
     input {
         String input_id
+        # Additional library aliquot id
+        String? nhash_id
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -24,7 +30,7 @@ workflow PairedTag {
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Forward"
         Boolean count_exons = false
-        File gex_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
+        File gex_whitelist = if cloud_provider == "gcp" then "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt" else "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_gex.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
 
         String? soloMultiMappers = "Uniform"
         # ATAC inputs
@@ -32,6 +38,9 @@ workflow PairedTag {
         Array[File] atac_r1_fastq
         Array[File] atac_r2_fastq
         Array[File] atac_r3_fastq
+
+        String vm_size = "Standard_M128s"
+
         # BWA input
         File tar_bwa_reference
         File chrom_sizes
@@ -39,11 +48,34 @@ workflow PairedTag {
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         # Whitelist
-        File atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
+        File atac_whitelist = if cloud_provider == "gcp" then "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt" else "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_atac.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
 
         # PairedTag
         Boolean preindex
+
+        # Expected to be either 'gcp' or 'azure'
+        String cloud_provider
     }
+
+    # All docker images that are needed for tasks in this workflow
+    String upstools_docker = "upstools:2.0.0"
+    String snapatac_docker = "snapatac2:1.0.4-2.3.1-1700590229"
+
+    # Prefixes based on cloud env
+    String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
+    String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
+
+    # choose docker prefix based on cloud_provider input
+    String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+
+    # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
+    if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+        call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+            input:
+                message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+        }
+    }
+
     # Call the Optimus workflow
     call optimus.Optimus as Optimus {
         input:
@@ -63,7 +95,9 @@ workflow PairedTag {
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
-            soloMultiMappers = soloMultiMappers
+            cloud_provider = cloud_provider,
+            soloMultiMappers = soloMultiMappers,
+            gex_nhash_id = nhash_id
     }
 
     # Call the ATAC workflow
@@ -76,9 +110,12 @@ workflow PairedTag {
               barcodes_fastq = atac_r2_fastq[idx],
               input_id = input_id,
               whitelist = atac_whitelist,
-              preindex = preindex
+              preindex = preindex,
+              docker_path = docker_prefix + upstools_docker
         }
-    }      
+    }
+
+    # Call the ATAC workflow
     call atac.ATAC as Atac_preindex {
         input:
             read1_fastq_gzipped = demultiplex.fastq1,
@@ -91,14 +128,18 @@ workflow PairedTag {
             adapter_seq_read1 = adapter_seq_read1,
             adapter_seq_read3 = adapter_seq_read3,
             annotations_gtf = annotations_gtf,
-            preindex = preindex
+            preindex = preindex,
+            cloud_provider = cloud_provider,
+            vm_size = vm_size,
+            atac_nhash_id = nhash_id
     }
 
     if (preindex) {
         call Demultiplexing.ParseBarcodes as ParseBarcodes {
             input:
               atac_h5ad = Atac_preindex.snap_metrics,
-              atac_fragment = Atac_preindex.fragment_file
+              atac_fragment = Atac_preindex.fragment_file,
+              docker_path = docker_prefix + snapatac_docker,
         }
     }      
 

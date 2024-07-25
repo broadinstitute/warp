@@ -1,3 +1,19 @@
+# 1.3.1
+2024-07-18 (Date of Last Commit)
+
+* The atac.wdl was refactored into its own directory under the pipelines/skylab directory; this change does not impact the PairedTag outputs
+
+# 1.3.0
+2024-07-11 (Date of Last Commit)
+
+* Updated the PairedTag.wdl to run on Azure. cloud_provider is a new, required input.
+
+# 1.2.0
+2024-07-09 (Date of Last Commit)
+
+* Added new optional input parameter of nhash_id, an optional identifier for a library aliquot that is echoed in the  workflow fragment h5ad, the Optimus workflow gene expression h5ad (in the data.uns), and the Optimus gene expression library metrics CSV output; default is set to null
+* Added test statements again for GH action (to release from develop). Will probably revert
+
 # 1.1.0
 2024-06-28 (Date of Last Commit)
 

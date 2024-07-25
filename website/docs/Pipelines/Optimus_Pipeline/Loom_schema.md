@@ -32,6 +32,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 | `input_id_metadata_field` | Optional string that describes, when applicable, the metadata field containing the `input_id`. |
 | `input_name_metadata_field` | Optional string that describes, when applicable, the metadata field containing the `input_name`. |
 | `pipeline_version` | String describing the version of the Optimus pipeline run on the data. |
+| `NHashID` | String that represents NHashID (an optional library aliquot identifier) if specified during the worfklow run. |
 
 ## Table 2. Cell metrics
 
