@@ -151,7 +151,7 @@ workflow SlideSeq {
             star_merge_docker_path = docker_prefix + star_merge_docker
     }
     if ( !count_exons ) {
-        call H5adUtils.OptimusH5adGeneration as SlideseqH5adGeneration{
+        call H5adUtils.SlideseqH5adGeneration as SlideseqH5adGeneration{
             input:
                 input_id = input_id,
                 annotation_file = annotations_gtf,
@@ -175,7 +175,7 @@ workflow SlideSeq {
                 input_id = input_id,
                 star_merge_docker_path = docker_prefix + star_merge_docker
         }
-        call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
+        call H5adUtils.SingleNucleusSlideseqH5adOutput as SlideseqH5adGenerationWithExons{
             input:
                 input_id = input_id,
                 annotation_file = annotations_gtf,
@@ -192,7 +192,7 @@ workflow SlideSeq {
         }
     }
 
-    File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, SlideseqH5adGeneration.h5ad_output])
+    File final_h5ad_output = select_first([SlideseqH5adGenerationWithExons.h5ad_output, SlideseqH5adGeneration.h5ad_output])
 
     output {
         String pipeline_version_out = pipeline_version
