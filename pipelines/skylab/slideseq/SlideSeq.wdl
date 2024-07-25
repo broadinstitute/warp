@@ -48,7 +48,7 @@ workflow SlideSeq {
     # docker images
     String pytools_docker = "pytools:1.0.0-1661263730"
     String picard_cloud_docker = "picard-cloud:2.26.10"
-    String warp_tools_docker_2_1_0 = "warp-tools:lk-fix-TagSort-gene-headers"
+    String warp_tools_docker_2_1_1 = "warp-tools:2.1.1"
     String star_merge_docker = "star-merge-npz:1.2"
 
     String ubuntu_docker = "ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
@@ -124,7 +124,7 @@ workflow SlideSeq {
             bam_input = MergeBam.output_bam,
             original_gtf = annotations_gtf,
             input_id = input_id,
-            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_0
+            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_1
     }
     call Metrics.CalculateUMIsMetrics as UMIsMetrics {
         input:
@@ -138,7 +138,7 @@ workflow SlideSeq {
             bam_input = MergeBam.output_bam,
             original_gtf = annotations_gtf,
             input_id = input_id,
-            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_0
+            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_1
 
     }
 
@@ -162,7 +162,7 @@ workflow SlideSeq {
                 gene_id = MergeStarOutputs.col_index,
                 add_emptydrops_data = "no",
                 pipeline_version = "SlideSeq_v~{pipeline_version}",
-                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_0
+                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_1
 
         }
     }
@@ -188,7 +188,7 @@ workflow SlideSeq {
                 cell_id_exon = MergeStarOutputsExons.row_index,
                 gene_id_exon = MergeStarOutputsExons.col_index,
                 pipeline_version = "SlideSeq_v~{pipeline_version}",
-                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_0
+                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_1
         }
     }
 
