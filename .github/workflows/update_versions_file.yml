@@ -4,10 +4,9 @@
 name: Update Pipeline Versions
 on:
   pull_request:
-    # This workflow will run on PR to master and staging branches
+    # This workflow will run on PR to develop and will update the pipeline_versions.txt file on the source branch (ie. the branch that triggered the PR)
     branches:
-      - master
-      - staging
+      - develop
   workflow_dispatch:
 
 jobs:
@@ -49,6 +48,10 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add pipeline_versions.txt
-          git commit -m "Update pipeline versions"
-          git push
+          if git diff-index --quiet HEAD --; then
+            echo "No changes to commit"
+          else
+            git commit -m "Updated pipeline_versions.txt with all pipeline version information"
+            git push
+          fi
         
