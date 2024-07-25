@@ -1,3 +1,13 @@
+# 2.2.1
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs
+
+# 2.2.0
+2024-07-09 (Date of Last Commit)
+
+* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers. cloud_provider is a new, required input.
+
 # 2.1.19
 2024-07-01 (Date of Last Commit)
 

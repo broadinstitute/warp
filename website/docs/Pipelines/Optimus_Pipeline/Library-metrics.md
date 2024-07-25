@@ -4,13 +4,14 @@ sidebar_position: 5
 
 # Optimus Library-level metrics
 
-The following table describes the library level metrics of the produced by the Optimus workflow. These are calcuated using custom python scripts available in the warp-tools repository. The Optimus workflow aligns files in shards to parallelize computationally intensive steps. This results in multiple matrix market files and shard-levl library metrics. 
+The following table describes the library level metrics of the produced by the Optimus workflow. These are calcuated using custom python scripts available in the warp-tools repository. The Optimus workflow aligns files in shards to parallelize computationally intensive steps. This results in multiple matrix market files and shard-level library metrics. 
 
 To produce the library-level metrics here, the [combined_mtx.py script](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/star-merge-npz/scripts/combined_mtx.py) combines all the shard-level matrix market files into one raw mtx file. Then, STARsolo is run to filter this matrix to only those barcodes that meet STARsolo's criteria of cells (using the Emptydrops_CR parameter). Lastly, the [combine_shard_metrics.py script](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/star-merge-npz/scripts/combine_shard_metrics.py) uses the filtered matrix and the all of the shard-level metrics files produced by STARsolo to calculate the metrics below. Each of the scripts are called from [MergeStarOutput task](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/StarAlign.wdl) of the Optimus workflow. 
 
 
 | Metric | Description |
 | ---| --- |
+| nhash_id | The first line of of the metrics CSV echos the NHash ID if specified in the workflow run |
 | number_of_reads | Total number of reads.|
 | sequencing_saturation | Proportion of unique molecular identifiers (UMIs) observed relative to the total number of possible UMIs. |
 | fraction_of_unique_reads_mapped_to_genome | Fraction of unique reads that map to the genome. |

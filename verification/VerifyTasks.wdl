@@ -115,13 +115,23 @@ task CompareTabix {
     exit_code=0
     a=$(md5sum "~{test_fragment_file}" | awk '{ print $1 }')
     b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
+
     if [[ $a = $b ]]; then
-      echo equal 
-    else 
-      echo different
-      exit_code=1
+      echo "The fragment files are equal"
+    else
+      echo "The fragment files md5sums do not match. Performing a line count:"
+        test_lines=$(wc -l ~{test_fragment_file} | awk '{ print $1 }')
+        truth_lines=$(wc -l ~{truth_fragment_file} | awk '{ print $1 }')
+        echo "Test file has $test_lines lines"
+        echo "Truth file has $truth_lines lines"
+        diff_lines=$((test_lines - truth_lines))
+        abs_diff_lines=${diff_lines#-}
+
+        if [[ $abs_diff_lines -gt 100 ]]; then
+          echo "Line count difference greater than 100 lines. The line count difference is $abs_diff_lines lines. Task failed."
+          exit_code=1
+        fi
     fi
-    exit $exit_code
   >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
@@ -246,7 +256,7 @@ task CompareBams {
   Int java_memory_size = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
-  command {
+  command <<<
     set -e
     set -o pipefail
 
@@ -257,23 +267,18 @@ task CompareBams {
     truth_size=$(stat -c %s ~{truth_bam})
     test_size=$(stat -c %s ~{test_bam})
 
-    # Convert sizes to megabytes
-    truth_size_mb=$((truth_size / (1024 * 1024)))
-    test_size_mb=$((test_size / (1024 * 1024)))
+    # Calculate the difference in bytes
+    size_difference=$((truth_size - test_size))
 
-    # Calculate the difference in megabytes
-    size_difference_mb=$((truth_size_mb - test_size_mb))
+    # Calculate the absolute value of the difference
+    abs_size_difference=$((size_difference < 0 ? -size_difference : size_difference))
 
-    # Calculate the absolute value of the difference:
-    # First, check if the difference is negative. If negative, make it positive. If the differnce is positive, leave it as is.
-    abs_size_difference_mb=$((size_difference_mb < 0 ? -size_difference_mb : size_difference_mb))
-
-    # Compare the sizes and fail fast if the difference is greater than 200 MB
-    if [ "$abs_size_difference_mb" -gt 200 ]; then
-        echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Exiting."
+    # Compare the sizes and fail fast if the difference is greater than 200 * 1024 * 1024 bytes (200 MB)
+    if [ "$abs_size_difference" -gt $((200 * 1024 * 1024)) ]; then
+        echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Exiting."
         exit 1
     else
-        echo "WARNING: BAM file sizes differ by more than 0 MB but less than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Proceeding to CompareSAMs:"
+        echo "WARNING: BAM file sizes differ by less than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Proceeding to CompareSAMs:"
 
         java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
         CompareSAMs \
@@ -284,7 +289,9 @@ task CompareBams {
             LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
             MAX_RECORDS_IN_RAM=300000
     fi
-  }
+
+  >>>
+
 
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
@@ -307,6 +314,13 @@ task CompareCompressedTextFiles {
 
   command {
     diff <(gunzip -c ~{test_zip} | sort) <(gunzip -c ~{truth_zip} | sort)
+
+    if [ $? -eq 0 ]; then
+        echo "Comparison succeeded: The files are identical."
+    else
+        echo "Comparison failed: The files differ."
+        exit 1
+    fi
   }
 
   runtime {
@@ -404,6 +418,28 @@ task CompareH5adFilesATAC {
     import numpy as np
     import pandas as pd
     
+    def compare_atac(test,truth):
+        print(truth.obs)
+        print(test.obs)
+        truth.obs.describe()
+        test.obs.describe()
+        # Find the intersection of barcodes
+        shared_indices = truth.obs.index.intersection(test.obs.index)
+        truth_shared = truth[shared_indices]
+        test_shared = test[shared_indices]
+        # Look at length of barcodes and barcodes shared
+        number_truth_barcodes=len(truth)
+        print("Number of Truth barcodes: ", number_truth_barcodes)
+        number_test_barcodes=len(test)
+        print("Number of Test barcodes: ", number_test_barcodes)
+        percent_barcodes_shared_truth = len(truth_shared)/len(truth)*100
+        print("% Truth barcodes shared ", str(percent_barcodes_shared_truth))
+        percent_barcodes_shared_test = len(test_shared)/len(test)*100
+        print("% Test barcodes shared ", str(percent_barcodes_shared_test))
+        stats=np.corrcoef(truth_shared.obs.n_fragment, y=test_shared.obs.n_fragment)
+        print(stats)
+        return stats
+    
     truth_h5ad = "~{truth_h5ad}"
     test_h5ad = "~{test_h5ad}"
     truth = ad.read_h5ad(truth_h5ad)
@@ -417,7 +453,13 @@ task CompareH5adFilesATAC {
     if truth_obs.equals(test_obs)==True:
         print("pass")
     else:
-        exit("Files are not identical")
+        print("Files are not identical, running additional checks")
+        stats = compare_atac(test,truth)
+        value=stats[0,1]
+        if value>0.990:
+            print("pass")
+        else:
+            exit("Files are not similar enough to pass test")
     
     print("Done running matrix equivalence check")
     

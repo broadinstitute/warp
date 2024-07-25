@@ -1,3 +1,19 @@
+# 5.3.1
+2024-07-18 (Date of Last Commit)
+
+* The atac.wdl was refactored into its own directory under the pipelines/skylab directory; this change does not impact the Multiome outputs
+
+# 5.3.0
+2024-07-11 (Date of Last Commit)
+
+* Updated the Multiome.wdl to run on Azure; cloud_provider is a new, required input
+
+# 5.2.0
+2024-07-09 (Date of Last Commit)
+
+* Added new optional input parameter of nhash_id, an optional identifier for a library aliquot that is echoed in the ATAC fragment h5ad, the gene expression h5ad (in the data.uns), and the gene expression library metrics CSV output; default is set to null
+* Added test statements again for GH action (to release from develop). Will probably revert
+
 # 5.1.0
 2024-06-28 (Date of Last Commit)
 
