@@ -1,3 +1,9 @@
+# 3.3.0
+2024-07-25 (Dat of Last Commit)
+
+* Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files
+
+
 # 3.2.0
 2024-07-11 (Date of Last Commit)
 

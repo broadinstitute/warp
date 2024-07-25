@@ -57,7 +57,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "1.4.0"
+  String pipeline_version = "1.4.1"
 
   if (false) {
      String? none = "None"
