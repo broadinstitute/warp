@@ -12,7 +12,6 @@ workflow ImputationBeagle {
     Int chunkOverlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
 
     File multi_sample_vcf
-    File multi_sample_vcf_index
 
     File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
     Array[String] contigs
@@ -32,7 +31,13 @@ workflow ImputationBeagle {
 
   call tasks.CountSamples {
     input:
+      vcf = multi_sample_vcf
+  }
+
+  call tasks.CreateVcfIndex {
+    input:
       vcf = multi_sample_vcf,
+      gatk_docker = gatk_docker
   }
 
   Float chunkLengthFloat = chunkLength
@@ -70,7 +75,7 @@ workflow ImputationBeagle {
       call tasks.GenerateChunk {
         input:
           vcf = multi_sample_vcf,
-          vcf_index = multi_sample_vcf_index,
+          vcf_index = CreateVcfIndex.vcf_index,
           start = startWithOverlaps,
           end = endWithOverlaps,
           chrom = referencePanelContig.contig,
@@ -96,7 +101,7 @@ workflow ImputationBeagle {
       call tasks.SubsetVcfToRegion {
         input:
           vcf = multi_sample_vcf,
-          vcf_index = multi_sample_vcf_index,
+          vcf_index = CreateVcfIndex.vcf_index,
           output_basename = "input_samples_subset_to_chunk",
           contig = referencePanelContig.contig,
           start = start,
