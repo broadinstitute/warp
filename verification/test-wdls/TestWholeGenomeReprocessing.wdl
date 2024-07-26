@@ -54,7 +54,8 @@ workflow TestWholeGenomeReprocessing {
         papi_settings = papi_settings,
         fingerprint_genotypes_file = fingerprint_genotypes_file,
         fingerprint_genotypes_index = fingerprint_genotypes_index,
-        wgs_coverage_interval_list = wgs_coverage_interval_list
+        wgs_coverage_interval_list = wgs_coverage_interval_list,
+        cloud_provider = cloud_provider
   
     }
 
