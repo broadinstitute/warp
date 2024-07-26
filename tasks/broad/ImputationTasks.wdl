@@ -1093,9 +1093,9 @@ task SplitMultiSampleVcf {
 
 task CreateVcfIndex {
   input {
-    File vcf
+    File vcf_input
 
-    Int disk_size_gb = ceil(3*size(vcf, "GiB")) + 50
+    Int disk_size_gb = ceil(3*size(vcf_input, "GiB")) + 50
     Int cpu = 1
     Int memory_mb = 8000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
@@ -1107,7 +1107,7 @@ task CreateVcfIndex {
     set -e -o pipefail
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
-    IndexFeatureFile -I ~{vcf}
+    IndexFeatureFile -I ~{vcf_input}
   }
   runtime {
     docker: gatk_docker
@@ -1118,8 +1118,8 @@ task CreateVcfIndex {
     preemptible: 3
   }
   output {
-    File vcf = "~{vcf}" # delocalize the vcf to have it in the same directory as the index
-    File vcf_index = "~{vcf}.tbi"
+    File vcf = "~{vcf_input}" # delocalize the vcf to have it in the same directory as the index
+    File vcf_index = "~{vcf_input}.tbi"
   }
 }
 
