@@ -6,6 +6,7 @@
   "WholeGenomeReprocessing.base_file_name": "G96830.NA12878",
   "WholeGenomeReprocessing.final_gvcf_base_name": "G96830.NA12878",
   "WholeGenomeReprocessing.unmapped_bam_suffix": ".unmapped.bam",
+  "cloud_provider": "gcp",
 
   "WholeGenomeReprocessing.references": {
     "contamination_sites_ud": "gs://gcp-public-data--broad-references/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.UD",
@@ -34,8 +35,7 @@
     "dbsnp_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
     "dbsnp_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
     "evaluation_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_evaluation_regions.hg38.interval_list",
-    "haplotype_database_file": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
-    "cloud_provider": "gcp"
+    "haplotype_database_file": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt"
   },
 
   "WholeGenomeReprocessing.scatter_settings": {
