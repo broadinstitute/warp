@@ -1109,7 +1109,7 @@ task CreateVcfIndex {
     set -e -o pipefail
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
-    IndexFeatureFile -F ~{vcf_input} -O "~{basename}.tbi"
+    IndexFeatureFile -I ~{vcf_input} -O "~{basename}.tbi"
   }
   runtime {
     docker: gatk_docker
