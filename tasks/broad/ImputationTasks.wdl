@@ -5,7 +5,7 @@ task CalculateChromosomeLength {
     File ref_dict
     String chrom
 
-    String ubuntu_docker = "ubuntu:20.04"
+    String ubuntu_docker = "ubuntu.azurecr.io/ubuntu:20.04"
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
@@ -19,6 +19,8 @@ task CalculateChromosomeLength {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
+    preemptible: 3
   }
   output {
     Int chrom_length = read_int(stdout())
@@ -30,7 +32,7 @@ task GetMissingContigList {
     File ref_dict
     File included_contigs
 
-    String ubuntu_docker = "ubuntu:20.04"
+    String ubuntu_docker = "ubuntu.azurecr.io/ubuntu:20.04"
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
@@ -50,6 +52,41 @@ task GetMissingContigList {
 
   output {
     Array[String] missing_contigs = read_lines("missing_contigs.txt")
+  }
+}
+
+task CreateRefPanelIntervalLists {
+  input {
+    File ref_panel_vcf
+    File ref_panel_vcf_index
+
+    Int disk_size_gb = ceil(2*size(ref_panel_vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
+    Int cpu = 1
+    Int memory_mb = 8000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+  }
+
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
+  String basename = basename(ref_panel_vcf, '.vcf.gz')
+
+  command {
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    VcfToIntervalList \
+    -I ~{ref_panel_vcf} \
+    -O ~{basename}.interval_list
+  }
+
+  output {
+    File interval_list = "~{basename}.interval_list"
+  }
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 }
 
@@ -124,7 +161,7 @@ task CountVariantsInChunks {
     set -e -o pipefail
 
     echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
-    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_vcf}  | sed 's/Tool returned://') > var_in_reference
+    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_vcf} | sed 's/Tool returned://') > var_in_reference
   >>>
   output {
     Int var_in_original = read_int("var_in_original")
@@ -261,6 +298,128 @@ task Minimac4 {
   }
 }
 
+task CountVariantsInChunksBeagle {
+  input {
+    File vcf
+    File vcf_index
+    File panel_bed_file
+
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    Int cpu = 1
+    Int memory_mb = 8000
+    Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_bed_file], "GiB")) + 20
+  }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
+  command <<<
+    set -e -o pipefail
+
+    ln -sf ~{vcf} input.vcf.gz
+    ln -sf ~{vcf_index} input.vcf.gz.tbi
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V input.vcf.gz | tail -n 1 > var_in_original
+    bedtools intersect -a ~{vcf} -b ~{panel_bed_file} | wc -l > var_also_in_reference
+  >>>
+
+  output {
+    Int var_in_original = read_int("var_in_original")
+    Int var_also_in_reference = read_int("var_also_in_reference")
+  }
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    maxRetries: 2
+    preemptible: 3
+  }
+}
+
+task CheckChunksBeagle {
+  input {
+    Int var_in_original
+    Int var_also_in_reference
+
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
+    Int cpu = 1
+    Int memory_mb = 4000
+  }
+  command <<<
+    set -e -o pipefail
+
+    if [ $(( ~{var_also_in_reference} * 2 - ~{var_in_original})) -gt 0 ] && [ ~{var_also_in_reference} -gt 3 ]; then
+      echo true > valid_file.txt
+    else
+      echo false > valid_file.txt
+    fi
+  >>>
+  output {
+    Boolean valid = read_boolean("valid_file.txt")
+  }
+  runtime {
+    docker: bcftools_docker
+    disks: "local-disk 10 HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    maxRetries: 2
+    preemptible: 3
+  }
+}
+
+task PhaseAndImputeBeagle {
+  input {
+    File dataset_vcf
+    File ref_panel_bref3
+    File genetic_map_file
+    String basename
+    String chrom             # not needed if ref file has been chunked and you are using the entire chunk
+    Int start                # not needed if ref file has been chunked and you are using the entire chunk
+    Int end                  # not needed if ref file has been chunked and you are using the entire chunk
+
+    String beagle_docker = "us-central1-docker.pkg.dev/morgan-fieldeng-gcp/imputation-beagle-development/imputation-beagle:0.0.1-01Mar24.d36-wip-temp-20240301"
+    Int cpu = 8                    # This parameter is used as the nthreads input to Beagle which is part of how we make it determinstic.  Changing this value may change the output generated by the tool
+    Int memory_mb = 32000          # value depends on chunk size, the number of samples in ref and target panel, and whether imputation is performed
+    Int xmx_mb = 29000             # I suggest setting this parameter to be 85-90% of the memory_mb parameter
+    Int disk_size_gb = ceil(3 * size([dataset_vcf, ref_panel_bref3], "GiB")) + 50         # value may need to be adjusted
+  }
+
+  command <<<
+    set -e -o pipefail
+
+    java -ea -Xmx~{xmx_mb}m \
+    -jar /usr/gitc/beagle.01Mar24.d36.jar \
+    gt=~{dataset_vcf} \
+    ref=~{ref_panel_bref3} \
+    map=~{genetic_map_file} \
+    out=imputed_~{basename} \
+    chrom=~{chrom}:~{start}-~{end} \
+    impute=true \
+    nthreads=~{cpu} \
+    seed=-99999
+
+    # notes:
+    # rename output file to "phased_{basename}" if phasing without imputing
+    # `chrom` not needed if ref and targ files have been chunked and you are using the entire chunk
+    # set impute=false if you wish to phase without imputing ungenotyped markers
+
+    bcftools index -t imputed_~{basename}.vcf.gz
+  >>>
+  output {
+    File vcf = "imputed_~{basename}.vcf.gz"
+    File vcf_index = "imputed_~{basename}.vcf.gz.tbi"
+    File log = "imputed_~{basename}.log"
+  }
+  runtime {
+    docker: beagle_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    maxRetries: 2
+    preemptible: 3
+  }
+}
+
 task GatherVcfs {
   input {
     Array[File] input_vcfs
@@ -285,13 +444,13 @@ task GatherVcfs {
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
-
   >>>
   runtime {
     docker: gatk_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
@@ -358,6 +517,8 @@ task UpdateHeader {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
+    preemptible: 3
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -392,6 +553,8 @@ task RemoveSymbolicAlleles {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
+    preemptible: 3
   }
 }
 
@@ -421,6 +584,8 @@ task SeparateMultiallelics {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
+    preemptible: 3
   }
 }
 
@@ -442,9 +607,11 @@ task OptionalQCSites {
   Float hwe = select_first([optional_qc_hwe, 0.000001])
   command <<<
     set -e -o pipefail
+    ln -sf ~{input_vcf} input.vcf.gz
+    ln -sf ~{input_vcf_index} input.vcf.gz.tbi
 
     # site missing rate < 5% ; hwe p > 1e-6
-    vcftools --gzvcf ~{input_vcf}  --max-missing ~{max_missing} --hwe ~{hwe} --recode -c | bgzip -c > ~{output_vcf_basename}.vcf.gz
+    tools --gzvcf input.vcf.gz --max-missing ~{max_missing} --hwe ~{hwe} --recode -c | bgzip -c > ~{output_vcf_basename}.vcf.gz
     bcftools index -t ~{output_vcf_basename}.vcf.gz # Note: this is necessary because vcftools doesn't have a way to output a zipped vcf, nor a way to index one (hence needing to use bcf).
   >>>
   runtime {
@@ -509,6 +676,7 @@ task CountSamples {
     Int memory_mb = 3000
     Int disk_size_gb = 100 + ceil(size(vcf, "GiB"))
   }
+
   command <<<
     bcftools query -l ~{vcf} | wc -l
   >>>
@@ -517,6 +685,7 @@ task CountSamples {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
   }
   output {
     Int nSamples = read_int(stdout())
@@ -560,7 +729,7 @@ task AggregateImputationQCMetrics {
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible : 3
+    preemptible: 3
   }
   output {
     File aggregated_metrics = "~{basename}_aggregated_imputation_metrics.tsv"
@@ -600,7 +769,8 @@ task StoreChunksInfo {
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible : 3
+    preemptible: 3
+    maxRetries: 2
   }
   output {
     File chunks_info = "~{basename}_chunk_info.tsv"
@@ -638,7 +808,7 @@ task MergeImputationQCMetrics {
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible : 3
+    preemptible: 3
   }
   output {
     File aggregated_metrics = "~{basename}_aggregated_imputation_metrics.tsv"
@@ -717,6 +887,8 @@ task SetIDs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
+    preemptible: 3
   }
   output {
     File output_vcf = "~{output_basename}.vcf.gz"
@@ -733,6 +905,7 @@ task ExtractIDs {
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
     Int cpu = 1
     Int memory_mb = 4000
+    Boolean for_dependency = true
   }
   command <<<
     bcftools query -f "%ID\n" ~{vcf} -o ~{output_basename}.ids.txt
@@ -745,12 +918,15 @@ task ExtractIDs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
+    preemptible: 3
   }
 }
 
 task SelectVariantsByIds {
   input {
     File vcf
+    File vcf_index
     File ids
     String basename
 
@@ -761,6 +937,10 @@ task SelectVariantsByIds {
   }
   parameter_meta {
     vcf: {
+      description: "vcf",
+      localization_optional: true
+    }
+    vcf_index: {
       description: "vcf",
       localization_optional: true
     }
@@ -780,6 +960,8 @@ task SelectVariantsByIds {
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
+    preemptible: 3
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -808,6 +990,8 @@ task RemoveAnnotations {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
+    preemptible: 3
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -839,6 +1023,8 @@ task InterleaveVariants {
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
+    preemptible: 3
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -851,7 +1037,7 @@ task FindSitesUniqueToFileTwoOnly {
     File file1
     File file2
 
-    String ubuntu_docker = "ubuntu:20.04"
+    String ubuntu_docker = "ubuntu.azurecr.io/ubuntu:20.04"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(file1, "GiB") + 2*size(file2, "GiB")) + 100
@@ -864,6 +1050,8 @@ task FindSitesUniqueToFileTwoOnly {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
+    preemptible: 3
   }
   output {
     File missing_sites = "missing_sites.ids"
@@ -900,5 +1088,189 @@ task SplitMultiSampleVcf {
   output {
     Array[File] single_sample_vcfs = glob("out_dir/*.vcf.gz")
     Array[File] single_sample_vcf_indices = glob("out_dir/*.vcf.gz.tbi")
+  }
+}
+
+task PreSplitVcf {
+  input {
+    Array[String] contigs
+    File vcf
+
+    Int disk_size_gb = ceil(3*size(vcf, "GiB")) + 50
+    Int cpu = 1
+    Int memory_mb = 8000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+  }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
+  command {
+    set -e -o pipefail
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    IndexFeatureFile -I ~{vcf}
+
+    mkdir split_vcfs
+
+    CONTIG_FILE=~{write_lines(contigs)}
+    i=0
+
+    while read -r line;
+    do
+
+    SPLIT=$(printf "%03d" $i)
+    echo "SPLIT: $SPLIT"
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants \
+    -V ~{vcf} \
+    -L $line \
+    -O split_vcfs/split_chr_$SPLIT.vcf.gz
+
+    i=$(($i + 1))
+
+    done < $CONTIG_FILE
+  }
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    maxRetries: 2
+    preemptible: 3
+  }
+  output {
+    Array[File] chr_split_vcfs = glob("split_vcfs/*.vcf.gz")
+    Array[File] chr_split_vcf_indices = glob("split_vcfs/*.vcf.gz.tbi")
+  }
+}
+
+task PreChunkVcf {
+  input {
+    Int chromosome_length
+    Int chunk_length
+    Int chunk_overlap
+    String chrom
+    File vcf
+    File vcf_index
+    Boolean exclude_filtered = false
+
+    Int disk_size_gb = ceil(4*size(vcf, "GiB")) + 50
+    Int cpu = 1
+    Int memory_mb = 8000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+  }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
+  command {
+    set -e -o pipefail
+
+    ln -sf ~{vcf} input.vcf.gz
+    ln -sf ~{vcf_index} input.vcf.gz.tbi
+
+    mkdir generate_chunk
+    mkdir subset_vcf
+
+    CHROM_LENGTH=~{chromosome_length}
+    CHUNK_LENGTH=~{chunk_length}
+    CHUNK_OVERLAPS=~{chunk_overlap}
+    i=0
+    LOOP_DRIVER=$(( $i * $CHUNK_LENGTH + 1 ))
+
+    while [ $LOOP_DRIVER -lt $CHROM_LENGTH ]
+    do
+    START=$(( $i * $CHUNK_LENGTH + 1 ))
+    START_OVERLAP_CHECK=$(($START - $CHUNK_OVERLAPS))
+    if [ $START_OVERLAP_CHECK -lt 1 ]; then
+    START_WITH_OVERLAPS=$START
+    else
+    START_WITH_OVERLAPS=$(($START - $CHUNK_OVERLAPS))
+    fi
+    echo "START: $START"
+    echo "START WITH OVERLAPS: $START_WITH_OVERLAPS"
+
+    END_CHECK=$(( ($i + 1) * $CHUNK_LENGTH ))
+    if [ $END_CHECK -gt $CHROM_LENGTH ]; then
+    END=$CHROM_LENGTH
+    else
+    END=$(( ($i + 1) * $CHUNK_LENGTH ))
+    fi
+
+    END_OVERLAP_CHECK=$(( $END + $CHUNK_OVERLAPS ))
+    if [ $END_OVERLAP_CHECK -gt $CHROM_LENGTH ]; then
+    END_WITH_OVERLAPS=$CHROM_LENGTH
+    else
+    END_WITH_OVERLAPS=$(( $END + $CHUNK_OVERLAPS ))
+    fi
+    echo "END: $END"
+    echo "END WITH OVERLAPS: $END_WITH_OVERLAPS"
+
+    CHUNK=$(printf "%03d" $i)
+    echo "CHUNK: $CHUNK"
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants \
+    -V input.vcf.gz \
+    --select-type-to-include SNP \
+    --max-nocall-fraction 0.1 \
+    -xl-select-type SYMBOLIC \
+    --select-type-to-exclude MIXED \
+    --restrict-alleles-to BIALLELIC \
+    -L ~{chrom}:$START_WITH_OVERLAPS-$END_WITH_OVERLAPS \
+    -O generate_chunk/~{chrom}_generate_chunk_$CHUNK.vcf.gz \
+    --exclude-filtered true
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants \
+    -V input.vcf.gz \
+    -L ~{chrom}:$START-$END \
+    -select "POS >= $START" ~{if exclude_filtered then "--exclude-filtered" else ""} \
+    -O subset_vcf/~{chrom}_subset_chunk_$CHUNK.vcf.gz
+
+    echo $START >> start.txt
+    echo $END >> end.txt
+
+    i=$(($i + 1))
+    LOOP_DRIVER=$(( $i * $CHUNK_LENGTH + 1 ))
+    done
+  }
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    maxRetries: 2
+    preemptible: 3
+  }
+  output {
+    Array[File] generate_chunk_vcfs = glob("generate_chunk/*.vcf.gz")
+    Array[File] generate_chunk_vcf_indices = glob("generate_chunk/*.vcf.gz.tbi")
+    Array[File] subset_vcfs = glob("subset_vcf/*.vcf.gz")
+    Array[String] starts = read_lines("start.txt")
+    Array[String] ends = read_lines("end.txt")
+  }
+}
+
+task ErrorWithMessageIfErrorCountNotZero {
+  input {
+    Int errorCount
+    String message
+  }
+  command <<<
+    if [[ ~{errorCount} -gt 0 ]]; then
+      >&2 echo "Error: ~{message}"
+      exit 1
+    else
+      exit 0
+    fi
+  >>>
+
+  runtime {
+    docker: "ubuntu.azurecr.io/ubuntu:20.04"
+    preemptible: 3
+  }
+  output {
+    Boolean done = true
   }
 }
