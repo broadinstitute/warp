@@ -5,6 +5,7 @@
   "ExternalExomeReprocessing.base_file_name": "RP-929.NA12878",
   "ExternalExomeReprocessing.final_gvcf_base_name": "NA12878_PLUMBING",
   "ExternalExomeReprocessing.unmapped_bam_suffix": ".unmapped.bam",
+  "ExternalExomeReprocessing.cloud_provider": "gcp",
 
   "ExternalExomeReprocessing.cram_ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
   "ExternalExomeReprocessing.cram_ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
