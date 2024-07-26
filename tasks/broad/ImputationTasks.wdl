@@ -1118,6 +1118,7 @@ task CreateVcfIndex {
     preemptible: 3
   }
   output {
+    File vcf = "~{vcf}" # delocalize the vcf to have it in the same directory as the index
     File vcf_index = "~{vcf}.tbi"
   }
 }
