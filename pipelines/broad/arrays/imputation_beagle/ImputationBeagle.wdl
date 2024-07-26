@@ -74,7 +74,7 @@ workflow ImputationBeagle {
       # generate the chunked vcf file that will be used for imputation, including overlaps
       call tasks.GenerateChunk {
         input:
-          vcf = CreateVcfIndex.vcf,
+          vcf = multi_sample_vcf,
           vcf_index = CreateVcfIndex.vcf_index,
           start = startWithOverlaps,
           end = endWithOverlaps,
@@ -100,7 +100,7 @@ workflow ImputationBeagle {
       # create chunk without overlaps to get sites to impute
       call tasks.SubsetVcfToRegion {
         input:
-          vcf = CreateVcfIndex.vcf,
+          vcf = multi_sample_vcf,
           vcf_index = CreateVcfIndex.vcf_index,
           output_basename = "input_samples_subset_to_chunk",
           contig = referencePanelContig.contig,
