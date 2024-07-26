@@ -6,6 +6,7 @@
   "WholeGenomeReprocessing.base_file_name": "G96830.NA12878",
   "WholeGenomeReprocessing.final_gvcf_base_name": "G96830.NA12878",
   "WholeGenomeReprocessing.unmapped_bam_suffix": ".unmapped.bam",
+  "WholeGenomeReprocessing.cloud_provider": "gcp",
 
   "WholeGenomeReprocessing.references": {
     "contamination_sites_ud": "gs://gcp-public-data--broad-references/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.UD",
