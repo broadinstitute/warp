@@ -1103,13 +1103,17 @@ task CreateVcfIndex {
   Int command_mem = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
-  String basename = basename(vcf_input)
+  String vcf_basename = basename(vcf_input)
 
   command {
     set -e -o pipefail
 
+    mv ~{vcf_input} ~{vcf_basename}
+
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
-    IndexFeatureFile -I ~{vcf_input} -O "~{basename}.tbi"
+    IndexFeatureFile -I ~{vcf_basename}
+
+    
   }
   runtime {
     docker: gatk_docker
@@ -1120,7 +1124,8 @@ task CreateVcfIndex {
     preemptible: 3
   }
   output {
-    File vcf_index = "~{basename}.tbi"
+    File vcf = "~{vcf_basename}"
+    File vcf_index = "~{vcf_basename}.tbi"
   }
 }
 
