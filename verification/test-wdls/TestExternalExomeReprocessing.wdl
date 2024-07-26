@@ -26,6 +26,7 @@ workflow TestExternalExomeReprocessing {
       File? fingerprint_genotypes_index
       # External pipelines copy to a desired cloud path after running reprocessing
       String destination_cloud_path
+      String cloud_provider
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -59,7 +60,8 @@ workflow TestExternalExomeReprocessing {
         fingerprint_genotypes_index = fingerprint_genotypes_index,
         destination_cloud_path = destination_cloud_path,
         vault_token_path = vault_token_path,
-        google_account_vault_path = google_account_vault_path
+        google_account_vault_path = google_account_vault_path,
+        cloud_provider = cloud_provider
     }
 
     
