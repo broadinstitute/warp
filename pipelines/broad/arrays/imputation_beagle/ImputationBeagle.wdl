@@ -65,6 +65,8 @@ workflow ImputationBeagle {
     Int num_chunks = ceil(CalculateChromosomeLength.chrom_length / chunkLengthFloat)
 
     scatter (i in range(num_chunks)) {
+      String chunk_contig = referencePanelContig.contig
+
       Int start = (i * chunkLength) + 1
       Int startWithOverlaps = if (start - chunkOverlaps < 1) then 1 else start - chunkOverlaps
       Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
@@ -118,7 +120,7 @@ workflow ImputationBeagle {
 
     call tasks.StoreChunksInfo as StoreContigLevelChunksInfo {
       input:
-        chroms = contigs,
+        chroms = chunk_contig,
         starts = start,
         ends = end,
         vars_in_array = CountVariantsInChunksBeagle.var_in_original,
@@ -243,7 +245,7 @@ workflow ImputationBeagle {
 
   call tasks.StoreChunksInfo {
     input:
-      chroms = contigs,
+      chroms = flatten(chunk_contig),
       starts = flatten(start),
       ends = flatten(end),
       vars_in_array = flatten(CountVariantsInChunksBeagle.var_in_original),
