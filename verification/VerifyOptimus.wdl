@@ -17,8 +17,8 @@ workflow VerifyOptimus {
     File test_cell_metrics
     File truth_cell_metrics
 
-    Array[File] test_library_metrics
-    Array[File] truth_library_metrics
+    File test_library_metrics
+    File truth_library_metrics
 
     Boolean? done
   }
