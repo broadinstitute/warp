@@ -8,7 +8,7 @@ import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 workflow TestOptimus {
 
   input {
-    
+
     # Mode for counting either "sc_rna" or "sn_rna"
     String counting_mode = "sc_rna"
 
@@ -37,21 +37,21 @@ workflow TestOptimus {
 
     # Set to true to override input checks and allow pipeline to proceed with invalid input
     Boolean force_no_check = false
-    
+
     # Check that tenx_chemistry_version matches the length of the read 1 fastq;
     # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26 bp) or v3 (28 bp).
     Boolean ignore_r1_read_length = false
 
     # Set to Forward by default to count reads in 10x stranded mode
     String star_strand_mode
-    
+
 # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
     # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
-    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
+    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times.
 
     # Injected from test framework
     String truth_path
@@ -92,20 +92,32 @@ workflow TestOptimus {
       gex_nhash_id               = gex_nhash_id
   }
 
-  # Collect all of the pipeling output into single Array
-  Array[String] pipeline_outputs = select_all([  
-                                      Optimus.bam,
-                                      Optimus.matrix,
-                                      Optimus.matrix_row_index,
-                                      Optimus.matrix_col_index,
-                                      Optimus.cell_calls,
-                                      Optimus.h5ad_output_file,
-  ])
+# Collect all of the pipeline outputs into single Array[String]
+Array[String] pipeline_outputs = flatten([
+                              [ # File outputs
+                              Optimus.h5ad_output_file,
+                              Optimus.matrix_col_index,
+                              Optimus.matrix_row_index,
+                              Optimus.matrix,
+                              Optimus.bam,
+                              Optimus.genomic_reference_version,
+                              ],
+                              # File? outputs
+                              select_all([Optimus.mtx_files]),
+                              select_all([Optimus.cell_calls]),
+                              ])
 
-  # Collect all of the pipeline metrics into a single Array
-  Array[String] pipeline_metrics = [  Optimus.cell_metrics,
-                                      Optimus.gene_metrics
-  ]
+
+  # Collect all of the pipeline metrics into single Array[String]
+  Array[String] pipeline_metrics = flatten([
+                              [ # File outputs
+                              Optimus.gene_metrics,
+                              Optimus.cell_metrics,
+                              ],
+                              # File? outputs
+                              select_all([Optimus.library_metrics]),
+                              select_all([Optimus.aligner_metrics]),
+                              ])
 
   # Copy results of pipeline to test results bucket
   call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
@@ -156,6 +168,15 @@ workflow TestOptimus {
         results_path = results_path,
         truth_path   = truth_path
     }
+
+  if(defined(Optimus.library_metrics)){
+    call Utilities.GetValidationInputs as GetLibraryMetrics {
+      input:
+        input_file = Optimus.library_metrics,
+        results_path = results_path,
+        truth_path = truth_path
+    }
+}
 
     call VerifyOptimus.VerifyOptimus as Verify {
       input:
