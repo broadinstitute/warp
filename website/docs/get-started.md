@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Welcome to WARP
+# Welcome to WARP 
 
 WARP (WDL Analysis Research Pipelines) repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators.
 
