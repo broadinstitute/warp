@@ -50,7 +50,7 @@ workflow VerifyOptimus {
 
   call VerifyTasks.CompareTextFiles as CompareLibraryMetrics {
           input:
-            test_text_files = [test_library_metrics],
-            truth_text_files = [truth_library_metrics]
+            test_text_files = select_all([test_library_metrics]),
+            truth_text_files = select_all([truth_library_metrics])
 }
 }

@@ -188,8 +188,8 @@ Array[String] pipeline_outputs = flatten([
         truth_bam          = GetBamInputs.truth_file,
         truth_gene_metrics = GetGeneMetrics.truth_file,
         truth_cell_metrics = GetCellMetrics.truth_file,
-        test_library_metrics =  select_first([GetLibraryMetrics.results_files, ""]),
-        truth_library_metrics = select_first([GetLibraryMetrics.truth_files, ""]),
+        test_library_metrics =  select_first([GetLibraryMetrics.results_file, ""]),
+        truth_library_metrics = select_first([GetLibraryMetrics.truth_file, ""]),
         done               = CopyToTestResults.done
     }
   }
