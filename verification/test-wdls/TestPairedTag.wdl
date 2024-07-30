@@ -118,7 +118,8 @@ workflow TestPairedTag {
     Array[String] pipeline_metrics = flatten([
                                     [ # File outputs
                                     PairedTag.gene_metrics_gex,
-                                    PairedTag.cell_metrics_gex
+                                    PairedTag.cell_metrics_gex,
+                                    select_all([PairedTag.library_metrics]),
                                     ],
                                     
     ])
@@ -188,6 +189,15 @@ workflow TestPairedTag {
             truth_path = truth_path
         }
 
+        if(defined(PairedTag.library_metrics)){
+            call Utilities.GetValidationInputs as GetLibraryMetrics {
+                input:
+                    input_file = PairedTag.library_metrics,
+                    results_path = results_path,
+                    truth_path = truth_path
+            }
+        }
+
       call VerifyPairedTag.VerifyPairedTag as Verify {
         input:
           truth_optimus_h5ad = GetOptimusH5ad.truth_file,
@@ -204,6 +214,8 @@ workflow TestPairedTag {
           test_fragment_file = GetFragmentFile.results_file,
           truth_atac_h5ad = GetSnapMetrics.truth_file,
           test_atac_h5ad = GetSnapMetrics.results_file,
+          test_library_metrics =  select_first([GetLibraryMetrics.results_file, ""]),
+          truth_library_metrics = select_first([GetLibraryMetrics.truth_file, ""]),
           done = CopyToTestResults.done
       }
     }
