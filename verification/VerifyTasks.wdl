@@ -171,14 +171,9 @@ task CompareTextFiles {
         echo "Files $a.sorted and $b.sorted have matching md5sums and are the same."
       else
         echo "Files $a.sorted and $b.sorted have different md5sums."
-        diff $a.sorted $b.sorted > diffs.txt
+        diff $a.sorted $b.sorted >&2
         exit_code=1
-        echo "Diff between $a.sorted and $b.sorted:" >&2
-        cat diffs.txt >&2
       fi
-
-      # catting the diffs.txt on STDOUT as that's what's expected.
-      cat diffs.txt
 
     done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
 
