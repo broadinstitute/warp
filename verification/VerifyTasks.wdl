@@ -182,6 +182,7 @@ task CompareTextFiles {
 
     done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
 
+    echo "Exiting with code $exit_code"
     exit $exit_code
   }
 
