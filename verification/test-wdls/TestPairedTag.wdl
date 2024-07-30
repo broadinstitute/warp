@@ -118,10 +118,9 @@ workflow TestPairedTag {
     Array[String] pipeline_metrics = flatten([
                                     [ # File outputs
                                     PairedTag.gene_metrics_gex,
-                                    PairedTag.cell_metrics_gex,
-                                    select_all([PairedTag.library_metrics]),
+                                    PairedTag.cell_metrics_gex
                                     ],
-                                    
+                                    select_all([PairedTag.library_metrics]),
     ])
 
     # Copy results of pipeline to test results bucket
