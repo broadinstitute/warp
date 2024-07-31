@@ -11,7 +11,7 @@ GCR_URL="us.gcr.io/broad-gotc-prod/dragmap"
 QUAY_URL="quay.io/broadinstitute/gotc-prod-dragmap"
 
 # DRAGMAP version
-DRAGMAP_VERSION="1.2.1"
+DRAGMAP_VERSION="1.2.2"
 
 # PICARD version
 PICARD_VERSION="2.26.4"
@@ -80,11 +80,11 @@ function main(){
         --build-arg PICARD_VERSION="${PICARD_VERSION}" \
         --build-arg SAMTOOLS_VERSION="${SAMTOOLS_VERSION}" \
         --no-cache $DIR
-    docker push "${GCR_URL}:${IMAGE_TAG}"
+    #docker push "${GCR_URL}:${IMAGE_TAG}"
 
     echo "tagging and pushing Quay Image"
     docker tag "${GCR_URL}:${IMAGE_TAG}" "${QUAY_URL}:${IMAGE_TAG}"
-    docker push "${QUAY_URL}:${IMAGE_TAG}"
+    #docker push "${QUAY_URL}:${IMAGE_TAG}"
 
     echo -e "${GCR_URL}:${IMAGE_TAG}" >> "${DIR}/docker_versions.tsv"
     echo "done"

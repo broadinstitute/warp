@@ -1,7 +1,7 @@
 # Using rocky as temp replacement for CentOS
 FROM rockylinux:8.5 
 
-ARG DRAGMAP_VERSION=1.2.1 \
+ARG DRAGMAP_VERSION=1.2.2 \
         PICARD_VERSION=2.26.4 \
         SAMTOOLS_VERSION=1.11
 
@@ -10,7 +10,7 @@ ENV TERM=xterm-256color \
         TINI_VERSION=v0.19.0 \
         BOOST_LIBRARYDIR=/usr/lib64/boost169 \
         BOOST_INCLUDEDIR=/usr/include/boost169 \
-        DRAGMAP_URL=https://github.com/Illumina/DRAGMAP/archive/refs/tags/${DRAGMAP_VERSION}.tar.gz \
+        DRAGMAP_URL=https://github.com/jamesemery/DRAGMAPCLONE/archive/refs/tags/${DRAGMAP_VERSION}.tar.gz \
         PICARD_URL=https://github.com/broadinstitute/picard/releases/download/${PICARD_VERSION}/picard.jar \
         SAMTOOLS_URL=https://github.com/samtools/samtools/releases/download/${SAMTOOLS_VERSION}/samtools-${SAMTOOLS_VERSION}.tar.bz2
 
@@ -48,12 +48,12 @@ RUN set -eux; \
     tar -xf ${DRAGMAP_VERSION}.tar.gz; \
     rm ${DRAGMAP_VERSION}.tar.gz; \
     \
-    cd DRAGMAP-${DRAGMAP_VERSION}; \
+    cd DRAGMAPCLONE-${DRAGMAP_VERSION}; \
     make; \
     mv build/release/dragen-os /usr/local/bin/; \
     \
     cd ../; \
-    rm -r DRAGMAP-${DRAGMAP_VERSION} \
+    rm -r DRAGMAPCLONE-${DRAGMAP_VERSION} \
     ; \
 #Install SAMTOOLS
     wget ${SAMTOOLS_URL}; \
