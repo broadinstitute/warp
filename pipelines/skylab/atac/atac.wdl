@@ -46,7 +46,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.2.0"
+  String pipeline_version = "2.2.1"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -54,7 +54,7 @@ workflow ATAC {
   String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
   # Docker image names
-  String warp_tools_2_0_0 = "warp-tools:2.0.0"
+  String warp_tools_2_1_0 = "warp-tools:2.1.0"
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
@@ -96,7 +96,7 @@ workflow ATAC {
       output_base_name = input_id,
       num_output_files = GetNumSplits.ranks_per_node_out,
       whitelist = whitelist,
-      docker_path = docker_prefix + warp_tools_2_0_0
+      docker_path = docker_prefix + warp_tools_2_1_0
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {

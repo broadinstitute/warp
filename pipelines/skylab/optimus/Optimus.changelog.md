@@ -1,3 +1,9 @@
+# 7.5.0
+2024-07-25 (Dat of Last Commit)
+
+* Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files
+* Update the library-level metrics to include new TSO metrics and NHashID descriptor
+
 # 7.4.0
 2024-07-11 (Date of Last Commit)
 

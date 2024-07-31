@@ -1,3 +1,8 @@
+# 1.4.1
+2024-07-25 (Dat of Last Commit)
+
+* Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files; this does not impact the snSS2 workflow
+
 # 1.4.0
 2024-07-11 (Date of Last Commit)
 
