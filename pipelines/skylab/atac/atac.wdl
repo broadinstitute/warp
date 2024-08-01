@@ -173,12 +173,12 @@ task GetNumSplits {
     Int nthreads
     Int mem_size
     String cpu_platform 
-    String docker_image = "ubuntu:latest"
+    String docker_image = "ubuntu@sha256:2e863c44b718727c860746568e1d54afd13b2fa71b160f5cd9058fc436217b30"
     String vm_size
   }
 
   parameter_meta {
-    docker_image: "the ubuntu docker image (default: ubuntu:latest)"
+    docker_image: "the ubuntu docker image (default: ubuntu@sha256:2e863c44b718727c860746568e1d54afd13b2fa71b160f5cd9058fc436217b30)"
     nthreads: "Number of threads per node (default: 128)"
     mem_size: "the size of memory used during alignment"
     vm_size: "the virtual machine used for the task"
