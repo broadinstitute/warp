@@ -1108,7 +1108,7 @@ task CreateVcfIndex {
   command {
     set -e -o pipefail
 
-    mv ~{vcf_input} ~{vcf_basename}
+    ln -sf ~{vcf_input} ~{vcf_basename}
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     IndexFeatureFile -I ~{vcf_basename}

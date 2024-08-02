@@ -48,11 +48,11 @@ workflow ImputationBeagle {
     String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.withchr.map"
 
     ReferencePanelContig referencePanelContig = {
-                                                  "bed": reference_basename + bed_suffix,
-                                                  "bref3": reference_basename  + bref3_suffix,
-                                                  "contig": contig,
-                                                  "genetic_map": genetic_map_filename
-                                                }
+      "bed": reference_basename + bed_suffix,
+      "bref3": reference_basename  + bref3_suffix,
+      "contig": contig,
+      "genetic_map": genetic_map_filename
+    }
 
 
     call tasks.CalculateChromosomeLength {
@@ -118,6 +118,10 @@ workflow ImputationBeagle {
       }
     }
 
+    Array[File] chunkedVcfsWithOverlapsForImputation = GenerateChunk.output_vcf
+    Array[File] chunkedVcfsWithoutOverlapsForSiteIds = SetIdsVcfToImpute.output_vcf
+    Array[File] chunkedVcfIndexesWithoutOverlapsForSiteIds = SetIdsVcfToImpute.output_vcf_index
+
     call tasks.StoreChunksInfo as StoreContigLevelChunksInfo {
       input:
         chroms = chunk_contig,
@@ -138,16 +142,8 @@ workflow ImputationBeagle {
         message = "contig " + referencePanelContig.contig + " had " + n_failed_chunks_int + " failing chunks"
     }
 
-    Array[File] chunkedVcfsWithOverlapsForImputation = GenerateChunk.output_vcf
-    Array[File] chunkedVcfsWithoutOverlapsForSiteIds = SetIdsVcfToImpute.output_vcf
-    Array[File] chunkedVcfIndexesWithoutOverlapsForSiteIds = SetIdsVcfToImpute.output_vcf_index
-
     scatter (i in range(num_chunks)) {
       String chunk_basename_imputed = referencePanelContig.contig + "_chunk_" + i + "_imputed"
-      
-      # these are copies from the first scatter, but need to have a different variable name
-      Int start2 = (i * chunkLength) + 1
-      Int end2 = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
 
       call tasks.ExtractIDs as ExtractIdsVcfToImpute {
         input:
@@ -163,8 +159,8 @@ workflow ImputationBeagle {
           chrom = referencePanelContig.contig,
           basename = chunk_basename_imputed,
           genetic_map_file = referencePanelContig.genetic_map,
-          start = start2,
-          end = end2
+          start = start[i],
+          end = end[i]
       }
 
       call tasks.UpdateHeader {
@@ -228,7 +224,7 @@ workflow ImputationBeagle {
       call tasks.InterleaveVariants {
         input:
           vcfs = select_all([RemoveAnnotations.output_vcf, SetIDs.output_vcf]),
-          basename = output_basename,
+          basename = output_basename, # TODO consider using a contig/chunk labeled basename
           gatk_docker = gatk_docker
       }
     }
@@ -256,8 +252,8 @@ workflow ImputationBeagle {
   
   output {
     File imputed_multi_sample_vcf = GatherVcfs.output_vcf
-        File imputed_multi_sample_vcf_index = GatherVcfs.output_vcf_index
-        File chunks_info = StoreChunksInfo.chunks_info
+    File imputed_multi_sample_vcf_index = GatherVcfs.output_vcf_index
+    File chunks_info = StoreChunksInfo.chunks_info
   }
 
   meta {
