@@ -67,14 +67,10 @@ workflow ImputationBeagle {
     scatter (i in range(num_chunks)) {
       String chunk_contig = referencePanelContig.contig
 
-      call defineStartAndEnd {
-        input:
-          i = i,
-          chunk_length = chunkLength,
-          chrom_length = CalculateChromosomeLength.chrom_length
-      }
-      Int startWithOverlaps = if (defineStartAndEnd.start - chunkOverlaps < 1) then 1 else defineStartAndEnd.start - chunkOverlaps
-      Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < defineStartAndEnd.end + chunkOverlaps) then CalculateChromosomeLength.chrom_length else defineStartAndEnd.end + chunkOverlaps
+      Int start = (i * chunkLength) + 1
+      Int startWithOverlaps = if (start - chunkOverlaps < 1) then 1 else start - chunkOverlaps
+      Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
+      Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < end + chunkOverlaps) then CalculateChromosomeLength.chrom_length else end + chunkOverlaps
       String chunk_basename = referencePanelContig.contig + "_chunk_" + i
 
       # generate the chunked vcf file that will be used for imputation, including overlaps
@@ -110,8 +106,8 @@ workflow ImputationBeagle {
           vcf_index = CreateVcfIndex.vcf_index,
           output_basename = "input_samples_subset_to_chunk",
           contig = referencePanelContig.contig,
-          start = defineStartAndEnd.start,
-          end = defineStartAndEnd.end,
+          start = start,
+          end = end,
           gatk_docker = gatk_docker
       }
 
@@ -122,9 +118,6 @@ workflow ImputationBeagle {
       }
     }
 
-    Array[Int] starts = defineStartAndEnd.start
-    Array[Int] ends = defineStartAndEnd.end
-
     Array[File] chunkedVcfsWithOverlapsForImputation = GenerateChunk.output_vcf
     Array[File] chunkedVcfsWithoutOverlapsForSiteIds = SetIdsVcfToImpute.output_vcf
     Array[File] chunkedVcfIndexesWithoutOverlapsForSiteIds = SetIdsVcfToImpute.output_vcf_index
@@ -132,8 +125,8 @@ workflow ImputationBeagle {
     call tasks.StoreChunksInfo as StoreContigLevelChunksInfo {
       input:
         chroms = chunk_contig,
-        starts = starts,
-        ends = ends,
+        starts = start,
+        ends = end,
         vars_in_array = CountVariantsInChunksBeagle.var_in_original,
         vars_in_panel = CountVariantsInChunksBeagle.var_also_in_reference,
         valids = CheckChunksBeagle.valid,
@@ -166,8 +159,8 @@ workflow ImputationBeagle {
           chrom = referencePanelContig.contig,
           basename = chunk_basename_imputed,
           genetic_map_file = referencePanelContig.genetic_map,
-          start = starts[i],
-          end = ends[i]
+          start = start[i],
+          end = end[i]
       }
 
       call tasks.UpdateHeader {
@@ -249,8 +242,8 @@ workflow ImputationBeagle {
   call tasks.StoreChunksInfo {
     input:
       chroms = flatten(chunk_contig),
-      starts = flatten(defineStartAndEnd.start),
-      ends = flatten(defineStartAndEnd.end),
+      starts = flatten(start),
+      ends = flatten(end),
       vars_in_array = flatten(CountVariantsInChunksBeagle.var_in_original),
       vars_in_panel = flatten(CountVariantsInChunksBeagle.var_also_in_reference),
       valids = flatten(CheckChunksBeagle.valid),
@@ -274,22 +267,4 @@ struct ReferencePanelContig {
   File bref3
   String contig
   File genetic_map
-}
-
-task defineStartAndEnd {
-  input {
-    Int i
-    Int chunk_length
-    Int chrom_length
-  }
-
-  # Int start = (i * chunk_length) + 1
-  # Int end = if (chrom_length < ((i + 1) * chunk_length)) then chrom_length else ((i + 1) * chunk_length)
-
-  command <<<>>>
-
-  output {
-    Int start = (i * chunk_length) + 1
-    Int end = if (chrom_length < ((i + 1) * chunk_length)) then chrom_length else ((i + 1) * chunk_length)
-  }
 }
