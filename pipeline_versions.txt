@@ -10,7 +10,7 @@ snm3C	 4.0.2	2024-07-09
 PairedTag	 1.4.0	2024-07-25 
 Optimus	 7.5.0	2024-07-25 
 atac	 2.2.1	2024-07-25 
-ExomeReprocessing	 3.2.1	2024-08-02 
+ExomeReprocessing	 3.2.2	2024-08-02 
 ExternalExomeReprocessing	 3.2.2	2024-08-02 
 ExternalWholeGenomeReprocessing	 2.2.2	2024-08-02 
 WholeGenomeReprocessing	 3.2.2	2024-08-02 
