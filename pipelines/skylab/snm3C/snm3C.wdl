@@ -217,7 +217,7 @@ task Demultiplexing {
     R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
     total_files=${#R1_files[@]}
 
-    $batch_number=~{batch_number}
+    batch_number=~{batch_number}
 
     if [[ $total_files -lt $batch_number ]]; then
         echo "Warning: Number of files is less than the batch number. Updating batch number to $total_files."
