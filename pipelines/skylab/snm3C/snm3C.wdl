@@ -25,7 +25,7 @@ workflow snm3C {
         Int num_upstr_bases = 0
         Int num_downstr_bases = 2
         Int compress_level = 5
-        Int batch_number
+        Int batch_number = 6
     }
     #docker images
     String m3c_yap_hisat_docker = "m3c-yap-hisat:2.4"
