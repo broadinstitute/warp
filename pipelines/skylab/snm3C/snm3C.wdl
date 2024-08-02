@@ -216,6 +216,7 @@ task Demultiplexing {
     R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
     R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
     total_files=${#R1_files[@]}
+    echo "Total files: $total_files"
 
     batch_number=~{batch_number}
 
