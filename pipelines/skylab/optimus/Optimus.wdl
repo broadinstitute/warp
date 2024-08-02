@@ -91,7 +91,7 @@ workflow Optimus {
   String pytools_docker = "pytools:1.0.0-1661263730"
   String empty_drops_docker = "empty-drops:1.0.1-4.2"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
-  String warp_tools_docker_2_1_1 = "warp-tools:lk-PD-2727-mito-metrics"
+  String warp_tools_docker_2_2_0 = "warp-tools:2.2.0"
   String star_merge_docker = "star-merge-npz:1.2"
 
   #TODO how do we handle these?
@@ -198,7 +198,7 @@ workflow Optimus {
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_1
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
