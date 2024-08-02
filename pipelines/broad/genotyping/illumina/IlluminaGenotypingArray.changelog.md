@@ -1,3 +1,8 @@
+# 1.12.21
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline  
+
 # 1.12.20
 2024-06-12 (Date of Last Commit)
 
