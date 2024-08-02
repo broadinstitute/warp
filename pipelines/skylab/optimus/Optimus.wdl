@@ -91,7 +91,7 @@ workflow Optimus {
   String pytools_docker = "pytools:1.0.0-1661263730"
   String empty_drops_docker = "empty-drops:1.0.1-4.2"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
-  String warp_tools_docker_2_1_1 = "warp-tools:reads_mapped_mitochondrial"
+  String warp_tools_docker_2_1_1 = "warp-tools:lk-PD-2727-mito-metrics"
   String star_merge_docker = "star-merge-npz:1.2"
 
   #TODO how do we handle these?
