@@ -23,7 +23,7 @@ workflow ImputationBeagle {
     String bed_suffix = ".bed"
     String bref3_suffix = ".bref3"
 
-    String gatk_docker = "broadinstitute/gatk-nightly:2024-06-06-4.5.0.0-36-g2a420e483-NIGHTLY-SNAPSHOT"
+    String gatk_docker = "broadinstitute/gatk:4.6.0.0"
     String ubuntu_docker = "ubuntu:20.04"
 
     Int? error_count_override
