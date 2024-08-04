@@ -138,7 +138,7 @@ workflow SlideSeq {
             bam_input = MergeBam.output_bam,
             original_gtf = annotations_gtf,
             input_id = input_id,
-            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_1
+            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
 
     }
 
@@ -162,7 +162,7 @@ workflow SlideSeq {
                 gene_id = MergeStarOutputs.col_index,
                 add_emptydrops_data = "no",
                 pipeline_version = "SlideSeq_v~{pipeline_version}",
-                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_1
+                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
 
         }
     }
@@ -188,7 +188,7 @@ workflow SlideSeq {
                 cell_id_exon = MergeStarOutputsExons.row_index,
                 gene_id_exon = MergeStarOutputsExons.col_index,
                 pipeline_version = "SlideSeq_v~{pipeline_version}",
-                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_1
+                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
         }
     }
 
