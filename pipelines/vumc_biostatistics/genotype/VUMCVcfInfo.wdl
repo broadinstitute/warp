@@ -28,7 +28,7 @@ task BcftoolsVcfInfo {
     String docker = "staphb/bcftools"
   }
 
-  Int disk_size = ceil(size(input_vcf, "GB")) + 2
+  Int disk_size = ceil(size(input_vcf, "GB") + size(input_vcf_index, "GB")) + 10
   String output_sample_file = basename(input_vcf) + ".samples.txt"
 
   command <<<
