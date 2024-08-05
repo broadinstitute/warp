@@ -12,87 +12,85 @@ workflow ImputationBeagle {
     Int chunkOverlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
 
     File multi_sample_vcf
-    File multi_sample_vcf_index
 
-    Boolean perform_extra_qc_steps = false # these are optional additional extra QC steps from Amit's group that should only be
-    # run for large sample sets, especially a diverse set of samples (it's further limiting called at sites to 95% and by HWE)
-    Float optional_qc_max_missing = 0.05
-    Float optional_qc_hwe = 0.000001
     File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
     Array[String] contigs
-    String reference_panel_path # path to the bucket where the reference panel files are stored for all contigs
+    String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
-    String output_callset_name # the output callset name
-    Boolean split_output_to_single_sample = false
-    
-    Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
+    String output_basename # the basename for intermediate and output files
 
     # file extensions used to find reference panel files
-    String interval_list_suffix = ".interval_list"
+    String bed_suffix = ".bed"
     String bref3_suffix = ".bref3"
+
+    String gatk_docker = "broadinstitute/gatk:4.6.0.0"
+    String ubuntu_docker = "ubuntu:20.04"
+
+    Int? error_count_override
   }
 
   call tasks.CountSamples {
     input:
-      vcf = multi_sample_vcf,
+      vcf = multi_sample_vcf
+  }
+
+  call tasks.CreateVcfIndex {
+    input:
+      vcf_input = multi_sample_vcf,
+      gatk_docker = gatk_docker
   }
 
   Float chunkLengthFloat = chunkLength
 
   scatter (contig in contigs) {
     # these are specific to hg38 - contig is format 'chr1'
-    String reference_filename = reference_panel_path + "hgdp.tgp.gwaspy.merged." + contig + ".merged.AN_added.bcf.ac2"
+    String reference_basename = reference_panel_path_prefix + "." + contig
     String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.withchr.map"
 
     ReferencePanelContig referencePanelContig = {
-      "interval_list": reference_filename + interval_list_suffix,
-      "bref3": reference_filename + bref3_suffix,
+      "bed": reference_basename + bed_suffix,
+      "bref3": reference_basename  + bref3_suffix,
       "contig": contig,
       "genetic_map": genetic_map_filename
     }
 
+
     call tasks.CalculateChromosomeLength {
       input:
         ref_dict = ref_dict,
-        chrom = referencePanelContig.contig
+        chrom = referencePanelContig.contig,
+        ubuntu_docker = ubuntu_docker
     }
 
     Int num_chunks = ceil(CalculateChromosomeLength.chrom_length / chunkLengthFloat)
 
     scatter (i in range(num_chunks)) {
       String chunk_contig = referencePanelContig.contig
+
       Int start = (i * chunkLength) + 1
       Int startWithOverlaps = if (start - chunkOverlaps < 1) then 1 else start - chunkOverlaps
       Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
       Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < end + chunkOverlaps) then CalculateChromosomeLength.chrom_length else end + chunkOverlaps
       String chunk_basename = referencePanelContig.contig + "_chunk_" + i
 
+      # generate the chunked vcf file that will be used for imputation, including overlaps
       call tasks.GenerateChunk {
         input:
-          vcf = multi_sample_vcf,
-          vcf_index = multi_sample_vcf_index,
+          vcf = CreateVcfIndex.vcf,
+          vcf_index = CreateVcfIndex.vcf_index,
           start = startWithOverlaps,
           end = endWithOverlaps,
           chrom = referencePanelContig.contig,
-          basename = chunk_basename
-      }
-
-      if (perform_extra_qc_steps) {
-        call tasks.OptionalQCSites {
-          input:
-            input_vcf = GenerateChunk.output_vcf,
-            input_vcf_index = GenerateChunk.output_vcf_index,
-            output_vcf_basename = chunk_basename,
-            optional_qc_max_missing = optional_qc_max_missing,
-            optional_qc_hwe = optional_qc_hwe
-        }
+          basename = chunk_basename,
+          gatk_docker = gatk_docker
       }
 
       call tasks.CountVariantsInChunksBeagle {
         input:
-          vcf = select_first([OptionalQCSites.output_vcf,  GenerateChunk.output_vcf]),
-          vcf_index = select_first([OptionalQCSites.output_vcf_index, GenerateChunk.output_vcf_index]),
-          panel_interval_list = referencePanelContig.interval_list
+          vcf = GenerateChunk.output_vcf,
+          vcf_index = GenerateChunk.output_vcf_index,
+          panel_bed_file = referencePanelContig.bed,
+          gatk_docker = gatk_docker
       }
 
       call tasks.CheckChunksBeagle {
@@ -101,14 +99,16 @@ workflow ImputationBeagle {
           var_also_in_reference = CountVariantsInChunksBeagle.var_also_in_reference
       }
 
+      # create chunk without overlaps to get sites to impute
       call tasks.SubsetVcfToRegion {
         input:
-          vcf = multi_sample_vcf,
-          vcf_index = multi_sample_vcf_index,
+          vcf = CreateVcfIndex.vcf,
+          vcf_index = CreateVcfIndex.vcf_index,
           output_basename = "input_samples_subset_to_chunk",
           contig = referencePanelContig.contig,
           start = start,
-          end = end
+          end = end,
+          gatk_docker = gatk_docker
       }
 
       call tasks.SetIDs as SetIdsVcfToImpute {
@@ -116,71 +116,103 @@ workflow ImputationBeagle {
           vcf = SubsetVcfToRegion.output_vcf,
           output_basename = "input_samples_with_variant_ids"
       }
+    }
+
+    Array[File] chunkedVcfsWithOverlapsForImputation = GenerateChunk.output_vcf
+    Array[File] chunkedVcfsWithoutOverlapsForSiteIds = SetIdsVcfToImpute.output_vcf
+    Array[File] chunkedVcfIndexesWithoutOverlapsForSiteIds = SetIdsVcfToImpute.output_vcf_index
+
+    call tasks.StoreChunksInfo as StoreContigLevelChunksInfo {
+      input:
+        chroms = chunk_contig,
+        starts = start,
+        ends = end,
+        vars_in_array = CountVariantsInChunksBeagle.var_in_original,
+        vars_in_panel = CountVariantsInChunksBeagle.var_also_in_reference,
+        valids = CheckChunksBeagle.valid,
+        basename = output_basename
+    }
+
+    # if any chunk for any chromosome fail CheckChunks, then we will not impute run any task in the next scatter,
+    # namely phasing and imputing which would be the most costly to throw away
+    Int n_failed_chunks_int = select_first([error_count_override, read_int(StoreContigLevelChunksInfo.n_failed_chunks)])
+    call tasks.ErrorWithMessageIfErrorCountNotZero as FailQCNChunks {
+      input:
+        errorCount = n_failed_chunks_int,
+        message = "contig " + referencePanelContig.contig + " had " + n_failed_chunks_int + " failing chunks"
+    }
+
+    scatter (i in range(num_chunks)) {
+      String chunk_basename_imputed = referencePanelContig.contig + "_chunk_" + i + "_imputed"
 
       call tasks.ExtractIDs as ExtractIdsVcfToImpute {
         input:
-          vcf = SetIdsVcfToImpute.output_vcf,
+          vcf = chunkedVcfsWithoutOverlapsForSiteIds[i],
+          output_basename = "imputed_sites",
+          for_dependency = FailQCNChunks.done # these shenanigans can be replaced with `after` in wdl 1.1
+      }
+
+      call tasks.PhaseAndImputeBeagle {
+        input:
+          dataset_vcf = chunkedVcfsWithOverlapsForImputation[i],
+          ref_panel_bref3 = referencePanelContig.bref3,
+          chrom = referencePanelContig.contig,
+          basename = chunk_basename_imputed,
+          genetic_map_file = referencePanelContig.genetic_map,
+          start = start[i],
+          end = end[i]
+      }
+
+      call tasks.UpdateHeader {
+        input:
+          vcf = PhaseAndImputeBeagle.vcf,
+          vcf_index = PhaseAndImputeBeagle.vcf_index,
+          ref_dict = ref_dict,
+          basename = chunk_basename_imputed,
+          gatk_docker = gatk_docker
+      }
+
+      call tasks.SeparateMultiallelics {
+        input:
+          original_vcf = UpdateHeader.output_vcf,
+          original_vcf_index = UpdateHeader.output_vcf_index,
+          output_basename = chunk_basename_imputed
+      }
+
+      call tasks.RemoveSymbolicAlleles {
+        input:
+          original_vcf = SeparateMultiallelics.output_vcf,
+          original_vcf_index = SeparateMultiallelics.output_vcf_index,
+          output_basename = chunk_basename_imputed,
+          gatk_docker = gatk_docker
+      }
+
+      call tasks.SetIDs {
+        input:
+          vcf = RemoveSymbolicAlleles.output_vcf,
+          output_basename = chunk_basename_imputed
+      }
+
+      call tasks.ExtractIDs {
+        input:
+          vcf = SetIDs.output_vcf,
           output_basename = "imputed_sites"
       }
-
-      if (CheckChunksBeagle.valid) {
-        call tasks.PhaseAndImputeBeagle {
-          input:
-            dataset_vcf = select_first([OptionalQCSites.output_vcf,  GenerateChunk.output_vcf]),
-            ref_panel_bref3 = referencePanelContig.bref3,
-            chrom = referencePanelContig.contig,
-            basename = chunk_basename,
-            genetic_map_file = referencePanelContig.genetic_map,
-            start = start,
-            end = end
-        }
-
-        call tasks.UpdateHeader {
-          input:
-            vcf = PhaseAndImputeBeagle.vcf,
-            vcf_index = PhaseAndImputeBeagle.vcf_index,
-            ref_dict = ref_dict,
-            basename = chunk_basename + "_imputed"
-        }
-
-        call tasks.SeparateMultiallelics {
-          input:
-            original_vcf = UpdateHeader.output_vcf,
-            original_vcf_index = UpdateHeader.output_vcf_index,
-            output_basename = chunk_basename + "_imputed"
-        }
-
-        call tasks.RemoveSymbolicAlleles {
-          input:
-            original_vcf = SeparateMultiallelics.output_vcf,
-            original_vcf_index = SeparateMultiallelics.output_vcf_index,
-            output_basename = chunk_basename + "_imputed"
-        }
-
-        call tasks.SetIDs {
-          input:
-            vcf = RemoveSymbolicAlleles.output_vcf,
-            output_basename = chunk_basename + "_imputed"
-        }
-
-        call tasks.ExtractIDs {
-          input:
-            vcf = SetIDs.output_vcf,
-            output_basename = "imputed_sites"
-        }
-      }
+      
       call tasks.FindSitesUniqueToFileTwoOnly {
         input:
           file1 = select_first([ExtractIDs.ids, write_lines([])]),
-          file2 = ExtractIdsVcfToImpute.ids
+          file2 = ExtractIdsVcfToImpute.ids,
+          ubuntu_docker = ubuntu_docker
       }
 
       call tasks.SelectVariantsByIds {
         input:
-          vcf = SetIdsVcfToImpute.output_vcf,
-          vcf_index = SetIdsVcfToImpute.output_vcf_index,
+          vcf = chunkedVcfsWithoutOverlapsForSiteIds[i],
+          vcf_index = chunkedVcfIndexesWithoutOverlapsForSiteIds[i],
           ids = FindSitesUniqueToFileTwoOnly.missing_sites,
-          basename = "imputed_sites_to_recover"
+          basename = "imputed_sites_to_recover",
+          gatk_docker = gatk_docker
       }
 
       call tasks.RemoveAnnotations {
@@ -192,7 +224,8 @@ workflow ImputationBeagle {
       call tasks.InterleaveVariants {
         input:
           vcfs = select_all([RemoveAnnotations.output_vcf, SetIDs.output_vcf]),
-          basename = output_callset_name
+          basename = output_basename, # TODO consider using a contig/chunk labeled basename
+          gatk_docker = gatk_docker
       }
     }
 
@@ -202,7 +235,8 @@ workflow ImputationBeagle {
   call tasks.GatherVcfs {
     input:
       input_vcfs = flatten(chromosome_vcfs),
-      output_vcf_basename = output_callset_name + ".imputed"
+      output_vcf_basename = output_basename + ".imputed",
+      gatk_docker = gatk_docker
   }
 
   call tasks.StoreChunksInfo {
@@ -213,34 +247,13 @@ workflow ImputationBeagle {
       vars_in_array = flatten(CountVariantsInChunksBeagle.var_in_original),
       vars_in_panel = flatten(CountVariantsInChunksBeagle.var_also_in_reference),
       valids = flatten(CheckChunksBeagle.valid),
-      basename = output_callset_name
+      basename = output_basename
   }
   
-  Int n_failed_chunks_int = read_int(StoreChunksInfo.n_failed_chunks)
-
-  if (n_failed_chunks_int >= chunks_fail_threshold) {
-    call utils.ErrorWithMessage as FailQCNChunks {
-      input:
-        message = n_failed_chunks_int + " chunks failed imputation, QC threshold was set to " + chunks_fail_threshold
-    }
-  }
-
-  if (split_output_to_single_sample) {
-    call tasks.SplitMultiSampleVcf {
-      input:
-        multiSampleVcf = GatherVcfs.output_vcf,
-        nSamples = CountSamples.nSamples
-    }
-  }
-
   output {
-    Array[File]? imputed_single_sample_vcfs = SplitMultiSampleVcf.single_sample_vcfs
-    Array[File]? imputed_single_sample_vcf_indices = SplitMultiSampleVcf.single_sample_vcf_indices
     File imputed_multi_sample_vcf = GatherVcfs.output_vcf
     File imputed_multi_sample_vcf_index = GatherVcfs.output_vcf_index
     File chunks_info = StoreChunksInfo.chunks_info
-    File failed_chunks = StoreChunksInfo.failed_chunks
-    File n_failed_chunks = StoreChunksInfo.n_failed_chunks
   }
 
   meta {
@@ -250,7 +263,7 @@ workflow ImputationBeagle {
 }
 
 struct ReferencePanelContig {
-  File interval_list
+  File bed
   File bref3
   String contig
   File genetic_map
