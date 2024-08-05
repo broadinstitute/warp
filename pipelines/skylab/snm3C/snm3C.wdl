@@ -44,7 +44,7 @@ workflow snm3C {
     }
 
     # version of the pipeline
-    String pipeline_version = "4.0.2"
+    String pipeline_version = "4.0.3"
 
     call Demultiplexing {
         input:
