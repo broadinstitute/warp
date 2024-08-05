@@ -25,7 +25,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow SlideSeq {
 
-    String pipeline_version = "3.2.0"
+    String pipeline_version = "3.3.1"
 
     input {
         Array[File] r1_fastq
@@ -48,8 +48,7 @@ workflow SlideSeq {
     # docker images
     String pytools_docker = "pytools:1.0.0-1661263730"
     String picard_cloud_docker = "picard-cloud:2.26.10"
-    String warp_tools_docker_2_0_1 = "warp-tools:2.0.1"
-    String warp_tools_docker_2_0_2 = "warp-tools:2.0.2-1709308985"
+    String warp_tools_docker_2_1_1 = "warp-tools:2.1.1"
     String star_merge_docker = "star-merge-npz:1.2"
 
     String ubuntu_docker = "ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
@@ -125,7 +124,7 @@ workflow SlideSeq {
             bam_input = MergeBam.output_bam,
             original_gtf = annotations_gtf,
             input_id = input_id,
-            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_1
     }
     call Metrics.CalculateUMIsMetrics as UMIsMetrics {
         input:
@@ -139,7 +138,7 @@ workflow SlideSeq {
             bam_input = MergeBam.output_bam,
             original_gtf = annotations_gtf,
             input_id = input_id,
-            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_1
 
     }
 
@@ -152,7 +151,7 @@ workflow SlideSeq {
             star_merge_docker_path = docker_prefix + star_merge_docker
     }
     if ( !count_exons ) {
-        call H5adUtils.OptimusH5adGeneration as SlideseqH5adGeneration{
+        call H5adUtils.SlideseqH5adGeneration as SlideseqH5adGeneration{
             input:
                 input_id = input_id,
                 annotation_file = annotations_gtf,
@@ -163,7 +162,7 @@ workflow SlideSeq {
                 gene_id = MergeStarOutputs.col_index,
                 add_emptydrops_data = "no",
                 pipeline_version = "SlideSeq_v~{pipeline_version}",
-                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_1
 
         }
     }
@@ -176,7 +175,7 @@ workflow SlideSeq {
                 input_id = input_id,
                 star_merge_docker_path = docker_prefix + star_merge_docker
         }
-        call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
+        call H5adUtils.SingleNucleusSlideseqH5adOutput as SlideseqH5adGenerationWithExons{
             input:
                 input_id = input_id,
                 annotation_file = annotations_gtf,
@@ -189,11 +188,11 @@ workflow SlideSeq {
                 cell_id_exon = MergeStarOutputsExons.row_index,
                 gene_id_exon = MergeStarOutputsExons.col_index,
                 pipeline_version = "SlideSeq_v~{pipeline_version}",
-                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_1_1
         }
     }
 
-    File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, SlideseqH5adGeneration.h5ad_output])
+    File final_h5ad_output = select_first([SlideseqH5adGenerationWithExons.h5ad_output, SlideseqH5adGeneration.h5ad_output])
 
     output {
         String pipeline_version_out = pipeline_version

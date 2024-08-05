@@ -1,7 +1,17 @@
-# 7.5.0
+# 7.6.0
 2024-07-21 (Date of Last Commit)
 * Updated the Optimus.wdl to use a new docker for cell metrics calculations. We added a new metrics reads_mapped_mitochondrial to cell metrics to count for unique reads that are mapped to mitrochondrial genes.
 
+# 7.5.1
+2024-08-02 (Dat of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 7.5.0
+2024-07-25 (Dat of Last Commit)
+
+* Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files
+* Update the library-level metrics to include new TSO metrics and NHashID descriptor
 
 # 7.4.0
 2024-07-11 (Date of Last Commit)

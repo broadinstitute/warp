@@ -19,7 +19,7 @@ task CompareVcfs {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 70 HDD"
     memory: "32 GiB"
     preemptible: 3
@@ -49,7 +49,7 @@ task CompareVcfsAllowingQualityDifferences {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
     preemptible: 3
@@ -118,7 +118,7 @@ task CompareTabix {
 
     if [[ $a = $b ]]; then
       echo "The fragment files are equal"
-    else 
+    else
       echo "The fragment files md5sums do not match. Performing a line count:"
         test_lines=$(wc -l ~{test_fragment_file} | awk '{ print $1 }')
         truth_lines=$(wc -l ~{truth_fragment_file} | awk '{ print $1 }')
@@ -171,22 +171,18 @@ task CompareTextFiles {
         echo "Files $a.sorted and $b.sorted have matching md5sums and are the same."
       else
         echo "Files $a.sorted and $b.sorted have different md5sums."
-        diff $a.sorted $b.sorted > diffs.txt
+        diff $a.sorted $b.sorted >&2
         exit_code=1
-        echo "Diff between $a.sorted and $b.sorted:" >&2
-        cat diffs.txt >&2
       fi
-
-      # catting the diffs.txt on STDOUT as that's what's expected.
-      cat diffs.txt
 
     done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
 
+    echo "Exiting with code $exit_code"
     exit $exit_code
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 100 HDD"
     memory: "50 GiB"
     preemptible: 3
@@ -214,7 +210,7 @@ task CompareCrams {
     cmp -i "$test_offset:$truth_offset" ~{test_cram} ~{truth_cram}
   }
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk " + disk_size_gb + " HDD"
     memory: "2 GiB"
     preemptible: 3
@@ -234,7 +230,7 @@ task CompareCrais {
     cmp <(zcat ~{test_crai} | cut -f1,2,3,5,6) <(zcat ~{truth_crai} | cut -f1,2,3,5,6)
   }
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
     preemptible: 3
@@ -256,7 +252,7 @@ task CompareBams {
   Int java_memory_size = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
-  command {
+  command <<<
     set -e
     set -o pipefail
 
@@ -267,23 +263,18 @@ task CompareBams {
     truth_size=$(stat -c %s ~{truth_bam})
     test_size=$(stat -c %s ~{test_bam})
 
-    # Convert sizes to megabytes
-    truth_size_mb=$((truth_size / (1024 * 1024)))
-    test_size_mb=$((test_size / (1024 * 1024)))
+    # Calculate the difference in bytes
+    size_difference=$((truth_size - test_size))
 
-    # Calculate the difference in megabytes
-    size_difference_mb=$((truth_size_mb - test_size_mb))
+    # Calculate the absolute value of the difference
+    abs_size_difference=$((size_difference < 0 ? -size_difference : size_difference))
 
-    # Calculate the absolute value of the difference:
-    # First, check if the difference is negative. If negative, make it positive. If the differnce is positive, leave it as is.
-    abs_size_difference_mb=$((size_difference_mb < 0 ? -size_difference_mb : size_difference_mb))
-
-    # Compare the sizes and fail fast if the difference is greater than 200 MB
-    if [ "$abs_size_difference_mb" -gt 200 ]; then
-        echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Exiting."
+    # Compare the sizes and fail fast if the difference is greater than 200 * 1024 * 1024 bytes (200 MB)
+    if [ "$abs_size_difference" -gt $((200 * 1024 * 1024)) ]; then
+        echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Exiting."
         exit 1
     else
-        echo "WARNING: BAM file sizes differ by more than 0 MB but less than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Proceeding to CompareSAMs:"
+        echo "WARNING: BAM file sizes differ by less than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Proceeding to CompareSAMs:"
 
         java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
         CompareSAMs \
@@ -294,7 +285,9 @@ task CompareBams {
             LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
             MAX_RECORDS_IN_RAM=300000
     fi
-  }
+
+  >>>
+
 
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
@@ -317,10 +310,17 @@ task CompareCompressedTextFiles {
 
   command {
     diff <(gunzip -c ~{test_zip} | sort) <(gunzip -c ~{truth_zip} | sort)
+
+    if [ $? -eq 0 ]; then
+        echo "Comparison succeeded: The files are identical."
+    else
+        echo "Comparison failed: The files differ."
+        exit 1
+    fi
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk " + disk_size + " HDD"
     memory: "20 GiB"
     preemptible: 3
@@ -589,7 +589,7 @@ task CompareSnapTextFiles {
   >>>
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 50 HDD"
     memory: "25 GiB"
     preemptible: 3
