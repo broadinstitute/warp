@@ -1,6 +1,6 @@
 version 1.0
 
-import "./Utils.wdl" as Utils
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCVcfIncludeSamples {
   input {
@@ -30,20 +30,26 @@ workflow VUMCVcfIncludeSamples {
   }
 
   if(defined(target_bucket)){
-    call Utils.MoveOrCopyVcfFile {
+    String gcs_output_dir = sub("~{target_bucket}", "/+$", "")
+    String target_gcp_folder = if(defined(genoset)) then "~{gcs_output_dir}/~{genoset}" else "~{gcs_output_dir}"
+
+    call GcpUtils.MoveOrCopyThreeFiles {
       input:
-        input_vcf = BcftoolsIncludeSamples.output_vcf,
-        input_vcf_index = BcftoolsIncludeSamples.output_vcf_index,
+        source_file1 = BcftoolsIncludeSamples.output_vcf,
+        source_file2 = BcftoolsIncludeSamples.output_vcf_index,
+        source_file3 = BcftoolsIncludeSamples.output_vcf_sample_file,
         is_move_file = true,
         project_id = project_id,
-        target_bucket = select_first([target_bucket]),
-        genoset = select_first([genoset]),
+        target_gcp_folder = target_gcp_folder
     }
   }
 
   output {
-    File output_vcf = select_first([MoveOrCopyVcfFile.output_vcf, BcftoolsIncludeSamples.output_vcf])
-    File output_vcf_index = select_first([MoveOrCopyVcfFile.output_vcf_index, BcftoolsIncludeSamples.output_vcf_index])
+    File output_vcf = select_first([MoveOrCopyThreeFiles.output_file1, BcftoolsIncludeSamples.output_vcf])
+    File output_vcf_index = select_first([MoveOrCopyThreeFiles.output_file2, BcftoolsIncludeSamples.output_vcf_index])
+    File output_vcf_sample_file = select_first([MoveOrCopyThreeFiles.output_file3, BcftoolsIncludeSamples.output_vcf_sample_file])
+    Int num_samples = BcftoolsIncludeSamples.num_samples
+    Int num_variants = BcftoolsIncludeSamples.num_variants
   }
 }
 
@@ -62,6 +68,7 @@ task BcftoolsIncludeSamples {
   Int disk_size = ceil(size(input_vcf, "GB") * disk_factor) + 2
   String new_vcf = target_prefix + target_suffix
   Boolean has_replace_samples = "~{replace_samples}" != ""
+  String output_sample_file = basename(input_vcf) + ".samples.txt"
 
   command <<<
 
@@ -127,6 +134,10 @@ fi
 echo "build index"
 bcftools index -t ~{new_vcf}
 
+bcftools query -l ~{new_vcf} > ~{output_sample_file}
+cat ~{output_sample_file} | wc -l > num_samples.txt
+
+bcftools index -n ~{new_vcf} > num_variants.txt
 >>>
 
   runtime {
@@ -138,5 +149,8 @@ bcftools index -t ~{new_vcf}
   output {
     File output_vcf = "~{new_vcf}"
     File output_vcf_index = "~{new_vcf}.tbi"
+    File output_vcf_sample_file = "~{output_sample_file}"
+    Int num_samples = read_int("num_samples.txt")
+    Int num_variants = read_int("num_variants.txt")
   }
 }

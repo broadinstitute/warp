@@ -1,0 +1,8 @@
+{
+  "VUMCVcfIncludeSamples.target_prefix": "EUR_chr22",
+  "VUMCVcfIncludeSamples.include_samples": "/nobackup/h_cqs/shengq2/biovu/meta/elig_v3_20240509.txt",
+  "VUMCVcfIncludeSamples.replace_samples": "/nobackup/h_cqs/shengq2/biovu/meta/biovu_20240509_secondary_grids_for_bcftools_reheader.txt",
+  "VUMCVcfIncludeSamples.input_vcf": "/nobackup/h_cqs/shengq2/biovu/megaex/EUR_NewImputation/EUR-chr22.n100.vcf.gz",
+  "VUMCVcfIncludeSamples.target_suffix": ".n100.eligible_20240509.primary_grid.vcf.gz"
+}
+
