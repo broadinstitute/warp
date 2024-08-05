@@ -48,8 +48,8 @@ workflow VUMCVcfIncludeSamples {
     File output_vcf = select_first([MoveOrCopyThreeFiles.output_file1, BcftoolsIncludeSamples.output_vcf])
     File output_vcf_index = select_first([MoveOrCopyThreeFiles.output_file2, BcftoolsIncludeSamples.output_vcf_index])
     File output_vcf_sample_file = select_first([MoveOrCopyThreeFiles.output_file3, BcftoolsIncludeSamples.output_vcf_sample_file])
-    Int num_samples = BcftoolsIncludeSamples.num_samples
-    Int num_variants = BcftoolsIncludeSamples.num_variants
+    Int output_vcf_num_samples = BcftoolsIncludeSamples.output_vcf_num_samples
+    Int output_vcf_num_variants = BcftoolsIncludeSamples.output_vcf_num_variants
   }
 }
 
@@ -150,7 +150,7 @@ bcftools index -n ~{new_vcf} > num_variants.txt
     File output_vcf = "~{new_vcf}"
     File output_vcf_index = "~{new_vcf}.tbi"
     File output_vcf_sample_file = "~{output_sample_file}"
-    Int num_samples = read_int("num_samples.txt")
-    Int num_variants = read_int("num_variants.txt")
+    Int output_vcf_num_samples = read_int("num_samples.txt")
+    Int output_vcf_num_variants = read_int("num_variants.txt")
   }
 }
