@@ -1,3 +1,7 @@
+# 7.6.0
+2024-08-05 (Date of Last Commit)
+* Updated the Optimus.wdl to use a new docker for cell metrics calculations. We added a new metrics reads_mapped_mitochondrial to cell metrics to count for unique reads that are mapped to mitrochondrial genes.
+
 # 7.5.1
 2024-08-02 (Dat of Last Commit)
 
