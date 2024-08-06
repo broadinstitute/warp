@@ -137,6 +137,7 @@ workflow snm3C {
 
     output {
         File MappingSummary = Summary.mapping_summary
+        File EmptyCellsFile = Demultiplexing.EmptyCellsFile
         Array[File] reference_version = Hisat_paired_end.reference_version
         Array[File] name_sorted_bam_array = Summary_PerCellOutput.name_sorted_bam_array
         Array[File] unique_reads_cgn_extraction_allc_array = Summary_PerCellOutput.unique_reads_cgn_extraction_allc_array
@@ -169,6 +170,12 @@ task Demultiplexing {
     # Cat files for each r1, r2
     cat ~{sep=' ' fastq_input_read1} > $WORKING_DIR/r1.fastq.gz
     cat ~{sep=' ' fastq_input_read2} > $WORKING_DIR/r2.fastq.gz
+
+    # Check if r1.fastq.gz or r2.fastq.gz are empty
+    if [[ ! -s $WORKING_DIR/r1.fastq.gz || ! -s $WORKING_DIR/r2.fastq.gz ]]; then
+        echo "Error: r1.fastq.gz or r2.fastq.gz is empty"
+        exit 1
+    fi
 
     # Run cutadapt
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
@@ -226,10 +233,18 @@ task Demultiplexing {
     R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
     R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
 
+    echo "List of cells that are empty:" > emptycells.txt && touch emptycells.txt
     # Distribute the FASTQ files and create TAR files
     for file in "${R1_files[@]}"; do
         sample_id=$(basename "$file" "-R1.fq.gz")
         r2_file="${sample_id}-R2.fq.gz"
+         
+        # check if the file or r2 file are empty 
+        if [[ ! -s $WORKING_DIR/$file || ! -s $WORKING_DIR/$r2_file ]]; then
+            echo "Warning: ${sample_id} (either $file or $r2_file) are empty."
+            echo "${sample_id}" >> emptycells.txt
+        fi
+
         mv $WORKING_DIR/$file batch$((folder_index))/$file
         mv $WORKING_DIR/$r2_file batch$((folder_index))/$r2_file
         # Increment the counter
@@ -254,6 +269,7 @@ task Demultiplexing {
   output {
     Array[File] tarred_demultiplexed_fastqs = glob("*.tar.gz")
     File stats = "~{plate_id}.stats.txt"
+    File EmptyCellsFile = "emptycells.txt"
     }
 }
 
