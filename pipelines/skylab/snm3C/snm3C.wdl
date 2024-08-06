@@ -161,6 +161,7 @@ task Demultiplexing {
     Int mem_size = 10
     Int preemptible_tries = 2
     Int cpu = 8
+    Boolean fail_fast = true
   }
 
   command <<<
@@ -173,8 +174,12 @@ task Demultiplexing {
 
     # Check if r1.fastq.gz or r2.fastq.gz are empty
     if [[ ! -s $WORKING_DIR/r1.fastq.gz || ! -s $WORKING_DIR/r2.fastq.gz ]]; then
-        echo "Error: r1.fastq.gz or r2.fastq.gz is empty"
-        exit 1
+        if [[ ~{fail_fast} == "true" ]]; then
+           echo "Error: r1.fastq.gz or r2.fastq.gz is empty"
+           exit 1
+        else
+            echo "Warning: r1.fastq.gz or r2.fastq.gz is empty"
+        fi
     fi
 
     # Run cutadapt
