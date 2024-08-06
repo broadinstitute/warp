@@ -1,3 +1,8 @@
+# 5.5.0
+2024-08-06 (Date of Last Commit)
+
+* Updated the warp-tools docker to calculate mitochondrial reads from unique reads in cell and gene metrics; these metrics are in the cell and gene metrics CSV as well as h5ad
+
 # 5.4.1
 2024-08-02 (Date of Last Commit)
 
