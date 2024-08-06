@@ -1,3 +1,8 @@
+# 4.0.3
+2024-08-06 (Date of Last Commit)
+
+* Updated the Demultiplexing step in the snM3C wdl to flag when file/cell is empty
+
 # 4.0.2
 2024-07-09 (Date of Last Commit)
 
