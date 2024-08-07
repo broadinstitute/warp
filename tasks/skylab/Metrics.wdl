@@ -8,7 +8,6 @@ task CalculateCellMetrics {
     String input_id
 
     # runtime values
-
     String warp_tools_docker_path
     Int machine_mem_mb = 8000
     Int cpu = 4
@@ -85,7 +84,6 @@ task CalculateGeneMetrics {
     File? mt_genes
     String input_id
     # runtime values
-
     String warp_tools_docker_path
     Int machine_mem_mb = 32000
     Int cpu = 4

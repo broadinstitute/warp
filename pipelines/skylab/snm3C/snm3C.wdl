@@ -25,7 +25,7 @@ workflow snm3C {
         Int num_upstr_bases = 0
         Int num_downstr_bases = 2
         Int compress_level = 5
-        Int batch_number
+        Int batch_number = 6
     }
     #docker images
     String m3c_yap_hisat_docker = "m3c-yap-hisat:2.4"
@@ -44,7 +44,7 @@ workflow snm3C {
     }
 
     # version of the pipeline
-    String pipeline_version = "4.0.2"
+    String pipeline_version = "4.0.3"
 
     call Demultiplexing {
         input:
@@ -213,7 +213,18 @@ task Demultiplexing {
     CODE
 
     # Batch the fastq files into folders of batch_number size
+    R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
+    R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
+    total_files=${#R1_files[@]}
+    echo "Total files: $total_files"
+
     batch_number=~{batch_number}
+
+    if [[ $total_files -lt $batch_number ]]; then
+        echo "Warning: Number of files is less than the batch number. Updating batch number to $total_files."
+        batch_number=$total_files
+    fi
+
     for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
         mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
     done
@@ -221,10 +232,6 @@ task Demultiplexing {
     # Counter for the folder index
     folder_index=1
     WORKING_DIR=`pwd`
-
-    # Define lists of r1 and r2 fq files
-    R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
-    R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
 
     # Distribute the FASTQ files and create TAR files
     for file in "${R1_files[@]}"; do

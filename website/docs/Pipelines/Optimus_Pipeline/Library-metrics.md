@@ -18,7 +18,7 @@ To produce the library-level metrics here, the [combined_mtx.py script](https://
 | fraction_of_unique_and_multiple_reads_mapped_to_genome| Fraction of both unique and multiple reads that map to the genome. |
 | fraction_of_reads_with_Q30_bases_in_rna | Fraction of reads with base quality score ≥ Q30 in RNA sequences. |
 | fraction_of_reads_with_Q30_bases_in_cb_and_umi | Fraction of reads with base quality score ≥ Q30 in cell barcode (CB) and unique molecular identifier (UMI). |
-| fraction_of_reads_with_valid_barcodes | Fraction of reads with valid cell barcodes.                                                                   |
+| fraction_of_reads_with_valid_barcodes | Fraction of reads with valid cell barcodes. |
 | reads_mapped_antisense_to_gene | Number of reads mapped antisense to gene regions.  |
 | reads_mapped_confidently_exonic | Number of reads mapped confidently to exonic regions. |
 | reads_mapped_confidently_to_genome | Number of reads mapped confidently to the genome. |
@@ -42,3 +42,4 @@ To produce the library-level metrics here, the [combined_mtx.py script](https://
 | keeper_cells | Number of cells with >1500 genes or nuclei with >1000 genes.|
 | percent_keeper | Percentage of keeper cells. Calculated as: keeper_cells / estimated_cells |
 | percent_usable | Percentage of usable cells. Calculated as: keeper_cells / expected_cells |
+| frac_tso | Fraction of reads containing TSO sequence. Calculated as the number of reads that have 20 bp or more of TSO Sequence clipped from 5' end/ total number of reads. | 

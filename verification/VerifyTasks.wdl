@@ -19,7 +19,7 @@ task CompareVcfs {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 70 HDD"
     memory: "32 GiB"
     preemptible: 3
@@ -49,7 +49,7 @@ task CompareVcfsAllowingQualityDifferences {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
     preemptible: 3
@@ -171,22 +171,18 @@ task CompareTextFiles {
         echo "Files $a.sorted and $b.sorted have matching md5sums and are the same."
       else
         echo "Files $a.sorted and $b.sorted have different md5sums."
-        diff $a.sorted $b.sorted > diffs.txt
+        diff $a.sorted $b.sorted >&2
         exit_code=1
-        echo "Diff between $a.sorted and $b.sorted:" >&2
-        cat diffs.txt >&2
       fi
-
-      # catting the diffs.txt on STDOUT as that's what's expected.
-      cat diffs.txt
 
     done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
 
+    echo "Exiting with code $exit_code"
     exit $exit_code
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 100 HDD"
     memory: "50 GiB"
     preemptible: 3
@@ -214,7 +210,7 @@ task CompareCrams {
     cmp -i "$test_offset:$truth_offset" ~{test_cram} ~{truth_cram}
   }
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk " + disk_size_gb + " HDD"
     memory: "2 GiB"
     preemptible: 3
@@ -234,7 +230,7 @@ task CompareCrais {
     cmp <(zcat ~{test_crai} | cut -f1,2,3,5,6) <(zcat ~{truth_crai} | cut -f1,2,3,5,6)
   }
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
     preemptible: 3
@@ -324,7 +320,7 @@ task CompareCompressedTextFiles {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk " + disk_size + " HDD"
     memory: "20 GiB"
     preemptible: 3
@@ -593,7 +589,7 @@ task CompareSnapTextFiles {
   >>>
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 50 HDD"
     memory: "25 GiB"
     preemptible: 3

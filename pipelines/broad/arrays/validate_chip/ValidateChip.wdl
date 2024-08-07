@@ -21,7 +21,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow ValidateChip {
 
-  String pipeline_version = "1.16.4"
+  String pipeline_version = "1.16.5"
 
   input {
     String sample_alias
