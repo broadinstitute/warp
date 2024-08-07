@@ -1,7 +1,8 @@
 # 4.0.3
 2024-08-06 (Date of Last Commit)
 
-* Updated the Demultiplexing step in the snM3C wdl to flag when file/cell is empty
+* Updated the Demultiplexing task in the snm3C wdl to flag when file/cell is empty
+* Updated the Demultiplexing task in snm3C wdl to dynamically update the batch number based on the number of fastq files present
 
 # 4.0.2
 2024-07-09 (Date of Last Commit)

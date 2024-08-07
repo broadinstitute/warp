@@ -25,7 +25,7 @@ workflow snm3C {
         Int num_upstr_bases = 0
         Int num_downstr_bases = 2
         Int compress_level = 5
-        Int batch_number
+        Int batch_number = 6
     }
     #docker images
     String m3c_yap_hisat_docker = "m3c-yap-hisat:2.4"
@@ -225,7 +225,18 @@ task Demultiplexing {
     CODE
 
     # Batch the fastq files into folders of batch_number size
+    R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
+    R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
+    total_files=${#R1_files[@]}
+    echo "Total files: $total_files"
+
     batch_number=~{batch_number}
+
+    if [[ $total_files -lt $batch_number ]]; then
+        echo "Warning: Number of files is less than the batch number. Updating batch number to $total_files."
+        batch_number=$total_files
+    fi
+
     for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
         mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
     done
@@ -239,6 +250,7 @@ task Demultiplexing {
     R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
 
     echo "List of cells that are empty:" > emptycells.txt && touch emptycells.txt
+
     # Distribute the FASTQ files and create TAR files
     for file in "${R1_files[@]}"; do
         sample_id=$(basename "$file" "-R1.fq.gz")
@@ -261,7 +273,6 @@ task Demultiplexing {
     for i in $(seq 1 "${batch_number}"); do
         tar -cf - $WORKING_DIR/batch${i}/*.fq.gz | pigz > ~{plate_id}.${i}.cutadapt_output_files.tar.gz
     done
-  >>>
 
   runtime {
     docker: docker
