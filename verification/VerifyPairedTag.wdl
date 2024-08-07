@@ -26,6 +26,9 @@ workflow VerifyPairedTag {
         File test_atac_h5ad
         File truth_atac_h5ad
 
+        File test_library_metrics
+        File truth_library_metrics
+
         Boolean? done
     }
 
@@ -68,5 +71,10 @@ workflow VerifyPairedTag {
         input:
             test_h5ad  = test_optimus_h5ad,
             truth_h5ad = truth_optimus_h5ad
+    }
+    call VerifyTasks.CompareTextFiles as CompareLibraryMetrics {
+        input:
+            test_text_files = select_all([test_library_metrics]),
+            truth_text_files = select_all([truth_library_metrics])
     }
 }
