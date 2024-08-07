@@ -1,7 +1,7 @@
 # 4.0.3
 2024-08-05 (Date of Last Commit)
 
-* Updated the demultiplexing task in snM3C wdl to dynamically update the batch number based on the number of fastq files present
+* Updated the demultiplexing task in snm3C wdl to dynamically update the batch number based on the number of fastq files present
 
 # 4.0.2
 2024-07-09 (Date of Last Commit)
