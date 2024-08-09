@@ -155,6 +155,8 @@ task Demultiplexing {
     File random_primer_indexes
     String plate_id
     Int batch_number
+    Int min_threshold = 100
+    Int max_threshold = 10000000
     String docker
 
     Int disk_size = 1000
@@ -191,7 +193,7 @@ task Demultiplexing {
     $WORKING_DIR/r2.fastq.gz \
     > $WORKING_DIR/~{plate_id}.stats.txt
 
-    # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
+    # Remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm $WORKING_DIR/*-unknown-R{1,2}.fq.gz
 
     python3 <<CODE
@@ -212,9 +214,6 @@ task Demultiplexing {
         adapter_counts[adapter_name] = trimmed_count
 
     # Removing fastq files with trimmed reads greater than 10000000 or less than 100
-    min_threshold = 100
-    max_threshold = 10000000
-
     for filename in os.listdir(working_dir):
         if filename.endswith('.fq.gz'):
             file_path = os.path.join(working_dir, filename)
@@ -222,7 +221,7 @@ task Demultiplexing {
             if adapter_name:
                 adapter_name = 'A' + adapter_name.group(1)
                 if adapter_name in adapter_counts:
-                    if adapter_counts[adapter_name] < min_threshold or adapter_counts[adapter_name] > max_threshold:
+                    if adapter_counts[adapter_name] < ~{min_threshold} or adapter_counts[adapter_name] > ~{max_threshold}:
                         print("Removing ", file_path, " with counts equal to ", adapter_counts[adapter_name])
                         os.remove(file_path)
     CODE
@@ -230,10 +229,10 @@ task Demultiplexing {
     # Batch the fastq files into folders of batch_number size
     R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
     R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
+    batch_number=~{batch_number}
     total_files=${#R1_files[@]}
     echo "Total files: $total_files"
 
-    batch_number=~{batch_number}
 
     if [[ $total_files -lt $batch_number ]]; then
         echo "Warning: Number of files is less than the batch number. Updating batch number to $total_files."
