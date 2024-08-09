@@ -211,8 +211,9 @@ task Demultiplexing {
         trimmed_count = int(adapter_match[1])
         adapter_counts[adapter_name] = trimmed_count
 
-    # Removing fastq files with trimmed reads greater than 30
-    threshold = 10000000
+    # Removing fastq files with trimmed reads greater than 100
+    min_threshold = 100
+    max_threshold = 10000000
 
     for filename in os.listdir(working_dir):
         if filename.endswith('.fq.gz'):
@@ -220,8 +221,11 @@ task Demultiplexing {
             adapter_name = re.search(r'A(\d+)-R', filename)
             if adapter_name:
                 adapter_name = 'A' + adapter_name.group(1)
-                if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
-                    os.remove(file_path)
+                if adapter_name in adapter_counts:
+                    if (adapter_counts[adapter_name] < min_threshold) or (adapter_counts[adapter_name] > max_threshold):
+                        print("Removing file: ", file_path) 
+                        print(adapter_name, adapter_counts[adapter_name])
+                        os.remove(file_path)
     CODE
 
     # Batch the fastq files into folders of batch_number size
