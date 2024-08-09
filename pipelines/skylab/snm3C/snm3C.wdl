@@ -274,7 +274,8 @@ task Demultiplexing {
     for i in $(seq 1 "${batch_number}"); do
         tar -cf - $WORKING_DIR/batch${i}/*.fq.gz | pigz > ~{plate_id}.${i}.cutadapt_output_files.tar.gz
     done
-
+  >>>
+  
   runtime {
     docker: docker
     disks: "local-disk ${disk_size} SSD"
