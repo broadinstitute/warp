@@ -233,7 +233,6 @@ task Demultiplexing {
     total_files=${#R1_files[@]}
     echo "Total files: $total_files"
 
-
     if [[ $total_files -lt $batch_number ]]; then
         echo "Warning: Number of files is less than the batch number. Updating batch number to $total_files."
         batch_number=$total_files
@@ -243,14 +242,8 @@ task Demultiplexing {
         mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
     done
 
-    # Counter for the folder index
+    # Counter for the folder index and create emptycells file
     folder_index=1
-    WORKING_DIR=`pwd`
-
-    # Define lists of r1 and r2 fq files
-    R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
-    R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
-
     echo "List of cells that are empty:" > emptycells.txt && touch emptycells.txt
 
     # Distribute the FASTQ files and create TAR files
