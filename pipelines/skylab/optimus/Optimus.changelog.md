@@ -1,5 +1,15 @@
+# 7.6.0
+2024-08-06 (Date of Last Commit)
+
+* Updated the warp-tools docker to calculate mitochondrial reads from unique reads in cell and gene metrics; these metrics are in the cell and gene metrics CSV as well as h5ad
+
+# 7.5.1
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
 # 7.5.0
-2024-07-25 (Dat of Last Commit)
+2024-07-25 (Date of Last Commit)
 
 * Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files
 * Update the library-level metrics to include new TSO metrics and NHashID descriptor
