@@ -1,0 +1,45 @@
+
+name: Test Illumina Genotyping Array
+
+# Controls when the workflow will run
+on:
+  #run on push to feature branch "kp_GHA_Terra_auth_PD-2682" - REMOVE WHEN DONE TESTING
+  push:
+    branches:
+      - kp_GHA_Terra_auth_PD-2682
+  pull_request:
+    branches: [ "develop" ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    # inputs:
+    #   image_tag:
+    #     description: 'Docker Image Tag (default: branch_name)' 
+env:
+  PROJECT_NAME: WARP
+  # Github repo name
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  authenticate_sa:
+    runs-on: ubuntu-latest
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    # actions/checkout MUST come before auth
+    - uses: 'actions/checkout@v3'
+
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        # Centralized in dsp-tools-k8s; ask in #dsp-devops-champions for help troubleshooting
+        workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
+        # This is our tester service account
+        service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
+
+    # ... further steps are automatically authenticated
+      
+      
