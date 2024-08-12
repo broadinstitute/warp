@@ -137,7 +137,6 @@ workflow snm3C {
 
     output {
         File MappingSummary = Summary.mapping_summary
-        File EmptyCellsFile = Demultiplexing.EmptyCellsFile
         Array[File] reference_version = Hisat_paired_end.reference_version
         Array[File] name_sorted_bam_array = Summary_PerCellOutput.name_sorted_bam_array
         Array[File] unique_reads_cgn_extraction_allc_array = Summary_PerCellOutput.unique_reads_cgn_extraction_allc_array
