@@ -163,7 +163,6 @@ task Demultiplexing {
     Int mem_size = 10
     Int preemptible_tries = 2
     Int cpu = 8
-    Boolean fail_fast = true
   }
 
   command <<<
@@ -173,16 +172,6 @@ task Demultiplexing {
     # Cat files for each r1, r2
     cat ~{sep=' ' fastq_input_read1} > $WORKING_DIR/r1.fastq.gz
     cat ~{sep=' ' fastq_input_read2} > $WORKING_DIR/r2.fastq.gz
-
-    # Check if r1.fastq.gz or r2.fastq.gz are empty
-    if [[ ! -s $WORKING_DIR/r1.fastq.gz || ! -s $WORKING_DIR/r2.fastq.gz ]]; then
-        if [[ ~{fail_fast} == "true" ]]; then
-           echo "Error: r1.fastq.gz or r2.fastq.gz is empty"
-           exit 1
-        else
-            echo "Warning: r1.fastq.gz or r2.fastq.gz is empty"
-        fi
-    fi
 
     # Run cutadapt
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
@@ -222,7 +211,7 @@ task Demultiplexing {
                 adapter_name = 'A' + adapter_name.group(1)
                 if adapter_name in adapter_counts:
                     if adapter_counts[adapter_name] < ~{min_threshold} or adapter_counts[adapter_name] > ~{max_threshold}:
-                        print("Removing ", file_path, " with counts equal to ", adapter_counts[adapter_name])
+                        print("Removing ", file_path, " with count equal to ", adapter_counts[adapter_name])
                         os.remove(file_path)
     CODE
 
@@ -244,19 +233,12 @@ task Demultiplexing {
 
     # Counter for the folder index and create emptycells file
     folder_index=1
-    echo "List of cells that are empty:" > emptycells.txt && touch emptycells.txt
 
     # Distribute the FASTQ files and create TAR files
     for file in "${R1_files[@]}"; do
         sample_id=$(basename "$file" "-R1.fq.gz")
         r2_file="${sample_id}-R2.fq.gz"
          
-        # check if the file or r2 file are empty 
-        if [[ ! -s $WORKING_DIR/$file || ! -s $WORKING_DIR/$r2_file ]]; then
-            echo "Warning: ${sample_id} (either $file or $r2_file) are empty."
-            echo "${sample_id}" >> emptycells.txt
-        fi
-
         mv $WORKING_DIR/$file batch$((folder_index))/$file
         mv $WORKING_DIR/$r2_file batch$((folder_index))/$r2_file
         # Increment the counter
@@ -281,7 +263,6 @@ task Demultiplexing {
   output {
     Array[File] tarred_demultiplexed_fastqs = glob("*.tar.gz")
     File stats = "~{plate_id}.stats.txt"
-    File EmptyCellsFile = "emptycells.txt"
     }
 }
 
