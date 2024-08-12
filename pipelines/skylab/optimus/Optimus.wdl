@@ -71,7 +71,7 @@ workflow Optimus {
   # version of this pipeline
 
 
-  String pipeline_version = "7.4.0"
+  String pipeline_version = "7.6.0"
 
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
@@ -91,8 +91,7 @@ workflow Optimus {
   String pytools_docker = "pytools:1.0.0-1661263730"
   String empty_drops_docker = "empty-drops:1.0.1-4.2"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
-  String warp_tools_docker_2_0_1 = "warp-tools:2.0.1"
-  String warp_tools_docker_2_0_2 = "warp-tools:2.0.2-1709308985"
+  String warp_tools_docker_2_2_0 = "warp-tools:2.2.0"
   String star_merge_docker = "star-merge-npz:1.2"
 
   #TODO how do we handle these?
@@ -167,7 +166,7 @@ workflow Optimus {
       chemistry = tenx_chemistry_version,
       sample_id = input_id,
       read_struct = read_struct,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
@@ -199,7 +198,7 @@ workflow Optimus {
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
@@ -208,7 +207,7 @@ workflow Optimus {
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
   }
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
@@ -246,6 +245,7 @@ workflow Optimus {
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
+        library_metrics = MergeStarOutputs.library_metrics,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
         sparse_count_matrix = MergeStarOutputs.sparse_counts,
@@ -254,7 +254,7 @@ workflow Optimus {
         empty_drops_result = RunEmptyDrops.empty_drops_result,
         counting_mode = counting_mode,
         pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
     }
   }
   if (count_exons  && counting_mode=="sn_rna") {
@@ -269,7 +269,6 @@ workflow Optimus {
         summary = STARsoloFastq.summary_sn_rna,
         align_features = STARsoloFastq.align_features_sn_rna,
         umipercell = STARsoloFastq.umipercell_sn_rna,
-        input_id = input_id,
         star_merge_docker_path = docker_prefix + star_merge_docker,
         gex_nhash_id = gex_nhash_id     
     }
@@ -281,6 +280,7 @@ workflow Optimus {
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
+        library_metrics = MergeStarOutputs.library_metrics,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
         sparse_count_matrix = MergeStarOutputs.sparse_counts,
@@ -290,11 +290,12 @@ workflow Optimus {
         cell_id_exon = MergeStarOutputsExons.row_index,
         gene_id_exon = MergeStarOutputsExons.col_index,
         pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
+        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
     }
   }
 
   File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
+  File final_library_metrics = select_first([OptimusH5adGenerationWithExons.library_metrics, OptimusH5adGeneration.library_metrics])
 
 
   output {
@@ -309,7 +310,7 @@ workflow Optimus {
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
     File? aligner_metrics = MergeStarOutputs.cell_reads_out
-    File? library_metrics = MergeStarOutputs.library_metrics
+    File library_metrics = final_library_metrics
     File? mtx_files = MergeStarOutputs.mtx_files
     Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
     Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix

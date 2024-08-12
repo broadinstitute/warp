@@ -27,7 +27,7 @@ workflow Testsnm3C {
       Int num_upstr_bases = 0
       Int num_downstr_bases = 2
       Int compress_level = 5
-      Int batch_number
+      Int batch_number = 6
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
