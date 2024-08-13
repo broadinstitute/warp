@@ -215,6 +215,9 @@ task Demultiplexing {
                 print(~{min_threshold})
                 print(~{max_threshold})
                 if adapter_name in adapter_counts:
+                    print("Adapter name found")
+                    print(adapter_counts[adapter_name])
+                    print(${min_threshold})
                     if adapter_counts[adapter_name] < ~{min_threshold} or adapter_counts[adapter_name] > ~{max_threshold}:
                         print("Removing ", file_path, " with count equal to ", adapter_counts[adapter_name])
                         os.remove(file_path)
