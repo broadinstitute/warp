@@ -206,10 +206,13 @@ task Demultiplexing {
     print(os.listdir(working_dir))
     print("in for loop")
     for filename in os.listdir(working_dir):
-        print(filename)
         if filename.endswith('.fq.gz'):
+            print("IN IF STATEMENT")
+            print(filename)
             file_path = os.path.join(working_dir, filename)
+            print(file_path)
             adapter_name = re.search(r'A(\d+)-R', filename)
+            print(adapter_name)
             if adapter_name:
                 adapter_name = 'A' + adapter_name.group(1)
                 print(adapter_name, adapter_counts[adapter_name])
