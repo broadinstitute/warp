@@ -58,8 +58,6 @@ jobs:
 
         # Assign the access token to a variable
         ACCESS_TOKEN="${{ steps.auth.outputs.access_token }}"
-        #print the ACCESS_TOKEN value
-        echo "ACCESS_TOKEN: $ACCESS_TOKEN"
 
         printf "\nFetching status for submission ID '%s':" "${submissionId}"
         submissionDetails=$(curl \
