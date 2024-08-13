@@ -203,7 +203,10 @@ task Demultiplexing {
         print(adapter_name, trimmed_count)
 
     # Removing fastq files with trimmed reads greater than 10000000 or less than 100
+    print(os.listdir(working_dir))
+    print("in for loop")
     for filename in os.listdir(working_dir):
+        print(filename)
         if filename.endswith('.fq.gz'):
             file_path = os.path.join(working_dir, filename)
             adapter_name = re.search(r'A(\d+)-R', filename)
