@@ -35,11 +35,36 @@ jobs:
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v2'
       with:
+        token_format: 'access_token'
         # Centralized in dsp-tools-k8s; ask in #dsp-devops-champions for help troubleshooting
         workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
         # This is our tester service account
         service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
+        access_token_lifetime: '300s' # optional, default: '3600s' (1 hour)
 
     # ... further steps are automatically authenticated
-      
+    - name: Check working directory
+      run: |
+        echo "Current directory: "
+        pwd
+        ls -lht
+
+    - name: Check the status of a Terra submission
+      run: |
+        submissionId=44d890f7-f6dd-4a2c-8841-a10faeab3a07
+        namespace=warp-pipelines
+        name=Illumina-Genotyping-Array_np_copy
+
+        printf "\nFetching status for submission ID '%s':" "${submissionId}"
+        submissionDetails=$(curl \
+                -X GET \
+                --header 'Accept: application/json' \
+                --header "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
+                "https://api.firecloud.org/api/workspaces/$namespace/$name/submissions/$submissionId")
+
+        submissionStatus=$(jq -r '.status' <<< "${submissionDetails}")
+        workflowsStatus=$(jq -r '.workflows[] | .status' <<< "${submissionDetails}")
+        printf "\SubmissionStatus '%s':" "${submissionStatus}"
+        printf "\WorkflowsStatus '%s':" "${workflowsStatus}"
+
       
