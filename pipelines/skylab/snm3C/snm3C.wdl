@@ -215,6 +215,12 @@ task Demultiplexing {
 
     # Batch the fastq files into folders of batch_number size
     R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
+
+    if [[ ${#R1_files[@]} -eq 0 ]]; then
+        echo "Error: No files found. All fastq files were removed."
+        exit 1
+    fi
+
     R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
     batch_number=~{batch_number}
     total_files=${#R1_files[@]}
