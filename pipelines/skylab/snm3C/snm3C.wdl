@@ -213,6 +213,7 @@ task Demultiplexing {
                         os.remove(file_path)
     CODE
     print("TEST")
+    ls
     # Batch the fastq files into folders of batch_number size
     R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
 
