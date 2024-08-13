@@ -215,6 +215,7 @@ task Demultiplexing {
                 print(~{min_threshold})
                 print(~{max_threshold})
                 print(adapter_counts)
+                print("TESTTESTTEST")
                 if adapter_name in adapter_counts:
                     print("Adapter name found")
                     print(adapter_counts[adapter_name])
