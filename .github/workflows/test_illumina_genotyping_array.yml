@@ -7,8 +7,8 @@ on:
   push:
     branches:
       - kp_GHA_Terra_auth_PD-2682
-  pull_request:
-    branches: [ "develop" ]
+  #pull_request:
+  #  branches: [ "develop" ]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     # inputs:
@@ -51,9 +51,9 @@ jobs:
 
     - name: Check the status of a Terra submission
       run: |
-        submissionId=44d890f7-f6dd-4a2c-8841-a10faeab3a07
-        namespace=warp-pipelines
-        name=Illumina-Genotyping-Array_np_copy
+        submissionId="44d890f7-f6dd-4a2c-8841-a10faeab3a07"
+        namespace="warp-pipelines"
+        name="Illumina-Genotyping-Array_np_copy"
 
         printf "\nFetching status for submission ID '%s':" "${submissionId}"
         submissionDetails=$(curl \
