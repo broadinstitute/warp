@@ -51,6 +51,7 @@ jobs:
 
     - name: Check the status of a Terra submission
       run: |
+        set -x
         submissionId="44d890f7-f6dd-4a2c-8841-a10faeab3a07"
         namespace="warp-pipelines"
         name="Illumina-Genotyping-Array_np_copy"
@@ -62,9 +63,11 @@ jobs:
                 --header "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
                 "https://api.firecloud.org/api/workspaces/$namespace/$name/submissions/$submissionId")
 
+        printf "\nFull JSON Response '%s':" "${submissionDetails}"
+
         submissionStatus=$(jq -r '.status' <<< "${submissionDetails}")
         workflowsStatus=$(jq -r '.workflows[] | .status' <<< "${submissionDetails}")
-        printf "\SubmissionStatus '%s':" "${submissionStatus}"
-        printf "\WorkflowsStatus '%s':" "${workflowsStatus}"
+        printf "\nSubmissionStatus '%s':" "${submissionStatus}"
+        printf "\nWorkflowsStatus '%s':" "${workflowsStatus}"
 
       
