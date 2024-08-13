@@ -211,7 +211,8 @@ task Demultiplexing {
             print(filename)
             file_path = os.path.join(working_dir, filename)
             print(file_path)
-            adapter_name = re.search(r'A(\d+)-R', filename)
+
+            adapter_name = re.search(r'[A-Za-z](\d+)-R', filename)
             print(adapter_name)
             if adapter_name:
                 adapter_name = 'A' + adapter_name.group(1)
