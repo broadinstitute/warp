@@ -207,10 +207,10 @@ task Demultiplexing {
         if filename.endswith('.fq.gz'):
             file_path = os.path.join(working_dir, filename)
             print(file_path)
-            adapter_name = re.search(r'[A-Za-z](\d+)-R', filename)
+            adapter_name = re.search(r'[A-Za-z](\d+)-R', filename).group(1)
             print(adapter_name)
+            print(type(adapter_name))
             if adapter_name:
-                adapter_name = adapter_name.group(1)
                 print(adapter_name, adapter_counts[adapter_name])
                 print(type(adapter_counts[adapter_name]))
                 print(type(~{min_threshold}))
