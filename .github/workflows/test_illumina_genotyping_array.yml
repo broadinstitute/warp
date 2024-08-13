@@ -40,7 +40,7 @@ jobs:
         workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
         # This is our tester service account
         service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
-        access_token_lifetime: '300s' # optional, default: '3600s' (1 hour)
+        access_token_lifetime: '1000s' # optional, default: '3600s' (1 hour)
 
     # ... further steps are automatically authenticated
     - name: Check working directory
