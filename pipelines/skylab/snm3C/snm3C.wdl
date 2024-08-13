@@ -200,29 +200,14 @@ task Demultiplexing {
         adapter_name = adapter_match[0]
         trimmed_count = int(adapter_match[1])
         adapter_counts[adapter_name] = trimmed_count
-        print(adapter_name, trimmed_count)
 
     # Removing fastq files with trimmed reads greater than 10000000 or less than 100
     for filename in os.listdir(working_dir):
         if filename.endswith('.fq.gz'):
             file_path = os.path.join(working_dir, filename)
-            print(file_path)
             adapter_name = re.search(r'([A-Za-z]\d+)-R', filename).group(1)
-            print(adapter_name)
-            print(type(adapter_name))
             if adapter_name:
-                print(adapter_name, adapter_counts[adapter_name])
-                print(type(adapter_counts[adapter_name]))
-                print(type(~{min_threshold}))
-                print(~{min_threshold})
-                print(~{max_threshold})
-                print(adapter_counts)
-                print("TESTTESTTEST")
                 if adapter_name in adapter_counts:
-                    print("Adapter name found")
-                    print(adapter_counts[adapter_name])
-                    print("Min threshold", ~{min_threshold})
-                    print()
                     if adapter_counts[adapter_name] < ~{min_threshold} or adapter_counts[adapter_name] > ~{max_threshold}:
                         print("Removing ", file_path, " with count equal to ", adapter_counts[adapter_name])
                         os.remove(file_path)
