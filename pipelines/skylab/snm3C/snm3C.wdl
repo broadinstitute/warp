@@ -212,7 +212,7 @@ task Demultiplexing {
                         print("Removing ", file_path, " with count equal to ", adapter_counts[adapter_name])
                         os.remove(file_path)
     CODE
-
+    print("TEST")
     # Batch the fastq files into folders of batch_number size
     R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
 
