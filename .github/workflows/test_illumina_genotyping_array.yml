@@ -56,7 +56,7 @@ jobs:
         namespace="warp-pipelines"
         name="Illumina-Genotyping-Array_np_copy"
         # Assign the access token to a variable
-        ACCESS_TOKEN="${{ steps.auth.outputs.auth_token }}"
+        ACCESS_TOKEN="${{ steps.auth.outputs.access_token }}"
 
         printf "\nFetching status for submission ID '%s':" "${submissionId}"
         submissionDetails=$(curl \
