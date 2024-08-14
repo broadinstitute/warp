@@ -212,8 +212,7 @@ task Demultiplexing {
                         print("Removing ", file_path, " with count equal to ", adapter_counts[adapter_name])
                         os.remove(file_path)
     CODE
-    echo "TEST"
-    ls
+    
     # Check if the number of *R1.fq.gz files is 0
     if [[ $(ls | grep "\-R1.fq.gz" | wc -l) -eq 0 ]]; then
         echo "Error: No files found. All fastq files were removed. Exiting."
