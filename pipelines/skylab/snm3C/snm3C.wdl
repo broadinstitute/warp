@@ -214,14 +214,14 @@ task Demultiplexing {
     CODE
     echo "TEST"
     ls
-    # Batch the fastq files into folders of batch_number size
-    R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
-
-    if [[ ${#R1_files[@]} -eq 0 ]]; then
-        echo "Error: No files found. All fastq files were removed."
+    # Check if the number of *R1.fq.gz files is 0
+    if [[ $(ls | grep "\-R1.fq.gz" | wc -l) -eq 0 ]]; then
+        echo "Error: No files found. All fastq files were removed. Exiting."
         exit 1
     fi
 
+    # Batch the fastq files into folders of batch_number size
+    R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
     R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
     batch_number=~{batch_number}
     total_files=${#R1_files[@]}
