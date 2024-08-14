@@ -45,7 +45,7 @@ jobs:
     # ... further steps are automatically authenticated
     - name: Check working directory
       run: |
-        echo "Current directory: "
+        echo "Current directory:"
         pwd
         ls -lht
 
