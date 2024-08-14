@@ -41,6 +41,7 @@ jobs:
         # This is our tester service account
         service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
         access_token_lifetime: '1000s' # optional, default: '3600s' (1 hour)
+        access_token_scopes: 'profile, email, openid'
 
     # ... further steps are automatically authenticated
     - name: Check working directory
