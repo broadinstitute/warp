@@ -52,7 +52,6 @@ jobs:
 
     - name: Check the status of a Terra submission
       run: |
-        set -x
         submissionId="44d890f7-f6dd-4a2c-8841-a10faeab3a07"
         namespace="warp-pipelines"
         name="Illumina-Genotyping-Array_np_copy"
