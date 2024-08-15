@@ -1,5 +1,5 @@
-import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as helloworld1
-import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as helloworld2
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_trst_firecloud_Api/pipelines/broad/nikelle-test/helloworld1.wdl" as helloworld1
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_trst_firecloud_Api/pipelines/broad/nikelle-test/helloworld2.wdl" as helloworld2
 
 workflow HelloWorldWrapper {
 
