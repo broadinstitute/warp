@@ -54,7 +54,7 @@ jobs:
       run: |
         submissionId="44d890f7-f6dd-4a2c-8841-a10faeab3a07"
         namespace="warp-pipelines"
-        name="Illumina-Genotyping-Array_np_copy"
+        name="WARP Tests"
         # Assign the access token to a variable
         ACCESS_TOKEN="${{ steps.auth.outputs.access_token }}"
 
