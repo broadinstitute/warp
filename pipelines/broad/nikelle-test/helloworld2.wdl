@@ -12,7 +12,7 @@ task echo {
     String s
 
     command {
-        echo ${s}!
+        picard.jar ${s}!
     }
     runtime {
         docker: "ubuntu"
