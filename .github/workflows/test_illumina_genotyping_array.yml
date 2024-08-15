@@ -74,24 +74,5 @@ jobs:
         "ignoreEmptyOutputs": false
         }'")
 
-        printf "\nFetching status for submission ID '%s':" "${submissionId}"
-        submissionDetails=$(curl \
-                -X GET \
-                --header 'Accept: application/json' \
-                --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                "https://api.firecloud.org/api/workspaces/$namespace/$name/submissions/$submissionId")
-
-        printf "\nFull JSON Response '%s':" "${submissionDetails}"
-        submissionStatus=$(jq -r '.status' <<< "${submissionDetails}")
-        workflowsStatus=$(jq -r '.workflows[] | .status' <<< "${submissionDetails}")
-        printf "\nSubmissionStatus '%s':" "${submissionStatus}"
-        printf "\nWorkflowsStatus '%s':" "${workflowsStatus}"
-
-        submissionList=$(curl -X 'GET' \
-        "https://api.firecloud.org/api/workspaces/$namespace/$name/submissions" \
-        -H 'accept: */*' \
-        -H "Authorization: Bearer ${ACCESS_TOKEN}")
-
-        printf "\nSubmissionList '%s':" "${submissionList}"
 
       
