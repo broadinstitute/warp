@@ -2,7 +2,7 @@ workflow HelloWorld2 {
 
     String s = "Hello World!"
 
-    call echo {
+    call ech1o {
         input: s = s
     }
 }
