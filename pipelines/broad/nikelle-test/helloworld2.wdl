@@ -7,7 +7,7 @@ workflow HelloWorld2 {
     }
 }
 
-task ech2o {
+task echo {
 
     String s
 
