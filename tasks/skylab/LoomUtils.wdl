@@ -387,6 +387,7 @@ task SingleNucleusSmartSeq2LoomOutput {
     output {
         Array[File] loom_output = glob("*.loom")
         Array[File] exon_intron_counts = glob("*exon_intron_counts.tsv")
+        Array[File] Picard_group = glob("*Picard_group.csv")
     }
 }
 task SlideSeqLoomOutput {
