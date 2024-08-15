@@ -71,4 +71,11 @@ jobs:
         printf "\nSubmissionStatus '%s':" "${submissionStatus}"
         printf "\nWorkflowsStatus '%s':" "${workflowsStatus}"
 
+        submissionList=$(curl -X 'GET' \
+        'https://api.firecloud.org/api/workspaces/$namespace/$name/submissions' \
+        -H 'accept: */*' \
+        -H "Authorization: Bearer ${ACCESS_TOKEN}")
+
+        printf "\nSubmissionList '%s':" "${submissionList}"
+
       
