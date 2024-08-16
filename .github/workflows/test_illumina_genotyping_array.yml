@@ -70,7 +70,7 @@ jobs:
          "useReferenceDisks": true,
          "memoryRetryMultiplier": 1,
          "workflowFailureMode": "NoNewCalls",
-         "userComment": "testing again with permissions turned on",
+         "userComment": "testing again with permissions turned on 4:16",
          "ignoreEmptyOutputs": false
          }')
 
