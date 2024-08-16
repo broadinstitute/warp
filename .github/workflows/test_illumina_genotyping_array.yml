@@ -65,12 +65,12 @@ jobs:
          -d '{
          "methodConfigurationNamespace": "warp-pipelines",
          "methodConfigurationName": "IlluminaGenotypingArray",
-         "useCallCache": true,
+         "useCallCache": false,
          "deleteIntermediateOutputFiles": true,
          "useReferenceDisks": true,
          "memoryRetryMultiplier": 1,
          "workflowFailureMode": "NoNewCalls",
-         "userComment": "string",
+         "userComment": "testing without permissions",
          "ignoreEmptyOutputs": false
          }')
 
