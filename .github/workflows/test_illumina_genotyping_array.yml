@@ -70,7 +70,7 @@ jobs:
          "useReferenceDisks": true,
          "memoryRetryMultiplier": 1,
          "workflowFailureMode": "NoNewCalls",
-         "userComment": "testing without permissions",
+         "userComment": "testing without permission to gotc-storage",
          "ignoreEmptyOutputs": false
          }')
 
