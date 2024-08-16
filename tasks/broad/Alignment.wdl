@@ -70,7 +70,7 @@ task SamToFastqAndBwaMemAndMba {
         FASTQ=/dev/stdout \
         INTERLEAVE=true \
         NON_PF=true | \
-      /usr/gitc/~{bwa_commandline} /dev/stdin - 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
+      /usr/gitc/temp/~{bwa_commandline} /dev/stdin - 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
       java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
         MergeBamAlignment \
         VALIDATION_STRINGENCY=SILENT \
@@ -113,7 +113,7 @@ task SamToFastqAndBwaMemAndMba {
     fi
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
+    docker: "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
     preemptible: preemptible_tries
     memory: "14 GiB"
     cpu: "16"
