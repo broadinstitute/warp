@@ -61,6 +61,7 @@ jobs:
         "https://api.firecloud.org/api/workspaces/warp-pipelines/WARP%20Tests/submissions" \
          -H "accept: */*" \
          -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+         -H 'Content-Type: application/json' \
          -d '{
          "methodConfigurationNamespace": "warp-pipelines",
          "methodConfigurationName": "IlluminaGenotypingArray",
