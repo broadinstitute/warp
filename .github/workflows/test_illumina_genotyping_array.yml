@@ -1,4 +1,3 @@
-
 name: Test Illumina Genotyping Array
 
 # Controls when the workflow will run
@@ -59,9 +58,9 @@ jobs:
 
         printf "\nSubmitting workflow"
         submissionDetails=$(curl -X 'POST' \
-        'https://api.firecloud.org/api/workspaces/$namespace/$name/submissions' \
-         -H 'accept: */*' \
-         -H 'Authorization: Bearer ${ACCESS_TOKEN}" \
+        "https://api.firecloud.org/api/workspaces/${namespace}/${name}/submissions" \
+         -H "accept: */*" \
+         -H "Authorization: Bearer ${ACCESS_TOKEN}" \
         -d '{
         "methodConfigurationNamespace": "warp-pipelines",
         "methodConfigurationName": "IlluminaGenotypingArray",
@@ -73,6 +72,3 @@ jobs:
         "userComment": "string",
         "ignoreEmptyOutputs": false
         }')
-
-
-      
