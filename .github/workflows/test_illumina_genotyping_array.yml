@@ -72,3 +72,5 @@ jobs:
         "userComment": "string",
         "ignoreEmptyOutputs": false
         }')
+
+        printf "\nDone Submitting workflow"
