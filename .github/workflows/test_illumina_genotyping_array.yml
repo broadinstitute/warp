@@ -72,7 +72,7 @@ jobs:
         "workflowFailureMode": "NoNewCalls",
         "userComment": "string",
         "ignoreEmptyOutputs": false
-        }'")
+        }')
 
 
       
