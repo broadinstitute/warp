@@ -73,4 +73,4 @@ jobs:
          "ignoreEmptyOutputs": false
          }')
 
-        printf "\nDone Submitting workflow"
+        printf "\nDone Submitting workflows"
