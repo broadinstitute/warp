@@ -61,16 +61,16 @@ jobs:
         "https://api.firecloud.org/api/workspaces/warp-pipelines/WARP%20Tests/submissions" \
          -H "accept: */*" \
          -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-        -d '{
-        "methodConfigurationNamespace": "warp-pipelines",
-        "methodConfigurationName": "IlluminaGenotypingArray",
-        "useCallCache": true,
-        "deleteIntermediateOutputFiles": true,
-        "useReferenceDisks": true,
-        "memoryRetryMultiplier": 1,
-        "workflowFailureMode": "NoNewCalls",
-        "userComment": "string",
-        "ignoreEmptyOutputs": false
-        }')
+         -d '{
+         "methodConfigurationNamespace": "warp-pipelines",
+         "methodConfigurationName": "IlluminaGenotypingArray",
+         "useCallCache": true,
+         "deleteIntermediateOutputFiles": true,
+         "useReferenceDisks": true,
+         "memoryRetryMultiplier": 1,
+         "workflowFailureMode": "NoNewCalls",
+         "userComment": "string",
+         "ignoreEmptyOutputs": false
+         }')
 
         printf "\nDone Submitting workflow"
