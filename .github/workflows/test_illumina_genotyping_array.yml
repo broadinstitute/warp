@@ -58,7 +58,7 @@ jobs:
 
         printf "\nSubmitting workflow"
         submissionDetails=$(curl -X 'POST' \
-        "https://api.firecloud.org/api/workspaces/$namespace/$name/submissions" \
+        "https://api.firecloud.org/api/workspaces/warp-pipelines/WARP%20Tests/submissions" \
          -H "accept: */*" \
          -H "Authorization: Bearer ${ACCESS_TOKEN}" \
         -d '{
