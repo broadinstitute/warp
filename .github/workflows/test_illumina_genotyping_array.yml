@@ -6,7 +6,7 @@ on:
   #run on push to feature branch "kp_GHA_Terra_auth_PD-2682" - REMOVE WHEN DONE TESTING
   push:
     branches:
-      - kp_GHA_Terra_auth_PD-2682
+      - lk-PD-2726
   #pull_request:
   #  branches: [ "develop" ]
   # Allows you to run this workflow manually from the Actions tab
