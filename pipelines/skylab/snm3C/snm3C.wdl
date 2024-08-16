@@ -44,7 +44,7 @@ workflow snm3C {
     }
 
     # version of the pipeline
-    String pipeline_version = "4.0.3"
+    String pipeline_version = "4.0.4"
 
     call Demultiplexing {
         input:
@@ -154,6 +154,8 @@ task Demultiplexing {
     File random_primer_indexes
     String plate_id
     Int batch_number
+    Int min_threshold = 100
+    Int max_threshold = 10000000
     String docker
 
     Int disk_size = 1000
@@ -179,7 +181,7 @@ task Demultiplexing {
     $WORKING_DIR/r2.fastq.gz \
     > $WORKING_DIR/~{plate_id}.stats.txt
 
-    # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
+    # Remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm $WORKING_DIR/*-unknown-R{1,2}.fq.gz
 
     python3 <<CODE
@@ -199,26 +201,30 @@ task Demultiplexing {
         trimmed_count = int(adapter_match[1])
         adapter_counts[adapter_name] = trimmed_count
 
-    # Removing fastq files with trimmed reads greater than 30
-    threshold = 10000000
-
+    # Removing fastq files with trimmed reads greater than 10000000 or less than 100
     for filename in os.listdir(working_dir):
         if filename.endswith('.fq.gz'):
             file_path = os.path.join(working_dir, filename)
-            adapter_name = re.search(r'A(\d+)-R', filename)
+            adapter_name = re.search(r'([A-Za-z]\d+)-R', filename).group(1)
             if adapter_name:
-                adapter_name = 'A' + adapter_name.group(1)
-                if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
-                    os.remove(file_path)
+                if adapter_name in adapter_counts:
+                    if adapter_counts[adapter_name] < ~{min_threshold} or adapter_counts[adapter_name] > ~{max_threshold}:
+                        print("Removing ", file_path, " with count equal to ", adapter_counts[adapter_name])
+                        os.remove(file_path)
     CODE
+    
+    # Check if the number of *R1.fq.gz files is 0
+    if [[ $(ls | grep "\-R1.fq.gz" | wc -l) -eq 0 ]]; then
+        echo "Error: No files found. All fastq files were removed. Exiting."
+        exit 1
+    fi
 
     # Batch the fastq files into folders of batch_number size
     R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
     R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
+    batch_number=~{batch_number}
     total_files=${#R1_files[@]}
     echo "Total files: $total_files"
-
-    batch_number=~{batch_number}
 
     if [[ $total_files -lt $batch_number ]]; then
         echo "Warning: Number of files is less than the batch number. Updating batch number to $total_files."
@@ -229,14 +235,14 @@ task Demultiplexing {
         mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
     done
 
-    # Counter for the folder index
+    # Counter for the folder index and create emptycells file
     folder_index=1
-    WORKING_DIR=`pwd`
 
     # Distribute the FASTQ files and create TAR files
     for file in "${R1_files[@]}"; do
         sample_id=$(basename "$file" "-R1.fq.gz")
         r2_file="${sample_id}-R2.fq.gz"
+         
         mv $WORKING_DIR/$file batch$((folder_index))/$file
         mv $WORKING_DIR/$r2_file batch$((folder_index))/$r2_file
         # Increment the counter
@@ -249,7 +255,7 @@ task Demultiplexing {
         tar -cf - $WORKING_DIR/batch${i}/*.fq.gz | pigz > ~{plate_id}.${i}.cutadapt_output_files.tar.gz
     done
   >>>
-
+  
   runtime {
     docker: docker
     disks: "local-disk ${disk_size} SSD"
