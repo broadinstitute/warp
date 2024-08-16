@@ -67,7 +67,7 @@ jobs:
         "useCallCache": true,
         "deleteIntermediateOutputFiles": true,
         "useReferenceDisks": true,
-        "memoryRetryMultiplier": 0,
+        "memoryRetryMultiplier": 1,
         "workflowFailureMode": "NoNewCalls",
         "userComment": "string",
         "ignoreEmptyOutputs": false
