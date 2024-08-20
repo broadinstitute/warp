@@ -16,6 +16,7 @@ task OptimusH5adGeneration {
     String? input_name_metadata_field
     # gene annotation file in GTF format
     File annotation_file
+    File? cellbarcodes
     File? library_metrics
    # the file "merged-cell-metrics.csv.gz" that contains the cellwise metrics
     File cell_metrics
