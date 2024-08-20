@@ -172,6 +172,8 @@ task SingleNucleusOptimusH5adOutput {
         File gene_id_exon
         # library-level metrics
         File? library_metrics
+        # Cell calls from starsolo in TSV format
+        File? cellbarcodes
 
         String pipeline_version
 
