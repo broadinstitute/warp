@@ -72,7 +72,7 @@ task SamToFastqAndBwaMemAndMba {
         FASTQ=/dev/stdout \
         INTERLEAVE=true \
         NON_PF=true | \
-      /usr/gitc/temp/~{bwa_commandline} /dev/stdin - 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
+      /usr/gitc/temp/bwa-mem2 ~{bwa_commandline} /dev/stdin - 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
       java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx1000m -jar /usr/local/bin/picard.jar \
         MergeBamAlignment \
         VALIDATION_STRINGENCY=SILENT \
