@@ -90,7 +90,7 @@ task OptimusH5adGeneration {
     fi
 
     # modify h5ad to include doublets, NHASHID, and build library metrics
-    python3 /warptools/scripts/add_library_tso_doublets.py --gex_h5ad ~{~{input_id}.h5ad --cellbarcodes ~{cellbarcodes} --gex_nhash_id ~{gex_nhash_id} --library_csv ~{library_metrics} --input_id ~{input_id}
+    python3 /warptools/scripts/add_library_tso_doublets.py --gex_h5ad "~{input_id}.h5ad" --cellbarcodes ~{cellbarcodes} --gex_nhash_id ~{gex_nhash_id} --library_csv ~{library_metrics} --input_id ~{input_id}
 
   >>>
 
@@ -185,7 +185,7 @@ task SingleNucleusOptimusH5adOutput {
       # modify h5ad to include doublets, NHASHID, and build library metrics
       python3 /warptools/scripts/add_library_tso_doublets.py --gex_h5ad "~{input_id}.h5ad" --cellbarcodes ~{cellbarcodes} --gex_nhash_id ~{gex_nhash_id} --library_csv ~{library_metrics} --input_id ~{input_id}
 
-
+    >>>
     runtime {
         docker: warp_tools_docker_path
         cpu: cpu  # note that only 1 thread is supported by pseudobam
