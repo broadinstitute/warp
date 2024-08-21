@@ -64,14 +64,14 @@ task SamToFastqAndBwaMemAndMba {
     bash_ref_fasta=~{reference_fasta.ref_fasta}
     # if reference_fasta.ref_alt has data in it or allow_empty_ref_alt is set
     if [ -s ~{reference_fasta.ref_alt} ] || ~{allow_empty_ref_alt}; then
-      java -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
+      java -Xms1000m -Xmx1000m -jar /usr/local/bin/picard.jar \
         SamToFastq \
         INPUT=~{input_bam} \
         FASTQ=/dev/stdout \
         INTERLEAVE=true \
         NON_PF=true | \
       /usr/gitc/temp/~{bwa_commandline} /dev/stdin - 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
-      java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
+      java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx1000m -jar /usr/local/bin/picard.jar \
         MergeBamAlignment \
         VALIDATION_STRINGENCY=SILENT \
         EXPECTED_ORIENTATIONS=FR \
@@ -113,7 +113,7 @@ task SamToFastqAndBwaMemAndMba {
     fi
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
+    docker: "us.gcr.io/broad-gotc-prod/picard-bwa-mem2:latest"
     preemptible: preemptible_tries
     memory: "14 GiB"
     cpu: "16"
