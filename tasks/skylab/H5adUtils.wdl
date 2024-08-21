@@ -89,40 +89,9 @@ task OptimusH5adGeneration {
           --pipeline_version ~{pipeline_version}
     fi
 
-    # modify h5ad
-    python3 <<CODE
+    # modify h5ad to include doublets, NHASHID, and build library metrics
+    python3 /warptools/scripts/add_library_tso_doublets.py --gex_h5ad ~{~{input_id}.h5ad --cellbarcodes ~{cellbarcodes} --gex_nhash_id ~{gex_nhash_id} --library_csv ~{library_metrics} --input_id ~{input_id}
 
-    # set parameters
-    gex_h5ad = "~{input_id}.h5ad"
-    gex_nhash_id = "~{gex_nhash_id}"
-    library_csv = "~{library_metrics}"
-    input_id = "~{input_id}"
-
-    # import anndata to manipulate h5ad files
-    import anndata as ad
-    import pandas as pd
-    print("Reading Optimus h5ad:")
-    print(gex_h5ad)
-    gex_data = ad.read_h5ad(gex_h5ad)
-    gex_data.uns['NHashID'] = gex_nhash_id
-    gex_data.write("~{input_id}.h5ad")
-    # import library metrics
-    print("Reading library metrics")
-    library = pd.read_csv(library_csv, header=None)
-
-    # calculate TSO frac
-    print("Calculating TSO frac")
-    tso_reads = gex_data.obs.tso_reads.sum()/gex_data.obs.n_reads.sum()
-    print("TSO reads:")
-    print(tso_reads)
-    dictionary = library.set_index(0)[1].to_dict()
-    dictionary['frac_tso'] = tso_reads
-    new_dictionary={"NHashID": [gex_nhash_id]}
-    new_dictionary.update(dictionary)
-    new_dictionary=pd.DataFrame(new_dictionary)
-    new_dictionary.transpose().to_csv(input_id+"_"+gex_nhash_id+"_library_metrics.csv", header=None)  
-    
-    CODE 
   >>>
 
   runtime {
@@ -213,42 +182,9 @@ task SingleNucleusOptimusH5adOutput {
         --expression_data_type "whole_transcript" \
         --pipeline_version ~{pipeline_version}
 
-        # modify h5ad
-        python3 <<CODE
+      # modify h5ad to include doublets, NHASHID, and build library metrics
+      python3 /warptools/scripts/add_library_tso_doublets.py --gex_h5ad "~{input_id}.h5ad" --cellbarcodes ~{cellbarcodes} --gex_nhash_id ~{gex_nhash_id} --library_csv ~{library_metrics} --input_id ~{input_id}
 
-        # set parameters
-        gex_h5ad = "~{input_id}.h5ad"
-        gex_nhash_id = "~{gex_nhash_id}"
-        library_csv = "~{library_metrics}"
-        input_id = "~{input_id}"
-
-        # import anndata to manipulate h5ad files
-        import anndata as ad
-        import pandas as pd
-        print("Reading Optimus h5ad:")
-        print(gex_h5ad)
-        gex_data = ad.read_h5ad(gex_h5ad)
-        gex_data.uns['NHashID'] = gex_nhash_id
-        gex_data.write("~{input_id}.h5ad")
-        
-        # import library metrics
-        print("Reading library metrics")
-        library = pd.read_csv(library_csv, header=None)
-
-        # calculate TSO frac
-        print("Caclulating TSO frac")
-        tso_reads = gex_data.obs.tso_reads.sum()/gex_data.obs.n_reads.sum()
-        print("TSO reads:")
-        print(tso_reads)
-        dictionary = library.set_index(0)[1].to_dict()
-        dictionary['frac_tso'] = tso_reads
-        new_dictionary={"NHashID": [gex_nhash_id]}
-        new_dictionary.update(dictionary)
-        new_dictionary=pd.DataFrame(new_dictionary)
-        new_dictionary.transpose().to_csv(input_id+"_"+gex_nhash_id+"_library_metrics.csv", header=None)
-
-        CODE
-      >>>
 
     runtime {
         docker: warp_tools_docker_path
