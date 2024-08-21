@@ -94,10 +94,10 @@ task SamToFastqAndBwaMemAndMba {
         ADD_MATE_CIGAR=true \
         MAX_INSERTIONS_OR_DELETIONS=-1 \
         PRIMARY_ALIGNMENT_STRATEGY=MostDistant \
-        PROGRAM_RECORD_ID="bwamem" \
-        PROGRAM_GROUP_VERSION="${BWA_VERSION}" \
+        PROGRAM_RECORD_ID="bwamem2" \
+        PROGRAM_GROUP_VERSION="${bwa_version}" \
         PROGRAM_GROUP_COMMAND_LINE="~{bwa_commandline}" \
-        PROGRAM_GROUP_NAME="bwamem" \
+        PROGRAM_GROUP_NAME="bwamem2" \
         UNMAPPED_READ_STRATEGY=COPY_TO_TAG \
         ALIGNER_PROPER_PAIR_FLAGS=true \
         UNMAP_CONTAMINANT_READS=~{unmap_contaminant_reads} \
