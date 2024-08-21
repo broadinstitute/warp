@@ -76,7 +76,7 @@ task CompareVCFsVerbosely {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-1ed302e0bd6b5eb439a801793d4c51ffda00de9a-4.6.0.0-11-g1ed302e0b"
+    docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-b01cd7d03444454d2537a0a092974bbe58183fed-4.6.0.0-12-gb01cd7d03"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
     preemptible: 3
