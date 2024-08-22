@@ -49,11 +49,10 @@ task SamToFastqAndBwaMemAndMba {
 
     # This is done before "set -o pipefail" because "bwa" will have a rc=1 and we don't want to allow rc=1 to succeed
     # because the sed may also fail with that error and that is something we actually want to fail on.
+
     version_output=$(/usr/gitc/temp/bwa-mem2/bwa-mem2 version)
     bwa_version=$(echo "$version_output" | awk '/^[0-9]+\.[0-9]+\.[0-9]+/ {print $0}')
     echo "BWA-MEM2 Version: $bwa_version"
-
-
 
     set -o pipefail
     set -e
