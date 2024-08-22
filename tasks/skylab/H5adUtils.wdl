@@ -11,6 +11,8 @@ task OptimusH5adGeneration {
     String input_id
     String gex_nhash_id = ""
     # user provided id
+    String? counting_mode
+    Int expected_cells = 3000
     String? input_name
     String? input_id_metadata_field
     String? input_name_metadata_field
@@ -90,7 +92,7 @@ task OptimusH5adGeneration {
     fi
 
     # modify h5ad to include doublets, NHASHID, and build library metrics
-    python3 /warptools/scripts/add_library_tso_doublets.py --gex_h5ad "~{input_id}.h5ad" --cellbarcodes ~{cellbarcodes} --gex_nhash_id ~{gex_nhash_id} --library_csv ~{library_metrics} --input_id ~{input_id}
+    python3 /warptools/scripts/add_library_tso_doublets.py --gex_h5ad "~{input_id}.h5ad" --cellbarcodes ~{cellbarcodes} --gex_nhash_id ~{gex_nhash_id} --library_csv ~{library_metrics} --input_id ~{input_id} --counting_mode ~{counting_mode} --expected_cells ~{expected_cells}
 
   >>>
 
@@ -119,6 +121,8 @@ task SingleNucleusOptimusH5adOutput {
         # additional aliquot id
         String gex_nhash_id = ""
         # user provided id
+        String? counting_mode
+        Int expected_cells = 3000
         String? input_name
         String? input_id_metadata_field
         String? input_name_metadata_field
@@ -183,7 +187,7 @@ task SingleNucleusOptimusH5adOutput {
         --pipeline_version ~{pipeline_version}
 
       # modify h5ad to include doublets, NHASHID, and build library metrics
-      python3 /warptools/scripts/add_library_tso_doublets.py --gex_h5ad "~{input_id}.h5ad" --cellbarcodes ~{cellbarcodes} --gex_nhash_id ~{gex_nhash_id} --library_csv ~{library_metrics} --input_id ~{input_id}
+      python3 /warptools/scripts/add_library_tso_doublets.py --gex_h5ad "~{input_id}.h5ad" --cellbarcodes ~{cellbarcodes} --gex_nhash_id ~{gex_nhash_id} --library_csv ~{library_metrics} --input_id ~{input_id} --counting_mode ~{counting_mode} --expected_cells ~{expected_cells}
 
     >>>
     runtime {

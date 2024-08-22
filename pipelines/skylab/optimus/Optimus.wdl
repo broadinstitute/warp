@@ -92,7 +92,7 @@ workflow Optimus {
   String empty_drops_docker = "empty-drops:1.0.1-4.2"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
   String warp_tools_docker_2_2_0 = "warp-tools:lk-PD-2736-doublets"
-  String star_merge_docker = "star-merge-npz:1.2"
+  String star_merge_docker = "star-merge-npz:lk-PD-2736-doublets"
 
   #TODO how do we handle these?
   String alpine_docker = "alpine-bash@sha256:965a718a07c700a5204c77e391961edee37477634ce2f9cf652a8e4c2db858ff"
@@ -278,6 +278,7 @@ workflow Optimus {
         input_id = input_id,
         gex_nhash_id = gex_nhash_id,
         input_name = input_name,
+        counting_mode = counting_mode,
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
