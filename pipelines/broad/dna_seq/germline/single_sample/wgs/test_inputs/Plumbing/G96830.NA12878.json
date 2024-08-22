@@ -17,7 +17,7 @@
     "contamination_sites_mu": "gs://gcp-public-data--broad-references/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.mu",
     "calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.interval_list",
     "reference_fasta": {
-      "ref_dict": "gs://fc-b0ead6ee-c480-450b-8597-e6e303596056/submissions/96338295-7656-4e24-bc45-76b14e31f254/BuildSeqDict/8d347209-61be-44d2-84fe-9b92abbd5a30/call-picardCreateDict/Homo_sapiens_assembly38.dict",
+      "ref_dict": "gs://broad-gotc-test-storage/new.dict",
       "ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
       "ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
       "ref_alt": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.alt",
