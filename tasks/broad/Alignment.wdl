@@ -53,6 +53,9 @@ task SamToFastqAndBwaMemAndMba {
     grep -e '^Version' | \
     sed 's/Version: //')
 
+    #ls everything
+    ls -lR
+
     set -o pipefail
     set -e
 
@@ -62,6 +65,7 @@ task SamToFastqAndBwaMemAndMba {
 
     # set the bash variable needed for the command-line
     bash_ref_fasta=~{reference_fasta.ref_fasta}
+    echo "bash_ref_fasta: $bash_ref_fasta"
     # if reference_fasta.ref_alt has data in it or allow_empty_ref_alt is set
     if [ -s ~{reference_fasta.ref_alt} ] || ~{allow_empty_ref_alt}; then
       java -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
