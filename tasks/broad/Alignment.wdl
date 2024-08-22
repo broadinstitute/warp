@@ -49,6 +49,8 @@ task SamToFastqAndBwaMemAndMba {
 
     # This is done before "set -o pipefail" because "bwa" will have a rc=1 and we don't want to allow rc=1 to succeed
     # because the sed may also fail with that error and that is something we actually want to fail on.
+    pwd
+    cp Homo_sapiens_assembly38.dict /gcp-public-data--broad-references/hg38/v0/
     BWA_VERSION=$(/usr/gitc/bwa 2>&1 | \
     grep -e '^Version' | \
     sed 's/Version: //')
