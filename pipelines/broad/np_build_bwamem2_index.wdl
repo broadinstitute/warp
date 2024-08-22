@@ -1,51 +1,29 @@
 version 1.0
 
-workflow BuildIndex
+workflow BuildSeqDict
 {
   input {
     File genome_fa
-    # Genome source can be NCBI or GENCODE
-    String genome_source
-    # Genome build is the assembly accession (NCBI) or version (GENCODE)
-    String genome_build
-    # Organism can be Macaque, Mouse, Human, etc.
-    String organism
   }
 
-  call BuildBWAreference {
+  call picardCreateDict {
     input:
-      genome_fa = genome_fa,
-      genome_source = genome_source,
-      genome_build = genome_build,
-      organism = organism
-  }
+      genome_fa = genome_fa
+}
 }
 
 
-task BuildBWAreference {
+task picardCreateDict {
   input {
     File genome_fa
-
-    # Genome source can be NCBI or GENCODE
-    String genome_source
-    # Genome build is the assembly accession (NCBI) or version (GENCODE)
-    String genome_build
-    # Organism can be Macaque, Mouse, Human, etc.
-    String organism
   }
 
-String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{genome_build}"
-
   command <<<
-    mkdir genome
-    file=~{genome_fa}
-    mv ~{genome_fa} genome/genome.fa
-    bwa-mem2 index genome/genome.fa
-    tar --dereference -cvf - genome/ > ~{reference_name}.tar
+    java -jar /usr/local/bin/picard.jar CreateSequenceDictionary R=~{genome_fa}  O=Homo_sapiens_assembly38.dict
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
+    docker: "us.gcr.io/broad-gotc-prod/picard-bwa-mem2:latest"
     memory: "96GB"
     disks: "local-disk 100 HDD"
     disk: "100 GB" # TES
@@ -53,6 +31,6 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
   }
 
   output {
-    File reference_bundle = "~{reference_name}.tar"
+    File seq_dict = "Homo_sapiens_assembly38.dict"
   }
 }
