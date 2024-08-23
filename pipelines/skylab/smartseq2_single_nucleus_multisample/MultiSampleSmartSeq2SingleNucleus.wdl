@@ -163,7 +163,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   ### Pipeline output ###
   output {
     # loom output, exon/intron count tsv files and the aligned bam files
-    File h5ad_output = AggregateLoom.h5ad_output_file
+    File loom_output = AggregateLoom.loom_output_file
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
     Array[File] exon_intron_count_files = H5adOutput.exon_intron_counts
     Array[File] bam_files = RemoveDuplicatesFromBam.output_bam
