@@ -297,7 +297,7 @@ task SingleNucleusOptimusLoomOutput {
 }
 
 
-task SingleNucleusSmartSeq2LoomOutput {
+task SingleNucleusSmartSeq2H5adOutput {
     input {
         #runtime values
         String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np-add-multisamplesnss2-h5ad-script"
