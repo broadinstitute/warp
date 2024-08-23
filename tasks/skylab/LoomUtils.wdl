@@ -385,7 +385,7 @@ task SingleNucleusSmartSeq2LoomOutput {
     }
 
     output {
-        Array[File] loom_output = glob("*.loom")
+        Array[File] h5ad_output = glob("*.h5ad")
         Array[File] exon_intron_counts = glob("*exon_intron_counts.tsv")
     }
 }

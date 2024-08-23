@@ -129,7 +129,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
             annotation_gtf = annotations_gtf
     }
 
-    call LoomUtils.SingleNucleusSmartSeq2LoomOutput as LoomOutput {
+    call LoomUtils.SingleNucleusSmartSeq2H5adOutput as H5adOutput {
         input:
             input_ids = input_ids,
             input_names = input_names,
@@ -147,7 +147,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   ### Aggregate the Loom Files Directly ###
   call LoomUtils.AggregateSmartSeq2Loom as AggregateLoom {
     input:
-      loom_input = LoomOutput.loom_output,
+      loom_input = H5adOutput.h5ad_output,
       batch_id = batch_id,
       batch_name = batch_name,
       project_id = if defined(project_id) then select_first([project_id])[0] else none,
@@ -163,9 +163,9 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   ### Pipeline output ###
   output {
     # loom output, exon/intron count tsv files and the aligned bam files
-    File loom_output = AggregateLoom.loom_output_file
+    File h5ad_output = AggregateLoom.h5ad_output_file
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
-    Array[File] exon_intron_count_files = LoomOutput.exon_intron_counts
+    Array[File] exon_intron_count_files = H5adOutput.exon_intron_counts
     Array[File] bam_files = RemoveDuplicatesFromBam.output_bam
     String pipeline_version_out = pipeline_version
   }
