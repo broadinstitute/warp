@@ -300,7 +300,7 @@ task SingleNucleusOptimusLoomOutput {
 task SingleNucleusSmartSeq2LoomOutput {
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np-add-multisamplesnss2-h5ad-script"
 
         Array[File] alignment_summary_metrics
         Array[File] dedup_metrics
@@ -361,17 +361,17 @@ task SingleNucleusSmartSeq2LoomOutput {
         echo "Success GroupQCs"
 
         # create the loom file
-        echo "Running create_loom_snss2."
-        python3 /usr/gitc/create_loom_snss2.py \
+        echo "Running create_h5ad_snss2.py"
+        python3 /usr/gitc/create_h5ad_snss2.py \
         --qc_files "${output_prefix[$i]}.Picard_group.csv" \
         --count_results  "${output_prefix[$i]}.exon_intron_counts.tsv" \
-        --output_loom_path "${output_prefix[$i]}.loom" \
+        --output_h5ad_path "${output_prefix[$i]}" \
         --input_id ${output_prefix[$i]} \
         ~{"--input_id_metadata_field " + input_id_metadata_field} \
         ~{"--input_name_metadata_field " + input_name_metadata_field} \
         --pipeline_version ~{pipeline_version}
 
-        echo "Success create_loom_snss2"
+        echo "Success create_h5ad_snss2"
         done;
     >>>
 
