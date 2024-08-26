@@ -300,7 +300,7 @@ task SingleNucleusOptimusLoomOutput {
 task SingleNucleusSmartSeq2H5adOutput {
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np-add-multisamplesnss2-h5ad-script"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np_trying_to_add_Sctools_again_1"
 
         Array[File] alignment_summary_metrics
         Array[File] dedup_metrics
@@ -347,7 +347,7 @@ task SingleNucleusSmartSeq2H5adOutput {
         do
         # creates a table with gene_id, gene_name, intron and exon counts
         echo "Running create_snss2_counts_csv."
-        python /usr/gitc/create_snss2_counts_csv.py \
+        python /warptools/scripts/create_snss2_counts_csv.py \
         --in-gtf ~{annotation_introns_added_gtf} \
         --intron-counts ${introns_counts_files[$i]} \
         --exon-counts ${exons_counts_files[$i]}  \
@@ -361,8 +361,8 @@ task SingleNucleusSmartSeq2H5adOutput {
         echo "Success GroupQCs"
 
         # create the loom file
-        echo "Running create_h5ad_snss2.py"
-        python3 /usr/gitc/create_h5ad_snss2.py \
+        echo "Running create_h5ad_snss2."
+        python3 /warptools/scripts/create_h5ad_snss2.py \
         --qc_files "${output_prefix[$i]}.Picard_group.csv" \
         --count_results  "${output_prefix[$i]}.exon_intron_counts.tsv" \
         --output_h5ad_path "${output_prefix[$i]}" \
