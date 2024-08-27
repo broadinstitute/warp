@@ -218,6 +218,7 @@ task AggregateSmartSeq2H5ad {
     input {
         Array[File] h5ad_input
         String batch_id
+        String pipeline_version
         String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np_trying_to_add_Sctools_again_1"
         Int disk = 200
         Int machine_mem_mb = 4000
@@ -234,8 +235,9 @@ task AggregateSmartSeq2H5ad {
         # Merge the h5ad files
         python3 /warptools/scripts/ss2_h5ad_merge.py \
         --input-h5ad-files ~{sep=' ' h5ad_input} \
-        --output-h5ad-file "~{batch_id}.h5ad"
-
+        --output-h5ad-file "~{batch_id}.h5ad" \
+        --batch_id ~{batch_id} \
+        --pipeline_version ~{pipeline_version}
     }
 
     output {

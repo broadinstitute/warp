@@ -148,6 +148,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   call LoomUtils.AggregateSmartSeq2H5ad as AggregateH5ad {
     input:
       h5ad_input = H5adOutput.h5ad_output,
+      pipeline_version = pipeline_version,
       batch_id = batch_id
   }
 
