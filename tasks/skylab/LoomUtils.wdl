@@ -232,7 +232,7 @@ task AggregateSmartSeq2H5ad {
         set -e
 
         # Merge the h5ad files
-        python3 /usr/gitc/ss2_h5ad_merge.py \
+        python3 /warptools/scripts/ss2_h5ad_merge.py \
         --input-h5ad-files ~{sep=' ' h5ad_input} \
         --output-h5ad-file "~{batch_id}.h5ad"
 
