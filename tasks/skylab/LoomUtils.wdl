@@ -214,6 +214,45 @@ task AggregateSmartSeq2Loom {
 }
 
 
+task AggregateSmartSeq2H5ad {
+    input {
+        Array[File] h5ad_input
+        String batch_id
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np_trying_to_add_Sctools_again_1"
+        Int disk = 200
+        Int machine_mem_mb = 4000
+        Int cpu = 1
+    }
+
+    meta {
+        description: "aggregate the H5AD output"
+    }
+
+    command {
+        set -e
+
+        # Merge the h5ad files
+        python3 /usr/gitc/ss2_h5ad_merge.py \
+        --input-h5ad-files ~{sep=' ' h5ad_input} \
+        --output-h5ad-file "~{batch_id}.h5ad"
+
+    }
+
+    output {
+        File h5ad_output_file = "~{batch_id}.h5ad"
+    }
+
+    runtime {
+        docker: docker
+        cpu: cpu
+        memory: "~{machine_mem_mb} MiB"
+        disks: "local-disk ~{disk} HDD"
+        disk: disk + " GB" # TES
+        preemptible: 3
+        maxRetries: 1
+    }
+}
+
 task SingleNucleusOptimusLoomOutput {
 
     input {
