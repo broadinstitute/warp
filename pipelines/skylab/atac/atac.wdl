@@ -571,7 +571,7 @@ task CreateFragmentFile {
             flattened_data.append((category, metrics))
 
     # Write to CSV
-    csv_file_path = "~{bam_base_name}_~{atac_nhash}.atac_metrics.csv"
+    csv_file_path = "~{bam_base_name}_~{atac_nhash_id}.atac_metrics.csv"
     with open(csv_file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['Metric', 'Value'])  # Write header
@@ -607,6 +607,6 @@ task CreateFragmentFile {
   output {
     File fragment_file = "~{bam_base_name}.fragments.tsv"
     File Snap_metrics = "~{bam_base_name}.metrics.h5ad"
-    File atac_library_metrics = "~{bam_base_name}_~{atac_nhash}.atac_metrics.csv"
+    File atac_library_metrics = "~{bam_base_name}_~{atac_nhash_id}.atac_metrics.csv"
   }
 }
