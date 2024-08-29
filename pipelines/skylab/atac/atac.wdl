@@ -579,12 +579,6 @@ task CreateFragmentFile {
 
     print(f"Dictionary successfully written to {csv_file_path}")
 
-
-
-
-    # calculate quality metrics; note min_num_fragments and min_tsse are set to 0 instead of default
-    # those settings allow us to retain all barcodes
-   
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
     # Add nhash_id to h5ad file as unstructured metadata
     atac_data.uns['NHashID'] = atac_nhash_id
