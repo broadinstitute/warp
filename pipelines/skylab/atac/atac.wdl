@@ -574,7 +574,6 @@ task CreateFragmentFile {
     csv_file_path = "~{bam_base_name}_~{atac_nhash_id}.atac_metrics.csv"
     with open(csv_file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['Metric', 'Value'])  # Write header
         writer.writerows(flattened_data)  # Write data
 
     print(f"Dictionary successfully written to {csv_file_path}")
