@@ -584,7 +584,7 @@ task CreateFragmentFile {
 
     # calculate quality metrics; note min_num_fragments and min_tsse are set to 0 instead of default
     # those settings allow us to retain all barcodes
-    pp.import_data("~{bam_base_name}.fragments.tsv", file="temp_metrics.h5ad", chrom_sizes=chrom_size_dict, min_num_fragments=0)
+   
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
     # Add nhash_id to h5ad file as unstructured metadata
     atac_data.uns['NHashID'] = atac_nhash_id
