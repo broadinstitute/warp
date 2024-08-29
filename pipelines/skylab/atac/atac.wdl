@@ -556,7 +556,7 @@ task CreateFragmentFile {
     if preindex == "true":
       data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     
     # Add NHashID to metrics 
     nhash_ID_value = "XXX"
