@@ -9,7 +9,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "5.5.0"
+    String pipeline_version = "5.6.0"
 
 
     input {
@@ -179,7 +179,7 @@ workflow Multiome {
         File fragment_file_atac = JoinBarcodes.atac_fragment_tsv
         File fragment_file_index = JoinBarcodes.atac_fragment_tsv_tbi
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
-        File atac_library_metrics = Atac.library_metrics
+        File atac_library_metrics = Atac.library_metrics_file
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
