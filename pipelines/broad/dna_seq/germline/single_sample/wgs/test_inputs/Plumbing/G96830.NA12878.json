@@ -19,9 +19,9 @@
     "reference_fasta": {
       "ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
       "ref_fasta": "gs://broad-gotc-test-storage/nikelles_new_ref_Struct/Homo_sapiens_assembly38.fa",
-      "ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
-      "ref_alt": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.alt",
-      "ref_sa": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.sa",
+      "ref_fasta_index": "gs://broad-gotc-test-storage/nikelles_new_ref_Struct/Homo_sapiens_assembly38.fa.0123",
+      "ref_alt": null,
+      "ref_sa": "gs://broad-gotc-test-storage/nikelles_new_ref_Struct/Homo_sapiens_assembly38.fa.bwt.2bit.64",
       "ref_amb": "gs://broad-gotc-test-storage/nikelles_new_ref_Struct/Homo_sapiens_assembly38.fa.amb",
       "ref_bwt": "gs://broad-gotc-test-storage/nikelles_new_ref_Struct/Homo_sapiens_assembly38.fa.bwt.2bit.64",
       "ref_ann": "gs://broad-gotc-test-storage/nikelles_new_ref_Struct/Homo_sapiens_assembly38.fa.ann",
