@@ -68,7 +68,7 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
-                                    MultiSampleSmartSeq2SingleNucleus.loom_output,
+                                    MultiSampleSmartSeq2SingleNucleus.h5ad_output,
                                     ],
                                     # Array[File] outputs
                                     MultiSampleSmartSeq2SingleNucleus.bam_files,
