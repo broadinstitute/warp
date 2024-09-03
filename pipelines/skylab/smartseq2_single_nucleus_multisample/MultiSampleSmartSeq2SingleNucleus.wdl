@@ -5,7 +5,7 @@ import "../../../tasks/skylab/TrimAdapters.wdl" as TrimAdapters
 import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 import "../../../tasks/skylab/Picard.wdl" as Picard
 import "../../../tasks/skylab/FeatureCounts.wdl" as CountAlignments
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow MultiSampleSmartSeq2SingleNucleus {
@@ -129,7 +129,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
             annotation_gtf = annotations_gtf
     }
 
-    call LoomUtils.SingleNucleusSmartSeq2H5adOutput as H5adOutput {
+    call H5adUtils.SingleNucleusSmartSeq2H5adOutput as H5adOutput {
         input:
             input_ids = input_ids,
             input_names = input_names,
@@ -144,8 +144,8 @@ workflow MultiSampleSmartSeq2SingleNucleus {
             annotation_introns_added_gtf = annotations_gtf
     }
 
-  ### Aggregate the Loom Files Directly ###
-  call LoomUtils.AggregateSmartSeq2H5ad as AggregateH5ad {
+  ### Aggregate the H5ad Files Directly ###
+  call H5adUtils.AggregateSmartSeq2H5ad as AggregateH5ad {
     input:
       h5ad_input = H5adOutput.h5ad_output,
       pipeline_version = pipeline_version,
@@ -156,7 +156,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
 
   ### Pipeline output ###
   output {
-    # loom output, exon/intron count tsv files and the aligned bam files
+    # h5ad output, exon/intron count tsv files and the aligned bam files
     File h5ad_output = AggregateH5ad.h5ad_output_file
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
     Array[File] exon_intron_count_files = H5adOutput.exon_intron_counts
