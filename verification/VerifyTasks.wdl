@@ -72,7 +72,7 @@ task CompareVCFsVerbosely {
   }
 
   command {
-    gatk --java-options "-Xms25000m -Xmx25000m" VCFComparator -R ~{ref_fasta}  -V:actual ~{actual} -V:expected ~{expected} ~{extra_args} ~{if(warn_on_error) then "--warn-on-errors" else ""} --finish-before-failing
+    gatk --java-options "-Xms2500m -Xmx2500m" VCFComparator -R ~{ref_fasta}  -V:actual ~{actual} -V:expected ~{expected} ~{extra_args} ~{if(warn_on_error) then "--warn-on-errors" else ""} --finish-before-failing
   }
 
   runtime {
