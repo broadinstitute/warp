@@ -507,7 +507,7 @@ task CreateFragmentFile {
     File annotations_gtf
     Boolean preindex
     Int disk_size = 500
-    Int mem_size = 16
+    Int mem_size = 64
     Int nthreads = 4
     String cpuPlatform = "Intel Cascade Lake"
     String docker_path
