@@ -1,7 +1,9 @@
 # 2.3.0
 2024-08-29 (Date of Last Commit)
 
-* Updated the SnapATAC2 docker to include v2.7.0; the pipeline will now produce a library-level summary metric CSV for the BAM.  
+* Updated the SnapATAC2 docker to include v2.7.0; the pipeline will now produce a library-level summary metric CSV for the BAM. 
+
+* Updated the memory for the CreateFragmentFile task
 
 # 2.2.3
 2024-08-02 (Date of Last Commit)
