@@ -34,7 +34,7 @@ workflow VerifyJointGenotyping {
         expected_index = truth_vcf_indexes[idx],
         extra_args = "--ignore-attribute VQSLOD --ignore-attribute AS_VQSLOD --ignore-attribute SCORE --ignore-attribute CALIBRATION_SENSITIVITY --ignore-filters --ignore-attribute culprit "
         + " --ignore-attribute AS_culprit --ignore-attribute AS_FilterStatus --ignore-attribute ExcessHet --ignore-attribute AS_SOR "
-        +"--ignore-attribute AS_FS --ignore-attribute AS_BaseQRankSum --ignore-attribute AS_ReadPosRankSum --ignore-attribute AS_MQRankSum --ignore-gq0 --dp-change-allowed 5000"
+        +"--ignore-attribute AS_FS --ignore-attribute AS_BaseQRankSum --ignore-attribute AS_ReadPosRankSum --ignore-attribute AS_MQRankSum"
     }
 
     call GermlineVerification.CompareGvcfs {

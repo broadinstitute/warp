@@ -67,7 +67,7 @@ task CompareVCFsVerbosely {
     File ref_dict = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict"
     String extra_args = " --ignore-attribute VQSLOD --ignore-attribute AS_VQSLOD --ignore-filters "
     + "--ignore-attribute culprit --ignore-attribute AS_culprit --ignore-attribute AS_FilterStatus "
-    + "--ignore-attribute ExcessHet --ignore-star-attributes --allow-nan-mismatch --ignore-attribute END --ignore-gq0 --dp-change-allowed 5000"
+    + "--ignore-attribute ExcessHet --ignore-star-attributes --allow-nan-mismatch --ignore-attribute END"
     Boolean warn_on_error = true
   }
 
@@ -76,7 +76,8 @@ task CompareVCFsVerbosely {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-9f267ba901138fbfb05e9cea20a9b950a7373e52-4.6.0.0-15-g9f267ba90"
+    #TODO: update docker to next GATK release (after 4.6.0.0) which includes an updated VCFComparator
+    docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:4c1b32dd89c46af52e68ae34f99db483ba07b08def2479d145a185de0b2d9a4a"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
     preemptible: 3
