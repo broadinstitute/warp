@@ -1,8 +1,8 @@
-# 1.2.0
+# 1.1.0
 2024-09-06 (Date of Last Commit)
 
-* Updated to GATK version 4.6.0.0.
-* Minor changes to the output VCF at some sites due to the changes in HaplotyperCaller.
+* Updated to GATK version 4.6.0.0
+* Minor changes to the output VCF at some sites due to the changes in HaplotyperCaller
 
 # 1.0.21
 2024-08-02 (Date of Last Commit)

@@ -1,7 +1,7 @@
 # 2.3.0
 2024-09-06 (Date of Last Commit)
 
-* Updated to GATK version 4.6.0.0. Some expected minor differences around low quality sites (GQ0 genotypes or no-calls).
+* Updated to GATK version 4.6.0.0. Some expected minor differences around low quality sites (GQ0 genotypes or no-calls)
 
 # 2.2.1
 2024-06-12 (Date of Last Commit)
@@ -11,7 +11,7 @@
 # 2.2.0
 2024-07-09 (Date of Last Commit)
 
-* Updated ReblockGVCF.wdl to run in Azure. cloud_provider is a new, required input. 
+* Updated ReblockGVCF.wdl to run in Azure. cloud_provider is a new, required input 
 
 # 2.1.13
 2024-07-01 (Date of Last Commit)
@@ -21,12 +21,12 @@
 # 2.1.12
 2024-03-26 (Date of Last Commit)
 
-* ValidateVcfs requires less memory when run without interval list. This is useful for WGS samples that were previously running out of memory.
+* ValidateVcfs requires less memory when run without interval list. This is useful for WGS samples that were previously running out of memory
 
 # 2.1.11
 2023-12-18 (Date of Last Commit)
 
-* Updated to GATK version 4.5.0.0. Header documentation change for RAW_GT_COUNT annotation.
+* Updated to GATK version 4.5.0.0. Header documentation change for RAW_GT_COUNT annotation
 
 # 2.1.10
 2023-12-14 (Date of Last Commit)

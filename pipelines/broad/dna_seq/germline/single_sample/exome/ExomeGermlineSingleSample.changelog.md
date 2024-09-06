@@ -1,8 +1,8 @@
-# 4.0.0
+# 3.2.0
 2024-09-06 (Date of Last Commit)
 
-* Updated to GATK version 4.6.0.0.
-* Updated version drops some low quality sites from VCFs. If reblocking is enabled, the DP annotation in some ref blocks will change due to the change in HaplotypeCaller.
+* Updated to GATK version 4.6.0.0
+* Updated version drops some low quality sites from VCFs; if reblocking is enabled, the DP annotation in some ref blocks will change due to the change in HaplotypeCaller
 
 # 3.1.22
 2024-06-12 (Date of Last Commit)

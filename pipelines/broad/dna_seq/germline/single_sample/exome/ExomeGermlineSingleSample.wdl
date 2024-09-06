@@ -45,7 +45,7 @@ import "../../../../../../tasks/broad/Utilities.wdl" as utils
 # WORKFLOW DEFINITION
 workflow ExomeGermlineSingleSample {
 
-  String pipeline_version = "4.0.0"
+  String pipeline_version = "3.2.0"
 
 
   input {
