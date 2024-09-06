@@ -1,3 +1,8 @@
+# 2.3.0
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0. Some expected minor differences around low quality sites (GQ0 genotypes or no-calls).
+
 # 2.2.1
 2024-06-12 (Date of Last Commit)
 
