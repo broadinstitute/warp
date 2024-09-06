@@ -27,7 +27,7 @@ You can run the [Smart-seq2 Single Nucleus Multi-Sample workflow](https://github
 ## Quick start table
 
 | Pipeline features | Description | Source |
-|-------------------|---------------------------------------------------------------|-----------------------|
+|---|---|---|
 | Assay type | Smart-seq2 Single Nucleus | [Smart-seq2](https://www.nature.com/articles/nprot.2014.006)
 | Overall workflow  | Quality control and transcriptome quantification. | Code available from the [WARP repository](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl) in GitHub |
 | Workflow language | WDL | [openWDL](https://github.com/openwdl/wdl) |
