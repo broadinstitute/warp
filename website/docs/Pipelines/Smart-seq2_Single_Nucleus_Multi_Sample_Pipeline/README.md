@@ -26,18 +26,18 @@ You can run the [Smart-seq2 Single Nucleus Multi-Sample workflow](https://github
 
 ## Quick start table
 
-| Pipeline features                                    | Description                                                                                                                                                   | Source                                                                                                                                                                                                                                     |
-|---|---|---|
-| Assay type                                           | Smart-seq2 Single Nucleus                                                                                                                                     | [Smart-seq2](https://www.nature.com/articles/nprot.2014.006)                                                                                                                                                                               
-| Overall workflow                                     | Quality control and transcriptome quantification.                                                                                                             | Code available from the [WARP repository](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl) in GitHub                                                              |
-| Workflow language                                    | WDL                                                                                                                                                           | [openWDL](https://github.com/openwdl/wdl)                                                                                                                                                                                                  |
-| Genomic reference sequence (for validation)          | GRCm38 mouse genome primary sequence.                                                                                                                         | GENCODE GRCm38 [mouse reference files](http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/GRCm38.primary_assembly.genome.fa.gz)                                                                                          |
-| Transcriptomic reference annotation (for validation) | Modified M23 GTF built with the  [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl). | GENCODE [M23 GTF](https://www.gencodegenes.org/mouse/release_M23.html); modified version available [Broad references](gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_gencode.vM23.primary_assembly.annotation.gtf) |
-| Aligner                                              | STAR                                                                                                                                                          | [STAR](https://github.com/alexdobin/STAR)                                                                                                                                                                                                  |
-| QC metrics                                           | Picard                                                                                                                                                        | [Broad Institute](https://broadinstitute.github.io/picard/)                                                                                                                                                                                |
-| Transcript quantification                            | featureCounts (utilities for counting reads to genomic features).                                                                                             | [featureCounts](http://subread.sourceforge.net/)                                                                                                                                                                                           
-| Data input file format                               | File format in which sequencing data is provided.                                                                                                             | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533)                                                                                                                                                                            |
-| Data output file formats                             | File formats in which Smart-seq2 output is provided.                                                                                                          | [BAM](http://samtools.github.io/hts-specs/), h5ad (counts and metrics; generated with [anndata v.0.7.8)](https://anndata.readthedocs.io/en/latest/), TSV (counts)                                                                                                 |
+| Pipeline features | Description | Source |
+|-------------------|---------------------------------------------------------------|-----------------------|
+| Assay type | Smart-seq2 Single Nucleus | [Smart-seq2](https://www.nature.com/articles/nprot.2014.006)
+| Overall workflow  | Quality control and transcriptome quantification. | Code available from the [WARP repository](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl) in GitHub |
+| Workflow language | WDL | [openWDL](https://github.com/openwdl/wdl) |
+| Genomic reference sequence (for validation)| GRCm38 mouse genome primary sequence. | GENCODE GRCm38 [mouse reference files](http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/GRCm38.primary_assembly.genome.fa.gz) |
+| Transcriptomic reference annotation (for validation) | Modified M23 GTF built with the  [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl).| GENCODE [M23 GTF](https://www.gencodegenes.org/mouse/release_M23.html); modified version available [Broad references](gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_gencode.vM23.primary_assembly.annotation.gtf)|
+| Aligner  | STAR | [STAR](https://github.com/alexdobin/STAR) |
+| QC metrics | Picard | [Broad Institute](https://broadinstitute.github.io/picard/)   |
+| Transcript quantification | featureCounts (utilities for counting reads to genomic features). | [featureCounts](http://subread.sourceforge.net/)
+| Data input file format | File format in which sequencing data is provided. | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
+| Data output file formats | File formats in which Smart-seq2 output is provided. | [BAM](http://samtools.github.io/hts-specs/), Loom (counts and metrics; generated with [Loompy v.3.0.6)](http://loompy.org/), TSV (counts) |
 
 ## Set-Up
 
@@ -100,15 +100,15 @@ The tools each task employs in the Multi-snSS2 workflow are detailed in the tabl
 
 To see specific tool parameters, select the task WDL link in the table; then view the `command {}` section of the task WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `# runtime values` section as `String docker =`.
 
-| Task name and WDL link                                                                                                      | Tool                                                                                                                                | Software | Description                                                                                                                                                                                                   |
-|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------| --- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [CheckInputs.checkInputArrays](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CheckInputs.wdl)             | ---                                                                                                                                 | Bash | Checks the inputs and initiates the per cell processing.                                                                                                                                                      | 
-| [StarAlign.STARGenomeRefVersion](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/StarAlign.wdl)             | ---                                                                                                                                 | Bash | Reads the `tar_star_reference` file to obtain the genomic reference source, build version, and annotation version.                                                                                            |
-| [TrimAdapters.TrimAdapters](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/TrimAdapters.wdl)               | [fastq-mcf](https://github.com/ExpressionAnalysis/ea-utils/tree/master/clipper)                                                     | [ea-utils](https://github.com/ExpressionAnalysis/ea-utils) | Trims adapter sequences from the FASTQ inputs                                                                                                                                                                 |
-| [StarAlign.StarAlignFastqMultisample](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/StarAlign.wdl)        | STAR                                                                                                                                | [STAR](https://github.com/alexdobin/STAR) | Aligns reads to the genome.                                                                                                                                                                                   |
-| [Picard.RemoveDuplicatesFromBam](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/Picard.wdl)                | MarkDuplicates, AddOrReplaceReadGroups                                                                                              | [Picard](https://broadinstitute.github.io/picard/) | Removes duplicate reads, producing a new BAM output; adds regroups to deduplicated BAM.                                                                                                                       |
-| [Picard.CollectMultipleMetricsMultiSample](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/Picard.wdl)      | CollectMultipleMetrics                                                                                                              | [Picard](https://broadinstitute.github.io/picard/) | Collects QC metrics on the deduplicated BAM files.                                                                                                                                                            |
-| [CountAlignments.CountAlignments](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/FeatureCounts.wdl)        | FeatureCounts                                                                                                                       | [Subread](http://subread.sourceforge.net/), Python 3 | Uses a custom GTF with featureCounts and Python to mark introns, create a BAM that has alignments spanning intron-exon junctions removed, and counts exons using the custom BAM and by excluding intron tags. |
+| Task name and WDL link | Tool | Software | Description |
+| --- | --- | --- | --- |
+| [CheckInputs.checkInputArrays](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CheckInputs.wdl) | --- | Bash | Checks the inputs and initiates the per cell processing.  |
+| [StarAlign.STARGenomeRefVersion](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/StarAlign.wdl) | --- | Bash | Reads the `tar_star_reference` file to obtain the genomic reference source, build version, and annotation version. |
+| [TrimAdapters.TrimAdapters](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/TrimAdapters.wdl) | [fastq-mcf](https://github.com/ExpressionAnalysis/ea-utils/tree/master/clipper) | [ea-utils](https://github.com/ExpressionAnalysis/ea-utils) | Trims adapter sequences from the FASTQ inputs |
+| [StarAlign.StarAlignFastqMultisample](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/StarAlign.wdl) | STAR | [STAR](https://github.com/alexdobin/STAR) | Aligns reads to the genome. |
+| [Picard.RemoveDuplicatesFromBam](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/Picard.wdl) | MarkDuplicates, AddOrReplaceReadGroups | [Picard](https://broadinstitute.github.io/picard/) | Removes duplicate reads, producing a new BAM output; adds regroups to deduplicated BAM. |
+| [Picard.CollectMultipleMetricsMultiSample](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/Picard.wdl) | CollectMultipleMetrics | [Picard](https://broadinstitute.github.io/picard/) | Collects QC metrics on the deduplicated BAM files. |
+| [CountAlignments.CountAlignments](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/FeatureCounts.wdl) | FeatureCounts | [Subread](http://subread.sourceforge.net/), Python 3 | Uses a custom GTF with featureCounts and Python to mark introns, create a BAM that has alignments spanning intron-exon junctions removed, and counts exons using the custom BAM and by excluding intron tags. |
 | [H5adUtils.SingleNucleusSmartSeq2H5adOutput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/H5adUtils.wdl) | Custom script: [create_h5ad_snss2.py](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/create_h5ad_snss2.py) | Python 3 | Creates the matrix files (h5ad format) for each sample.                                                                                                                                                       |
 | [H5adUtils.AggregateSmartSeq2H5ad](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/H5adUtils.wdl)           | Custom script: [ss2_h5ad_merge.py](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/ss2_h5ad_merge.py)       | Python 3 | Aggregates the matrix files (h5ad format) for each sample to produce one final h5ad output.                                                                                                                   |
 
@@ -146,12 +146,11 @@ Below is example anndata code for accessing the h5ad's exonic, intronic, and who
 
 ```python
 import anndata
-ds = anndata.read_h5ad("/PATH/TO/File.h5ad")
-count_exons = ds[:,:] #geneXcell table for the exonic read counts
-count_introns = ds.layers["intron_counts"] #geneXcell table for the intronic read counts
-gene_counts = count_exons + count_introns
+adata = anndata.read_h5ad("/PATH/TO/File.h5ad")
+count_exons = adata.X #geneXcell table for the exonic read counts
+count_introns = adata.layers["intron_counts"] #geneXcell table for the intronic read counts
 ```
-TODO This is not right ^ 
+If you would like to get the counts for both introns and exons, you can sum the counts together.
 
 To read more about the h5ad file format and use of layers, see the [h5ad documentation](https://anndata.readthedocs.io/en/latest/).
 
@@ -159,12 +158,12 @@ To read more about the h5ad file format and use of layers, see the [h5ad documen
 
 The table below details the final outputs of the Multi-snSS2 workflow.  
 
-| Output variable name    | Description | Type        |
-|-------------------------| --- |-------------|
+| Output variable name | Description | Type |
+| --- | --- | --- |
 | h5ad_output             | Cell-by-gene count matrix that includes the raw exon counts (in matrix), intron counts (in matrix layer), cell metrics (column attributes) and gene IDs (row attributes). | h5ad        |
-| exon_intron_count_files | Array of TXT files (one per cell) that contain intronic and exonic counts. | Array [TXT] | 
-| bam_files               | Array of genome-aligned BAM files (one for each cell) generated with STAR.  | Array [BAM] |
-| pipeline_version_out    | Version of the processing pipeline run on this data. | String      |
+| exon_intron_count_files | Array of TXT files (one per cell) that contain intronic and exonic counts. | Array [TXT]|
+| bam_files | Array of genome-aligned BAM files (one for each cell) generated with STAR.  | Array [BAM]|
+| pipeline_version_out | Version of the processing pipeline run on this data. | String |
 
 The h5ad matrix is the default output. See the [create_h5ad_snss2.py](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/create_h5ad_snss2.py) script for the detailed code. This matrix contains the count matrices, as well as the gene and cell metrics detailed in the [Multi-snSS2 Count Matrix Overview](./count-matrix-overview.md).
 
