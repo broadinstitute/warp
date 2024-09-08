@@ -1,6 +1,6 @@
 ## Announcing a new site for WARP documentation!
 
-Paired-tag documentation has moved! Read more about the [Paired-Tag workflow](https://broadinstitute.github.io/warp/docs/Pipelines/PairedTag_Pipeline/README) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
+Paired-tag documentation has moved! Read more about the [Paired-Tag workflow](https://broadinstitute.github.io/warp/docs/Pipelines/PairedTag_Pipeline/README) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)! 
 
 ### Paired-Tag summary
 
