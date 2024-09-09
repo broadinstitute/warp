@@ -858,6 +858,8 @@ task CalculateContamination {
     Int disk_size_gb = 256
   }
 
+  Int java_max_heap = memory_mb / 2
+
   parameter_meta {
     bam: { localization_optional: true }
     bam_index: { localization_optional: true }
@@ -868,7 +870,7 @@ task CalculateContamination {
 
   command <<<
     set -e
-    gatk --java-options "-Xmx4096m" GetPileupSummaries \
+    gatk --java-options "-Xmx~{java_max_heap}m" GetPileupSummaries \
     -R ~{ref_fasta} \
     -I ~{bam} \
     -V ~{population_vcf} \
@@ -877,7 +879,7 @@ task CalculateContamination {
     --disable-read-filter WellformedReadFilter \
     --disable-read-filter MappingQualityAvailableReadFilter
 
-    gatk --java-options "-Xmx4096m" CalculateContamination \
+    gatk --java-options "-Xmx~{java_max_heap}m" CalculateContamination \
     -I ~{base_name}_pileups.tsv \
     -O ~{base_name}_contamination.tsv
   
