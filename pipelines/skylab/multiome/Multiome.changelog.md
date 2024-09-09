@@ -1,3 +1,8 @@
+# 5.6.0
+2024-08-02 (Date of Last Commit)
+
+* Updated the SnapATAC2 docker to include v2.7.0; the pipeline will now produce a library-level summary metric CSV for the BAM.
+
 # 5.5.0
 2024-08-06 (Date of Last Commit)
 
