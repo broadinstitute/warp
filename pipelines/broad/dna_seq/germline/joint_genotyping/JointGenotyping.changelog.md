@@ -1,3 +1,10 @@
+# 1.7.1
+2024-09-10 (Date of Last Commit)
+
+* Update to BGE filtering options in JointCalling. 
+* If target interval list is provided for filtering, the documentation in the header will be clearer.
+* If VETS is enabled, the SCORE annotation will be added to all output variants (even hard filtered sites).
+
 # 1.7.0
 2024-09-06 (Date of Last Commit)
 
