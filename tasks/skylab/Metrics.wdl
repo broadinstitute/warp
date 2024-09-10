@@ -8,7 +8,7 @@ task CalculateCellMetrics {
     String input_id
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+    String warp_tools_docker_path
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
@@ -21,7 +21,7 @@ task CalculateCellMetrics {
 
   parameter_meta {
     bam_input: "Input bam file containing reads marked with tags for cell barcodes (CB), molecule barcodes (UB) and gene ids (GX)"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    warp_tools_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -64,7 +64,7 @@ task CalculateCellMetrics {
   }
 
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -84,8 +84,7 @@ task CalculateGeneMetrics {
     File? mt_genes
     String input_id
     # runtime values
-
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+    String warp_tools_docker_path
     Int machine_mem_mb = 32000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
@@ -99,7 +98,7 @@ task CalculateGeneMetrics {
 
   parameter_meta {
     bam_input: "Input bam file containing reads marked with tags for cell barcodes (CB), molecule barcodes (UB) and gene ids (GE)"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    warp_tools_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -144,7 +143,7 @@ task CalculateGeneMetrics {
   }
 
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD" 
     disk: disk + " GB" # TES

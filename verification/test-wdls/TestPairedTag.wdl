@@ -10,6 +10,7 @@ workflow TestPairedTag {
 
     input {
       String input_id
+      String nhash_id
 
       # Optimus Inputs
       String counting_mode = "sn_rna"
@@ -53,6 +54,7 @@ workflow TestPairedTag {
       String vault_token_path
       String google_account_vault_path
       Boolean run_cellbender = false
+      String cloud_provider
 
     }
 
@@ -86,7 +88,9 @@ workflow TestPairedTag {
         adapter_seq_read3 = adapter_seq_read3,
         chrom_sizes = chrom_sizes,
         atac_whitelist = atac_whitelist,
-        soloMultiMappers = soloMultiMappers
+        soloMultiMappers = soloMultiMappers,
+        cloud_provider = cloud_provider,
+        nhash_id = nhash_id
     }
 
     
@@ -116,7 +120,7 @@ workflow TestPairedTag {
                                     PairedTag.gene_metrics_gex,
                                     PairedTag.cell_metrics_gex
                                     ],
-                                    
+                                    select_all([PairedTag.library_metrics]),
     ])
 
     # Copy results of pipeline to test results bucket
@@ -184,6 +188,15 @@ workflow TestPairedTag {
             truth_path = truth_path
         }
 
+        if(defined(PairedTag.library_metrics)){
+            call Utilities.GetValidationInputs as GetLibraryMetrics {
+                input:
+                    input_file = PairedTag.library_metrics,
+                    results_path = results_path,
+                    truth_path = truth_path
+            }
+        }
+
       call VerifyPairedTag.VerifyPairedTag as Verify {
         input:
           truth_optimus_h5ad = GetOptimusH5ad.truth_file,
@@ -200,6 +213,8 @@ workflow TestPairedTag {
           test_fragment_file = GetFragmentFile.results_file,
           truth_atac_h5ad = GetSnapMetrics.truth_file,
           test_atac_h5ad = GetSnapMetrics.results_file,
+          test_library_metrics =  select_first([GetLibraryMetrics.results_file, ""]),
+          truth_library_metrics = select_first([GetLibraryMetrics.truth_file, ""]),
           done = CopyToTestResults.done
       }
     }

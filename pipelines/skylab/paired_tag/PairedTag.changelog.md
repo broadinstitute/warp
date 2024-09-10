@@ -1,12 +1,62 @@
-# 0.7.0 
-2024-05016 (Date of Last Commit)
+# 1.6.0
+2024-08-02 (Date of Last Commit)
 
-* Added Paired-tag testing infrastructure and example test inputs
+* Updated the SnapATAC2 docker to include v2.7.0; the pipeline will now produce a library-level summary metric CSV for the BAM.
+
+# 1.5.0
+2024-08-06 (Date of Last Commit)
+
+* Updated the warp-tools docker to calculate mitochondrial reads from unique reads in cell and gene metrics; these metrics are in the cell and gene metrics CSV as well as h5ad
+# 1.4.1
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 1.4.0
+2024-07-25 (Date of Last Commit)
+
+* Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files
+* Update the library-level metrics to include new TSO metrics and NHashID descriptor
+
+# 1.3.1
+2024-07-18 (Date of Last Commit)
+
+* The atac.wdl was refactored into its own directory under the pipelines/skylab directory; this change does not impact the PairedTag outputs
+
+# 1.3.0
+2024-07-11 (Date of Last Commit)
+
+* Updated the PairedTag.wdl to run on Azure. cloud_provider is a new, required input.
+
+# 1.2.0
+2024-07-09 (Date of Last Commit)
+
+* Added new optional input parameter of nhash_id, an optional identifier for a library aliquot that is echoed in the  workflow fragment h5ad, the Optimus workflow gene expression h5ad (in the data.uns), and the Optimus gene expression library metrics CSV output; default is set to null
+* Added test statements again for GH action (to release from develop). Will probably revert
+
+# 1.1.0
+2024-06-28 (Date of Last Commit)
+
+* Updated the STARsolo parameters for estimating cells to Emptydrops_CR
+* Added an optional input for expected cells which is used for metric calculation
+
+# 1.0.0
+2024-06-26
+
+* Official release of the PairedTag pipeline
+
+# 0.7.0
+2024-05-20
+
+* Updated SnapATAC2 docker and tasks to run SnapATAC v2.6.3 
+* Added testing infrastructure for paired-tag plumbing data and example data sets
+
 
 # 0.6.1
 2024-05-14 (Date of Last Commit)
 
 * Updated the demultiplex task so that some intermediate input names have been renamed. There is no change to the outputs.
+
 
 # 0.6.0
 2024-05-10 (Date)

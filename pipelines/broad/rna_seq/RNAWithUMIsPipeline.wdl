@@ -20,7 +20,7 @@ import "../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 
 workflow RNAWithUMIsPipeline {
 
-  String pipeline_version = "1.0.16"
+  String pipeline_version = "1.0.17"
 
   input {
     File? bam

@@ -1,3 +1,24 @@
+# 1.4.2
+2024-08-25-02 (Dat of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 1.4.1
+2024-07-25 (Dat of Last Commit)
+
+* Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files; this does not impact the snSS2 workflow
+
+# 1.4.0
+2024-07-11 (Date of Last Commit)
+
+* Updated the PairedTag.wdl to run on Azure. cloud_provider is a new, required input.
+* Added new optional input parameter of gex_nhash_id to the STARAlign task; this does not impact the MultiSampleSmartSeq2SingleNucleus workflow 
+
+# 1.3.5
+2024-06-28 (Date of Last Commit)
+
+* Updated the STARsolo parameters for estimating cells to Emptydrops_CR; this does not impact the snSS2 pipeline
+
 # 1.3.4
 2024-04-12 (Date of Last Commit)
 

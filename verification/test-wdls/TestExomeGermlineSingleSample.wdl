@@ -28,6 +28,7 @@ workflow TestExomeGermlineSingleSample {
     Boolean update_truth
     String vault_token_path
     String google_account_vault_path
+    String cloud_provider
   }
 
   meta {
@@ -46,7 +47,8 @@ workflow TestExomeGermlineSingleSample {
       target_interval_list         = target_interval_list,
       bait_interval_list           = bait_interval_list,
       bait_set_name                = bait_set_name,
-      provide_bam_output           = provide_bam_output
+      provide_bam_output           = provide_bam_output,
+      cloud_provider               = cloud_provider
   }
 
   # Collect all of the pipeline outputs into a single Array[String]]

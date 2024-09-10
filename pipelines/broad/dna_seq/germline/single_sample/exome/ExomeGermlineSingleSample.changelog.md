@@ -1,3 +1,24 @@
+# 3.2.0
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+* Updated version drops some low quality sites from VCFs; if reblocking is enabled, the DP annotation in some ref blocks will change due to the change in HaplotypeCaller
+
+# 3.1.22
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs; this does not affect this pipeline
+
+# 3.1.21
+2024-07-09 (Date of Last Commit)
+
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers
+
+# 3.1.20
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
+
 # 3.1.19
 2024-03-26 (Date of Last Commit)
 

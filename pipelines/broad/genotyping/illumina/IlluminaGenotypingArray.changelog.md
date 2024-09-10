@@ -1,3 +1,28 @@
+# 1.12.22
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+
+# 1.12.21
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline  
+
+# 1.12.20
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs; this does not affect this pipeline
+
+# 1.12.19
+2024-07-09 (Date of Last Commit)
+
+* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers
+
+# 1.12.18
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
+
 # 1.12.17
 2024-03-26 (Date of Last Commit)
 

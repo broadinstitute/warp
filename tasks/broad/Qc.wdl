@@ -587,7 +587,7 @@ task CalculateReadGroupChecksum {
     Int preemptible_tries
   }
 
-  Int disk_size = ceil(size(input_bam, "GiB")) + 40
+  Int disk_size = ceil(size(input_bam, "GiB")) + 80
 
   command {
     java -Xms1000m -Xmx3500m -jar /usr/picard/picard.jar \
@@ -598,7 +598,7 @@ task CalculateReadGroupChecksum {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
-    memory: "4000 MiB"
+    memory: "6000 MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
@@ -622,7 +622,8 @@ task ValidateVCF {
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    #Setting default docker value for workflows that haven't yet been azurized.
+    String docker_path = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
     Int machine_mem_mb = 7000
   }
 
@@ -631,7 +632,7 @@ task ValidateVCF {
 
   Int command_mem_mb = machine_mem_mb - 2000
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
+  Int disk_size = ceil(size(input_vcf, "GiB") + size(calling_interval_list, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
 
   command {
     set -e
@@ -640,7 +641,8 @@ task ValidateVCF {
       # We can't always assume the index was located with the vcf, so make a link so that the paths look the same
       ln -s ~{calling_interval_list} ~{calling_interval_list_basename}
       ln -s ~{calling_interval_list_index} ~{calling_interval_list_index_basename}
-      gatk VcfToIntervalList -I ~{calling_interval_list_basename} -O intervals_from_gvcf.interval_list
+      gatk --java-options "-Xms~{command_mem_mb}m -Xmx~{command_mem_mb}m" \
+        VcfToIntervalList -I ~{calling_interval_list_basename} -O intervals_from_gvcf.interval_list
       INTERVALS="intervals_from_gvcf.interval_list"
     else
       INTERVALS="~{calling_interval_list}"
@@ -657,7 +659,7 @@ task ValidateVCF {
       ~{extra_args}
   }
   runtime {
-    docker: gatk_docker
+    docker: docker_path
     preemptible: preemptible_tries
     memory: machine_mem_mb + " MiB"
     bootDiskSizeGb: 15
@@ -677,6 +679,8 @@ task CollectVariantCallingMetrics {
     File evaluation_interval_list
     Boolean is_gvcf = true
     Int preemptible_tries
+    #Setting default docker value for workflows that haven't yet been azurized.
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
   }
 
   Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB")) + 20
@@ -692,7 +696,7 @@ task CollectVariantCallingMetrics {
       ~{true="GVCF_INPUT=true" false="" is_gvcf}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: docker
     preemptible: preemptible_tries
     memory: "3000 MiB"
     disks: "local-disk " + disk_size + " HDD"

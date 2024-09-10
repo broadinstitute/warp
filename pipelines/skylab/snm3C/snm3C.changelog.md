@@ -1,3 +1,22 @@
+# 4.0.4
+2024-08-06 (Date of Last Commit)
+
+* Updated the Demultiplexing task in the snm3C wdl to flag when file/cell is empty
+
+# 4.0.3
+2024-08-06 (Date of Last Commit)
+
+* Updated the Demultiplexing task in snm3C wdl to dynamically update the batch number based on the number of fastq files present
+
+# 4.0.2
+2024-07-09 (Date of Last Commit)
+
+* Updated the snM3C wdl to run on Azure; this change does not affect the snM3C pipeline
+
+# 4.0.1
+2024-06-26 (Date of Last Commit)
+* Added task to untar files and output files at cell level 
+
 # 4.0.0
 2024-03-15 (Date of Last Commit)
 * Reconstructed code and merged tasks to optimize pipeline and reduce cost 

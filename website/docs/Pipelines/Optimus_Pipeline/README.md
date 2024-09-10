@@ -7,7 +7,7 @@ slug: /Pipelines/Optimus_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v6.6.2](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | May, 2024 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [optimus_v7.2.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | July, 2024 | Elizabeth Kiernan | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
 
 
 ![Optimus_diagram](Optimus_diagram.png)
@@ -85,10 +85,12 @@ The example configuration files also contain metadata for the reference files, d
 
 | Parameter name | Description | Optional attributes (when applicable) |
 | --- | --- | --- |
+| cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
 | whitelist |  List of known CBs; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) whitelist that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom whitelist can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom whitelist, set the input `ignore_r1_read_length` to "true". | N/A |
 | read_struct | String describing the structure of reads; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) read structure that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom read structure can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom read structure, set the input `force_no_check` to "true". | N/A |
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl). | N/A |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | N/A |
+| gex_nhash_id | Optional string to identify the library aliquot; will be echoed in the output h5ad file in the adata.uns and the library-level metrics CSV; default is null (`""`) | N/A |
 | input_name | Optional string that can be used to further identify the original biological sample. | N/A |
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the input_id. | N/A |
 | input_name_metadata_field | Optional string describing, when applicable, the metadata field containing the input_name. | N/A |
@@ -102,6 +104,7 @@ The example configuration files also contain metadata for the reference files, d
 | ignore_r1_read_length | Boolean that overrides a check on the 10x chemistry. Default is set to false. If true, the workflow will not ensure that the 10x_chemistry_version input matches the chemistry in the read 1 FASTQ. | "true" or "false" (default) | 
 | emptydrops_lower | UMI threshold for emptyDrops detection; default is 100. | N/A |
 | count_exons | Boolean indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**. If true, this option will output an additional layer for the h5ad file. By default, it is set to "false". If the parameter is true and used with sc_rnamode, the workflow will return an error. | "true" or "false" (default) |
+| expected_cells | Optional integer input for the expected number of cells, which is used calculate library-level metrics. The default is set to 3,000 | 
 
 #### Pseudogene handling
 The example Optimus reference files are downloaded directly from GENCODE (see Quickstart table) and are not modified to remove pseudogenes. This is in contrast to the [references created for Cell Ranger](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/release-notes/references#header) which remove pseudogenes and small RNAs.
@@ -255,7 +258,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | cell_metrics | `<input_id>.cell-metrics.csv.gz` | Matrix of metrics by cells. | Compressed CSV |
 | gene_metrics | `<input_id>.gene-metrics.csv.gz` |  Matrix of metrics by genes. | Compressed CSV |
 | aligner_metrics | `<input_id>.star_metrics.tar` | Tarred metrics files produced by the STARsolo aligner; contains align features, cell reads, summary, and UMI per cell metrics files. | TXT |
-| library_metrics | `<input_id>_library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. | CSV |
+| library_metrics | `<input_id>_<gex_nash_id>_library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. See the [Library-level metrics](./Library-metrics.md) for how metrics are calculated. | CSV |
 | multimappers_EM_matrix | `UniqueAndMult-EM.mtx` | Optional output produced when `soloMultiMappers` is "EM"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. | MTX |
 | multimappers_Uniform_matrix | `UniqueAndMult-Uniform.mtx` | Optional output produced when `soloMultiMappers` is "Uniform"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. | MTX |
 | multimappers_Rescue_matrix | `UniqueAndMult-Rescue.mtx` | Optional output produced when `soloMultiMappers` is "Rescue"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. | MTX |
@@ -301,11 +304,11 @@ This pipeline is supported and used by the [Human Cell Atlas](https://www.humanc
 
 Each consortium may use slightly different reference files for data analysis or have different post-processing steps. Learn more by reading the [Consortia Processing](./consortia-processing.md) overview.
 
-If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
+If your organization also uses this pipeline, we would like to list you! Please reach out to us by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues).
 
 ## Feedback
 
-Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues); we welcome pipeline-related suggestions or questions.
 
 ## Acknowledgements
 We are immensely grateful to the members of the [Human Cell Atlas Data Coordination Platform](https://data.humancellatlas.org/),  BRAIN Initiative ([BICAN](https://brainblog.nih.gov/brain-blog/brain-issues-suite-funding-opportunities-advance-brain-cell-atlases-through-centers) Sequencing Working Group) and [SCORCH](https://nida.nih.gov/about-nida/organization/divisions/division-neuroscience-behavior-dnb/basic-research-hiv-substance-use-disorder/scorch-program) for their invaluable and exceptional contributions to this pipeline. Our heartfelt appreciation goes to Alex Dobin, Aparna Bhaduri, Alec Wysoker, Anish Chakka, Brian Herb, Daofeng Li, Fenna Krienen, Guo-Long Zuo, Jeff Goldy, Kai Zhang, Khalid Shakir, Bo Li, Mariano Gabitto, Michael DeBerardine, Mengyi Song, Melissa Goldman, Nelson Johansen, James Nemesh, and Theresa Hodges for their unwavering dedication and remarkable efforts. 
@@ -365,6 +368,11 @@ For three reasons:
 Unlike Cell Ranger references, Optimus references are downloaded directly from GENCODE and not modified to remove pseudogenes and small RNAs. Learn more about Cell Ranger references on the [10x website](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/release-notes/references#header). 
 
 In the case of multi-mapped pseudogenes, Optimus and Cell Ranger will produce different results. Optimus does not count multi-mapped reads in the final count matrix, whereas Cell Ranger will keep potential multi-mapped reads because it does not identify the pseudogene reads.
+:::
+
+:::note Question How does estimated cells differ between Cell Ranger and Optimus?
+
+Overall, the estimated cells produced by Optimus and Cell Ranger should only slightly vary. However, if you are using Optimus in the Multiome pipeline and trying to compare estimated cells to Cell Ranger ARC, you might find that ARC calls fewer cells. This is because ARC sets a threshold that both the ATAC and gene expression cells must pass, whereas Optimus is only setting a threshold for the gene expression side of the pipeline.
 :::
 
 

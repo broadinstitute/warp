@@ -1,4 +1,42 @@
-# 6.6.2
+# 7.6.0
+2024-08-06 (Date of Last Commit)
+
+* Updated the warp-tools docker to calculate mitochondrial reads from unique reads in cell and gene metrics; these metrics are in the cell and gene metrics CSV as well as h5ad
+
+# 7.5.1
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 7.5.0
+2024-07-25 (Date of Last Commit)
+
+* Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files
+* Update the library-level metrics to include new TSO metrics and NHashID descriptor
+
+# 7.4.0
+2024-07-11 (Date of Last Commit)
+
+* Updated the Optimus.wdl to run on Azure. cloud_provider is a new, required input.
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers
+
+# 7.3.0
+2024-07-09 (Date of Last Commit)
+
+* Added new optional input parameter of gex_nhash_id, a string identifier for a library aliquot that is echoed in the h5ad cell by gene matrix (in the data.uns) and the library metrics CSV output; default is set to null 
+
+# 7.2.0
+2024-06-28 (Date of Last Commit)
+
+* Updated the STARsolo parameters for estimating cells to Emptydrops_CR
+* Added an optional input for expected cells which is used for metric calculation
+
+# 7.1.0
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this does not impact the Optimus workflow
+
+# 7.0.0
 2024-04-24 (Date of Last Commit)
 
 * Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering

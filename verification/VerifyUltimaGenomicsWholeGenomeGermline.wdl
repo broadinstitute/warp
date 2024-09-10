@@ -2,6 +2,7 @@ version 1.0
 
 import "../verification/VerifyMetrics.wdl" as MetricsVerification
 import "../verification/VerifyTasks.wdl" as Tasks
+import "../verification/VerifyNA12878.wdl" as VerifyNA12878
 
 workflow VerifyUltimaGenomicsWholeGenomeGermline {
 
@@ -17,10 +18,14 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
     File test_vcf
     File truth_vcf
     File test_filtered_vcf
+    File test_filtered_vcf_index
     File truth_filtered_vcf
+    File truth_filtered_vcf_index
 
     File test_gvcf
     File truth_gvcf
+
+    String sample_name
 
     Boolean? done
   }
@@ -104,6 +109,14 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
       patternForLinesToExcludeFromComparison = "^##"
   }
 
+  call VerifyNA12878.VerifyNA12878 {
+    input:
+      vcf_files = [test_filtered_vcf, truth_filtered_vcf],
+      vcf_file_indexes = [test_filtered_vcf_index, truth_filtered_vcf_index],
+      vcf_names = ["test","truth"],
+      sample_name = sample_name
+  }
+
   meta {
     allowNestedInputs: true
   }
@@ -135,7 +148,7 @@ task CompareGvcfs {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 70 HDD"
     memory: "2 GiB"
     preemptible: 3

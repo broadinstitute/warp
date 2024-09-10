@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Welcome to WARP
+# Welcome to WARP 
 
 WARP (WDL Analysis Research Pipelines) repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators.
 
@@ -88,7 +88,7 @@ Each pipeline in WARP has accompanying continuous integration tests that run on 
 
 ## Feedback
 
-WARP is always evolving! Please file any issues in GitHub or contact [the WARP Team](mailto:warp-pipelines-help@broadinstitute.org) with suggestions, feedback, or questions. We are always excited to discuss cloud data processing, provenance and reproducibility in scientific analysis, new pipeline features, or potential collaborations. Don’t hesitate to reach out!
+WARP is always evolving! Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) with suggestions, feedback, or questions. We are always excited to discuss cloud data processing, provenance and reproducibility in scientific analysis, new pipeline features, or potential collaborations. Don’t hesitate to reach out!
 
 Our planned upcoming improvements include:
 

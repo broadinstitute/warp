@@ -1,3 +1,41 @@
+# 2.3.0
+2024-08-29 (Date of Last Commit)
+
+* Updated the SnapATAC2 docker to include v2.7.0; the pipeline will now produce a library-level summary metric CSV for the BAM. 
+
+* Updated the memory for the CreateFragmentFile task
+
+# 2.2.3
+2024-08-02 (Date of Last Commit)
+
+* Updated the warp-tools docker which now includes new metric calculations for mitochondria reads; this does not impact the ATAC workflow
+
+# 2.2.2
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 2.2.1
+2024-07-25 (Dat of Last Commit)
+
+* Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files; this does not impact the ATAC workflow
+
+# 2.2.0
+2024-07-11 (Date of Last Commit)
+
+* Updated the atac.wdl to run on Azure. cloud_provider is a new, required input.
+
+# 2.1.0
+2024-07-09 (Date of Last Commit)
+
+* Added new optional input parameter of atac_nhash_id, an identifier for a library aliquot that is echoed in the atac fragment metrics h5ad (in the data.uns); default is set to null 
+* Added test statements again for GH action (to release from develop). Will probably revert
+
+# 2.0.0
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this impacts the workflow output metrics
+
 # 1.2.3
 2024-05-14 (Date of Last Commit)
 
