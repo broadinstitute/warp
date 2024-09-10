@@ -851,6 +851,7 @@ task CalculateContamination {
     File ref_fasta_index
     File population_vcf
     File population_vcf_index
+    Int max_depth_per_sample = 0
     # runtime
     String docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int cpu = 1
@@ -877,7 +878,8 @@ task CalculateContamination {
     -L ~{population_vcf} \
     -O ~{base_name}_pileups.tsv \
     --disable-read-filter WellformedReadFilter \
-    --disable-read-filter MappingQualityAvailableReadFilter
+    --disable-read-filter MappingQualityAvailableReadFilter \
+    --max-depth-per-sample ~{max_depth_per_sample}
 
     gatk --java-options "-Xmx~{java_max_heap}m" CalculateContamination \
     -I ~{base_name}_pileups.tsv \
