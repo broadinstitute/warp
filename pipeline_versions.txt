@@ -1,5 +1,5 @@
 Pipeline Name	Version	Date of Last Commit
-MultiSampleSmartSeq2SingleNucleus	 1.4.2	2024-08-25-02 
+MultiSampleSmartSeq2SingleNucleus	 2.0.0	2024-09-11 
 MultiSampleSmartSeq2	 2.2.21	2023-04-19 
 PairedTag	 1.6.0	2024-08-02 
 Optimus	 7.6.0	2024-08-06 
