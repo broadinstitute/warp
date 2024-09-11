@@ -8,7 +8,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "1.5.0"
+    String pipeline_version = "1.6.0"
 
 
     input {
@@ -149,6 +149,7 @@ workflow PairedTag {
     
     File atac_fragment_out = select_first([ParseBarcodes.atac_fragment_tsv,Atac_preindex.fragment_file])
     File atac_h5ad_out = select_first([ParseBarcodes.atac_h5ad_file, Atac_preindex.snap_metrics])
+    
     output {
         
         String pairedtag_pipeline_version_out = pipeline_version
@@ -157,6 +158,7 @@ workflow PairedTag {
         File bam_aligned_output_atac = Atac_preindex.bam_aligned_output
         File fragment_file_atac = atac_fragment_out
         File snap_metrics_atac = atac_h5ad_out
+        File atac_library_final = Atac_preindex.library_metrics_file
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
