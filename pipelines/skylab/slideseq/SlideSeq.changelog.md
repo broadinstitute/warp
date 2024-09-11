@@ -1,3 +1,8 @@
+# 3.4.1
+2024-09-11 (Date of Last Commit)
+
+* Updated warp-tools docker which added create_h5ad_snss2.py to the docker image. This change does not affect the SlideSeq pipeline
+
 # 3.4.0
 2024-08-06 (Date of Last Commit)
 
