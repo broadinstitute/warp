@@ -46,7 +46,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.2.3"
+  String pipeline_version = "2.3.0"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -58,7 +58,7 @@ workflow ATAC {
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
-  String snap_atac_docker = "snapatac2:1.0.9-2.6.3-1715865353"
+  String snap_atac_docker = "snapatac2:1.1.0"
 
   # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
   if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
@@ -158,11 +158,13 @@ workflow ATAC {
   File bam_aligned_output_atac = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
   File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
   File snap_metrics_atac = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])
+  File library_metrics = select_first([BB_fragment.atac_library_metrics, CreateFragmentFile.atac_library_metrics])
 
   output {
     File bam_aligned_output = bam_aligned_output_atac
     File fragment_file = fragment_file_atac
     File snap_metrics = snap_metrics_atac
+    File library_metrics_file = library_metrics
   }
 }
 
@@ -505,7 +507,7 @@ task CreateFragmentFile {
     File annotations_gtf
     Boolean preindex
     Int disk_size = 500
-    Int mem_size = 16
+    Int mem_size = 64
     Int nthreads = 4
     String cpuPlatform = "Intel Cascade Lake"
     String docker_path
@@ -547,17 +549,35 @@ task CreateFragmentFile {
     import snapatac2.preprocessing as pp
     import snapatac2 as snap
     import anndata as ad
+    from collections import OrderedDict
+    import csv
 
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
-      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="BB")
+      data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     elif preindex == "false":
-      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
-      
+      data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+    
+    # Add NHashID to metrics 
+    nhash_ID_value = "XXX"
+    data = OrderedDict({'NHash_ID': atac_nhash_id, **data})
+    # Flatten the dictionary
+    flattened_data = []
+    for category, metrics in data.items():
+        if isinstance(metrics, dict):
+            for metric, value in metrics.items():
+                flattened_data.append((metric, value))
+        else:
+            flattened_data.append((category, metrics))
 
-    # calculate quality metrics; note min_num_fragments and min_tsse are set to 0 instead of default
-    # those settings allow us to retain all barcodes
-    pp.import_data("~{bam_base_name}.fragments.tsv", file="temp_metrics.h5ad", chrom_sizes=chrom_size_dict, min_num_fragments=0)
+    # Write to CSV
+    csv_file_path = "~{bam_base_name}_~{atac_nhash_id}.atac_metrics.csv"
+    with open(csv_file_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(flattened_data)  # Write data
+
+    print(f"Dictionary successfully written to {csv_file_path}")
+
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
     # Add nhash_id to h5ad file as unstructured metadata
     atac_data.uns['NHashID'] = atac_nhash_id
@@ -580,5 +600,6 @@ task CreateFragmentFile {
   output {
     File fragment_file = "~{bam_base_name}.fragments.tsv"
     File Snap_metrics = "~{bam_base_name}.metrics.h5ad"
+    File atac_library_metrics = "~{bam_base_name}_~{atac_nhash_id}.atac_metrics.csv"
   }
 }
