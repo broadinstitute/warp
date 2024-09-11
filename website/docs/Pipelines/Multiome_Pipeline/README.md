@@ -19,7 +19,7 @@ The workflow is a wrapper WDL script that calls two subworkflows: the [Optimus w
 
 The GEX component corrects cell barcodes (CBs) and Unique Molecular Identifiers (UMIs), aligns reads to the genome, calculates per-barcode and per-gene quality metrics, and produces a raw cell-by-gene count matrix. It also produces [library-level metrics](../Optimus_Pipeline/Library-metrics.md) calculated from STARsolo aligner metrics. 
 
-The ATAC component corrects CBs, aligns reads to the genome, calculates [per-barcode quality metrics](../ATAC/library-metrics.md), and produces a fragment file.
+The ATAC component corrects CBs, aligns reads to the genome, calculates [per-barcode quality metrics](../ATAC/count-matrix-overview.md), [library-level metrics](../ATAC/library-metrics.md) and produces a fragment file.
 
 The wrapper WDL is available in the WARP repository (see the [code here](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/Multiome.wdl)).
 
