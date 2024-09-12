@@ -305,7 +305,7 @@ task CountVariantsInChunksBeagle {
 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int cpu = 1
-    Int memory_mb = 8000
+    Int memory_mb = 16000
     Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_bed_file], "GiB")) + 20
   }
   Int command_mem = memory_mb - 2000
