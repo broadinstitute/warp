@@ -9,7 +9,7 @@ import "../../../../../tasks/broad/DragenTasks.wdl" as DragenTasks
 workflow VariantCalling {
 
 
-  String pipeline_version = "2.2.1"
+  String pipeline_version = "2.2.2"
 
 
   input {
@@ -40,8 +40,8 @@ workflow VariantCalling {
   }
 
   # docker images
-  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
-  String gatk_docker_azure = "dsppipelinedev.azurecr.io/gatk_reduced_layers:1.0.0"
+  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+  String gatk_docker_azure = "terrapublic.azurecr.io/gatk:4.6.0.0"
   String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
 
   String gatk_1_3_docker_gcp = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
@@ -141,7 +141,6 @@ workflow VariantCalling {
           dragstr_model = DragstrAutoCalibration.dragstr_model,
           preemptible_tries = agg_preemptible_tries,
           gatk_docker = gatk_docker
-
        }
 
       if (use_dragen_hard_filtering) {

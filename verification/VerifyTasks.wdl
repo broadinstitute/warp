@@ -72,10 +72,11 @@ task CompareVCFsVerbosely {
   }
 
   command {
-    gatk VCFComparator -R ~{ref_fasta}  -V:actual ~{actual} -V:expected ~{expected} ~{extra_args} ~{if(warn_on_error) then "--warn-on-errors" else ""} --finish-before-failing
+    gatk --java-options "-Xms2500m -Xmx2500m" VCFComparator -R ~{ref_fasta}  -V:actual ~{actual} -V:expected ~{expected} ~{extra_args} ~{if(warn_on_error) then "--warn-on-errors" else ""} --finish-before-failing
   }
 
   runtime {
+    #TODO: update docker to next GATK release (after 4.6.0.0) which includes an updated VCFComparator
     docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:4c1b32dd89c46af52e68ae34f99db483ba07b08def2479d145a185de0b2d9a4a"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
