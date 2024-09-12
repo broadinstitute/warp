@@ -2,12 +2,13 @@
 sidebar_position: 1
 slug: /Pipelines/CEMBA_MethylC_Seq_Pipeline/README
 ---
+# CEMBA Overview
+
 :::warning
 9/12/2024
 
-We are deprecating the CEMBA pipeline. Although the code will continue to be available, we are no longer supporting it. A possible alternative is the [Single-nucleus Methyl-seq and Chromatin Capture](../snM3C/README.md) workflow.
+We are deprecating the CEMBA pipeline. Although the code will continue to be available, we are no longer supporting it. A possible alternative is the [Single-nucleus Methyl-seq and Chromatin Capture](../../Pipelines/snM3C/README.md) workflow.
 :::
-# CEMBA Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |

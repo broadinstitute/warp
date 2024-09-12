@@ -2,14 +2,13 @@
 sidebar_position: 1
 slug: /Pipelines/Single_Cell_ATAC_Seq_Pipeline/README
 ---
+
+# scATAC Overview
 :::warning
 9/12/2024
 
-We are deprecating the Single-cell ATAC Seq Pipeline. Although the code will continue to be available, we are no longer supporting it. This workflow has been replaced with the [ATAC workflow](../ATAC/README.md).
+We are deprecating the Single-cell ATAC Seq Pipeline. Although the code will continue to be available, we are no longer supporting it. This workflow has been replaced with the [ATAC workflow](../../Pipelines/ATAC/README.md).
 :::
-
-# scATAC Overview
-
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
 | [scATAC 1.3.2](https://github.com/broadinstitute/warp/releases) | May 2024 | Elizabeth Kiernan | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
