@@ -2,6 +2,9 @@
 sidebar_position: 1
 slug: /Pipelines/Single_Cell_ATAC_Seq_Pipeline/README
 ---
+:::warning
+We are deprecating the Single-cell ATAC Seq Pipeline. Although the code will continue to be available, we are no longer supporting it. This workflow has been replaced with the [ATAC workflow](../ATAC/README.md).
+:::
 
 # scATAC Overview
 
