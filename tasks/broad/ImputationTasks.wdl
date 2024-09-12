@@ -19,8 +19,7 @@ task CalculateChromosomeLength {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
   output {
     Int chrom_length = read_int(stdout())
@@ -66,8 +65,8 @@ task CreateRefPanelIntervalLists {
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
 
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   String basename = basename(ref_panel_vcf, '.vcf.gz')
 
@@ -104,8 +103,8 @@ task GenerateChunk {
     Int memory_mb = 8000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   command {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
@@ -154,8 +153,8 @@ task CountVariantsInChunks {
     Int memory_mb = 4000
     Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB")) + 20
   }
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   command <<<
     set -e -o pipefail
@@ -309,8 +308,8 @@ task CountVariantsInChunksBeagle {
     Int memory_mb = 8000
     Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_bed_file], "GiB")) + 20
   }
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   command <<<
     set -e -o pipefail
@@ -331,8 +330,7 @@ task CountVariantsInChunksBeagle {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
 }
 
@@ -362,8 +360,7 @@ task CheckChunksBeagle {
     disks: "local-disk 10 HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
 }
 
@@ -415,8 +412,7 @@ task PhaseAndImputeBeagle {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
 }
 
@@ -430,8 +426,8 @@ task GatherVcfs {
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3*size(input_vcfs, "GiB"))
   }
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   command <<<
     set -e -o pipefail
@@ -450,7 +446,6 @@ task GatherVcfs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
@@ -499,8 +494,8 @@ task UpdateHeader {
     Int cpu = 1
     Int memory_mb = 8000
   }
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   command <<<
 
@@ -517,8 +512,7 @@ task UpdateHeader {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -537,8 +531,8 @@ task RemoveSymbolicAlleles {
     Int cpu = 1
     Int memory_mb = 4000
   }
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   command {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
@@ -553,8 +547,7 @@ task RemoveSymbolicAlleles {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
 }
 
@@ -584,8 +577,7 @@ task SeparateMultiallelics {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
 }
 
@@ -685,7 +677,7 @@ task CountSamples {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
+    preemptible: 1
   }
   output {
     Int nSamples = read_int(stdout())
@@ -729,7 +721,7 @@ task AggregateImputationQCMetrics {
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 3
+    preemptible: 1
   }
   output {
     File aggregated_metrics = "~{basename}_aggregated_imputation_metrics.tsv"
@@ -769,8 +761,7 @@ task StoreChunksInfo {
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 3
-    maxRetries: 2
+    preemptible: 1
   }
   output {
     File chunks_info = "~{basename}_chunk_info.tsv"
@@ -831,8 +822,8 @@ task SubsetVcfToRegion {
     Int memory_mb = 8000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   command {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
@@ -887,8 +878,7 @@ task SetIDs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
   output {
     File output_vcf = "~{output_basename}.vcf.gz"
@@ -918,8 +908,7 @@ task ExtractIDs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
 }
 
@@ -945,8 +934,8 @@ task SelectVariantsByIds {
       localization_optional: true
     }
   }
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   command <<<
     set -e -o pipefail
@@ -960,8 +949,7 @@ task SelectVariantsByIds {
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -990,8 +978,7 @@ task RemoveAnnotations {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -1009,8 +996,8 @@ task InterleaveVariants {
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3.2*size(vcfs, "GiB")) + 100
   }
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   command <<<
     set -e -o pipefail
@@ -1023,8 +1010,7 @@ task InterleaveVariants {
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -1050,8 +1036,7 @@ task FindSitesUniqueToFileTwoOnly {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
   output {
     File missing_sites = "missing_sites.ids"
@@ -1100,8 +1085,8 @@ task CreateVcfIndex {
     Int memory_mb = 8000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   String vcf_basename = basename(vcf_input)
 
@@ -1120,8 +1105,7 @@ task CreateVcfIndex {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
   output {
     File vcf = "~{vcf_basename}"
@@ -1139,8 +1123,8 @@ task PreSplitVcf {
     Int memory_mb = 8000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   command {
     set -e -o pipefail
@@ -1174,8 +1158,7 @@ task PreSplitVcf {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
   output {
     Array[File] chr_split_vcfs = glob("split_vcfs/*.vcf.gz")
@@ -1198,8 +1181,8 @@ task PreChunkVcf {
     Int memory_mb = 8000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
-  Int command_mem = memory_mb - 1000
-  Int max_heap = memory_mb - 500
+  Int command_mem = memory_mb - 2000
+  Int max_heap = memory_mb - 1500
 
   command {
     set -e -o pipefail
@@ -1278,8 +1261,7 @@ task PreChunkVcf {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
-    preemptible: 3
+    preemptible: 1
   }
   output {
     Array[File] generate_chunk_vcfs = glob("generate_chunk/*.vcf.gz")
