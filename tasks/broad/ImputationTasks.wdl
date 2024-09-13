@@ -61,12 +61,12 @@ task CreateRefPanelIntervalLists {
 
     Int disk_size_gb = ceil(2*size(ref_panel_vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
     Int cpu = 1
-    Int memory_mb = 8000
+    Int memory_mb = 6000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
 
-  Int command_mem = memory_mb - 2000
-  Int max_heap = memory_mb - 1500
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
 
   String basename = basename(ref_panel_vcf, '.vcf.gz')
 
@@ -100,11 +100,11 @@ task GenerateChunk {
 
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
     Int cpu = 1
-    Int memory_mb = 8000
+    Int memory_mb = 4000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
-  Int command_mem = memory_mb - 2000
-  Int max_heap = memory_mb - 1500
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
 
   command {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
@@ -150,11 +150,11 @@ task CountVariantsInChunks {
 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int cpu = 1
-    Int memory_mb = 4000
+    Int memory_mb = 6000
     Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB")) + 20
   }
-  Int command_mem = memory_mb - 2000
-  Int max_heap = memory_mb - 1500
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
 
   command <<<
     set -e -o pipefail
@@ -308,8 +308,8 @@ task CountVariantsInChunksBeagle {
     Int memory_mb = 16000
     Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_bed_file], "GiB")) + 20
   }
-  Int command_mem = memory_mb - 2000
-  Int max_heap = memory_mb - 1500
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
 
   command <<<
     set -e -o pipefail
@@ -426,8 +426,8 @@ task GatherVcfs {
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3*size(input_vcfs, "GiB"))
   }
-  Int command_mem = memory_mb - 2000
-  Int max_heap = memory_mb - 1500
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
 
   command <<<
     set -e -o pipefail
@@ -458,6 +458,8 @@ task ReplaceHeader {
     File vcf_to_replace_header
     File vcf_with_new_header
 
+    Int cpu = 1
+    Int memory_mb = 6000
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
   }
 
@@ -475,6 +477,9 @@ task ReplaceHeader {
   runtime {
     docker: bcftools_docker
     disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 1
   }
 
   output {
@@ -492,10 +497,10 @@ task UpdateHeader {
     Int disk_size_gb = ceil(4*(size(vcf, "GiB") + size(vcf_index, "GiB"))) + 20
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int cpu = 1
-    Int memory_mb = 8000
+    Int memory_mb = 6000
   }
-  Int command_mem = memory_mb - 2000
-  Int max_heap = memory_mb - 1500
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
 
   command <<<
 
@@ -531,8 +536,8 @@ task RemoveSymbolicAlleles {
     Int cpu = 1
     Int memory_mb = 4000
   }
-  Int command_mem = memory_mb - 2000
-  Int max_heap = memory_mb - 1500
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
 
   command {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
@@ -819,11 +824,11 @@ task SubsetVcfToRegion {
 
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
     Int cpu = 1
-    Int memory_mb = 8000
+    Int memory_mb = 6000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
-  Int command_mem = memory_mb - 2000
-  Int max_heap = memory_mb - 1500
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
 
   command {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
@@ -996,8 +1001,8 @@ task InterleaveVariants {
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3.2*size(vcfs, "GiB")) + 100
   }
-  Int command_mem = memory_mb - 2000
-  Int max_heap = memory_mb - 1500
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
 
   command <<<
     set -e -o pipefail
@@ -1050,7 +1055,7 @@ task SplitMultiSampleVcf {
 
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
     Int cpu = 1
-    Int memory_mb = 8000
+    Int memory_mb = 6000
 
     # This calculation is explained in https://github.com/broadinstitute/warp/pull/937
     Int disk_size_gb = ceil(21*nSamples*size(multiSampleVcf, "GiB")/(nSamples+20)) + 100
@@ -1082,11 +1087,11 @@ task CreateVcfIndex {
 
     Int disk_size_gb = ceil(3*size(vcf_input, "GiB")) + 50
     Int cpu = 1
-    Int memory_mb = 8000
+    Int memory_mb = 6000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
-  Int command_mem = memory_mb - 2000
-  Int max_heap = memory_mb - 1500
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
 
   String vcf_basename = basename(vcf_input)
 
@@ -1120,11 +1125,11 @@ task PreSplitVcf {
 
     Int disk_size_gb = ceil(3*size(vcf, "GiB")) + 50
     Int cpu = 1
-    Int memory_mb = 8000
+    Int memory_mb = 6000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
-  Int command_mem = memory_mb - 2000
-  Int max_heap = memory_mb - 1500
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
 
   command {
     set -e -o pipefail
@@ -1178,11 +1183,11 @@ task PreChunkVcf {
 
     Int disk_size_gb = ceil(4*size(vcf, "GiB")) + 50
     Int cpu = 1
-    Int memory_mb = 8000
+    Int memory_mb = 6000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
-  Int command_mem = memory_mb - 2000
-  Int max_heap = memory_mb - 1500
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
 
   command {
     set -e -o pipefail
@@ -1288,7 +1293,7 @@ task ErrorWithMessageIfErrorCountNotZero {
 
   runtime {
     docker: "ubuntu.azurecr.io/ubuntu:20.04"
-    preemptible: 3
+    preemptible: 1
   }
   output {
     Boolean done = true
