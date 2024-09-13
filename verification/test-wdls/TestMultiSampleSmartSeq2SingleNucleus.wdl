@@ -68,7 +68,7 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
-                                    MultiSampleSmartSeq2SingleNucleus.loom_output,
+                                    MultiSampleSmartSeq2SingleNucleus.h5ad_output,
                                     ],
                                     # Array[File] outputs
                                     MultiSampleSmartSeq2SingleNucleus.bam_files,
@@ -106,9 +106,9 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
             results_path = results_path,
             truth_path = truth_path
         }
-        call Utilities.GetValidationInputs as GetLoom {
+        call Utilities.GetValidationInputs as GetH5ad {
           input:
-            input_file = MultiSampleSmartSeq2SingleNucleus.loom_output,
+            input_file = MultiSampleSmartSeq2SingleNucleus.h5ad_output,
             results_path = results_path,
             truth_path = truth_path
         }
@@ -117,8 +117,8 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
         input:
           truth_bams = GetBams.truth_files, 
           test_bams = GetBams.results_files,
-          truth_loom = GetLoom.truth_file, 
-          test_loom = GetLoom.results_file,
+          truth_h5ad = GetH5ad.truth_file,
+          test_h5ad = GetH5ad.results_file,
           done = CopyToTestResults.done
       }
     }
