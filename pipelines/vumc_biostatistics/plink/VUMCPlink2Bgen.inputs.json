@@ -1,0 +1,9 @@
+{
+  "VUMCPlink2Bgen.source_bgen": "/nobackup/h_cqs/shengq2/biovu/megaex/small_test.bgen",
+  "VUMCPlink2Bgen.source_sample": "/nobackup/h_cqs/shengq2/biovu/megaex/small_test.sample",
+  "VUMCPlink2Bgen.parameter_file1_arg": "--keep-fam",
+  "VUMCPlink2Bgen.parameter_file1": "/nobackup/h_cqs/shengq2/biovu/megaex/small_test.keep.txt",
+  "VUMCPlink2Bgen.plink_option": "--export bgen-1.2",
+  "VUMCPlink2Bgen.target_prefix": "small_test.keep"
+}
+

@@ -321,3 +321,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractRegionAGD.wdl
 
+  - name: VUMCPlink2Bgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2Bgen.wdl
+
