@@ -1,7 +1,7 @@
 # 1.2.1
 2024-09-10 (Date of Last Commit)
 
-* Update to BGE filtering options in JointCalling. This has no effect on this pipeline.
+* Update to BGE filtering options in JointCalling; this has no effect on this pipeline
 
 # 1.2.0
 2024-09-06 (Date of Last Commit)
