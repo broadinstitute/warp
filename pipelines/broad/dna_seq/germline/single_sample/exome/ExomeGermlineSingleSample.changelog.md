@@ -1,7 +1,7 @@
 # 3.2.1
 2024-09-17 (Date of Last Commit)
 
-* Updated DRAGEN aligner parameters to fix non-determinism; this does not affect the Exome workflow
+* Updated DRAGEN aligner parameters to fix non-determinism; this does not affect the Exome workflow 
 
 # 3.2.0
 2024-09-06 (Date of Last Commit)
