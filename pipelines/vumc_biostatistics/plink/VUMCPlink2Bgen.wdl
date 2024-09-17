@@ -81,7 +81,7 @@ task Plink2Bgen {
     Int? memory_size=10
   }
 
-  Int disk_size = ceil(size(source_bgen, "GB") * 2) + 2
+  Int disk_size = ceil(size(source_bgen, "GB") * 3) + 10
 
   String new_bgen = "${target_prefix}.bgen"
   String new_sample = "${target_prefix}.sample"
