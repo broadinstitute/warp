@@ -1,7 +1,7 @@
 # 3.3.1
 2024-09-17 (Date of Last Commit)
 
-* Updated DRAGEN alginer parameters to fix non-determinism; this does not affect the exome workflow
+* Updated DRAGEN alginer parameters to fix non-determinism; this does not affect the exome workflow 
 
 # 3.3.0
 2024-09-06 (Date of Last Commit)
