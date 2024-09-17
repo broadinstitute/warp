@@ -1,7 +1,7 @@
 # 3.3.1
 2024-09-17 (Date of Last Commit)
 
-* Updated DRAGEN alginer parameters to fix non-determinism
+* Updated DRAGEN aligner parameters to fix non-determinism
 
 # 3.3.0
 2024-09-06 (Date of Last Commit)
