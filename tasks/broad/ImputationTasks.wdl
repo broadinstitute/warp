@@ -19,7 +19,7 @@ task CalculateChromosomeLength {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     Int chrom_length = read_int(stdout())
@@ -330,7 +330,7 @@ task CountVariantsInChunksBeagle {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
 }
 
@@ -360,7 +360,7 @@ task CheckChunksBeagle {
     disks: "local-disk 10 HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
 }
 
@@ -412,7 +412,7 @@ task PhaseAndImputeBeagle {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
 }
 
@@ -479,7 +479,7 @@ task ReplaceHeader {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
 
   output {
@@ -517,7 +517,7 @@ task UpdateHeader {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -552,7 +552,7 @@ task RemoveSymbolicAlleles {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
 }
 
@@ -582,7 +582,7 @@ task SeparateMultiallelics {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
 }
 
@@ -682,7 +682,7 @@ task CountSamples {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     Int nSamples = read_int(stdout())
@@ -726,7 +726,7 @@ task AggregateImputationQCMetrics {
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     File aggregated_metrics = "~{basename}_aggregated_imputation_metrics.tsv"
@@ -766,7 +766,7 @@ task StoreChunksInfo {
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     File chunks_info = "~{basename}_chunk_info.tsv"
@@ -883,7 +883,7 @@ task SetIDs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     File output_vcf = "~{output_basename}.vcf.gz"
@@ -913,7 +913,7 @@ task ExtractIDs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
 }
 
@@ -954,7 +954,7 @@ task SelectVariantsByIds {
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -983,7 +983,7 @@ task RemoveAnnotations {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -1015,7 +1015,7 @@ task InterleaveVariants {
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -1041,7 +1041,7 @@ task FindSitesUniqueToFileTwoOnly {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     File missing_sites = "missing_sites.ids"
@@ -1110,7 +1110,7 @@ task CreateVcfIndex {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     File vcf = "~{vcf_basename}"
@@ -1163,7 +1163,7 @@ task PreSplitVcf {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     Array[File] chr_split_vcfs = glob("split_vcfs/*.vcf.gz")
@@ -1266,7 +1266,7 @@ task PreChunkVcf {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 1
+    preemptible: 3
   }
   output {
     Array[File] generate_chunk_vcfs = glob("generate_chunk/*.vcf.gz")
@@ -1293,7 +1293,7 @@ task ErrorWithMessageIfErrorCountNotZero {
 
   runtime {
     docker: "ubuntu.azurecr.io/ubuntu:20.04"
-    preemptible: 1
+    preemptible: 3
   }
   output {
     Boolean done = true
