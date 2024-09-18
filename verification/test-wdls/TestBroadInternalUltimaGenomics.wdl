@@ -161,6 +161,12 @@ workflow TestBroadInternalUltimaGenomics {
             results_path = results_path,
             truth_path = truth_path
         }
+        call Utilities.GetValidationInputs as GetFilteredVcfIndex {
+          input:
+            input_file = BroadInternalUltimaGenomics.filtered_vcf_index,
+            results_path = results_path,
+            truth_path = truth_path
+        }
         call Utilities.GetValidationInputs as GetGvcf {
           input:
             input_file = BroadInternalUltimaGenomics.output_gvcf,
@@ -178,10 +184,13 @@ workflow TestBroadInternalUltimaGenomics {
           test_crai = GetCrai.results_file,
           truth_vcf = GetVcf.truth_file, 
           test_vcf = GetVcf.results_file,
-          truth_filtered_vcf = GetFilteredVcf.truth_file, 
+          truth_filtered_vcf = GetFilteredVcf.truth_file,
+          truth_filtered_vcf_index = GetFilteredVcfIndex.truth_file, 
           test_filtered_vcf = GetFilteredVcf.results_file,
-          truth_gvcf = GetGvcf.truth_file, 
+          test_filtered_vcf_index = GetFilteredVcfIndex.results_file,
+          truth_gvcf = GetGvcf.truth_file,
           test_gvcf = GetGvcf.results_file,
+          sample_name = BroadInternalUltimaGenomics.sample_name,
           done = CopyToTestResults.done
       }
     }

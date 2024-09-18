@@ -71,7 +71,7 @@ workflow Optimus {
   # version of this pipeline
 
 
-  String pipeline_version = "7.6.0"
+  String pipeline_version = "7.6.1"
 
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
@@ -93,6 +93,7 @@ workflow Optimus {
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
   String warp_tools_docker_2_2_0 = "warp-tools:lk-PD-2736-doublets"
   String star_merge_docker = "star-merge-npz:lk-PD-2736-doublets"
+
 
   #TODO how do we handle these?
   String alpine_docker = "alpine-bash@sha256:965a718a07c700a5204c77e391961edee37477634ce2f9cf652a8e4c2db858ff"

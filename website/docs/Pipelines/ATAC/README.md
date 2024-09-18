@@ -8,13 +8,13 @@ slug: /Pipelines/ATAC/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [2.0.0](https://github.com/broadinstitute/warp/releases) | May, 2024 | Kaylee Mathews | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
+| [2.3.0](https://github.com/broadinstitute/warp/releases) | September, 2024 | Kaylee Mathews | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
 
 ## Introduction to the ATAC workflow
 ATAC is an open-source, cloud-optimized pipeline developed in collaboration with members of the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and [BICAN](https://brainblog.nih.gov/brain-blog/brain-issues-suite-funding-opportunities-advance-brain-cell-atlases-through-centers) Sequencing Working Group) and [SCORCH](https://nida.nih.gov/about-nida/organization/divisions/division-neuroscience-behavior-dnb/basic-research-hiv-substance-use-disorder/scorch-program) (see [Acknowledgements](#acknowledgements) below). It supports the processing of 10x single-nucleus data generated with 10x Multiome [ATAC-seq (Assay for Transposase-Accessible Chromatin)](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression), a technique used in molecular biology to assess genome-wide chromatin accessibility. 
 
-This workflow is the ATAC component of the [Mutiome wrapper workflow](../Multiome_Pipeline/README). It corrects cell barcodes (CBs), aligns reads to the genome, and produces a fragment file as well as per barcode metrics. 
+This workflow is the ATAC component of the [Mutiome wrapper workflow](../Multiome_Pipeline/README). It corrects cell barcodes (CBs), aligns reads to the genome, and produces a fragment file as well as [per barcode metrics](../ATAC/count-matrix-overview.md) and [library-level metrics](../ATAC/library-metrics.md).
 
 
 ## Quickstart table
@@ -30,6 +30,7 @@ The following table provides a quick glance at the ATAC pipeline features:
 | Fragment quantification | SnapATAC2 | [Zhang, K. et al., 2021](https://pubmed.ncbi.nlm.nih.gov/34774128/)
 | Data input file format | File format in which sequencing data is provided | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
 | Data output file format | File formats in which ATAC output is provided | TSV, h5ad, BAM |
+| Library-level metrics | The [ATAC](../ATAC/README.md) pipeline uses [SnapATAC2](https://github.com/kaizhang/SnapATAC2) to generate library-level metrics in CSV format. | [Library-level metrics](../ATAC/library-metrics.md) |
 
 ## Set-up
 
@@ -93,6 +94,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | bam_aligned_output | `<input_id>`.bam | BAM containing aligned reads from ATAC workflow. |
 | fragment_file | `<input_id>`.fragments.tsv | TSV containing fragment start and stop coordinates per barcode. In order, the columns are "Chromosome", "Start", "Stop", "ATAC Barcode", and "Number Reads". | 
 | snap_metrics | `<input_id`.metrics.h5ad | h5ad (Anndata) containing per barcode metrics from [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
+ library_metrics | `<input_id>`_`<atac_nhash_id>`.atac_metrics.csv | CSV file containing library-level metrics. Read more in the [Library Metrics Overview](library-metrics.md)
 
 ## Versioning and testing
 
@@ -112,3 +114,4 @@ Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konw
 ## Acknowledgements
 
 We are immensely grateful to the members of the BRAIN Initiative (BICAN Sequencing Working Group) and SCORCH for their invaluable and exceptional contributions to this pipeline. Our heartfelt appreciation goes to Alex Dobin, Aparna Bhaduri, Alec Wysoker, Anish Chakka, Brian Herb, Daofeng Li, Fenna Krienen, Guo-Long Zuo, Jeff Goldy, Kai Zhang, Khalid Shakir, Bo Li, Mariano Gabitto, Michael DeBerardine, Mengyi Song, Melissa Goldman, Nelson Johansen, James Nemesh, and Theresa Hodges for their unwavering dedication and remarkable efforts.  
+
