@@ -50,6 +50,13 @@ jobs:
         pwd
         ls -lht
 
+    - name: Submit job to Terra
+      run: |
+        # Set these environment variables or replace with your actual values
+        TOKEN="your_api_token"             # Replace with your actual API token
+        NAMESPACE="your_namespace"         # Replace with your actual workspace namespace
+        WORKSPACE="your_workspace"         # Replace with your actual workspace name
+
     - name: Check the status of a Terra submission
       run: |
         submissionId="44d890f7-f6dd-4a2c-8841-a10faeab3a07"
