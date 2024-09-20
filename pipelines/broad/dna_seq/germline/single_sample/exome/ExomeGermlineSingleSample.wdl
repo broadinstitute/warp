@@ -45,7 +45,7 @@ import "../../../../../../tasks/broad/Utilities.wdl" as utils
 # WORKFLOW DEFINITION
 workflow ExomeGermlineSingleSample {
 
-  String pipeline_version = "3.1.22"
+  String pipeline_version = "3.2.1"
 
 
   input {
@@ -68,8 +68,8 @@ workflow ExomeGermlineSingleSample {
   }
 
   # docker images
-  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
-  String gatk_docker_azure = "dsppipelinedev.azurecr.io/gatk_reduced_layers:1.0.0"
+  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+  String gatk_docker_azure = "terrapublic.azurecr.io/gatk:4.6.0.0"
   String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
 
   # make sure either gcp or azr is supplied as cloud_provider input

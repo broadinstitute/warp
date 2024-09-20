@@ -4,6 +4,11 @@ slug: /Pipelines/Genomic_Data_Commons_Whole_Genome_Somatic/README
 ---
 
 # Genomic Data Commons (GDC) Whole Genome Somatic Single Sample Overview
+:::warning
+9/12/2014
+
+We are deprecating the Genomic Data Commons Whole Genome Somatic Single Sample Pipeline. Although the code will continue to be available, we are no longer supporting it.
+:::
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
