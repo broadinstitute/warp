@@ -6,7 +6,7 @@ sidebar_position: 5
 
 The following table describes the library level metrics of the produced by the Optimus workflow. These are calcuated using custom python scripts available in the warp-tools repository. The Optimus workflow aligns files in shards to parallelize computationally intensive steps. This results in multiple matrix market files and shard-level library metrics. 
 
-To produce the library-level metrics here, the [combined_mtx.py script](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/star-merge-npz/scripts/combined_mtx.py) combines all the shard-level matrix market files into one raw mtx file. Then, STARsolo is run to filter this matrix to only those barcodes that meet STARsolo's criteria of cells (using the Emptydrops_CR parameter). Lastly, the [combine_shard_metrics.py script](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/star-merge-npz/scripts/combine_shard_metrics.py) uses the filtered matrix and the all of the shard-level metrics files produced by STARsolo to calculate the metrics below. Each of the scripts are called from [MergeStarOutput task](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/StarAlign.wdl) of the Optimus workflow. 
+To produce the library-level metrics here, the [combined_mtx.py script](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/star-merge-npz/scripts/combined_mtx.py) combines all the shard-level matrix market files into one raw mtx file. Then, STARsolo is run to filter this matrix to only those barcodes that meet STARsolo's criteria of cells (using the Emptydrops_CR parameter). This matrix is then used as input during h5ad generation, and metrics are calculated from the final h5ad using the custom [add_library_tso_doublets.py]() script.
 
 
 | Metric | Description |
@@ -37,9 +37,10 @@ To produce the library-level metrics here, the [combined_mtx.py script](https://
 | total_genes_unique_detected | Total number of unique genes detected.  |
 | percent_target | Percentage of target cells. Calculated as: estimated_number_of_cells / barcoded_cell_sample_number_of_expected_cells |
 | percent_intronic_reads | Percentage of intronic reads. Calculated as: reads_mapped_confidently_to_intronic_regions / number_of_reads |
-| keeper_mean_reads_per_cell | Mean reads per cell for cells with >1500 genes or nuclei with >1000 genes. |
-| keeper_median_genes | Median genes per cell for cells with >1500 genes or nuclei with >1000 genes.  |
-| keeper_cells | Number of cells with >1500 genes or nuclei with >1000 genes.|
+| percent_doublets | Percentage of cells flagged as doublets based on doublet scores calculated from a modified [DoubletFinder](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6853612/) algorithm. | 
+| keeper_mean_reads_per_cell | Mean reads per cell for cells with >1500 genes or nuclei with >1000 genes, and doublet_score < 0.3. |
+| keeper_median_genes | Median genes per cell for cells with >1500 genes or nuclei with >1000 genes, and doublet_score < 0.3>.  |
+| keeper_cells | Number of cells with >1500 genes or nuclei with >1000 genes, and doublet score < 0.3.|
 | percent_keeper | Percentage of keeper cells. Calculated as: keeper_cells / estimated_cells |
 | percent_usable | Percentage of usable cells. Calculated as: keeper_cells / expected_cells |
 | frac_tso | Fraction of reads containing TSO sequence. Calculated as the number of reads that have 20 bp or more of TSO Sequence clipped from 5' end/ total number of reads. | 
