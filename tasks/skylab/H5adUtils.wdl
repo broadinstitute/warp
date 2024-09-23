@@ -117,7 +117,9 @@ task OptimusH5adGeneration {
   output {
     File h5ad_output = "~{input_id}.h5ad"
     File library_metrics = "~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv"
+  }
 }
+
 
 task SingleNucleusOptimusH5adOutput {
 
