@@ -9,7 +9,7 @@ task OptimusH5adGeneration {
     String warp_tools_docker_path
     # name of the sample
     String input_id
-    String gex_nhash_id = ""
+    String? gex_nhash_id
     # user provided id
     String? counting_mode
     Int expected_cells = 3000
@@ -119,7 +119,7 @@ task SingleNucleusOptimusH5adOutput {
         # name of the sample
         String input_id
         # additional aliquot id
-        String gex_nhash_id = ""
+        String? gex_nhash_id
         # user provided id
         String? counting_mode
         Int expected_cells = 3000

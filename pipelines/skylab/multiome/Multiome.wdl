@@ -16,7 +16,7 @@ workflow Multiome {
         String cloud_provider
         String input_id
         # Additional library aliquot ID
-        String? nhash_id = ""
+        String? nhash_id
 
         # Optimus Inputs
         String counting_mode = "sn_rna"

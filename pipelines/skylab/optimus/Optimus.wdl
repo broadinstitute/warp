@@ -26,7 +26,7 @@ workflow Optimus {
     Array[File]? i1_fastq
     String input_id
     # String for additional library aliquot ID
-    String? gex_nhash_id = ""
+    String? gex_nhash_id
     String output_bam_basename = input_id
     String? input_name
     String? input_id_metadata_field
