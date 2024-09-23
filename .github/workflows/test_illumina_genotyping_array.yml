@@ -55,7 +55,7 @@ jobs:
         # Set these environment variables or replace with your actual values
         TOKEN="${{ steps.auth.outputs.access_token }}"
         NAMESPACE="warp-pipelines"
-        WORKSPACE="WARP Tests"         # Replace with your actual workspace name
+        WORKSPACE="WARP Tests"
         
         # Function to call the Firecloud API using the firecloud_api.py script
         firecloud_action() {
@@ -63,9 +63,27 @@ jobs:
         }
 
 
-        # 1. Submit a new workflow
-        # Assuming you have a JSON file named submission_data.json containing the submission data
+        # Create the submission_data.json file
         SUBMISSION_DATA_FILE="submission_data.json"
+
+        # Use a heredoc to generate the JSON file content dynamically
+        cat <<EOF > "$SUBMISSION_DATA_FILE"
+        {
+          "methodConfigurationNamespace": "warp-pipelines",
+          "methodConfigurationName": "IlluminaGenotypingArray",
+          "useCallCache": true,
+          "deleteIntermediateOutputFiles": true,
+          "useReferenceDisks": true,
+          "memoryRetryMultiplier": 0,
+          "workflowFailureMode": "NoNewCalls",
+          "userComment": "Automated submission",
+          "ignoreEmptyOutputs": false
+        }
+        EOF
+
+        echo "Created submission data file: $SUBMISSION_DATA_FILE"
+        
+        # 1. Submit a new workflow using the generated submission_data.json
         SUBMISSION_ID=$(firecloud_action submit --submission_data_file "$SUBMISSION_DATA_FILE")
 
         # Check if submission was successful
@@ -78,17 +96,21 @@ jobs:
 
         # 2. Poll submission status
         # Polling the status of the submission until it completes
-        firecloud_action poll_status --submission_id "$SUBMISSION_ID"
+        WORKFLOW_ID=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID" | grep -oP 'workflow_id:\s*\K\S+')
 
-        # 3. Get workflow outputs
-        # Replace with the actual Workflow ID and Pipeline Name after submission completes
-        WORKFLOW_ID="your_workflow_id"  # Replace with your actual Workflow ID
-        PIPELINE_NAME="your_pipeline_name"  # Replace with your actual Pipeline name
+        # Check if the Workflow ID was retrieved
+        if [ -z "$WORKFLOW_ID" ]; then
+            echo "Failed to retrieve the Workflow ID."
+            exit 1
+        fi
+    
+        echo "Workflow ID: $WORKFLOW_ID"
+    
+
+        # 3. Get workflow outputs using the dynamically retrieved Workflow ID
+        PIPELINE_NAME="IlluminaGenotypingArray"
 
         firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME"
-
-        # Note: You might need to retrieve WORKFLOW_ID from the poll status response or API logs,
-        # depending on the Firecloud API response format.
 
     - name: Check the status of a Terra submission
       run: |

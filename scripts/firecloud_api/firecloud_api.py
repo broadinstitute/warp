@@ -112,8 +112,8 @@ class FirecloudAPI:
             elif submission_status == "Done":
                 break
 
-            # Wait for 10 seconds before polling again
-            time.sleep(10)
+            # Wait for 60 seconds before polling again
+            time.sleep(60)
 
 # Bash Script Interaction
 if __name__ == "__main__":
