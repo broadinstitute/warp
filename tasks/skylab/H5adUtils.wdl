@@ -201,7 +201,7 @@ task SingleNucleusOptimusH5adOutput {
 
     output {
         File h5ad_output = "~{input_id}.h5ad"
-        File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
+        File library_metrics = select_first(["~{input_id}_~{gex_nhash_id}_library_metrics.csv", "~{input_id}_library_metrics.csv"])
     }
 }
 
