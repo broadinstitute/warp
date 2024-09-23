@@ -59,7 +59,7 @@ jobs:
         
         # Function to call the Firecloud API using the firecloud_api.py script
         firecloud_action() {
-            python3 scripts/firecloud_api.py --token "$TOKEN" --namespace "$NAMESPACE" --workspace "$WORKSPACE" --action "$1" "${@:2}"
+            python3 scripts/firecloud_api/firecloud_api.py --token "$TOKEN" --namespace "$NAMESPACE" --workspace "$WORKSPACE" --action "$1" "${@:2}"
         }
 
 
