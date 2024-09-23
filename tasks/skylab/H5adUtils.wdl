@@ -101,7 +101,11 @@ task OptimusH5adGeneration {
      --counting_mode ~{counting_mode} \
      --expected_cells ~{expected_cells}
 
-    mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv
+    if [[ -n "~{gex_nhash_id}" ]]; then
+      mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv
+    else
+      mv library_metrics.csv ~{input_id}_gex_library_metrics.csv
+    fi
 
   >>>
 
@@ -206,7 +210,11 @@ task SingleNucleusOptimusH5adOutput {
         --counting_mode ~{counting_mode} \
         --expected_cells ~{expected_cells}
 
-        mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv
+        if [[ -n "~{gex_nhash_id}" ]]; then
+          mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv
+        else
+          mv library_metrics.csv ~{input_id}_gex_library_metrics.csv
+        fi
 
     >>>
     runtime {
@@ -220,7 +228,7 @@ task SingleNucleusOptimusH5adOutput {
 
     output {
         File h5ad_output = "~{input_id}.h5ad"
-        File library_metrics = "~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv"
+        File library_metrics = select_first(["~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv", "~{input_id}_gex_library_metrics.csv"])
     }
 }
 
