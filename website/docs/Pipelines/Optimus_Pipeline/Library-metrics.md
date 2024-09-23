@@ -6,7 +6,7 @@ sidebar_position: 5
 
 The following table describes the library level metrics of the produced by the Optimus workflow. These are calcuated using custom python scripts available in the warp-tools repository. The Optimus workflow aligns files in shards to parallelize computationally intensive steps. This results in multiple matrix market files and shard-level library metrics. 
 
-To produce the library-level metrics here, the [combined_mtx.py script](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/star-merge-npz/scripts/combined_mtx.py) combines all the shard-level matrix market files into one raw mtx file. Then, STARsolo is run to filter this matrix to only those barcodes that meet STARsolo's criteria of cells (using the Emptydrops_CR parameter). This matrix is then used as input during h5ad generation, and metrics are calculated from the final h5ad using the custom [add_library_tso_doublets.py]() script.
+To produce the library-level metrics here, the [combined_mtx.py script](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/star-merge-npz/scripts/combined_mtx.py) combines all the shard-level matrix market files into one raw mtx file. Then, STARsolo is run to filter this matrix to only those barcodes that meet STARsolo's criteria of cells (using the Emptydrops_CR parameter). This matrix is then used as input during h5ad generation, and metrics are calculated from the final h5ad using the custom [add_library_tso_doublets.py](https://github.com/broadinstitute/warp-tools/tree/develop/tools/scripts) script.
 
 
 | Metric | Description |
