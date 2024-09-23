@@ -1101,10 +1101,7 @@ task CreateVcfIndex {
 
     ln -sf ~{vcf_input} ~{vcf_basename}
 
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
-    IndexFeatureFile -I ~{vcf_basename}
-
-    
+    bcftools index -t ~{vcf_basename}
   }
   runtime {
     docker: gatk_docker
