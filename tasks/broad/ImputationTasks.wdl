@@ -384,7 +384,7 @@ task PhaseAndImputeBeagle {
   command <<<
     set -e -o pipefail
 
-    java -ea -Xmx~{xmx_mb}m \
+    java -ea -XX:MaxRAMPercentage=90.0 -XX:-UseCompressedOops \
     -jar /usr/gitc/beagle.01Mar24.d36.jar \
     gt=~{dataset_vcf} \
     ref=~{ref_panel_bref3} \
