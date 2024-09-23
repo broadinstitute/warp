@@ -49,8 +49,8 @@ jobs:
         echo "Current directory:"
         pwd
         ls -lht
-
-    - name: Submit job to Terra
+  
+    - name: Submit job, poll status, and get outputs
       run: |
         # Set these environment variables or replace with your actual values
         TOKEN="${{ steps.auth.outputs.access_token }}"
@@ -74,7 +74,7 @@ jobs:
           "useCallCache": true,
           "deleteIntermediateOutputFiles": true,
           "useReferenceDisks": true,
-          "memoryRetryMultiplier": 0,
+          "memoryRetryMultiplier": 1.2,
           "workflowFailureMode": "NoNewCalls",
           "userComment": "Automated submission",
           "ignoreEmptyOutputs": false
@@ -112,32 +112,32 @@ jobs:
 
         firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME"
 
-    - name: Check the status of a Terra submission
-      run: |
-        submissionId="44d890f7-f6dd-4a2c-8841-a10faeab3a07"
-        namespace="warp-pipelines"
-        name="Illumina-Genotyping-Array_np_copy"
-        # Assign the access token to a variable
-        ACCESS_TOKEN="${{ steps.auth.outputs.access_token }}"
+    # - name: Check the status of a Terra submission
+    #   run: |
+    #     submissionId="44d890f7-f6dd-4a2c-8841-a10faeab3a07"
+    #     namespace="warp-pipelines"
+    #     name="Illumina-Genotyping-Array_np_copy"
+    #     # Assign the access token to a variable
+    #     ACCESS_TOKEN="${{ steps.auth.outputs.access_token }}"
 
-        printf "\nFetching status for submission ID '%s':" "${submissionId}"
-        submissionDetails=$(curl \
-                -X GET \
-                --header 'Accept: application/json' \
-                --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-                "https://api.firecloud.org/api/workspaces/$namespace/$name/submissions/$submissionId")
+    #     printf "\nFetching status for submission ID '%s':" "${submissionId}"
+    #     submissionDetails=$(curl \
+    #             -X GET \
+    #             --header 'Accept: application/json' \
+    #             --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+    #             "https://api.firecloud.org/api/workspaces/$namespace/$name/submissions/$submissionId")
 
-        printf "\nFull JSON Response '%s':" "${submissionDetails}"
-        submissionStatus=$(jq -r '.status' <<< "${submissionDetails}")
-        workflowsStatus=$(jq -r '.workflows[] | .status' <<< "${submissionDetails}")
-        printf "\nSubmissionStatus '%s':" "${submissionStatus}"
-        printf "\nWorkflowsStatus '%s':" "${workflowsStatus}"
+    #     printf "\nFull JSON Response '%s':" "${submissionDetails}"
+    #     submissionStatus=$(jq -r '.status' <<< "${submissionDetails}")
+    #     workflowsStatus=$(jq -r '.workflows[] | .status' <<< "${submissionDetails}")
+    #     printf "\nSubmissionStatus '%s':" "${submissionStatus}"
+    #     printf "\nWorkflowsStatus '%s':" "${workflowsStatus}"
 
-        submissionList=$(curl -X 'GET' \
-        "https://api.firecloud.org/api/workspaces/$namespace/$name/submissions" \
-        -H 'accept: */*' \
-        -H "Authorization: Bearer ${ACCESS_TOKEN}")
+    #     submissionList=$(curl -X 'GET' \
+    #     "https://api.firecloud.org/api/workspaces/$namespace/$name/submissions" \
+    #     -H 'accept: */*' \
+    #     -H "Authorization: Bearer ${ACCESS_TOKEN}")
 
-        printf "\nSubmissionList '%s':" "${submissionList}"
+    #     printf "\nSubmissionList '%s':" "${submissionList}"
 
       
