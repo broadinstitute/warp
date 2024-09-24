@@ -1,3 +1,7 @@
+# 2.0.1
+2024-09-24 (Date of Last Commit)
+* Added a python implementation of DoubletFinder to calculate to doublet scores in gene expression data; this does not affect the snSS2 workflow
+
 # 2.0.0
 2024-09-11 (Dat of Last Commit)
 

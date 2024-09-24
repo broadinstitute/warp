@@ -1,3 +1,7 @@
+# 5.7.0
+2024-09-24 (Date of Last Commit)
+* Added a python implementation of DoubletFinder to calculate to doublet scores in gene expression data; percent doublets are now available as a library-level metric and individual doublet scores for cell barcodes are in the h5ad
+
 # 5.6.1
 2024-09-11 (Date of Last Commit)
 * Updated warp-tools docker which added create_h5ad_snss2.py to the docker image. This change does not affect the Multiome pipeline

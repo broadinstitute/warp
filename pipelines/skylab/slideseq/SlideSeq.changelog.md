@@ -1,3 +1,8 @@
+# 3.4.2
+2024-09-24 (Date of Last Commit)
+
+* Added a python implementation of DoubletFinder to calculate to doublet scores in gene expression data; this does not impact the slideseq workflow
+
 # 3.4.1
 2024-09-11 (Date of Last Commit)
 
