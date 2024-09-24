@@ -16,7 +16,8 @@ workflow Multiome {
         String cloud_provider
         String input_id
         # Additional library aliquot ID
-        String? nhash_id
+        String? gex_nhash_id
+        String? atac_nhash_id
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -89,7 +90,7 @@ workflow Multiome {
             i1_fastq = gex_i1_fastq,
             input_id = input_id + "_gex",
             output_bam_basename = input_id + "_gex",
-            gex_nhash_id = nhash_id,
+            gex_nhash_id = gex_nhash_id,
             tar_star_reference = tar_star_reference,
             annotations_gtf = annotations_gtf,
             mt_genes = mt_genes,
@@ -118,7 +119,7 @@ workflow Multiome {
             adapter_seq_read1 = adapter_seq_read1,
             vm_size = vm_size,
             annotations_gtf = annotations_gtf,
-            atac_nhash_id = nhash_id,
+            atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
