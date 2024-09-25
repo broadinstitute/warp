@@ -52,67 +52,111 @@ jobs:
   
     - name: Submit job, poll status, and get outputs
       run: |
-        # Set these environment variables or replace with your actual values
-        TOKEN="${{ steps.auth.outputs.access_token }}"
-        NAMESPACE="warp-pipelines"
-        WORKSPACE="WARP Tests"
-        
-        # Function to call the Firecloud API using the firecloud_api.py script
-        firecloud_action() {
-            python3 scripts/firecloud_api/firecloud_api.py --token "$TOKEN" --namespace "$NAMESPACE" --workspace "$WORKSPACE" --action "$1" "${@:2}"
-        }
+         # Redirect stderr to a temporary file
+          exec 3>&2 2>stderr.log
 
+          # Set these environment variables
+          TOKEN="${{ steps.auth.outputs.access_token }}"
+          NAMESPACE="warp-pipelines"
+          WORKSPACE="WARP Tests"
+          PIPELINE_NAME="IlluminaGenotypingArray"
 
-        # Create the submission_data.json file
-        SUBMISSION_DATA_FILE="submission_data.json"
+          # Function to call the Firecloud API using the firecloud_api.py script
+          firecloud_action() {
+              python3 scripts/firecloud_api/firecloud_api.py --token "$TOKEN" --namespace "$NAMESPACE" --workspace "$WORKSPACE" --action "$1" "${@:2}"
+          }
 
-        # Use a heredoc to generate the JSON file content dynamically
-        cat <<EOF > "$SUBMISSION_DATA_FILE"
-        {
-          "methodConfigurationNamespace": "warp-pipelines",
-          "methodConfigurationName": "IlluminaGenotypingArray",
-          "useCallCache": true,
-          "deleteIntermediateOutputFiles": true,
-          "useReferenceDisks": true,
-          "memoryRetryMultiplier": 1.2,
-          "workflowFailureMode": "NoNewCalls",
-          "userComment": "Automated submission",
-          "ignoreEmptyOutputs": false
-        }
-        EOF
+          # Create the submission_data.json file
+          SUBMISSION_DATA_FILE="submission_data.json"
 
-        echo "Created submission data file: $SUBMISSION_DATA_FILE"
-        
-        # 1. Submit a new workflow using the generated submission_data.json
-        SUBMISSION_ID=$(firecloud_action submit --submission_data_file "$SUBMISSION_DATA_FILE")
+          # Use a heredoc to generate the JSON file content dynamically
+          cat <<EOF > "$SUBMISSION_DATA_FILE"
+          {
+            "methodConfigurationNamespace": "warp-pipelines",
+            "methodConfigurationName": "$PIPELINE_NAME",
+            "useCallCache": true,
+            "deleteIntermediateOutputFiles": true,
+            "useReferenceDisks": true,
+            "memoryRetryMultiplier": 1.2,
+            "workflowFailureMode": "NoNewCalls",
+            "userComment": "Automated submission",
+            "ignoreEmptyOutputs": false
+          }
+          EOF
 
-        # Check if submission was successful
-        if [ -z "$SUBMISSION_ID" ]; then
-            echo "Submission failed."
-            exit 1
-        fi
+          echo "Created submission data file: $SUBMISSION_DATA_FILE"
+          
+          # 1. Submit a new workflow using the generated submission_data.json
+          SUBMISSION_ID=$(firecloud_action submit --submission_data_file "$SUBMISSION_DATA_FILE")
 
-        echo "Submission ID: $SUBMISSION_ID"
+          # Check if submission was successful
+          if [ -z "$SUBMISSION_ID" ]; then
+              echo "Submission failed." >&3  # Log to stderr
+              exit 1
+          fi
 
-        # 2. Poll submission status and get workflow IDs and statuses
-        RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
+          echo "Submission ID: $SUBMISSION_ID"
 
-        # Parse the JSON response to get the workflow ID and statuses
-        echo "Workflows and their statuses:"
-        echo "$RESPONSE" | jq
+          # 2. Poll submission status and get workflow IDs and statuses
+          RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
 
-        # Check if RESPONSE is empty
-        if [ -z "$RESPONSE" ]; then
-            echo "Failed to retrieve Workflow IDs."
-            exit 1
-        fi
+          # Parse the JSON response to get the workflow ID and statuses
+          echo "Workflows and their statuses:"
+          echo "$RESPONSE" | jq
 
-        # 3. Iterate over the Workflow IDs to get outputs
-        PIPELINE_NAME="IlluminaGenotypingArray"
+          # Check if RESPONSE is empty
+          if [ -z "$RESPONSE" ]; then
+              echo "Failed to retrieve Workflow IDs." >&3  # Log to stderr
+              exit 1
+          fi
 
-        for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
-            firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME"
-        done
-        echo "Workflow outputs retrieved successfully."
+          # Extract workflows and their statuses
+          WORKFLOW_STATUSES=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + ": " + .value) | .[]')
+
+          # Generate markdown summary table for workflows and statuses
+          WORKFLOW_TABLE=$(echo "$RESPONSE" | jq -r 'to_entries | ["Workflow ID | Status", "--- | ---"] + map(.key + " | " + .value) | .[]')
+
+          # 3. Iterate over the Workflow IDs to get outputs
+          OUTPUTS=""
+
+          for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
+              WORKFLOW_OUTPUT=$(firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME")
+              OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
+          done
+          echo "Workflow outputs retrieved successfully."
+
+          # Generate a markdown table for outputs (you can modify this part to suit your output format)
+          OUTPUTS_TABLE=$(echo "$OUTPUTS" | jq -r 'to_entries | ["Output | Value", "--- | ---"] + map(.key + " | " + (.value // "-")) | .[]')
+
+          # Restore stderr and print all stderr at the end
+          exec 2>&3
+          echo "Printing stderr logs:"
+          cat stderr.log
+
+          # Print the summary to the console for visibility
+          echo "## Summary of Run"
+          echo "Pipeline Name: $PIPELINE_NAME"
+          echo "Submission ID: $SUBMISSION_ID"
+          echo "Workflows and their statuses:"
+          echo "$WORKFLOW_STATUSES"
+          echo "Workflow outputs:"
+          echo "$OUTPUTS_TABLE"
+
+          # Write the summary to the GitHub Actions summary section
+          echo "# Pipeline Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Pipeline Name**: $PIPELINE_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "- **Submission ID**: $SUBMISSION_ID" >> $GITHUB_STEP_SUMMARY
+          echo "- **Submission Status**: $(echo "$RESPONSE" | jq -r '.[]' | head -n 1)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## Workflows and their statuses" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$WORKFLOW_STATUSES" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          echo "## Workflow Outputs" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$OUTPUTS_TABLE" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       
