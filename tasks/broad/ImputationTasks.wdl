@@ -393,7 +393,8 @@ task PhaseAndImputeBeagle {
     chrom=~{chrom}:~{start}-~{end} \
     impute=true \
     nthreads=~{cpu} \
-    seed=-99999
+    seed=-99999 \
+    window=20.0
 
     # notes:
     # rename output file to "phased_{basename}" if phasing without imputing
