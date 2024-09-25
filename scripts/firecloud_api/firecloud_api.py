@@ -91,10 +91,9 @@ class FirecloudAPI:
       status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
       previous_workflow_status = []
       workflow_ids = []
-
+      print("Polling submission status...")  # Added for debugging
       # Continuously poll the status of the submission until completion
       while True:
-          print("Polling submission status...")  # Added for debugging
 
           status_response = requests.get(status_url, headers=self.headers)
           

@@ -97,7 +97,11 @@ jobs:
         echo "Submission ID: $SUBMISSION_ID"
 
         # 2. Poll submission status and capture all Workflow IDs from the response
-        WORKFLOW_IDS=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID" | grep -oP 'workflow_id:\s*\K\S+')
+        RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
+        #Parse the response to get the workflow IDs
+        WORKFLOW_IDS=$(echo "$RESPONSE" | grep -oP 'workflow_id:\s*\K\S+')
+        
+        #WORKFLOW_IDS=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID" | grep -oP 'workflow_id:\s*\K\S+')
 
         # Check if Workflow IDs were retrieved
         if [ -z "$WORKFLOW_IDS" ]; then
