@@ -96,6 +96,7 @@ jobs:
 
         # 2. Poll submission status
         # Polling the status of the submission until it completes
+        echo "Polling submission status..."
         WORKFLOW_ID=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID" | grep -oP 'workflow_id:\s*\K\S+')
 
         # Check if the Workflow ID was retrieved
@@ -106,12 +107,12 @@ jobs:
     
         echo "Workflow ID: $WORKFLOW_ID"
     
-
         # 3. Get workflow outputs using the dynamically retrieved Workflow ID
+        echo "Getting workflow outputs..."
         PIPELINE_NAME="IlluminaGenotypingArray"
 
         firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME"
-
+        echo "Workflow outputs retrieved successfully."
     # - name: Check the status of a Terra submission
     #   run: |
     #     submissionId="44d890f7-f6dd-4a2c-8841-a10faeab3a07"

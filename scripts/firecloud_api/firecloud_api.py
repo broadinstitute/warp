@@ -81,39 +81,46 @@ class FirecloudAPI:
             return None
 
     def poll_submission_status(self, submission_id):
-        """
-        Polls the status of a submission until it is complete.
+      """
+      Polls the status of a submission until it is complete and returns the workflow ID.
 
-        :param submission_id: The ID of the submission to poll
-        """
-        # Construct the API endpoint URL for polling submission status
-        status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
-        previous_workflow_status = []
+      :param submission_id: The ID of the submission to poll
+      :return: workflow_id of the submission if successful, None otherwise
+      """
+      # Construct the API endpoint URL for polling submission status
+      status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
+      previous_workflow_status = []
 
-        # Continuously poll the status of the submission until completion
-        while True:
-            status_response = requests.get(status_url, headers=self.headers)
-            status_data = status_response.json()
+      # Continuously poll the status of the submission until completion
+      while True:
+          status_response = requests.get(status_url, headers=self.headers)
+          status_data = status_response.json()
 
-            # Retrieve the overall submission status
-            submission_status = status_data.get("status")
-            # Retrieve the status of each workflow in the submission
-            workflows_status = [workflow.get("status") for workflow in status_data.get("workflows", [])]
+          # Retrieve the overall submission status
+          submission_status = status_data.get("status")
+          # Retrieve the status of each workflow in the submission
+          workflows = status_data.get("workflows", [])
 
-            # Print the workflow status if it has changed
-            if workflows_status != previous_workflow_status:
-                print(f"Workflows Status: {workflows_status}")
-                previous_workflow_status = workflows_status
+          # Print the workflow statuses
+          workflows_status = [workflow.get("status") for workflow in workflows]
+          if workflows_status != previous_workflow_status:
+              print(f"Workflows Status: {workflows_status}")
+              previous_workflow_status = workflows_status
 
-            # Check if the submission is complete and if any workflow has failed
-            if submission_status == "Done" and "Failed" in workflows_status:
-                print("At least one workflow has failed.")
-                break
-            elif submission_status == "Done":
-                break
+          # Retrieve the workflow ID from the first workflow
+          if workflows:
+              workflow_id = workflows[0].get("workflowId")
+              print(f"workflow_id: {workflow_id}")
 
-            # Wait for 60 seconds before polling again
-            time.sleep(60)
+          # Check if the submission is complete and if any workflow has failed
+          if submission_status == "Done" and "Failed" in workflows_status:
+              print("At least one workflow has failed.")
+              return workflow_id
+          elif submission_status == "Done":
+              return workflow_id
+
+          # Wait for 60 seconds before polling again
+          time.sleep(60)
 
 # Bash Script Interaction
 if __name__ == "__main__":
