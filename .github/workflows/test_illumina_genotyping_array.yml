@@ -18,8 +18,6 @@ env:
   PROJECT_NAME: WARP
   # Github repo name
   REPOSITORY_NAME: ${{ github.event.repository.name }}
-  # Set python buffer to avoid buffering issues
-  PYTHONUNBUFFERED: 1
 
 jobs:
   run_pipeline:
@@ -61,7 +59,7 @@ jobs:
         
         # Function to call the Firecloud API using the firecloud_api.py script
         firecloud_action() {
-            python3 -u scripts/firecloud_api/firecloud_api.py --token "$TOKEN" --namespace "$NAMESPACE" --workspace "$WORKSPACE" --action "$1" "${@:2}"
+            python3 scripts/firecloud_api/firecloud_api.py --token "$TOKEN" --namespace "$NAMESPACE" --workspace "$WORKSPACE" --action "$1" "${@:2}"
         }
 
 

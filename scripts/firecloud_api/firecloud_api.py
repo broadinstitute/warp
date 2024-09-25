@@ -74,7 +74,7 @@ class FirecloudAPI:
         # Check if the submission was created successfully
         if response.status_code == 201:
             submission_id = response.json().get('submissionId')
-            print(f"Submission created with ID: {submission_id}")
+            #print(f"Submission created with ID: {submission_id}")
             return submission_id
         else:
             print(f"Failed to create submission. Status code: {response.status_code}")
@@ -91,15 +91,11 @@ class FirecloudAPI:
       status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
       previous_workflow_status = []
       workflow_ids = []
-      print("Polling submission status...")  # Added for debugging
+      #print("Polling submission status...")  # Added for debugging
       # Continuously poll the status of the submission until completion
       while True:
 
           status_response = requests.get(status_url, headers=self.headers)
-          
-          #print status_response code
-          print(status_response.status_code)
-
 
           # Check if the response status code is successful (200)
           if status_response.status_code != 200:
