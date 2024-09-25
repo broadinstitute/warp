@@ -18,6 +18,8 @@ env:
   PROJECT_NAME: WARP
   # Github repo name
   REPOSITORY_NAME: ${{ github.event.repository.name }}
+  # Set python buffer to avoid buffering issues
+  PYTHONUNBUFFERED: 1
 
 jobs:
   run_pipeline:
@@ -97,21 +99,22 @@ jobs:
         # 2. Poll submission status
         # Polling the status of the submission until it completes
         echo "Polling submission status..."
-        WORKFLOW_ID=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID" | grep -oP 'workflow_id:\s*\K\S+')
+        WORKFLOW_IDS=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID" | grep -oP 'workflow_id:\s*\K\S+')
 
-        # Check if the Workflow ID was retrieved
-        if [ -z "$WORKFLOW_ID" ]; then
-            echo "Failed to retrieve the Workflow ID."
+        # Check if Workflow IDs were retrieved
+        if [ -z "$WORKFLOW_IDS" ]; then
+            echo "Failed to retrieve Workflow IDs."
             exit 1
         fi
-    
-        echo "Workflow ID: $WORKFLOW_ID"
-    
-        # 3. Get workflow outputs using the dynamically retrieved Workflow ID
-        echo "Getting workflow outputs..."
-        PIPELINE_NAME="IlluminaGenotypingArray"
 
-        firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME"
+        echo "Workflow IDs: $WORKFLOW_IDS"
+
+        # 3. Iterate over all Workflow IDs to get outputs
+        PIPELINE_NAME="IlluminaGenotypingArray"  # Replace with your actual Pipeline name
+
+        for WORKFLOW_ID in $WORKFLOW_IDS; do
+            firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME"
+        done
         echo "Workflow outputs retrieved successfully."
     # - name: Check the status of a Terra submission
     #   run: |

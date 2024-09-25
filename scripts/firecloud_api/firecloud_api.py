@@ -81,46 +81,48 @@ class FirecloudAPI:
             return None
 
     def poll_submission_status(self, submission_id):
-      """
-      Polls the status of a submission until it is complete and returns the workflow ID.
+        """
+        Polls the status of a submission until it is complete and returns all workflow IDs.
 
-      :param submission_id: The ID of the submission to poll
-      :return: workflow_id of the submission if successful, None otherwise
-      """
-      # Construct the API endpoint URL for polling submission status
-      status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
-      previous_workflow_status = []
+        :param submission_id: The ID of the submission to poll
+        :return: List of workflow IDs if successful, None otherwise
+        """
+        # Construct the API endpoint URL for polling submission status
+        status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
+        previous_workflow_status = []
+        workflow_ids = []
 
-      # Continuously poll the status of the submission until completion
-      while True:
-          status_response = requests.get(status_url, headers=self.headers)
-          status_data = status_response.json()
+        # Continuously poll the status of the submission until completion
+        while True:
+            status_response = requests.get(status_url, headers=self.headers)
+            status_data = status_response.json()
 
-          # Retrieve the overall submission status
-          submission_status = status_data.get("status")
-          # Retrieve the status of each workflow in the submission
-          workflows = status_data.get("workflows", [])
+            # Retrieve the overall submission status
+            submission_status = status_data.get("status")
+            # Retrieve the status of each workflow in the submission
+            workflows = status_data.get("workflows", [])
 
-          # Print the workflow statuses
-          workflows_status = [workflow.get("status") for workflow in workflows]
-          if workflows_status != previous_workflow_status:
-              print(f"Workflows Status: {workflows_status}")
-              previous_workflow_status = workflows_status
+            # Store all workflow IDs
+            workflow_ids = [workflow.get("workflowId") for workflow in workflows]
 
-          # Retrieve the workflow ID from the first workflow
-          if workflows:
-              workflow_id = workflows[0].get("workflowId")
-              print(f"workflow_id: {workflow_id}")
+            # Print the workflow statuses
+            workflows_status = [workflow.get("status") for workflow in workflows]
+            if workflows_status != previous_workflow_status:
+                print(f"Workflows Status: {workflows_status}")
+                previous_workflow_status = workflows_status
 
-          # Check if the submission is complete and if any workflow has failed
-          if submission_status == "Done" and "Failed" in workflows_status:
-              print("At least one workflow has failed.")
-              return workflow_id
-          elif submission_status == "Done":
-              return workflow_id
+            # Check if the submission is complete and if any workflow has failed
+            if submission_status == "Done" and "Failed" in workflows_status:
+                print("At least one workflow has failed.")
+                break
+            elif submission_status == "Done":
+                break
 
-          # Wait for 60 seconds before polling again
-          time.sleep(60)
+            # Wait for 60 seconds before polling again
+            time.sleep(60)
+
+        return workflow_ids
+
 
 # Bash Script Interaction
 if __name__ == "__main__":
@@ -164,4 +166,5 @@ if __name__ == "__main__":
         if not args.submission_id:
             print("For 'poll_status', --submission_id is required.")
         else:
-            firecloud_api.poll_submission_status(args.submission_id)
+            workflow_ids = firecloud_api.poll_submission_status(args.submission_id)
+            print(f"Workflow IDs: {workflow_ids}")
