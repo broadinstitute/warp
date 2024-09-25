@@ -11,9 +11,11 @@ on:
   #  branches: [ "develop" ]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-    # inputs:
-    #   image_tag:
-    #     description: 'Docker Image Tag (default: branch_name)' 
+    inputs:
+      useCallCache:
+        description: 'Use call cache (default: true)'
+        required: false
+        default: "true"
 env:
   PROJECT_NAME: WARP
   # Github repo name
@@ -52,7 +54,7 @@ jobs:
   
     - name: Submit job, poll status, and get outputs
       run: |
-         # Redirect stderr to a temporary file
+          # Redirect stderr to a temporary file
           exec 3>&2 2>stderr.log
 
           # Set these environment variables
@@ -60,6 +62,7 @@ jobs:
           NAMESPACE="warp-pipelines"
           WORKSPACE="WARP Tests"
           PIPELINE_NAME="IlluminaGenotypingArray"
+          USE_CALL_CACHE="${{ github.event.inputs.useCallCache }}"
 
           # Function to call the Firecloud API using the firecloud_api.py script
           firecloud_action() {
@@ -68,13 +71,18 @@ jobs:
 
           # Create the submission_data.json file
           SUBMISSION_DATA_FILE="submission_data.json"
-
+          # Convert USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
+          if [ "$USE_CALL_CACHE" = "true" ]; then
+              USE_CALL_CACHE_BOOL=true
+          else
+              USE_CALL_CACHE_BOOL=false
+          fi
           # Use a heredoc to generate the JSON file content dynamically
           cat <<EOF > "$SUBMISSION_DATA_FILE"
           {
             "methodConfigurationNamespace": "warp-pipelines",
             "methodConfigurationName": "$PIPELINE_NAME",
-            "useCallCache": true,
+            "useCallCache": $USE_CALL_CACHE_BOOL,
             "deleteIntermediateOutputFiles": true,
             "useReferenceDisks": true,
             "memoryRetryMultiplier": 1.2,
