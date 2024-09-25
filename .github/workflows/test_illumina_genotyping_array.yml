@@ -167,4 +167,21 @@ jobs:
           echo "$OUTPUTS_TABLE" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
+    - name: Print Summary on Failure
+      if: failure()
+      run: |
+          echo "# Pipeline Execution Summary (on Failure)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Pipeline Name**: $PIPELINE_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "- **Submission ID**: $SUBMISSION_ID" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## Workflows and their statuses (if available)" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$WORKFLOW_STATUSES" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          echo "## Workflow Outputs (if available)" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$OUTPUTS_TABLE" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
       
