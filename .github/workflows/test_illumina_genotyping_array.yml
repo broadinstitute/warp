@@ -1,0 +1,77 @@
+name: Test Illumina Genotyping Array
+
+# Controls when the workflow will run
+on:
+  #run on push to feature branch "kp_GHA_Terra_auth_PD-2682" - REMOVE WHEN DONE TESTING
+  push:
+    branches:
+      - lk-PD-2726
+  #pull_request:
+  #  branches: [ "develop" ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    # inputs:
+    #   image_tag:
+    #     description: 'Docker Image Tag (default: branch_name)' 
+env:
+  PROJECT_NAME: WARP
+  # Github repo name
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  authenticate_sa:
+    runs-on: ubuntu-latest
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    # actions/checkout MUST come before auth
+    - uses: 'actions/checkout@v3'
+
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        token_format: 'access_token'
+        # Centralized in dsp-tools-k8s; ask in #dsp-devops-champions for help troubleshooting
+        workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
+        # This is our tester service account
+        service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
+        access_token_lifetime: '1000s' # optional, default: '3600s' (1 hour)
+        access_token_scopes: 'profile, email, openid'
+
+    # ... further steps are automatically authenticated
+    - name: Check working directory
+      run: |
+        echo "Current directory:"
+        pwd
+        ls -lht
+
+    - name: Submit workflow
+      run: |
+        namespace="warp-pipelines"
+        name="WARP Tests"
+        # Assign the access token to a variable
+        ACCESS_TOKEN="${{ steps.auth.outputs.access_token }}"
+
+        printf "\nSubmitting workflow"
+        submissionDetails=$(curl -X 'POST' \
+        "https://api.firecloud.org/api/workspaces/warp-pipelines/WARP%20Tests/submissions" \
+         -H "accept: */*" \
+         -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+         -H 'Content-Type: application/json' \
+         -d '{
+         "methodConfigurationNamespace": "warp-pipelines",
+         "methodConfigurationName": "IlluminaGenotypingArray",
+         "useCallCache": false,
+         "deleteIntermediateOutputFiles": true,
+         "useReferenceDisks": true,
+         "memoryRetryMultiplier": 1,
+         "workflowFailureMode": "NoNewCalls",
+         "userComment": "testing again with warp_testers permission",
+         "ignoreEmptyOutputs": false
+         }')
+
+        printf "\nDone Submitting workflows"
