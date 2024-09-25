@@ -16,7 +16,7 @@ The [Paired-Tag workflow](https://github.com/broadinstitute/warp/blob/develop/pi
 
 The workflow is a wrapper WDL script that calls two subworkflows: the Optimus workflow for single-nucleus GEX data and the ATAC workflow for single-nucleus histone modification data.
 
-The [Optimus workflow](/docs/Pipelines/Optimus_Pipeline/README) (GEX) corrects cell barcodes (CBs) and Unique Molecular Identifiers (UMIs), aligns reads to the genome, calculates per-barcode and per-gene quality metrics, and produces a raw cell-by-gene count matrix.
+The [Optimus workflow](../../Optimus_Pipeline/README) (GEX) corrects cell barcodes (CBs) and Unique Molecular Identifiers (UMIs), aligns reads to the genome, calculates per-barcode and per-gene quality metrics, and produces a raw cell-by-gene count matrix.
 
 The [ATAC workflow](../../ATAC/README) (histone modification) performs demultiplexing for samples that have a preindex barcode, corrects CBs, aligns reads to the genome, calculates per-barcode quality metrics, and produces a fragment file.
 
