@@ -100,10 +100,12 @@ jobs:
           # Check if submission was successful
           if [ -z "$SUBMISSION_ID" ]; then
               echo "Submission failed." >&3  # Log to stderr
+              echo "::set-output name=submission_id::" # Set empty submission id
               exit 1
           fi
 
           echo "Submission ID: $SUBMISSION_ID"
+          echo "::set-output name=submission_id::$SUBMISSION_ID"  # Set the submission ID
 
           # 2. Poll submission status and get workflow IDs and statuses
           RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
@@ -120,6 +122,7 @@ jobs:
 
           # Extract workflows and their statuses
           WORKFLOW_STATUSES=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + ": " + .value) | .[]')
+          echo "::set-output name=workflow_statuses::$WORKFLOW_STATUSES"  # Set workflow statuses
 
           # Generate markdown summary table for workflows and statuses
           WORKFLOW_TABLE=$(echo "$RESPONSE" | jq -r 'to_entries | ["Workflow ID | Status", "--- | ---"] + map(.key + " | " + .value) | .[]')
@@ -132,8 +135,9 @@ jobs:
               OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
           done
           echo "Workflow outputs retrieved successfully."
+          echo "::set-output name=outputs::$OUTPUTS"  # Set the outputs table
 
-          # Generate a markdown table for outputs (you can modify this part to suit your output format)
+          # Generate a markdown table for outputs
           OUTPUTS_TABLE=$(echo "$OUTPUTS" | jq -r 'to_entries | ["Output | Value", "--- | ---"] + map(.key + " | " + (.value // "-")) | .[]')
 
           # Restore stderr and print all stderr at the end
@@ -141,47 +145,38 @@ jobs:
           echo "Printing stderr logs:"
           cat stderr.log
 
-          # Print the summary to the console for visibility
-          echo "## Summary of Run"
-          echo "Pipeline Name: $PIPELINE_NAME"
-          echo "Submission ID: $SUBMISSION_ID"
-          echo "Workflows and their statuses:"
-          echo "$WORKFLOW_STATUSES"
-          echo "Workflow outputs:"
-          echo "$OUTPUTS_TABLE"
-
-          # Write the summary to the GitHub Actions summary section
+    - name: Print Summary on Success
+      if: success()
+      run: |
           echo "# Pipeline Execution Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Pipeline Name**: $PIPELINE_NAME" >> $GITHUB_STEP_SUMMARY
-          echo "- **Submission ID**: $SUBMISSION_ID" >> $GITHUB_STEP_SUMMARY
-          echo "- **Submission Status**: $(echo "$RESPONSE" | jq -r '.[]' | head -n 1)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Pipeline Name**: IlluminaGenotypingArray" >> $GITHUB_STEP_SUMMARY
+          echo "- **Submission ID**: ${{ steps.pipeline_run.outputs.submission_id }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "## Workflows and their statuses" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "$WORKFLOW_STATUSES" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pipeline_run.outputs.workflow_statuses }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
           echo "## Workflow Outputs" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "$OUTPUTS_TABLE" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
     - name: Print Summary on Failure
       if: failure()
       run: |
           echo "# Pipeline Execution Summary (on Failure)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Pipeline Name**: $PIPELINE_NAME" >> $GITHUB_STEP_SUMMARY
-          echo "- **Submission ID**: $SUBMISSION_ID" >> $GITHUB_STEP_SUMMARY
+          echo "- **Pipeline Name**: IlluminaGenotypingArray" >> $GITHUB_STEP_SUMMARY
+          echo "- **Submission ID**: ${{ steps.pipeline_run.outputs.submission_id }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "## Workflows and their statuses (if available)" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "$WORKFLOW_STATUSES" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pipeline_run.outputs.workflow_statuses }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
           echo "## Workflow Outputs (if available)" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "$OUTPUTS_TABLE" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-      
