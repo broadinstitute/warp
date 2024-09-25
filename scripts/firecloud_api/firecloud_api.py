@@ -97,6 +97,10 @@ class FirecloudAPI:
           print("Polling submission status...")  # Added for debugging
 
           status_response = requests.get(status_url, headers=self.headers)
+          
+          #print status_response code
+          print(status_response.status_code)
+
 
           # Check if the response status code is successful (200)
           if status_response.status_code != 200:
