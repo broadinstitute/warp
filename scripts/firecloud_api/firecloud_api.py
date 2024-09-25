@@ -17,6 +17,7 @@ Usage:
 import requests
 import time
 import json
+import sys
 
 class FirecloudAPI:
     def __init__(self, token, namespace, workspace_name):
@@ -82,73 +83,50 @@ class FirecloudAPI:
 
     def poll_submission_status(self, submission_id):
       """
-      Polls the status of a submission until it is complete and returns all workflow IDs.
+      Polls the status of a submission until it is complete and returns a dictionary of workflow IDs and their statuses.
 
       :param submission_id: The ID of the submission to poll
-      :return: List of workflow IDs if successful, None otherwise
+      :return: Dictionary with workflow IDs as keys and their statuses as values
       """
       # Construct the API endpoint URL for polling submission status
       status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
-      previous_workflow_status = []
-      workflow_ids = []
-      #print("Polling submission status...")  # Added for debugging
+      workflow_status_map = {}
+
       # Continuously poll the status of the submission until completion
       while True:
-
           status_response = requests.get(status_url, headers=self.headers)
 
           # Check if the response status code is successful (200)
           if status_response.status_code != 200:
               print(f"Error: Received status code {status_response.status_code}")
-              print(f"Response content: {status_response.text}")
-              break
+              print(f"Response content: {status_response.text}", file=sys.stderr)
+              return {}
 
           try:
               # Parse the response as JSON
               status_data = status_response.json()
           except json.JSONDecodeError as e:
-              print("Error decoding JSON response:", e)
-              print(f"Response content: {status_response.text}")
-              break
+              print("Error decoding JSON response:", file=sys.stderr)
+              print(f"Response content: {status_response.text}", file=sys.stderr)
+              return {}
 
-          # Retrieve the overall submission status
-          submission_status = status_data.get("status", "")
+          # Retrieve workflows and their statuses
           workflows = status_data.get("workflows", [])
-
-          # Iterate over all workflows and extract relevant information
           for workflow in workflows:
               workflow_id = workflow.get("workflowId")
               workflow_status = workflow.get("status")
-              input_resolutions = workflow.get("inputResolutions", [])
-              
-              # Print the workflow ID, status, and input details
-              print(f"Workflow ID: {workflow_id}, Status: {workflow_status}")
-              for input_res in input_resolutions:
-                  input_name = input_res.get("inputName")
-                  input_value = input_res.get("value", "N/A")
-                  print(f"  Input: {input_name}, Value: {input_value}")
+              if workflow_id and workflow_status:
+                  workflow_status_map[workflow_id] = workflow_status
 
-              # Store the workflow ID
-              if workflow_id:
-                  workflow_ids.append(workflow_id)
-
-          # Print the workflow statuses
-          workflows_status = [workflow.get("status") for workflow in workflows]
-          if workflows_status != previous_workflow_status:
-              print(f"Workflows Status: {workflows_status}")
-              previous_workflow_status = workflows_status
-
-          # Check if the submission is complete and if any workflow has failed
-          if submission_status == "Done" and "Failed" in workflows_status:
-              print("At least one workflow has failed.")
-              break
-          elif submission_status == "Done":
+          # Check if the submission is complete
+          submission_status = status_data.get("status", "")
+          if submission_status == "Done":
               break
 
           # Wait for 60 seconds before polling again
           time.sleep(60)
 
-      return workflow_ids if workflow_ids else None
+      return workflow_status_map
 
 
 # Bash Script Interaction
@@ -190,8 +168,14 @@ if __name__ == "__main__":
             print(submission_id)
 
     elif args.action == 'poll_status':
-        if not args.submission_id:
-            print("For 'poll_status', --submission_id is required.")
-        else:
-            workflow_ids = firecloud_api.poll_submission_status(args.submission_id)
-            print(f"Workflow IDs: {workflow_ids}")
+      if not args.submission_id:
+          print("For 'poll_status', --submission_id is required.")
+      else:
+          workflow_status_map = firecloud_api.poll_submission_status(args.submission_id)
+          
+          # Convert the dictionary to a JSON string and print it
+          if workflow_status_map:
+              import json
+              print(json.dumps(workflow_status_map))  # This will output the dictionary as a JSON string
+          else:
+              print("No workflows found or an error occurred.")

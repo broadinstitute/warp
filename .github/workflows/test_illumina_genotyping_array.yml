@@ -94,56 +94,25 @@ jobs:
 
         echo "Submission ID: $SUBMISSION_ID"
 
-        # 2. Poll submission status and capture all Workflow IDs from the response
+        # 2. Poll submission status and get workflow IDs and statuses
         RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
-        #print the response
-        echo "Response: $RESPONSE"
-        #Parse the response to get the workflow IDs
-        WORKFLOW_IDS=$(echo "$RESPONSE" | grep -oP 'workflow_id:\s*\K\S+')
-        
-        #WORKFLOW_IDS=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID" | grep -oP 'workflow_id:\s*\K\S+')
 
-        # Check if Workflow IDs were retrieved
-        if [ -z "$WORKFLOW_IDS" ]; then
+        # Parse the JSON response to get the workflow ID and statuses
+        echo "Workflows and their statuses:"
+        echo "$RESPONSE" | jq
+
+        # Check if RESPONSE is empty
+        if [ -z "$RESPONSE" ]; then
             echo "Failed to retrieve Workflow IDs."
             exit 1
         fi
 
-        echo "Workflow IDs: $WORKFLOW_IDS"
+        # 3. Iterate over the Workflow IDs to get outputs
+        PIPELINE_NAME="IlluminaGenotypingArray"
 
-        # 3. Iterate over all Workflow IDs to get outputs
-        PIPELINE_NAME="IlluminaGenotypingArray"  # Replace with your actual Pipeline name
-
-        for WORKFLOW_ID in $WORKFLOW_IDS; do
+        for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
             firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME"
         done
         echo "Workflow outputs retrieved successfully."
-    # - name: Check the status of a Terra submission
-    #   run: |
-    #     submissionId="44d890f7-f6dd-4a2c-8841-a10faeab3a07"
-    #     namespace="warp-pipelines"
-    #     name="Illumina-Genotyping-Array_np_copy"
-    #     # Assign the access token to a variable
-    #     ACCESS_TOKEN="${{ steps.auth.outputs.access_token }}"
-
-    #     printf "\nFetching status for submission ID '%s':" "${submissionId}"
-    #     submissionDetails=$(curl \
-    #             -X GET \
-    #             --header 'Accept: application/json' \
-    #             --header "Authorization: Bearer ${ACCESS_TOKEN}" \
-    #             "https://api.firecloud.org/api/workspaces/$namespace/$name/submissions/$submissionId")
-
-    #     printf "\nFull JSON Response '%s':" "${submissionDetails}"
-    #     submissionStatus=$(jq -r '.status' <<< "${submissionDetails}")
-    #     workflowsStatus=$(jq -r '.workflows[] | .status' <<< "${submissionDetails}")
-    #     printf "\nSubmissionStatus '%s':" "${submissionStatus}"
-    #     printf "\nWorkflowsStatus '%s':" "${workflowsStatus}"
-
-    #     submissionList=$(curl -X 'GET' \
-    #     "https://api.firecloud.org/api/workspaces/$namespace/$name/submissions" \
-    #     -H 'accept: */*' \
-    #     -H "Authorization: Bearer ${ACCESS_TOKEN}")
-
-    #     printf "\nSubmissionList '%s':" "${submissionList}"
 
       
