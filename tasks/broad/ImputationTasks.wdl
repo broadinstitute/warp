@@ -394,7 +394,7 @@ task PhaseAndImputeBeagle {
     impute=true \
     nthreads=~{cpu} \
     seed=-99999 \
-    window=10.0
+    window=5.0
 
     # notes:
     # rename output file to "phased_{basename}" if phasing without imputing
