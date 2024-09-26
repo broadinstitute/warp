@@ -155,7 +155,7 @@ jobs:
     - name: Print Summary on Success
       if: success()
       run: |
-          echo "# Pipeline Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
           echo "- **Pipeline Name**: IlluminaGenotypingArray" >> $GITHUB_STEP_SUMMARY
           echo "- **Submission ID**: ${{ steps.pipeline_run.outputs.submission_id }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -169,11 +169,12 @@ jobs:
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo " :shipit: " >> $GITHUB_STEP_SUMMARY
 
     - name: Print Summary on Failure
       if: failure()
       run: |
-          echo "# Pipeline Execution Summary (on Failure)" >> $GITHUB_STEP_SUMMARY
+          echo "# :x: Pipeline Execution Summary (on Failure) :x: " >> $GITHUB_STEP_SUMMARY
           echo "- **Pipeline Name**: IlluminaGenotypingArray" >> $GITHUB_STEP_SUMMARY
           echo "- **Submission ID**: ${{ steps.pipeline_run.outputs.submission_id }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
