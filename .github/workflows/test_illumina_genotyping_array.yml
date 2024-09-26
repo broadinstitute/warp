@@ -42,7 +42,7 @@ jobs:
         workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
         # This is our tester service account
         service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
-        access_token_lifetime: '1000s' # optional, default: '3600s' (1 hour)
+        access_token_lifetime: '3600' #seconds, default is 3600
         access_token_scopes: 'profile, email, openid'
 
     # ... further steps are automatically authenticated
@@ -105,6 +105,7 @@ jobs:
           echo "submission_id=$SUBMISSION_ID" >> $GITHUB_OUTPUT  # Write the submission ID to GITHUB_OUTPUT
 
           # 2. Poll submission status and get workflow IDs and statuses
+          echo "Polling submission status..."
           RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
 
           # Parse the JSON response to get the workflow ID and statuses
