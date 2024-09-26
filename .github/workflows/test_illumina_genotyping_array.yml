@@ -54,9 +54,6 @@ jobs:
   
     - name: Submit job, poll status, and get outputs
       run: |
-          # Redirect stderr to a temporary file
-          exec 3>&2 2>stderr.log
-
           # Set these environment variables
           TOKEN="${{ steps.auth.outputs.access_token }}"
           NAMESPACE="warp-pipelines"
@@ -99,13 +96,13 @@ jobs:
 
           # Check if submission was successful
           if [ -z "$SUBMISSION_ID" ]; then
-              echo "Submission failed." >&3  # Log to stderr
-              echo "::set-output name=submission_id::" # Set empty submission id
+              echo "Submission failed."  # Log failure to stdout
+              echo "submission_id=" >> $GITHUB_OUTPUT  # Set empty submission id
               exit 1
           fi
 
           echo "Submission ID: $SUBMISSION_ID"
-          echo "::set-output name=submission_id::$SUBMISSION_ID"  # Set the submission ID
+          echo "submission_id=$SUBMISSION_ID" >> $GITHUB_OUTPUT  # Write the submission ID to GITHUB_OUTPUT
 
           # 2. Poll submission status and get workflow IDs and statuses
           RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
@@ -116,13 +113,13 @@ jobs:
 
           # Check if RESPONSE is empty
           if [ -z "$RESPONSE" ]; then
-              echo "Failed to retrieve Workflow IDs." >&3  # Log to stderr
+              echo "Failed to retrieve Workflow IDs."  # Log failure to stdout
               exit 1
           fi
 
           # Extract workflows and their statuses
           WORKFLOW_STATUSES=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + ": " + .value) | .[]')
-          echo "::set-output name=workflow_statuses::$WORKFLOW_STATUSES"  # Set workflow statuses
+          echo "workflow_statuses=$WORKFLOW_STATUSES" >> $GITHUB_OUTPUT  # Write workflow statuses to GITHUB_OUTPUT
 
           # Generate markdown summary table for workflows and statuses
           WORKFLOW_TABLE=$(echo "$RESPONSE" | jq -r 'to_entries | ["Workflow ID | Status", "--- | ---"] + map(.key + " | " + .value) | .[]')
@@ -135,15 +132,10 @@ jobs:
               OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
           done
           echo "Workflow outputs retrieved successfully."
-          echo "::set-output name=outputs::$OUTPUTS"  # Set the outputs table
+          echo "outputs=$OUTPUTS" >> $GITHUB_OUTPUT  # Write the outputs to GITHUB_OUTPUT
 
           # Generate a markdown table for outputs
           OUTPUTS_TABLE=$(echo "$OUTPUTS" | jq -r 'to_entries | ["Output | Value", "--- | ---"] + map(.key + " | " + (.value // "-")) | .[]')
-
-          # Restore stderr and print all stderr at the end
-          exec 2>&3
-          echo "Printing stderr logs:"
-          cat stderr.log
 
     - name: Print Summary on Success
       if: success()
