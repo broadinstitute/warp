@@ -127,13 +127,14 @@ jobs:
 
           # Extract workflows and their statuses
           WORKFLOW_STATUSES=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + ": " + .value) | .[]')
+          echo "workflow_statuses=$WORKFLOW_STATUSES" >> $GITHUB_OUTPUT  # Write workflow statuses to GITHUB_OUTPUT
 
           # Generate markdown summary table for workflows and statuses
           WORKFLOW_TABLE=$(echo "$RESPONSE" | jq -r 'to_entries | ["Workflow ID | Status", "--- | ---"] + map(.key + " | " + .value) | .[]')
           
           # Print workflow table to stdout
           echo "$WORKFLOW_TABLE"
-          echo "workflow_statuses=$WORKFLOW_TABLE" >> $GITHUB_OUTPUT  # Write workflow statuses to GITHUB_OUTPUT
+
           # 3. Iterate over the Workflow IDs to get outputs
           OUTPUTS=""
           echo "Retrieving workflow outputs..."
@@ -144,10 +145,10 @@ jobs:
           echo "Workflow outputs retrieved successfully."
           echo "Raw output before jq:"
           echo "$OUTPUTS"
+          echo "outputs=$OUTPUTS" >> $GITHUB_OUTPUT  # Write the outputs to GITHUB_OUTPUT
 
           # Handle null values, strings, and numbers in the outputs by converting everything to a string and replacing null with '-'
           OUTPUTS_TABLE=$(echo "$OUTPUTS" | jq -r 'to_entries | ["Output | Value", "--- | ---"] + map(.key + " | " + (if .value == null then "-" else (.value | tostring) end)) | .[]')
-          echo "outputs=$OUTPUTS_TABLE" >> $GITHUB_OUTPUT  # Write the outputs to GITHUB_OUTPUT
 
     - name: Print Summary on Success
       if: success()
@@ -164,7 +165,7 @@ jobs:
 
           echo "## Workflow Outputs" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pipeline_run.outputs.outputs }}" | jq . >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
     - name: Print Summary on Failure
@@ -182,5 +183,5 @@ jobs:
 
           echo "## Workflow Outputs (if available)" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pipeline_run.outputs.outputs }}" | jq . >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
