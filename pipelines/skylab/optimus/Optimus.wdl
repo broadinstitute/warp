@@ -242,6 +242,7 @@ workflow Optimus {
       input:
         input_id = input_id,
         gex_nhash_id = gex_nhash_id,
+        expected_cells = expected_cells,
         input_name = input_name,
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
@@ -278,6 +279,7 @@ workflow Optimus {
       input:
         input_id = input_id,
         gex_nhash_id = gex_nhash_id,
+        expected_cells = expected_cells,
         input_name = input_name,
         counting_mode = counting_mode,
         input_id_metadata_field = input_id_metadata_field,
