@@ -59,6 +59,7 @@ jobs:
         ls -lht
   
     - name: Submit job, poll status, and get outputs
+      id: pipeline_run
       run: |
           # Set these environment variables
           TOKEN="${{ steps.auth.outputs.access_token }}"
@@ -146,8 +147,8 @@ jobs:
           echo "$OUTPUTS"
           echo "outputs=$OUTPUTS" >> $GITHUB_OUTPUT  # Write the outputs to GITHUB_OUTPUT
 
-          # Generate a markdown table for outputs
-          OUTPUTS_TABLE=$(echo "$OUTPUTS" | jq -r 'to_entries | ["Output | Value", "--- | ---"] + map(.key + " | " + (.value // "-")) | .[]')
+          # Generate a markdown table for outputs, handling null values
+          OUTPUTS_TABLE=$(echo "$OUTPUTS" | jq -r 'to_entries | ["Output | Value", "--- | ---"] + map(.key + " | " + (if .value == null then "-" else .value end)) | .[]')
 
     - name: Print Summary on Success
       if: success()
