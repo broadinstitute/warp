@@ -8,7 +8,13 @@ on:
     branches:
       - kp_GHA_Terra_auth_PD-2682
   #pull_request:
-  #  branches: [ "develop" ]
+  #  branches: [ "develop", "master", "staging" ]
+  # Only run if files in these paths changed: pipelines/broad/genotyping/illumina, tasks, verification, .github/workflows/test_illumina_genotyping_array.yml
+    # paths:
+    #   - 'pipelines/broad/genotyping/illumina/**'
+    #   - 'tasks/**'
+    #   - 'verification/**'
+    #   - '.github/workflows/test_illumina_genotyping_array.yml'
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
@@ -124,15 +130,20 @@ jobs:
 
           # Generate markdown summary table for workflows and statuses
           WORKFLOW_TABLE=$(echo "$RESPONSE" | jq -r 'to_entries | ["Workflow ID | Status", "--- | ---"] + map(.key + " | " + .value) | .[]')
+          
+          # Print workflow table to stdout
+          echo "$WORKFLOW_TABLE"
 
           # 3. Iterate over the Workflow IDs to get outputs
           OUTPUTS=""
-
+          echo "Retrieving workflow outputs..."
           for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
               WORKFLOW_OUTPUT=$(firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME")
               OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
           done
           echo "Workflow outputs retrieved successfully."
+          echo "Raw output before jq:"
+          echo "$OUTPUTS"
           echo "outputs=$OUTPUTS" >> $GITHUB_OUTPUT  # Write the outputs to GITHUB_OUTPUT
 
           # Generate a markdown table for outputs

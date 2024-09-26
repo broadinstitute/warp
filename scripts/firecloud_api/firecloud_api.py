@@ -156,7 +156,12 @@ if __name__ == "__main__":
             print("For 'get_outputs', --submission_id, --workflow_id, and --pipeline_name are required.")
         else:
             outputs, output_values = firecloud_api.get_workflow_outputs(args.submission_id, args.workflow_id, args.pipeline_name)
-            print(outputs, output_values)
+            #print(outputs)
+            # Convert the dictionary, outputs, to a JSON string and print it
+            if outputs:
+                print(json.dumps(outputs)) # Output the dictionary as a JSON string for bash parsing
+            else:
+                print("No outputs found or an error occurred.", file=sys.stderr)
 
     elif args.action == 'submit':
         if not args.submission_data_file:
