@@ -149,6 +149,8 @@ jobs:
 
           # Handle null values, strings, and numbers in the outputs by converting everything to a string and replacing null with '-'
           OUTPUTS_TABLE=$(echo "$OUTPUTS" | jq -r 'to_entries | ["Output | Value", "--- | ---"] + map(.key + " | " + (if .value == null then "-" else (.value | tostring) end)) | .[]')
+          #print outputs table to stdout
+          echo "$OUTPUTS_TABLE"
 
     - name: Print Summary on Success
       if: success()
@@ -165,7 +167,7 @@ jobs:
 
           echo "## Workflow Outputs" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.pipeline_run.outputs.outputs }}" | jq . >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
     - name: Print Summary on Failure
@@ -183,5 +185,5 @@ jobs:
 
           echo "## Workflow Outputs (if available)" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.pipeline_run.outputs.outputs }}" | jq . >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
