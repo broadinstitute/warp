@@ -45,6 +45,7 @@ jobs:
       with:
         token_format: 'access_token'
         # Centralized in dsp-tools-k8s; ask in #dsp-devops-champions for help troubleshooting
+        # This is provided by the DevOps team - do not change!
         workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
         # This is our tester service account
         service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
