@@ -30,12 +30,7 @@ workflow SlideTag {
             mem_GiB = mem_GiB,
             disk_GiB = disk_GiB,
             docker = docker
-    }
+     }
     
-    output {
-	String sb_counts
-	String spatial_logs
-	Boolean DONE 
-    }
 }
 
