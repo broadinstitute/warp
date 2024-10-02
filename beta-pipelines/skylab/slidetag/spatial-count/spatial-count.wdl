@@ -9,6 +9,7 @@ task count {
     String docker
   }
   command <<<
+    # Taken from https://github.com/MacoskoLab/Macosko-Pipelines/blob/main/spatial-count/spatial-count.wdl
     echo "<< starting spatial-count >>"
     dstat --time --cpu --mem --disk --io --freespace --output spatial-count.usage &> /dev/null &
 
@@ -68,13 +69,7 @@ task count {
     echo; echo "pucks size:"; du -sh pucks
     echo; echo "output size:"; du -sh SBcounts.h5
     echo; echo "FREE SPACE:"; df -h
-    
-#     Not needed
-# 	echo "uploading logs"
-#     gcloud storage cp /cromwell_root/stdout "$log_output_path/spatial-count.out"
-#     gcloud storage cp /cromwell_root/stderr "$log_output_path/spatial-count.err"
-#     gcloud storage cp spatial-count.usage "$log_output_path/spatial-count.usage"
-    
+     
     echo "zipping logs"
     tar -xvf /cromwell_root/stdout /cromwell_root/stderr /cromwell_root/spatial-count.usage.tar.gz
 
@@ -82,7 +77,7 @@ task count {
   >>>
   output {
     Boolean DONE = read_boolean("DONE")
-    File SBcounts = "SBcounts.h5"
+    File sb_counts = "SBcounts.h5"
     File spatial_logs = "spatial-count.usage.tar.gz"
 
   }
