@@ -23,7 +23,7 @@ workflow SlideTag {
         docker: "Docker image to use"
     }
 
-    call SpatialCount {
+    call SpatialCount.count as spatial_count {
         input:
             fastq_paths = fastq_paths,
             pucks = pucks,
