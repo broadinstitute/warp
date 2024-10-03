@@ -75,6 +75,7 @@ task count {
 
     echo "<< completed spatial-count >>"
   >>>
+  
   output {
     Boolean DONE = read_boolean("DONE")
     File sb_counts = "SBcounts.h5"

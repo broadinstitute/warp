@@ -2,7 +2,7 @@ version 1.0
 
 import "spatial-count/spatial-count.wdl" as SpatialCount
 
-workflow SlideTag {
+workflow SlideTags {
 
     String pipeline_version = "1.0.0"
 
