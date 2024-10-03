@@ -7,7 +7,7 @@ slug: /Pipelines/Smart-seq2_Single_Nucleus_Multi_Sample_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [MultiSampleSmartSeq2SingleNuclei_v1.3.4](https://github.com/broadinstitute/warp/releases) | May, 2024 | Elizabeth Kiernan | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
+| [MultiSampleSmartSeq2SingleNuclei_v2.0.1](https://github.com/broadinstitute/warp/releases) | September, 2024 | Elizabeth Kiernan | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
 ![](./snSS2.png)
 
