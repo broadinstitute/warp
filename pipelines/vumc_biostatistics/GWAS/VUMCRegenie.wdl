@@ -166,7 +166,7 @@ regenie --step 1 \
   --force-step1
   
 regenie --step 2 \
-  --qt \
+  ~{call_type} \
   --pgen ${pgen_prefix} \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
