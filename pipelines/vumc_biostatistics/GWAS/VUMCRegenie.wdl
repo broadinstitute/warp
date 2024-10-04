@@ -134,6 +134,7 @@ task Regenie {
 
     String target_prefix
 
+    Boolean is_binary_traits = false
     Int memory_gb = 100
     Int cpu = 8
 
@@ -141,6 +142,8 @@ task Regenie {
   }
 
   Int disk_size = ceil(size([input_qc_pgen, input_qc_pvar, input_qc_psam, input_pgen, input_pvar, input_psam], "GB")) + 20
+
+  String call_type = if(is_binary_traits) then "--bt" else "--qt"
 
   command <<<
 
@@ -151,7 +154,7 @@ pgen='~{input_pgen}'
 pgen_prefix=${pgen%.*}
 
 regenie --step 1 \
-  --qt \
+  ~{call_type} \
   --pgen ${qc_pgen_prefix} \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
