@@ -10,6 +10,7 @@ workflow VUMCRegenie {
 
     File phenoFile
     String phenoColList
+    Boolean is_binary_traits = false
 
     File covarFile
     String covarColList
@@ -41,6 +42,7 @@ workflow VUMCRegenie {
       input_psam = psam_file,
       phenoFile = phenoFile,
       phenoColList = phenoColList,
+      is_binary_traits = is_binary_traits,
       covarFile = covarFile,
       covarColList = covarColList,
       target_prefix = target_prefix
@@ -125,6 +127,7 @@ task Regenie {
 
     File phenoFile
     String phenoColList
+    Boolean is_binary_traits
 
     File covarFile
     String covarColList
@@ -134,7 +137,6 @@ task Regenie {
 
     String target_prefix
 
-    Boolean is_binary_traits = false
     Int memory_gb = 100
     Int cpu = 8
 
