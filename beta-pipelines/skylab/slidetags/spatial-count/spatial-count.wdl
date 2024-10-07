@@ -12,7 +12,7 @@ task count {
     # Taken from https://github.com/MacoskoLab/Macosko-Pipelines/blob/main/spatial-count/spatial-count.wdl
     # Modified to include the outputs
     # Last commit: eaebb9060fb05ececd980fd62438487d07990596 
-
+    ls -l
     echo "<< starting spatial-count >>"
     dstat --time --cpu --mem --disk --io --freespace --output spatial-count.usage &> /dev/null &
 
