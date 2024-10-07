@@ -131,6 +131,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
 
-  - name: SlideTag
+  - name: SlideTags
     subclass: WDL
-    primaryDescriptorPath: /beta-pipelines/skylab/slidetag/SlideTag.wdl
+    primaryDescriptorPath: /beta-pipelines/skylab/slidetag/SlideTags.wdl
