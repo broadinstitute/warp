@@ -133,4 +133,4 @@ workflows:
 
   - name: SlideTags
     subclass: WDL
-    primaryDescriptorPath: /beta-pipelines/skylab/slidetag/SlideTags.wdl
+    primaryDescriptorPath: /beta-pipelines/skylab/slidetags/SlideTags.wdl
