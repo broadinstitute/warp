@@ -20,7 +20,7 @@ task count {
     gcloud config set storage/thread_count  2
 
     # Download the script -- put this script into a docker
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/main/spatial-count/spatial-count.jl
+    ### wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/main/spatial-count/spatial-count.jl
 
     echo "FASTQs: ~{length(fastq_paths)} paths provided"
     echo "Pucks: ~{length(pucks)} puck(s) provided"

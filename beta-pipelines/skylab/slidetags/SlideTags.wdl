@@ -12,7 +12,8 @@ workflow SlideTags {
         Array[String] pucks
         Int mem_GiB = 64
         Int disk_GiB = 128
-        String docker = "us-central1-docker.pkg.dev/velina-208320/docker-count/img:latest"
+        #String docker = "us-central1-docker.pkg.dev/velina-208320/docker-count/img:latest"
+        String docker = "us.gcr.io/broad-gotc-prod/slide-tags:aa-slidetag"
      }
     
     parameter_meta {
