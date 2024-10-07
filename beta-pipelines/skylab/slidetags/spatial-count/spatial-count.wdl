@@ -13,6 +13,7 @@ task count {
     # Modified to include the outputs
     # Last commit: eaebb9060fb05ececd980fd62438487d07990596 
     ls -l
+    ls -l /*
     pwd
     echo "<< starting spatial-count >>"
     dstat --time --cpu --mem --disk --io --freespace --output spatial-count.usage &> /dev/null &
@@ -57,6 +58,7 @@ task count {
 
     # Run the script
     echo ; echo "Running spatial-count.jl"
+    ls -l /*;
     julia --threads=4 spatial-count.jl fastqs pucks
 
     if [[ -f SBcounts.h5 ]] ; then
