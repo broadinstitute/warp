@@ -168,6 +168,7 @@ workflow ImputationBeagle {
           vcf_index = PhaseAndImputeBeagle.vcf_index,
           ref_dict = ref_dict,
           basename = chunk_basename_imputed,
+          disable_sequence_dictionary_validation = false,
           gatk_docker = gatk_docker
       }
 
