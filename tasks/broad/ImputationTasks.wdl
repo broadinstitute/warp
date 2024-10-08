@@ -494,6 +494,7 @@ task UpdateHeader {
     File vcf_index
     File ref_dict
     String basename
+    Boolean disable_sequence_dictionary_validation = true
 
     Int disk_size_gb = ceil(4*(size(vcf, "GiB") + size(vcf_index, "GiB"))) + 20
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
@@ -502,6 +503,7 @@ task UpdateHeader {
   }
   Int command_mem = memory_mb - 1500
   Int max_heap = memory_mb - 1000
+  String disable_sequence_dict_validation_flag = if disable_sequence_dictionary_validation then "--disable-sequence-dictionary-validation" else ""
 
   command <<<
 
@@ -511,7 +513,7 @@ task UpdateHeader {
     --source-dictionary ~{ref_dict} \
     --output ~{basename}.vcf.gz \
     --replace -V ~{vcf} \
-    --disable-sequence-dictionary-validation
+    ~{disable_sequence_dict_validation_flag}
   >>>
   runtime {
     docker: gatk_docker
