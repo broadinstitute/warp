@@ -11,7 +11,7 @@ workflow TestSmartSeq2SingleNucleusPR {
     #checksums
     Array[String] truth_exon_intron_counts_hash
     Array[File] truth_bam
-    File truth_loom
+    File truth_h5ad
 
 
     # snSS2 inputs
@@ -41,8 +41,8 @@ workflow TestSmartSeq2SingleNucleusPR {
       input:
         exon_intron_counts_hash = target_workflow.exon_intron_count_files[idx],
         truth_exon_intron_counts_hash = truth_exon_intron_counts_hash[idx],
-        loom_output = target_workflow.loom_output,
-        truth_loom = truth_loom
+        h5ad_output = target_workflow.h5ad_output,
+        truth_h5ad = truth_h5ad
     }
     call verify_tasks.CompareBams as CompareBams {
       input:

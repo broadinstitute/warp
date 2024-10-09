@@ -1,3 +1,12 @@
+# 2.0.1
+2024-09-24 (Date of Last Commit)
+* Added a python implementation of DoubletFinder to calculate doublet scores in gene expression data; this does not affect the snSS2 workflow
+
+# 2.0.0
+2024-09-11 (Dat of Last Commit)
+
+* Added h5ad as a format option for the cell by gene matrix output. The h5ad has the same layers and global attributes (unstructured data in h5ad) as the previous Loom output
+
 # 1.4.2
 2024-08-25-02 (Dat of Last Commit)
 

@@ -25,5 +25,6 @@
   "PairedTag.Atac_preindex.mem_size_bwa":"64", 
   "PairedTag.soloMultiMappers":"Uniform",
   "PairedTag.cloud_provider": "gcp",
-  "PairedTag.nhash_id":"example_1234"
+  "PairedTag.gex_nhash_id":"example_1234",
+  "PairedTag.atac_nhash_id":"example_1234"
 }

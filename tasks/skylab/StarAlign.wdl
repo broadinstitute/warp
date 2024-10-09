@@ -619,6 +619,7 @@ task MergeStarOutput {
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
     File? library_metrics="~{input_id}_library_metrics.csv"
     File? mtx_files ="~{input_id}.mtx_files.tar"
+    File? outputbarcodes = "outputbarcodes.tsv"
   }
 }
 

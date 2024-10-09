@@ -165,7 +165,7 @@ task CalculateUMIsMetrics {
     
     # runtime values
     # Did not update docker image as this task uses loom which does not play nice with the changes
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.3.0"
     Int machine_mem_mb = 16000
     Int cpu = 8
     Int disk = ceil(size(bam_input, "Gi") * 4)
@@ -240,7 +240,7 @@ task FastqMetricsSlideSeq {
 
 
     # Runtime attributes
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.3.0"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3)  + 50

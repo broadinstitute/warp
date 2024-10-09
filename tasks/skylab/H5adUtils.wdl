@@ -9,13 +9,16 @@ task OptimusH5adGeneration {
     String warp_tools_docker_path
     # name of the sample
     String input_id
-    String gex_nhash_id = ""
+    String? gex_nhash_id
     # user provided id
+    String? counting_mode
+    Int expected_cells = 3000
     String? input_name
     String? input_id_metadata_field
     String? input_name_metadata_field
     # gene annotation file in GTF format
     File annotation_file
+    File? cellbarcodes
     File? library_metrics
    # the file "merged-cell-metrics.csv.gz" that contains the cellwise metrics
     File cell_metrics
@@ -88,40 +91,18 @@ task OptimusH5adGeneration {
           --pipeline_version ~{pipeline_version}
     fi
 
-    # modify h5ad
-    python3 <<CODE
+    # modify h5ad to include doublets, NHASHID, and build library metrics
+    python3 /warptools/scripts/add_library_tso_doublets.py \
+     --gex_h5ad "~{input_id}.h5ad" \
+     --cellbarcodes ~{cellbarcodes} \
+     ~{"--gex_nhash_id " + gex_nhash_id} \
+     --library_csv ~{library_metrics} \
+     --input_id ~{input_id} \
+     --counting_mode ~{counting_mode} \
+     --expected_cells ~{expected_cells}
 
-    # set parameters
-    gex_h5ad = "~{input_id}.h5ad"
-    gex_nhash_id = "~{gex_nhash_id}"
-    library_csv = "~{library_metrics}"
-    input_id = "~{input_id}"
+    mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv
 
-    # import anndata to manipulate h5ad files
-    import anndata as ad
-    import pandas as pd
-    print("Reading Optimus h5ad:")
-    print(gex_h5ad)
-    gex_data = ad.read_h5ad(gex_h5ad)
-    gex_data.uns['NHashID'] = gex_nhash_id
-    gex_data.write("~{input_id}.h5ad")
-    # import library metrics
-    print("Reading library metrics")
-    library = pd.read_csv(library_csv, header=None)
-
-    # calculate TSO frac
-    print("Calculating TSO frac")
-    tso_reads = gex_data.obs.tso_reads.sum()/gex_data.obs.n_reads.sum()
-    print("TSO reads:")
-    print(tso_reads)
-    dictionary = library.set_index(0)[1].to_dict()
-    dictionary['frac_tso'] = tso_reads
-    new_dictionary={"NHashID": [gex_nhash_id]}
-    new_dictionary.update(dictionary)
-    new_dictionary=pd.DataFrame(new_dictionary)
-    new_dictionary.transpose().to_csv(input_id+"_"+gex_nhash_id+"_library_metrics.csv", header=None)  
-    
-    CODE 
   >>>
 
   runtime {
@@ -135,9 +116,10 @@ task OptimusH5adGeneration {
 
   output {
     File h5ad_output = "~{input_id}.h5ad"
-    File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
+    File library_metrics = "~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv"
   }
 }
+
 
 task SingleNucleusOptimusH5adOutput {
 
@@ -147,8 +129,10 @@ task SingleNucleusOptimusH5adOutput {
         # name of the sample
         String input_id
         # additional aliquot id
-        String gex_nhash_id = ""
+        String? gex_nhash_id
         # user provided id
+        String? counting_mode
+        Int expected_cells = 3000
         String? input_name
         String? input_id_metadata_field
         String? input_name_metadata_field
@@ -172,6 +156,8 @@ task SingleNucleusOptimusH5adOutput {
         File gene_id_exon
         # library-level metrics
         File? library_metrics
+        # Cell calls from starsolo in TSV format
+        File? cellbarcodes
 
         String pipeline_version
 
@@ -210,43 +196,20 @@ task SingleNucleusOptimusH5adOutput {
         --expression_data_type "whole_transcript" \
         --pipeline_version ~{pipeline_version}
 
-        # modify h5ad
-        python3 <<CODE
+        # modify h5ad to include doublets, NHASHID, and build library metrics
+        python3 /warptools/scripts/add_library_tso_doublets.py \
+        --gex_h5ad "~{input_id}.h5ad" \
+        --cellbarcodes ~{cellbarcodes} \
+        ~{"--gex_nhash_id " + gex_nhash_id} \
+        --library_csv ~{library_metrics} \
+        --input_id ~{input_id} \
+        --counting_mode ~{counting_mode} \
+        --expected_cells ~{expected_cells}
 
-        # set parameters
-        gex_h5ad = "~{input_id}.h5ad"
-        gex_nhash_id = "~{gex_nhash_id}"
-        library_csv = "~{library_metrics}"
-        input_id = "~{input_id}"
 
-        # import anndata to manipulate h5ad files
-        import anndata as ad
-        import pandas as pd
-        print("Reading Optimus h5ad:")
-        print(gex_h5ad)
-        gex_data = ad.read_h5ad(gex_h5ad)
-        gex_data.uns['NHashID'] = gex_nhash_id
-        gex_data.write("~{input_id}.h5ad")
-        
-        # import library metrics
-        print("Reading library metrics")
-        library = pd.read_csv(library_csv, header=None)
+        mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv
 
-        # calculate TSO frac
-        print("Caclulating TSO frac")
-        tso_reads = gex_data.obs.tso_reads.sum()/gex_data.obs.n_reads.sum()
-        print("TSO reads:")
-        print(tso_reads)
-        dictionary = library.set_index(0)[1].to_dict()
-        dictionary['frac_tso'] = tso_reads
-        new_dictionary={"NHashID": [gex_nhash_id]}
-        new_dictionary.update(dictionary)
-        new_dictionary=pd.DataFrame(new_dictionary)
-        new_dictionary.transpose().to_csv(input_id+"_"+gex_nhash_id+"_library_metrics.csv", header=None)
-
-        CODE
-      >>>
-
+    >>>
     runtime {
         docker: warp_tools_docker_path
         cpu: cpu  # note that only 1 thread is supported by pseudobam
@@ -258,7 +221,7 @@ task SingleNucleusOptimusH5adOutput {
 
     output {
         File h5ad_output = "~{input_id}.h5ad"
-        File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
+        File library_metrics = "~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv"
     }
 }
 
@@ -551,5 +514,139 @@ task SingleNucleusSlideseqH5adOutput {
 
     output {
         File h5ad_output = "~{input_id}.h5ad"
+    }
+}
+
+task SingleNucleusSmartSeq2H5adOutput {
+    input {
+        #runtime values
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.3.0"
+
+        Array[File] alignment_summary_metrics
+        Array[File] dedup_metrics
+        Array[File] gc_bias_summary_metrics
+
+        # introns counts
+        Array[File] introns_counts
+        # exons counts
+        Array[File] exons_counts
+        # annotation file
+        File annotation_introns_added_gtf
+        # name of the sample
+        Array[String] input_ids
+        Array[String]? input_names
+        String? input_id_metadata_field
+        String? input_name_metadata_field
+
+        String pipeline_version
+        Int preemptible = 3
+        Int disk = 200
+        Int machine_mem_mb = 8000
+        Int cpu = 4
+    }
+
+    meta {
+        description: "This task will convert output from the SmartSeq2SingleNucleus pipeline into a loom file. Contrary to the SmartSeq2 single cell where there is only RSEM counts, here we have intronic and exonic counts per gene name"
+    }
+
+    parameter_meta {
+        preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
+    }
+
+    command <<<
+        set -euo pipefail
+
+        declare -a introns_counts_files=(~{sep=' ' introns_counts})
+        declare -a exons_counts_files=(~{sep=' ' exons_counts})
+        declare -a output_prefix=(~{sep=' ' input_ids})
+        declare -a alignment_summary_metrics_list=(~{sep=' 'alignment_summary_metrics})
+        declare -a dedup_metrics_list=(~{sep=' 'dedup_metrics})
+        declare -a gc_bias_summary_metrics_list=(~{sep=' 'gc_bias_summary_metrics})
+
+        for (( i=0; i<${#introns_counts_files[@]}; ++i));
+        do
+        # creates a table with gene_id, gene_name, intron and exon counts
+        echo "Running create_snss2_counts_csv."
+        python /warptools/scripts/create_snss2_counts_csv.py \
+        --in-gtf ~{annotation_introns_added_gtf} \
+        --intron-counts ${introns_counts_files[$i]} \
+        --exon-counts ${exons_counts_files[$i]}  \
+        -o "${output_prefix[$i]}.exon_intron_counts.tsv"
+        echo "Success create_snss2_counts_csv."
+
+        # groups the QC file into one file
+        echo "Running GroupQCs"
+        GroupQCs -f "${alignment_summary_metrics_list[$i]}" "${dedup_metrics_list[$i]}" "${gc_bias_summary_metrics_list[$i]}" \
+        -t Picard -o "${output_prefix[$i]}.Picard_group"
+        echo "Success GroupQCs"
+
+        # create the loom file
+        echo "Running create_h5ad_snss2."
+        python3 /warptools/scripts/create_h5ad_snss2.py \
+        --qc_files "${output_prefix[$i]}.Picard_group.csv" \
+        --count_results  "${output_prefix[$i]}.exon_intron_counts.tsv" \
+        --output_h5ad_path "${output_prefix[$i]}" \
+        --input_id ${output_prefix[$i]} \
+        ~{"--input_id_metadata_field " + input_id_metadata_field} \
+        ~{"--input_name_metadata_field " + input_name_metadata_field} \
+        --pipeline_version ~{pipeline_version}
+
+        echo "Success create_h5ad_snss2"
+        done;
+    >>>
+
+    runtime {
+        docker: docker
+        cpu: cpu
+        memory: "~{machine_mem_mb} MiB"
+        disks: "local-disk ~{disk} HDD"
+        disk: disk + " GB" # TES
+        preemptible: preemptible
+    }
+
+    output {
+        Array[File] h5ad_output = glob("*.h5ad")
+        Array[File] exon_intron_counts = glob("*exon_intron_counts.tsv")
+    }
+}
+
+task AggregateSmartSeq2H5ad {
+    input {
+        Array[File] h5ad_input
+        String batch_id
+        String pipeline_version
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.3.0"
+        Int disk = 200
+        Int machine_mem_mb = 4000
+        Int cpu = 1
+    }
+
+    meta {
+        description: "aggregate the H5AD output"
+    }
+
+    command {
+        set -e
+
+        # Merge the h5ad files
+        python3 /warptools/scripts/ss2_h5ad_merge.py \
+        --input-h5ad-files ~{sep=' ' h5ad_input} \
+        --output-h5ad-file "~{batch_id}.h5ad" \
+        --batch_id ~{batch_id} \
+        --pipeline_version ~{pipeline_version}
+    }
+
+    output {
+        File h5ad_output_file = "~{batch_id}.h5ad"
+    }
+
+    runtime {
+        docker: docker
+        cpu: cpu
+        memory: "~{machine_mem_mb} MiB"
+        disks: "local-disk ~{disk} HDD"
+        disk: disk + " GB" # TES
+        preemptible: 3
+        maxRetries: 1
     }
 }

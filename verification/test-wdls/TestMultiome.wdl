@@ -11,7 +11,8 @@ workflow TestMultiome {
     input {
       String input_id
       String cloud_provider
-      String nhash_id
+      String gex_nhash_id
+      String atac_nhash_id
 
       # Optimus Inputs
       String counting_mode = "sn_rna"
@@ -84,7 +85,8 @@ workflow TestMultiome {
         run_cellbender = run_cellbender,
         soloMultiMappers = soloMultiMappers,
         cloud_provider = cloud_provider,
-        nhash_id = nhash_id
+        gex_nhash_id = gex_nhash_id,
+        atac_nhash_id = atac_nhash_id
     }
 
     

@@ -1,7 +1,7 @@
 
-## Announcing a new site for WARP documentation!
+## Announcement: scATAC is Deprecated 9/12/2024
 
-scATAC documentation has moved! Read more about the [scATAC Pipeline](https://broadinstitute.github.io/warp/docs/Pipelines/Single_Cell_ATAC_Seq_Pipeline/README) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
+The scATAC workflow is deprecated and is no longer supported. However, the scATAC documentation is still available. Read more about the [scATAC Pipeline](https://broadinstitute.github.io/warp/docs/Pipelines/Single_Cell_ATAC_Seq_Pipeline/README) on the [WARP documentation site](https://broadinstitute.github.io/warp/)!
 
 ### scATAC summary
 

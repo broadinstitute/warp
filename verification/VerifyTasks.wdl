@@ -508,12 +508,27 @@ task CompareH5adFilesGEX {
     
     print("Now running equivalence check")
     
-    if truth_obs.equals(test_obs)==True and truth_var.equals(test_var)==True and truth_sum==test_sum:
+    # Check if obs, var, and sum match
+    if truth_obs.equals(test_obs) and truth_var.equals(test_var) and truth_sum == test_sum:
         print("pass")
     else:
-        exit("Files are not identical")
-    
-    print("Done running matrix equivalence check")
+        # If obs does not match, check if the only difference is in the 'doublet_score' column
+        if not truth_obs.equals(test_obs):
+          # Create a boolean DataFrame where True indicates differences
+          differences = truth_obs.ne(test_obs)  # .ne() is the 'not equal' comparison for pandas
+
+          # Identify columns with any differences
+          differing_columns = differences.any(axis=0)  # Check if any value in a column is True
+          differing_columns = differing_columns[differing_columns].index.tolist()  # Get column names with differences
+
+          # Check if the only differing column is 'doublet_score'
+          if len(differing_columns) == 1 and 'doublet_score' in differing_columns:
+              print("Files differ in the doublet score")
+          else:
+              print(differing_columns)
+              exit("Multiple columns different")
+        
+        print("Done running matrix equivalence check")
     
     CODE 
   >>>

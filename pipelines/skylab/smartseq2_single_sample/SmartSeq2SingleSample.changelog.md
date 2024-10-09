@@ -1,3 +1,8 @@
+# 5.1.21
+2024-09-11 (Date of Last Commit)
+
+* Updated warp-tools docker which added create_h5ad_snss2.py to the docker image. This change does not affect the SmartSeq2SingleSample pipeline
+
 # 5.1.20
 2023-04-19 (Date of Last Commit)
 

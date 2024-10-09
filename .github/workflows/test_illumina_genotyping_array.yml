@@ -1,0 +1,191 @@
+
+name: Test Illumina Genotyping Array
+
+# Controls when the workflow will run
+on:
+  #run on push to feature branch "kp_GHA_Terra_auth_PD-2682" - REMOVE WHEN DONE TESTING
+  # push:
+  #   branches:
+  #     - kp_GHA_Terra_auth_PD-2682
+  pull_request:
+    branches: [ "develop", "staging", "master" ]
+    # Only run if files in these paths changed: pipelines/broad/genotyping/illumina, tasks, verification, .github/workflows/test_illumina_genotyping_array.yml
+    paths:
+      - 'pipelines/broad/genotyping/illumina/**'
+      - 'tasks/**'
+      - 'verification/**'
+      - '.github/workflows/test_illumina_genotyping_array.yml'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      useCallCache:
+        description: 'Use call cache (default: true)'
+        required: false
+        default: "true"
+env:
+  PROJECT_NAME: WARP
+  # Github repo name
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  run_pipeline:
+    runs-on: ubuntu-latest
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    # actions/checkout MUST come before auth
+    - uses: 'actions/checkout@v3'
+
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        token_format: 'access_token'
+        # Centralized in dsp-tools-k8s; ask in #dsp-devops-champions for help troubleshooting
+        # This is provided by the DevOps team - do not change!
+        workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
+        # This is our tester service account
+        service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
+        access_token_lifetime: '3600' #seconds, default is 3600
+        access_token_scopes: 'profile, email, openid'
+
+    # ... further steps are automatically authenticated
+    - name: Check working directory
+      run: |
+        echo "Current directory:"
+        pwd
+        ls -lht
+  
+    - name: Submit job, poll status, and get outputs
+      id: pipeline_run
+      run: |
+          # Set these environment variables
+          TOKEN="${{ steps.auth.outputs.access_token }}"
+          NAMESPACE="warp-pipelines"
+          WORKSPACE="WARP Tests"
+          PIPELINE_NAME="IlluminaGenotypingArray"
+          USE_CALL_CACHE="${{ github.event.inputs.useCallCache }}"
+
+          # Function to call the Firecloud API using the firecloud_api.py script
+          firecloud_action() {
+              python3 scripts/firecloud_api/firecloud_api.py --token "$TOKEN" --namespace "$NAMESPACE" --workspace "$WORKSPACE" --action "$1" "${@:2}"
+          }
+
+          # Create the submission_data.json file
+          SUBMISSION_DATA_FILE="submission_data.json"
+          # Convert USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
+          if [ "$USE_CALL_CACHE" = "true" ]; then
+              USE_CALL_CACHE_BOOL=true
+          else
+              USE_CALL_CACHE_BOOL=false
+          fi
+          # Use a heredoc to generate the JSON file content dynamically
+          cat <<EOF > "$SUBMISSION_DATA_FILE"
+          {
+            "methodConfigurationNamespace": "warp-pipelines",
+            "methodConfigurationName": "$PIPELINE_NAME",
+            "useCallCache": $USE_CALL_CACHE_BOOL,
+            "deleteIntermediateOutputFiles": true,
+            "useReferenceDisks": true,
+            "memoryRetryMultiplier": 1.2,
+            "workflowFailureMode": "NoNewCalls",
+            "userComment": "Automated submission",
+            "ignoreEmptyOutputs": false
+          }
+          EOF
+
+          echo "Created submission data file: $SUBMISSION_DATA_FILE"
+          
+          # 1. Submit a new workflow using the generated submission_data.json
+          SUBMISSION_ID=$(firecloud_action submit --submission_data_file "$SUBMISSION_DATA_FILE")
+
+          # Check if submission was successful
+          if [ -z "$SUBMISSION_ID" ]; then
+              echo "Submission failed."  # Log failure to stdout
+              echo "submission_id=" >> $GITHUB_OUTPUT  # Set empty submission id
+              exit 1
+          fi
+
+          echo "Submission ID: $SUBMISSION_ID"
+          echo "submission_id=$SUBMISSION_ID" >> $GITHUB_OUTPUT  # Write the submission ID to GITHUB_OUTPUT
+
+          # 2. Poll submission status and get workflow IDs and statuses
+          echo "Polling submission status..."
+          RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
+
+          # Parse the JSON response to get the workflow ID and statuses
+          echo "Workflows and their statuses:"
+          echo "$RESPONSE" | jq
+
+          # Check if RESPONSE is empty
+          if [ -z "$RESPONSE" ]; then
+              echo "Failed to retrieve Workflow IDs."  # Log failure to stdout
+              exit 1
+          fi
+
+          # Extract workflows and their statuses
+          WORKFLOW_STATUSES=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + ": " + .value) | .[]')
+          echo "workflow_statuses=$WORKFLOW_STATUSES" >> $GITHUB_OUTPUT  # Write workflow statuses to GITHUB_OUTPUT
+
+          # Generate markdown summary table for workflows and statuses
+          WORKFLOW_TABLE=$(echo "$RESPONSE" | jq -r 'to_entries | ["Workflow ID | Status", "--- | ---"] + map(.key + " | " + .value) | .[]')
+          
+          # Print workflow table to stdout
+          echo "$WORKFLOW_TABLE"
+
+          # 3. Iterate over the Workflow IDs to get outputs
+          OUTPUTS=""
+          echo "Retrieving workflow outputs..."
+          for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
+              WORKFLOW_OUTPUT=$(firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME")
+              OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
+          done
+          echo "Workflow outputs retrieved successfully."
+          echo "Raw output before jq:"
+          echo "$OUTPUTS"
+          echo "outputs=$OUTPUTS" >> $GITHUB_OUTPUT  # Write the outputs to GITHUB_OUTPUT
+
+          # Handle null values, strings, and numbers in the outputs by converting everything to a string and replacing null with '-'
+          OUTPUTS_TABLE=$(echo "$OUTPUTS" | jq -r 'to_entries | ["Output | Value", "--- | ---"] + map(.key + " | " + (if .value == null then "-" else (.value | tostring) end)) | .[]')
+          #print outputs table to stdout
+          echo "$OUTPUTS_TABLE"
+
+    - name: Print Summary on Success
+      if: success()
+      run: |
+          echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Pipeline Name**: IlluminaGenotypingArray" >> $GITHUB_STEP_SUMMARY
+          echo "- **Submission ID**: ${{ steps.pipeline_run.outputs.submission_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## Workflows and their statuses" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pipeline_run.outputs.workflow_statuses }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          echo "## Workflow Outputs" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo " :shipit: " >> $GITHUB_STEP_SUMMARY
+
+    - name: Print Summary on Failure
+      if: failure()
+      run: |
+          echo "# :x: Pipeline Execution Summary (on Failure) :x: " >> $GITHUB_STEP_SUMMARY
+          echo "- **Pipeline Name**: IlluminaGenotypingArray" >> $GITHUB_STEP_SUMMARY
+          echo "- **Submission ID**: ${{ steps.pipeline_run.outputs.submission_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## Workflows and their statuses (if available)" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pipeline_run.outputs.workflow_statuses }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          echo "## Workflow Outputs (if available)" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

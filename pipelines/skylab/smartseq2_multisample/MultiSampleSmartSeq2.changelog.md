@@ -1,3 +1,8 @@
+# 2.2.22
+2024-09-11 (Date of Last Commit)
+
+* Updated warp-tools docker which added create_h5ad_snss2.py to the docker image. This change does not affect the MultiSmartSeq2 pipeline
+
 # 2.2.21
 2023-04-19 (Date of Last Commit)
 

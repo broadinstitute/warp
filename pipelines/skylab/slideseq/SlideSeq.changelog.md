@@ -1,3 +1,13 @@
+# 3.4.2
+2024-09-24 (Date of Last Commit)
+
+* Added a python implementation of DoubletFinder to calculate doublet scores in gene expression data; this does not impact the slideseq workflow
+
+# 3.4.1
+2024-09-11 (Date of Last Commit)
+
+* Updated warp-tools docker which added create_h5ad_snss2.py to the docker image. This change does not affect the SlideSeq pipeline
+
 # 3.4.0
 2024-08-06 (Date of Last Commit)
 
