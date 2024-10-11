@@ -534,7 +534,7 @@ task RemoveSymbolicAlleles {
     File original_vcf_index
     String output_basename
 
-    Int disk_size_gb = ceil(3*(size(original_vcf, "GiB") + size(original_vcf_index, "GiB")))
+    Int disk_size_gb = ceil(3*(size(original_vcf, "GiB") + size(original_vcf_index, "GiB"))) + 10
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int cpu = 1
     Int memory_mb = 4000
