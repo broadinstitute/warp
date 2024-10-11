@@ -5,7 +5,7 @@ import "../../../tasks/skylab/TrimAdapters.wdl" as TrimAdapters
 import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 import "../../../tasks/skylab/Picard.wdl" as Picard
 import "../../../tasks/skylab/FeatureCounts.wdl" as CountAlignments
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow MultiSampleSmartSeq2SingleNucleus {
@@ -57,7 +57,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "1.4.2"
+  String pipeline_version = "2.0.1"
 
   if (false) {
      String? none = "None"
@@ -129,7 +129,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
             annotation_gtf = annotations_gtf
     }
 
-    call LoomUtils.SingleNucleusSmartSeq2LoomOutput as LoomOutput {
+    call H5adUtils.SingleNucleusSmartSeq2H5adOutput as H5adOutput {
         input:
             input_ids = input_ids,
             input_names = input_names,
@@ -144,28 +144,22 @@ workflow MultiSampleSmartSeq2SingleNucleus {
             annotation_introns_added_gtf = annotations_gtf
     }
 
-  ### Aggregate the Loom Files Directly ###
-  call LoomUtils.AggregateSmartSeq2Loom as AggregateLoom {
+  ### Aggregate the H5ad Files Directly ###
+  call H5adUtils.AggregateSmartSeq2H5ad as AggregateH5ad {
     input:
-      loom_input = LoomOutput.loom_output,
-      batch_id = batch_id,
-      batch_name = batch_name,
-      project_id = if defined(project_id) then select_first([project_id])[0] else none,
-      project_name = if defined(project_name) then select_first([project_name])[0] else none,
-      library = if defined(library) then select_first([library])[0] else none,
-      species = if defined(species) then select_first([species])[0] else none,
-      organ = if defined(organ) then select_first([organ])[0] else none,
-      pipeline_version = "MultiSampleSmartSeq2SingleNucleus_v~{pipeline_version}"
+      h5ad_input = H5adOutput.h5ad_output,
+      pipeline_version = pipeline_version,
+      batch_id = batch_id
   }
 
 
 
   ### Pipeline output ###
   output {
-    # loom output, exon/intron count tsv files and the aligned bam files
-    File loom_output = AggregateLoom.loom_output_file
+    # h5ad output, exon/intron count tsv files and the aligned bam files
+    File h5ad_output = AggregateH5ad.h5ad_output_file
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
-    Array[File] exon_intron_count_files = LoomOutput.exon_intron_counts
+    Array[File] exon_intron_count_files = H5adOutput.exon_intron_counts
     Array[File] bam_files = RemoveDuplicatesFromBam.output_bam
     String pipeline_version_out = pipeline_version
   }

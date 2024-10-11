@@ -26,7 +26,7 @@ workflow Optimus {
     Array[File]? i1_fastq
     String input_id
     # String for additional library aliquot ID
-    String? gex_nhash_id = ""
+    String? gex_nhash_id
     String output_bam_basename = input_id
     String? input_name
     String? input_id_metadata_field
@@ -71,7 +71,7 @@ workflow Optimus {
   # version of this pipeline
 
 
-  String pipeline_version = "7.6.0"
+  String pipeline_version = "7.7.0"
 
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
@@ -91,8 +91,9 @@ workflow Optimus {
   String pytools_docker = "pytools:1.0.0-1661263730"
   String empty_drops_docker = "empty-drops:1.0.1-4.2"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
-  String warp_tools_docker_2_2_0 = "warp-tools:2.2.0"
-  String star_merge_docker = "star-merge-npz:1.2"
+  String warp_tools_docker_2_2_0 = "warp-tools:2.4.0"
+  String star_merge_docker = "star-merge-npz:1.3.0"
+
 
   #TODO how do we handle these?
   String alpine_docker = "alpine-bash@sha256:965a718a07c700a5204c77e391961edee37477634ce2f9cf652a8e4c2db858ff"
@@ -241,11 +242,13 @@ workflow Optimus {
       input:
         input_id = input_id,
         gex_nhash_id = gex_nhash_id,
+        expected_cells = expected_cells,
         input_name = input_name,
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
         library_metrics = MergeStarOutputs.library_metrics,
+        cellbarcodes = MergeStarOutputs.outputbarcodes,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
         sparse_count_matrix = MergeStarOutputs.sparse_counts,
@@ -276,11 +279,14 @@ workflow Optimus {
       input:
         input_id = input_id,
         gex_nhash_id = gex_nhash_id,
+        expected_cells = expected_cells,
         input_name = input_name,
+        counting_mode = counting_mode,
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
         library_metrics = MergeStarOutputs.library_metrics,
+        cellbarcodes = MergeStarOutputs.outputbarcodes,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
         sparse_count_matrix = MergeStarOutputs.sparse_counts,

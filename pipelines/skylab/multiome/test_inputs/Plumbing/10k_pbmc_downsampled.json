@@ -25,5 +25,6 @@
   "Multiome.Atac.num_threads_bwa":"16",
   "Multiome.Atac.mem_size_bwa":"64", 
   "Multiome.soloMultiMappers":"Uniform",
-  "Multiome.nhash_id":"example_1234"
+  "Multiome.gex_nhash_id":"example_1234",
+  "Multiome.atac_nhash_id":"example_1234"
 }
