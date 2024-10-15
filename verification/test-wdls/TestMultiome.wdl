@@ -114,7 +114,8 @@ workflow TestMultiome {
     Array[String] pipeline_metrics = flatten([
                                     [ # File outputs
                                     Multiome.gene_metrics_gex,
-                                    Multiome.cell_metrics_gex
+                                    Multiome.cell_metrics_gex,
+                                    Multiome.atac_library_metrics
                                     ],
                                     # File? outputs
                                     select_all([Multiome.library_metrics]),
