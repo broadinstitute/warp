@@ -33,5 +33,5 @@
   "Multiome.Atac.num_threads_bwa":"24",
   "Multiome.Atac.mem_size_bwa":"175",
   "Multiome.gex_nhash_id":"example_1234",
-  "Multiome.gex_nhash_id":"example_1234"
+  "Multiome.atac_nhash_id":"example_1234"
 }
