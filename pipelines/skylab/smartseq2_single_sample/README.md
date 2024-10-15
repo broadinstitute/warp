@@ -1,6 +1,6 @@
-## Announcing a new site for WARP documentation!
+## Announcement: Smart-seq2 Single Sample is Deprecated 9/12/2024
 
-Smart-seq2 Single Sample documentation has moved! Read more about the [Smart-seq2 Single Sample Pipeline](https://broadinstitute.github.io/warp/docs/Pipelines/Smart-seq2_Single_Sample_Pipeline/README) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
+The Smart-seq2 Single Sample workflow is deprecated and will no longer be supported. However, documentation is still available Read about the [Smart-seq2 Single Sample Pipeline](https://broadinstitute.github.io/warp/docs/Pipelines/Smart-seq2_Single_Sample_Pipeline/README) on the [WARP documentation site](https://broadinstitute.github.io/warp/)!
 
 ### Smart-seq2 Single Sample summary
 

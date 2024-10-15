@@ -289,7 +289,7 @@ task HardFilterAndMakeSitesOnlyVcf {
       VariantFiltration \
       --filter-expression "ExcessHet > ~{excess_het_threshold}" \
       --filter-name ExcessHet \
-      ~{"--filter-not-in-mask --mask-name OUTSIDE_OF_TARGETS --mask " + targets_interval_list} \
+      ~{"--filter-not-in-mask --mask-description \"Does not overlap the targets interval list.\" --mask-name OUTSIDE_OF_TARGETS --mask " + targets_interval_list} \
       -O ~{variant_filtered_vcf_filename} \
       -V ~{vcf}
 

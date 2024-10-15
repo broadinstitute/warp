@@ -8,13 +8,14 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "1.6.1"
+    String pipeline_version = "1.7.0"
 
 
     input {
         String input_id
         # Additional library aliquot id
-        String? nhash_id
+        String? gex_nhash_id
+        String? atac_nhash_id
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -97,7 +98,7 @@ workflow PairedTag {
             count_exons = count_exons,
             cloud_provider = cloud_provider,
             soloMultiMappers = soloMultiMappers,
-            gex_nhash_id = nhash_id
+            gex_nhash_id = gex_nhash_id
     }
 
     # Call the ATAC workflow
@@ -131,7 +132,7 @@ workflow PairedTag {
             preindex = preindex,
             cloud_provider = cloud_provider,
             vm_size = vm_size,
-            atac_nhash_id = nhash_id
+            atac_nhash_id = atac_nhash_id
     }
 
     if (preindex) {

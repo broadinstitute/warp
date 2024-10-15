@@ -5,6 +5,12 @@ slug: /Pipelines/Smart-seq2_Single_Sample_Pipeline/README
 
 # Smart-seq2 Single Sample Overview
 
+:::warning
+9/12/2014
+
+We are deprecating the Smart-seq2 Single Sample Pipeline. Although the code will continue to be available, we are no longer supporting it. For an alternative, see the [Smart-seq2 Single Nucleus Multi Sample workflow](../../Pipelines/Smart-seq2_Single_Nucleus_Multi_Sample_Pipeline/README.md).
+:::
+
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
 | [smartseq2_v5.1.20](https://github.com/broadinstitute/warp/releases) | February, 2024 | Elizabeth Kiernan | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
