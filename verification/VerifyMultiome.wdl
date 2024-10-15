@@ -29,6 +29,9 @@ workflow VerifyMultiome {
         File test_library_metrics
         File truth_library_metrics
 
+        File test_atac_library_metrics
+        File truth_atac_library_metrics
+
         Boolean? done
     }
 
@@ -76,5 +79,10 @@ workflow VerifyMultiome {
         input:
             test_text_files = select_all([test_library_metrics]),
             truth_text_files = select_all([truth_library_metrics])
+    }
+    call VerifyTasks.CompareTextFiles as CompareAtacLibraryMetrics {
+        input:
+            test_text_files = select_all([test_atac_library_metrics]),
+            truth_text_files = select_all([truth_atac_library_metrics])
     }
 }
