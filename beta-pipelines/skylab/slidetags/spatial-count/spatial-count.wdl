@@ -26,7 +26,6 @@ task count {
 
     echo "FASTQs: ~{length(fastq_paths)} paths provided"
     echo "Pucks: ~{length(pucks)} puck(s) provided"
-    echo "Output directory: $count_output_path" ; echo
 
     # Assert that the fastqs exist
     fastqs=(~{sep=' ' fastq_paths})
@@ -62,7 +61,6 @@ task count {
 
     if [[ -f SBcounts.h5 ]] ; then
         echo ; echo "Success, uploading counts"
-        ####gcloud storage cp -r SBcounts.h5 "$count_output_path/SBcounts.h5"
         echo "true" > DONE
     else
         echo ; echo "ERROR: CANNOT FIND: SBcounts.h5"
