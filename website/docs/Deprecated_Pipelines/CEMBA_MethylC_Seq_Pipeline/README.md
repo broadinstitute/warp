@@ -13,7 +13,7 @@ The CEMBA pipeline has been officially deprecated, with support ending on Octobe
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
 | [CEMBA_v1.1.6](https://github.com/broadinstitute/warp/releases) | December, 2023 | Elizabeth Kiernan| Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
-
+tab
 ![CEMBA](./CEMBA.png)
 
 ## Introduction to the CEMBA Workflow
