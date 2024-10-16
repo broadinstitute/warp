@@ -77,9 +77,8 @@ task count {
     echo; echo "output size:"; du -sh SBcounts.h5
     echo; echo "FREE SPACE:"; df -h
      
-    echo "zipping logs"
     ls
-    tar -cvzf spatial-count.usage.tar.gz stdout stderr 
+    cat stdout stderr > spatial-count.log
     ls 
     echo "<< completed spatial-count >>"
   >>>
@@ -87,7 +86,8 @@ task count {
   output {
     Boolean DONE = read_boolean("DONE")
     File sb_counts = "SBcounts.h5"
-    File spatial_logs = "spatial-count.usage.tar.gz"
+    File spatial_log = "spatial-count.log"
+    File dstat_output = "spatial-count.usage"
 
   }
   runtime {
