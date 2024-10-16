@@ -9,6 +9,8 @@ task count {
     String docker
   }
   command <<<
+    set -euo pipefail
+    set -x
     # Taken from https://github.com/MacoskoLab/Macosko-Pipelines/blob/main/spatial-count/spatial-count.wdl
     # Modified to include the outputs
     # Last commit: eaebb9060fb05ececd980fd62438487d07990596 
@@ -56,7 +58,6 @@ task count {
 
     # Run the script
     echo ; echo "Running spatial-count.jl"
-    ls -l /*;
     julia --threads=4 /spatial-count.jl fastqs pucks
 
     if [[ -f SBcounts.h5 ]] ; then
