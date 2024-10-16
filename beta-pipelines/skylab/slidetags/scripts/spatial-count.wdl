@@ -67,7 +67,6 @@ task count {
     fi
 
     echo; echo "Writing logs:"
-    ### kill $(ps aux | fgrep dstat | fgrep -v grep | awk '{print $2}')
     echo; echo "fastqs size:"; du -sh fastqs
     echo; echo "pucks size:"; du -sh pucks
     echo; echo "output size:"; du -sh SBcounts.h5
