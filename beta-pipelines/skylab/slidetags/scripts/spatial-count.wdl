@@ -11,11 +11,8 @@ task count {
   command <<<
     set -euo pipefail
     set -x
-    # Taken from https://github.com/MacoskoLab/Macosko-Pipelines/blob/main/spatial-count/spatial-count.wdl
-    # Modified to include the outputs
 
     echo "<< starting spatial-count >>"
-    ## removed dstat --time --cpu --mem --disk --io --freespace --output spatial-count.usage &> /dev/null &
 
     gcloud config set storage/process_count 16
     gcloud config set storage/thread_count  2
