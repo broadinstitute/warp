@@ -79,7 +79,7 @@ task count {
      
     echo "zipping logs"
     tar -xvf /cromwell_root/stdout /cromwell_root/stderr /cromwell_root/spatial-count.usage.tar.gz
-
+    ls 
     echo "<< completed spatial-count >>"
   >>>
   
