@@ -537,6 +537,7 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
+    peakcalling_bool = true
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -553,10 +554,10 @@ task CreateFragmentFile {
     import csv
 
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
-    if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
-    elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+    if preindex:
+        data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+    else:
+        data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     
     # Add NHashID to metrics 
     nhash_ID_value = "XXX"
@@ -575,7 +576,6 @@ task CreateFragmentFile {
     with open(csv_file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(flattened_data)  # Write data
-
     print(f"Dictionary successfully written to {csv_file_path}")
 
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
@@ -583,9 +583,23 @@ task CreateFragmentFile {
     atac_data.uns['NHashID'] = atac_nhash_id
     # calculate tsse metrics
     snap.metrics.tsse(atac_data, atac_gtf)
-    # Write new atac file
     atac_data.write_h5ad("~{bam_base_name}.metrics.h5ad")
 
+    # peak calling? https://kzhang.org/SnapATAC2/tutorials/diff.html#Peak-calling-at-the-cluster-level
+    if peakcalling_bool:
+        print("Peak calling using MACS3")
+        snap.tl.macs3(atac_data) # were not including cell type?
+        print("test")
+        print(data.uns['macs3'])
+
+        print("Writing peak files")
+        for k, peaks in data.uns['macs3'].items():
+            peaks.to_csv(f'{k}.NarrowPeak', sep='\t', header=False, index=False)
+        ls 
+    
+    # Write atac file
+    print("Writing h5ad file")
+    atac_data.write_h5ad("~{bam_base_name}.peaks.h5ad")
     CODE
   >>>
 
