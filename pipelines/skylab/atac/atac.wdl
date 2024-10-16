@@ -537,7 +537,7 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
-    peakcalling_bool = true
+    peakcalling_bool = True
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -554,7 +554,7 @@ task CreateFragmentFile {
     import csv
 
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
-    if preindex:
+    if preindex == "true":
         data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     else:
         data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
