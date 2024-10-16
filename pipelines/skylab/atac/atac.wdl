@@ -590,11 +590,6 @@ task CreateFragmentFile {
         print("Peak calling using MACS3")
         snap.tl.macs3(atac_data) # were not including cell type?
         print("test")
-        print(atac_data.uns['macs3'])
-
-        print("Writing peak files")
-        for k, peaks in atac_data.uns['macs3'].items():
-            peaks.to_csv(f'{k}.NarrowPeak', sep='\t', header=False, index=False)
         ls 
     
     # Write atac file
