@@ -598,7 +598,7 @@ task CreateFragmentFile {
         ls 
     
     # Write atac file
-    print("Writing h5ad file")
+    print("Writing h5ad file with peaks")
     atac_data.write_h5ad("~{bam_base_name}.peaks.h5ad")
     CODE
   >>>
@@ -614,6 +614,7 @@ task CreateFragmentFile {
   output {
     File fragment_file = "~{bam_base_name}.fragments.tsv"
     File Snap_metrics = "~{bam_base_name}.metrics.h5ad"
+    File peaks_h5 = "~{bam_base_name}.peaks.h5ad" # test
     File atac_library_metrics = "~{bam_base_name}_~{atac_nhash_id}.atac_metrics.csv"
   }
 }
