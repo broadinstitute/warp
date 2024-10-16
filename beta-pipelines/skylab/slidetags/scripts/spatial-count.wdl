@@ -83,7 +83,6 @@ task count {
     Boolean DONE = read_boolean("DONE")
     File sb_counts = "SBcounts.h5"
     File spatial_log = "spatial-count.log"
-    File dstat_output = "spatial-count.usage"
 
   }
   runtime {
