@@ -22,7 +22,8 @@ task count {
     gcloud config set storage/thread_count  2
 
     # Download the script -- put this script into a docker
-    ### wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/main/spatial-count/spatial-count.jl
+    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/5c74e9e6148102081827625b9ce91ec2b7ba3541/spatial-count/spatial-count.jl
+    ls 
 
     echo "FASTQs: ~{length(fastq_paths)} paths provided"
     echo "Pucks: ~{length(pucks)} puck(s) provided"
@@ -57,8 +58,11 @@ task count {
 
     # Run the script
     echo ; echo "Running spatial-count.jl"
-    julia --threads=4 /spatial-count.jl fastqs pucks .
-
+    ## julia --threads=4 /spatial-count.jl fastqs pucks .
+    julia --threads=4 spatial-count.jl fastqs pucks .
+    echo "TEST"
+    ls
+    
     if [[ -f SBcounts.h5 ]] ; then
         echo ; echo "Success, uploading counts"
         echo "true" > DONE
