@@ -590,7 +590,6 @@ task CreateFragmentFile {
         print("Peak calling using MACS3")
         snap.tl.macs3(atac_data) # were not including cell type?
         print("test")
-        ls 
     
     # Write atac file
     print("Writing h5ad file with peaks")
