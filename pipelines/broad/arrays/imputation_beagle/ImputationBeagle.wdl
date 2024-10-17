@@ -151,6 +151,9 @@ workflow ImputationBeagle {
           for_dependency = FailQCNChunks.done # these shenanigans can be replaced with `after` in wdl 1.1
       }
 
+      Int cpu = if (CountSamples.nSamples <= 1000) then 8 else floor(CountSamples.nSamples / 1000) * 8
+      Int memory_in_gb = if (CountSamples.nSamples <= 1000) then cpu * 4 else ceil(cpu * 6.5)
+
       call tasks.PhaseAndImputeBeagle {
         input:
           dataset_vcf = chunkedVcfsWithOverlapsForImputation[i],
