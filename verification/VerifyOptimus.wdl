@@ -48,7 +48,7 @@ workflow VerifyOptimus {
             truth_h5ad = truth_h5ad
     }
 
-  call VerifyTasks.CompareTextFiles as CompareLibraryMetrics {
+  call VerifyTasks.CompareLibraryFiles as CompareLibraryMetrics {
           input:
             test_text_files = select_all([test_library_metrics]),
             truth_text_files = select_all([truth_library_metrics])
