@@ -151,8 +151,8 @@ workflow ImputationBeagle {
           for_dependency = FailQCNChunks.done # these shenanigans can be replaced with `after` in wdl 1.1
       }
 
-      Int cpu = if (CountSamples.nSamples <= 1000) then 8 else floor(CountSamples.nSamples / 1000) * 8
-      Int memory_in_gb = if (CountSamples.nSamples <= 1000) then cpu * 4 else ceil(cpu * 6.5)
+      Int beagle_cpu = if (CountSamples.nSamples <= 1000) then 8 else floor(CountSamples.nSamples / 1000) * 8
+      Int beagle_memory_in_gb = if (CountSamples.nSamples <= 1000) then beagle_cpu * 4 else ceil(beagle_cpu * 6.5)
 
       call tasks.PhaseAndImputeBeagle {
         input:
@@ -162,7 +162,9 @@ workflow ImputationBeagle {
           basename = chunk_basename_imputed,
           genetic_map_file = referencePanelContig.genetic_map,
           start = start[i],
-          end = end[i]
+          end = end[i],
+          cpu = beagle_cpu,
+          memory_mb = beagle_memory_in_gb * 1000
       }
 
       call tasks.UpdateHeader {
