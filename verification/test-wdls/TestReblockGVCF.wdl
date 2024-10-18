@@ -17,6 +17,9 @@ workflow TestReblockGVCF {
       File ref_fasta_index
       Float? tree_score_cutoff
       String? annotations_to_keep_command
+      String? annotations_to_remove_command
+      Boolean? move_filters_to_genotypes
+      String? gvcf_file_extension
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -24,6 +27,7 @@ workflow TestReblockGVCF {
       Boolean update_truth
       String vault_token_path
       String google_account_vault_path
+      String cloud_provider
     }
 
     meta {
@@ -39,8 +43,11 @@ workflow TestReblockGVCF {
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index,
         tree_score_cutoff = tree_score_cutoff,
-        annotations_to_keep_command = annotations_to_keep_command
-  
+        annotations_to_keep_command = annotations_to_keep_command,
+        annotations_to_remove_command = annotations_to_remove_command,
+        move_filters_to_genotypes = move_filters_to_genotypes,
+        gvcf_file_extension = gvcf_file_extension,
+        cloud_provider = cloud_provider
     }
 
     

@@ -1,3 +1,45 @@
+# 1.1.0
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+* Minor changes to the output VCF at some sites due to the changes in HaplotyperCaller
+
+# 1.0.20
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 1.0.19
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs; this does not affect this pipeline
+
+# 1.0.18
+2024-07-09 (Date of Last Commit)
+
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers. This change does not affect this pipeline
+
+# 1.0.17
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
+
+# 1.0.16
+2024-03-26 (Date of Last Commit)
+
+* ValidateVcfs requires less memory when run without interval list; this does not affect this pipeline
+
+# 1.0.15
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0.
+
+# 1.0.14
+2023-12-14 (Date of Last Commit)
+
+* Updated GATK for Reblock task to version 4.5.0.0
+* Added options to Reblock task to remove annotations and move filters to genotype level
+
 # 1.0.13
 2023-12-08 (Date of Last Commit)
 

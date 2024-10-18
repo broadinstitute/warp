@@ -1,3 +1,39 @@
+# 2.2.2
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+
+# 2.2.1
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs
+
+# 2.2.0
+2024-07-09 (Date of Last Commit)
+
+* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers. cloud_provider is a new, required input.
+
+# 2.1.19
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
+
+# 2.1.18
+2024-03-26 (Date of Last Commit)
+
+* ValidateVcfs requires less memory when run without interval list; this does not affect this pipeline
+
+# 2.1.17
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0. Header documentation change for RAW_GT_COUNT annotation.
+
+# 2.1.16
+2023-12-14 (Date of Last Commit)
+
+* Updated GATK for Reblock task to version 4.5.0.0
+* Added options to Reblock task to remove annotations and move filters to genotype level
+
 # 2.1.15
 2023-12-08 (Date of Last Commit)
 

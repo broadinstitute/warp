@@ -10,6 +10,9 @@ workflow TestMultiome {
 
     input {
       String input_id
+      String cloud_provider
+      String gex_nhash_id
+      String atac_nhash_id
 
       # Optimus Inputs
       String counting_mode = "sn_rna"
@@ -18,7 +21,6 @@ workflow TestMultiome {
       Array[File]? gex_i1_fastq
       File tar_star_reference
       File annotations_gtf
-      File ref_genome_fasta
       File? mt_genes
       Int tenx_chemistry_version = 3
       Int emptydrops_lower = 100
@@ -26,7 +28,6 @@ workflow TestMultiome {
       Boolean ignore_r1_read_length = false
       String star_strand_mode = "Forward"
       Boolean count_exons = false
-      File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
       String? soloMultiMappers
 
       # ATAC inputs
@@ -43,8 +44,6 @@ workflow TestMultiome {
       # Trimadapters input
       String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
       String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
-      # Whitelist
-      File atac_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt"
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -69,7 +68,6 @@ workflow TestMultiome {
         input_id = input_id,
         tar_star_reference = tar_star_reference,
         annotations_gtf = annotations_gtf,
-        ref_genome_fasta = ref_genome_fasta,
         mt_genes = mt_genes,
         tenx_chemistry_version = tenx_chemistry_version,
         emptydrops_lower = emptydrops_lower,
@@ -77,7 +75,6 @@ workflow TestMultiome {
         ignore_r1_read_length = ignore_r1_read_length,
         star_strand_mode = star_strand_mode,
         count_exons = count_exons,
-        gex_whitelist = gex_whitelist,
         atac_r1_fastq = atac_r1_fastq,
         atac_r2_fastq = atac_r2_fastq,
         atac_r3_fastq = atac_r3_fastq,
@@ -85,10 +82,11 @@ workflow TestMultiome {
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3,
         chrom_sizes = chrom_sizes,
-        atac_whitelist = atac_whitelist,
         run_cellbender = run_cellbender,
-        soloMultiMappers = soloMultiMappers
-  
+        soloMultiMappers = soloMultiMappers,
+        cloud_provider = cloud_provider,
+        gex_nhash_id = gex_nhash_id,
+        atac_nhash_id = atac_nhash_id
     }
 
     
@@ -118,7 +116,8 @@ workflow TestMultiome {
                                     Multiome.gene_metrics_gex,
                                     Multiome.cell_metrics_gex
                                     ],
-                                    
+                                    # File? outputs
+                                    select_all([Multiome.library_metrics]),
     ])
 
     # Copy results of pipeline to test results bucket
@@ -186,6 +185,15 @@ workflow TestMultiome {
             truth_path = truth_path
         }
 
+        if(defined(Multiome.library_metrics)){
+            call Utilities.GetValidationInputs as GetLibraryMetrics {
+                input:
+                    input_file = Multiome.library_metrics,
+                    results_path = results_path,
+                    truth_path = truth_path
+            }
+        }
+
       call VerifyMultiome.VerifyMultiome as Verify {
         input:
           truth_optimus_h5ad = GetOptimusH5ad.truth_file,
@@ -202,6 +210,8 @@ workflow TestMultiome {
           test_fragment_file = GetFragmentFile.results_file,
           truth_atac_h5ad = GetSnapMetrics.truth_file,
           test_atac_h5ad = GetSnapMetrics.results_file,
+          test_library_metrics =  select_first([GetLibraryMetrics.results_file, ""]),
+          truth_library_metrics = select_first([GetLibraryMetrics.truth_file, ""]),
           done = CopyToTestResults.done
       }
     }

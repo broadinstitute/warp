@@ -1,3 +1,95 @@
+# 3.4.2
+2024-09-24 (Date of Last Commit)
+
+* Added a python implementation of DoubletFinder to calculate doublet scores in gene expression data; this does not impact the slideseq workflow
+
+# 3.4.1
+2024-09-11 (Date of Last Commit)
+
+* Updated warp-tools docker which added create_h5ad_snss2.py to the docker image. This change does not affect the SlideSeq pipeline
+
+# 3.4.0
+2024-08-06 (Date of Last Commit)
+
+* Updated the warp-tools docker to calculate mitochondrial reads from unique reads in cell and gene metrics; these metrics are in the cell and gene metrics CSV as well as h5ad
+
+
+# 3.3.1
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 3.3.0
+2024-07-25 (Date of Last Commit)
+
+* Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files
+
+
+# 3.2.0
+2024-07-11 (Date of Last Commit)
+
+* Updated the Optimus.wdl to run on Azure; cloud_provider is a new, required input
+
+# 3.1.8
+2024-07-09 (Date of Last Commit)
+
+* Added new optional input parameter of gex_nhash_id to the STARAlign task; this does not impact the SlideSeq workflow 
+
+# 3.1.7
+2024-06-28 (Date of Last Commit)
+
+* Updated the STARsolo parameters for estimating cells to Emptydrops_CR; this does not affect the slideseq pipeline
+
+# 3.1.6
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this does not impact the SlideSeq workflow
+
+# 3.1.5
+2024-04-12 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering
+
+# 3.1.4
+2024-03-26 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
+# 3.1.3
+2024-03-15 (Date of Last Commit)
+
+* Added cell metrics to the library-level metrics CSV; this does not impact the slide-seq pipeline
+
+* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
+
+* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
+# 3.1.2
+
+2024-02-28 (Date of Last Commit)
+
+* Updated the Optimus workflow to produce a library-level metrics CSV; this does not impact the slide-seq pipeline
+
+# 3.1.1
+2024-02-29 (Date of Last Commit)
+* Added mem and disk to inputs of Join Barcodes task of Multiome workflow; does not impact the Slideseq workflow
+
+
+# 3.1.0
+2024-02-07 (Date of Last Commit)
+
+* Updated StarAlign output metrics to include shard ids
+
+# 3.0.1
+2024-02-13 (Date of Last Commit)
+
+* Updated the Metrics tasks to exclude mitochondrial genes from reads_mapped_uniquely, reads_mapped_multiple and reads_mapped_exonic, reads_mapped_exonic_as and reads_mapped_intergenic; this does affect the SlideSeq workflow
+
+# 3.0.0
+2024-02-12 (Date of Last Commit)
+
+* Updated the SlideSeq WDL output to utilize the h5ad format in place of Loom
+
+
 # 2.1.6
 2024-01-30 (Date of Last Commit)
 

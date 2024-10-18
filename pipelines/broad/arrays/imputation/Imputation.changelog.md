@@ -1,3 +1,18 @@
+# 1.1.14
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+
+# 1.1.13
+2024-05-21 (Date of Last Commit)
+
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers. This change does not affect this pipeline.
+
+# 1.1.12
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0
+
 # 1.1.11
 2023-08-01 (Date of last Commit)
 
