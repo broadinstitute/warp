@@ -1,3 +1,8 @@
+# 5.7.1
+2024-10-18 (Date of Last Commit)
+
+* Removed the underscore of the NHashID in the ATAC library metrics CSV to match the gene expression library metrics
+
 # 5.7.0
 2024-09-24 (Date of Last Commit)
 * Added a python implementation of DoubletFinder to calculate doublet scores in gene expression data; percent doublets are now available as a library-level metric and individual doublet scores for cell barcodes are in the h5ad

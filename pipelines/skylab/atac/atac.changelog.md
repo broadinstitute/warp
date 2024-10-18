@@ -1,3 +1,8 @@
+# 2.3.2
+2024-10-18 (Date of Last Commit)
+
+* Removed the underscore of the NHashID in the ATAC library metrics CSV
+
 # 2.3.1
 2024-09-11 (Date of Last Commit)
 

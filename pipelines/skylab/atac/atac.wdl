@@ -46,7 +46,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.3.1"
+  String pipeline_version = "2.3.2"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -559,8 +559,7 @@ task CreateFragmentFile {
       data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     
     # Add NHashID to metrics 
-    nhash_ID_value = "XXX"
-    data = OrderedDict({'NHash_ID': atac_nhash_id, **data})
+    data = OrderedDict({'NHashID': atac_nhash_id, **data})
     # Flatten the dictionary
     flattened_data = []
     for category, metrics in data.items():
