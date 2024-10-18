@@ -9,6 +9,7 @@ module.exports = {
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
+  trailingSlash: false,
   organizationName: 'broadinstitute', // Usually your GitHub org/user name.
   projectName: 'warp', // Usually your repo name.
   plugins: [

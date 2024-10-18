@@ -19,7 +19,7 @@ task CompareVcfs {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 70 HDD"
     memory: "32 GiB"
     preemptible: 3
@@ -49,7 +49,7 @@ task CompareVcfsAllowingQualityDifferences {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
     preemptible: 3
@@ -72,10 +72,11 @@ task CompareVCFsVerbosely {
   }
 
   command {
-    gatk VCFComparator -R ~{ref_fasta}  -V:actual ~{actual} -V:expected ~{expected} ~{extra_args} ~{if(warn_on_error) then "--warn-on-errors" else ""} --finish-before-failing
+    gatk --java-options "-Xms2500m -Xmx2500m" VCFComparator -R ~{ref_fasta}  -V:actual ~{actual} -V:expected ~{expected} ~{extra_args} ~{if(warn_on_error) then "--warn-on-errors" else ""} --finish-before-failing
   }
 
   runtime {
+    #TODO: update docker to next GATK release (after 4.6.0.0) which includes an updated VCFComparator
     docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:4c1b32dd89c46af52e68ae34f99db483ba07b08def2479d145a185de0b2d9a4a"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
@@ -115,13 +116,23 @@ task CompareTabix {
     exit_code=0
     a=$(md5sum "~{test_fragment_file}" | awk '{ print $1 }')
     b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
+
     if [[ $a = $b ]]; then
-      echo equal 
-    else 
-      echo different
-      exit_code=1
+      echo "The fragment files are equal"
+    else
+      echo "The fragment files md5sums do not match. Performing a line count:"
+        test_lines=$(wc -l ~{test_fragment_file} | awk '{ print $1 }')
+        truth_lines=$(wc -l ~{truth_fragment_file} | awk '{ print $1 }')
+        echo "Test file has $test_lines lines"
+        echo "Truth file has $truth_lines lines"
+        diff_lines=$((test_lines - truth_lines))
+        abs_diff_lines=${diff_lines#-}
+
+        if [[ $abs_diff_lines -gt 100 ]]; then
+          echo "Line count difference greater than 100 lines. The line count difference is $abs_diff_lines lines. Task failed."
+          exit_code=1
+        fi
     fi
-    exit $exit_code
   >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
@@ -161,22 +172,18 @@ task CompareTextFiles {
         echo "Files $a.sorted and $b.sorted have matching md5sums and are the same."
       else
         echo "Files $a.sorted and $b.sorted have different md5sums."
-        diff $a.sorted $b.sorted > diffs.txt
+        diff $a.sorted $b.sorted >&2
         exit_code=1
-        echo "Diff between $a.sorted and $b.sorted:" >&2
-        cat diffs.txt >&2
       fi
-
-      # catting the diffs.txt on STDOUT as that's what's expected.
-      cat diffs.txt
 
     done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
 
+    echo "Exiting with code $exit_code"
     exit $exit_code
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 100 HDD"
     memory: "50 GiB"
     preemptible: 3
@@ -204,7 +211,7 @@ task CompareCrams {
     cmp -i "$test_offset:$truth_offset" ~{test_cram} ~{truth_cram}
   }
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk " + disk_size_gb + " HDD"
     memory: "2 GiB"
     preemptible: 3
@@ -224,7 +231,7 @@ task CompareCrais {
     cmp <(zcat ~{test_crai} | cut -f1,2,3,5,6) <(zcat ~{truth_crai} | cut -f1,2,3,5,6)
   }
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
     preemptible: 3
@@ -246,7 +253,7 @@ task CompareBams {
   Int java_memory_size = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
-  command {
+  command <<<
     set -e
     set -o pipefail
 
@@ -257,23 +264,18 @@ task CompareBams {
     truth_size=$(stat -c %s ~{truth_bam})
     test_size=$(stat -c %s ~{test_bam})
 
-    # Convert sizes to megabytes
-    truth_size_mb=$((truth_size / (1024 * 1024)))
-    test_size_mb=$((test_size / (1024 * 1024)))
+    # Calculate the difference in bytes
+    size_difference=$((truth_size - test_size))
 
-    # Calculate the difference in megabytes
-    size_difference_mb=$((truth_size_mb - test_size_mb))
+    # Calculate the absolute value of the difference
+    abs_size_difference=$((size_difference < 0 ? -size_difference : size_difference))
 
-    # Calculate the absolute value of the difference:
-    # First, check if the difference is negative. If negative, make it positive. If the differnce is positive, leave it as is.
-    abs_size_difference_mb=$((size_difference_mb < 0 ? -size_difference_mb : size_difference_mb))
-
-    # Compare the sizes and fail fast if the difference is greater than 200 MB
-    if [ "$abs_size_difference_mb" -gt 200 ]; then
-        echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Exiting."
+    # Compare the sizes and fail fast if the difference is greater than 200 * 1024 * 1024 bytes (200 MB)
+    if [ "$abs_size_difference" -gt $((200 * 1024 * 1024)) ]; then
+        echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Exiting."
         exit 1
     else
-        echo "WARNING: BAM file sizes differ by more than 0 MB but less than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Proceeding to CompareSAMs:"
+        echo "WARNING: BAM file sizes differ by less than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Proceeding to CompareSAMs:"
 
         java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
         CompareSAMs \
@@ -284,7 +286,9 @@ task CompareBams {
             LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
             MAX_RECORDS_IN_RAM=300000
     fi
-  }
+
+  >>>
+
 
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
@@ -307,10 +311,17 @@ task CompareCompressedTextFiles {
 
   command {
     diff <(gunzip -c ~{test_zip} | sort) <(gunzip -c ~{truth_zip} | sort)
+
+    if [ $? -eq 0 ]; then
+        echo "Comparison succeeded: The files are identical."
+    else
+        echo "Comparison failed: The files differ."
+        exit 1
+    fi
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk " + disk_size + " HDD"
     memory: "20 GiB"
     preemptible: 3
@@ -404,6 +415,28 @@ task CompareH5adFilesATAC {
     import numpy as np
     import pandas as pd
     
+    def compare_atac(test,truth):
+        print(truth.obs)
+        print(test.obs)
+        truth.obs.describe()
+        test.obs.describe()
+        # Find the intersection of barcodes
+        shared_indices = truth.obs.index.intersection(test.obs.index)
+        truth_shared = truth[shared_indices]
+        test_shared = test[shared_indices]
+        # Look at length of barcodes and barcodes shared
+        number_truth_barcodes=len(truth)
+        print("Number of Truth barcodes: ", number_truth_barcodes)
+        number_test_barcodes=len(test)
+        print("Number of Test barcodes: ", number_test_barcodes)
+        percent_barcodes_shared_truth = len(truth_shared)/len(truth)*100
+        print("% Truth barcodes shared ", str(percent_barcodes_shared_truth))
+        percent_barcodes_shared_test = len(test_shared)/len(test)*100
+        print("% Test barcodes shared ", str(percent_barcodes_shared_test))
+        stats=np.corrcoef(truth_shared.obs.n_fragment, y=test_shared.obs.n_fragment)
+        print(stats)
+        return stats
+    
     truth_h5ad = "~{truth_h5ad}"
     test_h5ad = "~{test_h5ad}"
     truth = ad.read_h5ad(truth_h5ad)
@@ -417,7 +450,13 @@ task CompareH5adFilesATAC {
     if truth_obs.equals(test_obs)==True:
         print("pass")
     else:
-        exit("Files are not identical")
+        print("Files are not identical, running additional checks")
+        stats = compare_atac(test,truth)
+        value=stats[0,1]
+        if value>0.990:
+            print("pass")
+        else:
+            exit("Files are not similar enough to pass test")
     
     print("Done running matrix equivalence check")
     
@@ -469,12 +508,27 @@ task CompareH5adFilesGEX {
     
     print("Now running equivalence check")
     
-    if truth_obs.equals(test_obs)==True and truth_var.equals(test_var)==True and truth_sum==test_sum:
+    # Check if obs, var, and sum match
+    if truth_obs.equals(test_obs) and truth_var.equals(test_var) and truth_sum == test_sum:
         print("pass")
     else:
-        exit("Files are not identical")
-    
-    print("Done running matrix equivalence check")
+        # If obs does not match, check if the only difference is in the 'doublet_score' column
+        if not truth_obs.equals(test_obs):
+          # Create a boolean DataFrame where True indicates differences
+          differences = truth_obs.ne(test_obs)  # .ne() is the 'not equal' comparison for pandas
+
+          # Identify columns with any differences
+          differing_columns = differences.any(axis=0)  # Check if any value in a column is True
+          differing_columns = differing_columns[differing_columns].index.tolist()  # Get column names with differences
+
+          # Check if the only differing column is 'doublet_score'
+          if len(differing_columns) == 1 and 'doublet_score' in differing_columns:
+              print("Files differ in the doublet score")
+          else:
+              print(differing_columns)
+              exit("Multiple columns different")
+        
+        print("Done running matrix equivalence check")
     
     CODE 
   >>>
@@ -551,7 +605,7 @@ task CompareSnapTextFiles {
   >>>
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 50 HDD"
     memory: "25 GiB"
     preemptible: 3

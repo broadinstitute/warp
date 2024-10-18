@@ -23,6 +23,7 @@ workflow TestExomeReprocessing {
 
     File? cram_ref_fasta
     File? cram_ref_fasta_index
+    String cloud_provider
 
     DNASeqSingleSampleReferences references
     VariantCallingScatterSettings scatter_settings
@@ -66,7 +67,8 @@ workflow TestExomeReprocessing {
     bait_set_name = bait_set_name,
     references = references,
     scatter_settings = scatter_settings,
-    papi_settings = papi_settings
+    papi_settings = papi_settings,
+    cloud_provider = cloud_provider
   }
 
   # Collect all of the pipeline outputs into a single Array[String]]

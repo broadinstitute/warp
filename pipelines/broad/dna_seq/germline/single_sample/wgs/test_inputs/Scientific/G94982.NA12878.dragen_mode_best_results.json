@@ -83,5 +83,6 @@
   },
 
   "WholeGenomeGermlineSingleSample.dragen_maximum_quality_mode": true,
-  "WholeGenomeGermlineSingleSample.BamToGvcf.HaplotypeCallerGATK4.memory_multiplier":2
+  "WholeGenomeGermlineSingleSample.BamToGvcf.HaplotypeCallerGATK4.memory_multiplier":2,
+  "WholeGenomeGermlineSingleSample.cloud_provider": "gcp"
 }

@@ -7,6 +7,7 @@ import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
+import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Optimus {
   meta {
@@ -14,6 +15,8 @@ workflow Optimus {
   }
 
   input {
+    String cloud_provider
+
     # Mode for counting either "sc_rna" or "sn_rna"
     String counting_mode = "sc_rna"
 
@@ -22,6 +25,8 @@ workflow Optimus {
     Array[File] r2_fastq
     Array[File]? i1_fastq
     String input_id
+    # String for additional library aliquot ID
+    String? gex_nhash_id
     String output_bam_basename = input_id
     String? input_name
     String? input_id_metadata_field
@@ -30,7 +35,8 @@ workflow Optimus {
     File tar_star_reference
     File annotations_gtf
     File? mt_genes
-    String? soloMultiMappers
+    String? soloMultiMappers = "Uniform"
+    Int? expected_cells
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -65,17 +71,54 @@ workflow Optimus {
   # version of this pipeline
 
 
-  String pipeline_version = "6.5.0"
+  String pipeline_version = "7.7.0"
 
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
 
   # 10x parameters
-  File whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
-  File whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
+  File gcp_whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
+  File gcp_whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
+  File azure_whitelist_v2 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/737k-august-2016.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
+  File azure_whitelist_v3 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/3M-febrary-2018.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
+
   # Takes the first read1 FASTQ from the inputs to check for chemistry match
   File r1_single_fastq = r1_fastq[0]
+
+  # docker images
+  String picard_cloud_docker = "picard-cloud:2.26.10"
+  String pytools_docker = "pytools:1.0.0-1661263730"
+  String empty_drops_docker = "empty-drops:1.0.1-4.2"
+  String star_docker = "star:1.0.1-2.7.11a-1692706072"
+  String warp_tools_docker_2_2_0 = "warp-tools:2.4.0"
+  String star_merge_docker = "star-merge-npz:1.3.0"
+
+
+  #TODO how do we handle these?
+  String alpine_docker = "alpine-bash@sha256:965a718a07c700a5204c77e391961edee37477634ce2f9cf652a8e4c2db858ff"
+  String gcp_alpine_docker_prefix = "bashell/"
+  String acr_alpine_docker_prefix = "dsppipelinedev.azurecr.io/"
+  String alpine_docker_prefix = if cloud_provider == "gcp" then gcp_alpine_docker_prefix else acr_alpine_docker_prefix
+
+  String ubuntu_docker = "ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
+  String gcp_ubuntu_docker_prefix = "gcr.io/gcp-runtimes/"
+  String acr_ubuntu_docker_prefix = "dsppipelinedev.azurecr.io/"
+  String ubuntu_docker_prefix = if cloud_provider == "gcp" then gcp_ubuntu_docker_prefix else acr_ubuntu_docker_prefix
+
+  String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
+  String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
+
+  # choose docker prefix based on cloud provider
+  String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+
+  # make sure either gcp or azr is supplied as cloud_provider input
+  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+    call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+      input:
+        message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+    }
+  }
 
   parameter_meta {
     r1_fastq: "forward read, contains cell barcodes and molecule barcodes"
@@ -98,16 +141,21 @@ workflow Optimus {
       force_no_check = force_no_check,
       counting_mode = counting_mode,
       count_exons = count_exons,
-      whitelist_v2 = whitelist_v2,
-      whitelist_v3 = whitelist_v3,
+      gcp_whitelist_v2 = gcp_whitelist_v2,
+      gcp_whitelist_v3 = gcp_whitelist_v3,
+      azure_whitelist_v2 = azure_whitelist_v2,
+      azure_whitelist_v3 = azure_whitelist_v3,
       tenx_chemistry_version = tenx_chemistry_version,
       r1_fastq = r1_single_fastq,
-      ignore_r1_read_length = ignore_r1_read_length
+      ignore_r1_read_length = ignore_r1_read_length,
+      cloud_provider = cloud_provider,
+      alpine_docker_path = alpine_docker_prefix + alpine_docker
   }
 
   call StarAlign.STARGenomeRefVersion as ReferenceCheck {
     input:
-      tar_star_reference = tar_star_reference
+      tar_star_reference = tar_star_reference,
+      ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
   }
 
   call FastqProcessing.FastqProcessing as SplitFastq {
@@ -118,7 +166,8 @@ workflow Optimus {
       whitelist = whitelist,
       chemistry = tenx_chemistry_version,
       sample_id = input_id,
-      read_struct = read_struct
+      read_struct = read_struct,
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
@@ -133,21 +182,24 @@ workflow Optimus {
         counting_mode = counting_mode,
         count_exons = count_exons,
         output_bam_basename = output_bam_basename + "_" + idx,
-        soloMultiMappers = soloMultiMappers
+        soloMultiMappers = soloMultiMappers,
+        star_docker_path = docker_prefix + star_docker
     }
   }
   call Merge.MergeSortBamFiles as MergeBam {
     input:
       bam_inputs = STARsoloFastq.bam_output,
       output_bam_filename = output_bam_basename + ".bam",
-      sort_order = "coordinate"
+      sort_order = "coordinate",
+      picard_cloud_docker_path = docker_prefix + picard_cloud_docker
   }
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
       bam_input = MergeBam.output_bam,
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
-      input_id = input_id
+      input_id = input_id,
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
@@ -155,7 +207,8 @@ workflow Optimus {
       bam_input = MergeBam.output_bam,
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
-      input_id = input_id
+      input_id = input_id,
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
   }
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
@@ -168,7 +221,10 @@ workflow Optimus {
       align_features = STARsoloFastq.align_features,
       umipercell = STARsoloFastq.umipercell,
       input_id = input_id,
-      counting_mode = counting_mode
+      counting_mode = counting_mode,
+      star_merge_docker_path = docker_prefix + star_merge_docker,
+      expected_cells = expected_cells,
+      gex_nhash_id = gex_nhash_id
   }
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {
@@ -176,7 +232,8 @@ workflow Optimus {
         sparse_count_matrix = MergeStarOutputs.sparse_counts,
         row_index = MergeStarOutputs.row_index,
         col_index = MergeStarOutputs.col_index,
-        emptydrops_lower = emptydrops_lower
+        emptydrops_lower = emptydrops_lower,
+        empty_drops_docker_path = docker_prefix + empty_drops_docker
     }
   }
 
@@ -184,10 +241,14 @@ workflow Optimus {
     call H5adUtils.OptimusH5adGeneration{
       input:
         input_id = input_id,
+        gex_nhash_id = gex_nhash_id,
+        expected_cells = expected_cells,
         input_name = input_name,
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
+        library_metrics = MergeStarOutputs.library_metrics,
+        cellbarcodes = MergeStarOutputs.outputbarcodes,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
         sparse_count_matrix = MergeStarOutputs.sparse_counts,
@@ -195,7 +256,8 @@ workflow Optimus {
         gene_id = MergeStarOutputs.col_index,
         empty_drops_result = RunEmptyDrops.empty_drops_result,
         counting_mode = counting_mode,
-        pipeline_version = "Optimus_v~{pipeline_version}"
+        pipeline_version = "Optimus_v~{pipeline_version}",
+        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
     }
   }
   if (count_exons  && counting_mode=="sn_rna") {
@@ -210,15 +272,21 @@ workflow Optimus {
         summary = STARsoloFastq.summary_sn_rna,
         align_features = STARsoloFastq.align_features_sn_rna,
         umipercell = STARsoloFastq.umipercell_sn_rna,
-        input_id = input_id     
+        star_merge_docker_path = docker_prefix + star_merge_docker,
+        gex_nhash_id = gex_nhash_id     
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
         input_id = input_id,
+        gex_nhash_id = gex_nhash_id,
+        expected_cells = expected_cells,
         input_name = input_name,
+        counting_mode = counting_mode,
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
+        library_metrics = MergeStarOutputs.library_metrics,
+        cellbarcodes = MergeStarOutputs.outputbarcodes,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
         sparse_count_matrix = MergeStarOutputs.sparse_counts,
@@ -227,11 +295,13 @@ workflow Optimus {
         sparse_count_matrix_exon = MergeStarOutputsExons.sparse_counts,
         cell_id_exon = MergeStarOutputsExons.row_index,
         gene_id_exon = MergeStarOutputsExons.col_index,
-        pipeline_version = "Optimus_v~{pipeline_version}"
+        pipeline_version = "Optimus_v~{pipeline_version}",
+        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
     }
   }
 
   File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
+  File final_library_metrics = select_first([OptimusH5adGenerationWithExons.library_metrics, OptimusH5adGeneration.library_metrics])
 
 
   output {
@@ -246,7 +316,8 @@ workflow Optimus {
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
     File? aligner_metrics = MergeStarOutputs.cell_reads_out
-    File? library_metrics = MergeStarOutputs.library_metrics
+    File library_metrics = final_library_metrics
+    File? mtx_files = MergeStarOutputs.mtx_files
     Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
     Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
     Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix

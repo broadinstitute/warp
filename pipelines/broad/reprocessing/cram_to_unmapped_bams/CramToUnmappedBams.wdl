@@ -9,7 +9,7 @@ version 1.0
 # If the file is not provided, the output names of the unmapped bams will be the read_group_id<unmapped_bam_suffix>
 workflow CramToUnmappedBams {
 
-  String pipeline_version = "1.1.2"
+  String pipeline_version = "1.1.3"
 
   input {
     File? input_cram
@@ -222,7 +222,7 @@ task SplitUpOutputMapFile {
   >>>
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
   }
