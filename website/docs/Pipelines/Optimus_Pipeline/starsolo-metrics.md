@@ -56,10 +56,10 @@ These metrics are important for assessing the quality of individual cell barcode
 | featureU | Number of reads mapping to one feature (Gene, GeneFull, etc). | 
 | featureM | Number of reads mapping to multiple features. |  
 | exonic | Number of reads mapping to annotated exons. | 
-| intronic | Number of reads mapping to annotated introns;these are only calculated for --soloFeatures GeneFull_Ex50pAS and/or GeneFull_ExonOverIntron. | 
+| intronic | Number of reads mapping to annotated introns; these are only calculated for --soloFeatures GeneFull_Ex50pAS and/or GeneFull_ExonOverIntron. | 
 | exonicAS | Number of reads mapping antisense to annotated exons. | 
 | intronicAS | Number of reads mapping antisense to annotated introns; these are only calculated for --soloFeatures GeneFull_Ex50pAS. | 
-| mito | for the number of read mapping on mitochondrial genome. |  
+| mito | Number of reads mapping to the mitochondrial genome. |  
 | countedU | Number of unique-gene reads whose UMIs contributed to counts in the matrix.mtx (eads with valid CB/UMI/gene). |        
 | countedM | Number of multi-gene reads whose UMIs contributed to counts in the matrix.mtx. |    
 | nUMIunique | Total number of counted UMI for unique-gene reads. |  
