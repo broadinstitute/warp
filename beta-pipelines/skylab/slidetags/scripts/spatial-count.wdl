@@ -19,7 +19,6 @@ task count {
 
     # Download the script -- put this script into a docker
     wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/5c74e9e6148102081827625b9ce91ec2b7ba3541/spatial-count/spatial-count.jl
-    ls 
 
     echo "FASTQs: ~{length(fastq_paths)} paths provided"
     echo "Pucks: ~{length(pucks)} puck(s) provided"
@@ -56,8 +55,6 @@ task count {
     echo ; echo "Running spatial-count.jl"
     ## julia --threads=4 /spatial-count.jl fastqs pucks .
     julia --threads=4 spatial-count.jl fastqs pucks .
-    echo "TEST"
-    ls
     
     if [[ -f SBcounts.h5 ]] ; then
         echo ; echo "Success, uploading counts"
@@ -72,9 +69,7 @@ task count {
     echo; echo "output size:"; du -sh SBcounts.h5
     echo; echo "FREE SPACE:"; df -h
      
-    ls
     cat stdout stderr > spatial-count.log
-    ls 
     echo "<< completed spatial-count >>"
   >>>
   
