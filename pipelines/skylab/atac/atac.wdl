@@ -550,6 +550,7 @@ task CreateFragmentFile {
     import snapatac2.preprocessing as pp
     import snapatac2 as snap
     import anndata as ad
+    import scanpy as sc
     from collections import OrderedDict
     import csv
 
@@ -585,10 +586,56 @@ task CreateFragmentFile {
     snap.metrics.tsse(atac_data, atac_gtf)
     atac_data.write_h5ad("~{bam_base_name}.metrics.h5ad")
 
-    # peak calling? https://kzhang.org/SnapATAC2/tutorials/diff.html#Peak-calling-at-the-cluster-level
+    # Peak calling
     if peakcalling_bool:
+        print("Peak calling")
+        # Calculate and plot the size distribution of fragments
+        print("1.1 Calculating fragment size distribution")
+        snap.pl.frag_size_distr(atac_data)
+        # Need to parameterize 
+        # Filter cells
+        print("1.2 Filtering cells")
+        snap.pp.filter_cells(atac_data, min_counts=5000, min_tsse=10, max_counts=100000)
+        print(atac_data)
+        # Create a cell by bin matrix containing insertion counts across genome-wide 500-bp bins.
+        print("1.3 Creating cell by bin matrix")
+        snap.pp.add_tile_matrix(atac_data)
+        print(atac_data)
+        # Feature selection
+        print("1.4 Feature selection")
+        snap.pp.select_features(atac_data)
+        # Run customized scrublet algorithm to identify potential doublets
+        print("1.5 Run scrublet to identify potential doublets")
+        snap.pp.scrublet(atac_data)
+        # Employ spectral embedding for dimensionality reduction
+        print("1.6 Employ spectral embedding for dimensionality reduction")
+        snap.tl.spectral(atac_data)
+        # Filter doublets based on scrublet scores 
+        print("1.7 Filter doublets based on scrublet scores")
+        snap.pp.filter_doublets(atac_data, probability_threshold=0.5)
+        # Perform graph-based clustering to identify cell clusters. 
+        # Build a k-nearest neighbour graph using snap.pp.knn
+        print("1.8 Perform knn graph-based clustering to identify cell clusters")
+        snap.pp.knn(atac_data)
+        # Use the Leiden community detection algorithm to identify densely-connected subgraphs/clusters in the graph
+        print("1.9 Use the Leiden community detection algorithm to identify densely-connected subgraphs/clusters in the graph")
+        snap.tl.leiden(atac_data)
+        # Create the cell by gene activity matrix
+        print("1.10 Create the cell by gene activity matrix")
+        gene_mat = snap.pp.make_gene_matrix(atac_data, gene_anno=atac_gtf)
+        # Normalize the gene matrix
+        print("1.11 Normalize the gene matrix")
+        gene_mat.obs['leiden'] = atac_data.obs['leiden']
+        sc.pp.normalize_total(gene_mat)
+        sc.pp.log1p(gene_mat)
+        sc.tl.rank_genes_groups(gene_mat, groupby="leiden", method="wilcoxon")
+        
+        for i in np.unique(gene_mat.obs['leiden']):
+            markers = sc.get.rank_genes_groups_df(gene_mat, group=i).head(7)['names']
+            print(f"Cluster {i}: {', '.join(markers)}")
+
         print("Peak calling using MACS3")
-        snap.tl.macs3(atac_data) # were not including cell type?
+        snap.tl.macs3(atac_data, groupby='leiden')
         print("test")
     
     # Write atac file
