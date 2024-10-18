@@ -527,7 +527,8 @@ task CreateFragmentFile {
 
   command <<<
     set -e pipefail
-
+    pip3 install snapatac2==2.7.0 scanpy
+    
     python3 <<CODE
 
     # set parameters
