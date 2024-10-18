@@ -526,7 +526,9 @@ task CreateFragmentFile {
   }
 
   command <<<
-    set -e pipefail
+    set -eou pipefail
+    set -x 
+    # install packages -- need to add to the docker
     pip3 install snapatac2==2.7.0 scanpy
     
     python3 <<CODE
@@ -538,7 +540,7 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
-    peakcalling_bool = True
+    peakcalling_bool = False
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -604,7 +606,9 @@ task CreateFragmentFile {
         # Create a cell by bin matrix containing insertion counts across genome-wide 500-bp bins.
         print("Creating cell by bin matrix")
         atac_data_mod = snap.pp.add_tile_matrix(atac_data)
+        print("set obsm")
         atac_data_mod.obsm = atac_data.obsm
+        print("set uns")
         new_adata.uns["reference_sequences"] = atac_data.uns["reference_sequences"]
         print(atac_data_mod)
        
