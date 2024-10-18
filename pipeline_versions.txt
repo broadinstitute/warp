@@ -38,5 +38,3 @@ Optimus	 7.7.0	2024-09-24
 atac	 2.3.1	2024-09-11 
 SmartSeq2SingleSample	 5.1.21	2024-09-11 
 SlideSeq	 3.4.2	2024-09-24 
-BuildCembaReferences	 1.0.0	2020-11-15 
-CEMBA	 1.1.7	2024-09-06 
