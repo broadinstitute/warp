@@ -22,10 +22,10 @@ Each of the table metrics gives insights into different stages of read alignment
 | MultiFeature | Number of reads aligned to multiple features. | 
 | subMultiFeatureMultiGenomic | Number of reads mapping to multiple genomic loci and multiple features. | 
 | noTooManyWLmatches | Number of reads not counted because their barcoded pair has too many matches to the whitelist. | 
-| noMMtoWLwithoutExact | Numbner of reads not counted because their barcoded pair has mismatches to the whitelist and there's no more reads supporting that barcode. | 
+| noMMtoWLwithoutExact | Number of reads not counted because their barcoded pair has mismatches to the whitelist and there's no more reads supporting that barcode. | 
 | yesWLmatch | Number of reads whose barcoded pair has a match to the whitelist. |
 | yessubWLmatchExact | Number of reads with cell barcode exactly matched to the whitelist (a subset of yesWLmatch). | 
-| yessubWLmatch_UniqueFeature | Number of reads with matched to the WL and unique feature (a subset of yesWLmatch). | 
+| yessubWLmatch_UniqueFeature | Number of reads matched to the WL and unique feature (a subset of yesWLmatch). | 
 | yesCellBarcodes | Number of reads associated with a valid cell barcode. | 
 | yesUMIs | Number of reads associated with a valid UMI. | 
 
