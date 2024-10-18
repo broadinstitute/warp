@@ -560,7 +560,7 @@ task CreateFragmentFile {
     
     # Add NHashID to metrics 
     nhash_ID_value = "XXX"
-    data = OrderedDict({'NHash_ID': atac_nhash_id, **data})
+    data = OrderedDict({'NHashID': atac_nhash_id, **data})
     # Flatten the dictionary
     flattened_data = []
     for category, metrics in data.items():
