@@ -7,9 +7,9 @@ workflows:
     testParameterFiles:
           -  /warp/pipelines/skylab/optimus/example_inputs/human_v3_example.json
 
-  - name: snM3C
+  - name: snm3C-seq
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/snM3C/snM3C.wdl
+    primaryDescriptorPath: /pipelines/skylab/snm3C/snm3C.wdl
 
   - name: Smartseq2_Multisample
     subclass: WDL
@@ -121,8 +121,16 @@ workflows:
     
   - name: atac
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/multiome/atac.wdl
+    primaryDescriptorPath: /pipelines/skylab/atac/atac.wdl
 
+  - name: TestIlluminaGenotypingArray
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestIlluminaGenotypingArray.wdl
+    
   - name: VariantCalling
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
+
+  - name: SlideTags
+    subclass: WDL
+    primaryDescriptorPath: /beta-pipelines/skylab/slidetags/SlideTags.wdl

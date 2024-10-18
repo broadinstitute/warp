@@ -7,7 +7,7 @@ import "https://raw.githubusercontent.com/broadinstitute/gatk/4.5.0.0/scripts/vc
 # Joint Genotyping for hg38 Whole Genomes and Exomes (has not been tested on hg19)
 workflow JointGenotyping {
 
-  String pipeline_version = "1.6.10"
+  String pipeline_version = "1.7.1"
 
   input {
     File unpadded_intervals_file
@@ -214,7 +214,7 @@ workflow JointGenotyping {
         extract_extra_args = extract_extra_args,
         resource_args = resource_args,
         output_prefix = callset_name,
-        gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+        gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
     }
   } 
   if (!run_vets) {
