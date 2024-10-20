@@ -152,7 +152,7 @@ workflow ImputationBeagle {
       }
 
       Int beagle_cpu = if (CountSamples.nSamples <= 1000) then 8 else floor(CountSamples.nSamples / 1000) * 8
-      Int beagle_memory_in_gb = if (CountSamples.nSamples <= 1000) then beagle_cpu * 4 else ceil(beagle_cpu * 6.5)
+      Int beagle_memory_in_gb = if (CountSamples.nSamples <= 1000) then beagle_cpu * 4 else ceil(beagle_cpu * 5)
 
       call tasks.PhaseAndImputeBeagle {
         input:
