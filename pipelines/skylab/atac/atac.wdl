@@ -642,6 +642,7 @@ task PeakCalling {
     # use snap atac2
     import snapatac2 as snap
     import scanpy as sc
+    import numpy as np
 
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
