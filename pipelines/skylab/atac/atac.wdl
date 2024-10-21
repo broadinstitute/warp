@@ -155,6 +155,13 @@ workflow ATAC {
     }
   }
 
+  call PeakCalling {
+      input:
+        bam = BWAPairedEndAlignment.bam_aligned_output,
+        annotations_gtf = annotations_gtf,
+        metrics_h5ad = CreateFragmentFile.Snap_metrics
+    }
+
   File bam_aligned_output_atac = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
   File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
   File snap_metrics_atac = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])
@@ -504,7 +511,6 @@ task CreateFragmentFile {
     File bam
     File annotations_gtf
     File chrom_sizes
-    File annotations_gtf
     Boolean preindex
     Int disk_size = 500
     Int mem_size = 64
@@ -528,9 +534,7 @@ task CreateFragmentFile {
   command <<<
     set -eou pipefail
     set -x 
-    # install packages -- need to add to the docker
-    pip3 install snapatac2==2.7.0 scanpy
-    
+
     python3 <<CODE
 
     # set parameters
@@ -540,7 +544,6 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
-    peakcalling_bool = True
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -588,86 +591,6 @@ task CreateFragmentFile {
     # calculate tsse metrics
     snap.metrics.tsse(atac_data, atac_gtf)
     atac_data.write_h5ad("~{bam_base_name}.metrics.h5ad")
-
-    # Peak calling
-    if peakcalling_bool:
-        print("Peak calling starting...")
-
-        # Calculate and plot the size distribution of fragments
-        print("Calculating fragment size distribution")
-        snap.pl.frag_size_distr(atac_data)
-        print(atac_data)
-
-        # Filter cells -- Need to parameterize 
-        print("Filtering cells")
-        snap.pp.filter_cells(atac_data, min_counts=5000, min_tsse=10, max_counts=100000)
-        print(atac_data)
-       
-        # Create a cell by bin matrix containing insertion counts across genome-wide 500-bp bins.
-        print("Creating cell by bin matrix")
-        atac_data_mod = snap.pp.add_tile_matrix(atac_data)
-        print("set obsm")
-        atac_data_mod.obsm["fragment_paired"] =  atac_data.obsm["fragment_paired"]
-        print("set uns")
-        new_adata.uns["reference_sequences"] = atac_data.uns["reference_sequences"]
-        print(atac_data_mod)
-       
-        # Feature selection
-        print("Feature selection")
-        snap.pp.select_features(atac_data_mod)
-        print(atac_data_mod)
-        
-        # Run customized scrublet algorithm to identify potential doublets
-        print("Run scrublet to identify potential doublets")
-        snap.pp.scrublet(atac_data_mod)
-        print(atac_data_mod)
-        
-        # Employ spectral embedding for dimensionality reduction
-        print("Employ spectral embedding for dimensionality reduction")
-        snap.tl.spectral(atac_data_mod)
-        print(atac_data_mod)
-        
-        # Filter doublets based on scrublet scores 
-        print("Filter doublets based on scrublet scores")
-        snap.pp.filter_doublets(atac_data_mod, probability_threshold=0.5)
-        print(atac_data_mod)
-        
-        # Perform graph-based clustering to identify cell clusters. 
-        # Build a k-nearest neighbour graph using snap.pp.knn
-        print("Perform knn graph-based clustering to identify cell clusters")
-        snap.pp.knn(atac_data_mod)
-        print(atac_data_mod)
-        
-        # Use the Leiden community detection algorithm to identify densely-connected subgraphs/clusters in the graph
-        print("Use the Leiden community detection algorithm to identify densely-connected subgraphs/clusters in the graph")
-        snap.tl.leiden(atac_data_mod)
-        print(atac_data_mod)
-        
-        # Create the cell by gene activity matrix
-        print("Create the cell by gene activity matrix")
-        gene_mat = snap.pp.make_gene_matrix(atac_data_mod, gene_anno=atac_gtf)
-        print(atac_data_mod)
-
-        # Normalize the gene matrix
-        print("Normalize the gene matrix")
-        gene_mat.obs['leiden'] = atac_data_mod.obs['leiden']
-        sc.pp.normalize_total(gene_mat)
-        sc.pp.log1p(gene_mat)
-        sc.tl.rank_genes_groups(gene_mat, groupby="leiden", method="wilcoxon")
-        
-        for i in np.unique(gene_mat.obs['leiden']):
-            markers = sc.get.rank_genes_groups_df(gene_mat, group=i).head(7)['names']
-            print(f"Cluster {i}: {', '.join(markers)}")
-
-        print("Peak calling using MACS3")
-        snap.tl.macs3(atac_data_mod, groupby='leiden')
-
-        print(atac_data_mod.uns['macs3'])
-        print("test")
-    
-    # Write atac file
-    print("Writing h5ad file with peaks")
-    atac_data.write_h5ad("~{bam_base_name}.peaks.h5ad")
     CODE
   >>>
 
@@ -682,7 +605,112 @@ task CreateFragmentFile {
   output {
     File fragment_file = "~{bam_base_name}.fragments.tsv"
     File Snap_metrics = "~{bam_base_name}.metrics.h5ad"
-    File peaks_h5 = "~{bam_base_name}.peaks.h5ad" # test
     File atac_library_metrics = "~{bam_base_name}_~{atac_nhash_id}.atac_metrics.csv"
   }
+}
+
+
+task PeakCalling {
+  input {
+    File bam
+    File annotations_gtf
+    File metrics_h5ad
+  }
+  String bam_base_name = basename(bam, ".bam")
+
+  command <<<
+    set -euo pipefail
+    set -x 
+
+    # install packages -- need to add to the docker
+    pip3 install snapatac2==2.7.0 scanpy
+    
+    python3 <<CODE
+
+     # use snap atac2
+    import snapatac2 as snap
+    import scanpy as sc
+
+    print("Peak calling starting...")
+    atac_data = snap.read(~{metrics_h5ad})
+
+    # Calculate and plot the size distribution of fragments
+    print("Calculating fragment size distribution")
+    snap.pl.frag_size_distr(atac_data)
+    print(atac_data)
+
+    # Filter cells -- Need to parameterize 
+    print("Filtering cells")
+    snap.pp.filter_cells(atac_data, min_counts=5000, min_tsse=10, max_counts=100000)
+    print(atac_data)
+       
+    # Create a cell by bin matrix containing insertion counts across genome-wide 500-bp bins.
+    print("Creating cell by bin matrix")
+    atac_data_mod = snap.pp.add_tile_matrix(atac_data)
+    print("set obsm")
+    atac_data_mod.obsm["fragment_paired"] =  atac_data.obsm["fragment_paired"]
+    print("set uns")
+    new_adata.uns["reference_sequences"] = atac_data.uns["reference_sequences"]
+    print(atac_data_mod)
+       
+    # Feature selection
+    print("Feature selection")
+    snap.pp.select_features(atac_data_mod)
+    print(atac_data_mod)
+        
+    # Run customized scrublet algorithm to identify potential doublets
+    print("Run scrublet to identify potential doublets")
+    snap.pp.scrublet(atac_data_mod)
+    print(atac_data_mod)
+        
+    # Employ spectral embedding for dimensionality reduction
+    print("Employ spectral embedding for dimensionality reduction")
+    snap.tl.spectral(atac_data_mod)
+    print(atac_data_mod)
+        
+    # Filter doublets based on scrublet scores 
+    print("Filter doublets based on scrublet scores")
+    snap.pp.filter_doublets(atac_data_mod, probability_threshold=0.5)
+    print(atac_data_mod)
+        
+    # Perform graph-based clustering to identify cell clusters. 
+    # Build a k-nearest neighbour graph using snap.pp.knn
+    print("Perform knn graph-based clustering to identify cell clusters")
+    snap.pp.knn(atac_data_mod)
+    print(atac_data_mod)
+        
+    # Use the Leiden community detection algorithm to identify densely-connected subgraphs/clusters in the graph
+    print("Use the Leiden community detection algorithm to identify densely-connected subgraphs/clusters in the graph")
+    snap.tl.leiden(atac_data_mod)
+    print(atac_data_mod)
+        
+    # Create the cell by gene activity matrix
+    print("Create the cell by gene activity matrix")
+    gene_mat = snap.pp.make_gene_matrix(atac_data_mod, gene_anno=atac_gtf)
+    print(atac_data_mod)
+
+    # Normalize the gene matrix
+    print("Normalize the gene matrix")
+    gene_mat.obs['leiden'] = atac_data_mod.obs['leiden']
+    sc.pp.normalize_total(gene_mat)
+    sc.pp.log1p(gene_mat)
+    sc.tl.rank_genes_groups(gene_mat, groupby="leiden", method="wilcoxon")
+        
+    for i in np.unique(gene_mat.obs['leiden']):
+        markers = sc.get.rank_genes_groups_df(gene_mat, group=i).head(7)['names']
+        print(f"Cluster {i}: {', '.join(markers)}")
+
+    print("Peak calling using MACS3")
+    snap.tl.macs3(atac_data_mod, groupby='leiden')
+
+    atac_data_mod.write_h5ad("~{bam_base_name}.peaks.h5ad")
+    print("test")
+     
+    CODE
+  >>>
+  
+  output {
+    File peaks_h5ad = "~{bam_base_name}.peaks.h5ad"
+  }
+
 }
