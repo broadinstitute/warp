@@ -607,7 +607,7 @@ task CreateFragmentFile {
         print("Creating cell by bin matrix")
         atac_data_mod = snap.pp.add_tile_matrix(atac_data)
         print("set obsm")
-        atac_data_mod.obsm = atac_data.obsm
+        atac_data_mod.obsm["fragment_paired"] =  atac_data.obsm["fragment_paired"]
         print("set uns")
         new_adata.uns["reference_sequences"] = atac_data.uns["reference_sequences"]
         print(atac_data_mod)
