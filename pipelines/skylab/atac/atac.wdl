@@ -153,14 +153,14 @@ workflow ATAC {
         atac_nhash_id = atac_nhash_id
 
     }
-  }
-
-  call PeakCalling {
+    call PeakCalling {
       input:
         bam = BWAPairedEndAlignment.bam_aligned_output,
         annotations_gtf = annotations_gtf,
-        metrics_h5ad = CreateFragmentFile.Snap_metrics
+        metrics_h5ad = CreateFragmentFile.Snap_metrics,
+        docker_path = docker_prefix + snap_atac_docker
     }
+  }
 
   File bam_aligned_output_atac = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
   File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
@@ -266,7 +266,6 @@ task GetNumSplits {
     Int ranks_per_node_out = read_int("ranks_per_node.txt")
   }
 }
-
 
 # trim read 1 and read 2 adapter sequeunce with cutadapt
 task TrimAdapters {
@@ -615,8 +614,21 @@ task PeakCalling {
     File bam
     File annotations_gtf
     File metrics_h5ad
+    # copied from previous task
+    Int disk_size = 500
+    Int mem_size = 64
+    Int nthreads = 4
+    String docker_path
   }
   String bam_base_name = basename(bam, ".bam")
+  
+  parameter_meta {
+    bam: "Aligned bam with CB in CB tag. This is the output of the BWAPairedEndAlignment task."
+    annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
+    disk_size: "Disk size used in create fragment file step."
+    mem_size: "The size of memory used in create fragment file."
+    docker_path: "The docker image path containing the runtime environment for this task"
+  }
 
   command <<<
     set -euo pipefail
@@ -627,12 +639,17 @@ task PeakCalling {
     
     python3 <<CODE
 
-     # use snap atac2
+    # use snap atac2
     import snapatac2 as snap
     import scanpy as sc
 
+    bam = "~{bam}"
+    bam_base_name = "~{bam_base_name}"
+    atac_gtf = "~{annotations_gtf}"
+    metrics_h5ad = "~{metrics_h5ad}"
+
     print("Peak calling starting...")
-    atac_data = snap.read(~{metrics_h5ad})
+    atac_data = snap.read(metrics_h5ad)
 
     # Calculate and plot the size distribution of fragments
     print("Calculating fragment size distribution")
@@ -709,6 +726,13 @@ task PeakCalling {
     CODE
   >>>
   
+  runtime {
+    docker: docker_path
+    disks: "local-disk ${disk_size} SSD"
+    memory: "${mem_size} GiB"
+    cpu: nthreads
+  }
+
   output {
     File peaks_h5ad = "~{bam_base_name}.peaks.h5ad"
   }
