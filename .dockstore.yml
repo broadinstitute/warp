@@ -130,3 +130,7 @@ workflows:
   - name: VariantCalling
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
+
+  - name: SlideTags
+    subclass: WDL
+    primaryDescriptorPath: /beta-pipelines/skylab/slidetags/SlideTags.wdl
