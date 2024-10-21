@@ -510,6 +510,7 @@ task CreateFragmentFile {
     File bam
     File annotations_gtf
     File chrom_sizes
+    File annotations_gtf
     Boolean preindex
     Int disk_size = 500
     Int mem_size = 64
@@ -531,8 +532,7 @@ task CreateFragmentFile {
   }
 
   command <<<
-    set -eou pipefail
-    set -x 
+    set -e pipefail
 
     python3 <<CODE
 
@@ -555,19 +555,17 @@ task CreateFragmentFile {
     import snapatac2.preprocessing as pp
     import snapatac2 as snap
     import anndata as ad
-    import scanpy as sc
     from collections import OrderedDict
     import csv
 
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
-        data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
-    else:
-        data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+    elif preindex == "false":
+      data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     
     # Add NHashID to metrics 
-    nhash_ID_value = "XXX"
-    data = OrderedDict({'NHash_ID': atac_nhash_id, **data})
+    data = OrderedDict({'NHashID': atac_nhash_id, **data})
     # Flatten the dictionary
     flattened_data = []
     for category, metrics in data.items():
@@ -582,6 +580,7 @@ task CreateFragmentFile {
     with open(csv_file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(flattened_data)  # Write data
+
     print(f"Dictionary successfully written to {csv_file_path}")
 
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
@@ -589,7 +588,9 @@ task CreateFragmentFile {
     atac_data.uns['NHashID'] = atac_nhash_id
     # calculate tsse metrics
     snap.metrics.tsse(atac_data, atac_gtf)
+    # Write new atac file
     atac_data.write_h5ad("~{bam_base_name}.metrics.h5ad")
+
     CODE
   >>>
 
@@ -607,7 +608,6 @@ task CreateFragmentFile {
     File atac_library_metrics = "~{bam_base_name}_~{atac_nhash_id}.atac_metrics.csv"
   }
 }
-
 
 task PeakCalling {
   input {
@@ -666,8 +666,10 @@ task PeakCalling {
     atac_data_mod = snap.pp.add_tile_matrix(atac_data)
     print("set obsm")
     atac_data_mod.obsm["fragment_paired"] =  atac_data.obsm["fragment_paired"]
-    print("set uns")
-    new_adata.uns["reference_sequences"] = atac_data.uns["reference_sequences"]
+    print("set all uns")
+    for key in atac_data.uns.keys():
+      print("set ",key)
+      new_adata.uns[key] = atac_data.uns[key]
     print(atac_data_mod)
        
     # Feature selection
