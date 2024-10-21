@@ -663,13 +663,13 @@ task PeakCalling {
        
     # Create a cell by bin matrix containing insertion counts across genome-wide 500-bp bins.
     print("Creating cell by bin matrix")
-    atac_data_mod = snap.pp.add_tile_matrix(atac_data)
+    atac_data_mod = snap.pp.add_tile_matrix(atac_data, inplace=False)
     print("set obsm")
     atac_data_mod.obsm["fragment_paired"] =  atac_data.obsm["fragment_paired"]
     print("set all uns")
     for key in atac_data.uns.keys():
       print("set ",key)
-      new_adata.uns[key] = atac_data.uns[key]
+      atac_data_mod.uns[key] = atac_data.uns[key]
     print(atac_data_mod)
        
     # Feature selection
