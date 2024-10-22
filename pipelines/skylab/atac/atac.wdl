@@ -720,8 +720,9 @@ task PeakCalling {
         markers = sc.get.rank_genes_groups_df(gene_mat, group=i).head(7)['names']
         print(f"Cluster {i}: {', '.join(markers)}")
 
-    print("Peak calling using MACS3")
-    snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=1)
+    if __name__ == '__main__':
+      print("Peak calling using MACS3")
+      snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=1)
 
     atac_data_mod.write_h5ad("~{bam_base_name}.peaks.h5ad")
     print("test")
