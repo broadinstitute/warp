@@ -1,7 +1,6 @@
 version 1.0
 
 import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
-import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow ImputationBeagle {
 
@@ -9,7 +8,7 @@ workflow ImputationBeagle {
 
   input {
     Int chunkLength = 25000000
-    Int chunkOverlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
+    Int chunkOverlaps = 2000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
 
     File multi_sample_vcf
 
@@ -169,6 +168,7 @@ workflow ImputationBeagle {
           vcf_index = PhaseAndImputeBeagle.vcf_index,
           ref_dict = ref_dict,
           basename = chunk_basename_imputed,
+          disable_sequence_dictionary_validation = false,
           gatk_docker = gatk_docker
       }
 
