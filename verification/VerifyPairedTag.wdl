@@ -72,7 +72,7 @@ workflow VerifyPairedTag {
             test_h5ad  = test_optimus_h5ad,
             truth_h5ad = truth_optimus_h5ad
     }
-    call VerifyTasks.CompareTextFiles as CompareLibraryMetrics {
+    call VerifyTasks.CompareLibraryFiles as CompareLibraryMetrics {
         input:
             test_text_file = test_library_metrics,
             truth_text_file = truth_library_metrics
