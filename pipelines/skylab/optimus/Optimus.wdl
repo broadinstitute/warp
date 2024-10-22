@@ -36,7 +36,7 @@ workflow Optimus {
     File annotations_gtf
     File? mt_genes
     String? soloMultiMappers = "Uniform"
-    Int? expected_cells
+    Int? gex_expected_cells
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -223,7 +223,7 @@ workflow Optimus {
       input_id = input_id,
       counting_mode = counting_mode,
       star_merge_docker_path = docker_prefix + star_merge_docker,
-      expected_cells = expected_cells,
+      expected_cells = gex_expected_cells,
       gex_nhash_id = gex_nhash_id
   }
   if (counting_mode == "sc_rna"){
@@ -242,7 +242,7 @@ workflow Optimus {
       input:
         input_id = input_id,
         gex_nhash_id = gex_nhash_id,
-        expected_cells = expected_cells,
+        expected_cells = gex_expected_cells,
         input_name = input_name,
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
@@ -279,7 +279,7 @@ workflow Optimus {
       input:
         input_id = input_id,
         gex_nhash_id = gex_nhash_id,
-        expected_cells = expected_cells,
+        expected_cells = gex_expected_cells,
         input_name = input_name,
         counting_mode = counting_mode,
         input_id_metadata_field = input_id_metadata_field,

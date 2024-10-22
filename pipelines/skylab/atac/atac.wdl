@@ -23,6 +23,9 @@ workflow ATAC {
     # Additional library aliquot ID
     String? atac_nhash_id
 
+    #Expected cells from library preparation
+    Int atac_expected_cells
+
     # Option for running files with preindex
     Boolean preindex = false
     
@@ -139,7 +142,8 @@ workflow ATAC {
         annotations_gtf = annotations_gtf,
         preindex = preindex,
         docker_path = docker_prefix + snap_atac_docker,
-        atac_nhash_id = atac_nhash_id
+        atac_nhash_id = atac_nhash_id,
+        atac_expected_cells = atac_expected_cells
     }
   }
   if (!preindex) {
@@ -150,7 +154,8 @@ workflow ATAC {
         annotations_gtf = annotations_gtf,
         preindex = preindex,
         docker_path = docker_prefix + snap_atac_docker,
-        atac_nhash_id = atac_nhash_id
+        atac_nhash_id = atac_nhash_id,
+        atac_expected_cells = atac_expected_cells
 
     }
   }
@@ -537,6 +542,7 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
+    expected_cells = ~{atac_expected_cells}
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -560,6 +566,19 @@ task CreateFragmentFile {
     
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
+    
+    # Calculate atac percent target
+    if 'Number_of_cells' in data:
+        number_of_cells = data['Number_of_cells']
+        if expected_cells != 0:  # Avoid division by zero
+            atac_percent_target = number_of_cells / expected_cells
+        else:
+            atac_percent_target = 0  # or handle this case as needed
+        # Add the new metric to the dictionary
+        data['ATAC_percent_target'] = atac_percent_target
+    else:
+        print("Error: 'Number_of_cells' not found in the data dictionary")
+    
     # Flatten the dictionary
     flattened_data = []
     for category, metrics in data.items():
