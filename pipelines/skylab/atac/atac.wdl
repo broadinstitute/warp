@@ -24,7 +24,7 @@ workflow ATAC {
     String? atac_nhash_id
 
     #Expected cells from library preparation
-    Int atac_expected_cells
+    Int atac_expected_cells = 3000
 
     # Option for running files with preindex
     Boolean preindex = false
@@ -566,16 +566,18 @@ task CreateFragmentFile {
     
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
+    # Convert all keys to lowercase
+    data = OrderedDict({key.lower(): value for key, value in data.items()})
     
     # Calculate atac percent target
-    if 'Number_of_cells' in data:
-        number_of_cells = data['Number_of_cells']
+    if 'number_of_cells' in data:
+        number_of_cells = data['number_of_cells']
         if expected_cells != 0:  # Avoid division by zero
             atac_percent_target = number_of_cells / expected_cells
         else:
             atac_percent_target = 0  # or handle this case as needed
         # Add the new metric to the dictionary
-        data['ATAC_percent_target'] = atac_percent_target
+        data['percent_target'] = atac_percent_target
     else:
         print("Error: 'Number_of_cells' not found in the data dictionary")
     
