@@ -121,8 +121,16 @@ workflows:
     
   - name: atac
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/multiome/atac.wdl
+    primaryDescriptorPath: /pipelines/skylab/atac/atac.wdl
 
+  - name: TestIlluminaGenotypingArray
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestIlluminaGenotypingArray.wdl
+    
   - name: VariantCalling
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
+
+  - name: SlideTags
+    subclass: WDL
+    primaryDescriptorPath: /beta-pipelines/skylab/slidetags/SlideTags.wdl

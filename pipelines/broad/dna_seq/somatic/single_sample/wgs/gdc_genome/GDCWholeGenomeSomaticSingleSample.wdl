@@ -533,7 +533,7 @@ task gatk_baserecalibrator {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+        docker: "us.gcr.io/broad-gatk/gatk:4.6.0.0"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
@@ -580,7 +580,7 @@ task gatk_applybqsr {
     }
     
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+        docker: "us.gcr.io/broad-gatk/gatk:4.6.0.0"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
@@ -623,7 +623,7 @@ task collect_insert_size_metrics {
 
 workflow GDCWholeGenomeSomaticSingleSample {
 
-    String pipeline_version = "1.3.1"
+    String pipeline_version = "1.3.3"
 
     input {
         File? input_cram

@@ -1,3 +1,33 @@
+# 2.0.1
+2024-09-24 (Date of Last Commit)
+* Added a python implementation of DoubletFinder to calculate doublet scores in gene expression data; this does not affect the snSS2 workflow
+
+# 2.0.0
+2024-09-11 (Dat of Last Commit)
+
+* Added h5ad as a format option for the cell by gene matrix output. The h5ad has the same layers and global attributes (unstructured data in h5ad) as the previous Loom output
+
+# 1.4.2
+2024-08-25-02 (Dat of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 1.4.1
+2024-07-25 (Dat of Last Commit)
+
+* Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files; this does not impact the snSS2 workflow
+
+# 1.4.0
+2024-07-11 (Date of Last Commit)
+
+* Updated the PairedTag.wdl to run on Azure. cloud_provider is a new, required input.
+* Added new optional input parameter of gex_nhash_id to the STARAlign task; this does not impact the MultiSampleSmartSeq2SingleNucleus workflow 
+
+# 1.3.5
+2024-06-28 (Date of Last Commit)
+
+* Updated the STARsolo parameters for estimating cells to Emptydrops_CR; this does not impact the snSS2 pipeline
+
 # 1.3.4
 2024-04-12 (Date of Last Commit)
 

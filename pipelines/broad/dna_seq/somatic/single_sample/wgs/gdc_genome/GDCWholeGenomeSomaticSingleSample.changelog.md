@@ -1,3 +1,13 @@
+# 1.3.3
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0 in gatk_baserecalibrator and gatk_applybqsr
+
+# 1.3.2
+2024-08-02  (Date of Last Commit)
+* 
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
 # 1.3.1
 2024-01-19 (Date of Last Commit)
 
