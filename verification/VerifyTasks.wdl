@@ -615,31 +615,25 @@ task CompareSnapTextFiles {
 
 task CompareLibraryFiles {
   input {
-    Array[File] test_text_files
-    Array[File] truth_text_files
+    File test_text_file
+    File truth_text_file
   }
 
   command {
     exit_code=0
 
-    test_files_length=~{length(test_text_files)}
-    truth_files_length=~{length(truth_text_files)}
-    if [ $test_files_length -ne $truth_files_length ]; then
-      exit_code=1
-      echo "Error: Different number of input files ($test_files_length vs. $truth_files_length).  This is really not OK"
-    fi
+    test_file=~{test_text_files}
+    truth_file=~{truth_text_files}
 
-    while read -r a && read -r b <&3;
-    do
-      echo "Sorting File $a and $b"
-      sort $a > $a.sorted
-      sort $b > $b.sorted
+    echo "Sorting files $a and $b"
+    sort "$a" > "${a}.sorted"
+    sort "$b" > "${b}.sorted"
 
-      echo "Calculating md5sums for $a and $b"
-      md5_a=$(md5sum $a.sorted | cut -d ' ' -f1)
-      md5_b=$(md5sum $b.sorted | cut -d ' ' -f1)
+    echo "Calculating md5sums for $a and $b"
+    md5_a=$(md5sum "$a.sorted" | cut -d ' ' -f1)
+    md5_b=$(md5sum "$b.sorted" | cut -d ' ' -f1)
 
-      if [ $md5_a = $md5_b ]; then
+    if [ $md5_a = $md5_b ]; then
         echo "Files $a.sorted and $b.sorted have matching md5sums and are the same."
       else
         echo "Files $a.sorted and $b.sorted have different md5sums."
@@ -655,11 +649,9 @@ task CompareLibraryFiles {
         else
           echo "Files $a.sorted and $b.sorted have differences in non-excluded lines."
           echo "$diff_output"
-          exit_code=1
+          exit_code=2
         fi
       fi
-    done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
-
     echo "Exiting with code $exit_code"
     exit $exit_code
   }
