@@ -622,8 +622,8 @@ task CompareLibraryFiles {
   command {
     exit_code=0
 
-    test_file=~{test_text_files}
-    truth_file=~{truth_text_files}
+    test_file=~{test_text_file}
+    truth_file=~{truth_text_file}
 
     echo "Sorting files $a and $b"
     sort "$a" > "${a}.sorted"
