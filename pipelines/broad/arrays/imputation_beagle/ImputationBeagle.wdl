@@ -151,7 +151,8 @@ workflow ImputationBeagle {
           for_dependency = FailQCNChunks.done # these shenanigans can be replaced with `after` in wdl 1.1
       }
 
-      Int beagle_cpu = if (CountSamples.nSamples <= 1000) then 8 else floor(CountSamples.nSamples / 1000) * 10
+      # max amount of cpus you can ask for is 96 so at a max of 10k samples we can only ask for 9 cpu a sample
+      Int beagle_cpu = if (CountSamples.nSamples <= 1000) then 8 else floor(CountSamples.nSamples / 1000) * 9
       Int beagle_memory_in_gb = if (CountSamples.nSamples <= 1000) then beagle_cpu * 4 else ceil(beagle_cpu * 4)
 
       call tasks.PhaseAndImputeBeagle {
