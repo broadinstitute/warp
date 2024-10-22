@@ -648,13 +648,13 @@ task CompareLibraryFiles {
         excluded_lines="percent_doublets|keeper_cells|keeper_mean_reads_per_cell|keeper_median_genes|percent_keeper|percent_usable"
         
         # Store the diff result, but only check non-excluded lines
-        diff_output=$(diff <(grep -v -E "$excluded_lines" $a.sorted) <(grep -v -E "$excluded_lines" $b.sorted))
+        diff_output=$(diff <(grep -v -E $excluded_lines $a.sorted) <(grep -v -E $excluded_lines $b.sorted))
 
         if [ -z "$diff_output" ]; then
           echo "Files $a.sorted and $b.sorted are the same when excluding specified lines."
         else
           echo "Files $a.sorted and $b.sorted have differences in non-excluded lines."
-          echo "$diff_output" >&2
+          echo "$diff_output"
           exit_code=1
         fi
       fi
