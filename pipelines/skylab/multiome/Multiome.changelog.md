@@ -1,3 +1,7 @@
+# 5.7.2
+2024-10-21 (Date of Last Commit)
+* Changed a flag in H5adUtils.wdl to se CSI instead of TBI indexing in tabix command to support chromosomes larger than 512 Mbp.
+
 # 5.7.1
 2024-10-18 (Date of Last Commit)
 
