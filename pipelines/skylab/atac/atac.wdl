@@ -517,6 +517,7 @@ task CreateFragmentFile {
     String cpuPlatform = "Intel Cascade Lake"
     String docker_path
     String atac_nhash_id = ""
+    Int atac_expected_cells = 3000
   }
 
   String bam_base_name = basename(bam, ".bam")
