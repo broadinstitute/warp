@@ -722,7 +722,7 @@ task PeakCalling {
 
     if __name__ == '__main__':
       print("Peak calling using MACS3")
-      snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=1)
+      snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=8)
 
     atac_data_mod.write_h5ad("~{bam_base_name}.peaks.h5ad")
     print("test")
