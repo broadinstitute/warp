@@ -564,30 +564,15 @@ task CreateFragmentFile {
       data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     elif preindex == "false":
       data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
-    
-    print("Original keys:", data.keys())
-
-    print("Converting to lowercase")
-    
-    data = OrderedDict({str(key).lower(): value for key, value in data.items()})
-    print("Lowercase keys:", data.keys())
 
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
     
-    
-    
     # Calculate atac percent target
-    if 'number_of_cells' in data:
-        number_of_cells = data['number_of_cells']
-        if expected_cells != 0:  # Avoid division by zero
-            atac_percent_target = number_of_cells / expected_cells
-        else:
-            atac_percent_target = 0  # or handle this case as needed
-        # Add the new metric to the dictionary
-        data['percent_target'] = atac_percent_target
-    else:
-        print("Error: 'Number_of_cells' not found in the data dictionary")
+    number_of_cells = data['Cells']['Number_of_cells']
+    atac_percent_target = number_of_cells / expected_cells
+    data['percent_target'] = atac_percent_target
+    
     
     # Flatten the dictionary
     flattened_data = []
@@ -598,6 +583,9 @@ task CreateFragmentFile {
         else:
             flattened_data.append((category, metrics))
 
+    # Convert the flattened keys to lowercase (except for 'NHashID')
+    flattened_data = [(metric if metric == 'NHashID' else str(metric).lower(), value) for metric, value in flattened_data]
+    
     # Write to CSV
     csv_file_path = "~{bam_base_name}_~{atac_nhash_id}.atac_metrics.csv"
     with open(csv_file_path, mode='w', newline='') as file:
