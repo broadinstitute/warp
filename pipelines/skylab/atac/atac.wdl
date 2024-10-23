@@ -143,7 +143,8 @@ workflow ATAC {
         preindex = preindex,
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
-        atac_expected_cells = atac_expected_cells
+        atac_expected_cells = atac_expected_cells,
+        input_id = input_id
     }
   }
   if (!preindex) {
@@ -155,7 +156,8 @@ workflow ATAC {
         preindex = preindex,
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
-        atac_expected_cells = atac_expected_cells
+        atac_expected_cells = atac_expected_cells,
+        input_id = input_id
 
     }
   }
@@ -517,10 +519,9 @@ task CreateFragmentFile {
     String cpuPlatform = "Intel Cascade Lake"
     String docker_path
     String atac_nhash_id = ""
+    String input_id
     Int atac_expected_cells = 3000
   }
-
-  String bam_base_name = basename(bam, ".bam")
 
   parameter_meta {
     bam: "Aligned bam with CB in CB tag. This is the output of the BWAPairedEndAlignment task."
@@ -538,7 +539,7 @@ task CreateFragmentFile {
 
     # set parameters
     bam = "~{bam}"
-    bam_base_name = "~{bam_base_name}"
+    input_id = "~{input_id}"
     chrom_sizes = "~{chrom_sizes}"
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
@@ -561,9 +562,9 @@ task CreateFragmentFile {
 
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
 
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
@@ -590,7 +591,7 @@ task CreateFragmentFile {
     flattened_data = [(metric if metric == 'NHashID' else str(metric).lower(), value) for metric, value in flattened_data]
     
     # Write to CSV
-    csv_file_path = "~{bam_base_name}_~{atac_nhash_id}.atac_metrics.csv"
+    csv_file_path = "~{input_id}_~{atac_nhash_id}_atac_library_metrics.csv"
     with open(csv_file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(flattened_data)  # Write data
@@ -603,7 +604,7 @@ task CreateFragmentFile {
     # calculate tsse metrics
     snap.metrics.tsse(atac_data, atac_gtf)
     # Write new atac file
-    atac_data.write_h5ad("~{bam_base_name}.metrics.h5ad")
+    atac_data.write_h5ad("~{input_id}.metrics.h5ad")
 
     CODE
   >>>
@@ -617,8 +618,8 @@ task CreateFragmentFile {
   }
 
   output {
-    File fragment_file = "~{bam_base_name}.fragments.tsv"
-    File Snap_metrics = "~{bam_base_name}.metrics.h5ad"
-    File atac_library_metrics = "~{bam_base_name}_~{atac_nhash_id}.atac_metrics.csv"
+    File fragment_file = "~{input_id}.fragments.tsv"
+    File Snap_metrics = "~{input_id}.metrics.h5ad"
+    File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_atac_library_metrics.csv"
   }
 }
