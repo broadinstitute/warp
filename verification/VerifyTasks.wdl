@@ -190,6 +190,97 @@ task CompareTextFiles {
   }
 }
 
+  task CompareAtacLibraryMetrics {
+  input {
+    Array[File] test_text_files
+    Array[File] truth_text_files
+  }
+
+  command <<<
+    exit_code=0
+
+    test_files_length=~{length(test_text_files)}
+    truth_files_length=~{length(truth_text_files)}
+
+    if [ $test_files_length -ne $truth_files_length ]; then
+      exit_code=1
+      echo "Error: Different number of input files ($test_files_length vs. $truth_files_length). This is really not OK"
+      exit $exit_code
+    fi
+
+    # Define acceptable percentage-based thresholds for nondeterministic metrics
+    Sequenced_reads_threshold=0.00
+    Fraction_Q30_bases_in_read_1_threshold=0.05
+    Fraction_of_high_quality_fragments_in_cells_threshold=0.05
+    Fraction_of_transposition_events_in_peaks_in_cells_threshold=0.05
+    Fraction_duplicates_threshold=0.05
+    Fraction_confidently_mapped_threshold=0.05
+    Fraction_unmapped_threshold=0.05
+    Fraction_nonnuclear_threshold=0.05
+    Fraction_fragment_in_nucleosome_free_region_threshold=0.05
+    Fraction_fragment_flanking_single_nucleosome_threshold=0.05
+    TSS_enrichment_score_threshold=0.05
+    Fraction_of_high_quality_fragments_overlapping_TSS_threshold=0.05
+    Number_of_peaks_threshold=0.05
+    Fraction_of_genome_in_peaks_threshold=0.05
+    Fraction_of_high_quality_fragments_overlapping_peaks_threshold=0.05
+
+
+    while read -r a && read -r b <&3;
+    do
+      echo "Sorting File $a and $b"
+      sort $a > $a.sorted
+      sort $b > $b.sorted
+
+      echo "Calculating md5sums for $a.sorted and $b.sorted"
+      md5_a=$(md5sum $a.sorted | cut -d ' ' -f1)
+      md5_b=$(md5sum $b.sorted | cut -d ' ' -f1)
+
+      if [ "$md5_a" = "$md5_b" ]; then
+        echo "Files $a.sorted and $b.sorted have matching md5sums. No further checks needed."
+        continue
+      else
+        echo "Files $a.sorted and $b.sorted have different md5sums. Proceeding with metric comparison."
+
+        # Proceed to metric comparison with thresholds for nondeterministic metrics
+        while IFS=',' read -r metric_a value_a && IFS=',' read -r metric_b value_b <&4;
+        do
+          if [ "$metric_a" != "$metric_b" ]; then
+            echo "Error: Metric names don't match for $metric_a and $metric_b" >&2
+            exit_code=1
+          else
+            # Determine the threshold for the current metric
+            threshold_var="${metric_a// /_}_threshold"
+            threshold=${!threshold_var:-0.0}  # Default to 0% if no threshold is set
+
+            diff=$(echo "$value_a - $value_b" | bc -l)
+            diff_abs=$(echo "${diff#-}")  # Absolute value of the difference
+            allowable_diff=$(echo "$value_b * $threshold / 100" | bc -l)
+
+            if (( $(echo "$diff_abs > $allowable_diff" | bc -l) )); then
+              echo "Error: Metric $metric_a exceeds threshold. Test value: $value_a, Truth value: $value_b, Threshold: $threshold%" >&2
+              exit_code=1
+            else
+              echo "Metric $metric_a is within the threshold."
+            fi
+          fi
+        done < $a.sorted 4<$b.sorted
+      fi
+
+    done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
+
+    echo "Exiting with code $exit_code"
+    exit $exit_code
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
+    disks: "local-disk 100 HDD"
+    memory: "50 GiB"
+    preemptible: 3
+  }
+}
+
 
 task CompareCrams {
 
