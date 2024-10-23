@@ -114,7 +114,8 @@ workflow TestMultiome {
     Array[String] pipeline_metrics = flatten([
                                     [ # File outputs
                                     Multiome.gene_metrics_gex,
-                                    Multiome.cell_metrics_gex
+                                    Multiome.cell_metrics_gex,
+                                    Multiome.atac_library_metrics
                                     ],
                                     # File? outputs
                                     select_all([Multiome.library_metrics]),
@@ -194,6 +195,13 @@ workflow TestMultiome {
             }
         }
 
+        call Utilities.GetValidationInputs as GetAtacLibraryMetrics {
+            input:
+            input_file = Multiome.atac_library_metrics,
+            results_path = results_path,
+            truth_path = truth_path
+        }
+
       call VerifyMultiome.VerifyMultiome as Verify {
         input:
           truth_optimus_h5ad = GetOptimusH5ad.truth_file,
@@ -212,6 +220,8 @@ workflow TestMultiome {
           test_atac_h5ad = GetSnapMetrics.results_file,
           test_library_metrics =  select_first([GetLibraryMetrics.results_file, ""]),
           truth_library_metrics = select_first([GetLibraryMetrics.truth_file, ""]),
+          test_atac_library_metrics = GetAtacLibraryMetrics.results_file,
+          truth_atac_library_metrics = GetAtacLibraryMetrics.truth_file,
           done = CopyToTestResults.done
       }
     }
