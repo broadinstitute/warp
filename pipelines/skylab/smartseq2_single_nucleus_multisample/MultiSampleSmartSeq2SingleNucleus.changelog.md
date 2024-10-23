@@ -1,5 +1,11 @@
+# 2.0.2
+2024-10-23 (Date of Last Commit)
+
+* Updated the h5adUtils WDL to rename the gene expression library CSV filename; this does not impact slideseq
+
 # 2.0.1
 2024-09-24 (Date of Last Commit)
+
 * Added a python implementation of DoubletFinder to calculate doublet scores in gene expression data; this does not affect the snSS2 workflow
 
 # 2.0.0
