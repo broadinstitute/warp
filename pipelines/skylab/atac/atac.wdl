@@ -565,10 +565,15 @@ task CreateFragmentFile {
     elif preindex == "false":
       data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     
-    # Add NHashID to metrics 
-    data = OrderedDict({'NHashID': atac_nhash_id, **data})
+    print("Converting to lowercase")
+    
     # Convert all keys to lowercase
     data = OrderedDict({key.lower(): value for key, value in data.items()})
+    
+    # Add NHashID to metrics 
+    data = OrderedDict({'NHashID': atac_nhash_id, **data})
+    
+    
     
     # Calculate atac percent target
     if 'number_of_cells' in data:
