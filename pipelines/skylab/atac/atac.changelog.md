@@ -1,3 +1,10 @@
+# 2.4.0
+2024-10-23 (Date of Last Commit)
+
+* Added a new input parameter for atac_expected_cells, which describes the numnber of cells used for the library preparation
+* Updated the ATAC library CSV to be consistent in file naming convention and to have similar case for metric names to the Optimus workflow library CSV
+
+
 # 2.3.2
 2024-10-18 (Date of Last Commit)
 
