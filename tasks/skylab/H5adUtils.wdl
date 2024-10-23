@@ -207,7 +207,7 @@ task SingleNucleusOptimusH5adOutput {
         --expected_cells ~{expected_cells}
 
 
-        mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv
+        mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_library_metrics.csv
 
     >>>
     runtime {
@@ -221,7 +221,7 @@ task SingleNucleusOptimusH5adOutput {
 
     output {
         File h5ad_output = "~{input_id}.h5ad"
-        File library_metrics = "~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv"
+        File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
     }
 }
 

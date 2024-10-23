@@ -591,7 +591,7 @@ task CreateFragmentFile {
     flattened_data = [(metric if metric == 'NHashID' else str(metric).lower(), value) for metric, value in flattened_data]
     
     # Write to CSV
-    csv_file_path = "~{input_id}_~{atac_nhash_id}_atac_library_metrics.csv"
+    csv_file_path = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
     with open(csv_file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(flattened_data)  # Write data
@@ -620,6 +620,6 @@ task CreateFragmentFile {
   output {
     File fragment_file = "~{input_id}.fragments.tsv"
     File Snap_metrics = "~{input_id}.metrics.h5ad"
-    File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_atac_library_metrics.csv"
+    File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
   }
 }

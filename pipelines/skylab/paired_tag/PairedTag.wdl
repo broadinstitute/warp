@@ -109,7 +109,7 @@ workflow PairedTag {
               read1_fastq = atac_r1_fastq[idx],
               read3_fastq = atac_r3_fastq[idx],
               barcodes_fastq = atac_r2_fastq[idx],
-              input_id = input_id,
+              input_id = input_id + "_atac",
               whitelist = atac_whitelist,
               preindex = preindex,
               docker_path = docker_prefix + upstools_docker
