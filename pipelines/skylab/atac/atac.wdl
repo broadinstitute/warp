@@ -565,11 +565,13 @@ task CreateFragmentFile {
     elif preindex == "false":
       data = pp.recipe_10x_metrics("~{bam}", "~{bam_base_name}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     
+    print("Original keys:", data.keys())
+
     print("Converting to lowercase")
     
-    # Convert all keys to lowercase
-    data = OrderedDict({key.lower(): value for key, value in data.items()})
-    
+    data = OrderedDict({str(key).lower(): value for key, value in data.items()})
+    print("Lowercase keys:", data.keys())
+
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
     
