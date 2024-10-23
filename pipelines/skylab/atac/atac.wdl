@@ -569,9 +569,12 @@ task CreateFragmentFile {
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
     
     # Calculate atac percent target
+    print("Calculating percent target")
     number_of_cells = data['Cells']['Number_of_cells']
+    print("Print number of cells", number_of_cells)
     atac_percent_target = number_of_cells / expected_cells
-    data['percent_target'] = atac_percent_target
+    print("Setting percent target in nested dictionary")
+    data['Cells']['percent_target'] = atac_percent_target
     
     
     # Flatten the dictionary
