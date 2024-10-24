@@ -413,7 +413,6 @@ task PhaseAndImputeBeagle {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
-    maxRetries: 3
   }
 }
 
