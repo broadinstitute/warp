@@ -153,6 +153,13 @@ workflow ATAC {
         atac_nhash_id = atac_nhash_id
 
     }
+    call PeakCalling {
+      input:
+        bam = BWAPairedEndAlignment.bam_aligned_output,
+        annotations_gtf = annotations_gtf,
+        metrics_h5ad = CreateFragmentFile.Snap_metrics,
+        docker_path = docker_prefix + snap_atac_docker
+    }
   }
 
   File bam_aligned_output_atac = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
@@ -259,7 +266,6 @@ task GetNumSplits {
     Int ranks_per_node_out = read_int("ranks_per_node.txt")
   }
 }
-
 
 # trim read 1 and read 2 adapter sequeunce with cutadapt
 task TrimAdapters {
@@ -601,4 +607,149 @@ task CreateFragmentFile {
     File Snap_metrics = "~{bam_base_name}.metrics.h5ad"
     File atac_library_metrics = "~{bam_base_name}_~{atac_nhash_id}.atac_metrics.csv"
   }
+}
+
+task PeakCalling {
+  input {
+    File bam
+    File annotations_gtf
+    File metrics_h5ad
+    # copied from previous task
+    Int disk_size = 500
+    Int mem_size = 64
+    Int nthreads = 4
+    String docker_path
+  }
+  String bam_base_name = basename(bam, ".bam")
+  
+  parameter_meta {
+    bam: "Aligned bam with CB in CB tag. This is the output of the BWAPairedEndAlignment task."
+    annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
+    disk_size: "Disk size used in create fragment file step."
+    mem_size: "The size of memory used in create fragment file."
+    docker_path: "The docker image path containing the runtime environment for this task"
+  }
+
+  command <<<
+    set -euo pipefail
+    set -x 
+
+    # install packages -- need to add to the docker
+    pip3 install snapatac2==2.7.0 scanpy
+    
+    file_to_change=/usr/local/lib/python3.10/site-packages/snapatac2/tools/_call_peaks.py
+    sed -i '164s/.*/        peaks = [_call_peaks(x) for x in fragments.values()]/' $file_to_change
+
+    python3 <<CODE
+
+    # use snap atac2
+    import snapatac2 as snap
+    import scanpy as sc
+    import numpy as np
+    import polars as pl
+
+    bam = "~{bam}"
+    bam_base_name = "~{bam_base_name}"
+    atac_gtf = "~{annotations_gtf}"
+    metrics_h5ad = "~{metrics_h5ad}"
+
+    print("Peak calling starting...")
+    atac_data = snap.read(metrics_h5ad)
+
+    # Calculate and plot the size distribution of fragments
+    print("Calculating fragment size distribution")
+    snap.pl.frag_size_distr(atac_data)
+    print(atac_data)
+
+    # Filter cells -- Need to parameterize 
+    print("Filtering cells")
+    snap.pp.filter_cells(atac_data, min_counts=5000, min_tsse=10, max_counts=100000)
+    print(atac_data)
+       
+    # Create a cell by bin matrix containing insertion counts across genome-wide 500-bp bins.
+    print("Creating cell by bin matrix")
+    atac_data_mod = snap.pp.add_tile_matrix(atac_data, inplace=False)
+    print("set obsm")
+    atac_data_mod.obsm["fragment_paired"] =  atac_data.obsm["fragment_paired"]
+    print("set all uns")
+    for key in atac_data.uns.keys():
+      print("set ",key)
+      atac_data_mod.uns[key] = atac_data.uns[key]
+    print(atac_data_mod)
+       
+    # Feature selection
+    print("Feature selection")
+    snap.pp.select_features(atac_data_mod)
+    print(atac_data_mod)
+        
+    # Run customized scrublet algorithm to identify potential doublets
+    print("Run scrublet to identify potential doublets")
+    snap.pp.scrublet(atac_data_mod)
+    print(atac_data_mod)
+        
+    # Employ spectral embedding for dimensionality reduction
+    print("Employ spectral embedding for dimensionality reduction")
+    snap.tl.spectral(atac_data_mod)
+    print(atac_data_mod)
+        
+    # Filter doublets based on scrublet scores 
+    print("Filter doublets based on scrublet scores")
+    snap.pp.filter_doublets(atac_data_mod, probability_threshold=0.5)
+    print(atac_data_mod)
+        
+    # Perform graph-based clustering to identify cell clusters. 
+    # Build a k-nearest neighbour graph using snap.pp.knn
+    print("Perform knn graph-based clustering to identify cell clusters")
+    snap.pp.knn(atac_data_mod)
+    print(atac_data_mod)
+        
+    # Use the Leiden community detection algorithm to identify densely-connected subgraphs/clusters in the graph
+    print("Use the Leiden community detection algorithm to identify densely-connected subgraphs/clusters in the graph")
+    snap.tl.leiden(atac_data_mod)
+    print(atac_data_mod)
+        
+    # Create the cell by gene activity matrix
+    print("Create the cell by gene activity matrix")
+    gene_mat = snap.pp.make_gene_matrix(atac_data_mod, gene_anno=atac_gtf)
+    print(atac_data_mod)
+
+    # Normalize the gene matrix
+    print("Normalize the gene matrix")
+    gene_mat.obs['leiden'] = atac_data_mod.obs['leiden']
+    sc.pp.normalize_total(gene_mat)
+    sc.pp.log1p(gene_mat)
+    sc.tl.rank_genes_groups(gene_mat, groupby="leiden", method="wilcoxon")
+        
+    for i in np.unique(gene_mat.obs['leiden']):
+        markers = sc.get.rank_genes_groups_df(gene_mat, group=i).head(7)['names']
+        print(f"Cluster {i}: {', '.join(markers)}")
+
+    print("Peak calling using MACS3")
+    snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=8)
+    
+    print("Convert pl.DataFrame to pandas DataFrame")
+    # Convert pl.DataFrame to pandas DataFrame
+    for key in atac_data_mod.uns.keys():
+      if isinstance(atac_data_mod.uns[key], pl.DataFrame):
+          print(key)
+          atac_data_mod.uns[key] = atac_data_mod.uns[key].to_pandas()
+
+    print("Write into h5ad file")
+    atac_data_mod.write_h5ad("~{bam_base_name}.peaks.h5ad")
+    print("test")
+     
+    CODE
+  >>>
+  
+  runtime {
+    docker: docker_path
+    disks: "local-disk ${disk_size} SSD"
+    memory: "${mem_size} GiB"
+    cpu: nthreads
+  }
+
+  output {
+    File peaks_h5ad = "~{bam_base_name}.peaks.h5ad"
+  }
+
 }
