@@ -221,6 +221,7 @@ thresholds = {
 
 def calculate_md5(file_path):
     """Calculates the MD5 checksum for a file."""
+    print(f"Processing file: {file_path}")
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
