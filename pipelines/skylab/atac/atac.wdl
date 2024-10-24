@@ -729,10 +729,10 @@ task PeakCalling {
     
     print("Convert pl.DataFrame to pandas DataFrame")
     # Convert pl.DataFrame to pandas DataFrame
-    for key in new_adata.uns.keys():
-      if isinstance(new_adata.uns[key], pl.DataFrame):
+    for key in atac_data_mod.uns.keys():
+      if isinstance(atac_data_mod.uns[key], pl.DataFrame):
           print(key)
-          new_adata.uns[key] = new_adata.uns[key].to_pandas()
+          atac_data_mod.uns[key] = atac_data_mod.uns[key].to_pandas()
 
     print("Write into h5ad file")
     atac_data_mod.write_h5ad("~{bam_base_name}.peaks.h5ad")
