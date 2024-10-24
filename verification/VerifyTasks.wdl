@@ -76,8 +76,7 @@ task CompareVCFsVerbosely {
   }
 
   runtime {
-    #TODO: update docker to next GATK release (after 4.6.0.0) which includes an updated VCFComparator
-    docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:4c1b32dd89c46af52e68ae34f99db483ba07b08def2479d145a185de0b2d9a4a"
+    docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
     preemptible: 3
