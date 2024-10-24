@@ -8,7 +8,7 @@ workflow ImputationBeagle {
 
   input {
     Int chunkLength = 25000000
-    Int chunkOverlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
+    Int chunkOverlaps = 2000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
 
     File multi_sample_vcf
 
