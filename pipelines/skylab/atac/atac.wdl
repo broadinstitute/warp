@@ -638,7 +638,7 @@ task PeakCalling {
     pip3 install snapatac2==2.7.0 scanpy
     
     file_to_change=/usr/local/lib/python3.10/site-packages/snapatac2/tools/_call_peaks.py
-    sed -i '164s/.*/\t\t\t\tpeaks = [_call_peaks(x) for x in fragments.values()]/' $file_to_change
+    sed -i '164s/.*/        peaks = [_call_peaks(x) for x in fragments.values()]/' $file_to_change
 
     python3 <<CODE
 
