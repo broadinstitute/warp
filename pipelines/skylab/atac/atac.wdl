@@ -746,7 +746,7 @@ task PeakCalling {
           new_adata.uns[key] = new_adata.uns[key].to_pandas()
 
     print("Write into h5ad file")
-    atac_data_mod.write_h5ad("~{bam_base_name}.peaks.h5ad", compression='gzip')
+    atac_data_mod.write_h5ad("~{bam_base_name}.peaks.h5ad")
     print("test")
      
     CODE
