@@ -75,8 +75,8 @@ task count {
   >>>
  
   output {
-    File output = "output.tar.gz"
-    File log = "positioning.log"
+    File output_file = "output.tar.gz"
+    File positioning_log = "positioning.log"
   }
   
   runtime {
