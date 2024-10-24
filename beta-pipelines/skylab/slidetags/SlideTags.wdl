@@ -11,6 +11,8 @@ workflow SlideTags {
         String id
         Array[String] fastq_paths
         Array[String] pucks
+        Array[String] rna_paths
+        String sb_path
         Int mem_GiB = 64
         Int disk_GiB = 128
         String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.0.0"
@@ -24,14 +26,14 @@ workflow SlideTags {
         docker: "Docker image to use"
     }
 
-    call SpatialCount.count as spatial_count {
-        input:
-            fastq_paths = fastq_paths,
-            pucks = pucks,
-            mem_GiB = mem_GiB,
-            disk_GiB = disk_GiB,
-            docker = docker
-     }
+    # call SpatialCount.count as spatial_count {
+    #     input:
+    #         fastq_paths = fastq_paths,
+    #         pucks = pucks,
+    #         mem_GiB = mem_GiB,
+    #         disk_GiB = disk_GiB,
+    #         docker = docker
+    #  }
 
     call Positioning.count as positioning {
         input:
