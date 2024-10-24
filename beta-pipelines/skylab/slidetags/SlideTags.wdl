@@ -1,6 +1,7 @@
 version 1.0
 
 import "scripts/spatial-count.wdl" as SpatialCount
+import "scripts/positioning.wdl" as Positioning
 
 workflow SlideTags {
 
@@ -27,6 +28,15 @@ workflow SlideTags {
         input:
             fastq_paths = fastq_paths,
             pucks = pucks,
+            mem_GiB = mem_GiB,
+            disk_GiB = disk_GiB,
+            docker = docker
+     }
+
+    call Positioning.count as positioning {
+        input:
+            rna_paths = rna_paths,
+            sb_path = sb_path,
             mem_GiB = mem_GiB,
             disk_GiB = disk_GiB,
             docker = docker
