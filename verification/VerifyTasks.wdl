@@ -189,7 +189,6 @@ task CompareTextFiles {
     preemptible: 3
   }
 }
-
   task CompareAtacLibraryMetrics {
   input {
     Array[File] test_text_files
@@ -197,89 +196,106 @@ task CompareTextFiles {
   }
 
   command <<<
-    exit_code=0
+    python3 <<CODE
+import csv
+import hashlib
 
-    test_files_length=~{length(test_text_files)}
-    truth_files_length=~{length(truth_text_files)}
+# Define acceptable percentage-based thresholds for nondeterministic metrics
+thresholds = {
+    "Sequenced_reads": 0.00,
+    "Fraction_Q30_bases_in_read_1": 0.05,
+    "Fraction_of_high_quality_fragments_in_cells": 0.05,
+    "Fraction_of_transposition_events_in_peaks_in_cells": 0.05,
+    "Fraction_duplicates": 0.05,
+    "Fraction_confidently_mapped": 0.05,
+    "Fraction_unmapped": 0.05,
+    "Fraction_nonnuclear": 0.05,
+    "Fraction_fragment_in_nucleosome_free_region": 0.05,
+    "Fraction_fragment_flanking_single_nucleosome": 0.05,
+    "TSS_enrichment_score": 0.05,
+    "Fraction_of_high_quality_fragments_overlapping_TSS": 0.05,
+    "Number_of_peaks": 0.05,
+    "Fraction_of_genome_in_peaks": 0.05,
+    "Fraction_of_high_quality_fragments_overlapping_peaks": 0.05
+}
 
-    if [ $test_files_length -ne $truth_files_length ]; then
-      exit_code=1
-      echo "Error: Different number of input files ($test_files_length vs. $truth_files_length). This is really not OK"
-      exit $exit_code
-    fi
+def calculate_md5(file_path):
+    """Calculates the MD5 checksum for a file."""
+    hash_md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
-    # Define acceptable percentage-based thresholds for nondeterministic metrics
-    Sequenced_reads_threshold=0.00
-    Fraction_Q30_bases_in_read_1_threshold=0.05
-    Fraction_of_high_quality_fragments_in_cells_threshold=0.05
-    Fraction_of_transposition_events_in_peaks_in_cells_threshold=0.05
-    Fraction_duplicates_threshold=0.05
-    Fraction_confidently_mapped_threshold=0.05
-    Fraction_unmapped_threshold=0.05
-    Fraction_nonnuclear_threshold=0.05
-    Fraction_fragment_in_nucleosome_free_region_threshold=0.05
-    Fraction_fragment_flanking_single_nucleosome_threshold=0.05
-    TSS_enrichment_score_threshold=0.05
-    Fraction_of_high_quality_fragments_overlapping_TSS_threshold=0.05
-    Number_of_peaks_threshold=0.05
-    Fraction_of_genome_in_peaks_threshold=0.05
-    Fraction_of_high_quality_fragments_overlapping_peaks_threshold=0.05
+def compare_files(test_file, truth_file):
+    """Compare two files by their md5sums and then line by line for metric comparison."""
+    test_md5 = calculate_md5(test_file)
+    truth_md5 = calculate_md5(truth_file)
 
+    if test_md5 == truth_md5:
+        print(f"Files {test_file} and {truth_file} have matching md5sums. No further checks needed.")
+        return True
+    else:
+        print(f"Files {test_file} and {truth_file} have different md5sums. Proceeding with metric comparison.")
+        return compare_metrics(test_file, truth_file)
 
-    while read -r a && read -r b <&3;
-    do
-      echo "Sorting File $a and $b"
-      sort $a > $a.sorted
-      sort $b > $b.sorted
+def compare_metrics(test_file, truth_file):
+    """Compare CSV files row by row and metric by metric."""
+    exit_code = 0
+    with open(test_file, newline='') as test_f, open(truth_file, newline='') as truth_f:
+        test_reader = csv.reader(test_f)
+        truth_reader = csv.reader(truth_f)
 
-      echo "Calculating md5sums for $a.sorted and $b.sorted"
-      md5_a=$(md5sum $a.sorted | cut -d ' ' -f1)
-      md5_b=$(md5sum $b.sorted | cut -d ' ' -f1)
+        for (test_row, truth_row) in zip(test_reader, truth_reader):
+            metric_a, value_a = test_row
+            metric_b, value_b = truth_row
 
-      if [ "$md5_a" = "$md5_b" ]; then
-        echo "Files $a.sorted and $b.sorted have matching md5sums. No further checks needed."
-        continue
-      else
-        echo "Files $a.sorted and $b.sorted have different md5sums. Proceeding with metric comparison."
+            if metric_a != metric_b:
+                print(f"Error: Metric names don't match for {metric_a} and {metric_b}")
+                exit_code = 1
+                continue
 
-        # Proceed to metric comparison with thresholds for nondeterministic metrics
-        while IFS=',' read -r metric_a value_a && IFS=',' read -r metric_b value_b <&4;
-        do
-          if [ "$metric_a" != "$metric_b" ]; then
-            echo "Error: Metric names don't match for $metric_a and $metric_b" >&2
-            exit_code=1
-          else
+            value_a, value_b = float(value_a), float(value_b)
+
             # Determine the threshold for the current metric
-            threshold_var="${metric_a// /_}_threshold"
-            threshold=${!threshold_var:-0.0}  # Default to 0% if no threshold is set
+            threshold = thresholds.get(metric_a, 0.00)
 
-            diff=$(echo "$value_a - $value_b" | bc -l)
-            diff_abs=$(echo "${diff#-}")  # Absolute value of the difference
-            allowable_diff=$(echo "$value_b * $threshold / 100" | bc -l)
+            # Calculate the difference and allowable difference
+            diff = abs(value_a - value_b)
+            allowable_diff = value_b * threshold
 
-            if (( $(echo "$diff_abs > $allowable_diff" | bc -l) )); then
-              echo "Error: Metric $metric_a exceeds threshold. Test value: $value_a, Truth value: $value_b, Threshold: $threshold%" >&2
-              exit_code=1
-            else
-              echo "Metric $metric_a is within the threshold."
-            fi
-          fi
-        done < $a.sorted 4<$b.sorted
-      fi
+            if diff > allowable_diff:
+                print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%")
+                exit_code = 1
+            else:
+                print(f"Metric {metric_a} is within the threshold.")
 
-    done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
+    return exit_code == 0
 
-    echo "Exiting with code $exit_code"
-    exit $exit_code
+# Read and compare all files
+test_files = ~{write_lines(test_text_files)}
+truth_files = ~{write_lines(truth_text_files)}
+
+if len(test_files) != len(truth_files):
+    print(f"Error: Different number of input files ({len(test_files)} vs. {len(truth_files)}). This is really not OK")
+    exit(1)
+
+for test_file, truth_file in zip(test_files, truth_files):
+    if not compare_files(test_file, truth_file):
+        exit(1)
+
+print("All files passed the comparison.")
+CODE
   >>>
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
+    docker: "python:3.9-slim"
     disks: "local-disk 100 HDD"
     memory: "50 GiB"
     preemptible: 3
   }
 }
+
 
 
 task CompareCrams {
