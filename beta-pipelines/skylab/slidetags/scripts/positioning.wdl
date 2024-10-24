@@ -9,8 +9,9 @@ task count {
     String docker
   }
   command <<<
+    set -euo pipefail
+    set -x
     echo "<< starting spatial-count >>"
-    dstat --time --cpu --mem --disk --io --freespace --output positioning.usage &> /dev/null &
 
     gcloud config set storage/process_count 16
     gcloud config set storage/thread_count  2
@@ -53,7 +54,7 @@ task count {
     Rscript run-positioning.R RNA SB output
 
     # Upload the results
-    gcloud storage cp -r output/* "$count_output_path"
+    ls output/* 
 
     if [[ -f output/seurat.qs ]] ; then
         echo "true" > DONE
@@ -62,17 +63,14 @@ task count {
     fi
 
     echo; echo "Writing logs:"
-    kill $(ps aux | fgrep dstat | fgrep -v grep | awk '{print $2}')
     echo; echo "RNA size:"; du -sh RNA
     echo; echo "SB size:"; du -sh SB
     echo; echo "output size:"; du -sh output
     echo; echo "FREE SPACE:"; df -h
     
-    echo "uploading logs"
-    gcloud storage cp /cromwell_root/stdout "$log_output_path/positioning.out"
-    gcloud storage cp /cromwell_root/stderr "$log_output_path/positioning.err"
+    echo "tar files/logs"
     cat stdout stderr > positioning.log
-    gcloud storage cp positioning.usage "$log_output_path/positioning.usage"
+    tar -zcvf output.tar.gz output
     echo "<< completed positioning >>"
   >>>
  
