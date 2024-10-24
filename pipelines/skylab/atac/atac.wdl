@@ -646,6 +646,7 @@ task PeakCalling {
     import snapatac2 as snap
     import scanpy as sc
     import numpy as np
+    import polars as pl
 
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
@@ -723,11 +724,29 @@ task PeakCalling {
         markers = sc.get.rank_genes_groups_df(gene_mat, group=i).head(7)['names']
         print(f"Cluster {i}: {', '.join(markers)}")
 
-    if __name__ == '__main__':
-      print("Peak calling using MACS3")
-      snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=8)
+    
+    print("Peak calling using MACS3")
+    snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=8)
+    
+    print("NarrowPeak")
+    for k, peaks in atac_data_mod.uns['macs3'].items():
+        peaks.to_csv(f'{k}.NarrowPeak', sep='\t', header=False, index=False)
+    
+    print("test")
+    snap.ex.export_coverage(
+      atac_data_mod,
+      groupby='leiden',
+    )
 
-    atac_data_mod.write_h5ad("~{bam_base_name}.peaks.h5ad")
+    print("Convert pl.DataFrame to pandas DataFrame")
+    # Convert pl.DataFrame to pandas DataFrame
+    for key in new_adata.uns.keys():
+      if isinstance(new_adata.uns[key], pl.DataFrame):
+          print(key)
+          new_adata.uns[key] = new_adata.uns[key].to_pandas()
+
+    print("Write into h5ad file")
+    atac_data_mod.write_h5ad("~{bam_base_name}.peaks.h5ad", compression='gzip')
     print("test")
      
     CODE
