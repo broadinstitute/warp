@@ -75,8 +75,8 @@ task count {
   >>>
  
   output {
-    File coords = "coords.csv"
-    File summary = "summary.pdf"
+    File output = "output.tar.gz"
+    File log = "positioning.log"
   }
   
   runtime {
@@ -84,7 +84,6 @@ task count {
     memory: "~{mem_GiB} GB"
     disks: "local-disk ~{disk_GiB} SSD"
     cpu: 16
-    preemptible: 0
   }
 
 }
