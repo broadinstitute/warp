@@ -15,7 +15,7 @@ workflow SlideTags {
         String sb_path
         Int mem_GiB = 64
         Int disk_GiB = 128
-        String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.0.0"
+        String docker = "us.gcr.io/broad-gotc-prod/slide-tags:aa-slidetag"
      }
     
     parameter_meta {

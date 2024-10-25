@@ -17,9 +17,9 @@ task count {
     gcloud config set storage/thread_count  2
 
     # Download the scripts
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/refs/heads/main/positioning/run-positioning.R
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/refs/heads/main/positioning/load_matrix.R
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/refs/heads/main/positioning/positioning.R
+    wget https://raw.githubusercontent.com/aawdeh/Macosko-Pipelines/refs/heads/aa-pos/positioning/load_matrix.R
+    wget https://raw.githubusercontent.com/aawdeh/Macosko-Pipelines/refs/heads/aa-pos/positioning/positioning.R
+    wget https://raw.githubusercontent.com/aawdeh/Macosko-Pipelines/refs/heads/aa-pos/positioning/run-positioning.R
 
     echo "RNA: ~{sep=' ' rna_paths}"
     echo "SB: ~{sb_path}"
