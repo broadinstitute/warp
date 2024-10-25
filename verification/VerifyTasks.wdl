@@ -279,8 +279,8 @@ import hashlib
 
 
     # Read and compare all files
-    test_files = [~{test_text_files}]
-    truth_files = [~{truth_text_files}]
+    test_files = ~{test_text_files}
+    truth_files = ~{truth_text_files}
 
     if len(test_files) != len(truth_files):
         print(f"Error: Different number of input files ({len(test_files)} vs. {len(truth_files)}). This is really not OK")
