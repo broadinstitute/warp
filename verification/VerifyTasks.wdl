@@ -279,8 +279,6 @@ import hashlib
 
 
     # Read and compare all files
-
-
     test_files = [~{test_text_files}]
     truth_files = [~{truth_text_files}]
 
