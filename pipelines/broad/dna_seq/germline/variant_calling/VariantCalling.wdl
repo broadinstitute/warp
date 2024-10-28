@@ -40,8 +40,8 @@ workflow VariantCalling {
   }
 
   # docker images
-  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-  String gatk_docker_azure = "terrapublic.azurecr.io/gatk:4.6.0.0"
+  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+  String gatk_docker_azure = "terrapublic.azurecr.io/gatk:4.6.1.0"
   String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
 
   String gatk_1_3_docker_gcp = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"

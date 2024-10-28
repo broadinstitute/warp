@@ -214,7 +214,7 @@ workflow JointGenotyping {
         extract_extra_args = extract_extra_args,
         resource_args = resource_args,
         output_prefix = callset_name,
-        gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+        gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     }
   } 
   if (!run_vets) {
