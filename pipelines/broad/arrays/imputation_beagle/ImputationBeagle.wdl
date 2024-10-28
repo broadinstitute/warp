@@ -155,7 +155,7 @@ workflow ImputationBeagle {
       Int beagle_cpu = if (CountSamples.nSamples <= 1000) then 8 else floor(CountSamples.nSamples / 1000) * 9
       Int beagle_memory_in_gb = if (CountSamples.nSamples <= 1000) then 32 else ceil(beagle_cpu * 5)
 
-      call tasks.PhaseAndImputeBeagle {
+      call tasks.PhaseBeagle {
         input:
           dataset_vcf = chunkedVcfsWithOverlapsForImputation[i],
           ref_panel_bref3 = referencePanelContig.bref3,
@@ -168,10 +168,35 @@ workflow ImputationBeagle {
           memory_mb = beagle_memory_in_gb * 1000
       }
 
+      call tasks.CreateVcfIndex as IndexPhaseBeagle {
+        input:
+          vcf_input = PhaseBeagle.vcf,
+          gatk_docker = gatk_docker
+      }
+
+      call tasks.ImputeBeagle {
+        input:
+          dataset_vcf = chunkedVcfsWithOverlapsForImputation[i],
+          ref_panel_bref3 = referencePanelContig.bref3,
+          chrom = referencePanelContig.contig,
+          basename = chunk_basename_imputed,
+          genetic_map_file = referencePanelContig.genetic_map,
+          start = start[i],
+          end = end[i],
+          cpu = beagle_cpu,
+          memory_mb = beagle_memory_in_gb * 1000
+      }
+
+      call tasks.CreateVcfIndex as IndexImputeBeagle {
+        input:
+          vcf_input = PhaseBeagle.vcf,
+          gatk_docker = gatk_docker
+      }
+
       call tasks.UpdateHeader {
         input:
-          vcf = PhaseAndImputeBeagle.vcf,
-          vcf_index = PhaseAndImputeBeagle.vcf_index,
+          vcf = IndexImputeBeagle.vcf,
+          vcf_index = IndexImputeBeagle.vcf_index,
           ref_dict = ref_dict,
           basename = chunk_basename_imputed,
           disable_sequence_dictionary_validation = false,
