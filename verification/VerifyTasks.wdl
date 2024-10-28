@@ -233,12 +233,12 @@ def compare_files(test_file, truth_file):
     test_md5 = calculate_md5(test_file)
     truth_md5 = calculate_md5(truth_file)
 
-if test_md5 == truth_md5:
-    print(f"Files {test_file} and {truth_file} have matching md5sums. No further checks needed.")
-    return True
-else:
-    print(f"Files {test_file} and {truth_file} have different md5sums. Proceeding with metric comparison.")
-    return compare_metrics(test_file, truth_file)
+    if test_md5 == truth_md5:
+        print(f"Files {test_file} and {truth_file} have matching md5sums. No further checks needed.")
+        return True
+    else:
+        print(f"Files {test_file} and {truth_file} have different md5sums. Proceeding with metric comparison.")
+        return compare_metrics(test_file, truth_file)
 
 def is_float(value):
     try:
