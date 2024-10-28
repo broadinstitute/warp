@@ -965,7 +965,7 @@ task TransferReadTags {
     File aligned_bam
     File ubam
     String output_basename
-    String docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int memory_mb = 16000
     Int disk_size_gb = ceil(2 * size(aligned_bam, "GiB")) + ceil(2 * size(ubam, "GiB")) + 128
   }
@@ -994,7 +994,7 @@ task PostprocessTranscriptomeForRSEM {
     String prefix
     File input_bam # the input must be queryname sorted
     Int disk_size_gb = ceil(3*size(input_bam,"GiB")) + 128
-    String docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0.6.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int memory_mb = 16000
   }
 
@@ -1019,7 +1019,7 @@ task PostprocessTranscriptomeForRSEM {
 task CreateEmptyFile {
   input {
     Int disk_size_gb = 128
-    String docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0.6.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int memory_mb = 4096
   }
 
