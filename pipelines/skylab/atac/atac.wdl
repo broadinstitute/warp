@@ -710,12 +710,17 @@ task PeakCalling {
   input {
     File bam
     File annotations_gtf
-    File metrics_h5ad
-    # copied from previous task
+    File metrics_h5ad   
+    # SnapATAC2 parameters
+    Int min_counts = 5000
+    Int min_tsse = 10
+    Int max_counts = 100000
+    Int doublet_probability_threshold = 0.5
+    # Runtime attributes/docker
+    String docker_path
     Int disk_size = 500
     Int mem_size = 64
-    Int nthreads = 4
-    String docker_path
+    Int nthreads = 4   
   }
   String bam_base_name = basename(bam, ".bam")
   
@@ -749,6 +754,10 @@ task PeakCalling {
     bam_base_name = "~{bam_base_name}"
     atac_gtf = "~{annotations_gtf}"
     metrics_h5ad = "~{metrics_h5ad}"
+    min_counts = "~{min_counts}"
+    min_tsse = "~{min_tsse}"
+    max_counts = "~{max_counts}"
+    probability_threshold = "~{doublet_probability_threshold}"
 
     print("Peak calling starting...")
     atac_data = snap.read(metrics_h5ad)
@@ -760,7 +769,7 @@ task PeakCalling {
 
     # Filter cells -- Need to parameterize 
     print("Filtering cells")
-    snap.pp.filter_cells(atac_data, min_counts=5000, min_tsse=10, max_counts=100000)
+    snap.pp.filter_cells(atac_data, min_counts=min_counts, min_tsse=min_tsse, max_counts=max_counts)
     print(atac_data)
        
     # Create a cell by bin matrix containing insertion counts across genome-wide 500-bp bins.
@@ -791,7 +800,7 @@ task PeakCalling {
         
     # Filter doublets based on scrublet scores 
     print("Filter doublets based on scrublet scores")
-    snap.pp.filter_doublets(atac_data_mod, probability_threshold=0.5)
+    snap.pp.filter_doublets(atac_data_mod, probability_threshold=probability_threshold)
     print(atac_data_mod)
         
     # Perform graph-based clustering to identify cell clusters. 
