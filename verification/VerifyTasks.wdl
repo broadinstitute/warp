@@ -202,7 +202,7 @@ import hashlib
 
 # Define acceptable percentage-based thresholds for nondeterministic metrics
 thresholds = {
-    "Sequenced_reads": 0.99,
+    "Sequenced_reads": 0.05,
     "Fraction_Q30_bases_in_read_1": 0.05,
     "Fraction_of_high_quality_fragments_in_cells": 0.05,
     "Fraction_of_transposition_events_in_peaks_in_cells": 0.05,
