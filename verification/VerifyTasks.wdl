@@ -279,8 +279,8 @@ def compare_metrics(test_file, truth_file):
 
 
 # Read and compare all files
-test_files = ~{sep=',' test_text_files}
-truth_files = ~{sep=',' truth_text_files}
+test_files = ["~{sep=',' test_text_files}"]
+truth_files = ["~{sep=',' truth_text_files}"]
 
 if len(test_files) != len(truth_files):
     print(f"Error: Different number of input files ({len(test_files)} vs. {len(truth_files)}). This is really not OK")
