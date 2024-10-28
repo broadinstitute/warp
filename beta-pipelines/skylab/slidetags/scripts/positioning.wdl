@@ -1,11 +1,12 @@
 version 1.0
 
-task count {
+task generate_positioning {
   input {
     Array[String] rna_paths
     String sb_path
     Int mem_GiB  = 128
     Int disk_GiB = 128
+    Int nthreads = 16
     String docker
   }
   command <<<
@@ -13,10 +14,10 @@ task count {
     set -x
     echo "<< starting spatial-count >>"
 
-    gcloud config set storage/process_count 16
-    gcloud config set storage/thread_count  2
+    gcloud config set storage/process_count 16 # is this set by user?
+    gcloud config set storage/thread_count  2 # is this set by user?
 
-    # Download the scripts
+    # Download the scripts -- these need to be changed -- also need to add to docker
     wget https://raw.githubusercontent.com/aawdeh/Macosko-Pipelines/refs/heads/aa-pos/positioning/load_matrix.R
     wget https://raw.githubusercontent.com/aawdeh/Macosko-Pipelines/refs/heads/aa-pos/positioning/positioning.R
     wget https://raw.githubusercontent.com/aawdeh/Macosko-Pipelines/refs/heads/aa-pos/positioning/run-positioning.R
@@ -83,7 +84,7 @@ task count {
     docker: docker
     memory: "~{mem_GiB} GB"
     disks: "local-disk ~{disk_GiB} SSD"
-    cpu: 16
+    cpu: nthreads
   }
 
 }

@@ -4,8 +4,9 @@ task count {
   input {
     Array[String] fastq_paths
     Array[String] pucks
-    Int mem_GiB
-    Int disk_GiB
+    Int mem_GiB = 64
+    Int disk_GiB = 128
+    Int nthreads = 1
     String docker
   }
   command <<<
@@ -83,8 +84,7 @@ task count {
     docker: docker
     memory: "~{mem_GiB} GB"
     disks: "local-disk ~{disk_GiB} SSD"
-    cpu: 1
-    preemptible: 0
+    cpu: nthreads
   }
 }
 
