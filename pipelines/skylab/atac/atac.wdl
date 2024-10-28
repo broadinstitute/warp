@@ -562,6 +562,9 @@ task CreateFragmentFile {
     # use snap atac2
     import snapatac2.preprocessing as pp
     import snapatac2 as snap
+    import scanpy as sc
+    import numpy as np
+    import polars as pl
     import anndata as ad
     from collections import OrderedDict
     import csv
