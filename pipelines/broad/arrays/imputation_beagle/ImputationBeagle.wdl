@@ -183,7 +183,7 @@ workflow ImputationBeagle {
 
       call tasks.CreateVcfIndex as IndexImputeBeagle {
         input:
-          vcf_input = PhaseBeagle.vcf,
+          vcf_input = ImputeBeagle.vcf,
           gatk_docker = gatk_docker
       }
 
