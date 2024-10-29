@@ -22,12 +22,12 @@ workflow SlideTags {
         docker: "Docker image to use"
     }
 
-    # call SpatialCount.count as spatial_count {
-    #     input:
-    #         fastq_paths = fastq_paths,
-    #         pucks = pucks,
-    #         docker = docker
-    #  }
+    call SpatialCount.count as spatial_count {
+        input:
+            fastq_paths = fastq_paths,
+            pucks = pucks,
+            docker = docker
+     }
 
     call Positioning.generate_positioning as positioning {
         input:
