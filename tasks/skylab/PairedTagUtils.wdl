@@ -202,7 +202,6 @@ task ParseBarcodes {
     input {
         File atac_h5ad
         File atac_fragment
-        File atac_index
         Int nthreads = 1
         String cpuPlatform = "Intel Cascade Lake"
         String docker_path
@@ -224,7 +223,7 @@ task ParseBarcodes {
 
     # decompress the bgzipped atac file
     echo "Decompressing fragment file"
-    bgzip -d ~{atac_fragment}
+    bgzip -d ~{atac_fragment} > "~{atac_fragment_base}.sorted.tsv"
     echo "Done decompressing"
 
     python3 <<CODE
