@@ -612,7 +612,7 @@ task CreateFragmentFile {
     echo "Sorting file"
     sort -k1,1V -k2,2n "~{input_id}.fragments.tsv" > "~{input_id}.fragments.sorted.tsv"
     echo "Starting bgzip"
-    bgzip "~{inpud_id}.fragments.sorted.tsv"
+    bgzip "~{input_id}.fragments.sorted.tsv"
     echo "Starting tabix"
     tabix -s 1 -b 2 -e 3 "~{input_id}.fragments.sorted.tsv.gz"
   >>>
