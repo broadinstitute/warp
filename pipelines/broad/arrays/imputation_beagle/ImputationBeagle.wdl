@@ -168,15 +168,9 @@ workflow ImputationBeagle {
           memory_mb = beagle_memory_in_gb * 1000
       }
 
-      call tasks.CreateVcfIndex as IndexPhaseBeagle {
-        input:
-          vcf_input = PhaseBeagle.vcf,
-          gatk_docker = gatk_docker
-      }
-
       call tasks.ImputeBeagle {
         input:
-          dataset_vcf = chunkedVcfsWithOverlapsForImputation[i],
+          dataset_vcf = PhaseBeagle.vcf,
           ref_panel_bref3 = referencePanelContig.bref3,
           chrom = referencePanelContig.contig,
           basename = chunk_basename_imputed,
