@@ -256,8 +256,10 @@ task JoinMultiomeBarcodes {
 
     # decompress the bgzipped fragment file
     echo "Decompressing fragment file"
-    bgzip -d ~{atac_fragment}
-    echo "Done decompressing"
+    bgzip -d ~{atac_fragment} > "~{atac_fragment_base}.sorted.tsv"
+    echo "Done decompressing, list files"
+    ls
+
 
     python3 <<CODE
 
