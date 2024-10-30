@@ -4,6 +4,7 @@
 * Added a new input parameter for atac_expected_cells, which describes the numnber of cells used for the library preparation
 * Updated the ATAC library CSV to be consistent in file naming convention and to have similar case for metric names to the Optimus workflow library CSV
 * Added a new metric to the ATAC library CSV to calculate percent_target, which is the number of estimated cells by SnapATAC2 divided by expected_cells input
+* Updated the ATAC workflow so that the output fragment file is bgzipped by default
 
 
 # 2.3.2
