@@ -607,6 +607,14 @@ task CreateFragmentFile {
     atac_data.write_h5ad("~{input_id}.metrics.h5ad")
 
     CODE
+    
+    # sorting the file
+    echo "Sorting file"
+    sort -k1,1V -k2,2n "~{input_id}.fragments.tsv" > "~{input_id}.fragments.sorted.tsv"
+    echo "Starting bgzip"
+    bgzip "~{input_id}.fragments.sorted.tsv"
+    echo "Starting tabix"
+    tabix -s 1 -b 2 -e 3 "~{input_id}.fragments.sorted.tsv.gz"
   >>>
 
   runtime {
@@ -618,7 +626,7 @@ task CreateFragmentFile {
   }
 
   output {
-    File fragment_file = "~{input_id}.fragments.tsv"
+    File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
     File Snap_metrics = "~{input_id}.metrics.h5ad"
     File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
   }

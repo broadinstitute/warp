@@ -4,6 +4,7 @@
 * Updated the workflow to include a new expected_cells input parameter describing the number of cells used as input to the library preparation; this is passed to both the ATAC workflows and Optimus workflows and the default is set to 3000 cells
 * Updated the ATAC library CSV and the Gene Expression library CSV to be consistent in file naming convention and to have similar case for metric names
 * Added a new metric to the ATAC library CSV to calculate percent_target, which is the number of estimated cells by SnapATAC2 divided by expected_cells input
+* Updated the ATAC fragment file output so that it is bgzipped
 
 # 1.7.1
 2024-10-18 (Date of Last Commit)
