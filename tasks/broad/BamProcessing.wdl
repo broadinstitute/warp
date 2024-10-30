@@ -136,7 +136,7 @@ task BaseRecalibrator {
     File ref_fasta_index
     Int bqsr_scatter
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
