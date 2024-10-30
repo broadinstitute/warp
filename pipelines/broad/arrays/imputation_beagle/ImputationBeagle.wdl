@@ -153,8 +153,8 @@ workflow ImputationBeagle {
 
       # max amount of cpus you can ask for is 96 so at a max of 10k samples we can only ask for 9 cpu a sample
       Int beagle_cpu = if (CountSamples.nSamples <= 1000) then 8 else floor(CountSamples.nSamples / 1000) * 9
-      Int beagle_phase_memory_in_gb = if (CountSamples.nSamples <= 1000) then 24 else ceil(beagle_cpu * 2.3)
-      Int beagle_impute_memory_in_gb = if (CountSamples.nSamples <= 1000) then 32 else ceil(beagle_cpu * 4.3)
+      Int beagle_phase_memory_in_gb = if (CountSamples.nSamples <= 1000) then 22 else ceil(beagle_cpu * 1.5)
+      Int beagle_impute_memory_in_gb = if (CountSamples.nSamples <= 1000) then 30 else ceil(beagle_cpu * 4.3)
 
       call tasks.PhaseBeagle {
         input:
