@@ -24,6 +24,8 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
 
     File test_gvcf
     File truth_gvcf
+    File truth_gvcf_index
+    File test_gvcf_index
 
     String sample_name
 
@@ -113,6 +115,8 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
     input:
       actual = test_gvcf,
       expected = truth_gvcf,
+      actual_index = test_gvcf_index,
+      expected_index = truth_gvcf_index,
       extra_args = " --ignore-attribute AVERAGE_TREE_SCORE --ignore-attribute CALIBRATION_SENSITIVITY "
                    + "--ignore-attribute TREE_SCORE --ignore-attribute SCORE --ignore-filters --ignore-attribute AS_FilterStatus "
                      + "--ignore-attribute ExcessHet --ignore-star-attributes --allow-nan-mismatch --ignore-attribute END"

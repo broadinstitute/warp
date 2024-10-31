@@ -36,6 +36,8 @@ workflow VerifyJointGenotyping {
       input:
         actual = test_vcfs[idx],
         expected = truth_vcfs[idx],
+        actual_index = test_vcf_indexes[idx],
+        expected_index = truth_vcf_indexes[idx],
         extra_args = " --ignore-attribute AVERAGE_TREE_SCORE --ignore-attribute CALIBRATION_SENSITIVITY "
       + "--ignore-attribute TREE_SCORE --ignore-attribute SCORE --ignore-filters --ignore-attribute AS_FilterStatus "
       + "--ignore-attribute ExcessHet --ignore-star-attributes --allow-nan-mismatch --ignore-attribute END"
