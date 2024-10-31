@@ -173,6 +173,12 @@ workflow TestBroadInternalUltimaGenomics {
             results_path = results_path,
             truth_path = truth_path
         }
+        call Utilities.GetValidationInputs as GetGvcfIndex {
+            input:
+                input_file = BroadInternalUltimaGenomics.output_gvcf_index,
+                results_path = results_path,
+                truth_path = truth_path
+        }
 
       call VerifyUltimaGenomicsWholeGenomeGermline.VerifyUltimaGenomicsWholeGenomeGermline as Verify {
         input:
@@ -190,6 +196,8 @@ workflow TestBroadInternalUltimaGenomics {
           test_filtered_vcf_index = GetFilteredVcfIndex.results_file,
           truth_gvcf = GetGvcf.truth_file,
           test_gvcf = GetGvcf.results_file,
+          truth_gvcf_index = GetGvcfIndex.truth_file,
+          test_gvcf_index = GetGvcfIndex.results_file,
           sample_name = BroadInternalUltimaGenomics.sample_name,
           done = CopyToTestResults.done
       }
