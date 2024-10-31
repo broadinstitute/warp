@@ -39,6 +39,15 @@ workflow VerifyJointGenotyping {
       truth_metrics = truth_metrics
   }
 
+  call VerifyTasks.CompareVCFsVerbosely as CompareFilteredVcfsVerbosely {
+    input:
+      test_vcf = test_vcfs[idx],
+      truth_vcf = truth_vcfs[idx],
+      extra_args = " --ignore-attribute AVERAGE_TREE_SCORE --ignore-attribute CALIBRATION_SENSITIVITY "
+                   + "--ignore-attribute TREE_SCORE --ignore-attribute SCORE --ignore-filters --ignore-attribute AS_FilterStatus "
+                     + "--ignore-attribute ExcessHet --ignore-star-attributes --allow-nan-mismatch --ignore-attribute END"
+  }
+
   call VerifyTasks.CompareTextFiles as CompareIntervals {
     input:
       test_text_files = test_intervals,
