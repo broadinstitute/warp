@@ -76,8 +76,7 @@ task CompareVCFsVerbosely {
   }
 
   runtime {
-    #TODO: update docker to next GATK release (after 4.6.0.0) which includes an updated VCFComparator
-    docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:4c1b32dd89c46af52e68ae34f99db483ba07b08def2479d145a185de0b2d9a4a"
+    docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
     preemptible: 3
@@ -727,3 +726,53 @@ task CompareSnapTextFiles {
 }
 
 
+task CompareLibraryFiles {
+  input {
+    File test_text_file
+    File truth_text_file
+  }
+
+  command {
+    exit_code=0
+
+    a=~{test_text_file}
+    b=~{truth_text_file}
+
+    echo "Sorting files $a and $b"
+    sort "$a" > "a.sorted"
+    sort "$b" > "b.sorted"
+
+    echo "Calculating md5sums for $a and $b"
+    md5_a=$(md5sum "a.sorted" | cut -d ' ' -f1)
+    md5_b=$(md5sum "b.sorted" | cut -d ' ' -f1)
+
+    if [ $md5_a = $md5_b ]; then
+      echo "Files $a.sorted and $b.sorted have matching md5sums and are the same."
+    else
+      echo "Files $a.sorted and $b.sorted have different md5sums."
+
+      # Compare the files, excluding specific lines
+      excluded_lines="percent_doublets|keeper_cells|keeper_mean_reads_per_cell|keeper_median_genes|percent_keeper|percent_usable"
+        
+      # Store the diff result, but only check non-excluded lines
+      diff_output=$(diff <(grep -v -E $excluded_lines a.sorted) <(grep -v -E $excluded_lines b.sorted))
+
+      if [ -z "$diff_output" ]; then
+          echo "Files a.sorted and $b.sorted are the same when excluding specified lines."
+      else
+        echo "Files a.sorted and b.sorted have differences in non-excluded lines."
+        echo "$diff_output"
+        exit_code=2
+      fi
+    fi
+    echo "Exiting with code $exit_code"
+    exit $exit_code
+  }
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
+    disks: "local-disk 100 HDD"
+    memory: "50 GiB"
+    preemptible: 3
+  }
+}
