@@ -111,8 +111,8 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
 
   call Tasks.CompareVCFsVerbosely as CompareGVcfsVerbosely {
     input:
-      test_vcf = test_gvcf,
-      truth_vcf = truth_gvcf,
+      actual = test_gvcf,
+      expected = truth_gvcf,
       extra_args = " --ignore-attribute AVERAGE_TREE_SCORE --ignore-attribute CALIBRATION_SENSITIVITY "
                    + "--ignore-attribute TREE_SCORE --ignore-attribute SCORE --ignore-filters --ignore-attribute AS_FilterStatus "
                      + "--ignore-attribute ExcessHet --ignore-star-attributes --allow-nan-mismatch --ignore-attribute END"
