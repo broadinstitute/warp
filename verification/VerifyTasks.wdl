@@ -202,21 +202,21 @@ import hashlib
 
 # Define acceptable percentage-based thresholds for nondeterministic metrics
 thresholds = {
-    "Sequenced_reads": 0.05,
-    "Fraction_Q30_bases_in_read_1": 0.05,
-    "Fraction_of_high_quality_fragments_in_cells": 0.05,
-    "Fraction_of_transposition_events_in_peaks_in_cells": 0.05,
-    "Fraction_duplicates": 0.05,
-    "Fraction_confidently_mapped": 0.05,
-    "Fraction_unmapped": 0.05,
-    "Fraction_nonnuclear": 0.05,
-    "Fraction_fragment_in_nucleosome_free_region": 0.05,
-    "Fraction_fragment_flanking_single_nucleosome": 0.05,
-    "TSS_enrichment_score": 0.05,
-    "Fraction_of_high_quality_fragments_overlapping_TSS": 0.05,
-    "Number_of_peaks": 0.05,
-    "Fraction_of_genome_in_peaks": 0.05,
-    "Fraction_of_high_quality_fragments_overlapping_peaks": 0.05
+    "Sequenced_reads": 0.0000000066,
+    "Fraction_Q30_bases_in_read_1": 0.0000000054,
+    "Fraction_of_high_quality_fragments_in_cells": 0.000000054,
+    "Fraction_of_transposition_events_in_peaks_in_cells": 0.00000037,
+    "Fraction_duplicates": 0.00000017,
+    "Fraction_confidently_mapped": 0.000000123,
+    "Fraction_unmapped": 0.0000016,
+    "Fraction_nonnuclear": 0.00000079,
+    "Fraction_fragment_in_nucleosome_free_region": 0.00000059,
+    "Fraction_fragment_flanking_single_nucleosome": 0.00000057,
+    "TSS_enrichment_score": 0.0000024,
+    "Fraction_of_high_quality_fragments_overlapping_TSS": 0.00000025,
+    "Number_of_peaks": 0.0000074,
+    "Fraction_of_genome_in_peaks": 0.0000024,
+    "Fraction_of_high_quality_fragments_overlapping_peaks": 0.00000030
 }
 
 def calculate_md5(file_path):
