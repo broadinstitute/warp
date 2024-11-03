@@ -214,6 +214,10 @@ task CompareAtacLibraryMetrics {
     Array[File] truth_text_files
   }
 
+   meta {
+       volatile: true
+   }
+
   command <<<
 python3 <<CODE
 import csv
