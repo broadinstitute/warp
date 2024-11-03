@@ -188,7 +188,27 @@ task CompareTextFiles {
     preemptible: 3
   }
 }
-  task CompareAtacLibraryMetrics {
+
+struct MetricThresholds {
+    Float Sequenced_reads
+    Float Fraction_Q30_bases_in_read_1
+    Float Fraction_of_high_quality_fragments_in_cells
+    Float Fraction_of_transposition_events_in_peaks_in_cells
+    Float Fraction_duplicates
+    Float Fraction_confidently_mapped
+    Float Fraction_unmapped
+    Float Fraction_nonnuclear
+    Float Fraction_fragment_in_nucleosome_free_region
+    Float Fraction_fragment_flanking_single_nucleosome
+    Float TSS_enrichment_score
+    Float Fraction_of_high_quality_fragments_overlapping_TSS
+    Float Number_of_peaks
+    Float Fraction_of_genome_in_peaks
+    Float Fraction_of_high_quality_fragments_overlapping_peaks
+}
+
+
+task CompareAtacLibraryMetrics {
   input {
     Array[File] test_text_files
     Array[File] truth_text_files
@@ -265,7 +285,7 @@ def compare_metrics(test_file, truth_file):
                 print(f"Error: Metric names don't match for {metric_a} and {metric_b}")
                 exit_code = 1
                 continue
-
+            print("Current thresholds:", thresholds)
             threshold = thresholds.get(metric_a, 0.00)
             diff = abs(value_a - value_b)
             allowable_diff = value_b * threshold
