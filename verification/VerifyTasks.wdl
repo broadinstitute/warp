@@ -292,7 +292,6 @@ def compare_metrics(test_file, truth_file):
                 print(f"Error: Metric names don't match for {metric_a} and {metric_b}")
                 exit_code = 1
                 continue
-            print("Current thresholds:", thresholds)
             threshold = thresholds.get(metric_a.lower(), 0.00)
             diff = abs(value_a - value_b)
             allowable_diff = value_b * threshold
