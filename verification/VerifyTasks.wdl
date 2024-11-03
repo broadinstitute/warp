@@ -242,6 +242,9 @@ thresholds = {
     "Fraction_of_high_quality_fragments_overlapping_peaks": 0.00000030
 }
 
+thresholds = {k.lower(): v for k, v in thresholds.items()}
+
+
 def calculate_md5(file_path):
     """Calculates the MD5 checksum for a file."""
     print(f"Processing file: {file_path}")
@@ -290,7 +293,7 @@ def compare_metrics(test_file, truth_file):
                 exit_code = 1
                 continue
             print("Current thresholds:", thresholds)
-            threshold = thresholds.get(metric_a, 0.00)
+            threshold = thresholds.get(metric_a.lower(), 0.00)
             diff = abs(value_a - value_b)
             allowable_diff = value_b * threshold
             if diff > allowable_diff:
