@@ -258,7 +258,7 @@ task JoinMultiomeBarcodes {
     echo "Printing the atac_fragment_base"
     echo "~{atac_fragment_base}"
     echo "Decompressing fragment file"
-    bgzip -d ~{atac_fragment} > "/cromwell_root/~{atac_fragment_base}.sorted.tsv"
+    bgzip -d ~{atac_fragment}
     echo "Done decompressing"
 
     echo "List files, should see decompressed fragment tsv"
