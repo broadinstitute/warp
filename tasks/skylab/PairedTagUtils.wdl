@@ -206,7 +206,7 @@ task ParseBarcodes {
         String cpuPlatform = "Intel Cascade Lake"
         String docker_path
         Int disk =  ceil((size(atac_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
-        Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
+        Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(atac_fragment, "MiB")) * 6) + 10000
     }
 
     String atac_base_name = basename(atac_h5ad, ".h5ad")
