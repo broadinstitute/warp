@@ -255,12 +255,13 @@ task JoinMultiomeBarcodes {
     set -e pipefail
 
     # decompress the bgzipped fragment file
-    echo "Printing the atac_fragment_base"
-    echo "~{atac_fragment_base}"
+    echo "Moving fragment file for bgzipping"
+    mv ~{atac_fragment} /cromwell_root
+    echo "Listing files, should see .gz fragment file"
+    ls -l
     echo "Decompressing fragment file"
-    bgzip -d ~{atac_fragment}
+    bgzip -d "/cromwell_root/~{atac_fragment_base}.sorted.tsv.gz"
     echo "Done decompressing"
-
     echo "List files, should see decompressed fragment tsv"
     ls -l
 
