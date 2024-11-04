@@ -241,7 +241,7 @@ task JoinMultiomeBarcodes {
   }
   String gex_base_name = basename(gex_h5ad, ".h5ad")
   String atac_base_name = basename(atac_h5ad, ".h5ad")
-  String atac_fragment_base = basename(atac_fragment, ".tsv")
+  String atac_fragment_base = basename(atac_fragment, ".sorted.tsv.gz")
 
   parameter_meta {
     atac_h5ad: "The resulting h5ad from the ATAC workflow."
@@ -254,11 +254,17 @@ task JoinMultiomeBarcodes {
   command <<<
     set -e pipefail
 
+    # decompress the bgzipped fragment file
+    echo "Decompressing fragment file"
+    bgzip -d ~{atac_fragment} > "~{atac_fragment_base}.sorted.tsv"
+    echo "Done decompressing"
+
+
     python3 <<CODE
 
     # set parameters
     atac_h5ad = "~{atac_h5ad}"
-    atac_fragment = "~{atac_fragment}"
+    atac_fragment = "~{atac_fragment_base}.sorted.tsv"
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
@@ -275,7 +281,7 @@ task JoinMultiomeBarcodes {
     print("~{gex_h5ad}")
     atac_data = ad.read_h5ad("~{atac_h5ad}")
     gex_data = ad.read_h5ad("~{gex_h5ad}")
-    atac_tsv = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
+    atac_tsv = pd.read_csv(atac_fragment, sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
     whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
     whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
 
