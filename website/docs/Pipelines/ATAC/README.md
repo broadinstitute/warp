@@ -8,7 +8,7 @@ slug: /Pipelines/ATAC/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [2.3.0](https://github.com/broadinstitute/warp/releases) | September, 2024 | Kaylee Mathews | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
+| [2.4.0](https://github.com/broadinstitute/warp/releases) | October, 2024 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
 
 ## Introduction to the ATAC workflow
@@ -47,22 +47,23 @@ The following describes the inputs of the ATAC workflow. For more details on how
 
 | Variable name | Description |
 | --- |--- |
-| read1_fastq_gzipped | Fastq inputs (array of compressed read 1 FASTQ files).                                                          |
-| read2_fastq_gzipped | Fastq inputs (array of compressed read 2 FASTQ files containing cellular barcodes).                             |
-| read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files).                                                          |
+| read1_fastq_gzipped | Fastq inputs (array of compressed read 1 FASTQ files). |
+| read2_fastq_gzipped | Fastq inputs (array of compressed read 2 FASTQ files containing cellular barcodes). |
+| read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files). |
 | input_id | Output prefix/base name for all intermediate files and pipeline outputs.                                        |
 | cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
-| preindex | Boolean used for paired-tag data and not applicable to ATAC data types; default is set to false.                | 
-| tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files).                                    |
-| num_threads_bwa | Optional integer defining the number of CPUs per node for the BWA-mem alignment task (default: 128).            |
-| mem_size_bwa | Optional integer defining the memory size for the BWA-mem alignment task in GB (default: 512).                  |
-| cpu_platform_bwa | Optional string defining the CPU platform for the BWA-mem alignment task (default: "Intel Ice Lake").           |
-| annotations_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file.              |
-| chrom_sizes | CreateFragmentFile input variable: Text file containing chrom_sizes for genome build (i.e., hg38)               |
-| whitelist | Whitelist file for ATAC cellular barcodes.                                                                      |
-| adapter_seq_read1 | TrimAdapters input: Sequence adapter for read 1 fastq.                                                          |
-| adapter_seq_read3 | TrimAdapters input: Sequence adapter for read 3 fastq.                                                          |
-| vm_size | String defining the Azure virtual machine family for the workflow (default: "Standard_M128s").                  | String |
+| preindex | Boolean used for paired-tag data and not applicable to ATAC data types; default is set to false. | 
+| atac_expected_cells | Number of cells loaded to create the ATAC library; default is set to 3000. |
+| tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files). |
+| num_threads_bwa | Optional integer defining the number of CPUs per node for the BWA-mem alignment task (default: 128). |
+| mem_size_bwa | Optional integer defining the memory size for the BWA-mem alignment task in GB (default: 512). |
+| cpu_platform_bwa | Optional string defining the CPU platform for the BWA-mem alignment task (default: "Intel Ice Lake"). |
+| annotations_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file. |
+| chrom_sizes | CreateFragmentFile input variable: Text file containing chrom_sizes for genome build (i.e., hg38) |
+| whitelist | Whitelist file for ATAC cellular barcodes. |
+| adapter_seq_read1 | TrimAdapters input: Sequence adapter for read 1 fastq. |
+| adapter_seq_read3 | TrimAdapters input: Sequence adapter for read 3 fastq. |
+| vm_size | String defining the Azure virtual machine family for the workflow (default: "Standard_M128s"). 
 | atac_nhash_id | String that represents an optional library aliquot identifier. When used, it is echoed in the h5ad unstructured data. |
 
 ## ATAC tasks and tools
@@ -92,9 +93,9 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | Output variable name | Filename, if applicable | Output format and description |
 |--- | --- | --- | 
 | bam_aligned_output | `<input_id>`.bam | BAM containing aligned reads from ATAC workflow. |
-| fragment_file | `<input_id>`.fragments.tsv | TSV containing fragment start and stop coordinates per barcode. In order, the columns are "Chromosome", "Start", "Stop", "ATAC Barcode", and "Number Reads". | 
+| fragment_file | `<input_id>`.fragments.sorted.tsv.gz | Bgzipped TSV containing fragment start and stop coordinates per barcode. In order, the columns are "Chromosome", "Start", "Stop", "ATAC Barcode", and "Number Reads". | 
 | snap_metrics | `<input_id`.metrics.h5ad | h5ad (Anndata) containing per barcode metrics from [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
- library_metrics | `<input_id>`_`<atac_nhash_id>`.atac_metrics.csv | CSV file containing library-level metrics. Read more in the [Library Metrics Overview](library-metrics.md)
+ library_metrics | `<input_id>`_`<atac_nhash_id>_library_metrics.csv | CSV file containing library-level metrics. Read more in the [Library Metrics Overview](library-metrics.md)
 
 ## Versioning and testing
 

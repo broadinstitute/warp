@@ -1,6 +1,14 @@
-# 5.7.2
+# 5.9.0
 2024-10-21 (Date of Last Commit)
-* Changed a flag in H5adUtils.wdl to se CSI instead of TBI indexing in tabix command to support chromosomes larger than 512 Mbp.
+* Changed a flag in H5adUtils.wdl to se CSI instead of TBI indexing in tabix command to support chromosomes larger than 512 Mbp. This command changes the format of the index  file of the ATAC fragment csv.
+
+# 5.8.0
+2024-10-23 (Date of Last Commit)
+
+* Updated the workflow to include a new expected_cells input parameter describing the number of cells used as input to the library preparation; this is passed to both the ATAC workflows and Optimus workflows and the default is set to 3000 cells
+* Updated the ATAC library CSV and the Gene Expression library CSV to be consistent in file naming convention and to have similar case for metric names
+* Added a new metric to the ATAC library CSV to calculate percent_target, which is the number of estimated cells by SnapATAC2 divided by expected_cells input
+* Updated the ATAC workflow so that the output fragment file is bgzipped by default
 
 # 5.7.1
 2024-10-18 (Date of Last Commit)

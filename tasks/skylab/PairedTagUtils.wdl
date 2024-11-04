@@ -208,7 +208,7 @@ task ParseBarcodes {
     }
 
     String atac_base_name = basename(atac_h5ad, ".h5ad")
-    String atac_fragment_base = basename(atac_fragment, ".tsv")
+    String atac_fragment_base = basename(atac_fragment, ".sorted.tsv.gz")
 
     Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
     Int disk =  ceil((size(atac_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
@@ -221,11 +221,16 @@ task ParseBarcodes {
   command <<<
     set -e pipefail
 
+    # decompress the bgzipped atac file
+    echo "Decompressing fragment file"
+    bgzip -d ~{atac_fragment} > "~{atac_fragment_base}.sorted.tsv"
+    echo "Done decompressing"
+
     python3 <<CODE
 
     # set parameters
     atac_h5ad = "~{atac_h5ad}"
-    atac_fragment = "~{atac_fragment}"
+    atac_fragment = "~{atac_fragment_base}.sorted.tsv"
 
     # import anndata to manipulate h5ad files
     import anndata as ad
@@ -234,7 +239,7 @@ task ParseBarcodes {
     print("Reading ATAC h5ad:")
     atac_data = ad.read_h5ad("~{atac_h5ad}")
     print("Reading ATAC fragment file:")
-    test_fragment = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
+    test_fragment = pd.read_csv(atac_fragment, sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
 
 
     # Separate out CB and preindex in the h5ad and identify sample barcodes assigned to more than one cell barcode
