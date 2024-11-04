@@ -75,7 +75,6 @@ task count {
   >>>
   
   output {
-    Boolean DONE = read_boolean("DONE")
     File sb_counts = "SBcounts.h5"
     File spatial_log = "spatial-count.log"
 
