@@ -222,17 +222,17 @@ task ParseBarcodes {
     set -e pipefail
 
     # decompress the bgzipped atac file
-    echo "Moving fragment tsv to cromwell_root for decompression" 
-    mv ~{atac_fragment} /cromwell_root
+    echo "Moving fragment tsv for decompression" 
+    mv ~{atac_fragment} ~{atac_fragment_base}.sorted.tsv.gz
     echo "Decompressing fragment file"
-    bgzip -d "/cromwell_root/~{atac_fragment_base}.sorted.tsv.gz"
+    bgzip -d "~{atac_fragment_base}.sorted.tsv.gz"
     echo "Done decompressing"
 
     python3 <<CODE
 
     # set parameters
     atac_h5ad = "~{atac_h5ad}"
-    atac_fragment = "/cromwell_root/~{atac_fragment_base}.sorted.tsv"
+    atac_fragment = "~{atac_fragment_base}.sorted.tsv"
 
     # import anndata to manipulate h5ad files
     import anndata as ad
