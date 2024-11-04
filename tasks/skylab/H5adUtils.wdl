@@ -258,21 +258,21 @@ task JoinMultiomeBarcodes {
     echo "Printing the atac_fragment_base"
     echo "~{atac_fragment_base}"
     echo "Decompressing fragment file"
-    bgzip -d ~{atac_fragment} > "~{atac_fragment_base}.sorted.tsv"
+    bgzip -d ~{atac_fragment} > "/cromwell_root/~{atac_fragment_base}.sorted.tsv"
     echo "Done decompressing"
 
     echo "List files, should see decompressed fragment tsv"
     ls
 
     echo "Heading the decompressed fragment TSV"
-    head -n 5 "~{atac_fragment_base}.sorted.tsv"
+    head -n 5 "/cromwell_root/~{atac_fragment_base}.sorted.tsv"
 
 
     python3 <<CODE
 
     # set parameters
     atac_h5ad = "~{atac_h5ad}"
-    atac_fragment = "~{atac_fragment_base}.sorted.tsv"
+    atac_fragment = "/cromwell_root/~{atac_fragment_base}.sorted.tsv"
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
