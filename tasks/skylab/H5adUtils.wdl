@@ -259,6 +259,11 @@ task JoinMultiomeBarcodes {
     bgzip -d ~{atac_fragment} > "~{atac_fragment_base}.sorted.tsv"
     echo "Done decompressing"
 
+    echo "List files, should see decompressed fragment tsv"
+
+    echo "Heading the decompressed fragment TSV"
+    head -n 5 "~{atac_fragment_base}.sorted.tsv"
+
 
     python3 <<CODE
 
@@ -276,7 +281,7 @@ task JoinMultiomeBarcodes {
     print("Reading ATAC h5ad:")
     print("~{atac_h5ad}")
     print("Read ATAC fragment file:")
-    print("~{atac_fragment}")
+    print(atac_fragment)
     print("Reading Optimus h5ad:")
     print("~{gex_h5ad}")
     atac_data = ad.read_h5ad("~{atac_h5ad}")
