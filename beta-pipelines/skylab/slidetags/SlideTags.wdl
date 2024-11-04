@@ -32,7 +32,7 @@ workflow SlideTags {
     call Positioning.generate_positioning as positioning {
         input:
             rna_paths = rna_paths,
-            sb_path = sb_path,
+            sb_path = spatial_count.sb_counts,
             docker = docker
      }
     
