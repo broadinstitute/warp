@@ -222,8 +222,10 @@ task ParseBarcodes {
     set -e pipefail
 
     # decompress the bgzipped atac file
+    echo "Moving fragment tsv to cromwell_root for decompression" 
+    mv ~{atac_fragment} /cromwell_root
     echo "Decompressing fragment file"
-    bgzip -d ~{atac_fragment} > "~{atac_fragment_base}.sorted.tsv"
+    bgzip -d ~{atac_fragment}
     echo "Done decompressing"
 
     python3 <<CODE
