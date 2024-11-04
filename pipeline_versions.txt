@@ -26,7 +26,7 @@ ExternalWholeGenomeReprocessing	 2.3.3	2024-11-04
 ExternalExomeReprocessing	 3.3.3	2024-11-04 
 CramToUnmappedBams	 1.1.3	2024-08-02 
 WholeGenomeReprocessing	 3.3.3	2024-11-04 
-ExomeReprocessing	 3.3.2	2024-11-04 
+ExomeReprocessing	 3.3.3	2024-11-04 
 BuildIndices	 3.0.0	2023-12-06 
 scATAC	 1.3.2	2023-08-03 
 snm3C	 4.0.4	2024-08-06 
