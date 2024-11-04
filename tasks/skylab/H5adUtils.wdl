@@ -260,6 +260,7 @@ task JoinMultiomeBarcodes {
     echo "Done decompressing"
 
     echo "List files, should see decompressed fragment tsv"
+    ls
 
     echo "Heading the decompressed fragment TSV"
     head -n 5 "~{atac_fragment_base}.sorted.tsv"
