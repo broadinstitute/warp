@@ -255,6 +255,8 @@ task JoinMultiomeBarcodes {
     set -e pipefail
 
     # decompress the bgzipped fragment file
+    echo "Printing the atac_fragment_base"
+    echo "~{atac_fragment_base}"
     echo "Decompressing fragment file"
     bgzip -d ~{atac_fragment} > "~{atac_fragment_base}.sorted.tsv"
     echo "Done decompressing"
