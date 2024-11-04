@@ -295,7 +295,6 @@ def compare_metrics(test_file, truth_file):
             # Check if the metric has a threshold, otherwise default to 0.00
             threshold = thresholds.get(metric_a.lower(), 0.00)
 
-            print("Current thresholds:", thresholds)
             diff = abs(value_a - value_b)
             # Calculate the allowable difference based on the threshold
             allowable_diff = value_b * threshold
