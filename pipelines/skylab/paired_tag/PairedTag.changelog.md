@@ -1,4 +1,9 @@
 # 1.8.0
+2024-11-04 (Date of Last Commit)
+
+* Changed a flag in JoinMultiomeBarcodes task in H5adUtils.wdl to se CSI instead of TBI indexing in tabix command to support chromosomes larger than 512 Mbp. This task should not affect the paired-tag pipeline.
+
+# 1.8.0
 2024-10-23 (Date of Last Commit)
 
 * Updated the workflow to include a new expected_cells input parameter describing the number of cells used as input to the library preparation; this is passed to both the ATAC workflows and Optimus workflows and the default is set to 3000 cells
