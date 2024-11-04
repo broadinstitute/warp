@@ -282,6 +282,8 @@ task JoinMultiomeBarcodes {
     atac_data = ad.read_h5ad("~{atac_h5ad}")
     gex_data = ad.read_h5ad("~{gex_h5ad}")
     atac_tsv = pd.read_csv(atac_fragment, sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
+    print("Printing ATAC fragment tsv")
+    print(atac_tsv)
     whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
     whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
 
@@ -318,6 +320,10 @@ task JoinMultiomeBarcodes {
     df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
     CODE
     # sorting the file
+    echo "Listing files - should see a .tsv file"
+    ls
+    echo "Heading 5 lines of fragment TSV"
+    head -n 5 "~{atac_fragment_base}.tsv"
     echo "Sorting file"
     sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
     echo "Starting bgzip"
