@@ -279,7 +279,7 @@ def compare_metrics(test_file, truth_file):
             # Calculate the allowable difference based on the threshold
             allowable_diff = value_b * threshold
             if diff > allowable_diff:
-                print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%. The allowable difference is {allowable_diff} and the actual difference is {diff}.)
+                print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%. The allowable difference is {allowable_diff} and the actual difference is {diff}.")
                 exit_code = 1
             else:
                 print(f"Metric {metric_a} is within the threshold.")
