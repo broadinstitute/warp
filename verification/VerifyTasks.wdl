@@ -225,21 +225,21 @@ import hashlib
 
 # Define acceptable percentage-based thresholds for nondeterministic metrics
 thresholds = {
-    "Sequenced_reads": 0.0000000066,
-    "Fraction_Q30_bases_in_read_1": 0.0000000054,
-    "Fraction_of_high_quality_fragments_in_cells": 0.000000054,
-    "Fraction_of_transposition_events_in_peaks_in_cells": 0.00000037,
-    "Fraction_duplicates": 0.00000017,
-    "Fraction_confidently_mapped": 0.000000123,
-    "Fraction_unmapped": 0.0000016,
-    "Fraction_nonnuclear": 0.00000079,
-    "Fraction_fragment_in_nucleosome_free_region": 0.00000059,
-    "Fraction_fragment_flanking_single_nucleosome": 0.00000057,
-    "TSS_enrichment_score": 0.0000024,
-    "Fraction_of_high_quality_fragments_overlapping_TSS": 0.00000025,
-    "Number_of_peaks": 0.0000074,
-    "Fraction_of_genome_in_peaks": 0.0000024,
-    "Fraction_of_high_quality_fragments_overlapping_peaks": 0.00000030
+    "sequenced_reads": 0.0000000066,
+    "fraction_Q30_bases_in_read_1": 0.0000000054,
+    "fraction of high-quality fragments in cells": 0.000000054,
+    "fraction_of_transposition_events_in_peaks_in_cells": 0.00000037,
+    "fraction_duplicates": 0.00000017,
+    "fraction_confidently_mapped": 0.000000123,
+    "fraction_unmapped": 0.0000016,
+    "fraction_nonnuclear": 0.00000079,
+    "fraction_fragment_in_nucleosome_free_region": 0.00000059,
+    "fraction_fragment_flanking_single_nucleosome": 0.00000057,
+    "tss_enrichment_score": 0.0000024,
+    "fraction_of_high-quality_fragments_overlapping_tss": 0.00000025,
+    "number_of_peaks": 0.0000074,
+    "fraction_of_genome_in_peaks": 0.0000024,
+    "fraction_of_high-quality_fragments_overlapping_peaks": 0.00000030
 }
 
 thresholds = {k.lower(): v for k, v in thresholds.items()}
@@ -292,8 +292,12 @@ def compare_metrics(test_file, truth_file):
                 print(f"Error: Metric names don't match for {metric_a} and {metric_b}")
                 exit_code = 1
                 continue
+            # Check if the metric has a threshold, otherwise default to 0.00
             threshold = thresholds.get(metric_a.lower(), 0.00)
+
+            print("Current thresholds:", thresholds)
             diff = abs(value_a - value_b)
+            # Calculate the allowable difference based on the threshold
             allowable_diff = value_b * threshold
             if diff > allowable_diff:
                 print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%")
