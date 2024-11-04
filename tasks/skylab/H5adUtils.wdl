@@ -256,9 +256,9 @@ task JoinMultiomeBarcodes {
 
     # decompress the bgzipped fragment file
     echo "Moving fragment file for bgzipping"
-    mv ~{atac_fragment} /cromwell_root
+    mv ~{atac_fragment} ~{atac_fragment_base}.sorted.tsv.gz
     echo "Decompressing fragment file"
-    bgzip -d "/cromwell_root/~{atac_fragment_base}.sorted.tsv.gz"
+    bgzip -d "~{atac_fragment_base}.sorted.tsv.gz"
     echo "Done decompressing"
 
 
@@ -266,7 +266,7 @@ task JoinMultiomeBarcodes {
 
     # set parameters
     atac_h5ad = "~{atac_h5ad}"
-    atac_fragment = "/cromwell_root/~{atac_fragment_base}.sorted.tsv"
+    atac_fragment = "~{atac_fragment_base}.sorted.tsv"
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
