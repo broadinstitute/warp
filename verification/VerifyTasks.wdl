@@ -189,24 +189,6 @@ task CompareTextFiles {
   }
 }
 
-struct MetricThresholds {
-    Float Sequenced_reads
-    Float Fraction_Q30_bases_in_read_1
-    Float Fraction_of_high_quality_fragments_in_cells
-    Float Fraction_of_transposition_events_in_peaks_in_cells
-    Float Fraction_duplicates
-    Float Fraction_confidently_mapped
-    Float Fraction_unmapped
-    Float Fraction_nonnuclear
-    Float Fraction_fragment_in_nucleosome_free_region
-    Float Fraction_fragment_flanking_single_nucleosome
-    Float TSS_enrichment_score
-    Float Fraction_of_high_quality_fragments_overlapping_TSS
-    Float Number_of_peaks
-    Float Fraction_of_genome_in_peaks
-    Float Fraction_of_high_quality_fragments_overlapping_peaks
-}
-
 
 task CompareAtacLibraryMetrics {
   input {
@@ -214,16 +196,13 @@ task CompareAtacLibraryMetrics {
     Array[File] truth_text_files
   }
 
-   meta {
-       volatile: true
-   }
-
   command <<<
 python3 <<CODE
 import csv
 import hashlib
 
 # Define acceptable percentage-based thresholds for nondeterministic metrics
+# Arrived at these thresholds by examining the differences between the test and truth files in our scientific tests
 thresholds = {
     "sequenced_reads": 0.0000000066,
     "fraction_Q30_bases_in_read_1": 0.0000000054,
@@ -292,14 +271,15 @@ def compare_metrics(test_file, truth_file):
                 print(f"Error: Metric names don't match for {metric_a} and {metric_b}")
                 exit_code = 1
                 continue
-            # Check if the metric has a threshold, otherwise default to 0.00
+            # Check if the metric has a set threshold, otherwise default to 0.00
             threshold = thresholds.get(metric_a.lower(), 0.00)
 
             diff = abs(value_a - value_b)
+
             # Calculate the allowable difference based on the threshold
             allowable_diff = value_b * threshold
             if diff > allowable_diff:
-                print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%")
+                print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%. The allowable difference is {allowable_diff} and the actual difference is {diff}.
                 exit_code = 1
             else:
                 print(f"Metric {metric_a} is within the threshold.")
