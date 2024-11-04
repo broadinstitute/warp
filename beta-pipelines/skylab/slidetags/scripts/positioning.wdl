@@ -17,11 +17,11 @@ task generate_positioning {
     gcloud config set storage/process_count 16 # is this set by user?
     gcloud config set storage/thread_count  2 # is this set by user?
 
-    # Download the scripts -- these need to be changed -- also need to add to docker
-    wget https://raw.githubusercontent.com/aawdeh/Macosko-Pipelines/refs/heads/aa-pos/positioning/load_matrix.R
-    wget https://raw.githubusercontent.com/aawdeh/Macosko-Pipelines/refs/heads/aa-pos/positioning/positioning.R
-    wget https://raw.githubusercontent.com/aawdeh/Macosko-Pipelines/refs/heads/aa-pos/positioning/run-positioning.R
-
+    # Download the scripts -- these need to be changed -- also need to add to docker   
+    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/ee005109446f58764509ee47ff51c212ce8dabe3/positioning/positioning.R
+    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/6a78716aa08a9f2506c06844f7e3fd491b03aa8b/positioning/load_matrix.R
+    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/a7fc86abbdd3d46461c500e7d024315d88a97e9a/positioning/run-positioning.R
+  
     echo "RNA: ~{sep=' ' rna_paths}"
     echo "SB: ~{sb_path}"
 
