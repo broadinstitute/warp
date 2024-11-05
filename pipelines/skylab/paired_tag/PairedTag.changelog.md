@@ -10,6 +10,7 @@
 * Updated the ATAC library CSV and the Gene Expression library CSV to be consistent in file naming convention and to have similar case for metric names
 * Added a new metric to the ATAC library CSV to calculate percent_target, which is the number of estimated cells by SnapATAC2 divided by expected_cells input
 * Updated the ATAC fragment file output so that it is bgzipped
+* Updated memory settings for PairedTag Utils
 
 # 1.7.1
 2024-10-18 (Date of Last Commit)

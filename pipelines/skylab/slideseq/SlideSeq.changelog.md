@@ -8,6 +8,7 @@
 
 * Updated the h5adUtils WDL to rename the gene expression library CSV filename; this does not impact slideseq
 * Updated the ATAC fragment file output so that it is bgzipped; this does not impact the slideseq workflow
+* Updated memory settings for PairedTag; does not impact the Slideseq workflow
 
 # 3.4.2
 2024-09-24 (Date of Last Commit)
