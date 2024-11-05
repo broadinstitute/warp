@@ -5,6 +5,7 @@
 * Updated gex_expected_cells to a required output
 * Reformatted the library CSV output filename to remove an extra gex
 * Updated the ATAC fragment file output so that it is bgzipped; this does  not impact the Optimus workflow
+* Updated memory settings for PairedTag; does not impact the Optimus workflow
 
 # 7.7.0
 2024-09-24 (Date of Last Commit)
