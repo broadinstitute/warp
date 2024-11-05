@@ -1,4 +1,4 @@
-# 1.8.0
+# 1.8.1
 2024-11-04 (Date of Last Commit)
 
 * Changed a flag in JoinMultiomeBarcodes task in H5adUtils.wdl to se CSI instead of TBI indexing in tabix command to support chromosomes larger than 512 Mbp. This task should not affect the paired-tag pipeline.
