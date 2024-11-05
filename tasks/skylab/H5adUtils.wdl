@@ -236,7 +236,7 @@ task JoinMultiomeBarcodes {
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
     Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 6) + 10000
-    Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
+    Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 8) + 10
     String docker_path
   }
   String gex_base_name = basename(gex_h5ad, ".h5ad")
