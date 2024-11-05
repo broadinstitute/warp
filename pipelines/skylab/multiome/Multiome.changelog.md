@@ -1,6 +1,6 @@
 # 5.9.0
 2024-10-21 (Date of Last Commit)
-* Changed a flag in H5adUtils.wdl to se CSI instead of TBI indexing in tabix command to support chromosomes larger than 512 Mbp. This command changes the format of the index  file of the ATAC fragment csv.
+* Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task changes the format for the ATAC fragment file index 
 
 # 5.8.0
 2024-10-23 (Date of Last Commit)
