@@ -3,6 +3,7 @@
 
 * Updated the h5adUtils WDL to rename the gene expression library CSV filename; this does not impact slideseq
 * Updated the ATAC fragment file output so that it is bgzipped; this does not impact the Multi-snSS2 workflow
+* Updated memory settings for PairedTag; does not impact the snSS2 workflow
 
 # 2.0.1
 2024-09-24 (Date of Last Commit)
