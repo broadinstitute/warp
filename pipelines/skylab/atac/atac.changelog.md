@@ -5,6 +5,7 @@
 * Updated the ATAC library CSV to be consistent in file naming convention and to have similar case for metric names to the Optimus workflow library CSV
 * Added a new metric to the ATAC library CSV to calculate percent_target, which is the number of estimated cells by SnapATAC2 divided by expected_cells input
 * Updated the ATAC workflow so that the output fragment file is bgzipped by default
+* Updated memory settings for PairedTag; does not impact the ATAC workflow
 
 
 # 2.3.2

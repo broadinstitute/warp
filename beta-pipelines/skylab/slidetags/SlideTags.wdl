@@ -1,6 +1,7 @@
 version 1.0
 
 import "scripts/spatial-count.wdl" as SpatialCount
+import "scripts/positioning.wdl" as Positioning
 
 workflow SlideTags {
 
@@ -10,16 +11,14 @@ workflow SlideTags {
         String id
         Array[String] fastq_paths
         Array[String] pucks
-        Int mem_GiB = 64
-        Int disk_GiB = 128
-        String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.0.0"
+        Array[String] rna_paths
+        String sb_path
+        String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.1.0"
      }
     
     parameter_meta {
         fastq_paths: "Array of paths to spatial fastq files"
         pucks: "Array of paths to puck files"
-        mem_GiB: "Memory in GiB to allocate to the task"
-        disk_GiB: "Disk in GiB to allocate to the task"
         docker: "Docker image to use"
     }
 
@@ -27,8 +26,13 @@ workflow SlideTags {
         input:
             fastq_paths = fastq_paths,
             pucks = pucks,
-            mem_GiB = mem_GiB,
-            disk_GiB = disk_GiB,
+            docker = docker
+     }
+
+    call Positioning.generate_positioning as positioning {
+        input:
+            rna_paths = rna_paths,
+            sb_path = spatial_count.sb_counts,
             docker = docker
      }
     
