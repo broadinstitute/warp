@@ -1,6 +1,8 @@
 ## Announcement: CEMBA is Deprecated 9/12/2024
 
-The CEMBA workflow is deprecated and is no longer supported. However, the CEMBA documentation is still available. See [CEMBA Pipeline Overview](https://broadinstitute.github.io/warp/docs/Pipelines/CEMBA_MethylC_Seq_Pipeline/README) on the [WARP documentation site](https://broadinstitute.github.io/warp/)!
+The CEMBA workflow is deprecated and no longer supported. File paths in the JSON file are also no longer supported.
+
+However, CEMBA data is available on the NEMO data portal. The CEMBA documentation is also still available. See [CEMBA Pipeline Overview](https://broadinstitute.github.io/warp/docs/Pipelines/CEMBA_MethylC_Seq_Pipeline/README) on the [WARP documentation site](https://broadinstitute.github.io/warp/)!
 
 ### CEMBA summary
 
