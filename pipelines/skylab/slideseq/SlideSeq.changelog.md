@@ -1,7 +1,7 @@
 # 3.4.4
 2024-11-04 (Date of Last Commit)
 
-* Changed a flag in JoinMultiomeBarcodes task in H5adUtils.wdl to se CSI instead of TBI indexing in tabix command to support chromosomes larger than 512 Mbp. This task should not affect the Slide-seq pipeline.
+* Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task should not affect the Slide-seq pipeline
 
 # 3.4.3
 2024-10-24 (Date of Last Commit)
