@@ -1,3 +1,12 @@
+# 7.8.0
+2024-10-23 (Date of Last Commit)
+
+* Renamed the input expected_cells to gex_expected_cells
+* Updated gex_expected_cells to a required output
+* Reformatted the library CSV output filename to remove an extra gex
+* Updated the ATAC fragment file output so that it is bgzipped; this does  not impact the Optimus workflow
+* Updated memory settings for PairedTag; does not impact the Optimus workflow
+
 # 7.7.0
 2024-09-24 (Date of Last Commit)
 
@@ -6,6 +15,7 @@
 
 # 7.6.1
 2024-09-11 (Date of Last Commit)
+
 * Updated warp-tools docker which added create_h5ad_snss2.py to the docker image. This change does not affect the Optimus pipeline
 
 # 7.6.0

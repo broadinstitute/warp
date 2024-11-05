@@ -1,3 +1,8 @@
+# 1.1.1
+2024-10-28 (Date of Last Commit)
+
+* Updated the docker in the ValidateVCF task; this does not affect this pipeline
+
 # 1.1.0
 2024-09-06 (Date of Last Commit)
 
