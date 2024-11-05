@@ -1,6 +1,6 @@
 ## Announcement: CEMBA file paths are deprecated 11/05/2024
 
-The CEMBA workflow is now deprecated and no longer supported, meaning file paths in the JSON file are also unsupported.
+Since the CEMBA workflow is now deprecated and unsupported, file paths in the JSON file are also no longer supported.
 
 However, CEMBA data is available on the NEMO data portal. The CEMBA documentation is also still available. See [CEMBA Pipeline Overview](https://broadinstitute.github.io/warp/docs/Pipelines/CEMBA_MethylC_Seq_Pipeline/README) on the [WARP documentation site](https://broadinstitute.github.io/warp/)!
 
