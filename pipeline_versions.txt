@@ -35,6 +35,6 @@ PairedTag	 1.8.1	2024-11-04
 MultiSampleSmartSeq2	 2.2.22	2024-09-11 
 MultiSampleSmartSeq2SingleNucleus	 2.0.3	2024-11-04 
 Optimus	 7.8.1	2024-11-04 
-atac	 2.4.0	2024-10-23 
+atac	 2.5.0	2024-10-23 
 SmartSeq2SingleSample	 5.1.21	2024-09-11 
 SlideSeq	 3.4.4	2024-11-04 
