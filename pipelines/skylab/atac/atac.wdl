@@ -49,7 +49,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.4.0"
+  String pipeline_version = "2.5.0"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -614,7 +614,7 @@ task CreateFragmentFile {
     echo "Starting bgzip"
     bgzip "~{input_id}.fragments.sorted.tsv"
     echo "Starting tabix"
-    tabix -s 1 -b 2 -e 3 "~{input_id}.fragments.sorted.tsv.gz"
+    tabix -s 1 -b 2 -e 3 -C "~{input_id}.fragments.sorted.tsv.gz"
   >>>
 
   runtime {
@@ -627,6 +627,8 @@ task CreateFragmentFile {
 
   output {
     File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
+    File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
+
     File Snap_metrics = "~{input_id}.metrics.h5ad"
     File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
   }

@@ -14,7 +14,7 @@ task CalculateSomaticContamination {
         File contamination_vcf_index
 
         # runtime
-        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
         File? gatk_override
         Int? additional_disk
         Int memory_mb = 3000
