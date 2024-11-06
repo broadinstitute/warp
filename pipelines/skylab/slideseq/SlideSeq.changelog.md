@@ -1,8 +1,14 @@
+# 3.4.4
+2024-11-04 (Date of Last Commit)
+
+* Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task should not affect the Slide-seq pipeline
+
 # 3.4.3
 2024-10-24 (Date of Last Commit)
 
 * Updated the h5adUtils WDL to rename the gene expression library CSV filename; this does not impact slideseq
 * Updated the ATAC fragment file output so that it is bgzipped; this does not impact the slideseq workflow
+* Updated memory settings for PairedTag; does not impact the Slideseq workflow
 
 # 3.4.2
 2024-09-24 (Date of Last Commit)

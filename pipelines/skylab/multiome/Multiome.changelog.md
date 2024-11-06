@@ -1,3 +1,7 @@
+# 5.9.0
+2024-10-21 (Date of Last Commit)
+* Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task changes the format for the ATAC fragment file index 
+* Renamed the fragment file index from atac_fragment_tsv_tbi to atac_fragment_tsv_index
 # 5.8.0
 2024-10-23 (Date of Last Commit)
 
@@ -5,6 +9,7 @@
 * Updated the ATAC library CSV and the Gene Expression library CSV to be consistent in file naming convention and to have similar case for metric names
 * Added a new metric to the ATAC library CSV to calculate percent_target, which is the number of estimated cells by SnapATAC2 divided by expected_cells input
 * Updated the ATAC workflow so that the output fragment file is bgzipped by default
+* Updated memory settings for PairedTag; does not impact the Multiome workflow
 
 # 5.7.1
 2024-10-18 (Date of Last Commit)
