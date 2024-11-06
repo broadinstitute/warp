@@ -99,7 +99,7 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model
     #Setting default docker value for workflows that haven't yet been azurized.
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int memory_multiplier = 1
   }
   
@@ -261,7 +261,7 @@ task HardFilterVcf {
     String vcf_basename
     File interval_list
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
@@ -337,7 +337,7 @@ task CNNScoreVariants {
     File ref_fasta_index
     File ref_dict
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
   }
 
   Int disk_size = ceil(size(bamout, "GiB") + size(ref_fasta, "GiB") + (size(input_vcf, "GiB") * 2))
@@ -394,7 +394,7 @@ task FilterVariantTranches {
     File dbsnp_resource_vcf_index
     String info_key
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
   }
 
   Int disk_size = ceil(size(hapmap_resource_vcf, "GiB") +
