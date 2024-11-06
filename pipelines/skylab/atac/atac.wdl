@@ -627,7 +627,8 @@ task CreateFragmentFile {
 
   output {
     File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
-    File fragment_file_index = "~{input_id}.fragments.sorted.tsv.csi"
+    File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
+
     File Snap_metrics = "~{input_id}.metrics.h5ad"
     File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
   }
