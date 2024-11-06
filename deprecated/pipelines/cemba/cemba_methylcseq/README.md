@@ -2,7 +2,7 @@
 
 The CEMBA workflow is deprecated and no longer supported. File paths in the JSON file are also no longer supported.
 
-However, CEMBA data is available on the NEMO data portal. The CEMBA documentation is also still available. See [CEMBA Pipeline Overview](https://broadinstitute.github.io/warp/docs/Pipelines/CEMBA_MethylC_Seq_Pipeline/README) on the [WARP documentation site](https://broadinstitute.github.io/warp/)!
+However, the CEMBA documentation is still available. See [CEMBA Pipeline Overview](https://broadinstitute.github.io/warp/docs/Pipelines/CEMBA_MethylC_Seq_Pipeline/README) on the [WARP documentation site](https://broadinstitute.github.io/warp/)! The CEMBA data is also available on the NEMO data portal. The whitelist includes the following barcodes: CTCACG, CAGATC, CGATGT, ACTTGA, TTAGGC, GATCAG, TGACCA, TAGCTT, ACAGTG, GGCTAC, GCCAAT, CTTGTA.
 
 ### CEMBA summary
 
