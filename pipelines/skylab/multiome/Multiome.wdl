@@ -180,7 +180,7 @@ workflow Multiome {
         # atac outputs
         File bam_aligned_output_atac = Atac.bam_aligned_output
         File fragment_file_atac = JoinBarcodes.atac_fragment_tsv
-        File fragment_file_index = JoinBarcodes.atac_fragment_tsv_tbi
+        File fragment_file_index = JoinBarcodes.atac_fragment_tsv_index
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
         File atac_library_metrics = Atac.library_metrics_file
 
