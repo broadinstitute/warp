@@ -86,7 +86,7 @@ task RunValidation {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+        docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
 
         memory: machine_mem + " MiB"
         disks: "local-disk " + select_first([disk_space, 100]) + if use_ssd then " SSD" else " HDD"
