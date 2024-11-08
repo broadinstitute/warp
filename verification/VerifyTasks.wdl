@@ -474,7 +474,7 @@ task CompareH5adFilesGEX {
   input {
     File truth_h5ad
     File test_h5ad
-    String docker = "python:3.10.0-buster"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np_add_multiome_check"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
     Int memory_gb = 32
   }
@@ -482,6 +482,8 @@ task CompareH5adFilesGEX {
   command <<<
 
     set -eo pipefail
+
+    python3 /warptools/scripts/compare_gex_h5ad.py ~{test_h5ad} ~{truth_h5ad}
 
     pip3 install anndata
     
