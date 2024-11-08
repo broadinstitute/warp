@@ -508,7 +508,7 @@ task CompareH5adFilesGEX {
             print(z.sum())
             print("Sum of truth: ")
             print(y.sum())
-            if x == "doublet_score"
+            if x == "doublet_score":
                 print("Doublet score is allowed to be different")
             else: 
                 exit("Cell Metric does not match")
