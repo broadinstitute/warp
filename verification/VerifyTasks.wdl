@@ -508,7 +508,7 @@ task CompareH5adFilesGEX {
             print(z.sum())
             print("Sum of truth: ")
             print(y.sum())
-            if x = "doublet_score"
+            if x == "doublet_score"
                 print("Doublet score is allowed to be different")
             else: 
                 exit("Cell Metric does not match")
@@ -524,12 +524,14 @@ task CompareH5adFilesGEX {
     print("Making gene_names unique")
     test.var_names_make_unique()
     truth.var_names_make_unique()
+    genes_correct=True
     for x in truth.var.columns:
         z = eval(command3+x)
         y = eval(command4+x)
         if z.equals(y)==False:
             print("Gene metric does not match after making gene names unique")
             print(x)
+            genes_correct=False
     print("Done")
     print("If no warning above Done, gene metrics match now that they are unique")
 
@@ -552,6 +554,10 @@ task CompareH5adFilesGEX {
     else:
         print("Counts do not match")
         exit("Counts do not match")
+    if genes_correct==False:
+        exit("Gene metrics do not match")
+
+    print("Done with equivalence check")
     
     CODE 
   >>>
