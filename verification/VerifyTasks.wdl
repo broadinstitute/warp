@@ -512,8 +512,8 @@ task CompareH5adFilesGEX {
                 exit("Cell Metric does not match")
     print("Comparing test gene metrics to truth gene metrics using truth as ref")
     for x in truth.var.columns:
-        z = test.obs[x]
-        y = truth.obs[x]
+        z = test.var[x]
+        y = truth.var[x]
         if z.equals(y)==False:
             print("Gene Metric Column does not match:")
             print(x)
@@ -522,8 +522,8 @@ task CompareH5adFilesGEX {
     truth.var_names_make_unique()
     genes_correct=True
     for x in truth.var.columns:
-        z = test.obs[x]
-        y = truth.obs[x]
+        z = test.var[x]
+        y = truth.var[x]
         if z.equals(y)==False:
             print("Gene metric does not match after making gene names unique")
             print(x)
