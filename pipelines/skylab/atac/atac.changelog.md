@@ -1,3 +1,8 @@
+# 2.5.0
+2024-10-23 (Date of Last Commit)
+
+* Updated the tabix flag in CreateFragmentFile task to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp
+
 # 2.4.0
 2024-10-23 (Date of Last Commit)
 

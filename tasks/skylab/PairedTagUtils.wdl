@@ -278,7 +278,7 @@ task ParseBarcodes {
     echo "Starting bgzip"
     bgzip "~{atac_fragment_base}.sorted.tsv"
     echo "Starting tabix"
-    tabix -s 1 -b 2 -e 3 "~{atac_fragment_base}.sorted.tsv.gz"
+    tabix -s 1 -b 2 -e 3 -C "~{atac_fragment_base}.sorted.tsv.gz"
 
   >>>
 
@@ -292,6 +292,6 @@ task ParseBarcodes {
   output {
       File atac_h5ad_file = "~{atac_base_name}.h5ad"
       File atac_fragment_tsv = "~{atac_fragment_base}.sorted.tsv.gz"
-      File atac_fragment_tsv_tbi = "~{atac_fragment_base}.sorted.tsv.gz.tbi"
+      File atac_fragment_tsv_tbi = "~{atac_fragment_base}.sorted.tsv.gz.csi"
   }
 }
