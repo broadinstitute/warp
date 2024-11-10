@@ -330,6 +330,17 @@ task STARsoloFastq {
         --soloUMIfiltering MultiGeneUMI_CR \
         --soloCellFilter EmptyDrops_CR
       
+    echo "STARsolo command completed with exit code $?"
+
+    # Check if STAR command was successful
+    if [ $? -eq 0 ]; then
+        echo "STARsolo completed successfully, creating sentinel file."
+        touch STARsolo_completed.txt
+    else
+        echo "STARsolo encountered an error."
+        exit 1
+    fi
+
     echo "UMI LEN " $UMILen
 
     touch barcodes_sn_rna.tsv
