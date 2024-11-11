@@ -338,6 +338,7 @@ task STARsoloFastq {
         touch STARsolo_completed.txt
         #ls the bam
         ls -lh Aligned.sortedByCoord.out.bam
+        ls -l Aligned.sortedByCoord.out.bam
     else
         echo "STARsolo encountered an error."
         exit 1
