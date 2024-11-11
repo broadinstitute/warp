@@ -336,6 +336,8 @@ task STARsoloFastq {
     if [ $? -eq 0 ]; then
         echo "STARsolo completed successfully, creating sentinel file."
         touch STARsolo_completed.txt
+        #ls the bam
+        ls -lh Aligned.sortedByCoord.out.bam
     else
         echo "STARsolo encountered an error."
         exit 1
