@@ -8,7 +8,7 @@ slug: /Pipelines/ATAC/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [2.4.0](https://github.com/broadinstitute/warp/releases) | October, 2024 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
+| [2.5.1](https://github.com/broadinstitute/warp/releases) | November, 2024 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
 
 ## Introduction to the ATAC workflow

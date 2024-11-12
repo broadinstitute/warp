@@ -9,7 +9,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "5.9.0"
+    String pipeline_version = "5.9.1"
 
     input {
         String cloud_provider
