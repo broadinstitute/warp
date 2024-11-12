@@ -2,6 +2,7 @@
 2024-11-12 (Date of Last Commit)
 
 * Renamed the ATAC workflow library metric percent_target to atac_percent_target for compatibility with downstream tools
+* Added memory and disk updates to Multiome JoinBarcodes; this does not impact the ATAC workflow
 
 # 2.5.0
 2024-10-23 (Date of Last Commit)
