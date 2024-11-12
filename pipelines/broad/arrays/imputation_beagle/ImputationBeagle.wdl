@@ -182,7 +182,7 @@ workflow ImputationBeagle {
           memory_mb = beagle_impute_memory_in_gb * 1024
       }
 
-      call tasks.CreateVcfIndex as IndexImputeBeagle {
+      call tasks.CreateVcfIndex as IndexImputedBeagle {
         input:
           vcf_input = ImputeBeagle.vcf,
           gatk_docker = gatk_docker
@@ -190,8 +190,8 @@ workflow ImputationBeagle {
 
       call tasks.UpdateHeader {
         input:
-          vcf = IndexImputeBeagle.vcf,
-          vcf_index = IndexImputeBeagle.vcf_index,
+          vcf = IndexImputedBeagle.vcf,
+          vcf_index = IndexImputedBeagle.vcf_index,
           ref_dict = ref_dict,
           basename = chunk_basename_imputed,
           disable_sequence_dictionary_validation = false,
