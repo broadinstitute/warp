@@ -575,7 +575,7 @@ task CreateFragmentFile {
     print("Print number of cells", number_of_cells)
     atac_percent_target = number_of_cells / expected_cells*100
     print("Setting percent target in nested dictionary")
-    data['Cells']['percent_target'] = atac_percent_target
+    data['Cells']['atac_percent_target'] = atac_percent_target
     
     
     # Flatten the dictionary
