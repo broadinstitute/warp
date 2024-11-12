@@ -1,8 +1,13 @@
+# 3.4.5
+2024-11-12 (Date of Last Commit)
+
+* Added memory and disk updates to Multiome JoinBarcodes; this does not impact the SlideSeq workflow
+
 # 3.4.4
 2024-11-04 (Date of Last Commit)
 
 * Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task should not affect the Slide-seq pipeline
-* Added memory and disk updates to Multiome JoinBarcodes; this does not impact the SlideSeq workflow
+
 
 # 3.4.3
 2024-10-24 (Date of Last Commit)
