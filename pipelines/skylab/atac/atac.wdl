@@ -49,7 +49,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.5.0"
+  String pipeline_version = "2.5.1"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"

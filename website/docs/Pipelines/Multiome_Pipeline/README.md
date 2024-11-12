@@ -7,7 +7,7 @@ slug: /Pipelines/Multiome_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Multiome v5.8.0](https://github.com/broadinstitute/warp/releases) | October, 2024 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues).  |
+| [Multiome v5.9.1](https://github.com/broadinstitute/warp/releases) | November, 2024 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues).  |
 
 ![Multiome_diagram](./multiome_diagram.png)
 
@@ -108,9 +108,9 @@ The Multiome workflow calls two WARP subworkflows, one external subworkflow (opt
 | multiome_pipeline_version_out | N.A. | String describing the version of the Multiome pipeline used. |
 | bam_aligned_output_atac | `<input_id>_atac.bam` | BAM file containing aligned reads from ATAC workflow. |
 | fragment_file_atac | `<input_id>_atac.fragments.sorted.tsv.gz` | Sorted and bgzipped TSV file containing fragment start and stop coordinates per barcode. The columns are "Chromosome", "Start", "Stop", "ATAC Barcode", "Number of reads", and "GEX Barcode". | 
-| fragment_file_index |  `<input_id>_atac.fragments.sorted.tsv.gz.tbi` | tabix index file for the fragment file. |
+| fragment_file_index |  `<input_id>_atac.fragments.sorted.tsv.gz.csi` | Tabix CSI index file for the fragment file. |
 | snap_metrics_atac | `<input_id>_atac.metrics.h5ad` | h5ad (Anndata) file containing per-barcode metrics from SnapATAC2. Also contains the equivalent gene expression barcode for each ATAC barcode in the `gex_barcodes` column of the `h5ad.obs` property. See the [ATAC Count Matrix Overview](../ATAC/count-matrix-overview.md) for more details. |
-| atac_library_metrics | `<input_id>_atac_<nhash_id>.metrics.csv` | CSV with library-level metrics produced by SnapATAC2. See the ATAC [Library Level Metrics Overview](../ATAC/library-metrics.md) for more details. |
+| atac_library_metrics | `<input_id>_atac_<nhash_id>_library_metrics.csv` | CSV with library-level metrics produced by SnapATAC2. See the ATAC [Library Level Metrics Overview](../ATAC/library-metrics.md) for more details. |
 | genomic_reference_version_gex | `<reference_version>.txt` | File containing the Genome build, source and GTF annotation version. |
 | bam_gex | `<input_id>_gex.bam` | BAM file containing aligned reads from Optimus workflow. |
 | matrix_gex | `<input_id>_gex_sparse_counts.npz` | NPZ file containing raw gene by cell counts. |
