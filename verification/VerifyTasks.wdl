@@ -619,38 +619,64 @@ task CompareH5adFilesGEX {
     truth = ad.read_h5ad(truth_h5ad)
     test = ad.read_h5ad(test_h5ad)
     
-    truth_obs = pd.DataFrame(truth.obs)
-    test_obs = pd.DataFrame(test.obs)
-    
-    truth_var = pd.DataFrame(truth.var)
-    test_var = pd.DataFrame(test.var)
-    
-    truth_sum = truth.X.sum()
-    test_sum = test.X.sum()
-    
-    print("Now running equivalence check")
-    
-    # Check if obs, var, and sum match
-    if truth_obs.equals(test_obs) and truth_var.equals(test_var) and truth_sum == test_sum:
-        print("pass")
+    for x in truth.obs.columns:
+        z = test.obs[x]
+        y = truth.obs[x]
+        if z.equals(y)==False:
+            print("Cell Metric Column does not match:")
+            print(x)
+            print("Sum of test: ")
+            print(z.sum())
+            print("Sum of truth: ")
+            print(y.sum())
+            if x == "doublet_score":
+                print("Doublet score is allowed to be different")
+            else: 
+                exit("Cell Metric does not match")
+    print("Comparing test gene metrics to truth gene metrics using truth as ref")
+    for x in truth.var.columns:
+        z = test.var[x]
+        y = truth.var[x]
+        if z.equals(y)==False:
+            print("Gene Metric Column does not match:")
+            print(x)
+    print("Making gene_names unique")
+    test.var_names_make_unique()
+    truth.var_names_make_unique()
+    genes_correct=True
+    for x in truth.var.columns:
+        z = test.var[x]
+        y = truth.var[x]
+        if z.equals(y)==False:
+            print("Gene metric does not match after making gene names unique")
+            print(x)
+            genes_correct=False
+    print("Done")
+    print("If no warning above Done, gene metrics match now that they are unique")
+
+    print("Testing for new obs columns in test data set:")
+    for x in test.obs.columns:
+        if x not in truth.obs.columns:
+            print("Column not in truth", x)
+    print("Done")
+    print("If no warning above Done, no new obs columns in test matrix")
+
+    print("Testing for new var columns in test data set:")
+    for x in test.var.columns:
+        if x not in truth.var.columns:
+            print("Column not in truth", x)
+    print("Done")
+    print("If no warning above Done, no new var columns in test matrix")
+    print("Testing matrix count sums")
+    if test.X.sum()==truth.X.sum():
+        print("Counts match")
     else:
-        # If obs does not match, check if the only difference is in the 'doublet_score' column
-        if not truth_obs.equals(test_obs):
-          # Create a boolean DataFrame where True indicates differences
-          differences = truth_obs.ne(test_obs)  # .ne() is the 'not equal' comparison for pandas
+        print("Counts do not match")
+        exit("Counts do not match")
+    if genes_correct==False:
+        exit("Gene metrics do not match")
 
-          # Identify columns with any differences
-          differing_columns = differences.any(axis=0)  # Check if any value in a column is True
-          differing_columns = differing_columns[differing_columns].index.tolist()  # Get column names with differences
-
-          # Check if the only differing column is 'doublet_score'
-          if len(differing_columns) == 1 and 'doublet_score' in differing_columns:
-              print("Files differ in the doublet score")
-          else:
-              print(differing_columns)
-              exit("Multiple columns different")
-        
-        print("Done running matrix equivalence check")
+    print("Done with equivalence check")
     
     CODE 
   >>>
