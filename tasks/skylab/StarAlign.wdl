@@ -334,7 +334,7 @@ task STARsoloFastq {
     samtools quickcheck -v Aligned.sortedByCoord.out.bam
 
     samtools quickcheck *.bam && echo 'all ok' \
-    || echo 'fail!
+    || echo 'fail!'
 
     # wait until star completes, then write out complete.txt file
     wait
