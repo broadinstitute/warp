@@ -1,3 +1,8 @@
+# 2.5.2
+2024-11-12 (Date of Last Commit)
+
+* Added memory and disk updates to Multiome JoinBarcodes; this does not impact the ATAC workflow
+
 # 2.5.1
 2024-11-12 (Date of Last Commit)
 

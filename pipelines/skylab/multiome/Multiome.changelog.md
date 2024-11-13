@@ -2,6 +2,7 @@
 2024-11-12 (Date of Last Commit)
 
 * Renamed the ATAC workflow library metric percent_target to atac_percent_target for compatibility with downstream tools
+* Added more disk and memory to the JoinBarcodes task
 
 # 5.9.0
 2024-10-21 (Date of Last Commit)
