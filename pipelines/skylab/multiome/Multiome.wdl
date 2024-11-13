@@ -9,8 +9,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "5.7.1"
-
+    String pipeline_version = "5.9.1"
 
     input {
         String cloud_provider
@@ -18,6 +17,7 @@ workflow Multiome {
         # Additional library aliquot ID
         String? gex_nhash_id
         String? atac_nhash_id
+        Int expected_cells = 3000
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -102,7 +102,8 @@ workflow Multiome {
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
             soloMultiMappers = soloMultiMappers,
-            cloud_provider = cloud_provider
+            cloud_provider = cloud_provider,
+            gex_expected_cells = expected_cells
     }
 
     # Call the ATAC workflow
@@ -120,7 +121,8 @@ workflow Multiome {
             vm_size = vm_size,
             annotations_gtf = annotations_gtf,
             atac_nhash_id = atac_nhash_id,
-            adapter_seq_read3 = adapter_seq_read3
+            adapter_seq_read3 = adapter_seq_read3,
+            atac_expected_cells = expected_cells
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
@@ -178,7 +180,7 @@ workflow Multiome {
         # atac outputs
         File bam_aligned_output_atac = Atac.bam_aligned_output
         File fragment_file_atac = JoinBarcodes.atac_fragment_tsv
-        File fragment_file_index = JoinBarcodes.atac_fragment_tsv_tbi
+        File fragment_file_index = JoinBarcodes.atac_fragment_tsv_index
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
         File atac_library_metrics = Atac.library_metrics_file
 

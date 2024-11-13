@@ -1,3 +1,13 @@
+# 2.2.4
+2024-11-04 (Date of Last Commit)
+
+* Updated to GATK version 4.6.1.0
+
+# 2.2.3
+2024-10-28 (Date of Last Commit)
+
+* Updated the docker in the ValidateVCF task; this does not affect this pipeline
+
 # 2.2.2
 2024-09-06 (Date of Last Commit)
 

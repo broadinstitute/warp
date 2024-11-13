@@ -1,3 +1,13 @@
+# 2.3.2
+2024-11-04 (Date of Last Commit)
+
+* Updated to GATK version 4.6.1.0
+
+# 2.3.1
+2024-10-28 (Date of Last Commit)
+
+* Updated GATK for Validate Variants, which reduces the memory requirements for the task when an interval list is not provided
+
 # 2.3.0
 2024-09-06 (Date of Last Commit)
 
