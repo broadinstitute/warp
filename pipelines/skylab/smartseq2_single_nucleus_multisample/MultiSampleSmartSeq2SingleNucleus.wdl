@@ -5,7 +5,8 @@ import "../../../tasks/skylab/TrimAdapters.wdl" as TrimAdapters
 import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 import "../../../tasks/skylab/Picard.wdl" as Picard
 import "../../../tasks/skylab/FeatureCounts.wdl" as CountAlignments
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
+import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow MultiSampleSmartSeq2SingleNucleus {
   meta {
@@ -38,9 +39,25 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       Array[String]? organ
       String? input_name_metadata_field
       String? input_id_metadata_field
+
+      String cloud_provider
   }
+
+  String ubuntu_docker = "ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
+  String gcp_ubuntu_docker_prefix = "gcr.io/gcp-runtimes/"
+  String acr_ubuntu_docker_prefix = "dsppipelinedev.azurecr.io/"
+  String ubuntu_docker_prefix = if cloud_provider == "gcp" then gcp_ubuntu_docker_prefix else acr_ubuntu_docker_prefix
+
+  # make sure either gcp or azr is supplied as cloud_provider input
+  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+      call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+          input:
+              message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+      }
+  }
+
   # Version of this pipeline
-  String pipeline_version = "1.3.0"
+  String pipeline_version = "2.0.4"
 
   if (false) {
      String? none = "None"
@@ -72,7 +89,8 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   
   call StarAlign.STARGenomeRefVersion as ReferenceCheck {
     input:
-      tar_star_reference = tar_star_reference
+      tar_star_reference = tar_star_reference,
+      ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
   }
 
   call TrimAdapters.TrimAdapters as TrimAdapters {
@@ -111,7 +129,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
             annotation_gtf = annotations_gtf
     }
 
-    call LoomUtils.SingleNucleusSmartSeq2LoomOutput as LoomOutput {
+    call H5adUtils.SingleNucleusSmartSeq2H5adOutput as H5adOutput {
         input:
             input_ids = input_ids,
             input_names = input_names,
@@ -126,28 +144,22 @@ workflow MultiSampleSmartSeq2SingleNucleus {
             annotation_introns_added_gtf = annotations_gtf
     }
 
-  ### Aggregate the Loom Files Directly ###
-  call LoomUtils.AggregateSmartSeq2Loom as AggregateLoom {
+  ### Aggregate the H5ad Files Directly ###
+  call H5adUtils.AggregateSmartSeq2H5ad as AggregateH5ad {
     input:
-      loom_input = LoomOutput.loom_output,
-      batch_id = batch_id,
-      batch_name = batch_name,
-      project_id = if defined(project_id) then select_first([project_id])[0] else none,
-      project_name = if defined(project_name) then select_first([project_name])[0] else none,
-      library = if defined(library) then select_first([library])[0] else none,
-      species = if defined(species) then select_first([species])[0] else none,
-      organ = if defined(organ) then select_first([organ])[0] else none,
-      pipeline_version = "MultiSampleSmartSeq2SingleNucleus_v~{pipeline_version}"
+      h5ad_input = H5adOutput.h5ad_output,
+      pipeline_version = pipeline_version,
+      batch_id = batch_id
   }
 
 
 
   ### Pipeline output ###
   output {
-    # loom output, exon/intron count tsv files and the aligned bam files
-    File loom_output = AggregateLoom.loom_output_file
+    # h5ad output, exon/intron count tsv files and the aligned bam files
+    File h5ad_output = AggregateH5ad.h5ad_output_file
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
-    Array[File] exon_intron_count_files = LoomOutput.exon_intron_counts
+    Array[File] exon_intron_count_files = H5adOutput.exon_intron_counts
     Array[File] bam_files = RemoveDuplicatesFromBam.output_bam
     String pipeline_version_out = pipeline_version
   }

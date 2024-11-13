@@ -1,3 +1,102 @@
+# 7.8.2
+2024-11-12 (Date of Last Commit)
+
+* Added memory and disk updates to Multiome JoinBarcodes; this does not impact the Optimus workflow
+
+# 7.8.1
+2024-11-04 (Date of Last Commit)
+
+* Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task should not affect the Optimus pipeline
+
+
+# 7.8.0
+2024-10-23 (Date of Last Commit)
+
+* Renamed the input expected_cells to gex_expected_cells
+* Updated gex_expected_cells to a required output
+* Reformatted the library CSV output filename to remove an extra gex
+* Updated the ATAC fragment file output so that it is bgzipped; this does  not impact the Optimus workflow
+* Updated memory settings for PairedTag; does not impact the Optimus workflow
+
+# 7.7.0
+2024-09-24 (Date of Last Commit)
+
+* Added a python implementation of DoubletFinder to calculate doublet scores in gene expression data; percent doublets are now available as a library-level metric and individual doublet scores for cell barcodes are in the h5ad
+* Updated gene_names in the final h5ad to be unique
+
+# 7.6.1
+2024-09-11 (Date of Last Commit)
+
+* Updated warp-tools docker which added create_h5ad_snss2.py to the docker image. This change does not affect the Optimus pipeline
+
+# 7.6.0
+2024-08-06 (Date of Last Commit)
+
+* Updated the warp-tools docker to calculate mitochondrial reads from unique reads in cell and gene metrics; these metrics are in the cell and gene metrics CSV as well as h5ad
+
+# 7.5.1
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 7.5.0
+2024-07-25 (Date of Last Commit)
+
+* Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files
+* Update the library-level metrics to include new TSO metrics and NHashID descriptor
+
+# 7.4.0
+2024-07-11 (Date of Last Commit)
+
+* Updated the Optimus.wdl to run on Azure. cloud_provider is a new, required input.
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers
+
+# 7.3.0
+2024-07-09 (Date of Last Commit)
+
+* Added new optional input parameter of gex_nhash_id, a string identifier for a library aliquot that is echoed in the h5ad cell by gene matrix (in the data.uns) and the library metrics CSV output; default is set to null 
+
+# 7.2.0
+2024-06-28 (Date of Last Commit)
+
+* Updated the STARsolo parameters for estimating cells to Emptydrops_CR
+* Added an optional input for expected cells which is used for metric calculation
+
+# 7.1.0
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this does not impact the Optimus workflow
+
+# 7.0.0
+2024-04-24 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering
+* Added "Uniform" as the default string for STARsolo multimapping parameters
+
+# 6.6.1
+2024-03-26 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
+# 6.6.0
+2024-03-15 (Date of Last Commit)
+
+* Added cell metrics to the library-level metrics
+
+* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
+
+* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
+
+# 6.5.0
+2024-02-28 (Date of Last Commit)
+
+* Added a library-level metrics CSV as output of the Optimus workflow; this iteration includes read-level metrics 
+
+# 6.4.1
+2024-02-29 (Date of Last Commit)
+* Added mem and disk to inputs of Join Barcodes task of Multiome workflow; does not impact the Optimus workflow
+
+
 # 6.4.0
 2024-02-21 (Date of Last Commit)
 * Updated StarAlign.MergeStarOutput to add a shard number to the metrics files

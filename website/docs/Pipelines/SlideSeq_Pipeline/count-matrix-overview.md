@@ -16,7 +16,7 @@ If the workflow is run with `count_exons` set to `false`, the output h5ad file w
 
 You can determine which type of counts are in the h5ad file by looking at the unstructured metadata (the `anndata.uns` property of the matrix) `expression_data_type` key (see [Table 1](#table-1-global-attributes) below).
 
-The matrix also contains multiple metrics for both individual bead barcodes (the `anndata.obs` property of the matrix; [Table 2](#table-2-cell-metrics)) and individual genes (the `anndata.var` property of the matrix; [Table 3](#table-3-gene-metrics)) 
+The matrix also contains multiple metrics for both individual bead barcodes (the `anndata.obs` property of the matrix; [Table 2](#table-2-column-attributes-bead-barcode-metrics)) and individual genes (the `anndata.var` property of the matrix; [Table 3](#table-3-row-attributes-gene-metrics)) Table 3. Row attributes (gene metrics)
 
 ## Table 1. Global attributes
 

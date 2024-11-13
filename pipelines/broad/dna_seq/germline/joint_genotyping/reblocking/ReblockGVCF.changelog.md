@@ -1,7 +1,42 @@
+# 2.3.2
+2024-11-04 (Date of Last Commit)
+
+* Updated to GATK version 4.6.1.0
+
+# 2.3.1
+2024-10-28 (Date of Last Commit)
+
+* Updated GATK for Validate Variants, which reduces the memory requirements for the task when an interval list is not provided
+
+# 2.3.0
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0. Some expected minor differences around low quality sites (GQ0 genotypes or no-calls)
+
+# 2.2.1
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs
+
+# 2.2.0
+2024-07-09 (Date of Last Commit)
+
+* Updated ReblockGVCF.wdl to run in Azure. cloud_provider is a new, required input 
+
+# 2.1.13
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
+
+# 2.1.12
+2024-03-26 (Date of Last Commit)
+
+* ValidateVcfs requires less memory when run without interval list. This is useful for WGS samples that were previously running out of memory
+
 # 2.1.11
 2023-12-18 (Date of Last Commit)
 
-* Updated to GATK version 4.5.0.0. Header documentation change for RAW_GT_COUNT annotation.
+* Updated to GATK version 4.5.0.0. Header documentation change for RAW_GT_COUNT annotation
 
 # 2.1.10
 2023-12-14 (Date of Last Commit)
