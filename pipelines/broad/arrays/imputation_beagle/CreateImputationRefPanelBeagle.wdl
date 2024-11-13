@@ -2,6 +2,8 @@ version 1.0
 
 # This script is under review. It is not actively tested or maintained at this time.
 workflow CreateImputationRefPanelBeagle {
+  String pipeline_version = "0.0.1"
+
   input {
     Array[File] ref_vcf
     Array[File] ref_vcf_index
