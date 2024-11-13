@@ -226,7 +226,7 @@ task STARsoloFastq {
     String? soloMultiMappers
 
     # runtime values
-    String star_docker_path
+    String samtools_star_docker_path
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -329,20 +329,21 @@ task STARsoloFastq {
         ~{"--soloMultiMappers " + soloMultiMappers} \
         --soloUMIfiltering MultiGeneUMI_CR \
         --soloCellFilter EmptyDrops_CR
-      
+
+    # validate the bam with samtools quickcheck
+    samtools quickcheck -v Aligned.sortedByCoord.out.bam
+
+    samtools quickcheck *.bam && echo 'all ok' \
+    || echo 'fail!
+
+    # wait until star completes, then write out complete.txt file
+    wait
+
+    touch STARsolo_completed.txt
+    echo "done" > STARsolo_completed.txt
+
     echo "STARsolo command completed with exit code $?"
 
-    # Check if STAR command was successful
-    if [ $? -eq 0 ]; then
-        echo "STARsolo completed successfully, creating sentinel file."
-        touch STARsolo_completed.txt
-        #ls the bam
-        ls -lh Aligned.sortedByCoord.out.bam
-        ls -l Aligned.sortedByCoord.out.bam
-    else
-        echo "STARsolo encountered an error."
-        exit 1
-    fi
 
     echo "UMI LEN " $UMILen
 
@@ -424,7 +425,7 @@ task STARsoloFastq {
   >>>
 
   runtime {
-    docker: star_docker_path
+    docker: samtools_star_docker_path
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
     disk: disk + " GB" # TES
