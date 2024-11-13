@@ -101,7 +101,7 @@ task OptimusH5adGeneration {
      --counting_mode ~{counting_mode} \
      --expected_cells ~{expected_cells}
 
-    mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv
+    mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_library_metrics.csv
 
   >>>
 
@@ -116,7 +116,7 @@ task OptimusH5adGeneration {
 
   output {
     File h5ad_output = "~{input_id}.h5ad"
-    File library_metrics = "~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv"
+    File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
   }
 }
 
@@ -207,7 +207,7 @@ task SingleNucleusOptimusH5adOutput {
         --expected_cells ~{expected_cells}
 
 
-        mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv
+        mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_library_metrics.csv
 
     >>>
     runtime {
@@ -221,7 +221,7 @@ task SingleNucleusOptimusH5adOutput {
 
     output {
         File h5ad_output = "~{input_id}.h5ad"
-        File library_metrics = "~{input_id}_~{gex_nhash_id}_gex_library_metrics.csv"
+        File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
     }
 }
 
@@ -235,13 +235,13 @@ task JoinMultiomeBarcodes {
 
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
-    Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
-    Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
+    Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 8) + 10000
+    Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 8) + 100
     String docker_path
   }
   String gex_base_name = basename(gex_h5ad, ".h5ad")
   String atac_base_name = basename(atac_h5ad, ".h5ad")
-  String atac_fragment_base = basename(atac_fragment, ".tsv")
+  String atac_fragment_base = basename(atac_fragment, ".sorted.tsv.gz")
 
   parameter_meta {
     atac_h5ad: "The resulting h5ad from the ATAC workflow."
@@ -254,11 +254,19 @@ task JoinMultiomeBarcodes {
   command <<<
     set -e pipefail
 
+    # decompress the bgzipped fragment file
+    echo "Moving fragment file for bgzipping"
+    mv ~{atac_fragment} ~{atac_fragment_base}.sorted.tsv.gz
+    echo "Decompressing fragment file"
+    bgzip -d "~{atac_fragment_base}.sorted.tsv.gz"
+    echo "Done decompressing"
+
+
     python3 <<CODE
 
     # set parameters
     atac_h5ad = "~{atac_h5ad}"
-    atac_fragment = "~{atac_fragment}"
+    atac_fragment = "~{atac_fragment_base}.sorted.tsv"
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
@@ -270,12 +278,14 @@ task JoinMultiomeBarcodes {
     print("Reading ATAC h5ad:")
     print("~{atac_h5ad}")
     print("Read ATAC fragment file:")
-    print("~{atac_fragment}")
+    print(atac_fragment)
     print("Reading Optimus h5ad:")
     print("~{gex_h5ad}")
     atac_data = ad.read_h5ad("~{atac_h5ad}")
     gex_data = ad.read_h5ad("~{gex_h5ad}")
-    atac_tsv = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
+    atac_tsv = pd.read_csv(atac_fragment, sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
+    print("Printing ATAC fragment tsv")
+    print(atac_tsv)
     whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
     whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
 
@@ -311,13 +321,14 @@ task JoinMultiomeBarcodes {
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
     df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
     CODE
+    
     # sorting the file
     echo "Sorting file"
     sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
     echo "Starting bgzip"
     bgzip "~{atac_fragment_base}.sorted.tsv"
     echo "Starting tabix"
-    tabix -s 1 -b 2 -e 3 "~{atac_fragment_base}.sorted.tsv.gz"
+    tabix -s 1 -b 2 -e 3 -C "~{atac_fragment_base}.sorted.tsv.gz"
 
   >>>
 
@@ -332,7 +343,7 @@ task JoinMultiomeBarcodes {
     File gex_h5ad_file = "~{gex_base_name}.h5ad"
     File atac_h5ad_file = "~{atac_base_name}.h5ad"
     File atac_fragment_tsv = "~{atac_fragment_base}.sorted.tsv.gz"
-    File atac_fragment_tsv_tbi = "~{atac_fragment_base}.sorted.tsv.gz.tbi"
+    File atac_fragment_tsv_index = "~{atac_fragment_base}.sorted.tsv.gz.csi"
   }
 }
 

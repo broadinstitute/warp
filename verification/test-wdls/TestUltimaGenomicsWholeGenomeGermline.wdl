@@ -156,6 +156,13 @@ workflow TestUltimaGenomicsWholeGenomeGermline {
             truth_path = truth_path
         }
 
+        call Utilities.GetValidationInputs as GetGvcfIndex {
+          input:
+            input_file = UltimaGenomicsWholeGenomeGermline.output_gvcf_index,
+            results_path = results_path,
+            truth_path = truth_path
+        }
+
       call VerifyUltimaGenomicsWholeGenomeGermline.VerifyUltimaGenomicsWholeGenomeGermline as Verify {
         input:
           truth_metrics = GetMetrics.truth_files, 
@@ -172,6 +179,8 @@ workflow TestUltimaGenomicsWholeGenomeGermline {
           test_filtered_vcf_index = GetFilteredVcfIndex.results_file,
           truth_gvcf = GetGvcf.truth_file,
           test_gvcf = GetGvcf.results_file,
+          truth_gvcf_index = GetGvcfIndex.truth_file,
+          test_gvcf_index = GetGvcfIndex.results_file,
           sample_name = UltimaGenomicsWholeGenomeGermline.sample_name,
           done = CopyToTestResults.done
       }

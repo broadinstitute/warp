@@ -623,7 +623,7 @@ task ValidateVCF {
     Boolean is_gvcf = true
     String? extra_args
     #Setting default docker value for workflows that haven't yet been azurized.
-    String docker_path = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+    String docker_path = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int machine_mem_mb = 7000
   }
 
@@ -642,7 +642,7 @@ task ValidateVCF {
       ln -s ~{calling_interval_list} ~{calling_interval_list_basename}
       ln -s ~{calling_interval_list_index} ~{calling_interval_list_index_basename}
       gatk --java-options "-Xms~{command_mem_mb}m -Xmx~{command_mem_mb}m" \
-        VcfToIntervalList -I ~{calling_interval_list_basename} -O intervals_from_gvcf.interval_list
+        VcfToIntervalList -I ~{calling_interval_list_basename} -O intervals_from_gvcf.interval_list --VARIANT_ID_METHOD USE_FIRST
       INTERVALS="intervals_from_gvcf.interval_list"
     else
       INTERVALS="~{calling_interval_list}"

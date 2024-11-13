@@ -1,3 +1,23 @@
+# 1.8.2
+2024-11-12 (Date of Last Commit)
+
+* Renamed the ATAC workflow library metric percent_target to atac_percent_target for compatibility with downstream tools
+* Added more disk and memory to the ParseBarcodes task
+
+# 1.8.1
+2024-11-04 (Date of Last Commit)
+
+* Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task should not affect the Paired-Tag pipeline
+
+# 1.8.0
+2024-10-23 (Date of Last Commit)
+
+* Updated the workflow to include a new expected_cells input parameter describing the number of cells used as input to the library preparation; this is passed to both the ATAC workflows and Optimus workflows and the default is set to 3000 cells
+* Updated the ATAC library CSV and the Gene Expression library CSV to be consistent in file naming convention and to have similar case for metric names
+* Added a new metric to the ATAC library CSV to calculate percent_target, which is the number of estimated cells by SnapATAC2 divided by expected_cells input
+* Updated the ATAC fragment file output so that it is bgzipped
+* Updated memory settings for PairedTag Utils
+
 # 1.7.1
 2024-10-18 (Date of Last Commit)
 
@@ -5,11 +25,13 @@
 
 # 1.7.0
 2024-09-24 (Date of Last Commit)
+
 * Added a python implementation of DoubletFinder to calculate doublet scores in gene expression data; percent doublets are now available as a library-level metric and individual doublet scores for cell barcodes are in the h5ad
 * Updated gene_names in the final h5ad to be unique
 
 # 1.6.1
 2024-09-11 (Date of Last Commit)
+
 * Updated warp-tools docker which added create_h5ad_snss2.py to the docker image. This change does not affect the PairedTag pipeline
 
 # 1.6.0
@@ -21,6 +43,7 @@
 2024-08-06 (Date of Last Commit)
 
 * Updated the warp-tools docker to calculate mitochondrial reads from unique reads in cell and gene metrics; these metrics are in the cell and gene metrics CSV as well as h5ad
+
 # 1.4.1
 2024-08-02 (Date of Last Commit)
 
@@ -70,7 +93,6 @@
 2024-05-14 (Date of Last Commit)
 
 * Updated the demultiplex task so that some intermediate input names have been renamed. There is no change to the outputs.
-
 
 # 0.6.0
 2024-05-10 (Date)

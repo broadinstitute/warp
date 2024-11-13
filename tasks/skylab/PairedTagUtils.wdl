@@ -205,13 +205,13 @@ task ParseBarcodes {
         Int nthreads = 1
         String cpuPlatform = "Intel Cascade Lake"
         String docker_path
+        Int disk =  ceil((size(atac_h5ad, "GiB") + size(atac_fragment, "GiB")) * 8) + 100
+        Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(atac_fragment, "MiB")) * 8) + 10000
     }
 
     String atac_base_name = basename(atac_h5ad, ".h5ad")
-    String atac_fragment_base = basename(atac_fragment, ".tsv")
+    String atac_fragment_base = basename(atac_fragment, ".sorted.tsv.gz")
 
-    Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
-    Int disk =  ceil((size(atac_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
 
   parameter_meta {
       atac_h5ad: "The resulting h5ad from the ATAC workflow."
@@ -221,11 +221,18 @@ task ParseBarcodes {
   command <<<
     set -e pipefail
 
+    # decompress the bgzipped atac file
+    echo "Moving fragment tsv for decompression" 
+    mv ~{atac_fragment} ~{atac_fragment_base}.sorted.tsv.gz
+    echo "Decompressing fragment file"
+    bgzip -d "~{atac_fragment_base}.sorted.tsv.gz"
+    echo "Done decompressing"
+
     python3 <<CODE
 
     # set parameters
     atac_h5ad = "~{atac_h5ad}"
-    atac_fragment = "~{atac_fragment}"
+    atac_fragment = "~{atac_fragment_base}.sorted.tsv"
 
     # import anndata to manipulate h5ad files
     import anndata as ad
@@ -234,7 +241,7 @@ task ParseBarcodes {
     print("Reading ATAC h5ad:")
     atac_data = ad.read_h5ad("~{atac_h5ad}")
     print("Reading ATAC fragment file:")
-    test_fragment = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
+    test_fragment = pd.read_csv(atac_fragment, sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
 
 
     # Separate out CB and preindex in the h5ad and identify sample barcodes assigned to more than one cell barcode
@@ -271,7 +278,7 @@ task ParseBarcodes {
     echo "Starting bgzip"
     bgzip "~{atac_fragment_base}.sorted.tsv"
     echo "Starting tabix"
-    tabix -s 1 -b 2 -e 3 "~{atac_fragment_base}.sorted.tsv.gz"
+    tabix -s 1 -b 2 -e 3 -C "~{atac_fragment_base}.sorted.tsv.gz"
 
   >>>
 
@@ -285,6 +292,6 @@ task ParseBarcodes {
   output {
       File atac_h5ad_file = "~{atac_base_name}.h5ad"
       File atac_fragment_tsv = "~{atac_fragment_base}.sorted.tsv.gz"
-      File atac_fragment_tsv_tbi = "~{atac_fragment_base}.sorted.tsv.gz.tbi"
+      File atac_fragment_tsv_tbi = "~{atac_fragment_base}.sorted.tsv.gz.csi"
   }
 }

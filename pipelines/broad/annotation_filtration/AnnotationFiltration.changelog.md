@@ -1,3 +1,8 @@
+# 1.2.7
+2024-11-04 (Date of Last Commit)
+
+* Updated to GATK version 4.6.1.0
+
 # 1.2.6
 2024-09-06 (Date of Last Commit)
 
