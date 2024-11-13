@@ -3,7 +3,7 @@ version 1.0
 # Liftover VCFs from hg19 to hg38
 workflow LiftoverVcfs {
 
-  String pipeline_version = "1.0.0"
+  String pipeline_version = "0.0.1"
 
   input {
     File vcf_path
