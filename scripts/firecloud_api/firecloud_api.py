@@ -173,7 +173,7 @@ if __name__ == "__main__":
     parser.add_argument('--submission_data_file', help='Path to submission data JSON file (required for submit)')
     parser.add_argument('--test_input_file', help='Path to test inputs JSON file (required for upload_test_inputs)')
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
     # Initialize the FirecloudAPI instance with provided arguments
     firecloud_api = FirecloudAPI(args.token, args.namespace, args.workspace)
@@ -217,3 +217,5 @@ args = parser.parse_args()
         if not all([args.pipeline_name, args.test_input_file]):
             print("For 'upload_test_inputs', --pipeline_name and --test_input_file are required.", file=sys.stderr)
         else:
+            success = firecloud_api.upload_test_inputs(args.pipeline_name, args.test_input_file)
+            print(success)

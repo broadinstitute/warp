@@ -1,7 +1,6 @@
 import argparse
 import json
 import os
-import datetime
 
 
 def update_test_inputs(inputs_json, truth_path, results_path, update_truth):
@@ -31,7 +30,6 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth):
         test_inputs[new_key] = test_inputs.pop(key)
 
     # Add the truth_path and results_path to the test inputs JSON
-    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     test_inputs[f"{test_name}.results_path"] = f"{results_path}/{sample_name}/"
     test_inputs[f"{test_name}.truth_path"] = f"{truth_path}/{sample_name}/"
     test_inputs[f"{test_name}.update_truth"] = update_truth
