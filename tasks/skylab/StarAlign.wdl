@@ -482,7 +482,10 @@ task MergeStarOutput {
   }
 
   command <<<
-    set -e
+    set -euo pipefail
+    set -x 
+
+    # declare arrays for the files
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
@@ -503,9 +506,7 @@ task MergeStarOutput {
     cp ~{input_id}.uniform.mtx ./matrix/matrix.mtx
     cp ~{barcodes_single} ./matrix/barcodes.tsv
     cp ~{features_single} ./matrix/features.tsv
-
     tar -zcvf ~{input_id}.mtx_files.tar ./matrix/*
-
 
     # Running star for combined cell matrix
     # outputs will be called outputbarcodes.tsv. outputmatrix.mtx, and outputfeatures.tsv
@@ -514,8 +515,6 @@ task MergeStarOutput {
     #list files
     echo "listing files"
     ls
-
-
 
     if [ -f "${cell_reads_files[0]}" ]; then
     
@@ -594,13 +593,18 @@ task MergeStarOutput {
       echo "No text files found in the folder."
     fi
 
-   #
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /scripts/scripts/create-merged-npz-output.py \
         --barcodes ${barcodes_files[@]} \
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
         --input_id ~{input_id}
+
+    # tar up filtered matrix outputbarcodes.tsv, outputfeatures.tsv, outputmatrix.mtx
+    ls
+    echo "Tarring up filtered matrix files"
+    tar -cvf ~{input_id}_filtered_mtx_files.tar outputbarcodes.tsv outputfeatures.tsv outputmatrix.mtx
+    echo "Done"
   >>>
 
   runtime {
@@ -619,6 +623,7 @@ task MergeStarOutput {
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
     File? library_metrics="~{input_id}_library_metrics.csv"
     File? mtx_files ="~{input_id}.mtx_files.tar"
+    File? filtered_mtx_files = "~{input_id}_filtered_mtx_files.tar"
     File? outputbarcodes = "outputbarcodes.tsv"
   }
 }
