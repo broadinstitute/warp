@@ -333,17 +333,6 @@ task STARsoloFastq {
     # validate the bam with samtools quickcheck
     samtools quickcheck -v Aligned.sortedByCoord.out.bam
 
-    samtools quickcheck *.bam && echo 'all ok' \
-    || echo 'fail!'
-
-    # wait until star completes, then write out complete.txt file
-    wait
-
-    touch STARsolo_completed.txt
-    echo "done" > STARsolo_completed.txt
-
-    echo "STARsolo command completed with exit code $?"
-
 
     echo "UMI LEN " $UMILen
 
