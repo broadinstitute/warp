@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwebsite_2=self.webpackChunkwebsite_2||[]).push([[1796],{9711:e=>{e.exports=JSON.parse('{"label":"reblock","permalink":"/warp/blog/tags/reblock","allTagsPath":"/warp/blog/tags","count":1}')}}]);
