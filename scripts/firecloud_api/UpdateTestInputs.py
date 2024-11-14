@@ -1,14 +1,15 @@
 import argparse
 import json
 import os
+import datetime
 
 
-def update_test_inputs(inputs_json, truth_path, test_path, update_truth):
+def update_test_inputs(inputs_json, truth_path, results_path, update_truth):
     # Update the test inputs JSON to work with the test wrapper WDL
     # The test wrapper WDL runs the pipeline WDL and verifies the results
     # The test wrapper WDL requires the following inputs:
     # - truth_path: The path to the truth data
-    # - test_path: The path to the test data
+    # - results_path: The path to the test data
     # - update_truth: Boolean indicating whether truth should be updated, default is False
     # The test inputs JSON will be updated to include these inputs
 
@@ -29,9 +30,10 @@ def update_test_inputs(inputs_json, truth_path, test_path, update_truth):
         new_key = key.replace(pipeline_name, test_name)
         test_inputs[new_key] = test_inputs.pop(key)
 
-    # Add the truth_path and test_path to the test inputs JSON
+    # Add the truth_path and results_path to the test inputs JSON
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    test_inputs[f"{test_name}.results_path"] = f"{results_path}/{sample_name}/"
     test_inputs[f"{test_name}.truth_path"] = f"{truth_path}/{sample_name}/"
-    test_inputs[f"{test_name}.test_path"] = f"{test_path}/{sample_name}/"
     test_inputs[f"{test_name}.update_truth"] = update_truth
 
     # Save the updated test inputs JSON
@@ -39,7 +41,8 @@ def update_test_inputs(inputs_json, truth_path, test_path, update_truth):
     with open(output_name, 'w') as file:
         json.dump(test_inputs, file, indent=4)
 
-    print("Test inputs JSON updated with truth_path and test_path")
+    print("Test inputs JSON updated with truth_path and results_path and saved as:", output_name)
+    return output_name
 
 
 def main():
@@ -56,8 +59,8 @@ def main():
     )
 
     parser.add_argument(
-        "--test_path",
-        dest="test_path",
+        "--results_path",
+        dest="results_path",
         required=True,
         help="The base path where the test data will be stored",
     )
@@ -73,16 +76,18 @@ def main():
     parser.add_argument(
         "--update_truth",
         dest="update_truth",
-        default=False,
+        default="false",
         required=False,
-        choices=[True, False],
-        help="Boolean flag to update the truth data. If True, the truth data will be updated with the test data. ",
+        choices=["true", "false"],
+        help="Boolean flag to update the truth data. If true, the truth data will be updated with the test data. ",
     )
 
     args = parser.parse_args()
+    # convert the update_truth flag to a boolean
+    update_truth_bool = args.update_truth.lower() == "true"
 
     # Update the test inputs to work with the test wrapper WDL
-    update_test_inputs(args.inputs_json, args.truth_path, args.test_path, args.update_truth)
+    update_test_inputs(args.inputs_json, args.truth_path, args.results_path, update_truth_bool)
 
 
 if __name__ == "__main__":

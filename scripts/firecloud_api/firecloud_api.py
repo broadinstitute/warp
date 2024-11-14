@@ -129,6 +129,33 @@ class FirecloudAPI:
 
         return workflow_status_map
 
+    def upload_test_inputs(self, pipeline_name, test_inputs):
+        """
+        Uploads test inputs to the workspace via Firecloud API.
+
+        :param test_inputs: JSON data containing test inputs
+        :return: True if successful, False otherwise
+        """
+        # Construct the API endpoint URL for the method configuration
+        url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/method_configs/{self.namespace}/{pipeline_name}"
+        # get the current method configuration
+        response = requests.get(url, headers=self.headers)
+        config = response.json()
+        # update the config with the new inputs
+        with open(test_inputs, 'r') as file:
+            inputs_json = json.load(file)
+            config["inputs"] = inputs_json
+        # post the updated method config to the workspace
+        response = requests.post(url, headers=self.headers, json=config)
+
+        # Check if the test inputs were uploaded successfully
+        if response.status_code == 200:
+            print("Test inputs uploaded successfully.")
+            return True
+        else:
+            print(f"Failed to upload test inputs. Status code: {response.status_code}")
+            return False
+
 
 # Bash Script Interaction
 if __name__ == "__main__":
@@ -144,8 +171,9 @@ if __name__ == "__main__":
     parser.add_argument('--workflow_id', help='Workflow ID (required for get_outputs)')
     parser.add_argument('--pipeline_name', help='Pipeline name (required for get_outputs)')
     parser.add_argument('--submission_data_file', help='Path to submission data JSON file (required for submit)')
+    parser.add_argument('--test_input_file', help='Path to test inputs JSON file (required for upload_test_inputs)')
 
-    args = parser.parse_args()
+args = parser.parse_args()
 
     # Initialize the FirecloudAPI instance with provided arguments
     firecloud_api = FirecloudAPI(args.token, args.namespace, args.workspace)
@@ -184,3 +212,8 @@ if __name__ == "__main__":
               print(json.dumps(workflow_status_map))  # Output the dictionary as a JSON string for bash parsing
           else:
               print("No workflows found or an error occurred.", file=sys.stderr)
+
+    elif args.action == 'upload_test_inputs':
+        if not all([args.pipeline_name, args.test_input_file]):
+            print("For 'upload_test_inputs', --pipeline_name and --test_input_file are required.", file=sys.stderr)
+        else:
