@@ -45,32 +45,32 @@ jobs:
       id-token: 'write'
 
     steps:
-    # actions/checkout MUST come before auth
-    - uses: 'actions/checkout@v3'
+      # actions/checkout MUST come before auth
+      - uses: 'actions/checkout@v3'
 
-    - id: 'auth'
-      name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v2'
-      with:
-        token_format: 'access_token'
-        # Centralized in dsp-tools-k8s; ask in #dsp-devops-champions for help troubleshooting
-        # This is provided by the DevOps team - do not change!
-        workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
-        # This is our tester service account
-        service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
-        access_token_lifetime: '3600' #seconds, default is 3600
-        access_token_scopes: 'profile, email, openid'
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          token_format: 'access_token'
+          # Centralized in dsp-tools-k8s; ask in #dsp-devops-champions for help troubleshooting
+          # This is provided by the DevOps team - do not change!
+          workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
+          # This is our tester service account
+          service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
+          access_token_lifetime: '3600' #seconds, default is 3600
+          access_token_scopes: 'profile, email, openid'
 
     # ... further steps are automatically authenticated
-    - name: Check working directory
-      run: |
-        echo "Current directory:"
-        pwd
-        ls -lht
+      - name: Check working directory
+        run: |
+          echo "Current directory:"
+          pwd
+          ls -lht
 
-    - name: Submit job, poll status, and get outputs
-      id: pipeline_run
-      run: |
+      - name: Submit job, poll status, and get outputs
+        id: pipeline_run
+        run: |
           # Set common environment variables
           TOKEN="${{ steps.auth.outputs.access_token }}"
           NAMESPACE="warp-pipelines"
@@ -206,39 +206,39 @@ jobs:
           #print outputs table to stdout
           echo "$OUTPUTS_TABLE"
 
-    - name: Print Summary on Success
-      if: success()
-      run: |
-          echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
-          echo "- **Pipeline Name**: IlluminaGenotypingArray" >> $GITHUB_STEP_SUMMARY
-          echo "- **Submission ID**: ${{ steps.pipeline_run.outputs.submission_id }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+      - name: Print Summary on Success
+        if: success()
+        run: |
+            echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
+            echo "- **Pipeline Name**: IlluminaGenotypingArray" >> $GITHUB_STEP_SUMMARY
+            echo "- **Submission ID**: ${{ steps.pipeline_run.outputs.submission_id }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+  
+            echo "## Workflows and their statuses" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.pipeline_run.outputs.workflow_statuses }}" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+  
+            echo "## Workflow Outputs" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo " :shipit: " >> $GITHUB_STEP_SUMMARY
 
-          echo "## Workflows and their statuses" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.pipeline_run.outputs.workflow_statuses }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-
-          echo "## Workflow Outputs" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo " :shipit: " >> $GITHUB_STEP_SUMMARY
-
-    - name: Print Summary on Failure
-      if: failure()
-      run: |
-          echo "# :x: Pipeline Execution Summary (on Failure) :x: " >> $GITHUB_STEP_SUMMARY
-          echo "- **Pipeline Name**: IlluminaGenotypingArray" >> $GITHUB_STEP_SUMMARY
-          echo "- **Submission ID**: ${{ steps.pipeline_run.outputs.submission_id }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          echo "## Workflows and their statuses (if available)" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.pipeline_run.outputs.workflow_statuses }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-
-          echo "## Workflow Outputs (if available)" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+      - name: Print Summary on Failure
+        if: failure()
+        run: |
+            echo "# :x: Pipeline Execution Summary (on Failure) :x: " >> $GITHUB_STEP_SUMMARY
+            echo "- **Pipeline Name**: IlluminaGenotypingArray" >> $GITHUB_STEP_SUMMARY
+            echo "- **Submission ID**: ${{ steps.pipeline_run.outputs.submission_id }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+  
+            echo "## Workflows and their statuses (if available)" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.pipeline_run.outputs.workflow_statuses }}" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+  
+            echo "## Workflow Outputs (if available)" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.pipeline_run.outputs.outputs }}" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
