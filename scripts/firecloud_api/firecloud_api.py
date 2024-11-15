@@ -18,6 +18,8 @@ import requests
 import time
 import json
 import sys
+from urllib.parse import quote
+
 
 class FirecloudAPI:
     def __init__(self, token, namespace, workspace_name):
@@ -91,7 +93,6 @@ class FirecloudAPI:
         """
         # Construct the API endpoint URL for polling submission status
         status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
-        print(f"the status url is  {status_url}")
         workflow_status_map = {}
 
         # Continuously poll the status of the submission until completion
@@ -138,7 +139,8 @@ class FirecloudAPI:
         :return: True if successful, False otherwise
         """
         # Construct the API endpoint URL for the method configuration
-        url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/method_configs/{self.namespace}/{pipeline_name}"
+        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
+
         print(url)
         # get the current method configuration
         response = requests.get(url, headers=self.headers)
