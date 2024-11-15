@@ -157,7 +157,7 @@ class FirecloudAPI:
             print("Test inputs uploaded successfully.")
             return True
         else:
-            print(f"Failed to upload test inputs. Status code: {response}")
+            print(f"Failed to upload test inputs. Status code: {response.status_code}")
             return False
 
 
