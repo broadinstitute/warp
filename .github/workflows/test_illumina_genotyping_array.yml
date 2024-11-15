@@ -126,6 +126,7 @@ jobs:
                }
                EOF
                echo "Created submission data file: $SUBMISSION_DATA_FILE"
+               cat "$SUBMISSION_DATA_FILE"
                
                # Loop through each file in the appropriate test inputs directory
                INPUTS_DIR=$PIPELINE_DIR/test_inputs/$TEST_TYPE
