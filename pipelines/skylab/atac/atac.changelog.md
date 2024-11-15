@@ -1,7 +1,18 @@
+# 2.5.2
+2024-11-12 (Date of Last Commit)
+
+* Added memory and disk updates to Multiome JoinBarcodes; this does not impact the ATAC workflow
+
+# 2.5.1
+2024-11-12 (Date of Last Commit)
+
+* Renamed the ATAC workflow library metric percent_target to atac_percent_target for compatibility with downstream tools
+
 # 2.5.0
 2024-10-23 (Date of Last Commit)
 
 * Updated the tabix flag in CreateFragmentFile task to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp
+* Renamed the ATAC workflow library metric percent_target to atac_percent_target for compatibility with downstream tools
 
 # 2.4.0
 2024-10-23 (Date of Last Commit)

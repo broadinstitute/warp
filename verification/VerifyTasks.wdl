@@ -190,6 +190,129 @@ task CompareTextFiles {
 }
 
 
+task CompareAtacLibraryMetrics {
+  input {
+    Array[File] test_text_files
+    Array[File] truth_text_files
+  }
+
+  command <<<
+python3 <<CODE
+import csv
+import hashlib
+
+# Define acceptable percentage-based thresholds for nondeterministic metrics
+# Arrived at these thresholds by examining the differences between the test and truth files in our scientific tests
+thresholds = {
+    "sequenced_reads": 0.0000000066,
+    "fraction_Q30_bases_in_read_1": 0.0000000054,
+    "fraction of high-quality fragments in cells": 0.000000054,
+    "fraction_of_transposition_events_in_peaks_in_cells": 0.00000037,
+    "fraction_duplicates": 0.00000017,
+    "fraction_confidently_mapped": 0.000000123,
+    "fraction_unmapped": 0.0000016,
+    "fraction_nonnuclear": 0.00000079,
+    "fraction_fragment_in_nucleosome_free_region": 0.00000059,
+    "fraction_fragment_flanking_single_nucleosome": 0.00000057,
+    "tss_enrichment_score": 0.0000024,
+    "fraction_of_high-quality_fragments_overlapping_tss": 0.00000025,
+    "number_of_peaks": 0.0000074,
+    "fraction_of_genome_in_peaks": 0.0000024,
+    "fraction_of_high-quality_fragments_overlapping_peaks": 0.00000030
+}
+
+thresholds = {k.lower(): v for k, v in thresholds.items()}
+
+
+def calculate_md5(file_path):
+    """Calculates the MD5 checksum for a file."""
+    print(f"Processing file: {file_path}")
+    hash_md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+def compare_files(test_file, truth_file):
+    """Compare two files by their md5sums and then line by line for metric comparison."""
+    test_md5 = calculate_md5(test_file)
+    truth_md5 = calculate_md5(truth_file)
+
+    if test_md5 == truth_md5:
+        print(f"Files {test_file} and {truth_file} have matching md5sums. No further checks needed.")
+        return True
+    else:
+        print(f"Files {test_file} and {truth_file} have different md5sums. Proceeding with metric comparison.")
+        return compare_metrics(test_file, truth_file)
+
+def is_float(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
+def compare_metrics(test_file, truth_file):
+    exit_code = 0
+    with open(test_file, newline='') as test_f, open(truth_file, newline='') as truth_f:
+        test_reader = csv.reader(test_f)
+        truth_reader = csv.reader(truth_f)
+        for (test_row, truth_row) in zip(test_reader, truth_reader):
+            metric_a, value_a = test_row
+            metric_b, value_b = truth_row
+
+            # Skip non-numeric values
+            if not is_float(value_a) or not is_float(value_b):
+                print(f"Skipping non-numeric metric: {metric_a} or {metric_b}")
+                continue
+
+            value_a, value_b = float(value_a), float(value_b)
+            if metric_a != metric_b:
+                print(f"Error: Metric names don't match for {metric_a} and {metric_b}")
+                exit_code = 1
+                continue
+            # Check if the metric has a set threshold, otherwise default to 0.00
+            threshold = thresholds.get(metric_a.lower(), 0.00)
+
+            diff = abs(value_a - value_b)
+
+            # Calculate the allowable difference based on the threshold
+            allowable_diff = value_b * threshold
+            if diff > allowable_diff:
+                print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%. The allowable difference is {allowable_diff} and the actual difference is {diff}.")
+                exit_code = 1
+            else:
+                print(f"Metric {metric_a} is within the threshold.")
+    return exit_code == 0
+
+
+# Read and compare all files
+test_files = ["~{sep=',' test_text_files}"]
+truth_files = ["~{sep=',' truth_text_files}"]
+
+if len(test_files) != len(truth_files):
+    print(f"Error: Different number of input files ({len(test_files)} vs. {len(truth_files)}). This is really not OK")
+    exit(1)
+
+for test_file, truth_file in zip(test_files, truth_files):
+    if not compare_files(test_file, truth_file):
+        exit(1)
+
+print("All files passed the comparison.")
+CODE
+
+  >>>
+
+  runtime {
+    docker: "python:3.9-slim"
+    disks: "local-disk 100 HDD"
+    memory: "50 GiB"
+    preemptible: 3
+  }
+}
+
+
+
 task CompareCrams {
 
   input {
@@ -496,38 +619,64 @@ task CompareH5adFilesGEX {
     truth = ad.read_h5ad(truth_h5ad)
     test = ad.read_h5ad(test_h5ad)
     
-    truth_obs = pd.DataFrame(truth.obs)
-    test_obs = pd.DataFrame(test.obs)
-    
-    truth_var = pd.DataFrame(truth.var)
-    test_var = pd.DataFrame(test.var)
-    
-    truth_sum = truth.X.sum()
-    test_sum = test.X.sum()
-    
-    print("Now running equivalence check")
-    
-    # Check if obs, var, and sum match
-    if truth_obs.equals(test_obs) and truth_var.equals(test_var) and truth_sum == test_sum:
-        print("pass")
+    for x in truth.obs.columns:
+        z = test.obs[x]
+        y = truth.obs[x]
+        if z.equals(y)==False:
+            print("Cell Metric Column does not match:")
+            print(x)
+            print("Sum of test: ")
+            print(z.sum())
+            print("Sum of truth: ")
+            print(y.sum())
+            if x == "doublet_score":
+                print("Doublet score is allowed to be different")
+            else: 
+                exit("Cell Metric does not match")
+    print("Comparing test gene metrics to truth gene metrics using truth as ref")
+    for x in truth.var.columns:
+        z = test.var[x]
+        y = truth.var[x]
+        if z.equals(y)==False:
+            print("Gene Metric Column does not match:")
+            print(x)
+    print("Making gene_names unique")
+    test.var_names_make_unique()
+    truth.var_names_make_unique()
+    genes_correct=True
+    for x in truth.var.columns:
+        z = test.var[x]
+        y = truth.var[x]
+        if z.equals(y)==False:
+            print("Gene metric does not match after making gene names unique")
+            print(x)
+            genes_correct=False
+    print("Done")
+    print("If no warning above Done, gene metrics match now that they are unique")
+
+    print("Testing for new obs columns in test data set:")
+    for x in test.obs.columns:
+        if x not in truth.obs.columns:
+            print("Column not in truth", x)
+    print("Done")
+    print("If no warning above Done, no new obs columns in test matrix")
+
+    print("Testing for new var columns in test data set:")
+    for x in test.var.columns:
+        if x not in truth.var.columns:
+            print("Column not in truth", x)
+    print("Done")
+    print("If no warning above Done, no new var columns in test matrix")
+    print("Testing matrix count sums")
+    if test.X.sum()==truth.X.sum():
+        print("Counts match")
     else:
-        # If obs does not match, check if the only difference is in the 'doublet_score' column
-        if not truth_obs.equals(test_obs):
-          # Create a boolean DataFrame where True indicates differences
-          differences = truth_obs.ne(test_obs)  # .ne() is the 'not equal' comparison for pandas
+        print("Counts do not match")
+        exit("Counts do not match")
+    if genes_correct==False:
+        exit("Gene metrics do not match")
 
-          # Identify columns with any differences
-          differing_columns = differences.any(axis=0)  # Check if any value in a column is True
-          differing_columns = differing_columns[differing_columns].index.tolist()  # Get column names with differences
-
-          # Check if the only differing column is 'doublet_score'
-          if len(differing_columns) == 1 and 'doublet_score' in differing_columns:
-              print("Files differ in the doublet score")
-          else:
-              print(differing_columns)
-              exit("Multiple columns different")
-        
-        print("Done running matrix equivalence check")
+    print("Done with equivalence check")
     
     CODE 
   >>>
