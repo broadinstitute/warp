@@ -137,7 +137,7 @@ jobs:
               test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path $TRUTH_PATH \
                                                                                   --results_path $RESULTS_PATH \
                                                                                   --inputs_json $input_file \
-                                                                                  --update_truth UPDATE_TRUTH)
+                                                                                  --update_truth false)
               # Upload the input file to the workspace
               firecloud_action upload_file --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" 
               echo "Submitting job for input file: $input_file"
