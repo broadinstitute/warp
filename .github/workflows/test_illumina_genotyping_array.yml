@@ -143,7 +143,6 @@ jobs:
         ##################################### LEFT OFF HERE #######################################
         # TODO: move the submission and monitoring into the for loop to occur for each input file #
         ###########################################################################################
-
           
           # 1. Submit a new workflow using the generated submission_data.json
           SUBMISSION_ID=$(firecloud_action submit --submission_data_file "$SUBMISSION_DATA_FILE")
