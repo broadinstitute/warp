@@ -149,6 +149,7 @@ class FirecloudAPI:
             config["inputs"] = inputs_json
         # post the updated method config to the workspace
         response = requests.post(url, headers=self.headers, json=config)
+        # print the updated config, can delete this line later
         print(config)
 
         # Check if the test inputs were uploaded successfully
@@ -156,7 +157,7 @@ class FirecloudAPI:
             print("Test inputs uploaded successfully.")
             return True
         else:
-            print(f"Failed to upload test inputs. Status code: {response.status_code}")
+            print(f"Failed to upload test inputs. Status code: {response}")
             return False
 
 
