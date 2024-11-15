@@ -148,13 +148,23 @@ class FirecloudAPI:
         # print the config, can delete this line later
         print(config)
         # update the config with the new inputs
+        print(f"Opening test inputs file: {test_inputs}")
         with open(test_inputs, 'r') as file:
+            print("Test inputs loaded successfully.")
+            print(f"Test inputs content: {json.dumps(inputs_json, indent=2)}")  # Pretty-print inputs
             inputs_json = json.load(file)
             config["inputs"] = inputs_json
-        # post the updated method config to the workspace
+
+        print(f"Constructed URL: {url}")
+        print(f"Headers: {self.headers}")
+        print(f"Config to be posted: {json.dumps(config, indent=2)}")  # Pretty-print config
+
+    # post the updated method config to the workspace
         response = requests.post(url, headers=self.headers, json=config)
         # print the updated config, can delete this line later
         print(config)
+        print(f"Response status code: {response.status_code}")
+        print(f"Response text: {response.text}")
 
         # Check if the test inputs were uploaded successfully
         if response.status_code == 200:
