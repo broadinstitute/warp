@@ -70,7 +70,6 @@ class FirecloudAPI:
         """
         # Construct the API endpoint URL for creating a new submission
         url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions"
-        print(url)
         response = requests.post(url, headers=self.headers, json=submission_data)
 
         # Check if the submission was created successfully
@@ -92,6 +91,7 @@ class FirecloudAPI:
         """
         # Construct the API endpoint URL for polling submission status
         status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
+        print(status_url)
         workflow_status_map = {}
 
         # Continuously poll the status of the submission until completion
