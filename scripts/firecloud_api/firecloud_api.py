@@ -141,7 +141,7 @@ class FirecloudAPI:
         # get the current method configuration
         response = requests.get(url, headers=self.headers)
         config = response.json()
-        # print the config
+        # print the config, can delete this line later
         print(config)
         # update the config with the new inputs
         with open(test_inputs, 'r') as file:
@@ -149,6 +149,7 @@ class FirecloudAPI:
             config["inputs"] = inputs_json
         # post the updated method config to the workspace
         response = requests.post(url, headers=self.headers, json=config)
+        print(config)
 
         # Check if the test inputs were uploaded successfully
         if response.status_code == 200:
