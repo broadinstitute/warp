@@ -150,9 +150,9 @@ class FirecloudAPI:
         # update the config with the new inputs
         print(f"Opening test inputs file: {test_inputs}")
         with open(test_inputs, 'r') as file:
+            inputs_json = json.load(file)
             print("Test inputs loaded successfully.")
             print(f"Test inputs content: {json.dumps(inputs_json, indent=2)}")  # Pretty-print inputs
-            inputs_json = json.load(file)
             config["inputs"] = inputs_json
 
         print(f"Constructed URL: {url}")
