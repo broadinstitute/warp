@@ -138,6 +138,7 @@ class FirecloudAPI:
         """
         # Construct the API endpoint URL for the method configuration
         url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/method_configs/{self.namespace}/{pipeline_name}"
+        print(url)
         # get the current method configuration
         response = requests.get(url, headers=self.headers)
         config = response.json()
