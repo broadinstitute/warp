@@ -166,9 +166,9 @@ class FirecloudAPI:
         with open(test_inputs, 'r') as file:
             inputs_json = json.load(file)
             print("Test inputs loaded successfully.")
-            print(f"Original Test inputs content: {json.dumps(inputs_json, indent=2)}")  # Pretty-print inputs
-            config["inputs"] = inputs_json
+            print(f"Original Test inputs content: {json.dumps(inputs_json, indent=2)}")
             inputs_json = self.quote_values(inputs_json)
+            config["inputs"] = inputs_json
             print(f"Quoted Test inputs content: {json.dumps(inputs_json, indent=2)}")
 
         print(f"Constructed URL: {url}")
