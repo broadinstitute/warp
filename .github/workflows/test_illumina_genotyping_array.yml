@@ -94,6 +94,7 @@ jobs:
                }
                
                # Convert USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
+               CALL_CACHE_VALUE="true"
                if [ "$USE_CALL_CACHE" = "true" ]; then
                 USE_CALL_CACHE_BOOL=true
                else
