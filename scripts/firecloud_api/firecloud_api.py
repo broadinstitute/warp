@@ -141,6 +141,8 @@ class FirecloudAPI:
         # get the current method configuration
         response = requests.get(url, headers=self.headers)
         config = response.json()
+        # print the config
+        print(config)
         # update the config with the new inputs
         with open(test_inputs, 'r') as file:
             inputs_json = json.load(file)
