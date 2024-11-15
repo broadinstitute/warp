@@ -73,6 +73,11 @@ jobs:
           if [ "$USE_CALL_CACHE" = "false" ]; then
             CALL_CACHE_VALUE="false"
           fi
+          if [ "UPDATE_TRUTH" = "true" ]; then
+              UPDATE_TRUTH=true
+          else
+              UPDATE_TRUTH=false
+          fi
           cat <<EOF > "$SUBMISSION_DATA_FILE"
           {
             "methodConfigurationNamespace": "warp-pipelines",
