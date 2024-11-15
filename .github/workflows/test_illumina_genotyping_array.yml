@@ -128,8 +128,10 @@ jobs:
                
                # Loop through each file in the appropriate test inputs directory
                INPUTS_DIR=$PIPELINE_DIR/test_inputs/$TEST_TYPE
+               echo "Test inputs directory: $INPUTS_DIR"
                for input_file in $INPUTS_DIR/*; do
                 # Update input_file as needed for test
+                echo "Processing input file: $input_file"
                 test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path $TRUTH_PATH \
                                                                                     --results_path $RESULTS_PATH \
                                                                                     --inputs_json $input_file \
