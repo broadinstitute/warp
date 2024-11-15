@@ -91,7 +91,7 @@ class FirecloudAPI:
         """
         # Construct the API endpoint URL for polling submission status
         status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
-        print(status_url)
+        print(f"the status url is  {status_url}")
         workflow_status_map = {}
 
         # Continuously poll the status of the submission until completion
