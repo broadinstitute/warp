@@ -410,7 +410,6 @@ task STARsoloFastq {
     fi
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
 
-    touch STARsolo_completed.txt
   >>>
 
   runtime {
@@ -444,7 +443,6 @@ task STARsoloFastq {
     File? multimappers_Uniform_matrix = "UniqueAndMult-Uniform.mtx"
     File? multimappers_Rescue_matrix = "UniqueAndMult-Rescue.mtx"
     File? multimappers_PropUnique_matrix = "UniqueAndMult-PropUnique.mtx"
-    File completion_sentinel = "STARsolo_completed.txt"
   }
 }
 
