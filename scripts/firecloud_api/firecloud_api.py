@@ -131,6 +131,20 @@ class FirecloudAPI:
 
         return workflow_status_map
 
+    def quote_values(self, data):
+        """
+        Recursively quotes values in a dictionary or list to match Firecloud API format.
+        """
+        if isinstance(data, dict):
+            return {key: self.quote_values(value) for key, value in data.items()}
+        elif isinstance(data, list):
+            return [self.quote_values(item) for item in data]
+        elif isinstance(data, (str, int, float, bool)):
+            return f"\"{data}\""
+        else:
+            return data  # Return as-is if it's not a string, int, float, or bool
+
+
     def upload_test_inputs(self, pipeline_name, test_inputs):
         """
         Uploads test inputs to the workspace via Firecloud API.
@@ -152,8 +166,10 @@ class FirecloudAPI:
         with open(test_inputs, 'r') as file:
             inputs_json = json.load(file)
             print("Test inputs loaded successfully.")
-            print(f"Test inputs content: {json.dumps(inputs_json, indent=2)}")  # Pretty-print inputs
+            print(f"Original Test inputs content: {json.dumps(inputs_json, indent=2)}")  # Pretty-print inputs
             config["inputs"] = inputs_json
+            inputs_json = self.quote_values(inputs_json)
+            print(f"Quoted Test inputs content: {json.dumps(inputs_json, indent=2)}")
 
         print(f"Constructed URL: {url}")
         print(f"Headers: {self.headers}")
