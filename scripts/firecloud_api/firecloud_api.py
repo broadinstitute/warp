@@ -153,7 +153,7 @@ class FirecloudAPI:
         :return: True if successful, False otherwise
         """
         # Construct the API endpoint URL for the method configuration
-        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/Test{pipeline_name}"
+        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
 
         print(url)
         # get the current method configuration
