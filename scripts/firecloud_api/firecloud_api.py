@@ -166,7 +166,7 @@ if __name__ == "__main__":
     parser.add_argument('--token', required=True, help='API access token')
     parser.add_argument('--namespace', required=True, help='Workspace namespace')
     parser.add_argument('--workspace', required=True, help='Workspace name')
-    parser.add_argument('--action', required=True, choices=['get_outputs', 'submit', 'poll_status'], help='Action to perform')
+    parser.add_argument('--action', required=True, choices=['get_outputs', 'submit', 'poll_status', 'upload_test_inputs'], help='Action to perform')
     parser.add_argument('--submission_id', help='Submission ID (required for get_outputs and poll_status)')
     parser.add_argument('--workflow_id', help='Workflow ID (required for get_outputs)')
     parser.add_argument('--pipeline_name', help='Pipeline name (required for get_outputs)')
