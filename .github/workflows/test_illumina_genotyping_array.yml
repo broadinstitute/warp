@@ -193,6 +193,7 @@ jobs:
                 OUTPUTS_TABLE=$(echo "$OUTPUTS" | jq -r 'to_entries | ["Output | Value", "--- | ---"] + map(.key + " | " + (if .value == null then "-" else (.value | tostring) end)) | .[]')
                 #print outputs table to stdout
                 echo "$OUTPUTS_TABLE"
+               done
 
         ##################################### LEFT OFF HERE #######################################
         # TODO: move the submission and monitoring into the for loop to occur for each input file #
