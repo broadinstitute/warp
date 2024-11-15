@@ -66,14 +66,14 @@ jobs:
           PIPELINE_DIR="pipelines/broad/genotyping/illumina"
           TRUTH_PATH="gs://broad-warp-test-storage/illumina_genotyping_array/truth"
           RESULTS_PATH="gs://broad-warp-test-storage/illumina_genotyping_array/results/$CURRENT_TIME"
-          
+
           # Create JSON for submission data
           SUBMISSION_DATA_FILE="submission_data.json"
           CALL_CACHE_VALUE="true"
           if [ "$USE_CALL_CACHE" = "false" ]; then
             CALL_CACHE_VALUE="false"
           fi
-          if [ "UPDATE_TRUTH" = "true" ]; then
+          if [ "$UPDATE_TRUTH" = "true" ]; then
               UPDATE_TRUTH=true
           else
               UPDATE_TRUTH=false
@@ -91,7 +91,7 @@ jobs:
             "ignoreEmptyOutputs": false
           }
           EOF
-          
+
           INPUTS_DIR=$PIPELINE_DIR/test_inputs/$TEST_TYPE
           for input_file in $INPUTS_DIR/*; do
             test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py \
@@ -99,39 +99,40 @@ jobs:
               --results_path $RESULTS_PATH \
               --inputs_json $input_file \
               --update_truth $UPDATE_TRUTH)
-          
-            python3 scripts/firecloud_api/firecloud_api.py \
-              --token "$TOKEN" \
-              --namespace "$NAMESPACE" \
-              --workspace "$WORKSPACE" \
-              --action upload_file \
-              --pipeline_name "$PIPELINE_NAME" \
-              --test_input_file "$test_input_file"
-          
+
+            # Removed the following lines:
+            # python3 scripts/firecloud_api/firecloud_api.py \
+            #   --token "$TOKEN" \
+            #   --namespace "$NAMESPACE" \
+            #   --workspace "$WORKSPACE" \
+            #   --action upload_file \
+            #   --pipeline_name "$PIPELINE_NAME" \
+            #   --test_input_file "$test_input_file"
+
             SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api.py \
               --token "$TOKEN" \
               --namespace "$NAMESPACE" \
               --workspace "$WORKSPACE" \
               --action submit \
               --submission_data_file "$SUBMISSION_DATA_FILE")
-          
+
             if [ -z "$SUBMISSION_ID" ]; then
               echo "Submission failed for input: $input_file"
               continue
             fi
-          
+
             echo "Submission ID for input $input_file: $SUBMISSION_ID"
-          
+
             RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py \
               --token "$TOKEN" \
               --namespace "$NAMESPACE" \
               --workspace "$WORKSPACE" \
               --action poll_status \
               --submission_id "$SUBMISSION_ID")
-          
+
             echo "Workflows for input $input_file and their statuses:"
             echo "$RESPONSE" | jq
-          
+
             for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
               OUTPUT=$(python3 scripts/firecloud_api/firecloud_api.py \
                 --token "$TOKEN" \
@@ -144,3 +145,4 @@ jobs:
               echo "Output for workflow $WORKFLOW_ID: $OUTPUT"
             done
           done
+      
