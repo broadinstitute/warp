@@ -39,6 +39,7 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth):
     with open(output_name, 'w') as file:
         json.dump(test_inputs, file, indent=4)
 
+    print(f"{output_name}")
     return output_name
 
 
