@@ -1,3 +1,9 @@
+# 1.8.2
+2024-11-12 (Date of Last Commit)
+
+* Renamed the ATAC workflow library metric percent_target to atac_percent_target for compatibility with downstream tools
+* Added more disk and memory to the ParseBarcodes task
+
 # 1.8.1
 2024-11-04 (Date of Last Commit)
 
