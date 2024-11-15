@@ -39,7 +39,7 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth):
     with open(output_name, 'w') as file:
         json.dump(test_inputs, file, indent=4)
 
-    print("Test inputs JSON updated with truth_path and results_path and saved as:", output_name)
+    print(f"Test inputs JSON updated and saved as: {output_name}")
     return output_name
 
 
