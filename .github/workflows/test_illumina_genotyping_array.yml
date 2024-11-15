@@ -71,140 +71,130 @@ jobs:
       - name: Submit job, poll status, and get outputs
         id: pipeline_run
         run: |
-          # Set common environment variables
-          TOKEN="${{ steps.auth.outputs.access_token }}"
-          NAMESPACE="warp-pipelines"
-          WORKSPACE="WARP Tests"
-          USE_CALL_CACHE="${{ github.event.inputs.useCallCache }}"
-          UPDATE_TRUTH="${{ github.event.inputs.updateTruth }}"
-          # TODO: Need to get the test type (Plumbing/ Scientific) from inputs or based on the target branch        
-          TEST_TYPE="Plumbing"  # Placeholder for now
-          CURRENT_TIME=$(date +"%Y-%m-%d-%H-%M-%S")
-          
-          ########################################
-          # SET PIPELINE SPECIFIC VARIABLES HERE #
-          ########################################
-          PIPELINE_NAME="IlluminaGenotypingArray"
-          PIPELINE_DIR="pipelines/broad/genotyping/illumina"
-          # TODO: Need to set the truth and result paths appropriately
-          TRUTH_PATH="gs://broad-warp-test-storage/illumina_genotyping_array/truth"
-          RESULTS_PATH="gs://broad-warp-test-storage/illumina_genotyping_array/results/$CURRENT_TIME"
-        
-
-          # Function to call the Firecloud API using the firecloud_api.py script
-          firecloud_action() {
-              python3 scripts/firecloud_api/firecloud_api.py --token "$TOKEN" --namespace "$NAMESPACE" --workspace "$WORKSPACE" --action "$1" "${@:2}"
-          }
-        
-          # Convert USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
-          if [ "$USE_CALL_CACHE" = "true" ]; then
-              USE_CALL_CACHE_BOOL=true
-          else
-              USE_CALL_CACHE_BOOL=false
-          fi
-        
-        # Convert UPDATE_TRUTH to a boolean-friendly format ("true" -> true, "false" -> false)
-          if [ "$UPDATE_TRUTH" = "true" ]; then
-              UPDATE_TRUTH=true
-          else
-              UPDATE_TRUTH=false
-          fi
-        
-          # Create the submission_data.json file which will be the same for all inputs
-          SUBMISSION_DATA_FILE="submission_data.json"
-        
-          # Use a heredoc to generate the JSON file content dynamically
-          cat <<EOF > "$SUBMISSION_DATA_FILE"
-          {
-            "methodConfigurationNamespace": "warp-pipelines",
-            "methodConfigurationName": "$PIPELINE_NAME",
-            "useCallCache": $USE_CALL_CACHE_BOOL,
-            "deleteIntermediateOutputFiles": false,
-            "useReferenceDisks": true,
-            "memoryRetryMultiplier": 1.2,
-            "workflowFailureMode": "NoNewCalls",
-            "userComment": "Automated submission",
-            "ignoreEmptyOutputs": false
-          }
-          EOF
-          echo "Created submission data file: $SUBMISSION_DATA_FILE"
-        
-        
-          # Loop through each file in the appropriate test inputs directory
-          INPUTS_DIR=$PIPELINE_DIR/test_inputs/$TEST_TYPE
-          for input_file in $INPUTS_DIR/*; do
-              # Update input_file as needed for test
-              test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path $TRUTH_PATH \
-                                                                                  --results_path $RESULTS_PATH \
-                                                                                  --inputs_json $input_file \
-                                                                                  --update_truth $UPDATE_TRUTH)
-              # Upload the input file to the workspace
-              firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" 
-              echo "Submitting job for input file: $input_file"
-              # Submit job for the input file
-              # 1. Create a new submission
-              # 2. Poll submission status and get workflow IDs and statuses
-              # 3. Iterate over the Workflow IDs to get outputs
-          done
+               # Set common environment variables
+               TOKEN="${{ steps.auth.outputs.access_token }}"
+               NAMESPACE="warp-pipelines"
+               WORKSPACE="WARP Tests"
+               USE_CALL_CACHE="${{ github.event.inputs.useCallCache }}"
+               UPDATE_TRUTH="${{ github.event.inputs.updateTruth }}"
+               TEST_TYPE="Plumbing"  # Placeholder for now
+               CURRENT_TIME=$(date +"%Y-%m-%d-%H-%M-%S")
+               
+               ########################################
+               # SET PIPELINE SPECIFIC VARIABLES HERE #
+               ########################################
+               PIPELINE_NAME="IlluminaGenotypingArray"
+               PIPELINE_DIR="pipelines/broad/genotyping/illumina"
+               TRUTH_PATH="gs://broad-warp-test-storage/illumina_genotyping_array/truth"
+               RESULTS_PATH="gs://broad-warp-test-storage/illumina_genotyping_array/results/$CURRENT_TIME"
+               
+               # Function to call the Firecloud API using the firecloud_api.py script
+               firecloud_action() {
+                python3 scripts/firecloud_api/firecloud_api.py --token "$TOKEN" --namespace "$NAMESPACE" --workspace "$WORKSPACE" --action "$1" "${@:2}"
+               }
+               
+               # Convert USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
+               if [ "$USE_CALL_CACHE" = "true" ]; then
+                USE_CALL_CACHE_BOOL=true
+               else
+                USE_CALL_CACHE_BOOL=false
+               fi
+               
+               # Convert UPDATE_TRUTH to a boolean-friendly format ("true" -> true, "false" -> false)
+               if [ "$UPDATE_TRUTH" = "true" ]; then
+                UPDATE_TRUTH=true
+               else
+                UPDATE_TRUTH=false
+               fi
+               
+               # Create the submission_data.json file which will be the same for all inputs
+               SUBMISSION_DATA_FILE="submission_data.json"
+               
+               # Use a heredoc to generate the JSON file content dynamically
+               cat <<EOF > "$SUBMISSION_DATA_FILE"
+               {
+               "methodConfigurationNamespace": "warp-pipelines",
+               "methodConfigurationName": "$PIPELINE_NAME",
+               "useCallCache": $USE_CALL_CACHE_BOOL,
+               "deleteIntermediateOutputFiles": false,
+               "useReferenceDisks": true,
+               "memoryRetryMultiplier": 1.2,
+               "workflowFailureMode": "NoNewCalls",
+               "userComment": "Automated submission",
+               "ignoreEmptyOutputs": false
+               }
+               EOF
+               echo "Created submission data file: $SUBMISSION_DATA_FILE"
+               
+               # Loop through each file in the appropriate test inputs directory
+               INPUTS_DIR=$PIPELINE_DIR/test_inputs/$TEST_TYPE
+               for input_file in $INPUTS_DIR/*; do
+                # Update input_file as needed for test
+                test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path $TRUTH_PATH \
+                                                                                    --results_path $RESULTS_PATH \
+                                                                                    --inputs_json $input_file \
+                                                                                    --update_truth $UPDATE_TRUTH)
+                # Upload the input file to the workspace
+                firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" 
+                echo "Submitting job for input file: $input_file"
+               
+               # 1. Submit a new workflow using the generated submission_data.json
+                SUBMISSION_ID=$(firecloud_action submit --submission_data_file "$SUBMISSION_DATA_FILE")
+               
+               #check if submission was successful
+                if [ -z "$SUBMISSION_ID" ]; then
+                 echo "Submission failed."  # Log failure to stdout
+                 echo "submission_id=" >> $GITHUB_OUTPUT  # Set empty submission id
+                 exit 1
+                fi
+               
+                echo "Submission ID: $SUBMISSION_ID"
+                echo "submission_id=$SUBMISSION_ID" >> $GITHUB_OUTPUT  # Write the submission ID to GITHUB_OUTPUT
+               
+               # 2. Poll submission status and get workflow IDs and statuses
+                echo "Polling submission status..."
+                RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
+               
+                # Parse the JSON response to get the workflow ID and statuses
+                echo "Workflows and their statuses:"
+                echo "$RESPONSE" | jq
+               
+                # Check if RESPONSE is empty
+                if [ -z "$RESPONSE" ]; then
+                 echo "Failed to retrieve Workflow IDs."  # Log failure to stdout
+                 exit 1
+                fi
+               
+                # Extract workflows and their statuses
+                WORKFLOW_STATUSES=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + ": " + .value) | .[]')
+                echo "workflow_statuses=$WORKFLOW_STATUSES" >> $GITHUB_OUTPUT  # Write workflow statuses to GITHUB_OUTPUT
+               
+                # Generate markdown summary table for workflows and statuses
+                WORKFLOW_TABLE=$(echo "$RESPONSE" | jq -r 'to_entries | ["Workflow ID | Status", "--- | ---"] + map(.key + " | " + .value) | .[]')
+               
+                # Print workflow table to stdout
+                echo "$WORKFLOW_TABLE"
+                
+                # 3. Iterate over the Workflow IDs to get outputs
+                OUTPUTS=""
+                echo "Retrieving workflow outputs..."
+                for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
+                    WORKFLOW_OUTPUT=$(firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME")
+                    OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
+                done
+                echo "Workflow outputs retrieved successfully."
+                echo "Raw output before jq:"
+                echo "$OUTPUTS"
+                echo "outputs=$OUTPUTS" >> $GITHUB_OUTPUT  # Write the outputs to GITHUB_OUTPUT
+                
+                # Handle null values, strings, and numbers in the outputs by converting everything to a string and replacing null with '-'
+                OUTPUTS_TABLE=$(echo "$OUTPUTS" | jq -r 'to_entries | ["Output | Value", "--- | ---"] + map(.key + " | " + (if .value == null then "-" else (.value | tostring) end)) | .[]')
+                #print outputs table to stdout
+                echo "$OUTPUTS_TABLE"
 
         ##################################### LEFT OFF HERE #######################################
         # TODO: move the submission and monitoring into the for loop to occur for each input file #
         ###########################################################################################
-
-          
-          # 1. Submit a new workflow using the generated submission_data.json
-          SUBMISSION_ID=$(firecloud_action submit --submission_data_file "$SUBMISSION_DATA_FILE")
-
-          # Check if submission was successful
-          if [ -z "$SUBMISSION_ID" ]; then
-              echo "Submission failed."  # Log failure to stdout
-              echo "submission_id=" >> $GITHUB_OUTPUT  # Set empty submission id
-              exit 1
-          fi
-
-          echo "Submission ID: $SUBMISSION_ID"
-          echo "submission_id=$SUBMISSION_ID" >> $GITHUB_OUTPUT  # Write the submission ID to GITHUB_OUTPUT
-
-          # 2. Poll submission status and get workflow IDs and statuses
-          echo "Polling submission status..."
-          RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
-
-          # Parse the JSON response to get the workflow ID and statuses
-          echo "Workflows and their statuses:"
-          echo "$RESPONSE" | jq
-
-          # Check if RESPONSE is empty
-          if [ -z "$RESPONSE" ]; then
-              echo "Failed to retrieve Workflow IDs."  # Log failure to stdout
-              exit 1
-          fi
-
-          # Extract workflows and their statuses
-          WORKFLOW_STATUSES=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + ": " + .value) | .[]')
-          echo "workflow_statuses=$WORKFLOW_STATUSES" >> $GITHUB_OUTPUT  # Write workflow statuses to GITHUB_OUTPUT
-
-          # Generate markdown summary table for workflows and statuses
-          WORKFLOW_TABLE=$(echo "$RESPONSE" | jq -r 'to_entries | ["Workflow ID | Status", "--- | ---"] + map(.key + " | " + .value) | .[]')
-          
-          # Print workflow table to stdout
-          echo "$WORKFLOW_TABLE"
-
-          # 3. Iterate over the Workflow IDs to get outputs
-          OUTPUTS=""
-          echo "Retrieving workflow outputs..."
-          for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
-              WORKFLOW_OUTPUT=$(firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME")
-              OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
-          done
-          echo "Workflow outputs retrieved successfully."
-          echo "Raw output before jq:"
-          echo "$OUTPUTS"
-          echo "outputs=$OUTPUTS" >> $GITHUB_OUTPUT  # Write the outputs to GITHUB_OUTPUT
-
-          # Handle null values, strings, and numbers in the outputs by converting everything to a string and replacing null with '-'
-          OUTPUTS_TABLE=$(echo "$OUTPUTS" | jq -r 'to_entries | ["Output | Value", "--- | ---"] + map(.key + " | " + (if .value == null then "-" else (.value | tostring) end)) | .[]')
-          #print outputs table to stdout
-          echo "$OUTPUTS_TABLE"
 
       - name: Print Summary on Success
         if: success()
