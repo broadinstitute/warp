@@ -10,16 +10,11 @@ on:
   pull_request:
     branches: [ "develop", "staging", "master" ]
     # Only run if files in these paths changed: pipelines/broad/genotyping/illumina, tasks, verification, .github/workflows/test_illumina_genotyping_array.yml
-    ####################################
-    # SET PIPELINE SPECIFIC PATHS HERE #
-    ####################################
     paths:
       - 'pipelines/broad/genotyping/illumina/**'
       - 'tasks/**'
       - 'verification/**'
       - '.github/workflows/test_illumina_genotyping_array.yml'
-
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
