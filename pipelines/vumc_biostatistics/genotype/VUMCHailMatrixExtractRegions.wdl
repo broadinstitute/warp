@@ -2,10 +2,10 @@ version 1.0
 
 workflow VUMCHailMatrixExtractRegions {
   input {
-    String input_hail_mt_path_file
-    Float expect_output_vcf_bgz_size_gb
-
+    File input_hail_mt_path_file
     File input_bed
+
+    Float expect_output_vcf_bgz_size_gb
 
     String target_prefix
 
@@ -30,9 +30,9 @@ workflow VUMCHailMatrixExtractRegions {
 
 task HailMatrixExtractRegions {
   input {
-    String input_hail_mt_path_file
-    Float expect_output_vcf_bgz_size_gb
+    File input_hail_mt_path_file
     File input_bed
+    Float expect_output_vcf_bgz_size_gb
     String target_prefix
     String? project_id
     String target_gcp_folder
