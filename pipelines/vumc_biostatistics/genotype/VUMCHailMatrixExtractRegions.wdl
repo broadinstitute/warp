@@ -9,7 +9,7 @@ workflow VUMCHailMatrixExtractRegions {
 
     String target_prefix
 
-    String? project_id
+    String billing_project_id
     String target_gcp_folder
   }
 
@@ -19,7 +19,7 @@ workflow VUMCHailMatrixExtractRegions {
       expect_output_vcf_bgz_size_gb = expect_output_vcf_bgz_size_gb,
       input_bed = input_bed,
       target_prefix = target_prefix,
-      project_id = project_id,
+      billing_project_id = billing_project_id,
       target_gcp_folder = target_gcp_folder
   }
 
@@ -34,7 +34,7 @@ task HailMatrixExtractRegions {
     File input_bed
     Float expect_output_vcf_bgz_size_gb
     String target_prefix
-    String? project_id
+    String billing_project_id
     String target_gcp_folder
 
     String docker = "shengqh/hail_gcp:20240211"
@@ -73,6 +73,9 @@ regions['locus']=regions.chr + ":" + (regions.start + 1).astype(str) + "-" + (re
 regions.head()
 
 hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g"}, idempotent=True)
+hl.hadoop_config().set('fs.gs.requester.pays.mode', 'AUTO')
+hl.hadoop_config().set('fs.gs.requester.pays.project.id', "~{billing_project_id}")
+
 hl.default_reference("GRCh38")
 
 hail_col="hail"
@@ -107,7 +110,7 @@ hl.export_vcf(all_tbl, "~{target_file}", overwrite=True)
 
 CODE
 
-gsutil ~{"-u " + project_id} -m cp ~{target_file} ~{gcs_output_path}
+gsutil ~{"-u " + billing_project_id} -m cp ~{target_file} ~{gcs_output_path}
 
 >>>
 
