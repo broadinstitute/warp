@@ -62,8 +62,27 @@ python3 <<CODE
 import hail as hl
 import pandas as pd
 
+def parse_gcs_url(gcs_url):
+    if not gcs_url.startswith('gs://'):
+        raise ValueError("URL must start with 'gs://'")
+
+    # Remove the 'gs://' prefix
+    gcs_url = gcs_url[5:]
+
+    # Split the remaining URL into bucket name and object key
+    parts = gcs_url.split('/', 1)
+    if len(parts) != 2:
+        raise ValueError("Invalid GCS URL format")
+
+    bucket_name = parts[0]
+
+    return bucket_name
+
 new_tbl = pd.read_csv("~{input_hail_mt_path_file}", sep='\t')
 new_tbl.head()
+
+bucket_name = parse_gcs_url(new_tbl['hail'][0])
+print(f"hail_bucket_name={bucket_name}")
 
 regions = pd.read_csv("~{input_bed}", sep='\t', header=None)
 regions=regions.iloc[:, :3]
@@ -73,8 +92,11 @@ regions['locus']=regions.chr + ":" + (regions.start + 1).astype(str) + "-" + (re
 regions.head()
 
 hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g"}, idempotent=True)
-hl.hadoop_config().set('fs.gs.requester.pays.mode', 'AUTO')
-hl.hadoop_config().set('fs.gs.requester.pays.project.id', "~{billing_project_id}")
+hl.init(spark_conf={
+    'spark.hadoop.fs.gs.requester.pays.mode': 'CUSTOM',
+    'spark.hadoop.fs.gs.requester.pays.buckets': bucket_name,
+    'spark.hadoop.fs.gs.requester.pays.project.id': "~{billing_project_id}"
+})
 
 hl.default_reference("GRCh38")
 
