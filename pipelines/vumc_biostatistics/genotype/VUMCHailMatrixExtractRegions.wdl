@@ -1,5 +1,7 @@
 version 1.0
 
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+
 workflow VUMCHailMatrixExtractRegions {
   input {
     File input_hail_mt_path_file
@@ -10,7 +12,7 @@ workflow VUMCHailMatrixExtractRegions {
     String target_prefix
 
     String billing_project_id
-    String target_gcp_folder
+    String? target_gcp_folder
   }
 
   call HailMatrixExtractRegions {
@@ -19,12 +21,21 @@ workflow VUMCHailMatrixExtractRegions {
       expect_output_vcf_bgz_size_gb = expect_output_vcf_bgz_size_gb,
       input_bed = input_bed,
       target_prefix = target_prefix,
-      billing_project_id = billing_project_id,
-      target_gcp_folder = target_gcp_folder
+      billing_project_id = billing_project_id
+  }
+
+  if(defined(target_gcp_folder)){
+    call GcpUtils.MoveOrCopyOneFile as CopyFile {
+      input:
+        source_file = HailMatrixExtractRegions.output_vcf,
+        is_move_file = false,
+        project_id = billing_project_id,
+        target_gcp_folder = select_first([target_gcp_folder])
+    }
   }
 
   output {
-    String output_vcf = HailMatrixExtractRegions.output_vcf
+    File output_vcf = select_first([CopyFile.output_file, HailMatrixExtractRegions.output_vcf])
   }
 }
 
@@ -35,7 +46,6 @@ task HailMatrixExtractRegions {
     Float expect_output_vcf_bgz_size_gb
     String target_prefix
     String billing_project_id
-    String target_gcp_folder
 
     String docker = "shengqh/hail_gcp:20240211"
     Int memory_gb = 10
@@ -46,9 +56,6 @@ task HailMatrixExtractRegions {
 
   Int disk_size = ceil(expect_output_vcf_bgz_size_gb) + 20
   Int total_memory_gb = memory_gb + 2
-
-  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
-  String gcs_output_path = gcs_output_dir + "/" + target_prefix
 
   String target_file = target_prefix + ".vcf.bgz"
 
@@ -130,8 +137,6 @@ hl.export_vcf(all_tbl, "~{target_file}")
 
 CODE
 
-gsutil ~{"-u " + billing_project_id} -m cp ~{target_file} ~{gcs_output_path}
-
 >>>
 
   runtime {
@@ -143,6 +148,6 @@ gsutil ~{"-u " + billing_project_id} -m cp ~{target_file} ~{gcs_output_path}
     bootDiskSizeGb: boot_disk_gb
   }
   output {
-    String output_vcf = "~{gcs_output_path}"
+    File output_vcf = "~{target_file}"
   }
 }
