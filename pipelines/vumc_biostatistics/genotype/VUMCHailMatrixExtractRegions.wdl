@@ -91,12 +91,10 @@ regions['chr']=regions['chr'].astype(str)
 regions['locus']=regions.chr + ":" + (regions.start + 1).astype(str) + "-" + (regions.end + 1).astype(str)
 regions.head()
 
-hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g"}, idempotent=True)
-hl.init(spark_conf={
-    'spark.hadoop.fs.gs.requester.pays.mode': 'CUSTOM',
-    'spark.hadoop.fs.gs.requester.pays.buckets': bucket_name,
-    'spark.hadoop.fs.gs.requester.pays.project.id': "~{billing_project_id}"
-})
+hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g",
+                    'spark.hadoop.fs.gs.requester.pays.mode': 'CUSTOM',
+                    'spark.hadoop.fs.gs.requester.pays.buckets': bucket_name,
+                    'spark.hadoop.fs.gs.requester.pays.project.id': "~{billing_project_id}"}, idempotent=True)
 
 hl.default_reference("GRCh38")
 
