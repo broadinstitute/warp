@@ -37,7 +37,7 @@ task HailMatrixExtractRegions {
     String? project_id
     String target_gcp_folder
 
-    String docker = "shengqh/hail_gcp:20241116"
+    String docker = "shengqh/hail_gcp:20240211"
     Int memory_gb = 10
     Int preemptible = 1
     Int cpu = 4
@@ -66,8 +66,8 @@ new_tbl = pd.read_csv("~{input_hail_mt_path_file}", sep='\t')
 new_tbl.head()
 
 regions = pd.read_csv("~{input_bed}", sep='\t', header=None)
-regions=regions.iloc[:, :4]
-regions.columns = ["chr", "start", "end", "rsid"]
+regions=regions.iloc[:, :3]
+regions.columns = ["chr", "start", "end"]
 regions['chr']=regions['chr'].astype(str)
 regions['locus']=regions.chr + ":" + (regions.start + 1).astype(str) + "-" + (regions.end + 1).astype(str)
 regions.head()
