@@ -228,7 +228,7 @@ zcat ~{input_vcf} | cut -f1-9 > ~{target_prefix}.avinput.vcf
 
 convert2annovar.pl -format vcf4old ~{target_prefix}.avinput.vcf | cut -f1-7 | awk '{gsub(",\\*", "", $0); print}'> ~{target_prefix}.avinput
 
-table_annovar.pl ~{target_prefix}.avinput ~{annovar_db} -buildver hg38 -protocol refGene,avsnp150 -operation g,f --remove  --outfile ~{target_prefix}.annovar
+table_annovar.pl ~{target_prefix}.avinput ~{annovar_db} -buildver hg38 -protocol refGene -operation g --remove  --outfile ~{target_prefix}.annovar
 
 >>>
 
