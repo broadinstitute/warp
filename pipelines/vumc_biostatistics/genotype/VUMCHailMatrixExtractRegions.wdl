@@ -126,7 +126,7 @@ for ind in new_tbl.index:
 
 print(f"SNPs={all_tbl.count_rows()}, Samples={all_tbl.count_cols()}")
 
-hl.export_vcf(all_tbl, "~{target_file}", overwrite=True)
+hl.export_vcf(all_tbl, "~{target_file}")
 
 CODE
 
