@@ -1,9 +1,8 @@
 {
-  "VUMCHailMatrixExtractRegions.input_bed": "/nobackup/h_cqs/shengq2/program/collaborations/brian_lehmann/20241011_PheWAS_of_immune_checkpoint_genes/VTCN1.bed",
-  "VUMCHailMatrixExtractRegions.project_id": "terra-11f2d79d",
+  "VUMCHailMatrixExtractRegions.input_bed": "/nobackup/h_cqs/shengq2/biovu/agd35k/hail_grid/chrM.region.bed",
+  "VUMCHailMatrixExtractRegions.billing_project_id": "terra-11f2d79d",
   "VUMCHailMatrixExtractRegions.expect_output_vcf_bgz_size_gb": "10",
-  "VUMCHailMatrixExtractRegions.input_hail_mt_path_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/agd35k_hail_all_grid.tsv",
-  "VUMCHailMatrixExtractRegions.target_gcp_folder": "gs://fc-0a566538-7eb6-45c9-94a8-c4002fcb63ce/data/brian_lehmann/",
-  "VUMCHailMatrixExtractRegions.target_prefix": "VTCN1"
+  "VUMCHailMatrixExtractRegions.input_hail_mt_path_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/hail_grid/agd35k_hail_all_grid_local.tsv",
+  "VUMCHailMatrixExtractRegions.target_prefix": "mito"
 }
 
