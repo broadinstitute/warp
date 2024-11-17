@@ -328,3 +328,7 @@ workflows:
   - name: VUMCHailMatrixExtractRegions
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCHailMatrixExtractRegions.wdl
+
+  - name: VUMCAnnovar
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCAnnovar.wdl
