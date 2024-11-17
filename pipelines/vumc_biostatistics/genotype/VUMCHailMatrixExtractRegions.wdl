@@ -37,7 +37,7 @@ task HailMatrixExtractRegions {
     String? project_id
     String target_gcp_folder
 
-    String docker = "shengqh/hail_gcp:20240211"
+    String docker = "shengqh/hail_gcp:20241116"
     Int memory_gb = 10
     Int preemptible = 1
     Int cpu = 4
