@@ -4,7 +4,7 @@ task GetGeneLocus {
   input {
     String gene_symbol
 
-    String docker = "shengqh/cqs_exomeseq:20240418"
+    String docker = "shengqh/r4:20241117"
     Int preemptible = 1
 
     String host = "https://www.ensembl.org"
