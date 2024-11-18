@@ -153,6 +153,7 @@ class FirecloudAPI:
         :return: True if successful, False otherwise
         """
         # Construct the API endpoint URL for the method configuration
+        # properly encode the space in WARP Tests as %20 using from urllib.parse import quote
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
 
         print(url)
