@@ -96,12 +96,14 @@ jobs:
           }
 
           # Convert USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
-          USE_CALL_CACHE="true"
-          if [ "$USE_CALL_CACHE" = "true" ]; then
-              USE_CALL_CACHE_BOOL=true
-          else
-              USE_CALL_CACHE_BOOL=false
-          fi
+          echo "useCallCache input: $USE_CALL_CACHE"  # Debugging output
+            if [ "$USE_CALL_CACHE" == "true" ]; then
+                USE_CALL_CACHE_BOOL=true
+            else
+                USE_CALL_CACHE_BOOL=false
+            fi
+          echo "USE_CALL_CACHE_BOOL: $USE_CALL_CACHE_BOOL"  # Debugging output
+
           
           # Convert UPDATE_TRUTH to a boolean-friendly format ("true" -> true, "false" -> false)
           if [ "$UPDATE_TRUTH" = "true" ]; then

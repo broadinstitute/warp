@@ -127,7 +127,7 @@ class FirecloudAPI:
                 break
 
             # Wait for 60 seconds before polling again
-            time.sleep(60)
+            time.sleep(20)
 
         return workflow_status_map
 
