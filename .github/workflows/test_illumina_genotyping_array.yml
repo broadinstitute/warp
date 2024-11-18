@@ -39,7 +39,7 @@ env:
   PROJECT_NAME: WARP
   # Github repo name
   REPOSITORY_NAME: ${{ github.event.repository.name }}
-  TEST_TYPE: ${{ github.event.inputs.testType || 'Plumbing' }} # Default to 'Plumbing' if not set
+
 
 jobs:
   run_pipeline:
@@ -72,6 +72,22 @@ jobs:
           echo "Current directory:"
           pwd
           ls -lht
+
+      - name: Set TEST_TYPE
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "TEST_TYPE=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
+          else
+            echo "TEST_TYPE=Plumbing" >> $GITHUB_ENV
+          fi
+
+      - name: Debug TEST_TYPE
+        run: |
+          echo "TEST_TYPE: $TEST_TYPE"
+          if [ -z "$TEST_TYPE" ]; then
+              echo "Error: TEST_TYPE is not set."
+              exit 1
+          fi
 
       - name: Submit job, poll status, and get outputs
         id: pipeline_run
