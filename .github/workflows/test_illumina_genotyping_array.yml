@@ -19,6 +19,7 @@ on:
       - 'verification/**'
       - '.github/workflows/test_illumina_genotyping_array.yml'
 
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
@@ -30,7 +31,6 @@ on:
         description: 'Update truth files (default: false)'
         required: false
         default: "false"
-
 env:
   PROJECT_NAME: WARP
   # Github repo name
@@ -53,7 +53,10 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           token_format: 'access_token'
+          # Centralized in dsp-tools-k8s; ask in #dsp-devops-champions for help troubleshooting
+          # This is provided by the DevOps team - do not change!
           workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
+          # This is our tester service account
           service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
           access_token_lifetime: '3600' # seconds, default is 3600
           access_token_scopes: 'profile, email, openid'
@@ -74,28 +77,43 @@ jobs:
           WORKSPACE="WARP Tests"
           USE_CALL_CACHE="${{ github.event.inputs.useCallCache }}"
           UPDATE_TRUTH="${{ github.event.inputs.updateTruth }}"
+          # TODO: Need to get the test type (Plumbing/ Scientific) from inputs or based on the target branch        
           TEST_TYPE="Plumbing"  # Placeholder for now
           CURRENT_TIME=$(date +"%Y-%m-%d-%H-%M-%S")
-
+          
           ########################################
           # SET PIPELINE SPECIFIC VARIABLES HERE #
           ########################################
           PIPELINE_NAME="TestIlluminaGenotypingArray"
           PIPELINE_DIR="pipelines/broad/genotyping/illumina"
+          # TODO: Need to set the truth and result paths appropriately
           TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth"
           RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
 
-          # Function to call the Firecloud API using the firecloud_api.py script 
+          # Function to call the Firecloud API using the firecloud_api.py script
           firecloud_action() {
             python3 scripts/firecloud_api/firecloud_api.py --token "$TOKEN" --namespace "$NAMESPACE" --workspace "$WORKSPACE" --action "$1" "${@:2}"
           }
 
-          # Convert USE_CALL_CACHE to a boolean-friendly format
-          USE_CALL_CACHE_BOOL=$( [ "$USE_CALL_CACHE" = "true" ] && echo true || echo false )
-          UPDATE_TRUTH_BOOL=$( [ "$UPDATE_TRUTH" = "true" ] && echo true || echo false )
-
-          # Create the submission_data.json file
+          # Convert USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
+          USE_CALL_CACHE="true"
+          if [ "$USE_CALL_CACHE" = "true" ]; then
+              USE_CALL_CACHE_BOOL=true
+          else
+              USE_CALL_CACHE_BOOL=false
+          fi
+          
+          # Convert UPDATE_TRUTH to a boolean-friendly format ("true" -> true, "false" -> false)
+          if [ "$UPDATE_TRUTH" = "true" ]; then
+              UPDATE_TRUTH=true
+          else
+              UPDATE_TRUTH=false
+          fi
+          
+          # Create the submission_data.json file which will be the same for all inputs
           SUBMISSION_DATA_FILE="submission_data.json"
+        
+          # Use a heredoc to generate the JSON file content dynamically
           cat <<EOF > "$SUBMISSION_DATA_FILE"
           {
             "methodConfigurationNamespace": "warp-pipelines",
@@ -110,13 +128,12 @@ jobs:
           }
           EOF
           echo "Created submission data file: $SUBMISSION_DATA_FILE"
-          cat "$SUBMISSION_DATA_FILE"
 
           # Initialize variables to aggregate statuses and outputs
           ALL_WORKFLOW_STATUSES=""
           ALL_OUTPUTS=""
 
-          # Loop through each file in the test inputs directory
+          # Loop through each file in the appropriate test inputs directory
           INPUTS_DIR=$PIPELINE_DIR/test_inputs/$TEST_TYPE
           echo "Test inputs directory: $INPUTS_DIR"
           for input_file in $INPUTS_DIR/*; do
