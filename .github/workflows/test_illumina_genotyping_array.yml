@@ -145,12 +145,12 @@ jobs:
           INPUTS_DIR=$PIPELINE_DIR/test_inputs/$TEST_TYPE
           echo "Test inputs directory: $INPUTS_DIR"
           
-          for input_file in $INPUTS_DIR/*; do
+          for input_file in "$INPUTS_DIR"/*; do
             echo "Processing input file: $input_file"
-            test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path $TRUTH_PATH \
-                                                                                --results_path $RESULTS_PATH \
-                                                                                --inputs_json $input_file \
-                                                                                --update_truth $UPDATE_TRUTH_BOOL)
+            test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path "$TRUTH_PATH" \
+                                                                                --results_path "$RESULTS_PATH" \
+                                                                                --inputs_json "$input_file" \
+                                                                                --update_truth "$UPDATE_TRUTH_BOOL")
             echo "Uploading test input file: $test_input_file"
             firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file"
 
