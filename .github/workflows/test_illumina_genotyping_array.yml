@@ -73,23 +73,6 @@ jobs:
           pwd
           ls -lht
 
-      - name: Set TEST_TYPE
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "TEST_TYPE=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
-          else
-            echo "TEST_TYPE=Plumbing" >> $GITHUB_ENV
-            cat $GITHUB_ENV
-          fi
-
-      - name: Debug TEST_TYPE
-        run: |
-          echo "TEST_TYPE: $TEST_TYPE"
-          if [ -z "$TEST_TYPE" ]; then
-              echo "Error: TEST_TYPE is not set."
-              exit 1
-          fi
-
       - name: Submit job, poll status, and get outputs
         id: pipeline_run
         run: |
@@ -117,7 +100,6 @@ jobs:
           }
 
           # Convert USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
-          echo "useCallCache input: $USE_CALL_CACHE"  # Debugging output
             if [ "$USE_CALL_CACHE" == "true" ]; then
                 USE_CALL_CACHE_BOOL=true
             else
@@ -160,9 +142,7 @@ jobs:
           declare -A WORKFLOW_STATUSES
 
           # Loop through each file in the appropriate test inputs directory
-          echo "the test type is set to $TEST_TYPE"
           INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
-          echo "Test inputs directory: $INPUTS_DIR"
           
           for input_file in "$INPUTS_DIR"/*.json; do
             echo "Processing input file: $input_file"
