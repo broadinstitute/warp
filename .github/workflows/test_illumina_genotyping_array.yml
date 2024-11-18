@@ -170,7 +170,7 @@ jobs:
                  exit 1
                 fi
                
-                # Extract workflows and their statuses
+                # Extract workflows and their statuses 
                 WORKFLOW_STATUSES=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + ": " + .value) | .[]')
                 echo "workflow_statuses=$WORKFLOW_STATUSES" >> $GITHUB_OUTPUT  # Write workflow statuses to GITHUB_OUTPUT
                
