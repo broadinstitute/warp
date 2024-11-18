@@ -215,7 +215,7 @@ task Annovar {
     String target_prefix
 
     Int memory_gb = 20
-    Int cpu = 8
+    Int cpu = 1
 
     String docker = "shengqh/annovar:20241117"
   }
@@ -244,3 +244,91 @@ table_annovar.pl ~{target_prefix}.avinput ~{annovar_db} -buildver hg38 -protocol
   }
 }
 
+task PrepareGeneGenotype {
+  input {
+    String gene_symbol
+    File agd_primary_grid_file
+    File annovar_file
+    File vcf_file
+
+    Int loss_of_function_only = 0
+
+    #String docker = "shengqh/r4:20241117"
+    String docker = "shengqh/report:20240531"
+    
+    Int preemptible = 1
+
+    Int memory_gb = 20
+  }
+
+  Int disk_size = ceil(size([agd_primary_grid_file, annovar_file, vcf_file], "GB")) + 10
+  String target_file = if loss_of_function_only == 0 then gene_symbol + ".genotype.csv" else gene_symbol + ".lof.genotype.csv"
+
+  command <<<
+
+cat <<EOF > script.r
+
+library(data.table)
+library(dplyr)
+
+gene='~{gene_symbol}'
+agd_primary_grid_file='~{agd_primary_grid_file}'
+annovar_file='~{annovar_file}'
+vcf_file='~{vcf_file}'
+genotype_file='~{target_file}'
+loss_of_function_only=~{loss_of_function_only}
+
+cat("reading", agd_primary_grid_file, "..\n")
+agd_df=fread(agd_primary_grid_file, data.table=FALSE)
+
+cat("reading", annovar_file, "...\n")
+annovar=fread(annovar_file)
+
+cat("reading", vcf_file, "...\n")
+vcf = fread(cmd=paste0('zcat ', vcf_file), skip='#CHROM')
+
+cat("filtering snv ... \n")
+if(loss_of_function_only){
+  snv = rbind(annovar |> filter(Func.refGene %in% c('splicing')),
+              annovar |> filter(Func.refGene %in% c('exonic')) |> filter(ExonicFunc.refGene %in% c('stopgain', 'startloss'))
+  )
+}else{
+  snv = rbind(annovar |> filter(Func.refGene %in% c('splicing')),
+              annovar |> filter(Func.refGene %in% c('exonic')) |> filter(ExonicFunc.refGene %in% c('stopgain', 'startloss', 'nonsynonymous SNV'))
+  )
+}
+
+snv_vcf=vcf |> filter(POS %in% snv\$Start)
+snv_vcf_data = snv_vcf[,10:ncol(snv_vcf)]
+
+cat("converting snv to genotype ... \n")
+snv_vcf_gt = data.frame(lapply(snv_vcf_data, function(x) { gsub(':.*', '', x)}), check.names=FALSE)
+snv_vcf_gt = data.frame(lapply(snv_vcf_data, function(x) { gsub('|', '/', x)}), check.names=FALSE)
+has_snv=apply(snv_vcf_gt, 2, function(x) { any(x %in% c('1/1', '0/1', '1/0', '0/2', '2/0'))})
+
+df=data.frame(GRID=colnames(snv_vcf_gt), Genotype=ifelse(has_snv, "1", "0")) |> 
+  dplyr::filter(GRID %in% agd_df\$PRIMARY_GRID) |>
+  dplyr::arrange(GRID)
+  
+cat("saving to", genotype_file, "...\n")
+write.csv(df, genotype_file, quote=FALSE, row.names=FALSE)
+
+cat("done\n")
+
+EOF
+
+R -f script.r
+
+>>>
+
+  runtime {
+    cpu: 1
+    docker: "~{docker}"
+    preemptible: preemptible
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+  output {
+    File output_genotype_file = "~{target_file}"
+  }
+}

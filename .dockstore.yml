@@ -336,3 +336,7 @@ workflows:
   - name: VUMCGetGeneLocus
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCGetGeneLocus.wdl
+
+  - name: VUMCPrepareGeneGenotype
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareGeneGenotype.wdl
