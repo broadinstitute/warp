@@ -79,6 +79,7 @@ jobs:
             echo "TEST_TYPE=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
           else
             echo "TEST_TYPE=Plumbing" >> $GITHUB_ENV
+            cat $GITHUB_ENV
           fi
 
       - name: Debug TEST_TYPE
@@ -159,7 +160,7 @@ jobs:
           declare -A WORKFLOW_STATUSES
 
           # Loop through each file in the appropriate test inputs directory
-          echo "$TEST_TYPE"
+          cat "$TEST_TYPE"
           INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
           echo "Test inputs directory: $INPUTS_DIR"
           
