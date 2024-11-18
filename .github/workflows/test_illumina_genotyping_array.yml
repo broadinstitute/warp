@@ -132,6 +132,10 @@ jobs:
           # Initialize variables to aggregate statuses and outputs
           ALL_WORKFLOW_STATUSES="Workflow ID | Status"$'\n'"--- | ---"
           ALL_OUTPUTS=""
+          
+          # Initialize arrays to track submission and workflow statuses
+          declare -a SUBMISSION_IDS
+          declare -A WORKFLOW_STATUSES
 
           # Loop through each file in the appropriate test inputs directory
           INPUTS_DIR=$PIPELINE_DIR/test_inputs/$TEST_TYPE
@@ -155,35 +159,41 @@ jobs:
             fi
 
             echo "Submission ID: $SUBMISSION_ID"
-
-            # Poll submission status
-            echo "Polling submission status..."
-            RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
+            SUBMISSION_IDS+=("$SUBMISSION_ID")
+          done
+          
+          echo "Monitoring the status of submitted workflows..."
+          for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
+            echo "Polling submission status for Submission ID: $SUBMISSION_ID"
+            RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID") 
 
             if [ -z "$RESPONSE" ]; then
               echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
               continue
             fi
-
-            # Parse workflow statuses and append to aggregate
-            WORKFLOW_STATUSES=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
-            ALL_WORKFLOW_STATUSES+=$'\n'"$WORKFLOW_STATUSES"
-
-            # Retrieve workflow outputs and append to aggregate
-            echo "Retrieving workflow outputs..."
+          
+            # Parse and store workflow statuses
+            WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
+            echo "Statuses for submission $SUBMISSION_ID:"
+            echo "$WORKFLOW_STATUSES_FOR_SUBMISSION"
+          
+            # Append to aggregate statuses
+            WORKFLOW_STATUSES["$SUBMISSION_ID"]=$WORKFLOW_STATUSES_FOR_SUBMISSION
+          
+            # Optionally, retrieve workflow outputs
+            echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
             for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
               WORKFLOW_OUTPUT=$(firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME")
               ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
+              done
             done
-          done
-
-          # Generate final markdown tables
-          WORKFLOW_TABLE=$(echo "$ALL_WORKFLOW_STATUSES" | jq -R 'split("\n") | map(select(length > 0)) | ["Workflow ID | Status", "--- | ---"] + . | .[]')
-          OUTPUTS_TABLE=$(echo "$ALL_OUTPUTS" | jq -R 'split("\n") | map(select(length > 0)) | ["Output | Value", "--- | ---"] + map(split(": ") | join(" | ")) | .[]')
-
-          # Generate final markdown table for workflow statuses
-          echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
-          echo "$ALL_WORKFLOW_STATUSES" >> $GITHUB_STEP_SUMMARY
+          
+            # Generate final summary tables
+            echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
+            for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
+              echo "Submission ID: $SUBMISSION_ID" >> $GITHUB_STEP_SUMMARY
+              echo "${WORKFLOW_STATUSES[$SUBMISSION_ID]}" >> $GITHUB_STEP_SUMMARY
+            done
 
       - name: Print Summary on Success
         if: success()
