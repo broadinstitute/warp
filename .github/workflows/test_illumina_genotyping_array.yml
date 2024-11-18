@@ -181,9 +181,9 @@ jobs:
           WORKFLOW_TABLE=$(echo "$ALL_WORKFLOW_STATUSES" | jq -R 'split("\n") | map(select(length > 0)) | ["Workflow ID | Status", "--- | ---"] + . | .[]')
           OUTPUTS_TABLE=$(echo "$ALL_OUTPUTS" | jq -R 'split("\n") | map(select(length > 0)) | ["Output | Value", "--- | ---"] + map(split(": ") | join(" | ")) | .[]')
 
-         # Generate final markdown table for workflow statuses
-         echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
-         echo "$ALL_WORKFLOW_STATUSES" >> $GITHUB_STEP_SUMMARY
+          # Generate final markdown table for workflow statuses
+          echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
+          echo "$ALL_WORKFLOW_STATUSES" >> $GITHUB_STEP_SUMMARY
 
       - name: Print Summary on Success
         if: success()
