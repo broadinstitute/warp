@@ -31,6 +31,10 @@ on:
         description: 'Update truth files (default: false)'
         required: false
         default: "false"
+      testType:
+        description: 'Specify the type of test (Plumbing or Scientific'
+        required: true
+
 env:
   PROJECT_NAME: WARP
   # Github repo name
@@ -77,8 +81,7 @@ jobs:
           WORKSPACE="WARP Tests"
           USE_CALL_CACHE="${{ github.event.inputs.useCallCache }}"
           UPDATE_TRUTH="${{ github.event.inputs.updateTruth }}"
-          # TODO: Need to get the test type (Plumbing/ Scientific) from inputs or based on the target branch        
-          TEST_TYPE="Plumbing"  # Placeholder for now
+          TEST_TYPE="${{ github.event.inputs.testType }}"
           CURRENT_TIME=$(date +"%Y-%m-%d-%H-%M-%S")
           
           ########################################
@@ -102,7 +105,6 @@ jobs:
             else
                 USE_CALL_CACHE_BOOL=false
             fi
-          echo "USE_CALL_CACHE_BOOL: $USE_CALL_CACHE_BOOL"  # Debugging output
 
           
           # Convert UPDATE_TRUTH to a boolean-friendly format ("true" -> true, "false" -> false)
