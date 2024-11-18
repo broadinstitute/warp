@@ -97,9 +97,9 @@ jobs:
           TOKEN="${{ steps.auth.outputs.access_token }}"
           NAMESPACE="warp-pipelines"
           WORKSPACE="WARP Tests"
-          USE_CALL_CACHE="${{ github.event.inputs.useCallCache }}"
-          UPDATE_TRUTH="${{ github.event.inputs.updateTruth }}"
-          TEST_TYPE="${{ github.event.inputs.testType }}"
+          USE_CALL_CACHE="${{ github.event.inputs.useCallCache || 'true' }}"
+          UPDATE_TRUTH="${{ github.event.inputs.updateTruth || 'false' }}"
+          TEST_TYPE="${{ github.event.inputs.testType || 'Plumbing' }}"
           CURRENT_TIME=$(date +"%Y-%m-%d-%H-%M-%S")
           
           ########################################
