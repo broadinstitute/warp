@@ -39,6 +39,7 @@ env:
   PROJECT_NAME: WARP
   # Github repo name
   REPOSITORY_NAME: ${{ github.event.repository.name }}
+  TEST_TYPE: ${{ github.event.inputs.testType || 'Plumbing' }} # Default to 'Plumbing' if not set
 
 jobs:
   run_pipeline:
