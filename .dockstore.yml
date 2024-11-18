@@ -332,3 +332,7 @@ workflows:
   - name: VUMCAnnovar
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCAnnovar.wdl
+
+  - name: VUMCGetGeneLocus
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCGetGeneLocus.wdl
