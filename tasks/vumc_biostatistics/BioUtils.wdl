@@ -3,6 +3,7 @@ version 1.0
 task GetGeneLocus {
   input {
     String gene_symbol
+    Int shift_bases = 2000
 
     String docker = "shengqh/r4:20241117"
     Int preemptible = 1
@@ -27,6 +28,7 @@ dataset="~{dataset}"
 symbolKey="~{symbolKey}"
 genes="~{gene_symbol}"
 addChr=~{addChr}
+shift_bases=~{shift_bases}
 
 ensembl <- useMart("ensembl", host=host, dataset=dataset)
 
@@ -49,6 +51,11 @@ geneLocus\$strand[geneLocus\$strand == -1]<-"-"
 
 if(addChr & (!any(grepl("chr", geneLocus\$chromosome_name)))){
   geneLocus\$chromosome_name = paste0("chr", geneLocus\$chromosome_name)
+}
+
+if(shift_bases > 0){
+  geneLocus\$start_position = geneLocus\$start_position - shift_bases
+  geneLocus\$end_position = geneLocus\$end_position + shift_bases
 }
 
 bedFile<-"~{target_file}"
