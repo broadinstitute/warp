@@ -44,7 +44,7 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth):
 
 
 def main():
-    description = """This script updates the test inputs JSON to work with the test wrapper WDL, 
+    description = """This script updates the test inputs JSON to work with the test wrapper WDL,
     which runs the pipeline and verification"""
 
     parser = argparse.ArgumentParser(description=description)
