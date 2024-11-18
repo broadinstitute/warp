@@ -286,19 +286,25 @@ annovar=fread(annovar_file)
 
 cat("reading", vcf_file, "...\n")
 vcf = fread(cmd=paste0('zcat ', vcf_file), skip='#CHROM')
+cat("there are", nrow(vcf), "SNVs...\n")
+
+cat("filtering by gene", gene, "...\n")
+vcf = vcf |>
+  dplyr::filter(ExonicFunc_refGene==gene)
+cat("there are", nrow(vcf), "SNVs from", gene, "...\n")
 
 cat("filtering snv ... \n")
 if(loss_of_function_only){
-  snv = rbind(annovar |> filter(Func.refGene %in% c('splicing')),
-              annovar |> filter(Func.refGene %in% c('exonic')) |> filter(ExonicFunc.refGene %in% c('stopgain', 'startloss'))
+  snv = rbind(annovar |> dplyr::filter(Func.refGene %in% c('splicing')),
+              annovar |> dplyr::filter(Func.refGene %in% c('exonic')) |> dplyr::filter(ExonicFunc.refGene %in% c('stopgain', 'startloss'))
   )
 }else{
-  snv = rbind(annovar |> filter(Func.refGene %in% c('splicing')),
-              annovar |> filter(Func.refGene %in% c('exonic')) |> filter(ExonicFunc.refGene %in% c('stopgain', 'startloss', 'nonsynonymous SNV'))
+  snv = rbind(annovar |> dplyr::filter(Func.refGene %in% c('splicing')),
+              annovar |> dplyr::filter(Func.refGene %in% c('exonic')) |> dplyr::filter(ExonicFunc.refGene %in% c('stopgain', 'startloss', 'nonsynonymous SNV'))
   )
 }
 
-snv_vcf=vcf |> filter(POS %in% snv\$Start)
+snv_vcf=vcf |> dplyr::filter(POS %in% snv\$Start)
 snv_vcf_data = snv_vcf[,10:ncol(snv_vcf)]
 
 cat("converting snv to genotype ... \n")
