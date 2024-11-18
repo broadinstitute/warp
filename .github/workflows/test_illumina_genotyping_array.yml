@@ -130,12 +130,13 @@ jobs:
           echo "Created submission data file: $SUBMISSION_DATA_FILE"
 
           # Initialize variables to aggregate statuses and outputs
-          ALL_WORKFLOW_STATUSES=""
+          ALL_WORKFLOW_STATUSES="Workflow ID | Status"$'\n'"--- | ---"
           ALL_OUTPUTS=""
 
           # Loop through each file in the appropriate test inputs directory
           INPUTS_DIR=$PIPELINE_DIR/test_inputs/$TEST_TYPE
           echo "Test inputs directory: $INPUTS_DIR"
+          
           for input_file in $INPUTS_DIR/*; do
             echo "Processing input file: $input_file"
             test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path $TRUTH_PATH \
@@ -165,8 +166,8 @@ jobs:
             fi
 
             # Parse workflow statuses and append to aggregate
-            WORKFLOW_STATUSES=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + ": " + .value) | .[]')
-            ALL_WORKFLOW_STATUSES+="$WORKFLOW_STATUSES"$'\n'
+            WORKFLOW_STATUSES=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
+            ALL_WORKFLOW_STATUSES+=$'\n'"$WORKFLOW_STATUSES"
 
             # Retrieve workflow outputs and append to aggregate
             echo "Retrieving workflow outputs..."
@@ -180,16 +181,9 @@ jobs:
           WORKFLOW_TABLE=$(echo "$ALL_WORKFLOW_STATUSES" | jq -R 'split("\n") | map(select(length > 0)) | ["Workflow ID | Status", "--- | ---"] + . | .[]')
           OUTPUTS_TABLE=$(echo "$ALL_OUTPUTS" | jq -R 'split("\n") | map(select(length > 0)) | ["Output | Value", "--- | ---"] + map(split(": ") | join(" | ")) | .[]')
 
-          # Print final summaries
-          echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "$WORKFLOW_TABLE" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-
-          echo "## Combined Workflow Outputs" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "$OUTPUTS_TABLE" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+         # Generate final markdown table for workflow statuses
+         echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
+         echo "$ALL_WORKFLOW_STATUSES" >> $GITHUB_STEP_SUMMARY
 
       - name: Print Summary on Success
         if: success()
