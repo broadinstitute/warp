@@ -160,7 +160,7 @@ jobs:
           declare -A WORKFLOW_STATUSES
 
           # Loop through each file in the appropriate test inputs directory
-          cat "$TEST_TYPE"
+          echo "the test type is set to $TEST_TYPE"
           INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
           echo "Test inputs directory: $INPUTS_DIR"
           
