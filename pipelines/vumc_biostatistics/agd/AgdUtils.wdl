@@ -93,6 +93,7 @@ task HailMatrixExtractRegions {
     String target_prefix
 
     String billing_project_id
+    String? target_gcp_folder
 
     String docker = "shengqh/hail_gcp:20240211"
     Int memory_gb = 10
@@ -101,17 +102,17 @@ task HailMatrixExtractRegions {
     Int boot_disk_gb = 10  
   }
 
-  Int disk_size = ceil(expect_output_vcf_bgz_size_gb) + 20
+  Int disk_size = ceil(expect_output_vcf_bgz_size_gb * 2) + 20
   Int total_memory_gb = memory_gb + 2
 
-  String target_file = target_prefix + ".vcf.bgz"
+  String target_file = if defined(target_gcp_folder) then sub(select_first([target_gcp_folder]), "/+$", "") + "/" + target_prefix + ".vcf.bgz" else target_prefix + ".vcf.bgz"
 
   command <<<
 
 #https://discuss.hail.is/t/i-get-a-negativearraysizeexception-when-loading-a-plink-file/899
 export PYSPARK_SUBMIT_ARGS="--driver-java-options '-XX:hashCode=0' --conf 'spark.executor.extraJavaOptions=-XX:hashCode=0' pyspark-shell"
 
-mkdir -f tmp
+mkdir tmp
 
 python3 <<CODE
 
@@ -149,13 +150,15 @@ if hail_url.startswith('gs://'):
   bucket_name = parse_gcs_url(new_tbl['hail'][0])
   print(f"hail_bucket_name={bucket_name}")
 
-  hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g",
+  hl.init(tmp_dir='tmp',
+          spark_conf={"spark.driver.memory": "~{memory_gb}g",
                       "spark.local.dir": "tmp",
                       'spark.hadoop.fs.gs.requester.pays.mode': 'CUSTOM',
                       'spark.hadoop.fs.gs.requester.pays.buckets': bucket_name,
                       'spark.hadoop.fs.gs.requester.pays.project.id': "~{billing_project_id}"}, idempotent=True)
 else:
-  hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g",
+  hl.init(tmp_dir='tmp',
+          spark_conf={"spark.driver.memory": "~{memory_gb}g",
                       "spark.local.dir": "tmp"}, idempotent=True)
 
 hl.default_reference("GRCh38")
