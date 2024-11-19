@@ -304,9 +304,11 @@ cat("reading", annovar_file, "...\n")
 annovar=fread(annovar_file)
 cat("there are", nrow(annovar), "SNVs in annovar ...\n")
 
+print(head(annovar))
+
 cat("filtering by gene", gene, "...\n")
 annovar = annovar |>
-  dplyr::filter(ExonicFunc.refGene==gene)
+  dplyr::filter(Gene.refGene==gene)
 cat("there are", nrow(annovar), "SNVs in annovar from", gene, "...\n")
 
 cat("filtering snv ... \n")
@@ -321,8 +323,18 @@ if(loss_of_function_only){
 }
 cat("there are", nrow(snv), "valid SNVs ...\n")
 
+# Use a pipe to decompress with zcat and read the first 4000 lines
+con <- pipe(paste("zcat", vcf_file, "| head -n 4000"), "rt")
+first_lines <- readLines(con)
+
+# Close the connection
+close(con)
+
+chrom_index=grep("^#CHROM", first_lines)
+cat("data starts from line", chrom_index, "...\n")
+
 cat("reading", vcf_file, "...\n")
-vcf = fread(cmd=paste0('zcat ', vcf_file), skip='#CHROM')
+vcf = fread(cmd=paste0("zcat ", vcf_file), skip=chrom_index-1, data.table=FALSE)
 cat("there are total", nrow(vcf), "SNVs...\n")
 
 snv_vcf=vcf |> dplyr::filter(POS %in% snv\$Start)
