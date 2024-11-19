@@ -22,7 +22,7 @@ workflow VUMCAnnovar {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
-        source_file = Annovar.output_annovar_file,
+        source_file = Annovar.annovar_file,
         is_move_file = false,
         project_id = billing_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -30,6 +30,6 @@ workflow VUMCAnnovar {
   }
 
   output {
-    File output_annovar_file = select_first([CopyFile.output_file, Annovar.output_annovar_file])
+    File annovar_file = select_first([CopyFile.output_file, Annovar.annovar_file])
   }
 }
