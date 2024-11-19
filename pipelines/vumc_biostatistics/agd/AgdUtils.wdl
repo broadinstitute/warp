@@ -400,7 +400,7 @@ wget https://raw.githubusercontent.com/shengqh/ngsperl/refs/heads/master/lib/CQS
 
 wget https://raw.githubusercontent.com/shengqh/ngsperl/refs/heads/master/lib/BioVU/prepare_phenotype_data.rmd
 
-mv prepare_phenotype_data.rmd ~{phecode}.phenotype.rmd
+mv prepare_phenotype_data.rmd ~{phename}.phenotype.rmd
 
 echo -e "~{phename}\tphename" > input_options.txt
 echo -e "~{phecode}\tphecode" >> input_options.txt
