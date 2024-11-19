@@ -1,0 +1,11 @@
+{
+  "VUMCLinearAssociation.ancestry_file": "/nobackup/h_cqs/shengq2/biovu/AGD_ancestry_pipeline/final_ancestry_variables.txt",
+  "VUMCLinearAssociation.phenotype_file": "/nobackup/h_cqs/shengq2/biovu/demo/data/499.0.phenotype.csv",
+  "VUMCLinearAssociation.pca_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/meta/agd35k_eligible_filtered.genotype.pca.txt",
+  "VUMCLinearAssociation.phecode": "499.0",
+  "VUMCLinearAssociation.genotype_file": "/nobackup/h_cqs/shengq2/biovu/demo/data/CFTR.lof.genotype.csv",
+  "VUMCLinearAssociation.phecode_map_file": "/nobackup/h_cqs/shengq2/biovu/phecode_data/phecode_definitions1.2.csv",
+  "VUMCLinearAssociation.demographics_file": "/nobackup/h_cqs/shengq2/biovu/phecode_data/AGD_163k_demographics_mapping.csv",
+  "VUMCLinearAssociation.agd_primary_grid_file": "/nobackup/h_cqs/shengq2/biovu/AGD/SAMPLE_ID_MAP_2023_Q3_35K_primaryGRID_v4_202408.csv"
+}
+
