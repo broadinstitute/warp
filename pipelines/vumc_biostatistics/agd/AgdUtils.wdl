@@ -85,7 +85,6 @@ wc -l "~{output_psam}"
   }
 }
 
-
 task HailMatrixExtractRegions {
   input {
     File input_hail_mt_path_file
@@ -111,6 +110,8 @@ task HailMatrixExtractRegions {
 
 #https://discuss.hail.is/t/i-get-a-negativearraysizeexception-when-loading-a-plink-file/899
 export PYSPARK_SUBMIT_ARGS="--driver-java-options '-XX:hashCode=0' --conf 'spark.executor.extraJavaOptions=-XX:hashCode=0' pyspark-shell"
+
+mkdir -f tmp
 
 python3 <<CODE
 
@@ -149,11 +150,13 @@ if hail_url.startswith('gs://'):
   print(f"hail_bucket_name={bucket_name}")
 
   hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g",
+                      "spark.local.dir": "tmp",
                       'spark.hadoop.fs.gs.requester.pays.mode': 'CUSTOM',
                       'spark.hadoop.fs.gs.requester.pays.buckets': bucket_name,
                       'spark.hadoop.fs.gs.requester.pays.project.id': "~{billing_project_id}"}, idempotent=True)
 else:
-  hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g"}, idempotent=True)
+  hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g",
+                      "spark.local.dir": "tmp"}, idempotent=True)
 
 hl.default_reference("GRCh38")
 
@@ -187,9 +190,13 @@ print(f"SNPs={all_tbl.count_rows()}, Samples={all_tbl.count_cols()}")
 
 print(f"Writing to ~{target_file}")
 
+all_tbl = all_tbl.naive_coalesce(2)
+
 hl.export_vcf(all_tbl, "~{target_file}")
 
 CODE
+
+rm -rf tmp
 
 >>>
 
@@ -336,5 +343,57 @@ R -f script.r
   }
   output {
     File output_genotype_file = "~{target_file}"
+  }
+}
+
+task PreparePhenotype {
+  input {
+    Float phecode
+
+    File agd_primary_grid_file
+    File phecode_data_file
+    File phecode_map_file
+    Int min_occurance = 2
+
+    #String docker = "shengqh/r4:20241117"
+    String docker = "shengqh/report:20240531"
+    
+    Int preemptible = 1
+
+    Int memory_gb = 20
+  }
+
+  Int disk_size = ceil(size([agd_primary_grid_file, phecode_data_file, phecode_map_file], "GB")) + 10
+  String phenotype_file = "~{phecode}.phenotype.csv"
+
+  command <<<
+
+wget https://raw.githubusercontent.com/shengqh/ngsperl/refs/heads/master/lib/CQS/reportFunctions.R
+
+wget https://raw.githubusercontent.com/shengqh/ngsperl/refs/heads/master/lib/BioVU/prepare_phenotype_data.rmd
+
+mv prepare_phenotype_data.rmd ~{phecode}.phenotype.rmd
+
+echo -e "~{phecode}\tphecode" > input_options.txt
+echo -e "~{phecode}\tphename" >> input_options.txt
+echo -e "~{agd_primary_grid_file}\tagd_file" >> input_options.txt
+echo -e "~{phecode_data_file}\tphecode_data_file" >> input_options.txt
+echo -e "~{phecode_map_file}\tphecode_map_file" >> input_options.txt
+echo -e "~{min_occurance}\tmin_occurance" >> input_options.txt
+
+R -e "library(knitr);rmarkdown::render(input='~{phecode}.phenotype.rmd');"   
+
+>>>
+
+  runtime {
+    cpu: 1
+    docker: "~{docker}"
+    preemptible: preemptible
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+  output {
+    File output_phenotype_file = "~{phecode}.phenotype.csv"
+    File output_phenotype_report = "~{phecode}.phenotype.html"
   }
 }

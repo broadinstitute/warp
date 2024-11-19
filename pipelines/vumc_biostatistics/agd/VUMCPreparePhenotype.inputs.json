@@ -1,0 +1,7 @@
+{
+  "VUMCPreparePhenotype.agd_primary_grid_file": "/nobackup/h_cqs/shengq2/biovu/AGD/SAMPLE_ID_MAP_2023_Q3_35K_primaryGRID_v4_202408.csv",
+  "VUMCPreparePhenotype.min_occurance": "2",
+  "VUMCPreparePhenotype.phecode_map_file": "/nobackup/h_cqs/shengq2/biovu/phecode_data/phecode_definitions1.2.csv",
+  "VUMCPreparePhenotype.phecode_data_file": "/nobackup/h_cqs/shengq2/biovu/phecode_data/AGD_35k_fullset_Phecode12_long.csv",
+  "VUMCPreparePhenotype.phecode": "499"
+}

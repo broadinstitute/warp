@@ -340,3 +340,7 @@ workflows:
   - name: VUMCPrepareGeneGenotype
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareGeneGenotype.wdl
+
+  - name: VUMCPreparePhenotype
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPreparePhenotype.wdl
