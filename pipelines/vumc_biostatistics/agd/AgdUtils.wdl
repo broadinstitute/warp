@@ -271,8 +271,6 @@ task PrepareGeneGenotype {
     File annovar_file
     File vcf_file
 
-    Int loss_of_function_only = 1
-
     String docker = "shengqh/report:20241118"
     
     Int preemptible = 1
@@ -281,7 +279,6 @@ task PrepareGeneGenotype {
   }
 
   Int disk_size = ceil(size([agd_primary_grid_file, annovar_file, vcf_file], "GB") * 5) + additional_disk_size
-  String target_file = if loss_of_function_only == 0 then gene_symbol + ".vuc.genotype.csv" else gene_symbol + ".lof.genotype.csv"
 
   command <<<
 
@@ -294,8 +291,6 @@ gene='~{gene_symbol}'
 agd_primary_grid_file='~{agd_primary_grid_file}'
 annovar_file='~{annovar_file}'
 vcf_file='~{vcf_file}'
-genotype_file='~{target_file}'
-loss_of_function_only=~{loss_of_function_only}
 
 cat("reading", agd_primary_grid_file, "..\n")
 agd_df=fread(agd_primary_grid_file, data.table=FALSE)
@@ -312,16 +307,14 @@ annovar = annovar |>
 cat("there are", nrow(annovar), "SNVs in annovar from", gene, "...\n")
 
 cat("filtering snv ... \n")
-if(loss_of_function_only){
-  snv = rbind(annovar |> dplyr::filter(Func.refGene %in% c('splicing')),
-              annovar |> dplyr::filter(Func.refGene %in% c('exonic')) |> dplyr::filter(ExonicFunc.refGene %in% c('stopgain', 'startloss'))
-  )
-}else{
-  snv = rbind(annovar |> dplyr::filter(Func.refGene %in% c('splicing')),
-              annovar |> dplyr::filter(Func.refGene %in% c('exonic')) |> dplyr::filter(ExonicFunc.refGene %in% c('stopgain', 'startloss', 'nonsynonymous SNV'))
-  )
-}
-cat("there are", nrow(snv), "valid SNVs ...\n")
+lof_snv = rbind(annovar |> dplyr::filter(Func.refGene %in% c('splicing')),
+            annovar |> dplyr::filter(Func.refGene %in% c('exonic')) |> dplyr::filter(ExonicFunc.refGene %in% c('stopgain', 'startloss'))
+)
+vuc_snv = rbind(annovar |> dplyr::filter(Func.refGene %in% c('splicing')),
+            annovar |> dplyr::filter(Func.refGene %in% c('exonic')) |> dplyr::filter(ExonicFunc.refGene %in% c('stopgain', 'startloss', 'nonsynonymous SNV'))
+)
+
+cat("there are", nrow(vuc_snv), "valid vuc SNVs, including", nrow(lof_snv), "valid lof SNVs.\n")
 
 # Use a pipe to decompress with zcat and read the first 4000 lines
 con <- pipe(paste("zcat", vcf_file, "| head -n 4000"), "rt")
@@ -337,23 +330,29 @@ cat("reading", vcf_file, "...\n")
 vcf = fread(cmd=paste0("zcat ", vcf_file), skip=chrom_index-1, data.table=FALSE)
 cat("there are total", nrow(vcf), "SNVs...\n")
 
-snv_vcf=vcf |> dplyr::filter(POS %in% snv\$Start)
-snv_vcf_data = snv_vcf[,10:ncol(snv_vcf)]
+to_genotype_file<-function(vcf, snv, genotype_file){
+  cat("preparing", genotype_file, "...\n")
+  snv_vcf=vcf |> dplyr::filter(POS %in% snv\$Start)
+  snv_vcf_data = snv_vcf[,10:ncol(snv_vcf)]
 
-cat("converting snv to genotype ... \n")
-snv_vcf_gt = data.frame(lapply(snv_vcf_data, function(x) { gsub(':.*', '', x)}), check.names=FALSE)
-snv_vcf_gt = data.frame(lapply(snv_vcf_data, function(x) { gsub('[|]', '/', x)}), check.names=FALSE)
-print(head(snv_vcf_gt[,1:5]))
+  cat("  converting snv to genotype ... \n")
+  snv_vcf_gt = data.frame(lapply(snv_vcf_data, function(x) { gsub(':.*', '', x)}), check.names=FALSE)
+  snv_vcf_gt = data.frame(lapply(snv_vcf_data, function(x) { gsub('[|]', '/', x)}), check.names=FALSE)
+  print(head(snv_vcf_gt[,1:5]))
 
-has_snv=apply(snv_vcf_gt, 2, function(x) { any(x %in% c('1/1', '0/1', '1/0', '0/2', '2/0'))})
+  has_snv=apply(snv_vcf_gt, 2, function(x) { any(x %in% c('1/1', '0/1', '1/0', '0/2', '2/0'))})
 
-df=data.frame(GRID=colnames(snv_vcf_gt), Genotype=ifelse(has_snv, "1", "0")) |> 
-  dplyr::filter(GRID %in% agd_df\$PRIMARY_GRID) |>
-  dplyr::arrange(GRID)
-print(table(df\$Genotype))
-  
-cat("saving to", genotype_file, "...\n")
-write.csv(df, genotype_file, quote=FALSE, row.names=FALSE)
+  df=data.frame(GRID=colnames(snv_vcf_gt), Genotype=ifelse(has_snv, "1", "0")) |> 
+    dplyr::filter(GRID %in% agd_df\$PRIMARY_GRID) |>
+    dplyr::arrange(GRID)
+  print(table(df\$Genotype))
+    
+  cat("  saving to", genotype_file, "...\n")
+  write.csv(df, genotype_file, quote=FALSE, row.names=FALSE)
+}
+
+to_genotype_file(vcf, lof_snv, paste0(gene, ".lof.genotype.csv"))
+to_genotype_file(vcf, vuc_snv, paste0(gene, ".vuc.genotype.csv"))
 
 cat("done\n")
 
@@ -371,7 +370,8 @@ R -f script.r
     memory: memory_gb + " GiB"
   }
   output {
-    File genotype_file = "~{target_file}"
+    File lof_genotype_file = "~{gene_symbol}.lof.genotype.csv"
+    File vuc_genotype_file = "~{gene_symbol}.vuc.genotype.csv"
   }
 }
 

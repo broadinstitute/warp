@@ -2,7 +2,6 @@
   "VUMCPrepareGeneGenotype.agd_primary_grid_file": "/nobackup/h_cqs/jennifer_pietenpol_projects/20241118_gene_phewas/SAMPLE_ID_MAP_2023_Q3_35K_primaryGRID_v4_202408.csv",
   "VUMCPrepareGeneGenotype.gene_symbol": "CFTR",
   "VUMCPrepareGeneGenotype.vcf_file": "/nobackup/h_cqs/shengq2/biovu/demo/data/CFTR.vcf.bgz",
-  "VUMCPrepareGeneGenotype.annovar_file": "/nobackup/h_cqs/shengq2/biovu/demo/data/CFTR.annovar.hg38_multianno.txt",
-  "VUMCPrepareGeneGenotype.loss_of_function_only": "1"
+  "VUMCPrepareGeneGenotype.annovar_file": "/nobackup/h_cqs/shengq2/biovu/demo/data/CFTR.annovar.hg38_multianno.txt"
 }
 
