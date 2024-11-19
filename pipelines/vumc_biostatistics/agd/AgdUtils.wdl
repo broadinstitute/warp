@@ -350,7 +350,7 @@ has_snv=apply(snv_vcf_gt, 2, function(x) { any(x %in% c('1/1', '0/1', '1/0', '0/
 df=data.frame(GRID=colnames(snv_vcf_gt), Genotype=ifelse(has_snv, "1", "0")) |> 
   dplyr::filter(GRID %in% agd_df\$PRIMARY_GRID) |>
   dplyr::arrange(GRID)
-print(table(df$Genotype))
+print(table(df\$Genotype))
   
 cat("saving to", genotype_file, "...\n")
 write.csv(df, genotype_file, quote=FALSE, row.names=FALSE)
