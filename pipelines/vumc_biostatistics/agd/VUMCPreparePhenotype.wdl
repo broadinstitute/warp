@@ -28,8 +28,8 @@ workflow VUMCPreparePhenotype {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
       input:
-        source_file1 = PreparePhenotype.output_phenotype_file,
-        source_file2 = PreparePhenotype.output_phenotype_report,
+        source_file1 = PreparePhenotype.phenotype_file,
+        source_file2 = PreparePhenotype.phenotype_report,
         is_move_file = false,
         project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -37,7 +37,7 @@ workflow VUMCPreparePhenotype {
   }
 
   output {
-    File output_phenotype_file = select_first([CopyFile.output_file1, PreparePhenotype.output_phenotype_file])
-    File output_phenotype_report = select_first([CopyFile.output_file2, PreparePhenotype.output_phenotype_report])
+    File phenotype_file = select_first([CopyFile.output_file1, PreparePhenotype.phenotype_file])
+    File phenotype_report = select_first([CopyFile.output_file2, PreparePhenotype.phenotype_report])
   }
 }

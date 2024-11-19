@@ -28,7 +28,7 @@ workflow VUMCPrepareGeneGenotype {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
-        source_file = PrepareGeneGenotype.output_genotype_file,
+        source_file = PrepareGeneGenotype.genotype_file,
         is_move_file = false,
         project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -36,6 +36,6 @@ workflow VUMCPrepareGeneGenotype {
   }
 
   output {
-    File output_genotype_file = select_first([CopyFile.output_file, PrepareGeneGenotype.output_genotype_file])
+    File genotype_file = select_first([CopyFile.output_file, PrepareGeneGenotype.genotype_file])
   }
 }

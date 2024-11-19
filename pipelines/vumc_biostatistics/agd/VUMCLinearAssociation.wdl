@@ -5,13 +5,16 @@ import "./AgdUtils.wdl" as AgdUtils
 
 workflow VUMCLinearAssociation {
   input {
+    String phename
     Float phecode
-
     File phenotype_file
+
+    String genotype_name
+    File genotype_file
 
     File agd_primary_grid_file
     File demographics_file
-    File genotype_file
+
     File pca_file
     File phecode_map_file
     File ancestry_file
@@ -22,10 +25,12 @@ workflow VUMCLinearAssociation {
 
   call AgdUtils.LinearAssociation {
     input:
+      phename = phename,
       phecode = phecode,
       phenotype_file = phenotype_file,
       agd_primary_grid_file = agd_primary_grid_file,
       demographics_file = demographics_file,
+      genotype_name = genotype_name,
       genotype_file = genotype_file,
       pca_file = pca_file,
       phecode_map_file = phecode_map_file,

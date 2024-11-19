@@ -260,7 +260,7 @@ table_annovar.pl ~{target_prefix}.avinput ~{annovar_db} -buildver hg38 -protocol
     memory: memory_gb + " GiB"
   }
   output {
-    File output_annovar_file = "~{target_prefix}.annovar.hg38_multianno.txt"
+    File annovar_file = "~{target_prefix}.annovar.hg38_multianno.txt"
   }
 }
 
@@ -281,7 +281,7 @@ task PrepareGeneGenotype {
   }
 
   Int disk_size = ceil(size([agd_primary_grid_file, annovar_file, vcf_file], "GB") * 5) + additional_disk_size
-  String target_file = if loss_of_function_only == 0 then gene_symbol + ".genotype.csv" else gene_symbol + ".lof.genotype.csv"
+  String target_file = if loss_of_function_only == 0 then gene_symbol + ".vuc.genotype.csv" else gene_symbol + ".lof.genotype.csv"
 
   command <<<
 
@@ -371,12 +371,13 @@ R -f script.r
     memory: memory_gb + " GiB"
   }
   output {
-    File output_genotype_file = "~{target_file}"
+    File genotype_file = "~{target_file}"
   }
 }
 
 task PreparePhenotype {
   input {
+    String phename
     Float phecode
 
     File agd_primary_grid_file
@@ -392,7 +393,6 @@ task PreparePhenotype {
   }
 
   Int disk_size = ceil(size([agd_primary_grid_file, phecode_data_file, phecode_map_file], "GB")) + 10
-  String phenotype_file = "~{phecode}.phenotype.csv"
 
   command <<<
 
@@ -402,14 +402,14 @@ wget https://raw.githubusercontent.com/shengqh/ngsperl/refs/heads/master/lib/Bio
 
 mv prepare_phenotype_data.rmd ~{phecode}.phenotype.rmd
 
-echo -e "~{phecode}\tphecode" > input_options.txt
-echo -e "~{phecode}\tphename" >> input_options.txt
+echo -e "~{phename}\tphename" > input_options.txt
+echo -e "~{phecode}\tphecode" >> input_options.txt
 echo -e "~{agd_primary_grid_file}\tagd_file" >> input_options.txt
 echo -e "~{phecode_data_file}\tphecode_data_file" >> input_options.txt
 echo -e "~{phecode_map_file}\tphecode_map_file" >> input_options.txt
 echo -e "~{min_occurance}\tmin_occurance" >> input_options.txt
 
-R -e "library(knitr);rmarkdown::render(input='~{phecode}.phenotype.rmd');"   
+R -e "library(knitr);rmarkdown::render(input='~{phename}.phenotype.rmd');"   
 
 >>>
 
@@ -421,14 +421,16 @@ R -e "library(knitr);rmarkdown::render(input='~{phecode}.phenotype.rmd');"
     memory: memory_gb + " GiB"
   }
   output {
-    File output_phenotype_file = "~{phecode}.phenotype.csv"
-    File output_phenotype_report = "~{phecode}.phenotype.html"
+    File phenotype_file = "~{phename}.phenotype.csv"
+    File phenotype_report = "~{phename}.phenotype.html"
   }
 }
 
 task LinearAssociation {
   input {
+    String phename
     Float phecode
+    String genotype_name
 
     File phenotype_file
 
@@ -454,19 +456,20 @@ wget https://raw.githubusercontent.com/shengqh/ngsperl/refs/heads/master/lib/CQS
 
 wget https://raw.githubusercontent.com/shengqh/ngsperl/refs/heads/master/lib/BioVU/linear_association.rmd
 
-mv linear_association.rmd ~{phecode}.linear_association.rmd
+mv linear_association.rmd ~{phecode}.~{genotype_name}.glm.rmd
 
+echo -e "~{phename}\tphename" >> input_options.txt
 echo -e "~{phecode}\tphecode" > input_options.txt
-echo -e "~{phecode}\tphename" >> input_options.txt
 echo -e "~{phenotype_file}\tphefile" >> input_options.txt
+echo -e "~{genotype_name}\tgenotype_name" >> input_options.txt
+echo -e "~{genotype_file}\tgenotype_file" >> input_options.txt
 echo -e "~{agd_primary_grid_file}\tagd_file" >> input_options.txt
 echo -e "~{demographics_file}\tdemographics_file" >> input_options.txt
-echo -e "~{genotype_file}\tgenotype_file" >> input_options.txt
 echo -e "~{pca_file}\tpca_file" >> input_options.txt
 echo -e "~{phecode_map_file}\tphecode_map_file" >> input_options.txt
 echo -e "~{ancestry_file}\tancestry_file" >> input_options.txt
 
-R -e "library(knitr);rmarkdown::render(input='~{phecode}.linear_association.rmd');"   
+R -e "library(knitr);rmarkdown::render(input='~{phename}.~{genotype_name}.glm.rmd');"   
 
 >>>
 
@@ -478,7 +481,7 @@ R -e "library(knitr);rmarkdown::render(input='~{phecode}.linear_association.rmd'
     memory: memory_gb + " GiB"
   }
   output {
-    File linear_association_file = "~{phecode}.linear_association.csv"
-    File linear_association_report = "~{phecode}.linear_association.html"
+    File linear_association_file = "~{phename}.~{genotype_name}.glm.csv"
+    File linear_association_report = "~{phename}.~{genotype_name}.glm.html"
   }
 }
