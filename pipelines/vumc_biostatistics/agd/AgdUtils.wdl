@@ -342,12 +342,15 @@ snv_vcf_data = snv_vcf[,10:ncol(snv_vcf)]
 
 cat("converting snv to genotype ... \n")
 snv_vcf_gt = data.frame(lapply(snv_vcf_data, function(x) { gsub(':.*', '', x)}), check.names=FALSE)
-snv_vcf_gt = data.frame(lapply(snv_vcf_data, function(x) { gsub('|', '/', x)}), check.names=FALSE)
+snv_vcf_gt = data.frame(lapply(snv_vcf_data, function(x) { gsub('[|]', '/', x)}), check.names=FALSE)
+print(head(snv_vcf_gt[,1:5]))
+
 has_snv=apply(snv_vcf_gt, 2, function(x) { any(x %in% c('1/1', '0/1', '1/0', '0/2', '2/0'))})
 
 df=data.frame(GRID=colnames(snv_vcf_gt), Genotype=ifelse(has_snv, "1", "0")) |> 
   dplyr::filter(GRID %in% agd_df\$PRIMARY_GRID) |>
   dplyr::arrange(GRID)
+print(table(df$Genotype))
   
 cat("saving to", genotype_file, "...\n")
 write.csv(df, genotype_file, quote=FALSE, row.names=FALSE)
