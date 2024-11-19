@@ -32,7 +32,7 @@ on:
         required: false
         default: "false"
       testType:
-        description: 'Specify the type of test (Plumbing or Scientific'
+        description: 'Specify the type of test (Plumbing or Scientific)'
         required: true
 
 env:
@@ -92,7 +92,7 @@ jobs:
           PIPELINE_DIR="pipelines/broad/genotyping/illumina"
           # TODO: Need to set the truth and result paths appropriately
           # We may want to keep the truth and resuts buckets separate for TTL reasons
-          TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth"
+          TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')"
           RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
 
           # Function to call the Firecloud API using the firecloud_api.py script
