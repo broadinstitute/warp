@@ -184,6 +184,12 @@ for ind in new_tbl.index:
         print(f"  {chr} found {mt_filter.count_rows()} snps from hailmatrix")
 
         if mt_filter.count_rows() > 0:
+            #keep GT only
+            mt_filter = mt_filter.select_entries(mt_filter.GT)
+
+            # Remove INFO annotations by setting them to empty
+            mt_filter = mt_filter.annotate_rows(info=hl.struct())
+
             if all_tbl == None:
                 all_tbl = mt_filter
             else:
@@ -198,6 +204,10 @@ all_tbl = all_tbl.naive_coalesce(2)
 hl.export_vcf(all_tbl, "~{target_file}")
 
 CODE
+
+# #keep GT only
+# bcftools annotate -x INFO,^FORMAT/GT ~{target_file} -Ov -o tmp.vcf.bgz
+# mv tmp.vcf.bgz ~{target_file}
 
 rm -rf tmp
 
@@ -292,15 +302,12 @@ agd_df=fread(agd_primary_grid_file, data.table=FALSE)
 
 cat("reading", annovar_file, "...\n")
 annovar=fread(annovar_file)
-
-cat("reading", vcf_file, "...\n")
-vcf = fread(cmd=paste0('zcat ', vcf_file), skip='#CHROM')
-cat("there are", nrow(vcf), "SNVs...\n")
+cat("there are", nrow(annovar), "SNVs in annovar ...\n")
 
 cat("filtering by gene", gene, "...\n")
-vcf = vcf |>
-  dplyr::filter(ExonicFunc_refGene==gene)
-cat("there are", nrow(vcf), "SNVs from", gene, "...\n")
+annovar = annovar |>
+  dplyr::filter(ExonicFunc.refGene==gene)
+cat("there are", nrow(annovar), "SNVs in annovar from", gene, "...\n")
 
 cat("filtering snv ... \n")
 if(loss_of_function_only){
@@ -312,6 +319,11 @@ if(loss_of_function_only){
               annovar |> dplyr::filter(Func.refGene %in% c('exonic')) |> dplyr::filter(ExonicFunc.refGene %in% c('stopgain', 'startloss', 'nonsynonymous SNV'))
   )
 }
+cat("there are", nrow(snv), "valid SNVs ...\n")
+
+cat("reading", vcf_file, "...\n")
+vcf = fread(cmd=paste0('zcat ', vcf_file), skip='#CHROM')
+cat("there are total", nrow(vcf), "SNVs...\n")
 
 snv_vcf=vcf |> dplyr::filter(POS %in% snv\$Start)
 snv_vcf_data = snv_vcf[,10:ncol(snv_vcf)]
