@@ -263,15 +263,14 @@ task PrepareGeneGenotype {
 
     Int loss_of_function_only = 0
 
-    #String docker = "shengqh/r4:20241117"
-    String docker = "shengqh/report:20240531"
+    String docker = "shengqh/report:20241118"
     
     Int preemptible = 1
-
+    Int additional_disk_size = 10
     Int memory_gb = 20
   }
 
-  Int disk_size = ceil(size([agd_primary_grid_file, annovar_file, vcf_file], "GB")) + 10
+  Int disk_size = ceil(size([agd_primary_grid_file, annovar_file, vcf_file], "GB") * 5) + additional_disk_size
   String target_file = if loss_of_function_only == 0 then gene_symbol + ".genotype.csv" else gene_symbol + ".lof.genotype.csv"
 
   command <<<
@@ -358,8 +357,7 @@ task PreparePhenotype {
     File phecode_map_file
     Int min_occurance = 2
 
-    #String docker = "shengqh/r4:20241117"
-    String docker = "shengqh/report:20240531"
+    String docker = "shengqh/report:20241118"
     
     Int preemptible = 1
 
@@ -398,5 +396,62 @@ R -e "library(knitr);rmarkdown::render(input='~{phecode}.phenotype.rmd');"
   output {
     File output_phenotype_file = "~{phecode}.phenotype.csv"
     File output_phenotype_report = "~{phecode}.phenotype.html"
+  }
+}
+
+task LinearAssociation {
+  input {
+    Float phecode
+
+    File phenotype_file
+
+    File agd_primary_grid_file
+    File demographics_file
+    File genotype_file
+    File pca_file
+    File phecode_map_file
+    File ancestry_file
+
+    String docker = "shengqh/report:20241118"
+    
+    Int preemptible = 1
+
+    Int memory_gb = 20
+  }
+
+  Int disk_size = ceil(size([phenotype_file, agd_primary_grid_file, demographics_file, genotype_file, pca_file, phecode_map_file, ancestry_file], "GB")) + 10
+
+  command <<<
+
+wget https://raw.githubusercontent.com/shengqh/ngsperl/refs/heads/master/lib/CQS/reportFunctions.R
+
+wget https://raw.githubusercontent.com/shengqh/ngsperl/refs/heads/master/lib/BioVU/linear_association.rmd
+
+mv linear_association.rmd ~{phecode}.linear_association.rmd
+
+echo -e "~{phecode}\tphecode" > input_options.txt
+echo -e "~{phecode}\tphename" >> input_options.txt
+echo -e "~{phenotype_file}\tphefile" >> input_options.txt
+echo -e "~{agd_primary_grid_file}\tagd_file" >> input_options.txt
+echo -e "~{demographics_file}\tdemographics_file" >> input_options.txt
+echo -e "~{genotype_file}\tgenotype_file" >> input_options.txt
+echo -e "~{pca_file}\tpca_file" >> input_options.txt
+echo -e "~{phecode_map_file}\tphecode_map_file" >> input_options.txt
+echo -e "~{ancestry_file}\tancestry_file" >> input_options.txt
+
+R -e "library(knitr);rmarkdown::render(input='~{phecode}.linear_association.rmd');"   
+
+>>>
+
+  runtime {
+    cpu: 1
+    docker: "~{docker}"
+    preemptible: preemptible
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+  output {
+    File linear_association_file = "~{phecode}.linear_association.csv"
+    File linear_association_report = "~{phecode}.linear_association.html"
   }
 }
