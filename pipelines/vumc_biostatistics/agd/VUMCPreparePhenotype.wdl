@@ -5,6 +5,7 @@ import "./AgdUtils.wdl" as AgdUtils
 
 workflow VUMCPreparePhenotype {
   input {
+    String phename
     Float phecode
 
     File agd_primary_grid_file
@@ -18,6 +19,7 @@ workflow VUMCPreparePhenotype {
 
   call AgdUtils.PreparePhenotype {
     input:
+      phename = phename,
       phecode = phecode,
       agd_primary_grid_file = agd_primary_grid_file,
       phecode_data_file = phecode_data_file,
