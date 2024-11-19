@@ -271,7 +271,7 @@ task PrepareGeneGenotype {
     File annovar_file
     File vcf_file
 
-    Int loss_of_function_only = 0
+    Int loss_of_function_only = 1
 
     String docker = "shengqh/report:20241118"
     

@@ -10,6 +10,8 @@ workflow VUMCPrepareGeneGenotype {
     File annovar_file
     File vcf_file
 
+    Int loss_of_function_only=1
+
     String? project_id
     String? target_gcp_folder
   }
@@ -19,7 +21,8 @@ workflow VUMCPrepareGeneGenotype {
       gene_symbol = gene_symbol,
       agd_primary_grid_file = agd_primary_grid_file,
       annovar_file = annovar_file,
-      vcf_file = vcf_file
+      vcf_file = vcf_file,
+      loss_of_function_only = loss_of_function_only
   }
 
   if(defined(target_gcp_folder)){
