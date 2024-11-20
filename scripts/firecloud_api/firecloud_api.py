@@ -145,7 +145,7 @@ class FirecloudAPI:
             return data  # Return as-is if it's not a string, int, float, or bool
 
 
-    def upload_test_inputs(self, pipeline_name, test_inputs):
+    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
         """
         Uploads test inputs to the workspace via Firecloud API.
 
@@ -160,7 +160,7 @@ class FirecloudAPI:
         # get the current method configuration
         response = requests.get(url, headers=self.headers)
         config = response.json()
-        print(f"Current method configuration: {response}")
+        print(f"Current method configuration: {config}")
         # update the config with the new inputs
         print(f"Opening test inputs file: {test_inputs}")
         with open(test_inputs, 'r') as file:
@@ -168,6 +168,11 @@ class FirecloudAPI:
             print("Test inputs loaded successfully.")
             inputs_json = self.quote_values(inputs_json)
             config["inputs"] = inputs_json
+
+        # update the config with the new branch name
+        print(f"Updating methodVersion with branch name: {branch_name}")
+        config["methodRepoMethod"]["methodVersion"] = branch_name
+        print(f"Updated method configuration: {config}")
 
 
     # post the updated method config to the workspace
