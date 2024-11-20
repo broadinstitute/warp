@@ -170,8 +170,6 @@ class FirecloudAPI:
             inputs_json = self.quote_values(inputs_json)
             config["inputs"] = inputs_json
 
-        # update the config with the new branch name
-
         # Construct the methodUri with the branch name
         base_url = "github.com/broadinstitute/warp/{pipeline_name}"
         method_uri = f"dockstore://{quote(base_url)}/{branch_name}"
@@ -181,12 +179,12 @@ class FirecloudAPI:
         print(f"Updating methodVersion with branch name: {branch_name}")
         config["methodRepoMethod"]["methodVersion"] = branch_name
 
-        # Increment the methodConfigVersion
+        # We need to increment the methodConfigVersion by 1 every time we update the method configuration
         config["methodConfigVersion"] += 1  # Increment version number by  1
         print(f"Updated method configuration: {json.dumps(config, indent=2)}")
 
 
-    # post the updated method config to the workspace
+       # post the updated method config to the workspace
         response = requests.post(url, headers=self.headers, json=config)
         print(f"Response status code: {response.status_code}")
         print(f"Response text: {response.text}")
