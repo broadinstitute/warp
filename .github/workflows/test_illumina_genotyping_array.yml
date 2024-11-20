@@ -84,25 +84,44 @@ jobs:
             echo "branch_name=${{ github.head_ref }}" >> $GITHUB_ENV
           fi
 
-      - name: Check for Previous Commits in GitHub
-        id: check_commits
+      - name: Check if Branch has been Pushed Before
+        id: check_branch_push
         run: |
           BRANCH_NAME="${{ env.branch_name }}"
           REPO_OWNER="${{ github.repository_owner }}"
           REPO_NAME="${{ github.event.repository.name }}"
-          
-          # Get commit history for the branch
-          COMMITS=$(curl -s -f "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/commits?sha=${BRANCH_NAME}")
-
-          # Check the return code of the curl command
-          if [ $? -eq 0 ]; then
-            echo "Branch has previous commits. Assuming this is not the first push to the branch."
-            echo "skip_pipeline=false" >> $GITHUB_ENV
+      
+          # Check if the branch exists remotely
+          BRANCH_EXISTS=$(curl -s "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/branches/${BRANCH_NAME}" | jq -r '.name')
+      
+          # If the branch does not exist, it's the first time the branch is being pushed.
+          if [ "$BRANCH_EXISTS" == "$BRANCH_NAME" ]; then
+            # Branch exists, check the last commit timestamp
+            COMMITS=$(curl -s "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/commits?sha=${BRANCH_NAME}")
+      
+            # Get the timestamp of the most recent commit
+            LATEST_COMMIT_DATE=$(echo "$COMMITS" | jq -r '.[0].commit.committer.date')
+      
+            # Convert the commit date to Unix timestamp
+            LATEST_COMMIT_TIMESTAMP=$(date -d "$LATEST_COMMIT_DATE" +%s)
+      
+            # Get the current timestamp
+            CURRENT_TIMESTAMP=$(date +%s)
+      
+            # Calculate the time difference in seconds
+            TIME_DIFF=$((CURRENT_TIMESTAMP - LATEST_COMMIT_TIMESTAMP))
+      
+            # If the branch was pushed within the last 60 seconds, delay the pipeline by 5 minutes (300 seconds)
+            if [ "$TIME_DIFF" -le 60 ]; then
+              echo "Branch was pushed within the last 60 seconds. Delaying pipeline by 5 minutes."
+              sleep 300
+            else
+              echo "Branch was not pushed in the last 60 seconds. Proceeding with pipeline."
+            fi
           else
-            echo "Branch is new or has no commits. Assuming first push. Delaying test by 5 minutes."
-            # Delay the test by 5 minutes (300 seconds)
-            sleep 300
+            echo "Branch has not been pushed before. Proceeding with pipeline."
           fi
+
 
       - name: Submit job, poll status, and get outputs
         id: pipeline_run
