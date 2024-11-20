@@ -160,7 +160,7 @@ class FirecloudAPI:
         # get the current method configuration
         response = requests.get(url, headers=self.headers)
         config = response.json()
-        print(f"Current method configuration: {config}")
+        print(f"Current method configuration: {response}")
         # update the config with the new inputs
         print(f"Opening test inputs file: {test_inputs}")
         with open(test_inputs, 'r') as file:
