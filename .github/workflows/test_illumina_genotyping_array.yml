@@ -50,7 +50,9 @@ jobs:
 
     steps:
       # actions/checkout MUST come before auth
-      - uses: 'actions/checkout@v3'
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref_name }}
 
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
@@ -71,6 +73,11 @@ jobs:
           echo "Current directory:"
           pwd
           ls -lht
+
+      - name: Verify checked-out branch
+        run: |
+          echo "Branch: ${{ github.ref }}"
+
 
       - name: Submit job, poll status, and get outputs
         id: pipeline_run
