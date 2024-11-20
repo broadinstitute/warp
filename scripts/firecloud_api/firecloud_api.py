@@ -180,8 +180,8 @@ class FirecloudAPI:
 
     # post the updated method config to the workspace
         response = requests.post(url, headers=self.headers, json=config)
-        #print(f"Response status code: {response.status_code}")
-        #print(f"Response text: {response.text}")
+        print(f"Response status code: {response.status_code}")
+        print(f"Response text: {response.text}")
 
         # Check if the test inputs were uploaded successfully
         if response.status_code == 200:
