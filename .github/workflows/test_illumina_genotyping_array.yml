@@ -122,7 +122,7 @@ jobs:
               UPDATE_TRUTH_BOOL=false
           fi
           
-          # Create the submission_data.json file which will be the same for all inputs
+          # Create the submission_data.json file which will be the same for all inputs 
           SUBMISSION_DATA_FILE="submission_data.json"
         
           # Use a heredoc to generate the JSON file content dynamically
