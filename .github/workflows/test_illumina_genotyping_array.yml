@@ -172,7 +172,9 @@ jobs:
                                                                                 --inputs_json "$input_file" \
                                                                                 --update_truth "$UPDATE_TRUTH_BOOL")
             echo "Uploading the test input file: $test_input_file"
-          
+            #echo the branvh name 
+            echo "Branch name: $branch_name"
+            
             firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name "${{ github.head_ref }}"
 
             echo "Submitting job for input file: $input_file"
