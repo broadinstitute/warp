@@ -81,6 +81,7 @@ class FirecloudAPI:
             return submission_id
         else:
             print(f"Failed to create submission. Status code: {response.status_code}")
+            print(f"Response content: {response.text}")
             return None
 
     
