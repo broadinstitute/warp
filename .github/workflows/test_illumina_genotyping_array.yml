@@ -52,7 +52,7 @@ jobs:
       # actions/checkout MUST come before auth
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.ref_name }}
+          ref: ${{ github.ref }}
 
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
@@ -76,7 +76,7 @@ jobs:
 
       - name: Verify checked-out branch
         run: |
-          echo "Branch: ${{ github.ref }}"
+          echo "Branch: ${{ github.ref_name }}"
 
 
       - name: Submit job, poll status, and get outputs
