@@ -77,7 +77,7 @@ jobs:
 
       - name: Verify checked-out branch
         run: |
-        echo "Branch: ${{ github.ref }}"
+          echo "Branch: ${{ github.ref }}"
 
       - name: Set pipeline branch-specific variables
         run: |
