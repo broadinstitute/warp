@@ -142,7 +142,7 @@ class FirecloudAPI:
         elif isinstance(data, (str, int, float, bool)):
             return f"\"{data}\""
         else:
-            return data  # Return as-is if it's not a string, int, float, or bool
+            return data  # Return as-is if it's not a string, int, float, or boolean
 
 
     def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
