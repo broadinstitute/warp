@@ -247,8 +247,8 @@ if __name__ == "__main__":
               print("No workflows found or an error occurred.", file=sys.stderr)
 
     elif args.action == 'upload_test_inputs':
-        if not all([args.pipeline_name, args.test_input_file]):
-            print("For 'upload_test_inputs', --pipeline_name and --test_input_file are required.", file=sys.stderr)
+        if not all([args.pipeline_name, args.test_input_file, args.branch_name]):
+            print("For 'upload_test_inputs', --pipeline_name, --test_input_file and --branch_name are required.", file=sys.stderr)
         else:
-            success = firecloud_api.upload_test_inputs(args.pipeline_name, args.test_input_file)
+            success = firecloud_api.upload_test_inputs(args.pipeline_name, args.test_input_file, args.branch_name)
             print(success)
