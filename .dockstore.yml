@@ -348,3 +348,7 @@ workflows:
   - name: VUMCLinearAssociation
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCLinearAssociation.wdl
+
+  - name: VUMCPrepareGeneGenotypeWorkflow
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareGeneGenotypeWorkflow.wdl
