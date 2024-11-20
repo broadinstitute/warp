@@ -71,7 +71,7 @@ jobs:
       # Set the branch name.
       # github.head_ref contains the name of the branch in the context of a pull request
       # if github.head_ref is empty, it implies the workflow was triggered manually
-      # ${GITHUB_REF##*/} extracts the branch name from GITHUB_REF.
+      # ${GITHUB_REF##*/} extracts the   branch name from GITHUB_REF.
       # The ##*/ is a parameter expansion that removes the refs/heads/ prefix, leaving just the branch name.
       - name: Set Branch Name
         id: set_branch
