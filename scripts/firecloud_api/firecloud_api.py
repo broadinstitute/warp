@@ -175,7 +175,7 @@ class FirecloudAPI:
 
         # Increment the methodConfigVersion
         config["methodConfigVersion"] += 1  # Increment version number by  1
-        print(f"Updated method configuration: {config}")
+        print(f"Updated method configuration: {json.dumps(config, indent=2)}")
 
 
     # post the updated method config to the workspace
