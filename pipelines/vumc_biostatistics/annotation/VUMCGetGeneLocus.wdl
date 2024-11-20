@@ -19,7 +19,7 @@ workflow VUMCGetGeneLocus {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
-        source_file = GetGeneLocus.output_bed,
+        source_file = GetGeneLocus.gene_bed,
         is_move_file = false,
         project_id = billing_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -27,6 +27,6 @@ workflow VUMCGetGeneLocus {
   }
 
   output {
-    File output_bed = select_first([CopyFile.output_file, GetGeneLocus.output_bed])
+    File gene_bed = select_first([CopyFile.output_file, GetGeneLocus.gene_bed])
   }
 }

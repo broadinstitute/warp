@@ -75,6 +75,6 @@ R -f script.r
     memory: "4 GiB"
   }
   output {
-    File output_bed = "~{target_file}"
+    File gene_bed = "~{target_file}"
   }
 }

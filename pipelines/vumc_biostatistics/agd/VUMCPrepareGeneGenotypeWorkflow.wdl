@@ -27,7 +27,7 @@ workflow VUMCPrepareGeneGenotypeWorkflow {
     input:
       input_hail_mt_path_file = input_hail_mt_path_file,
       expect_output_vcf_bgz_size_gb = expect_output_vcf_bgz_size_gb,
-      input_bed = GetGeneLocus.output_bed,
+      input_bed = GetGeneLocus.gene_bed,
       target_prefix = gene_symbol,
       billing_project_id = select_first([project_id])
   }
@@ -49,7 +49,7 @@ workflow VUMCPrepareGeneGenotypeWorkflow {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopySevenFiles as CopyFile {
       input:
-        source_file1 = GetGeneLocus.output_bed,
+        source_file1 = GetGeneLocus.gene_bed,
         source_file2 = HailMatrixExtractRegions.output_vcf,
         source_file3 = Annovar.annovar_file,
         source_file4 = PrepareGeneGenotype.lof_genotype_file,
@@ -63,7 +63,7 @@ workflow VUMCPrepareGeneGenotypeWorkflow {
   }
 
   output {
-    File bed_file = select_first([CopyFile.output_file1, GetGeneLocus.output_bed])
+    File gene_bed = select_first([CopyFile.output_file1, GetGeneLocus.gene_bed])
     File vcf_file = select_first([CopyFile.output_file2, HailMatrixExtractRegions.output_vcf])
     File annovar_file = select_first([CopyFile.output_file3, Annovar.annovar_file])
     File lof_genotype_file = select_first([CopyFile.output_file4, PrepareGeneGenotype.lof_genotype_file])
