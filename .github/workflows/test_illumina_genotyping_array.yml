@@ -174,8 +174,9 @@ jobs:
             echo "Uploading the test input file: $test_input_file"
             #echo the branvh name 
             echo "Branch name: $branch_name"
+            echo "firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name $branch_name"
             
-            firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name "${{ github.head_ref }}"
+            firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name $branch_name
 
             echo "Submitting job for input file: $input_file"
             cat "$SUBMISSION_DATA_FILE"
