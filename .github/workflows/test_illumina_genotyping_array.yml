@@ -1,4 +1,3 @@
-
 name: Test Illumina Genotyping Array
 
 # Controls when the workflow will run
@@ -93,7 +92,7 @@ jobs:
           # TODO: Need to set the truth and result paths appropriately
           # TODO: Need to dynamically set the truth branch, for now it is hardcoded to master branch
           # We may want to keep the truth and resuts buckets separate for TTL reasons
-          "TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/master"
+          TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/master"
           RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
 
           # Function to call the Firecloud API using the firecloud_api.py script
