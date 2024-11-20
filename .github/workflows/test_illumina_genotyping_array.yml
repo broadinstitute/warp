@@ -162,6 +162,7 @@ jobs:
             firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name "${{ github.head_ref }}"
 
             echo "Submitting job for input file: $input_file"
+            cat "$SUBMISSION_DATA_FILE"
             SUBMISSION_ID=$(firecloud_action submit --submission_data_file "$SUBMISSION_DATA_FILE")
 
             if [ -z "$SUBMISSION_ID" ]; then
