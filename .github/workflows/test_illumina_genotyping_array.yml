@@ -76,7 +76,7 @@ jobs:
 
       - name: Verify checked-out branch
         run: |
-          echo "Branch: ${{ github.ref_name }}"
+          echo "Branch: ${{ github.head_ref }}"
 
 
       - name: Submit job, poll status, and get outputs
