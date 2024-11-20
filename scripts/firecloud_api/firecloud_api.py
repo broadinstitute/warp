@@ -204,6 +204,7 @@ if __name__ == "__main__":
     parser.add_argument('--pipeline_name', help='Pipeline name (required for get_outputs)')
     parser.add_argument('--submission_data_file', help='Path to submission data JSON file (required for submit)')
     parser.add_argument('--test_input_file', help='Path to test inputs JSON file (required for upload_test_inputs)')
+    parser.add_argument('--branch_name', help='Branch name for the method configuration (required for upload)')
 
     args = parser.parse_args()
 
