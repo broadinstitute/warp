@@ -173,7 +173,7 @@ class FirecloudAPI:
         # update the config with the new branch name
 
         # Construct the methodUri with the branch name
-        base_url = "github.com/broadinstitute/warp/TestIlluminaGenotypingArray"
+        base_url = "github.com/broadinstitute/warp/{pipeline_name}"
         method_uri = f"dockstore://{quote(base_url)}/{branch_name}"
         print(f"Updating methodUri with branch name: {method_uri}")
         config["methodRepoMethod"]["methodUri"] = method_uri
