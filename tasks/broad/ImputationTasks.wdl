@@ -12,6 +12,8 @@ task CalculateChromosomeLength {
   }
 
   command {
+    set -e -o pipefail
+
     grep -P "SN:~{chrom}\t" ~{ref_dict} | sed 's/.*LN://' | sed 's/\t.*//'
   }
   runtime {
@@ -39,6 +41,8 @@ task GetMissingContigList {
   }
 
   command <<<
+    set -e -o pipefail
+
     grep "@SQ" ~{ref_dict} | sed 's/.*SN://' | sed 's/\t.*//' > contigs.txt
     awk 'NR==FNR{arr[$0];next} !($0 in arr)' ~{included_contigs} contigs.txt > missing_contigs.txt
   >>>
@@ -503,7 +507,6 @@ task UpdateHeader {
   Int max_heap = memory_mb - 500
 
   command <<<
-
     ## update the header of the merged vcf
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     UpdateVCFSequenceDictionary \
@@ -607,6 +610,7 @@ task OptionalQCSites {
   Float hwe = select_first([optional_qc_hwe, 0.000001])
   command <<<
     set -e -o pipefail
+
     ln -sf ~{input_vcf} input.vcf.gz
     ln -sf ~{input_vcf_index} input.vcf.gz.tbi
 
@@ -639,6 +643,7 @@ task MergeSingleSampleVcfs {
   }
   command <<<
     set -e -o pipefail
+
     # Move the index file next to the vcf with the corresponding name
 
     declare -a VCFS=(~{sep=' ' input_vcfs})
@@ -678,6 +683,8 @@ task CountSamples {
   }
 
   command <<<
+    set -e -o pipefail
+
     bcftools query -l ~{vcf} | wc -l
   >>>
   runtime {
@@ -879,6 +886,7 @@ task SetIDs {
   }
   command <<<
     set -e -o pipefail
+
     bcftools annotate ~{vcf} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Oz -o ~{output_basename}.vcf.gz
     bcftools index -t ~{output_basename}.vcf.gz
   >>>
@@ -1043,6 +1051,8 @@ task FindSitesUniqueToFileTwoOnly {
     Int disk_size_gb = ceil(size(file1, "GiB") + 2*size(file2, "GiB")) + 100
   }
   command <<<
+    set -e -o pipefail
+
     comm -13 <(sort ~{file1} | uniq) <(sort ~{file2} | uniq) > missing_sites.ids
   >>>
   runtime {
