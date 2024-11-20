@@ -34,6 +34,7 @@ on:
         description: 'Specify the type of test (Plumbing or Scientific)'
         required: true
 
+
 env:
   PROJECT_NAME: WARP
   # Github repo name
@@ -77,6 +78,18 @@ jobs:
       - name: Verify checked-out branch
         run: |
           echo "Branch: ${{ github.head_ref }}"
+
+      # Set the branch name. Use github.head_ref if it's a pull request or github.ref if triggered manually
+      - name: Set Branch Name
+        id: set_branch
+        run: |
+          if [ -z "${{ github.head_ref }}" ]; then
+            echo "Branch name is missing, using ${GITHUB_REF##*/}"
+            echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          else
+            echo "Branch name from PR: ${{ github.head_ref }}"
+            echo "branch_name=${{ github.head_ref }}" >> $GITHUB_ENV
+          fi
 
 
       - name: Submit job, poll status, and get outputs
@@ -159,7 +172,6 @@ jobs:
                                                                                 --inputs_json "$input_file" \
                                                                                 --update_truth "$UPDATE_TRUTH_BOOL")
             echo "Uploading the test input file: $test_input_file"
-            echo "Branch name: ${{ github.head_ref }}"
           
             firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name "${{ github.head_ref }}"
 
