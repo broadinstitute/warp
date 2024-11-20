@@ -349,6 +349,9 @@ to_genotype_file<-function(vcf, snv, genotype_file){
     
   cat("  saving to", genotype_file, "...\n")
   write.csv(df, genotype_file, quote=FALSE, row.names=FALSE)
+
+  freq_df=as.data.frame(table(df\$Genotype))
+  write.csv(freq_df, gsub(".csv", ".freq.csv", genotype_file), quote=FALSE, row.names=FALSE)
 }
 
 to_genotype_file(vcf, lof_snv, paste0(gene, ".lof.genotype.csv"))
@@ -371,7 +374,9 @@ R -f script.r
   }
   output {
     File lof_genotype_file = "~{gene_symbol}.lof.genotype.csv"
+    File lof_genotype_freq_file = "~{gene_symbol}.lof.genotype.freq.csv"
     File vuc_genotype_file = "~{gene_symbol}.vuc.genotype.csv"
+    File vuc_genotype_freq_file = "~{gene_symbol}.vuc.genotype.freq.csv"
   }
 }
 
