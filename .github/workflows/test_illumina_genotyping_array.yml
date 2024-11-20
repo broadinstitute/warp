@@ -34,6 +34,7 @@ on:
         description: 'Specify the type of test (Plumbing or Scientific)'
         required: true
 
+
 env:
   PROJECT_NAME: WARP
   # Github repo name
@@ -67,16 +68,21 @@ jobs:
           access_token_lifetime: '3600' # seconds, default is 3600
           access_token_scopes: 'profile, email, openid'
 
-      # ... further steps are automatically authenticated
-      - name: Check working directory
+      # Set the branch name.
+      # github.head_ref contains the name of the branch in the context of a pull request
+      # if github.head_ref is empty, it implies the workflow was triggered manually
+      # ${GITHUB_REF##*/} extracts the branch name from GITHUB_REF.
+      # The ##*/ is a parameter expansion that removes the refs/heads/ prefix, leaving just the branch name.
+      - name: Set Branch Name
+        id: set_branch
         run: |
-          echo "Current directory:"
-          pwd
-          ls -lht
-
-      - name: Verify checked-out branch
-        run: |
-          echo "Branch: ${{ github.head_ref }}"
+          if [ -z "${{ github.head_ref }}" ]; then
+            echo "Branch name is missing, using ${GITHUB_REF##*/}"
+            echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          else
+            echo "Branch name from PR: ${{ github.head_ref }}"
+            echo "branch_name=${{ github.head_ref }}" >> $GITHUB_ENV
+          fi
 
 
       - name: Submit job, poll status, and get outputs
@@ -158,9 +164,10 @@ jobs:
                                                                                 --results_path "$RESULTS_PATH" \
                                                                                 --inputs_json "$input_file" \
                                                                                 --update_truth "$UPDATE_TRUTH_BOOL")
-            echo "Uploading test input file: $test_input_file"
-          
-            firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name "${{ github.head_ref }}"
+            echo "Uploading the test input file: $test_input_file"
+            echo "Branch name: $branch_name"
+            
+            firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name $branch_name
 
             echo "Submitting job for input file: $input_file"
             cat "$SUBMISSION_DATA_FILE"
