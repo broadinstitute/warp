@@ -68,18 +68,11 @@ jobs:
           access_token_lifetime: '3600' # seconds, default is 3600
           access_token_scopes: 'profile, email, openid'
 
-      # ... further steps are automatically authenticated
-      - name: Check working directory
-        run: |
-          echo "Current directory:"
-          pwd
-          ls -lht
-
-      - name: Verify checked-out branch
-        run: |
-          echo "Branch: ${{ github.head_ref }}"
-
-      # Set the branch name. Use github.head_ref if it's a pull request or github.ref if triggered manually
+      # Set the branch name.
+      # github.head_ref contains the name of the branch in the context of a pull request
+      # if github.head_ref is empty, it implies the workflow was triggered manually
+      # ${GITHUB_REF##*/} extracts the branch name from GITHUB_REF.
+      # The ##*/ is a parameter expansion that removes the refs/heads/ prefix, leaving just the branch name.
       - name: Set Branch Name
         id: set_branch
         run: |
@@ -172,9 +165,7 @@ jobs:
                                                                                 --inputs_json "$input_file" \
                                                                                 --update_truth "$UPDATE_TRUTH_BOOL")
             echo "Uploading the test input file: $test_input_file"
-            #echo the branvh name 
             echo "Branch name: $branch_name"
-            echo "firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name $branch_name"
             
             firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name $branch_name
 
