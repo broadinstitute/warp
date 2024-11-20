@@ -57,7 +57,7 @@ workflow ATAC {
   String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
   # Docker image names
-  String warp_tools_2_2_0 = "warp-tools:2.2.0"
+  String warp_tools_2_2_0 = "warp-tools:lk-PD-2803-fix-refseq-h5ad"
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
