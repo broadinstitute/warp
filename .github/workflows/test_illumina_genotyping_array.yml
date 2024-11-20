@@ -52,6 +52,8 @@ jobs:
     steps:
       # actions/checkout MUST come before auth
       - uses: 'actions/checkout@v3'
+        with:
+          ref: ${{ github.ref }}
 
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
@@ -73,6 +75,14 @@ jobs:
           pwd
           ls -lht
 
+      - name: Verify checked-out branch
+        run: |
+        echo "Branch: ${{ github.ref }}"
+
+      - name: Set pipeline branch-specific variables
+        run: |
+          echo "CURRENT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
       - name: Submit job, poll status, and get outputs
         id: pipeline_run
         run: |
@@ -93,7 +103,7 @@ jobs:
           # TODO: Need to set the truth and result paths appropriately
           # TODO: Need to dynamically set the truth branch, for now it is hardcoded to master branch
           # We may want to keep the truth and resuts buckets separate for TTL reasons
-          TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/master"
+          TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/${CURRENT_BRANCH}"
           RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
 
           # Function to call the Firecloud API using the firecloud_api.py script
@@ -185,7 +195,7 @@ jobs:
             # Append to aggregate statuses
             WORKFLOW_STATUSES["$SUBMISSION_ID"]=$WORKFLOW_STATUSES_FOR_SUBMISSION
           
-            # Optionally, retrieve workflow outputs
+            # retrieve workflow outputs
             echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
             for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
               WORKFLOW_OUTPUT=$(firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME")
