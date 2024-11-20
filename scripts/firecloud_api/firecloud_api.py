@@ -172,6 +172,9 @@ class FirecloudAPI:
         # update the config with the new branch name
         print(f"Updating methodVersion with branch name: {branch_name}")
         config["methodRepoMethod"]["methodVersion"] = branch_name
+
+        # Increment the methodConfigVersion
+        config["methodConfigVersion"] += 1  # Increment version number by  1
         print(f"Updated method configuration: {config}")
 
 
