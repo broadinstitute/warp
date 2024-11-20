@@ -68,7 +68,7 @@ jobs:
           access_token_lifetime: '3600' # seconds, default is 3600
           access_token_scopes: 'profile, email, openid'
 
-      # Set the branch name.
+      # Set branch name.
       # github.head_ref contains the name of the branch in the context of a pull request
       # if github.head_ref is empty, it implies the workflow was triggered manually
       # ${GITHUB_REF##*/} extracts the branch name from GITHUB_REF.
