@@ -59,7 +59,7 @@ task CreateRefPanelIntervalLists {
     File ref_panel_vcf
     File ref_panel_vcf_index
 
-    Int disk_size_gb = ceil(2*size(ref_panel_vcf, "GiB")) + 10 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
+    Int disk_size_gb = ceil(2*size(ref_panel_vcf, "GiB")) + 10
     Int cpu = 1
     Int memory_mb = 6000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
@@ -98,7 +98,7 @@ task GenerateChunk {
     File vcf
     File vcf_index
 
-    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
+    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
     Int cpu = 1
     Int memory_mb = 4000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
@@ -862,7 +862,7 @@ task SubsetVcfToRegion {
     Int end
     Boolean exclude_filtered = false
 
-    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
+    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
     Int cpu = 1
     Int memory_mb = 6000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
