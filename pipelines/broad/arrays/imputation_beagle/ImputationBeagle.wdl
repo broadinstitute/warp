@@ -1,7 +1,6 @@
 version 1.0
 
 import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
-import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow ImputationBeagle {
 
@@ -9,7 +8,7 @@ workflow ImputationBeagle {
 
   input {
     Int chunkLength = 25000000
-    Int chunkOverlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
+    Int chunkOverlaps = 2000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
 
     File multi_sample_vcf
 
@@ -152,7 +151,14 @@ workflow ImputationBeagle {
           for_dependency = FailQCNChunks.done # these shenanigans can be replaced with `after` in wdl 1.1
       }
 
-      call tasks.PhaseAndImputeBeagle {
+      # max amount of cpus you can ask for is 96 so at a max of 10k samples we can only ask for 9 cpu a sample.
+      # these values are based on trying to optimize for pre-emptibility using a 400k sample referene panel
+      # and up to a 10k sample input vcf
+      Int beagle_cpu = if (CountSamples.nSamples <= 1000) then 8 else floor(CountSamples.nSamples / 1000) * 9
+      Int beagle_phase_memory_in_gb = if (CountSamples.nSamples <= 1000) then 22 else ceil(beagle_cpu * 1.5)
+      Int beagle_impute_memory_in_gb = if (CountSamples.nSamples <= 1000) then 30 else ceil(beagle_cpu * 4.3)
+
+      call tasks.PhaseBeagle {
         input:
           dataset_vcf = chunkedVcfsWithOverlapsForImputation[i],
           ref_panel_bref3 = referencePanelContig.bref3,
@@ -160,15 +166,37 @@ workflow ImputationBeagle {
           basename = chunk_basename_imputed,
           genetic_map_file = referencePanelContig.genetic_map,
           start = start[i],
-          end = end[i]
+          end = end[i],
+          cpu = beagle_cpu,
+          memory_mb = beagle_phase_memory_in_gb * 1024
+      }
+
+      call tasks.ImputeBeagle {
+        input:
+          dataset_vcf = PhaseBeagle.vcf,
+          ref_panel_bref3 = referencePanelContig.bref3,
+          chrom = referencePanelContig.contig,
+          basename = chunk_basename_imputed,
+          genetic_map_file = referencePanelContig.genetic_map,
+          start = start[i],
+          end = end[i],
+          cpu = beagle_cpu,
+          memory_mb = beagle_impute_memory_in_gb * 1024
+      }
+
+      call tasks.CreateVcfIndex as IndexImputedBeagle {
+        input:
+          vcf_input = ImputeBeagle.vcf,
+          gatk_docker = gatk_docker
       }
 
       call tasks.UpdateHeader {
         input:
-          vcf = PhaseAndImputeBeagle.vcf,
-          vcf_index = PhaseAndImputeBeagle.vcf_index,
+          vcf = IndexImputedBeagle.vcf,
+          vcf_index = IndexImputedBeagle.vcf_index,
           ref_dict = ref_dict,
           basename = chunk_basename_imputed,
+          disable_sequence_dictionary_validation = false,
           gatk_docker = gatk_docker
       }
 
