@@ -95,7 +95,7 @@ task HailMatrixExtractRegions {
     String billing_project_id
     String? target_gcp_folder
 
-    String docker = "shengqh/hail_gcp:20240211"
+    String docker = "shengqh/hail_gcp:20241120"
     Int memory_gb = 10
     Int preemptible = 1
     Int cpu = 4
@@ -271,7 +271,7 @@ task PrepareGeneGenotype {
     File annovar_file
     File vcf_file
 
-    String docker = "shengqh/report:20241118"
+    String docker = "shengqh/report:20241120"
     
     Int preemptible = 1
     Int additional_disk_size = 10
@@ -390,7 +390,7 @@ task PreparePhenotype {
     File phecode_map_file
     Int min_occurance = 2
 
-    String docker = "shengqh/report:20241118"
+    String docker = "shengqh/report:20241120"
     
     Int preemptible = 1
 
@@ -446,7 +446,7 @@ task LinearAssociation {
     File phecode_map_file
     File ancestry_file
 
-    String docker = "shengqh/report:20241118"
+    String docker = "shengqh/report:20241120"
     
     Int preemptible = 1
 
