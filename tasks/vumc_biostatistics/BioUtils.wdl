@@ -91,11 +91,12 @@ task PgenQCFilter {
 
     Int memory_gb = 20
     Int cpu = 8
+    Float disk_size_factor = 1.5
 
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
   }
 
-  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 20
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * disk_size_factor) + 20
 
   String new_pgen = target_prefix + ".qc.pgen"
   String new_pvar = target_prefix + ".qc.pvar"
