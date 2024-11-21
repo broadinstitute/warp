@@ -1,0 +1,7 @@
+{
+  "VUMCMergePgenFiles.output_prefix": "chrYM",
+  "VUMCMergePgenFiles.pgen_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chrY.pgen", "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chrM.pgen"],
+  "VUMCMergePgenFiles.psam_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chrY.psam", "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chrM.psam"],
+  "VUMCMergePgenFiles.pvar_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chrY.pvar", "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chrM.pvar"]
+}
+

@@ -187,22 +187,23 @@ task MergePgenFiles {
     Array[File] pvar_files
     Array[File] psam_files
 
-    String target_prefix
+    String output_prefix
 
     Int memory_gb = 20
+    Int cpu = 8
 
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
   }
 
   Int disk_size = ceil((size(pgen_files, "GB") + size(pvar_files, "GB") + size(psam_files, "GB"))  * 3) + 20
 
-  String new_pgen = target_prefix + ".pgen"
-  String new_pvar = target_prefix + ".pvar"
-  String new_psam = target_prefix + ".psam"
+  String new_pgen = output_prefix + ".pgen"
+  String new_pvar = output_prefix + ".pvar"
+  String new_psam = output_prefix + ".psam"
 
-  String new_merged_pgen = target_prefix + "-merge.pgen"
-  String new_merged_pvar = target_prefix + "-merge.pvar"
-  String new_merged_psam = target_prefix + "-merge.psam"
+  String new_merged_pgen = output_prefix + "-merge.pgen"
+  String new_merged_pvar = output_prefix + "-merge.pvar"
+  String new_merged_psam = output_prefix + "-merge.psam"
 
   command <<<
 
@@ -212,7 +213,7 @@ cat ~{write_lines(psam_files)} > psam.list
 
 paste pgen.list pvar.list psam.list > merge.list
 
-plink2 --pmerge-list merge.list --make-pgen --out ~{target_prefix}
+plink2 --pmerge-list merge.list --make-pgen --out ~{output_prefix} --threads ~{cpu}
 
 rm -f ~{new_pgen} ~{new_pvar} ~{new_psam}
 
@@ -223,14 +224,15 @@ mv ~{new_merged_psam} ~{new_psam}
 >>>
 
   runtime {
+    cpu: cpu
     docker: docker
     preemptible: 1
     disks: "local-disk " + disk_size + " HDD"
     memory: memory_gb + " GiB"
   }
   output {
-    File output_pgen_file = new_pgen
-    File output_pvar_file = new_pvar
-    File output_psam_file = new_psam
+    File output_pgen = new_pgen
+    File output_pvar = new_pvar
+    File output_psam = new_psam
   }
 }
