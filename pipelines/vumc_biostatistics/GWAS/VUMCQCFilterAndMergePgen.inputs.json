@@ -1,0 +1,7 @@
+{
+  "VUMCQCFilterAndMergePgen.output_prefix": "chr2122",
+  "VUMCQCFilterAndMergePgen.psam_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chr21.psam", "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chr22.psam"],
+  "VUMCQCFilterAndMergePgen.pvar_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chr21.pvar", "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chr22.pvar"],
+  "VUMCQCFilterAndMergePgen.pgen_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chr21.pgen", "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chr22.pgen"]
+}
+

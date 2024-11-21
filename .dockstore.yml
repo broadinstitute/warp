@@ -356,3 +356,7 @@ workflows:
   - name: VUMCMergePgenFiles
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCMergePgenFiles.wdl
+
+  - name: VUMCQCFilterAndMergePgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCQCFilterAndMergePgen.wdl
