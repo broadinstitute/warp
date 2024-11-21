@@ -57,8 +57,8 @@ workflow VUMCQCFilterAndMergePgen {
   }
 
   output {
-    File output_pgen = select_first([CopyFile.output_file1, MergePgenFiles.output_pgen])
-    File output_pvar = select_first([CopyFile.output_file2, MergePgenFiles.output_pvar])
-    File output_psam = select_first([CopyFile.output_file3, MergePgenFiles.output_psam])
+    File qc_filtered_pgen = select_first([CopyFile.output_file1, MergePgenFiles.output_pgen])
+    File qc_filtered_pvar = select_first([CopyFile.output_file2, MergePgenFiles.output_pvar])
+    File qc_filtered_psam = select_first([CopyFile.output_file3, MergePgenFiles.output_psam])
   }
 }
