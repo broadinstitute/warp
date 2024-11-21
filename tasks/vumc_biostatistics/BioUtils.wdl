@@ -78,3 +78,51 @@ R -f script.r
     File gene_bed = "~{target_file}"
   }
 }
+
+task PgenQCFilter {
+  input {
+    File input_pgen
+    File input_pvar
+    File input_psam
+
+    String target_prefix
+
+    String qc_option
+
+    Int memory_gb = 20
+    Int cpu = 8
+
+    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+  }
+
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 20
+
+  String new_pgen = target_prefix + ".qc.pgen"
+  String new_pvar = target_prefix + ".qc.pvar"
+  String new_psam = target_prefix + ".qc.psam"
+
+  command <<<
+
+plink2 \
+  --pgen ~{input_pgen} \
+  --pvar ~{input_pvar} \
+  --psam ~{input_psam} \
+  ~{qc_option} \
+  --make-pgen \
+  --out ~{target_prefix}.qc
+
+>>>
+
+  runtime {
+    docker: docker
+    preemptible: 1
+    cpu: cpu
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+  output {
+    File output_pgen = new_pgen
+    File output_pvar = new_pvar
+    File output_psam = new_psam
+  }
+}
