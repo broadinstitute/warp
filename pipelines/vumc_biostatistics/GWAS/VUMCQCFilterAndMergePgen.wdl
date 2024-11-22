@@ -6,6 +6,7 @@ import "../genotype/Utils.wdl" as Utils
 
 workflow VUMCQCFilterAndMergePgen {
   input {
+    Array[String] chromosomes
     Array[File] pgen_files
     Array[File] pvar_files
     Array[File] psam_files
@@ -18,20 +19,21 @@ workflow VUMCQCFilterAndMergePgen {
     String? target_gcp_folder
   }
 
-  Array[Int] indices = range(length(pgen_files))
+  Array[Int] indices = range(length(chromosomes))
 
   scatter (i in indices) {
+    String chromosome = chromosomes[i]
     File pgen_file = pgen_files[i]
     File pvar_file = pvar_files[i]
     File psam_file = psam_files[i]
-    String cur_output_prefix = output_prefix + "." + i
+    String cur_output_prefix = output_prefix + "." + chromosome
 
     call BioUtils.PgenQCFilter {
       input:
         input_pgen = pgen_file,
         input_pvar = pvar_file,
         input_psam = psam_file,
-        target_prefix = cur_output_prefix,
+        output_prefix = cur_output_prefix,
         qc_option = qc_option
     }
   }

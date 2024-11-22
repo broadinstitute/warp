@@ -85,7 +85,7 @@ task PgenQCFilter {
     File input_pvar
     File input_psam
 
-    String target_prefix
+    String output_prefix
 
     String qc_option
 
@@ -98,10 +98,6 @@ task PgenQCFilter {
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * disk_size_factor) + 20
 
-  String new_pgen = target_prefix + ".qc.pgen"
-  String new_pvar = target_prefix + ".qc.pvar"
-  String new_psam = target_prefix + ".qc.psam"
-
   command <<<
 
 plink2 \
@@ -110,7 +106,7 @@ plink2 \
   --psam ~{input_psam} \
   ~{qc_option} \
   --make-pgen \
-  --out ~{target_prefix}.qc
+  --out ~{output_prefix}
 
 >>>
 
@@ -122,8 +118,8 @@ plink2 \
     memory: memory_gb + " GiB"
   }
   output {
-    File output_pgen = new_pgen
-    File output_pvar = new_pvar
-    File output_psam = new_psam
+    File output_pgen = "~{output_prefix}.pgen"
+    File output_pvar = "~{output_prefix}.pvar"
+    File output_psam = "~{output_prefix}.psam"
   }
 }
