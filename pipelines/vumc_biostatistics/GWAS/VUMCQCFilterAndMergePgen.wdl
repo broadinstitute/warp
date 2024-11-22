@@ -47,11 +47,14 @@ workflow VUMCQCFilterAndMergePgen {
   }
 
   if(defined(target_gcp_folder)){
+    String pgen = "~{MergePgenFiles.output_pgen}"
+    String pvar = "~{MergePgenFiles.output_pvar}"
+    String psam = "~{MergePgenFiles.output_psam}"
     call GcpUtils.MoveOrCopyThreeFiles as CopyFile {
       input:
-        source_file1 = MergePgenFiles.output_pgen,
-        source_file2 = MergePgenFiles.output_pvar,
-        source_file3 = MergePgenFiles.output_psam,
+        source_file1 = pgen,
+        source_file2 = pvar,
+        source_file3 = psam,
         is_move_file = false,
         project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
