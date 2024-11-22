@@ -1,0 +1,15 @@
+{
+  "VUMCRegenieNoQC.chromosomes": "Array[String]",
+  "VUMCRegenieNoQC.pgen_files": "Array[File]",
+  "VUMCRegenieNoQC.pvar_files": "Array[File]",
+  "VUMCRegenieNoQC.psam_files": "Array[File]",
+  "VUMCRegenieNoQC.qc_filtered_pgen": "File",
+  "VUMCRegenieNoQC.qc_filtered_psam": "File",
+  "VUMCRegenieNoQC.qc_filtered_pvar": "File",
+  "VUMCRegenieNoQC.phenoFile": "File",
+  "VUMCRegenieNoQC.covarColList": "String",
+  "VUMCRegenieNoQC.covarFile": "File",
+  "VUMCRegenieNoQC.phenoColList": "String",
+  "VUMCRegenieNoQC.output_prefix": "String"
+}
+
