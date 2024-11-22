@@ -281,6 +281,8 @@ task RecordMetadata1 {
 
     echo "~{input_files[0]}"
 
+    echo "~{output_files[0]}"
+
     echo "Input Files and MD5 Checksums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
       echo "$(basename $file): not_calculated" >> metadata.txt
