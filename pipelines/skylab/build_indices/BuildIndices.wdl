@@ -263,7 +263,6 @@ task RecordMetadata {
     cpu: "1"
   }
 }
-
 task RecordMetadata1 {
   input {
     String pipeline_version
@@ -279,18 +278,33 @@ task RecordMetadata1 {
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
     echo "" >> metadata.txt
 
-    for file in ~{sep=" " input_files}; do
-      echo "here is each input file ($file)"
-    done
-
+    # Parse and output details from the paths
     for file in ~{sep=" " output_files}; do
-      echo "here is each output file ($file)"
+      echo "Processing file: $file"
+
+      # Extract workspace bucket
+      workspace_bucket=$(echo $file | awk -F'/' '{print $3}')
+      echo "Workspace Bucket: $workspace_bucket"
+
+      # Extract submission ID
+      submission_id=$(echo $file | awk -F'/' '{print $5}')
+      echo "Submission ID: $submission_id"
+
+      # Extract workflow ID
+      workflow_id=$(echo $file | awk -F'/' '{print $7}')
+      echo "Workflow ID: $workflow_id"
+
+      # Append to metadata file
+      echo "File: $file" >> metadata.txt
+      echo "  Workspace Bucket: $workspace_bucket" >> metadata.txt
+      echo "  Submission ID: $submission_id" >> metadata.txt
+      echo "  Workflow ID: $workflow_id" >> metadata.txt
+      echo "" >> metadata.txt
     done
 
     echo "Input Files and MD5 Checksums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
       echo "$(basename $file): not_calculated" >> metadata.txt
-      echo "($file): is_not_calculated" >> metadata.txt
     done
 
     echo "" >> metadata.txt
