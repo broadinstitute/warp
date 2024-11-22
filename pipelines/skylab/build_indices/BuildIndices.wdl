@@ -48,18 +48,7 @@ workflow BuildIndices {
         gtf_annotation_version = gtf_annotation_version,
         organism = organism
     }
-    call RecordMetadata {
-      input:
-        pipeline_version = pipeline_version,
-        input_files = [annotations_gtf, genome_fa, biotypes],
-        output_files = [
-                       BuildStarSingleNucleus.star_index,
-                       BuildStarSingleNucleus.modified_annotation_gtf,
-                       CalculateChromosomeSizes.chrom_sizes,
-                       BuildBWAreference.reference_bundle
-                       ]
 
-    }
 call RecordMetadata1 {
   input:
   pipeline_version = pipeline_version,
@@ -78,7 +67,7 @@ call RecordMetadata1 {
     File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
     File reference_bundle = BuildBWAreference.reference_bundle
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
-    File metadata = RecordMetadata.metadata_file
+    File metadata = RecordMetadata1.metadata_file
   }
 }
 
@@ -297,13 +286,13 @@ task RecordMetadata1 {
 
     echo "Input Files and MD5 Checksums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
-      echo "$(basename $file): $(md5sum $file | awk '{print $1}')" >> metadata.txt
+      echo "$(basename $file): $(md5sum $(basename $file) | awk '{print $1}')" >> metadata.txt
     done
 
     echo "" >> metadata.txt
     echo "Output Files and MD5 Checksums:" >> metadata.txt
     for file in ~{sep=" " output_files}; do
-      echo "$(basename $file): $(md5sum $file | awk '{print $1}')" >> metadata.txt
+      echo "$(basename $file): $(basename $file) | awk '{print $1}')" >> metadata.txt
     done
 
     # Echo the selected output file for confirmation
