@@ -278,43 +278,36 @@ task RecordMetadata1 {
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
     echo "" >> metadata.txt
 
-    # Parse and output details from the paths
-    for file in ~{sep=" " output_files}; do
-      echo "Processing file: $file"
+    # Use the first output file for extracting IDs
+    file="~{output_files[0]}"
 
-      # Extract workspace bucket
-      workspace_bucket=$(echo $file | awk -F'/' '{print $3}')
-      echo "Workspace Bucket: $workspace_bucket"
+    # Extract workspace bucket
+    workspace_bucket=$(echo $file | awk -F'/' '{print $3}')
+    echo "Workspace Bucket: $workspace_bucket" >> metadata.txt
 
-      # Extract submission ID
-      submission_id=$(echo $file | awk -F'/' '{print $5}')
-      echo "Submission ID: $submission_id"
+    # Extract submission ID
+    submission_id=$(echo $file | awk -F'/' '{print $5}')
+    echo "Submission ID: $submission_id" >> metadata.txt
 
-      # Extract workflow ID
-      workflow_id=$(echo $file | awk -F'/' '{print $7}')
-      echo "Workflow ID: $workflow_id"
+    # Extract workflow ID
+    workflow_id=$(echo $file | awk -F'/' '{print $7}')
+    echo "Workflow ID: $workflow_id" >> metadata.txt
 
-      # Append to metadata file
-      echo "File: $file" >> metadata.txt
-      echo "  Workspace Bucket: $workspace_bucket" >> metadata.txt
-      echo "  Submission ID: $submission_id" >> metadata.txt
-      echo "  Workflow ID: $workflow_id" >> metadata.txt
-      echo "" >> metadata.txt
-    done
+    echo "" >> metadata.txt
 
     echo "Input Files and MD5 Checksums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
-      echo "$(basename $file): not_calculated" >> metadata.txt
+      echo "$(basename $file): $(md5sum $file | awk '{print $1}')" >> metadata.txt
     done
 
     echo "" >> metadata.txt
     echo "Output Files and MD5 Checksums:" >> metadata.txt
     for file in ~{sep=" " output_files}; do
-      echo "$(basename $file): not_calculated" >> metadata.txt
+      echo "$(basename $file): $(md5sum $file | awk '{print $1}')" >> metadata.txt
     done
 
-    # Echo one of the input files so we can parse out the submission ID
-    echo "~{input_files[0]}"
+    # Echo the selected output file for confirmation
+    echo "Selected output file for parsing: ~{output_files[0]}"
   >>>
 
   output {
@@ -328,4 +321,5 @@ task RecordMetadata1 {
     cpu: "1"
   }
 }
+
 
