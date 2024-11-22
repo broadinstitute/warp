@@ -233,6 +233,11 @@ task RecordMetadata {
     for file in ~{sep=" " output_files}; do
       echo "$(basename $file): $(md5sum $file | awk '{print $1}')" >> metadata.txt
     done
+
+    #echo one of the input files so we can parse out the submission id
+    echo "~{input_files[0]}"
+
+
   >>>
 
   output {
