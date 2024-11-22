@@ -132,8 +132,8 @@ task Regenie {
     File covarFile
     String covarColList
 
-    String step1_option = "--loocv --bsize 1000 --lowmem"
-    String step2_option = "--minINFO 0.3 --minMAC 30 --bsize 1000"
+    String step1_option = "--bsize 1000 --lowmem"
+    String step2_option = "--firth --approx --pThresh 0.01 --bsize 400 --split"
 
     String target_prefix
 

@@ -11,7 +11,7 @@
   "VUMCRegenie.PgenQCFilter.memory_gb": "20",
   "VUMCRegenie.PgenQCFilter.cpu": "32",
   "VUMCRegenie.Regenie.step1_option": "--loocv --bsize 1000 --lowmem",
-  "VUMCRegenie.Regenie.step2_option": "--minINFO 0.3 --minMAC 30 --bsize 1000",
+  "VUMCRegenie.Regenie.step2_option": "--firth --approx --pThresh 0.01 --bsize 400 --split",
   "VUMCRegenie.Regenie.memory_gb": "20",
   "VUMCRegenie.Regenie.cpu": "32"
 }
