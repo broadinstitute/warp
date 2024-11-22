@@ -279,16 +279,18 @@ task RecordMetadata1 {
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
     echo "" >> metadata.txt
 
+    echo "~{input_files[0]}"
+
     echo "Input Files and MD5 Checksums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
-    echo "$(basename $file): not_calculated" >> metadata.txt
-    echo "($file): is_not_calculated" >> metadata.txt
+      echo "$(basename $file): not_calculated" >> metadata.txt
+      echo "($file): is_not_calculated" >> metadata.txt
     done
 
     echo "" >> metadata.txt
     echo "Output Files and MD5 Checksums:" >> metadata.txt
     for file in ~{sep=" " output_files}; do
-    echo "$(basename $file): not_calculated" >> metadata.txt
+      echo "$(basename $file): not_calculated" >> metadata.txt
     done
 
     # Echo one of the input files so we can parse out the submission ID
