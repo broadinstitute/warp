@@ -267,8 +267,8 @@ task RecordMetadata {
 task RecordMetadata1 {
   input {
     String pipeline_version
-    Array[String] input_files  # Change input_files to Array[String]
-    Array[String] output_files # Change output_files to Array[String]
+    Array[File] input_files
+    Array[String] output_files
   }
 
   command <<<
@@ -279,9 +279,13 @@ task RecordMetadata1 {
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
     echo "" >> metadata.txt
 
-    echo "~{input_files[0]}"
+    for file in ~{sep=" " input_files}; do
+      echo "here is each input file ($file)"
+    done
 
-    echo "~{output_files[0]}"
+    for file in ~{sep=" " output_files}; do
+      echo "here is each output file ($file)"
+    done
 
     echo "Input Files and MD5 Checksums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
