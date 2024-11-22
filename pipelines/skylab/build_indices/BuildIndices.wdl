@@ -58,7 +58,19 @@ workflow BuildIndices {
                        CalculateChromosomeSizes.chrom_sizes,
                        BuildBWAreference.reference_bundle
                        ]
+
     }
+call RecordMetadata1 {
+  input:
+  pipeline_version = pipeline_version,
+  input_files = [annotations_gtf, genome_fa, biotypes],
+  output_files = [
+  BuildStarSingleNucleus.star_index,
+  BuildStarSingleNucleus.modified_annotation_gtf,
+  CalculateChromosomeSizes.chrom_sizes,
+  BuildBWAreference.reference_bundle
+  ]
+}
 
   output {
     File snSS2_star_index = BuildStarSingleNucleus.star_index
@@ -238,6 +250,49 @@ task RecordMetadata {
     echo "~{input_files[0]}"
 
 
+  >>>
+
+  output {
+    File metadata_file = "metadata.txt"
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    memory: "5 GiB"
+    disks: "local-disk 100 HDD"
+    cpu: "1"
+  }
+}
+
+task RecordMetadata1 {
+  input {
+    String pipeline_version
+    Array[String] input_files  # Change input_files to Array[String]
+    Array[String] output_files # Change output_files to Array[String]
+  }
+
+  command <<<
+    set -euo pipefail
+
+    # Create metadata file
+    echo "Pipeline Version: ~{pipeline_version}" > metadata.txt
+    echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
+    echo "" >> metadata.txt
+
+    echo "Input Files and MD5 Checksums:" >> metadata.txt
+    for file in ~{sep=" " input_files}; do
+    echo "$(basename $file): not_calculated" >> metadata.txt
+    echo "($file): is_not_calculated" >> metadata.txt
+    done
+
+    echo "" >> metadata.txt
+    echo "Output Files and MD5 Checksums:" >> metadata.txt
+    for file in ~{sep=" " output_files}; do
+    echo "$(basename $file): not_calculated" >> metadata.txt
+    done
+
+    # Echo one of the input files so we can parse out the submission ID
+    echo "~{input_files[0]}"
   >>>
 
   output {
