@@ -241,7 +241,7 @@ task RecordMetadata {
 
   runtime {
     docker: "ubuntu:20.04"
-    memory: "2 GiB"
+    memory: "50 GiB"
     cpu: "1"
   }
 }
