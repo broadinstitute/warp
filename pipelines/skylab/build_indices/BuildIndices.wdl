@@ -262,6 +262,10 @@ task RecordMetadata1 {
   command <<<
     set -euo pipefail
 
+    #ls
+    ls -lh
+    pwd
+
     # Create metadata file
     echo "Pipeline Version: ~{pipeline_version}" > metadata.txt
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
@@ -291,7 +295,7 @@ task RecordMetadata1 {
     echo "" >> metadata.txt
     echo "Output Files and md5sums:" >> metadata.txt
     for file in ~{sep=" " output_files}; do
-      echo "$(basename $file): $(basename $file) | awk '{print $1}')" >> metadata.txt
+      echo "$(basename $file): $(md5sum $(basename $file) | awk '{print $1}')" >> metadata.txt
     done
   >>>
 
