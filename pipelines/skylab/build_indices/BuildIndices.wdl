@@ -256,7 +256,7 @@ task RecordMetadata1 {
   input {
     String pipeline_version
     Array[File] input_files
-    Array[String] output_files
+    Array[File] output_files
   }
 
   command <<<
@@ -267,16 +267,9 @@ task RecordMetadata1 {
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
     echo "" >> metadata.txt
 
-    # Use the first output file for extracting IDs
-
-    # loop through the outputs
-    for file in ~{sep=" " output_files}; do
-      echo "Output File: $file"
-    done
-
-    file="~{output_files[0]}"
 
     # Extract workspace bucket
+    file="~{output_files[0]}"
     workspace_bucket=$(echo $file | awk -F'/' '{print $3}')
     echo "Workspace Bucket: $workspace_bucket" >> metadata.txt
 
@@ -290,19 +283,16 @@ task RecordMetadata1 {
 
     echo "" >> metadata.txt
 
-    echo "Input Files and MD5 Checksums:" >> metadata.txt
+    echo "Input Files and md5sums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
       echo "$(basename $file): $(md5sum $(basename $file) | awk '{print $1}')" >> metadata.txt
     done
 
     echo "" >> metadata.txt
-    echo "Output Files and MD5 Checksums:" >> metadata.txt
+    echo "Output Files and md5sums:" >> metadata.txt
     for file in ~{sep=" " output_files}; do
       echo "$(basename $file): $(basename $file) | awk '{print $1}')" >> metadata.txt
     done
-
-    # Echo the selected output file for confirmation
-    echo "Selected output file for parsing: ~{output_files[0]}"
   >>>
 
   output {
