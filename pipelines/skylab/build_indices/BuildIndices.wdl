@@ -268,6 +268,12 @@ task RecordMetadata1 {
     echo "" >> metadata.txt
 
     # Use the first output file for extracting IDs
+
+    # loop through the outputs
+    for file in ~{sep=" " output_files}; do
+      echo "Output File: $file"
+    done
+
     file="~{output_files[0]}"
 
     # Extract workspace bucket
