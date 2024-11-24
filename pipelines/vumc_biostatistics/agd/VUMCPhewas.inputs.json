@@ -1,0 +1,13 @@
+{
+  "VUMCPhewas.agd_primary_grid_file": "/nobackup/h_cqs/shengq2/biovu/AGD/SAMPLE_ID_MAP_2023_Q3_35K_primaryGRID_v4_202408.csv",
+  "VUMCPhewas.demographics_file": "/nobackup/h_cqs/shengq2/biovu/phecode_data/AGD_163k_demographics_mapping.csv",
+  "VUMCPhewas.ancestry_file": "/nobackup/h_cqs/shengq2/biovu/AGD_ancestry_pipeline/final_ancestry_variables.txt",
+  "VUMCPhewas.phecode_list_file": "/nobackup/h_cqs/shengq2/program/collaborations/brian_lehmann/20241118_gene_phewas/phecodes_2.txt",
+  "VUMCPhewas.phecode_data_file": "/nobackup/h_cqs/shengq2/biovu/phecode_data/AGD_35k_fullset_Phecode12_long.csv",
+  "VUMCPhewas.phecode_map_file": "/nobackup/h_cqs/shengq2/biovu/phecode_data/phecode_definitions1.2.csv",
+  "VUMCPhewas.genotype_name": "CFTR.lof",
+  "VUMCPhewas.genotype_file": "/nobackup/h_cqs/shengq2/biovu/demo/data/CFTR.lof.genotype.csv",
+  "VUMCPhewas.pca_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/meta/agd35k_eligible_filtered.genotype.pca.txt",
+  "VUMCPhewas.min_occurance": "2"
+}
+

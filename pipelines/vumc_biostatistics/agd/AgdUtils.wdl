@@ -461,10 +461,10 @@ wget https://raw.githubusercontent.com/shengqh/ngsperl/refs/heads/master/lib/CQS
 
 wget https://raw.githubusercontent.com/shengqh/ngsperl/refs/heads/master/lib/BioVU/linear_association.rmd
 
-mv linear_association.rmd ~{phecode}.~{genotype_name}.glm.rmd
+mv linear_association.rmd ~{phename}.~{genotype_name}.glm.rmd
 
-echo -e "~{phename}\tphename" >> input_options.txt
-echo -e "~{phecode}\tphecode" > input_options.txt
+echo -e "~{phename}\tphename" > input_options.txt
+echo -e "~{phecode}\tphecode" >> input_options.txt
 echo -e "~{phenotype_file}\tphefile" >> input_options.txt
 echo -e "~{genotype_name}\tgenotype_name" >> input_options.txt
 echo -e "~{genotype_file}\tgenotype_file" >> input_options.txt
@@ -488,5 +488,87 @@ R -e "library(knitr);rmarkdown::render(input='~{phename}.~{genotype_name}.glm.rm
   output {
     File linear_association_file = "~{phename}.~{genotype_name}.glm.csv"
     File linear_association_report = "~{phename}.~{genotype_name}.glm.html"
+  }
+}
+
+task LinearAssociationSummary {
+  input {
+    File phecode_map_file
+
+    Array[String] phecodes
+    Array[File] linear_association_files
+
+    String genotype_name
+
+    String docker = "shengqh/report:20241120"
+    
+    Int preemptible = 1
+
+    Int memory_gb = 20
+  }
+
+  Int disk_size = ceil(size(linear_association_files, "GB")) + 10
+
+  String output_file = "~{genotype_name}.linear_association.csv"
+
+  command <<<
+
+echo "~{sep='\n' phecodes}" > phecodes.txt
+echo "~{sep='\n' linear_association_files}" > linear_association_files.txt
+paste linear_association_files.txt phecodes.txt > phecode_files.txt
+rm phecodes.txt linear_association_files.txt
+
+cat <<EOF > script.r
+
+library(data.table)
+library(dplyr)
+
+files=fread("phecode_files.txt", data.table=FALSE) |>
+  dplyr::rename(file=1, phecode=2)
+
+res_df=data.frame()
+idx=1
+for(idx in c(1:nrow(files))){
+  file<-files\$file[idx]
+  phecode<-files\$phecode[idx]
+
+  #Load
+  data <- fread(file, data.table=FALSE)
+  data_res=data[2,,drop=FALSE]    
+  data_res$V1[1]=phecode
+
+  res_df=rbind(res_df, data_res)
+}
+
+res_df=res_df |>
+  dplyr::rename(phecode=V1)
+
+phecodes_def=fread("~{phecode_map_file}", data.table=FALSE) |>
+  dplyr::select(phecode, phenotype) |>
+  dplyr::distinct()
+
+final_df=merge(res_df, phecodes_def, by="phecode", all.x=TRUE) |>
+  dplyr::select(phecode, phenotype, everything()) |>
+  dplyr::rename(pvalue=6)
+final_df\$padj=p.adjust(final_df\$pvalue, method="fdr")
+final_df=final_df[order(final_df\$pvalue),]
+
+write.csv(final_df, "~{output_file}", row.names=FALSE)
+
+EOF
+
+R -f script.r
+
+>>>
+
+  runtime {
+    cpu: 1
+    docker: "~{docker}"
+    preemptible: preemptible
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+  output {
+    File linear_association_summary_file = "~{output_file}"
   }
 }
