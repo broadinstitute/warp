@@ -52,17 +52,23 @@ workflow VUMCPhewas {
     }
 
     if(defined(target_gcp_folder)){
-      call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
+      String gcs_output_dir = sub(select_first([target_gcp_folder]), "/+$", "")
+
+      call GcpUtils.MoveOrCopyFourFiles as CopyFile1 {
         input:
-          source_file1 = LinearAssociation.linear_association_file,
-          source_file2 = LinearAssociation.linear_association_report,
+          source_file1 = PreparePhenotype.phenotype_file,
+          source_file2 = PreparePhenotype.phenotype_report,
+          source_file3 = LinearAssociation.linear_association_file,
+          source_file4 = LinearAssociation.linear_association_report,
           is_move_file = false,
           project_id = project_id,
-          target_gcp_folder = select_first([target_gcp_folder])
+          target_gcp_folder = "~{gcs_output_dir}/~{genotype_name}/~{phecode}"
       }
     }
-    File linear_association_file = select_first([CopyFile.output_file1, LinearAssociation.linear_association_file])
-    File linear_association_report = select_first([CopyFile.output_file2, LinearAssociation.linear_association_report])
+    File phenotype_file = select_first([CopyFile1.output_file1, PreparePhenotype.phenotype_file])
+    File phenotype_report = select_first([CopyFile1.output_file2, PreparePhenotype.phenotype_report])
+    File linear_association_file = select_first([CopyFile1.output_file3, LinearAssociation.linear_association_file])
+    File linear_association_report = select_first([CopyFile1.output_file4, LinearAssociation.linear_association_report])
   }
 
   call AgdUtils.LinearAssociationSummary {
@@ -73,9 +79,23 @@ workflow VUMCPhewas {
       genotype_name = genotype_name
   }
 
+  if(defined(target_gcp_folder)){
+    String gcs_output_dir2 = sub(select_first([target_gcp_folder]), "/+$", "")
+
+    call GcpUtils.MoveOrCopyOneFile as CopyFile2 {
+      input:
+        source_file = LinearAssociationSummary.linear_association_summary_file,
+        is_move_file = false,
+        project_id = project_id,
+        target_gcp_folder = "~{gcs_output_dir2}/~{genotype_name}"
+    }
+  }
+
   output {
+    Array[File] phenotype_files = phenotype_file
+    Array[File] phenotype_reports = phenotype_report
     Array[File] linear_association_files = linear_association_file
     Array[File] linear_association_reports = linear_association_report
-    File linear_association_summary_file = LinearAssociationSummary.linear_association_summary_file
+    File linear_association_summary_file = select_first([CopyFile2.output_file, LinearAssociationSummary.linear_association_summary_file])
   }
 }
