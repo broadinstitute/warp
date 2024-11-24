@@ -66,8 +66,10 @@ workflow VUMCPrepareGeneGenotypeWorkflow {
     File gene_bed = select_first([CopyFile.output_file1, GetGeneLocus.gene_bed])
     File vcf_file = select_first([CopyFile.output_file2, HailMatrixExtractRegions.output_vcf])
     File annovar_file = select_first([CopyFile.output_file3, Annovar.annovar_file])
+    String lof_genotype_name = PrepareGeneGenotype.lof_genotype_name
     File lof_genotype_file = select_first([CopyFile.output_file4, PrepareGeneGenotype.lof_genotype_file])
     File lof_genotype_freq_file = select_first([CopyFile.output_file5, PrepareGeneGenotype.lof_genotype_freq_file])
+    String vuc_genotype_name = PrepareGeneGenotype.vuc_genotype_name
     File vuc_genotype_file = select_first([CopyFile.output_file6, PrepareGeneGenotype.vuc_genotype_file])
     File vuc_genotype_freq_file = select_first([CopyFile.output_file7, PrepareGeneGenotype.vuc_genotype_freq_file])
   }

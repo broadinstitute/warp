@@ -373,8 +373,10 @@ R -f script.r
     memory: memory_gb + " GiB"
   }
   output {
+    String lof_genotype_name = "~{gene_symbol}_lof"
     File lof_genotype_file = "~{gene_symbol}.lof.genotype.csv"
     File lof_genotype_freq_file = "~{gene_symbol}.lof.genotype.freq.csv"
+    String vuc_genotype_name = "~{gene_symbol}_vuc"
     File vuc_genotype_file = "~{gene_symbol}.vuc.genotype.csv"
     File vuc_genotype_freq_file = "~{gene_symbol}.vuc.genotype.freq.csv"
   }
