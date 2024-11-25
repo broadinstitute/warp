@@ -226,15 +226,17 @@ task MoveOrCopyFileArray {
 
   String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
 
-  scatter(file in source_files) {
-    String new_file = "~{gcs_output_dir}/~{basename(file)}"
-  }
-
   command <<<
 
 set -e
 
 gsutil -m ~{"-u " + project_id} ~{action} '~{sep="' '" source_files}' ~{gcs_output_dir}/
+
+# Generate a list of output files
+for file in ~{sep=' ' source_files}; do
+  base=$(basename $file)
+  echo "~{gcs_output_dir}/$base" >> output_files.txt
+done
 
 >>>
 
@@ -246,6 +248,6 @@ gsutil -m ~{"-u " + project_id} ~{action} '~{sep="' '" source_files}' ~{gcs_outp
   }
 
   output {
-    Array[String] output_files = new_file
+    Array[String] outputFiles = read_lines("output_files.txt")
   }
 }
