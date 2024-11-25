@@ -28,7 +28,7 @@ workflow VUMCGenePhewas {
     String? target_gcp_folder
   }
 
-  call doGeneGenotype.VUMCPrepareGeneGenotypeWorkflow as PrepareGeneGenotype {
+  call doGeneGenotype.VUMCPrepareGeneGenotypeWorkflow as GeneGenotype {
     input:
       gene_symbol = gene_symbol,
       agd_primary_grid_file = agd_primary_grid_file,
@@ -43,7 +43,7 @@ workflow VUMCGenePhewas {
       phecode_list_file = phecode_list_file,
       min_occurance = min_occurance,
       genotype_name = gene_symbol + ".lof",
-      genotype_file = PrepareGeneGenotype.lof_genotype_file,
+      genotype_file = GeneGenotype.lof_genotype_file,
       agd_primary_grid_file = agd_primary_grid_file,
       pca_file = pca_file,
       demographics_file = demographics_file,
@@ -55,15 +55,15 @@ workflow VUMCGenePhewas {
   }
 
   output {
-    File gene_bed = PrepareGeneGenotype.gene_bed
-    File vcf_file = PrepareGeneGenotype.vcf_file
-    File annovar_file = PrepareGeneGenotype.annovar_file
-    String lof_genotype_name = PrepareGeneGenotype.lof_genotype_name
-    File lof_genotype_file = PrepareGeneGenotype.lof_genotype_file
-    File lof_genotype_freq_file = PrepareGeneGenotype.lof_genotype_freq_file
-    String vuc_genotype_name = PrepareGeneGenotype.vuc_genotype_name
-    File vuc_genotype_file = PrepareGeneGenotype.vuc_genotype_file
-    File vuc_genotype_freq_file = PrepareGeneGenotype.vuc_genotype_freq_file
+    File gene_bed = GeneGenotype.gene_bed
+    File vcf_file = GeneGenotype.vcf_file
+    File annovar_file = GeneGenotype.annovar_file
+    String lof_genotype_name = GeneGenotype.lof_genotype_name
+    File lof_genotype_file = GeneGenotype.lof_genotype_file
+    File lof_genotype_freq_file = GeneGenotype.lof_genotype_freq_file
+    String vuc_genotype_name = GeneGenotype.vuc_genotype_name
+    File vuc_genotype_file = GeneGenotype.vuc_genotype_file
+    File vuc_genotype_freq_file = GeneGenotype.vuc_genotype_freq_file
 
     Array[File] phenotype_files = Phewas.phenotype_files
     Array[File] phenotype_reports = Phewas.phenotype_reports
