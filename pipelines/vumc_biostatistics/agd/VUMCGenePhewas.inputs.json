@@ -1,0 +1,14 @@
+{
+  "VUMCGenePhewas.gene_symbol": "BCR",
+  "VUMCGenePhewas.billing_gcp_project_id": "DOESNOTEXIST",
+  "VUMCGenePhewas.input_hail_mt_path_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/hail_grid/agd35k_hail_all_grid_local.tsv",
+  "VUMCGenePhewas.agd_primary_grid_file": "/nobackup/h_cqs/jennifer_pietenpol_projects/20241118_gene_phewas/SAMPLE_ID_MAP_2023_Q3_35K_primaryGRID_v4_202408.csv",
+  "VUMCGenePhewas.demographics_file": "/nobackup/h_cqs/shengq2/biovu/phecode_data/AGD_163k_demographics_mapping.csv",
+  "VUMCGenePhewas.ancestry_file": "/nobackup/h_cqs/shengq2/biovu/AGD_ancestry_pipeline/final_ancestry_variables.txt",
+  "VUMCGenePhewas.phecode_list_file": "/nobackup/h_cqs/shengq2/program/collaborations/brian_lehmann/20241118_gene_phewas/phecodes_2.txt",
+  "VUMCGenePhewas.phecode_data_file": "/nobackup/h_cqs/shengq2/biovu/phecode_data/AGD_35k_fullset_Phecode12_long.csv",
+  "VUMCGenePhewas.phecode_map_file": "/nobackup/h_cqs/shengq2/biovu/phecode_data/phecode_definitions1.2.csv",
+  "VUMCGenePhewas.pca_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/meta/agd35k_eligible_filtered.genotype.pca.txt",
+  "VUMCGenePhewas.min_occurance": "10"
+}
+
