@@ -140,10 +140,9 @@ workflow VUMCUnmappedBamToAlignedBam {
     String unmapped_bam_basename = basename(unmapped_bam, sample_and_unmapped_bams.unmapped_bam_suffix)
 
     if (unmapped_bam_size > cutoff_for_large_rg_in_gb) {
-      call VUMCAlignment.SamSplitter as SamSplitter {
+      call Alignment.SamSplitter as SamSplitter {
         input :
           input_bam = unmapped_bam,
-          is_cram = is_cram,
           n_reads = reads_per_file,
           preemptible_tries = preemptible_tries,
           compression_level = compression_level
