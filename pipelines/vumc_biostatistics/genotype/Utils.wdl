@@ -128,9 +128,9 @@ plink2 \
     memory: memory_gb + " GiB"
   }
   output {
-    File output_pgen_file = new_pgen
-    File output_pvar_file = new_pvar
-    File output_psam_file = new_psam
+    File output_pgen = new_pgen
+    File output_pvar = new_pvar
+    File output_psam = new_psam
   }
 }
 
@@ -175,9 +175,9 @@ plink2 ~{plink2_filter_option} \
     memory: memory_gb + " GiB"
   }
   output {
-    File output_pgen_file = new_pgen
-    File output_pvar_file = new_pvar
-    File output_psam_file = new_psam
+    File output_pgen = new_pgen
+    File output_pvar = new_pvar
+    File output_psam = new_psam
   }
 }
 

@@ -58,9 +58,9 @@ workflow VUMCPrepareGenotypeData {
 
   call GenotypeUtils.MergePgenFiles as MergePgenFiles{
     input:
-      pgen_files = ExtractPgenSamples.output_pgen_file,
-      pvar_files = ExtractPgenSamples.output_pvar_file,
-      psam_files = ExtractPgenSamples.output_psam_file,
+      pgen_files = ExtractPgenSamples.output_pgen,
+      pvar_files = ExtractPgenSamples.output_pvar,
+      psam_files = ExtractPgenSamples.output_psam,
       output_prefix = target_prefix
   }
 
@@ -77,8 +77,8 @@ workflow VUMCPrepareGenotypeData {
   }
 
   output {
-    File output_pgen_file = select_first([CopyFile.output_file1, MergePgenFiles.output_pgen])
-    File output_pvar_file = select_first([CopyFile.output_file2, MergePgenFiles.output_pvar])
-    File output_psam_file = select_first([CopyFile.output_file3, MergePgenFiles.output_psam])
+    File output_pgen = select_first([CopyFile.output_file1, MergePgenFiles.output_pgen])
+    File output_pvar = select_first([CopyFile.output_file2, MergePgenFiles.output_pvar])
+    File output_psam = select_first([CopyFile.output_file3, MergePgenFiles.output_psam])
   }
 }
