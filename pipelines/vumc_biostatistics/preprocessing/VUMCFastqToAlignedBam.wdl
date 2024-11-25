@@ -16,7 +16,7 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../../tasks/vumc_biostatistics/VUMCAlignment.wdl" as Alignment
+import "../../../tasks/vumc_biostatistics/VUMCAlignment.wdl" as VUMCAlignment
 import "../../../tasks/broad/Qc.wdl" as QC
 import "../../../tasks/broad/BamProcessing.wdl" as Processing
 import "../../../tasks/broad/Utilities.wdl" as Utils
@@ -136,7 +136,7 @@ workflow VUMCFastqToAlignedBam {
       Array[String] out_files_1 = out_file_idx_1
       Array[String] out_files_2 = out_file_idx_2
 
-      call Alignment.FastqSplitter as FastqSplitter_read1 {
+      call VUMCAlignment.FastqSplitter as FastqSplitter_read1 {
         input:
           fastq = old_fastq_1,
           out_files = out_files_1,
@@ -144,7 +144,7 @@ workflow VUMCFastqToAlignedBam {
       }
       Array[String] fastq_1_1_list = FastqSplitter_read1.split_fastqs
 
-      call Alignment.FastqSplitter as FastqSplitter_read2 {
+      call VUMCAlignment.FastqSplitter as FastqSplitter_read2 {
         input:
           fastq = old_fastq_2,
           out_files = out_files_2,
@@ -172,13 +172,12 @@ workflow VUMCFastqToAlignedBam {
     String fastq_basename = base_file_name + "." + idx
 
     # Map reads to reference
-    call Alignment.FastqToBwaMemAndMba as FastqToBwaMemAndMba {
+    call VUMCAlignment.FastqToBwaMemAndMba as FastqToBwaMemAndMba {
       input:
         fastq_1 = new_fastq_1,
         fastq_2 = new_fastq_2,
         bwa_commandline = bwa_commandline,
         output_bam_basename = fastq_basename + ".aligned.unsorted",
-        sample_name = base_file_name,
         reference_fasta = references.reference_fasta,
         compression_level = compression_level,
         preemptible_tries = papi_settings.preemptible_tries,
