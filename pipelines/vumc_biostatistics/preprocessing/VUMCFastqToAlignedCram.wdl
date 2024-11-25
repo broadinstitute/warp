@@ -178,7 +178,6 @@ workflow VUMCFastqToAlignedCram {
         fastq_2 = new_fastq_2,
         bwa_commandline = bwa_commandline,
         output_bam_basename = fastq_basename + ".aligned.unsorted",
-        sample_name = base_file_name,
         reference_fasta = references.reference_fasta,
         compression_level = compression_level,
         preemptible_tries = papi_settings.preemptible_tries,
