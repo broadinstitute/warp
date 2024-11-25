@@ -132,7 +132,50 @@ task Regenie {
     File covarFile
     String covarColList
 
-    String step1_option = "--bsize 1000 --lowmem"
+    # Regenie options
+    # option "--loocv" is not in the recommendation of Regenie (https://rgcgithub.github.io/regenie/recommendations/)
+    # However, using --loocv would accelerate the process a lot. We still suggest to use it.
+    #############################################################
+    # Options in effect:
+    # --step 1 \
+    # --qt \
+    # --pgen /cromwell_root/fc-9b4e856a-12ef-40a9-aca0-8d5f9c2ab9c1/submissions/470ae9a0-7258-49c1-a1f5-c2281d1a2855/VUMCRegenie/45f954cc-a4da-4dfd-8601-599fe18d48e1/call-PgenQCFilter/cacheCopy/demo_bmi_953.qc \
+    # --phenoFile /cromwell_root/fc-0a566538-7eb6-45c9-94a8-c4002fcb63ce/demo/gwas/demo_bmi_953_phenotype.final.txt \
+    # --phenoColList bmi \
+    # --covarFile /cromwell_root/fc-0a566538-7eb6-45c9-94a8-c4002fcb63ce/demo/gwas/demo_bmi_953_phenotype.final.txt \
+    # --covarColList PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
+    # --bsize 1000 \
+    # --lowmem \
+    # --threads 8 \
+    # --out demo_bmi_953.step1 \
+    # --force-step1
+    # Chromosome 1
+    # block [1] : 1000 snps (5ms)
+    # -residualizing and scaling genotypes...done (9ms)
+    # -calc working matrices...done (56ms)
+    # -calc level 0 ridge...done (543ms)
+    #############################################################
+    # Options in effect:
+    #   --step 1 \
+    #   --qt \
+    #   --pgen /cromwell_root/fc-9b4e856a-12ef-40a9-aca0-8d5f9c2ab9c1/submissions/6094d580-cc50-4811-9fb7-cedd399970c2/VUMCRegenie/71318aa2-90b9-49c1-880c-7ca522b5f86b/call-PgenQCFilter/cacheCopy/demo_bmi_953.qc \
+    #   --phenoFile /cromwell_root/fc-0a566538-7eb6-45c9-94a8-c4002fcb63ce/demo/gwas/demo_bmi_953_phenotype.final.txt \
+    #   --phenoColList bmi \
+    #   --covarFile /cromwell_root/fc-0a566538-7eb6-45c9-94a8-c4002fcb63ce/demo/gwas/demo_bmi_953_phenotype.final.txt \
+    #   --covarColList PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
+    #   --loocv \
+    #   --bsize 1000 \
+    #   --lowmem \
+    #   --threads 8 \
+    #   --out demo_bmi_953.step1 \
+    #   --force-step1
+    # Chromosome 1
+    #  block [1] : 1000 snps  (5ms) 
+    #    -residualizing and scaling genotypes...done (9ms) 
+    #    -calc working matrices...done (135ms) 
+    #    -calc level 0 ridge...done (18ms) 
+
+    String step1_option = "--loocv --bsize 1000 --lowmem"
     String step2_option = "--firth --approx --pThresh 0.01 --bsize 400 --split"
 
     String target_prefix
