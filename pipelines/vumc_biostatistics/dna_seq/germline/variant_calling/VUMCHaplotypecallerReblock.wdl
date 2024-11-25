@@ -27,8 +27,7 @@ version 1.0
 ## authorized to run all programs before running this script. Please see the dockers
 ## for detailed licensing information pertaining to the included programs.
 
-import "../../../../../tasks/broad/Utilities.wdl" as Utilities
-import "../../../../broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as Reblock
+import "../../../../broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as BroadReblock
 import "./VUMCHaplotypecallerReblockMoveResult.wdl" as Utils
 
 # WORKFLOW DEFINITION 
@@ -50,24 +49,6 @@ workflow VUMCHaplotypecallerReblock {
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     String gatk_path = "/gatk/gatk"
   }  
-
-  # We don't need to check it. If GRID is not defined, it would failed directly at select_first([GRID]) of Utils.MoveVcf 
-  # before the workflow is executed.
-  #
-  # if(defined(target_bucket)){
-  #   if(!defined(genoset)){
-  #     call Utilities.ErrorWithMessage as NoGenosetError {
-  #       input:
-  #         message = "genoset is missing when target bucket is set."
-  #     }
-  #   }
-  #   if(!defined(GRID)){
-  #     call Utilities.ErrorWithMessage as GRIDError {
-  #       input:
-  #         message = "GRID is missing when target bucket is set."
-  #     }
-  #   }
-  # }
 
   Array[File] scattered_calling_intervals = read_lines(scattered_calling_intervals_list)
 
@@ -115,7 +96,7 @@ workflow VUMCHaplotypecallerReblock {
       gatk_path = gatk_path
   }
 
-  call Reblock.ReblockGVCF as Reblock {
+  call BroadReblock.ReblockGVCF as Reblock {
     input:
       gvcf = MergeGVCFs.output_vcf,
       gvcf_index = MergeGVCFs.output_vcf_index,
@@ -128,8 +109,8 @@ workflow VUMCHaplotypecallerReblock {
   if(defined(target_bucket)){
     call Utils.MoveVcf {
       input:
-        output_vcf = Reblock.output_vcf,
-        output_vcf_index = Reblock.output_vcf_index,
+        input_vcf = Reblock.output_vcf,
+        input_vcf_index = Reblock.output_vcf_index,
         project_id = project_id,
         target_bucket = select_first([target_bucket]),
         genoset = select_first([genoset]),
@@ -138,8 +119,8 @@ workflow VUMCHaplotypecallerReblock {
   }
 
   output {
-    File output_vcf = select_first([MoveVcf.target_output_vcf, Reblock.output_vcf])
-    File output_vcf_index = select_first([MoveVcf.target_output_vcf_index, Reblock.output_vcf_index])
+    File output_vcf = select_first([MoveVcf.output_vcf, Reblock.output_vcf])
+    File output_vcf_index = select_first([MoveVcf.output_vcf_index, Reblock.output_vcf_index])
   }
 }
 
