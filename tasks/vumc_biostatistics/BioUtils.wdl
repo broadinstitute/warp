@@ -53,6 +53,8 @@ if(addChr & (!any(grepl("chr", geneLocus\$chromosome_name)))){
   geneLocus\$chromosome_name = paste0("chr", geneLocus\$chromosome_name)
 }
 
+geneLocus\$chromosome_name=gsub("chrMT", "chrM", geneLocus\$chromosome_name)
+
 if(shift_bases > 0){
   geneLocus\$start_position = geneLocus\$start_position - shift_bases
   geneLocus\$end_position = geneLocus\$end_position + shift_bases
