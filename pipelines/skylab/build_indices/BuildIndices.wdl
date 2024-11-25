@@ -49,7 +49,7 @@ workflow BuildIndices {
         organism = organism
     }
 
-call RecordMetadata1 {
+call RecordMetadata {
   input:
   pipeline_version = pipeline_version,
   input_files = [annotations_gtf, genome_fa, biotypes],
@@ -67,7 +67,7 @@ call RecordMetadata1 {
     File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
     File reference_bundle = BuildBWAreference.reference_bundle
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
-    File metadata = RecordMetadata1.metadata_file
+    File metadata = RecordMetadata.metadata_file
   }
 }
 
@@ -226,14 +226,21 @@ task RecordMetadata {
 
     echo "Input Files and MD5 Checksums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
+      echo "file: $file"
       echo "$(basename $file): $(md5sum $file | awk '{print $1}')" >> metadata.txt
     done
 
     echo "" >> metadata.txt
     echo "Output Files and MD5 Checksums:" >> metadata.txt
     for file in ~{sep=" " output_files}; do
+      echo "file: $file"
       echo "$(basename $file): $(md5sum $file | awk '{print $1}')" >> metadata.txt
     done
+
+    # Extract workspace bucket
+    file="~{output_files[0]}"
+    workspace_bucket=$(echo $file | awk -F'/' '{print $3}')
+    echo "Workspace Bucket: $workspace_bucket" >> metadata.txt
 
     #echo one of the input files so we can parse out the submission id
     echo "~{input_files[0]}"
