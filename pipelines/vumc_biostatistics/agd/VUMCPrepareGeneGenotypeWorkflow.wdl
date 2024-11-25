@@ -14,7 +14,7 @@ workflow VUMCPrepareGeneGenotypeWorkflow {
 
     Float expect_output_vcf_bgz_size_gb = 10
 
-    String? project_id
+    String project_id
     String? target_gcp_folder
   }
 
@@ -29,7 +29,7 @@ workflow VUMCPrepareGeneGenotypeWorkflow {
       expect_output_vcf_bgz_size_gb = expect_output_vcf_bgz_size_gb,
       input_bed = GetGeneLocus.gene_bed,
       target_prefix = gene_symbol,
-      billing_project_id = select_first([project_id])
+      billing_project_id = project_id
   }
 
   call AgdUtils.Annovar {
