@@ -1,0 +1,7 @@
+{
+  "VUMCPrepareGeneGenotypeWorkflow.gene_symbol": "BCR",
+  "VUMCPrepareGeneGenotypeWorkflow.project_id": "DOESNOTEXIST",
+  "VUMCPrepareGeneGenotypeWorkflow.input_hail_mt_path_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/hail_grid/agd35k_hail_all_grid_local.tsv",
+  "VUMCPrepareGeneGenotypeWorkflow.agd_primary_grid_file": "/nobackup/h_cqs/jennifer_pietenpol_projects/20241118_gene_phewas/SAMPLE_ID_MAP_2023_Q3_35K_primaryGRID_v4_202408.csv"
+}
+
