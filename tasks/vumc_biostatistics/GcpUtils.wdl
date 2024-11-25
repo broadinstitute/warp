@@ -191,7 +191,7 @@ task MoveOrCopySevenFiles {
 
 set -e
 
-gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{source_file3} ~{source_file4} ~{gcs_output_dir}/
+gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{source_file3} ~{source_file4} ~{source_file5} ~{source_file6} ~{source_file7} ~{gcs_output_dir}/
 
 >>>
 
@@ -226,6 +226,10 @@ task MoveOrCopyFileArray {
 
   String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
 
+  scatter(file in source_files) {
+    String new_file = "~{gcs_output_dir}/~{basename(file)}"
+  }
+
   command <<<
 
 set -e
@@ -239,5 +243,9 @@ gsutil -m ~{"-u " + project_id} ~{action} '~{sep="' '" source_files}' ~{gcs_outp
     preemptible: 1
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
+  }
+
+  output {
+    Array[String] output_files = new_file
   }
 }
