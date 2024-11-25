@@ -61,15 +61,15 @@ workflow VUMCPrepareGenotypeData {
       pgen_files = ExtractPgenSamples.output_pgen_file,
       pvar_files = ExtractPgenSamples.output_pvar_file,
       psam_files = ExtractPgenSamples.output_psam_file,
-      target_prefix = target_prefix
+      output_prefix = target_prefix
   }
 
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyThreeFiles as CopyFile {
       input:
-        source_file1 = MergePgenFiles.output_pgen_file,
-        source_file2 = MergePgenFiles.output_pvar_file,
-        source_file3 = MergePgenFiles.output_psam_file,
+        source_file1 = MergePgenFiles.output_pgen,
+        source_file2 = MergePgenFiles.output_pvar,
+        source_file3 = MergePgenFiles.output_psam,
         is_move_file = false,
         project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -77,8 +77,8 @@ workflow VUMCPrepareGenotypeData {
   }
 
   output {
-    File output_pgen_file = select_first([CopyFile.output_file1, MergePgenFiles.output_pgen_file])
-    File output_pvar_file = select_first([CopyFile.output_file2, MergePgenFiles.output_pvar_file])
-    File output_psam_file = select_first([CopyFile.output_file3, MergePgenFiles.output_psam_file])
+    File output_pgen_file = select_first([CopyFile.output_file1, MergePgenFiles.output_pgen])
+    File output_pvar_file = select_first([CopyFile.output_file2, MergePgenFiles.output_pvar])
+    File output_psam_file = select_first([CopyFile.output_file3, MergePgenFiles.output_psam])
   }
 }
