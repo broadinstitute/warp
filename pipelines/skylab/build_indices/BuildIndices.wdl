@@ -49,17 +49,17 @@ workflow BuildIndices {
         organism = organism
     }
 
-call RecordMetadata {
-  input:
-  pipeline_version = pipeline_version,
-  input_files = [annotations_gtf, genome_fa, biotypes],
-  output_files = [
-  BuildStarSingleNucleus.star_index,
-  BuildStarSingleNucleus.modified_annotation_gtf,
-  CalculateChromosomeSizes.chrom_sizes,
-  BuildBWAreference.reference_bundle
-  ]
-}
+    call RecordMetadata {
+      input:
+      pipeline_version = pipeline_version,
+      input_files = [annotations_gtf, genome_fa, biotypes],
+      output_files = [
+      BuildStarSingleNucleus.star_index,
+      BuildStarSingleNucleus.modified_annotation_gtf,
+      CalculateChromosomeSizes.chrom_sizes,
+      BuildBWAreference.reference_bundle
+      ]
+    }
 
   output {
     File snSS2_star_index = BuildStarSingleNucleus.star_index
@@ -219,56 +219,39 @@ task RecordMetadata {
   command <<<
     set -euo pipefail
 
-    ls -lh
-
-    # Create metadata file
+    # create metadata file
     echo "Pipeline Version: ~{pipeline_version}" > metadata.txt
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
     echo "" >> metadata.txt
 
-    # echo entire paths for input and output files
-    echo "Input Files:" >> metadata.txt
+    # echo paths and md5sums for input files
+    echo "Input Files and their md5sums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
-      echo "$file" >> metadata.txt
+      echo "$file : $(md5sum $file | awk '{print $1}')" >> metadata.txt
     done
-
-
-
-
-    echo "Input Files and MD5 Checksums:" >> metadata.txt
-    for file in ~{sep=" " input_files}; do
-      echo "file: $file"
-      echo "$(basename $file): $(md5sum $file | awk '{print $1}')" >> metadata.txt
-    done
-
     echo "" >> metadata.txt
-    echo "Output Files and MD5 Checksums:" >> metadata.txt
+
+    # echo paths and md5sums for input files
+    echo "Output Files and their md5sums:" >> metadata.txt
     for file in ~{sep=" " output_files}; do
-      echo "file: $file"
-      echo "$(basename $file): $(md5sum $file | awk '{print $1}')" >> metadata.txt
+      echo "$file : $(md5sum $file | awk '{print $1}')" >> metadata.txt
     done
-
     echo "" >> metadata.txt
 
-    # Extract workspace bucket
+    # grab workspace bucket
     file="~{output_files[0]}"
     workspace_bucket=$(echo $file | awk -F'/' '{print $3}')
     echo "Workspace Bucket: $workspace_bucket" >> metadata.txt
 
-    # Extract submission ID
+    # grab submission ID
     submission_id=$(echo $file | awk -F'/' '{print $5}')
     echo "Submission ID: $submission_id" >> metadata.txt
 
-    # Extract workflow ID
+    # grab workflow ID
     workflow_id=$(echo $file | awk -F'/' '{print $7}')
     echo "Workflow ID: $workflow_id" >> metadata.txt
 
     echo "" >> metadata.txt
-
-    #echo one of the input files so we can parse out the submission id
-    echo "~{input_files[0]}"
-
-
   >>>
 
   output {
@@ -282,63 +265,4 @@ task RecordMetadata {
     cpu: "1"
   }
 }
-task RecordMetadata1 {
-  input {
-    String pipeline_version
-    Array[File] input_files
-    Array[File] output_files
-  }
-
-  command <<<
-    set -euo pipefail
-
-    #ls
-    ls -lh
-    pwd
-
-    # Create metadata file
-    echo "Pipeline Version: ~{pipeline_version}" > metadata.txt
-    echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
-    echo "" >> metadata.txt
-
-
-    # Extract workspace bucket
-    file="~{output_files[0]}"
-    workspace_bucket=$(echo $file | awk -F'/' '{print $3}')
-    echo "Workspace Bucket: $workspace_bucket" >> metadata.txt
-
-    # Extract submission ID
-    submission_id=$(echo $file | awk -F'/' '{print $5}')
-    echo "Submission ID: $submission_id" >> metadata.txt
-
-    # Extract workflow ID
-    workflow_id=$(echo $file | awk -F'/' '{print $7}')
-    echo "Workflow ID: $workflow_id" >> metadata.txt
-
-    echo "" >> metadata.txt
-
-    echo "Input Files and md5sums:" >> metadata.txt
-    for file in ~{sep=" " input_files}; do
-      echo "$(basename $file): $(md5sum $(basename $file) | awk '{print $1}')" >> metadata.txt
-    done
-
-    echo "" >> metadata.txt
-    echo "Output Files and md5sums:" >> metadata.txt
-    for file in ~{sep=" " output_files}; do
-      echo "$(basename $file): $(md5sum $(basename $file) | awk '{print $1}')" >> metadata.txt
-    done
-  >>>
-
-  output {
-    File metadata_file = "metadata.txt"
-  }
-
-  runtime {
-    docker: "ubuntu:20.04"
-    memory: "5 GiB"
-    disks: "local-disk 100 HDD"
-    cpu: "1"
-  }
-}
-
 
