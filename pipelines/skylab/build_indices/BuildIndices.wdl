@@ -219,10 +219,21 @@ task RecordMetadata {
   command <<<
     set -euo pipefail
 
+    ls -lh
+
     # Create metadata file
     echo "Pipeline Version: ~{pipeline_version}" > metadata.txt
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
     echo "" >> metadata.txt
+
+    # echo entire paths for input and output files
+    echo "Input Files:" >> metadata.txt
+    for file in ~{sep=" " input_files}; do
+      echo "$file" >> metadata.txt
+    done
+
+
+
 
     echo "Input Files and MD5 Checksums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
@@ -237,10 +248,22 @@ task RecordMetadata {
       echo "$(basename $file): $(md5sum $file | awk '{print $1}')" >> metadata.txt
     done
 
+    echo "" >> metadata.txt
+
     # Extract workspace bucket
     file="~{output_files[0]}"
     workspace_bucket=$(echo $file | awk -F'/' '{print $3}')
     echo "Workspace Bucket: $workspace_bucket" >> metadata.txt
+
+    # Extract submission ID
+    submission_id=$(echo $file | awk -F'/' '{print $5}')
+    echo "Submission ID: $submission_id" >> metadata.txt
+
+    # Extract workflow ID
+    workflow_id=$(echo $file | awk -F'/' '{print $7}')
+    echo "Workflow ID: $workflow_id" >> metadata.txt
+
+    echo "" >> metadata.txt
 
     #echo one of the input files so we can parse out the submission id
     echo "~{input_files[0]}"
