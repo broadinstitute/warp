@@ -1,0 +1,12 @@
+{
+  "VUMCRegenie4.output_prefix": "demo_bmi_953",
+  "VUMCRegenie4.pgen_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.pgen",
+  "VUMCRegenie4.pvar_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.pvar",
+  "VUMCRegenie4.psam_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.psam",
+  "VUMCRegenie4.phenoFile": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953_phenotype.final.txt",
+  "VUMCRegenie4.phenoColList": "bmi",
+  "VUMCRegenie4.covarFile": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953_phenotype.final.txt",
+  "VUMCRegenie4.covarColList": "PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10",
+  "VUMCRegenie4.qc_option": "--mac 800 --geno 0.1 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27"
+}
+
