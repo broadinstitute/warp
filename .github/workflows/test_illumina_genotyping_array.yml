@@ -226,7 +226,7 @@ jobs:
 
             echo "Submission ID: $SUBMISSION_ID"
             SUBMISSION_IDS+=("$SUBMISSION_ID")
-          done
+          
           
           echo "Monitoring the status of submitted workflows..."
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
