@@ -176,7 +176,7 @@ task Regenie {
     #    -calc level 0 ridge...done (18ms) 
 
     String step1_option = "--loocv --bsize 1000 --lowmem"
-    String step2_option = "--firth --approx --pThresh 0.01 --bsize 400 --split"
+    String step2_option = "--firth --approx --pThresh 0.01 --bsize 400"
 
     String target_prefix
 
