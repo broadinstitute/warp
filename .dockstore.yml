@@ -307,3 +307,7 @@ workflows:
   - name: VUMCQCFilterAndMergePgen
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCQCFilterAndMergePgen.wdl
+
+  - name: VUMCRegenie4
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie4.wdl
