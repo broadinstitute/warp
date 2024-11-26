@@ -93,7 +93,7 @@ jobs:
         id: set_test_type
         run: |
           # Default to "Scientific" if targeting master
-          if [ "${{ github.base_ref }}" == "develop" ]; then
+          if [ "${{ github.base_ref }}" == "master" ]; then
             echo "testType=Scientific" >> $GITHUB_ENV
           else
             echo "testType=Plumbing" >> $GITHUB_ENV
