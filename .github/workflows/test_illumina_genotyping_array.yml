@@ -33,6 +33,10 @@ on:
       testType:
         description: 'Specify the type of test (Plumbing or Scientific)'
         required: true
+      truthBranch:
+        description: 'Specify the branch for truth files (default: master)'
+        required: false
+        default: "master"
 
 
 env:
@@ -94,7 +98,10 @@ jobs:
           USE_CALL_CACHE="${{ github.event.inputs.useCallCache || 'true' }}"
           UPDATE_TRUTH="${{ github.event.inputs.updateTruth || 'false' }}"
           TEST_TYPE="${{ github.event.inputs.testType || 'Plumbing' }}"
+          TRUTH_BRANCH="${{ github.event.inputs.truthBranch || 'master' }}"
           CURRENT_TIME=$(date +"%Y-%m-%d-%H-%M-%S")
+          
+          echo "truth branch: $TRUTH_BRANCH"
           
           ########################################
           # SET PIPELINE SPECIFIC VARIABLES HERE #
@@ -104,7 +111,7 @@ jobs:
           # TODO: Need to set the truth and result paths appropriately
           # TODO: Need to dynamically set the truth branch, for now it is hardcoded to master branch
           # We may want to keep the truth and resuts buckets separate for TTL reasons
-          TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/master"
+          TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
 
           # Function to call the Firecloud API using the firecloud_api.py script
