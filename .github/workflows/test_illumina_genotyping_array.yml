@@ -88,6 +88,24 @@ jobs:
             echo "branch_name=${{ github.head_ref }}" >> $GITHUB_ENV
           fi
 
+      - name: Set Test Type for PRs
+        if: ${{ github.event_name == 'pull_request' }}
+        id: set_test_type
+        run: |
+          # Default to "Scientific" if targeting master
+          if [ "${{ github.base_ref }}" == "master" ]; then
+            echo "testType=Scientific" >> $GITHUB_ENV
+          else
+            echo "testType=Plumbing" >> $GITHUB_ENV
+          fi
+
+      - name: Use Provided Test Type
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        id: use_provided_test_type
+        run: |
+          # Use the testType provided by the user
+          echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
+
       - name: Submit job, poll status, and get outputs
         id: pipeline_run
         run: |
@@ -97,7 +115,8 @@ jobs:
           WORKSPACE="WARP Tests"
           USE_CALL_CACHE="${{ github.event.inputs.useCallCache || 'true' }}"
           UPDATE_TRUTH="${{ github.event.inputs.updateTruth || 'false' }}"
-          TEST_TYPE="${{ github.event.inputs.testType || 'Plumbing' }}"
+          #TEST_TYPE="${{ github.event.inputs.testType || 'Plumbing' }}"
+          TEST_TYPE="${{ env.testType }}"
           TRUTH_BRANCH="${{ github.event.inputs.truthBranch || 'master' }}"
           CURRENT_TIME=$(date +"%Y-%m-%d-%H-%M-%S")
           
@@ -163,6 +182,8 @@ jobs:
 
           # Loop through each file in the appropriate test inputs directory
           INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
+          
+          echo "Running tests with test type: $TEST_TYPE"
           
           for input_file in "$INPUTS_DIR"/*.json; do
             echo "Processing input file: $input_file"
