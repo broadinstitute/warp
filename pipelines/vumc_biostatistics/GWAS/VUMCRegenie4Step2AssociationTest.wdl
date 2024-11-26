@@ -3,7 +3,7 @@ version 1.0
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "./GWASUtils.wdl" as GWASUtils
 
-workflow VUMCRegenieStep2AssociationTest {
+workflow VUMCRegenie4Step2AssociationTest {
   input {
     File pred_list_file
     Array[File] pred_loco_files
@@ -19,6 +19,8 @@ workflow VUMCRegenieStep2AssociationTest {
     File covarFile
     String covarColList
 
+    String step2_option = "--firth --approx --pThresh 0.01 --bsize 400"
+
     String output_prefix
 
     Int? chromosome
@@ -26,7 +28,7 @@ workflow VUMCRegenieStep2AssociationTest {
     String? target_gcp_folder
   }
 
-  call GWASUtils.RegenieStep2AssociationTest {
+  call GWASUtils.Regenie4Step2AssociationTest as RegenieStep2AssociationTest {
     input:
       pred_list_file = pred_list_file,
       pred_loco_files = pred_loco_files,
@@ -39,7 +41,8 @@ workflow VUMCRegenieStep2AssociationTest {
       covarFile = covarFile,
       covarColList = covarColList,
       output_prefix = output_prefix,
-      chromosome = chromosome,
+      step2_option = step2_option,
+      chromosome = chromosome
   }
 
   if(defined(target_gcp_folder)){
