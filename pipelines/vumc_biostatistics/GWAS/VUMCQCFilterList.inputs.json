@@ -1,0 +1,7 @@
+{
+  "VUMCQCFilterList.output_prefix": "demo_bmi_953",
+  "VUMCQCFilterList.input_pgen": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.pgen",
+  "VUMCQCFilterList.input_psam": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.psam",
+  "VUMCQCFilterList.input_pvar": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.pvar"
+}
+
