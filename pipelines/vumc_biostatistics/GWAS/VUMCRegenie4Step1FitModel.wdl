@@ -3,7 +3,7 @@ version 1.0
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "./GWASUtils.wdl" as GWASUtils
 
-workflow VUMCRegenieStep1FitModel {
+workflow VUMCRegenie4Step1FitModel {
   input {
     File pgen_file
     File pvar_file
@@ -24,7 +24,7 @@ workflow VUMCRegenieStep1FitModel {
     String? target_gcp_folder
   }
 
-  call GWASUtils.RegenieStep1FitModel {
+  call GWASUtils.Regenie4Step1FitModel as RegenieStep1FitModel {
     input:
       input_pgen = pgen_file,
       input_pvar = pvar_file,

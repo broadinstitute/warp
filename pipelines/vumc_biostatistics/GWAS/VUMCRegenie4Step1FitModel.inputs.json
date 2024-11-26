@@ -1,0 +1,12 @@
+{
+  "VUMCRegenie4Step1FitModel.pgen_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/cromwell_finalOutputs/demo_bmi_953.qc_filtered.pgen",
+  "VUMCRegenie4Step1FitModel.pvar_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/cromwell_finalOutputs/demo_bmi_953.qc_filtered.pvar",
+  "VUMCRegenie4Step1FitModel.psam_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/cromwell_finalOutputs/demo_bmi_953.qc_filtered.psam",
+  "VUMCRegenie4Step1FitModel.phenoFile": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953_phenotype.final.txt",
+  "VUMCRegenie4Step1FitModel.phenoColList": "bmi",
+  "VUMCRegenie4Step1FitModel.covarFile": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953_phenotype.final.txt",
+  "VUMCRegenie4Step1FitModel.covarColList": "PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10",
+  "VUMCRegenie4Step1FitModel.output_prefix": "demo_bmi_953",
+  "VUMCRegenie4Step1FitModel.RegenieStep1FitModel.cpu": "32"
+}
+
