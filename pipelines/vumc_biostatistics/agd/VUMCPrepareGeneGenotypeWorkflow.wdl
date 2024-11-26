@@ -54,8 +54,8 @@ workflow VUMCPrepareGeneGenotypeWorkflow {
         source_file3 = Annovar.annovar_file,
         source_file4 = PrepareGeneGenotype.lof_genotype_file,
         source_file5 = PrepareGeneGenotype.lof_genotype_freq_file,
-        source_file6 = PrepareGeneGenotype.vuc_genotype_file,
-        source_file7 = PrepareGeneGenotype.vuc_genotype_freq_file,
+        source_file6 = PrepareGeneGenotype.vus_genotype_file,
+        source_file7 = PrepareGeneGenotype.vus_genotype_freq_file,
         is_move_file = false,
         project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -69,8 +69,8 @@ workflow VUMCPrepareGeneGenotypeWorkflow {
     String lof_genotype_name = PrepareGeneGenotype.lof_genotype_name
     File lof_genotype_file = select_first([CopyFile.output_file4, PrepareGeneGenotype.lof_genotype_file])
     File lof_genotype_freq_file = select_first([CopyFile.output_file5, PrepareGeneGenotype.lof_genotype_freq_file])
-    String vuc_genotype_name = PrepareGeneGenotype.vuc_genotype_name
-    File vuc_genotype_file = select_first([CopyFile.output_file6, PrepareGeneGenotype.vuc_genotype_file])
-    File vuc_genotype_freq_file = select_first([CopyFile.output_file7, PrepareGeneGenotype.vuc_genotype_freq_file])
+    String vus_genotype_name = PrepareGeneGenotype.vus_genotype_name
+    File vus_genotype_file = select_first([CopyFile.output_file6, PrepareGeneGenotype.vus_genotype_file])
+    File vus_genotype_freq_file = select_first([CopyFile.output_file7, PrepareGeneGenotype.vus_genotype_freq_file])
   }
 }

@@ -310,11 +310,11 @@ cat("filtering snv ... \n")
 lof_snv = rbind(annovar |> dplyr::filter(Func.refGene %in% c('splicing')),
             annovar |> dplyr::filter(Func.refGene %in% c('exonic')) |> dplyr::filter(ExonicFunc.refGene %in% c('stopgain', 'startloss'))
 )
-vuc_snv = rbind(annovar |> dplyr::filter(Func.refGene %in% c('splicing')),
+vus_snv = rbind(annovar |> dplyr::filter(Func.refGene %in% c('splicing')),
             annovar |> dplyr::filter(Func.refGene %in% c('exonic')) |> dplyr::filter(ExonicFunc.refGene %in% c('stopgain', 'startloss', 'nonsynonymous SNV'))
 )
 
-cat("there are", nrow(vuc_snv), "valid vuc SNVs, including", nrow(lof_snv), "valid lof SNVs.\n")
+cat("there are", nrow(vus_snv), "valid variants of uncertain significance (VUS) and loss-of-function variants (LOF), including", nrow(lof_snv), "LOF variants.\n")
 
 # Use a pipe to decompress with zcat and read the first 4000 lines
 con <- pipe(paste("zcat", vcf_file, "| head -n 4000"), "rt")
@@ -355,7 +355,7 @@ to_genotype_file<-function(vcf, snv, genotype_file){
 }
 
 to_genotype_file(vcf, lof_snv, paste0(gene, ".lof.genotype.csv"))
-to_genotype_file(vcf, vuc_snv, paste0(gene, ".vuc.genotype.csv"))
+to_genotype_file(vcf, vus_snv, paste0(gene, ".vus.genotype.csv"))
 
 cat("done\n")
 
@@ -376,9 +376,9 @@ R -f script.r
     String lof_genotype_name = "~{gene_symbol}_lof"
     File lof_genotype_file = "~{gene_symbol}.lof.genotype.csv"
     File lof_genotype_freq_file = "~{gene_symbol}.lof.genotype.freq.csv"
-    String vuc_genotype_name = "~{gene_symbol}_vuc"
-    File vuc_genotype_file = "~{gene_symbol}.vuc.genotype.csv"
-    File vuc_genotype_freq_file = "~{gene_symbol}.vuc.genotype.freq.csv"
+    String vus_genotype_name = "~{gene_symbol}_vus"
+    File vus_genotype_file = "~{gene_symbol}.vus.genotype.csv"
+    File vus_genotype_freq_file = "~{gene_symbol}.vus.genotype.freq.csv"
   }
 }
 

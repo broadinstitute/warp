@@ -61,9 +61,9 @@ workflow VUMCGenePhewas {
     String lof_genotype_name = GeneGenotype.lof_genotype_name
     File lof_genotype_file = GeneGenotype.lof_genotype_file
     File lof_genotype_freq_file = GeneGenotype.lof_genotype_freq_file
-    String vuc_genotype_name = GeneGenotype.vuc_genotype_name
-    File vuc_genotype_file = GeneGenotype.vuc_genotype_file
-    File vuc_genotype_freq_file = GeneGenotype.vuc_genotype_freq_file
+    String vus_genotype_name = GeneGenotype.vus_genotype_name
+    File vus_genotype_file = GeneGenotype.vus_genotype_file
+    File vus_genotype_freq_file = GeneGenotype.vus_genotype_freq_file
 
     Array[File] phenotype_files = Phewas.phenotype_files
     Array[File] phenotype_reports = Phewas.phenotype_reports
