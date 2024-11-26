@@ -311,3 +311,7 @@ workflows:
   - name: VUMCRegenie4
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie4.wdl
+
+  - name: VUMCBigQueryDemo
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCBigQueryDemo.wdl
