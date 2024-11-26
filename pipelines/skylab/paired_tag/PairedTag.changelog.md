@@ -1,3 +1,8 @@
+# 1.8.3
+2024-11-15 (Date of Last Commit)
+
+* Added bam validation in the StarSoloFastq task; this does not affect the outputs of the pipeline
+
 # 1.8.2
 2024-11-12 (Date of Last Commit)
 

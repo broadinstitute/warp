@@ -226,7 +226,7 @@ task STARsoloFastq {
     String? soloMultiMappers
 
     # runtime values
-    String star_docker_path
+    String samtools_star_docker_path
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -244,7 +244,7 @@ task STARsoloFastq {
     r2_fastq: "array of forward read FASTQ files"
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
     star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded'"
-    star_docker_path: "(optional) the docker image containing the runtime environment for this task"
+    samtools_star_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -329,7 +329,11 @@ task STARsoloFastq {
         ~{"--soloMultiMappers " + soloMultiMappers} \
         --soloUMIfiltering MultiGeneUMI_CR \
         --soloCellFilter EmptyDrops_CR
-      
+
+    # validate the bam with samtools quickcheck
+    samtools quickcheck -v Aligned.sortedByCoord.out.bam
+
+
     echo "UMI LEN " $UMILen
 
     touch barcodes_sn_rna.tsv
@@ -409,7 +413,7 @@ task STARsoloFastq {
   >>>
 
   runtime {
-    docker: star_docker_path
+    docker: samtools_star_docker_path
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
     disk: disk + " GB" # TES
