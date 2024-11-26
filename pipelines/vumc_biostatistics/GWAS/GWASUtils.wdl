@@ -60,7 +60,7 @@ task Regenie4Step1FitModel {
 
     String output_prefix
 
-    Int memory_gb = 40
+    Int memory_gb = 100
     Int cpu = 8
 
     #String docker = "skoyamamd/regenie:3.4.2"
