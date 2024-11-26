@@ -224,8 +224,8 @@ jobs:
             done
           done
 
-            echo "Submission ID: $SUBMISSION_ID"
-            SUBMISSION_IDS+=("$SUBMISSION_ID")
+            #echo "Submission ID: $SUBMISSION_ID"
+            #SUBMISSION_IDS+=("$SUBMISSION_ID")
           
           
           echo "Monitoring the status of submitted workflows..."
