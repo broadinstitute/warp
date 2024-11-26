@@ -107,6 +107,7 @@ plink2 \
   --pvar ~{input_pvar} \
   --psam ~{input_psam} \
   ~{qc_option} \
+  --threads ~{cpu} \
   --make-pgen \
   --out ~{output_prefix}
 
@@ -125,3 +126,49 @@ plink2 \
     File output_psam = "~{output_prefix}.psam"
   }
 }
+
+# this task doesn't work for AGD since pgen format doesn't have variant name in pvar file. It would cause duplicated variant name issue.
+task PgenQCFilterList {
+  input {
+    File input_pgen
+    File input_pvar
+    File input_psam
+
+    String output_prefix
+
+    String qc_option
+
+    Int memory_gb = 20
+    Int cpu = 8
+
+    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+  }
+
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")) + 5
+
+  command <<<
+
+plink2 \
+  --pgen ~{input_pgen} \
+  --pvar ~{input_pvar} \
+  --psam ~{input_psam} \
+  ~{qc_option} \
+  --threads ~{cpu} \
+  --write-snplist --write-samples --no-id-header \
+  --out ~{output_prefix}
+
+>>>
+
+  runtime {
+    docker: docker
+    preemptible: 1
+    cpu: cpu
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+  output {
+    File output_snplist = "~{output_prefix}.snplist"
+    File output_samples = "~{output_prefix}.id"
+  }
+}
+
