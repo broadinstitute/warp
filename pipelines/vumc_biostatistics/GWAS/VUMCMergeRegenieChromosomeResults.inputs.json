@@ -1,0 +1,8 @@
+{
+  "VUMCMergeRegenieChromosomeResults.chromosome_list": ["21", "22"],
+  "VUMCMergeRegenieChromosomeResults.phenotype_names": ["bmi"],
+  "VUMCMergeRegenieChromosomeResults.output_prefix": "demo_bmi_953",
+  "VUMCMergeRegenieChromosomeResults.regenie_chromosome_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/cromwell_finalOutputs/demo_bmi_953.chr21_bmi.regenie", "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/cromwell_finalOutputs/demo_bmi_953.chr22_bmi.regenie"],
+  "VUMCMergeRegenieChromosomeResults.regenie_prefix": "demo_bmi_953"
+}
+
