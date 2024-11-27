@@ -24,7 +24,7 @@ workflow VUMCRegenie4 {
     String step1_option="--loocv --bsize 1000 --lowmem"
     String step2_option="--firth --approx --pThresh 0.01 --bsize 400"
 
-    Array[Int] chromosome_list = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21, 22]
+    Array[String] chromosome_list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","X"]
 
     String? billing_gcp_project_id
     String? target_gcp_folder

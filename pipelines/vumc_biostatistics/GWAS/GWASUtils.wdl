@@ -61,7 +61,7 @@ task Regenie4Step1FitModel {
     String output_prefix
 
     Int memory_gb = 100
-    Int cpu = 8
+    Int cpu = 32
 
     #String docker = "skoyamamd/regenie:3.4.2"
     String docker = "quay.io/biocontainers/regenie:4.0--h90dfdf2_1"
@@ -130,7 +130,7 @@ task Regenie4Step2AssociationTest {
 
     String step2_option = "--firth --approx --pThresh 0.01 --bsize 400"
 
-    Int? chromosome
+    String? chromosome
 
     String output_prefix
 
@@ -192,7 +192,7 @@ task MergeRegenieChromosomeResults {
   input {
     Array[File] regenie_chromosome_files
     Array[String] phenotype_names
-    Array[Int] chromosome_list
+    Array[String] chromosome_list
 
     String regenie_prefix
 
@@ -208,7 +208,7 @@ task MergeRegenieChromosomeResults {
   Float regenie_files_size = size(regenie_chromosome_files, "GiB")
   Int disk = select_first([disk_size_override, ceil(30.0 + 2.0 * regenie_files_size)])
 
-  Int chr1 = chromosome_list[0]
+  String chr1 = chromosome_list[0]
   String pheno1 = phenotype_names[0]
   String regenie_file1 = "~{regenie_prefix}.chr~{chr1}_~{pheno1}.regenie"
 

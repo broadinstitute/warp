@@ -23,7 +23,7 @@ workflow VUMCRegenie4Step2AssociationTest {
 
     String output_prefix
 
-    Int? chromosome
+    String? chromosome
     String? billing_gcp_project_id
     String? target_gcp_folder
   }
@@ -53,9 +53,8 @@ workflow VUMCRegenie4Step2AssociationTest {
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
-    String gcs_output_dir = sub(select_first([target_gcp_folder]), "/+$", "")
-    scatter(regenie_file in RegenieStep2AssociationTest.regenie_files) {
-      String target_file = gcs_output_dir + "/" + basename(regenie_file)
+    scatter(regenie_file in CopyFile.outputFiles) {
+      String target_file = regenie_file
     }
   }
 
