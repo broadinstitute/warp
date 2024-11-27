@@ -98,12 +98,15 @@ query_sql=f"""select *
             {sd_url}.person as p
             inner join terra_temp as tt
                 on p.person_source_value=tt.GRID;"""
+print(query_sql)
 
 res = client.query(query_sql, job_config=job_config).result().to_dataframe() 
+print(res.head())
+
 res.to_csv("~{output_prefix}.demographics.csv",index=False)
 
 phemap = pd.read_csv("~{phemap_file}",sep='\t',dtype=str)
-phemap.head()
+print(phemap.head())
 
 #get icd codes for the mapping file set
 icd_sql=f"""select person_source_value, concept_code as icd, vocabulary_id
@@ -116,13 +119,17 @@ icd_sql=f"""select person_source_value, concept_code as icd, vocabulary_id
     inner join terra_temp as tt
         on p.person_source_value=tt.GRID
     where c.vocabulary_id like 'ICD%CM';"""
+print(icd_sql)
 
 icd_codes = client.query(icd_sql, job_config=job_config).result().to_dataframe() 
-icd_codes.head()
+icd_codes.columns = ['GRID','ICD','vocabulary_id']
+print(icd_codes.head())
 
 phemap['vocabulary_id']='ICD'+phemap['flag'].astype(str)+'CM'
+print(phemap.head())
+
 merged_old = icd_codes.merge(phemap, on=['ICD','vocabulary_id'], how='inner')
-merged_old.head()
+print(merged_old.head())
 
 wide = pd.pivot_table(merged_old[['GRID','phecode']], index='GRID', columns = 'phecode', aggfunc='size',fill_value=0)
 transformed = wide.applymap(transform_counts)
