@@ -315,3 +315,7 @@ workflows:
   - name: VUMCBigQueryDemo
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCBigQueryDemo.wdl
+
+  - name: VUMCAGDPhecode
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAGDPhecode.wdl
