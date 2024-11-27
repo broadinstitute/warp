@@ -78,7 +78,7 @@ patient_data.to_csv('result.csv', index=False)
 
 EOF
 
-python query_table.py
+python3 query_table.py
 
   >>>
 
