@@ -1,6 +1,6 @@
 {
-  "VUMCRegenie4Step2AssociationTest.pred_list_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/cromwell_finalOutputs/demo_bmi_953.pred.list",
-  "VUMCRegenie4Step2AssociationTest.pred_loco_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/cromwell_finalOutputs/demo_bmi_953.bmi.loco"],
+  "VUMCRegenie4Step2AssociationTest.pred_list_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/cromwell_finalOutputs/demo_bmi_953_pred.list",
+  "VUMCRegenie4Step2AssociationTest.pred_loco_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/cromwell_finalOutputs/glob-7d064f9a852f9135f445f7b53bf8f50e/demo_bmi_953.bmi.loco"],
   "VUMCRegenie4Step2AssociationTest.pgen_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.pgen",
   "VUMCRegenie4Step2AssociationTest.pvar_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.pvar",
   "VUMCRegenie4Step2AssociationTest.psam_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.psam",
