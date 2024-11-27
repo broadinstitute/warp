@@ -147,7 +147,7 @@ python3 query.py
 
   runtime {
     docker: docker
-    memory: ~{memory} + " GiB"
+    memory: "~{memory} GiB"
     disks: "local-disk " + 10 + " HDD"
     cpu: 1
     preemptible: 1
