@@ -7,7 +7,14 @@ workflow VUMCBigQueryDemo {
     String table_id='person'
   }
 
-  call query_table_from_bigquery{
+  # call query_table_by_bq {
+  #   input:
+  #     project_id = project_id,
+  #     dataset_id = dataset_id,
+  #     table_id = table_id
+  # }
+
+  call query_table_by_pandas {
     input:
       project_id = project_id,
       dataset_id = dataset_id,
@@ -15,11 +22,12 @@ workflow VUMCBigQueryDemo {
   }
 
   output {
-    File query_result_json = query_table_from_bigquery.query_result_json
+    #File query_result_json = query_table_by_pandas.query_result_json
+    File query_result_csv = query_table_by_pandas.query_result_csv
   }
 }
 
-task query_table_from_bigquery {
+task query_table_by_bq {
   input {
     String project_id
     String dataset_id
@@ -31,7 +39,7 @@ task query_table_from_bigquery {
   command {
     # The `bq` command will automatically authenticate using the service account 
     # associated with your Terra workspace, so no need for explicit credentials setup.
-    bq query --nouse_legacy_sql "SELECT * FROM \`~{project_id}.~{dataset_id}.~{table_id}\` LIMIT 10" > result.json
+    bq query --nouse_legacy_sql "SELECT * FROM \`~{project_id}.~{dataset_id}.~{table_id}\` LIMIT 1" > result.json
   }
 
   runtime {
@@ -44,5 +52,44 @@ task query_table_from_bigquery {
 
   output {
     File query_result_json = "result.json"
+  }
+}
+
+task query_table_by_pandas {
+  input {
+    String project_id
+    String dataset_id
+    String table_id
+
+    String docker = "google/cloud-sdk:latest"
+  }
+
+  command <<<
+    cat <<EOF > query_table.py
+
+import pandas as pd
+from google.cloud import bigquery
+
+client = bigquery.Client()
+sql=f"SELECT * FROM `~{project_id}.~{dataset_id}.~{table_id}` LIMIT 1"
+patient_data=client.query(sql).result().to_dataframe() 
+patient_data.to_csv('result.csv', index=False)
+
+EOF
+
+python query_table.py
+
+  >>>
+
+  runtime {
+    docker: docker
+    memory: 10 + " GiB"
+    disks: "local-disk " + 10 + " HDD"
+    cpu: 1
+    preemptible: 1
+  }
+
+  output {
+    File query_result_csv = "result.csv"
   }
 }
