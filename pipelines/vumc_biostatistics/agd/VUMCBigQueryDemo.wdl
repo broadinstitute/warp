@@ -7,12 +7,12 @@ workflow VUMCBigQueryDemo {
     String table_id='person'
   }
 
-  # call query_table_by_bq {
-  #   input:
-  #     project_id = project_id,
-  #     dataset_id = dataset_id,
-  #     table_id = table_id
-  # }
+  call query_table_by_bq {
+    input:
+      project_id = project_id,
+      dataset_id = dataset_id,
+      table_id = table_id
+  }
 
   call query_table_by_pandas {
     input:
@@ -22,7 +22,7 @@ workflow VUMCBigQueryDemo {
   }
 
   output {
-    #File query_result_json = query_table_by_pandas.query_result_json
+    File query_result_json = query_table_by_bq.query_result_json
     File query_result_csv = query_table_by_pandas.query_result_csv
   }
 }
@@ -33,7 +33,7 @@ task query_table_by_bq {
     String dataset_id
     String table_id
 
-    String docker = "google/cloud-sdk:latest"
+    String docker = "shengqh/hail_gcp:20241120"
   }
 
   command {
@@ -61,11 +61,12 @@ task query_table_by_pandas {
     String dataset_id
     String table_id
 
-    String docker = "google/cloud-sdk:latest"
+    String docker = "shengqh/hail_gcp:20241120"
   }
 
   command <<<
-    cat <<EOF > query_table.py
+
+cat <<EOF > query_table.py
 
 import pandas as pd
 from google.cloud import bigquery
