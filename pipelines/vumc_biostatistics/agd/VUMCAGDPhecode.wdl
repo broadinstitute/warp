@@ -6,7 +6,7 @@ workflow VUMCAGDPhecode {
   input {
     String bigquery_project_id
     String bigquery_dataset_id
-    File id_mapping_file
+    String id_mapping_file
     File phemap_file
     String output_prefix
 
@@ -51,7 +51,7 @@ task query_phecode {
     String bigquery_project_id
     String bigquery_dataset_id
     
-    File id_mapping_file
+    String id_mapping_file
     File phemap_file
 
     String output_prefix
