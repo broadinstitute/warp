@@ -46,6 +46,7 @@ workflow VUMCAGDPhecode {
   }
 }
 
+# Modified the code from Ted notebook: 20241020_AGD_Cohort_phecode_tjm.ipynb
 task query_phecode {
   input {
     String bigquery_project_id
@@ -66,6 +67,7 @@ cat <<EOF > query.py
 
 import pandas as pd
 import pandas_gbq
+import numpy as np
 
 from google.cloud import bigquery
 
@@ -133,6 +135,16 @@ merged_old = icd_codes.merge(phemap, on=['ICD','vocabulary_id'], how='inner')
 print(merged_old.head())
 
 wide = pd.pivot_table(merged_old[['GRID','phecode']], index='GRID', columns = 'phecode', aggfunc='size',fill_value=0)
+
+#transform counts to binarized
+#switch it to 1=na, 2+=1
+def transform_counts(count):
+    if count==0:
+        return 0
+    elif count == 1:
+        return np.nan
+    else:
+        return 1
 transformed = wide.applymap(transform_counts)
 
 merged_old[['GRID','phecode']].to_csv("~{output_prefix}.Phecode12_long.csv",index=False)
