@@ -226,6 +226,8 @@ for pheno in ~{sep=' ' phenotype_names}; do
     tail -n +2 ~{regenie_prefix}.chr${chr}_${pheno}.regenie >> ~{output_prefix}.$pheno.regenie
     rm ~{regenie_prefix}.chr${chr}_${pheno}.regenie
   done 
+
+  gzip ~{output_prefix}.$pheno.regenie
 done
 
 >>>
@@ -239,7 +241,7 @@ done
     maxRetries: maxRetries
   }
   output {
-    Array[File] phenotype_regenie_files = glob("*.regenie")
+    Array[File] phenotype_regenie_files = glob("*.regenie.gz")
   }
 }
 
