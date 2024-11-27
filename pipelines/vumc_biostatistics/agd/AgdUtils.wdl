@@ -310,6 +310,8 @@ cat("filtering snv ... \n")
 lof_snv = rbind(annovar |> dplyr::filter(Func.refGene %in% c('splicing')),
             annovar |> dplyr::filter(Func.refGene %in% c('exonic')) |> dplyr::filter(ExonicFunc.refGene %in% c('stopgain', 'startloss'))
 )
+write.table(lof_snv, paste0(gene, ".lof.annovar.txt"), quote=FALSE, row.names=FALSE, sep="\t")
+
 vus_snv = rbind(annovar |> dplyr::filter(Func.refGene %in% c('splicing')),
             annovar |> dplyr::filter(Func.refGene %in% c('exonic')) |> dplyr::filter(ExonicFunc.refGene %in% c('stopgain', 'startloss', 'nonsynonymous SNV'))
 )
@@ -345,7 +347,6 @@ to_genotype_file<-function(vcf, snv, genotype_file){
   df=data.frame(GRID=colnames(snv_vcf_gt), Genotype=ifelse(has_snv, "1", "0")) |> 
     dplyr::filter(GRID %in% agd_df\$PRIMARY_GRID) |>
     dplyr::arrange(GRID)
-  print(table(df\$Genotype))
     
   cat("  saving to", genotype_file, "...\n")
   write.csv(df, genotype_file, quote=FALSE, row.names=FALSE)
@@ -374,6 +375,7 @@ R -f script.r
   }
   output {
     String lof_genotype_name = "~{gene_symbol}_lof"
+    File lof_annovar_file = "~{gene_symbol}.lof.annovar.txt"
     File lof_genotype_file = "~{gene_symbol}.lof.genotype.csv"
     File lof_genotype_freq_file = "~{gene_symbol}.lof.genotype.freq.csv"
     String vus_genotype_name = "~{gene_symbol}_vus"
