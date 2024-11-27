@@ -56,7 +56,7 @@ task query_phecode {
 
     String output_prefix
 
-    String docker = "shengqh/hail_gcp:20241126"
+    String docker = "shengqh/hail_gcp:20241127"
   }
 
   command <<<
