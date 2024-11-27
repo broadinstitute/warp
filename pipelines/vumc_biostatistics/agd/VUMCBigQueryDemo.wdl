@@ -72,7 +72,7 @@ import pandas as pd
 from google.cloud import bigquery
 
 client = bigquery.Client()
-sql=f"SELECT * FROM `~{project_id}.~{dataset_id}.~{table_id}` LIMIT 1"
+sql=f"SELECT * FROM ~{project_id}.~{dataset_id}.~{table_id} LIMIT 1"
 patient_data=client.query(sql).result().to_dataframe() 
 patient_data.to_csv('result.csv', index=False)
 
