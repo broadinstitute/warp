@@ -95,6 +95,7 @@ task HailMatrixExtractRegions {
     String billing_project_id
     String? target_gcp_folder
 
+    #don't change it to new version, as it might cause problem of hail
     String docker = "shengqh/hail_gcp:20241120"
     Int memory_gb = 10
     Int preemptible = 1
