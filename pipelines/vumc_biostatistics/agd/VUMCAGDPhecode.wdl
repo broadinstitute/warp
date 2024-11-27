@@ -108,6 +108,9 @@ res.to_csv("~{output_prefix}.demographics.csv",index=False)
 phemap = pd.read_csv("~{phemap_file}",sep='\t',dtype=str)
 print(phemap.head())
 
+phemap['vocabulary_id']='ICD'+phemap['flag'].astype(str)+'CM'
+print(phemap.head())
+
 #get icd codes for the mapping file set
 icd_sql=f"""select person_source_value, concept_code as icd, vocabulary_id
     from 
@@ -124,9 +127,6 @@ print(icd_sql)
 icd_codes = client.query(icd_sql, job_config=job_config).result().to_dataframe() 
 icd_codes.columns = ['GRID','ICD','vocabulary_id']
 print(icd_codes.head())
-
-phemap['vocabulary_id']='ICD'+phemap['flag'].astype(str)+'CM'
-print(phemap.head())
 
 merged_old = icd_codes.merge(phemap, on=['ICD','vocabulary_id'], how='inner')
 print(merged_old.head())
