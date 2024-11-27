@@ -7,12 +7,12 @@ workflow VUMCBigQueryDemo {
     String table_id='person'
   }
 
-  call query_table_by_bq {
-    input:
-      project_id = project_id,
-      dataset_id = dataset_id,
-      table_id = table_id
-  }
+  # call query_table_by_bq {
+  #   input:
+  #     project_id = project_id,
+  #     dataset_id = dataset_id,
+  #     table_id = table_id
+  # }
 
   call query_table_by_pandas {
     input:
@@ -22,7 +22,7 @@ workflow VUMCBigQueryDemo {
   }
 
   output {
-    File query_result_json = query_table_by_bq.query_result_json
+    # File query_result_json = query_table_by_bq.query_result_json
     File query_result_csv = query_table_by_pandas.query_result_csv
   }
 }
