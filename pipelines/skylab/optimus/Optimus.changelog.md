@@ -1,3 +1,8 @@
+# 7.8.4
+2024-11-27 (Date of Last Commit)
+
+* Added filtered_mtx_files as an intermediate output to MergeStarOutput task; this does not affect the outputs of the pipeline
+
 # 7.8.3
 2024-11-15 (Date of Last Commit)
 
