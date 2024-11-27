@@ -4,8 +4,8 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCAGDPhecode {
   input {
-    String bigquery_project_id='sd-vumc-tanagra-test'
-    String bigquery_dataset_id='terra_sd_20240831'
+    String bigquery_project_id
+    String bigquery_dataset_id
     File id_mapping_file
     File phemap_file
     String output_prefix
@@ -85,7 +85,7 @@ job_config = bigquery.QueryJobConfig(table_definitions={table_id: external_confi
 
 client = bigquery.Client()
 
-sql = 'SELECT * FROM `{}`'.format(table_id)
+sql = 'SELECT * FROM {}'.format(table_id)
 print(sql)
 
 results = client.query(sql, job_config=job_config).result().to_dataframe()
