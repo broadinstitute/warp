@@ -1,0 +1,4 @@
+{
+  "VUMCBigQueryDemo.query_table_by_pandas.docker": "shengqh/hail_gcp:20241126"
+}
+
