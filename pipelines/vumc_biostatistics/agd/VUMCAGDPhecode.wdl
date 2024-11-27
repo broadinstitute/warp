@@ -57,6 +57,7 @@ task query_phecode {
     String output_prefix
 
     String docker = "shengqh/hail_gcp:20241127"
+    Int memory = 40
   }
 
   command <<<
@@ -146,7 +147,7 @@ python3 query.py
 
   runtime {
     docker: docker
-    memory: 10 + " GiB"
+    memory: ~{memory} + " GiB"
     disks: "local-disk " + 10 + " HDD"
     cpu: 1
     preemptible: 1
