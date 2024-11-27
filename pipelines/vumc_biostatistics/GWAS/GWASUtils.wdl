@@ -88,16 +88,14 @@ regenie --step 1 \
   --out ~{output_prefix} \
   --force-step1
 
-rm -f ~{output_prefix}.pred.list
-rm -f loco_files.list
-
+mv ~{output_prefix}_pred.list old.list
+ 
 while IFS=' ' read -r phenotype old_loco_file; do
   new_loco_file="~{output_prefix}.${phenotype}.loco"
   echo mv ${old_loco_file} ${new_loco_file}
   mv ${old_loco_file} ${new_loco_file}
-  echo ${phenotype} ${new_loco_file} >> ~{output_prefix}.pred.list
-  echo ${new_loco_file} >> loco_files.list
-done < ~{output_prefix}_pred.list
+  echo ${phenotype} ${new_loco_file} >> ~{output_prefix}_pred.list
+done < old.list
 
 >>>
 
@@ -109,8 +107,8 @@ done < ~{output_prefix}_pred.list
     memory: memory_gb + " GiB"
   }
   output {
-    File pred_list_file = "${output_prefix}.pred.list" 
-    Array[File] pred_loco_files = read_lines("loco_files.list")
+    File pred_list_file = "~{output_prefix}_pred.list" 
+    Array[File] pred_loco_files = glob("*.loco")
   }
 }
 
@@ -222,15 +220,12 @@ for file in ~{sep=' ' regenie_chromosome_files}; do
   mv $file .
 done
 
-rm -f filelist.txt
-
 for pheno in ~{sep=' ' phenotype_names}; do 
   head -n 1 ~{regenie_file1} > ~{output_prefix}.$pheno.regenie
   for chr in ~{sep= ' ' chromosome_list}; do 
     tail -n +2 ~{regenie_prefix}.chr${chr}_${pheno}.regenie >> ~{output_prefix}.$pheno.regenie
     rm ~{regenie_prefix}.chr${chr}_${pheno}.regenie
   done 
-  echo ~{output_prefix}.$pheno.regenie >> filelist.txt
 done
 
 >>>
@@ -244,7 +239,7 @@ done
     maxRetries: maxRetries
   }
   output {
-    Array[File] phenotype_regenie_files = read_lines("filelist.txt")
+    Array[File] phenotype_regenie_files = glob("*.regenie")
   }
 }
 
