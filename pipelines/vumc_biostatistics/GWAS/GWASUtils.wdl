@@ -72,10 +72,10 @@ other_cost = num_sample * block_size * 8
 # if( params->use_loocv ) total_ram += params->chunk_mb * 1e6; // max amount of memory used for LOO computations involved
 
 chunk_mb = 1000
-other_cost += chunk_mb * 1000^2
+other_cost = other_cost + chunk_mb * 1000^2
 
 # if( params->mask_loo ) total_ram += 1e9; // at most 1GB
-other_cost += 1000^3
+other_cost = other_cost + 1000^3
 
 cat("The momory for storing other data:", ceiling(other_cost / 1000^3), "GB\n")
 
