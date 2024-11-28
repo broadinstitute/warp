@@ -72,7 +72,7 @@ workflow VUMCRegenie4 {
       output_prefix = output_prefix,
       step1_option = step1_option,
       num_sample = num_sample,
-      num_variant = num_variant
+      num_variant = num_variant,
       num_phenotype = num_phenotype
   }
 
