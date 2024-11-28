@@ -28,8 +28,10 @@ task count_lines {
   Int disk_size = ceil(size(input_file, "GB")) + 2
 
   command <<<
+  
 # Count the number of lines in the file
-wc -l ~{input_file} > line_count.txt
+wc -l ~{input_file} | cut -d ' ' -f 1 > line_count.txt
+
   >>>
 
   output {
