@@ -39,6 +39,30 @@ workflow VUMCRegenie4 {
       qc_option = qc_option
   }
 
+  call WDLUtils.count_lines as psam_count {
+    input:
+      input_file = PgenQCFilter.output_psam
+  }
+  Int num_sample = psam_count.num_lines
+
+  call WDLUtils.count_lines as pvar_count {
+    input:
+      input_file = PgenQCFilter.output_pvar
+  }
+  Int num_variant = pvar_count.num_lines
+
+  call WDLUtils.string_to_array{
+    input:
+      str = phenoColList,
+      delimiter = ","
+  }
+  Array[String] phenotype_names = string_to_array.arr
+  Int num_phenotype = length(phenotype_names)
+
+  #https://rgcgithub.github.io/regenie/install/#computing-requirements
+  #assume we used 1000 for bsize
+  Int memory_gb = ceil(num_sample * num_variant / 1000 * num_phenotype * 8 / 1024 / 1024 / 1024) + 10
+
   call GWASUtils.Regenie4Step1FitModel as RegenieStep1FitModel {
     input:
       input_pgen = PgenQCFilter.output_pgen,
@@ -50,7 +74,8 @@ workflow VUMCRegenie4 {
       covarFile = covarFile,
       covarColList = covarColList,
       output_prefix = output_prefix,
-      step1_option = step1_option
+      step1_option = step1_option,
+      memory_gb = memory_gb
   }
 
   scatter(chromosome in chromosome_list) {
@@ -73,13 +98,6 @@ workflow VUMCRegenie4 {
   }
 
   Array[File] regenie_chromosome_files = flatten(RegenieStep2AssociationTest.regenie_files)
-  call WDLUtils.string_to_array{
-    input:
-      str = phenoColList,
-      delimiter = ","
-  }
-
-  Array[String] phenotype_names = string_to_array.arr
 
   call GWASUtils.MergeRegenieChromosomeResults {
     input:
