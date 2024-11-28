@@ -21,7 +21,10 @@ workflow VUMCRegenie4 {
     String output_prefix
 
     String qc_option="--mac 100 --geno 0.1 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27"
-    String step1_option="--loocv --bsize 1000 --lowmem"
+    
+    String step1_option="--loocv --bsize 1000"
+    Int step1_block_size=1000
+    
     String step2_option="--firth --approx --pThresh 0.01 --bsize 400"
 
     Array[String] chromosome_list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","X"]
@@ -51,13 +54,36 @@ workflow VUMCRegenie4 {
   }
   Int num_variant = pvar_count.num_lines
 
-  call WDLUtils.string_to_array{
+  call WDLUtils.string_to_array as pheco_list {
     input:
       str = phenoColList,
       delimiter = ","
   }
-  Array[String] phenotype_names = string_to_array.arr
+  Array[String] phenotype_names = pheco_list.arr
   Int num_phenotype = length(phenotype_names)
+
+  call WDLUtils.string_to_array as covar_list{
+    input:
+      str = covarColList,
+      delimiter = ","
+  }
+  Array[String] covar_names = covar_list.arr
+  Int num_covariate = length(covar_names)
+
+  Int num_chromosome = length(chromosome_list)
+
+  call GWASUtils.Regenie4MemoryEstimation {
+    input:
+      num_sample = num_sample,
+      num_variant = num_variant,
+      num_phenotype = num_phenotype,
+      num_chromosome = num_chromosome,
+      num_covariate = num_covariate,
+      num_ridge_l0 = 5,
+      block_size = step1_block_size
+  }
+
+  Int step1_memory_gb = Regenie4MemoryEstimation.step1_memory_gb
 
   call GWASUtils.Regenie4Step1FitModel as RegenieStep1FitModel {
     input:
@@ -71,9 +97,7 @@ workflow VUMCRegenie4 {
       covarColList = covarColList,
       output_prefix = output_prefix,
       step1_option = step1_option,
-      num_sample = num_sample,
-      num_variant = num_variant,
-      num_phenotype = num_phenotype
+      memory_gb = step1_memory_gb
   }
 
   scatter(chromosome in chromosome_list) {
@@ -91,7 +115,8 @@ workflow VUMCRegenie4 {
         covarColList = covarColList,
         output_prefix = "~{output_prefix}.chr~{chromosome}",
         step2_option = step2_option,
-        chromosome = chromosome
+        chromosome = chromosome,
+        memory_gb = step1_memory_gb
     }
   }
 

@@ -1,15 +1,121 @@
 version 1.0
 
+task Regenie4MemoryEstimation {
+  input {
+    Int num_sample
+    Int num_variant
+    Int num_phenotype
+    Int num_chromosome
+    Int num_covariate
+    Int num_ridge_l0 = 5
+    Int block_size = 1000
+
+    String docker = "shengqh/report:20241120"
+  }
+
+  command <<<
+    cat <<EOF > script.r
+
+num_sample=~{num_sample}
+num_variant=~{num_variant}
+num_phenotype=~{num_phenotype}
+num_chromosome=~{num_chromosome}
+num_covariate=~{num_covariate}
+num_ridge_l0=~{num_ridge_l0}
+block_size=~{block_size}
+
+# https://github.com/rgcgithub/regenie/blob/5bb86f9a207422e4affafb9eb17693c87ec30c0a/src/Regenie.cpp
+# // Step 1
+# // 4P + max( B + PRT, PRT) + #chrs [P:#traits;R=#ridge l0;T=#predictions from l0]
+# int t_eff = ( params->write_l0_pred ? 1 : params->total_n_block );
+
+total_n_block = ceiling(1.0 * num_variant / block_size)
+t_eff = total_n_block
+
+# int p_eff = ( params->write_l0_pred ? 1 : params->n_pheno );
+
+p_eff = num_phenotype
+
+# int b_eff = params->total_n_block;
+
+b_eff = total_n_block
+
+# total_ram = 4 * params->n_pheno + params->nChrom + params->ncov;
+
+a1 = 4.0 * num_phenotype + num_chromosome + num_covariate
+
+# total_ram += std::max( params->block_size + params->n_pheno * params->n_ridge_l0 * t_eff, p_eff * params->n_ridge_l0 * b_eff );
+
+b1 = block_size + num_phenotype * num_ridge_l0 * t_eff
+b2 = p_eff * num_ridge_l0 * b_eff
+max_b = max(b1, b2)
+
+# total_ram *= params->n_samples * sizeof(double);
+
+sample_cost = (a1 + max_b) * num_sample * 8
+
+cat("The momory for storing sample level data:", ceiling(sample_cost / 1000^3), "GB\n")
+
+# total_ram += params->nvs_stored * sizeof(struct snp);
+
+variant_cost = num_variant * 300
+
+cat("The momory for storing variant data:", ceiling(variant_cost / 1000^3), "GB\n")
+
+# if( params->getCorMat ){ // M^2 (x2 with txt output) + 3NB
+#     total_ram += (params->cor_out_txt && (params->ld_sparse_thr == 0) ? 2 : 1) * params->extract_vars_order.size() * params->extract_vars_order.size() * sizeof(double);
+#     total_ram += params->n_samples * params->block_size * sizeof(double);
+# }
+
+other_cost = num_sample * block_size * 8
+
+# if( params->use_loocv ) total_ram += params->chunk_mb * 1e6; // max amount of memory used for LOO computations involved
+
+chunk_mb = 1000
+other_cost += chunk_mb * 1000^2
+
+# if( params->mask_loo ) total_ram += 1e9; // at most 1GB
+other_cost += 1000^3
+
+cat("The momory for storing other data:", ceiling(other_cost / 1000^3), "GB\n")
+
+# if( params->vc_test ) total_ram += 2 * params->max_bsize * params->max_bsize * sizeof(double); // MxM matrices
+# total_ram /= 1000.0 * 1000.0; 
+# if( total_ram > 1000 ) {
+#   total_ram /= 1000.0; 
+#   ram_unit = "GB";
+# } else ram_unit = "MB";
+
+final_memory_gb = ceiling((sample_cost + variant_cost + other_cost) / 1000^3 * 1.3)
+
+cat("The final memory with factor 1.3 cost:", final_memory_gb, "GB\n")
+
+writeLines(paste0(final_memory_gb), "final_memory_gb.txt")
+
+EOF
+
+R -f script.r
+
+  >>>
+
+  runtime {
+    cpu: 1
+    docker: "~{docker}"
+    preemptible: 1
+    disks: "local-disk 5 HDD"
+    memory: "1 GiB"
+  }
+
+  output {
+    Int step1_memory_gb = read_int("final_memory_gb.txt")
+  }
+}
+
 task Regenie4Step1FitModel {
   input {
     File input_pgen
     File input_pvar
     File input_psam
-
-    Int num_sample
-    Int num_variant
-    Int num_phenotype
-    Int num_ridge_parameters = 5
 
     File phenoFile
     String phenoColList
@@ -65,8 +171,9 @@ task Regenie4Step1FitModel {
 
     String output_prefix
 
+    Int memory_gb = 20
     Int? memory_gb_override
-    Int cpu = 4
+    Int cpu = 10
 
     Float disk_size_factor=2
 
@@ -77,11 +184,7 @@ task Regenie4Step1FitModel {
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB") * disk_size_factor) + 10
 
-  #https://rgcgithub.github.io/regenie/install/#computing-requirements
-  #assume we used 1000 for bsize
-  Int calc_memory_gb = ceil(1.0 * num_variant / 1000 * num_sample * num_phenotype * num_ridge_parameters / 1024 / 1024 / 1024 * 1.3) + 20
-
-  Int memory_gb = select_first([memory_gb_override, calc_memory_gb])
+  Int final_memory_gb = select_first([memory_gb_override, memory_gb])
 
   String call_type = if(is_binary_traits) then "--bt" else "--qt"
 
@@ -118,7 +221,7 @@ done < old.list
     preemptible: 1
     cpu: cpu
     disks: "local-disk " + disk_size + " HDD"
-    memory: memory_gb + " GiB"
+    memory: final_memory_gb + " GiB"
   }
   output {
     File pred_list_file = "~{output_prefix}_pred.list" 
@@ -148,8 +251,8 @@ task Regenie4Step2AssociationTest {
 
     String output_prefix
 
-    Int memory_gb = 100
-    Int cpu = 4
+    Int memory_gb = 20
+    Int cpu = 10
 
     #String docker = "skoyamamd/regenie:3.4.2"
     #String docker = "quay.io/biocontainers/regenie:4.0--h90dfdf2_1"

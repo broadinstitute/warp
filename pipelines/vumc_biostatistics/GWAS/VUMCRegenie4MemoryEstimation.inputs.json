@@ -1,0 +1,10 @@
+{
+  "VUMCRegenie4MemoryEstimation.num_variant": "18349957",
+  "VUMCRegenie4MemoryEstimation.num_chromosome": "24",
+  "VUMCRegenie4MemoryEstimation.num_phenotype": "1",
+  "VUMCRegenie4MemoryEstimation.num_sample": "16207",
+  "VUMCRegenie4MemoryEstimation.num_ridge_l0": "5",
+  "VUMCRegenie4MemoryEstimation.block_size": "1000",
+  "VUMCRegenie4MemoryEstimation.num_covariate": "13"
+}
+
