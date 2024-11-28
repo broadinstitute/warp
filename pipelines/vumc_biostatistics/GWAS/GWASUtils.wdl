@@ -10,7 +10,7 @@ task Regenie4MemoryEstimation {
     Int num_ridge_l0 = 5
     Int block_size = 1000
 
-    String docker = "shengqh/report:20241120"
+    String docker = "r-base:4.4.2"
   }
 
   command <<<
