@@ -61,7 +61,7 @@ task Regenie4Step1FitModel {
     String output_prefix
 
     Int memory_gb = 100
-    Int cpu = 32
+    Int cpu = 4
 
     Float disk_size_factor=2
 
@@ -138,7 +138,7 @@ task Regenie4Step2AssociationTest {
     String output_prefix
 
     Int memory_gb = 100
-    Int cpu = 8
+    Int cpu = 4
 
     #String docker = "skoyamamd/regenie:3.4.2"
     #String docker = "quay.io/biocontainers/regenie:4.0--h90dfdf2_1"
