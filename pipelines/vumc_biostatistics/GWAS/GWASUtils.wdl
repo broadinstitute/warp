@@ -78,9 +78,10 @@ task Regenie4Step1FitModel {
 
   #https://rgcgithub.github.io/regenie/install/#computing-requirements
   #assume we used 1000 for bsize
-  Int calc_memory_gb = ceil(num_sample * num_variant * num_phenotype * 8 / 1000  / 1024 / 1024 / 1024 * 1.3) + 10
+  Int calc_memory_gb = ceil(num_sample * num_variant * num_phenotype * 8 / 1000  / 1024 / 1024 / 1024 * 1.3)
+  Int required_memory_gb = calc_memory_gb + 10
 
-  Int memory_gb = select_first([memory_gb_override, calc_memory_gb])
+  Int memory_gb = select_first([memory_gb_override, required_memory_gb])
 
   String call_type = if(is_binary_traits) then "--bt" else "--qt"
 
