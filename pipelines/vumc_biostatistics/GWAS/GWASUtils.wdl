@@ -63,11 +63,13 @@ task Regenie4Step1FitModel {
     Int memory_gb = 100
     Int cpu = 32
 
+    Float disk_size_factor=2
+
     #String docker = "skoyamamd/regenie:3.4.2"
     String docker = "quay.io/biocontainers/regenie:4.0--h90dfdf2_1"
   }
 
-  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")) + 10
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB") * disk_size_factor) + 10
 
   String call_type = if(is_binary_traits) then "--bt" else "--qt"
 
