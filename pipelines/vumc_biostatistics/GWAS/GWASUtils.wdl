@@ -6,6 +6,10 @@ task Regenie4Step1FitModel {
     File input_pvar
     File input_psam
 
+    Int num_sample
+    Int num_variant
+    Int num_phenotype
+
     File phenoFile
     String phenoColList
     Boolean is_binary_traits
@@ -56,11 +60,11 @@ task Regenie4Step1FitModel {
     #    -calc working matrices...done (135ms) 
     #    -calc level 0 ridge...done (18ms) 
 
-    String step1_option = "--loocv --bsize 1000 --lowmem"
+    String step1_option = "--loocv --bsize 1000"
 
     String output_prefix
 
-    Int memory_gb = 100
+    Int? memory_gb_override
     Int cpu = 4
 
     Float disk_size_factor=2
@@ -71,6 +75,12 @@ task Regenie4Step1FitModel {
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB") * disk_size_factor) + 10
+
+  #https://rgcgithub.github.io/regenie/install/#computing-requirements
+  #assume we used 1000 for bsize
+  Int calc_memory_gb = ceil(num_sample * num_variant * num_phenotype * 8 / 1000  / 1024 / 1024 / 1024 * 1.3) + 10
+
+  Int memory_gb = select_first([memory_gb_override, calc_memory_gb])
 
   String call_type = if(is_binary_traits) then "--bt" else "--qt"
 
