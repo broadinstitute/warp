@@ -59,10 +59,6 @@ workflow VUMCRegenie4 {
   Array[String] phenotype_names = string_to_array.arr
   Int num_phenotype = length(phenotype_names)
 
-  #https://rgcgithub.github.io/regenie/install/#computing-requirements
-  #assume we used 1000 for bsize
-  Int memory_gb = ceil(num_sample * num_variant / 1000 * num_phenotype * 8 / 1024 / 1024 / 1024) + 10
-
   call GWASUtils.Regenie4Step1FitModel as RegenieStep1FitModel {
     input:
       input_pgen = PgenQCFilter.output_pgen,
@@ -75,7 +71,9 @@ workflow VUMCRegenie4 {
       covarColList = covarColList,
       output_prefix = output_prefix,
       step1_option = step1_option,
-      memory_gb = memory_gb
+      num_sample = num_sample,
+      num_variant = num_variant
+      num_phenotype = num_phenotype
   }
 
   scatter(chromosome in chromosome_list) {
