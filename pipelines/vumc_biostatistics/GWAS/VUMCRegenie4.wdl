@@ -116,7 +116,7 @@ workflow VUMCRegenie4 {
         output_prefix = "~{output_prefix}.chr~{chromosome}",
         step2_option = step2_option,
         chromosome = chromosome,
-        memory_gb = step1_memory_gb
+        memory_gb = step1_memory_gb #chromosome level memory cost would be less than step1, use step1 memory here.
     }
   }
 
