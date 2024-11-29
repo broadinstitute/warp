@@ -7,6 +7,10 @@ import "./GWASUtils.wdl" as GWASUtils
 
 workflow VUMCRegenie4 {
   input {
+    File? qc_pgen_file
+    File? qc_pvar_file
+    File? qc_psam_file
+
     File pgen_file
     File pvar_file
     File psam_file
@@ -33,24 +37,30 @@ workflow VUMCRegenie4 {
     String? target_gcp_folder
   }
 
-  call BioUtils.PgenQCFilter {
-    input:
-      input_pgen = pgen_file,
-      input_pvar = pvar_file,
-      input_psam = psam_file,
-      output_prefix = output_prefix,
-      qc_option = qc_option
+  if(!defined(qc_pgen_file)){
+    call BioUtils.PgenQCFilter {
+      input:
+        input_pgen = pgen_file,
+        input_pvar = pvar_file,
+        input_psam = psam_file,
+        output_prefix = output_prefix,
+        qc_option = qc_option
+    }
   }
+  
+  File model_pgen = select_first([qc_pgen_file, PgenQCFilter.output_pgen])
+  File model_pvar = select_first([qc_pvar_file, PgenQCFilter.output_pvar])
+  File model_psam = select_first([qc_psam_file, PgenQCFilter.output_psam])
 
   call WDLUtils.count_lines as psam_count {
     input:
-      input_file = PgenQCFilter.output_psam
+      input_file = model_psam
   }
   Int num_sample = psam_count.num_lines
 
   call WDLUtils.count_lines as pvar_count {
     input:
-      input_file = PgenQCFilter.output_pvar
+      input_file = model_pvar
   }
   Int num_variant = pvar_count.num_lines
 
@@ -87,9 +97,9 @@ workflow VUMCRegenie4 {
 
   call GWASUtils.Regenie4Step1FitModel as RegenieStep1FitModel {
     input:
-      input_pgen = PgenQCFilter.output_pgen,
-      input_pvar = PgenQCFilter.output_pvar,
-      input_psam = PgenQCFilter.output_psam,
+      input_pgen = model_pgen,
+      input_pvar = model_pvar,
+      input_psam = model_psam,
       phenoFile = phenoFile,
       phenoColList = phenoColList,
       is_binary_traits = is_binary_traits,
