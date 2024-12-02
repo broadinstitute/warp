@@ -227,12 +227,33 @@ jobs:
             #echo "Submission ID: $SUBMISSION_ID"
             #SUBMISSION_IDS+=("$SUBMISSION_ID")
           
+          # Function to refresh token
+          refresh_token() {
+            echo "Refreshing Google Cloud authentication token..."
+            # Re-authenticate and get a new token
+            TOKEN=$(gcloud auth application-default print-access-token)
+            echo "New token retrieved"
+          }          
           
+      
           echo "Monitoring the status of submitted workflows..."
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
             echo "Polling submission status for Submission ID: $SUBMISSION_ID"
-            RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID") 
+            
+            # Check if the token is expired or close to expiration and refresh it if necessary
+            CURRENT_TIME=$(date +%s)
+            TOKEN_EXPIRATION_TIME=$(gcloud auth application-default get-access-token --format='value(expiry)')
+            EXPIRATION_TIME_IN_SECONDS=$(date -d "$TOKEN_EXPIRATION_TIME" +%s)
+            TOKEN_LIFETIME_THRESHOLD=300  # Set the threshold to 5 minutes before expiration
 
+            # If token is about to expire, refresh it
+            if (( EXPIRATION_TIME_IN_SECONDS - CURRENT_TIME <= TOKEN_LIFETIME_THRESHOLD )); then
+              refresh_token
+            fi
+
+            # Poll the status using the fresh token
+            RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
+  
             if [ -z "$RESPONSE" ]; then
               echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
               continue
