@@ -2,7 +2,7 @@ version 1.0
 
 import "scripts/spatial-count.wdl" as SpatialCount
 import "scripts/positioning.wdl" as Positioning
-import "../../../pipelines/skylab/optimus/Optimus.wdl" as Optimus
+import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 
 workflow SlideTags {
 
@@ -17,6 +17,8 @@ workflow SlideTags {
         String sb_path
 
         # Optimus Inputs
+        String input_id
+        Int expected_cells = 3000 ## copied from Multiome ?
         String counting_mode = "sn_rna"
         Array[File] gex_r1_fastq
         Array[File] gex_r2_fastq
@@ -30,7 +32,9 @@ workflow SlideTags {
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Reverse"
         Boolean count_exons = false
+        File gex_whitelist
         String? soloMultiMappers
+        String? gex_nhash_id
 
         String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.1.0"
      }
@@ -42,7 +46,7 @@ workflow SlideTags {
     }
     
     # Call the Optimus workflow
-    call Optimus.Optimus as Optimus {
+    call optimus.Optimus as Optimus {
         input:
             counting_mode = counting_mode,
             r1_fastq = gex_r1_fastq,
@@ -62,7 +66,6 @@ workflow SlideTags {
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
             soloMultiMappers = soloMultiMappers,
-            cloud_provider = cloud_provider,
             gex_expected_cells = expected_cells
     } 
 
