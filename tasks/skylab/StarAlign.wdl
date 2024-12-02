@@ -351,8 +351,7 @@ task STARsoloFastq {
       echo "SoloDirectory is $SoloDirectory"
       find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
       find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
-      echo "list matrix files in $SoloDirectory"
-      ls "$SoloDirectory"/*.mtx
+
       echo "list files in current directory, should see mtx files"
       ls -l
       echo " the current working dir is"
@@ -372,8 +371,7 @@ task STARsoloFastq {
         echo "SoloDirectory is $SoloDirectory"
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
-        echo "list matrix files in $SoloDirectory"
-        ls "$SoloDirectory"/*.mtx
+
         echo "list files in current directory, should see mtx files"
         ls -l
         echo " the current working dir is"
@@ -390,8 +388,7 @@ task STARsoloFastq {
         echo "SoloDirectory is $SoloDirectory"
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} echo mv {} /cromwell_root/
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
-        echo "list matrix files in $SoloDirectory"
-        ls "$SoloDirectory"/*.mtx
+
         echo "list files in current directory, should see mtx files"
         ls -l
         echo " the current working dir is"
@@ -401,8 +398,7 @@ task STARsoloFastq {
         echo "SoloDirectory is $SoloDirectory"
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx";  echo mv {} "/cromwell_root/$new_name"'
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
-        echo "list matrix files in $SoloDirectory"
-        ls "$SoloDirectory"/*.mtx
+
         echo "list files in current directory, should see mtx files"
         ls -l
         echo " the current working dir is"
