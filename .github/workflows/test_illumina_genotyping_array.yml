@@ -241,7 +241,7 @@ jobs:
             echo "Polling submission status for Submission ID: $SUBMISSION_ID"
             
             # Check if the token is expired or close to expiration and refresh it if necessary
-            CURRENT_TIME=$(date +"%Y-%m-%d %H:%M:%S")
+            CURRENT_TIME=$(date +"%Y-%m-%d-%H-%M-%S")
             echo "Current time: $CURRENT_TIME"
             TOKEN_EXPIRATION_TIME=$(gcloud auth application-default print-access-token --format='value(expiry)')
             EXPIRATION_TIME_IN_SECONDS=$(date -d "$TOKEN_EXPIRATION_TIME" +%s)
