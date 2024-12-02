@@ -251,6 +251,10 @@ jobs:
               # Refresh the token
               TOKEN=$(gcloud auth application-default print-access-token)
               echo "Token refreshed"
+              # Update expiration time after refreshing
+              CURRENT_TIME=$(date +%s)
+              EXPIRATION_TIME=$((CURRENT_TIME + 3600))  # 1 hour from now
+              echo "New expiration time: $EXPIRATION_TIME"
             else
               echo "Token valid, no need to refresh. Time left: $TIME_LEFT seconds"
             fi
