@@ -241,15 +241,17 @@ jobs:
             echo "Polling submission status for Submission ID: $SUBMISSION_ID"
             
             # Check if the token is expired or close to expiration and refresh it if necessary
-            CURRENT_TIME=$(date +"%Y-%m-%d-%H-%M-%S")
-            echo "Current time: $CURRENT_TIME"
+            CURRENT_TIME_EPOCH=$(date +%s)
             TOKEN_EXPIRATION_TIME=$(gcloud auth application-default print-access-token --format='value(expiry)')
-            EXPIRATION_TIME_IN_SECONDS=$(date -d "$TOKEN_EXPIRATION_TIME" +%s)
+            EXPIRATION_TIME_EPOCH=$(date -d "$TOKEN_EXPIRATION_TIME" +%s)
             TOKEN_LIFETIME_THRESHOLD=300  # Set the threshold to 5 minutes before expiration
-
-            # If token is about to expire, refresh it
-            if (( EXPIRATION_TIME_IN_SECONDS - CURRENT_TIME <= TOKEN_LIFETIME_THRESHOLD )); then
+            
+            # Check and refresh token if necessary
+            if (( EXPIRATION_TIME_EPOCH - CURRENT_TIME_EPOCH <= TOKEN_LIFETIME_THRESHOLD )); then
+              echo "Token is nearing expiration or expired. Refreshing token..."
               refresh_token
+            else
+              echo "Token is valid. No refresh needed."
             fi
 
             # Poll the status using the fresh token
