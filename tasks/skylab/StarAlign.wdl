@@ -605,7 +605,6 @@ task MergeStarOutput {
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
         --input_id ~{input_id}
-
   >>>
 
   runtime {

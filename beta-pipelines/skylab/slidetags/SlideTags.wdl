@@ -2,7 +2,7 @@ version 1.0
 
 import "scripts/spatial-count.wdl" as SpatialCount
 import "scripts/positioning.wdl" as Positioning
-import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
+import "../../../pipelines/skylab/optimus/Optimus.wdl" as Optimus
 
 workflow SlideTags {
 
@@ -42,7 +42,7 @@ workflow SlideTags {
     }
     
     # Call the Optimus workflow
-    call optimus.Optimus as Optimus {
+    call Optimus.Optimus as Optimus {
         input:
             counting_mode = counting_mode,
             r1_fastq = gex_r1_fastq,
