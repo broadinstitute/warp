@@ -244,6 +244,7 @@ jobs:
             # Before polling, check if the token is about to expire
             CURRENT_TIME=$(date +%s)
             echo "Current time: $CURRENT_TIME"
+            echo "Expiration time: $EXPIRATION_TIME"
             TIME_LEFT=$(( $EXPIRATION_TIME - $CURRENT_TIME ))
             echo "Time left for token expiry: $TIME_LEFT  seconds"
           
