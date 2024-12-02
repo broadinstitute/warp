@@ -117,7 +117,7 @@ jobs:
         run: |
           echo "Submitting job..."
           # Submit the job here and store the submission ID
-          SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api.py --token "${{ steps.auth.outputs.access_token }}" --action submit_job "$@")
+          SUBMISSION_ID=$(firecloud_action submit --submission_data_file "$SUBMISSION_DATA_FILE")
           echo "Submission ID: $SUBMISSION_ID"
           echo "submission_id=$SUBMISSION_ID" >> $GITHUB_ENV
 
