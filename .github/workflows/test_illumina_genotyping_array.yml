@@ -232,7 +232,7 @@ jobs:
             echo "Refreshing Google Cloud authentication token..."
             # Re-authenticate and get a new token
             TOKEN=$(gcloud auth application-default print-access-token)
-            echo "New token retrieved"
+            echo "New token retrieved: $TOKEN"
           }          
           
       
