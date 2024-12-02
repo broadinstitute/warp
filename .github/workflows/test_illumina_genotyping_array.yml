@@ -243,10 +243,16 @@ jobs:
             # Check if the token is expired or close to expiration and refresh it if necessary
             CURRENT_TIME_EPOCH=$(date +%s)
             TOKEN_EXPIRATION_TIME=$(gcloud auth application-default print-access-token --format='value(expiry)')
-            echo "Token expiration time: $TOKEN_EXPIRATION_TIME"
-            EXPIRATION_TIME_EPOCH=$(date -d "$TOKEN_EXPIRATION_TIME" +%s)
-            TOKEN_LIFETIME_THRESHOLD=300  # Set the threshold to 5 minutes before expiration
+            echo "Raw token expiration time: $TOKEN_EXPIRATION_TIME"
             
+            # Extract the valid datetime portion (first part before the semicolon)
+            TOKEN_EXPIRATION_DATETIME=$(echo "$TOKEN_EXPIRATION_TIME" | awk -F';' '{print $1}' | awk -F'=' '{print $2}')
+            echo "Parsed token expiration datetime: $TOKEN_EXPIRATION_DATETIME"
+            
+            # Convert the parsed datetime to epoch time
+            EXPIRATION_TIME_EPOCH=$(date -d "$TOKEN_EXPIRATION_DATETIME" +%s)
+            TOKEN_LIFETIME_THRESHOLD=300  # Set the threshold to 5 minutes before expiration
+              
             # Check and refresh token if necessary
             if (( EXPIRATION_TIME_EPOCH - CURRENT_TIME_EPOCH <= TOKEN_LIFETIME_THRESHOLD )); then
               echo "Token is nearing expiration or expired. Refreshing token..."
