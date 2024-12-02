@@ -243,7 +243,9 @@ jobs:
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
             # Before polling, check if the token is about to expire
             CURRENT_TIME=$(date +%s)
+            echo "Current time: $CURRENT_TIME"
             TIME_LEFT=$(( $EXPIRATION_TIME - $CURRENT_TIME ))
+            echo "Time left for token expiry: $TIME_LEFT seconds"
           
             # If token expires in less than 5 minutes, refresh it
             if [ $TIME_LEFT -le 300 ]; then
