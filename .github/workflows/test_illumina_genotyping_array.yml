@@ -300,6 +300,9 @@ jobs:
           RETRY_DELAY=300  # 300 seconds = 5 minutes
           CURRENT_TIME=$(date +%s) # current timestamp in seconds
           TIME_LEFT=$(( $EXPIRATION_TIME - $CURRENT_TIME ))
+          echo "Time left for token expiry: $TIME_LEFT seconds"
+          echo "The current time is: $CURRENT_TIME"
+          echo "The expiration time is: $EXPIRATION_TIME"
 
           # If token expires in less than 5 minutes, refresh the token
           if [ $TIME_LEFT -le 300 ]; then
