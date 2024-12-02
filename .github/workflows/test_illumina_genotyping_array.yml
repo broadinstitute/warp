@@ -117,6 +117,12 @@ jobs:
         run: |
           echo "Submitting job..."
           # Submit the job here and store the submission ID
+          
+          # Function to call the Firecloud API using the firecloud_api.py script
+          firecloud_action() {
+            python3 scripts/firecloud_api/firecloud_api.py --token "$TOKEN" --namespace "$NAMESPACE" --workspace "$WORKSPACE" --action "$1" "${@:2}"
+          }
+          
           SUBMISSION_ID=$(firecloud_action submit --submission_data_file "$SUBMISSION_DATA_FILE")
           echo "Submission ID: $SUBMISSION_ID"
           echo "submission_id=$SUBMISSION_ID" >> $GITHUB_ENV
