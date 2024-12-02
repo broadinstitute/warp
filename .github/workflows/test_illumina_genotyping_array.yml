@@ -239,6 +239,20 @@ jobs:
           
           echo "Monitoring the status of submitted workflows..."
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
+            # Before polling, check if the token is about to expire
+            CURRENT_TIME=$(date +%s)
+            TIME_LEFT=$(( $EXPIRATION_TIME - $CURRENT_TIME ))
+          
+            # If token expires in less than 5 minutes, refresh it
+            if [ $TIME_LEFT -le 300 ]; then
+              echo "Token is about to expire in $TIME_LEFT seconds, refreshing..."
+              # Refresh the token
+              TOKEN=$(gcloud auth application-default print-access-token)
+              echo "Token refreshed"
+            else
+              echo "Token valid, no need to refresh. Time left: $TIME_LEFT seconds"
+            fi
+
             echo "Polling submission status for Submission ID: $SUBMISSION_ID"
             RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID") 
 
