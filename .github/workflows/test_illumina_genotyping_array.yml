@@ -106,17 +106,6 @@ jobs:
           # Use the testType provided by the user
           echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
 
-      #- name: Periodically Refresh Token
-      #  id: refresh_token
-      #  run: |
-      #    while true; do
-      #      echo "Refreshing token..."
-      #      TOKEN=$(gcloud auth print-access-token)
-      #      echo "TOKEN=$TOKEN" >> $GITHUB_ENV
-      #      sleep 5  # Sleep for 30 seconds
-      #    done &
-      #    wait
-
       - name: Submit job, poll status, and get outputs
         id: pipeline_run
         run: |
@@ -198,11 +187,11 @@ jobs:
           
           MAX_RETRIES=2
           RETRY_DELAY=300  # 300 seconds = 5 minutes
-          
-          gcloud auth list
-          
+                    
           while true; do
             echo "Refreshing token..."
+            ACCOUNT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
+            echo "Current account: $ACCOUNT"
             TOKEN=$(gcloud auth print-access-token --lifetime 60 --impersonate-service-account=pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com)
             echo "TOKEN=$TOKEN"
             sleep 30  # Sleep for 30 seconds
