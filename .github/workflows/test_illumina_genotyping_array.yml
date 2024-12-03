@@ -75,6 +75,12 @@ jobs:
       - name: Debug Auth Outputs
         run: |
           echo "Access Token: ${{ steps.auth.outputs.access_token }}"
+      - name: Authenticate gcloud with token
+        run: |
+          echo "${{ steps.auth.outputs.access_token }}" | gcloud auth activate-service-account --key-file=-
+          gcloud config set project warp-pipeline-dev
+          gcloud auth list
+
 
       # Set the branch name.
       # github.head_ref contains the name of the branch in the context of a pull request
