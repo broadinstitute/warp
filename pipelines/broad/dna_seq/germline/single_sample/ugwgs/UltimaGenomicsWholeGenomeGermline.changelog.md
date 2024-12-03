@@ -1,3 +1,8 @@
+# 1.1.3
+2024-12-03 (Date of Last Commit)
+
+* Updated the name of the output for ReblockGVCFs; this does not affect this pipeline
+
 # 1.1.2
 2024-11-04 (Date of Last Commit)
 
