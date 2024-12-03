@@ -134,3 +134,7 @@ workflows:
   - name: SlideTags
     subclass: WDL
     primaryDescriptorPath: /beta-pipelines/skylab/slidetags/SlideTags.wdl
+
+  - name: TimingTest
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/nikelle_test/TimingTest.wdl
