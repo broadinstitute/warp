@@ -73,15 +73,25 @@ jobs:
           access_token_lifetime: '3600' # seconds, default is 3600
           access_token_scopes: 'profile, email, openid'
 
-      - name: Set Token Expiry Time
-        id: set_token_expiry
+      - name: Periodically Refresh Token
+        id: refresh_token
         run: |
-          # Get the current time and set expiration time to 1 hour from now (3600 seconds)
-          CURRENT_TIME=$(date +%s)
-          EXPIRATION_TIME=$((CURRENT_TIME + 3600))  # 1 hour from current time
-          echo "Current time: $CURRENT_TIME"
-          echo "Expiration time: $EXPIRATION_TIME"
-          echo "expiration_time=$EXPIRATION_TIME" >> $GITHUB_ENV
+          while true; do
+            echo "Refreshing token..."
+            TOKEN=$(gcloud auth print-access-token)
+            echo "TOKEN=$TOKEN" >> $GITHUB_ENV
+            sleep 1800  # Sleep for 30 minutes
+          done &
+
+      #- name: Set Token Expiry Time
+      #  id: set_token_expiry
+      #  run: |
+      #    # Get the current time and set expiration time to 1 hour from now (3600 seconds)
+      #    CURRENT_TIME=$(date +%s)
+      #    EXPIRATION_TIME=$((CURRENT_TIME + 3600))  # 1 hour from current time
+      #    echo "Current time: $CURRENT_TIME"
+      #    echo "Expiration time: $EXPIRATION_TIME"
+      #    echo "expiration_time=$EXPIRATION_TIME" >> $GITHUB_ENV
 
       # Set the branch name.
       # github.head_ref contains the name of the branch in the context of a pull request
@@ -263,7 +273,6 @@ jobs:
             fi
 
             echo "Polling submission status for Submission ID: $SUBMISSION_ID"
-            firecloud_action poll_status --submission_id "$SUBMISSION_ID"
             RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID") 
 
             if [ -z "$RESPONSE" ]; then
