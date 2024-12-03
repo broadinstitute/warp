@@ -113,7 +113,7 @@ jobs:
             echo "Refreshing token..."
             TOKEN=$(gcloud auth print-access-token)
             echo "TOKEN=$TOKEN" >> $GITHUB_ENV
-            sleep 30  # Sleep for 30 seconds
+            sleep 5  # Sleep for 30 seconds
           done &
 
       - name: Submit job, poll status, and get outputs
