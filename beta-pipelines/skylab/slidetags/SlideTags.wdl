@@ -18,7 +18,7 @@ workflow SlideTags {
 
         # Optimus Inputs
         String cloud_provider = "gcp"
-        Int disk_optimus = 1000
+        Int disk_starsolo = 1000
         String input_id
         Int expected_cells = 3000 ## copied from Multiome ?
         String counting_mode = "sn_rna"
@@ -51,7 +51,7 @@ workflow SlideTags {
     call optimus.Optimus as Optimus {
         input:
             cloud_provider = cloud_provider,
-            disk = disk_optimus,
+            disk_starsolo = disk_starsolo,
             counting_mode = counting_mode,
             r1_fastq = gex_r1_fastq,
             r2_fastq = gex_r2_fastq,
