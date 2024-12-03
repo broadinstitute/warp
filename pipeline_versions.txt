@@ -7,7 +7,7 @@ WholeGenomeGermlineSingleSample	 3.3.3	2024-11-04
 ExomeGermlineSingleSample	 3.2.3	2024-11-04 
 JointGenotypingByChromosomePartTwo	 1.5.2	2024-11-04 
 JointGenotypingByChromosomePartOne	 1.5.2	2024-11-04 
-ReblockGVCF	 2.3.2	2024-11-04 
+ReblockGVCF	 2.3.3	2024-12-03 
 JointGenotyping	 1.7.2	2024-11-04 
 UltimaGenomicsJointGenotyping	 1.2.2	2024-11-04 
 VariantCalling	 2.2.4	2024-11-04 
