@@ -106,16 +106,16 @@ jobs:
           # Use the testType provided by the user
           echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
 
-      - name: Periodically Refresh Token
-        id: refresh_token
-        run: |
-          while true; do
-            echo "Refreshing token..."
-            TOKEN=$(gcloud auth print-access-token)
-            echo "TOKEN=$TOKEN" >> $GITHUB_ENV
-            sleep 5  # Sleep for 30 seconds 
-          done &
-          wait 
+      #- name: Periodically Refresh Token
+      #  id: refresh_token
+      #  run: |
+      #    while true; do
+      #      echo "Refreshing token..."
+      #      TOKEN=$(gcloud auth print-access-token)
+      #      echo "TOKEN=$TOKEN" >> $GITHUB_ENV
+      #      sleep 5  # Sleep for 30 seconds
+      #    done &
+      #    wait
 
       - name: Submit job, poll status, and get outputs
         id: pipeline_run
@@ -198,6 +198,13 @@ jobs:
           
           MAX_RETRIES=2
           RETRY_DELAY=300  # 300 seconds = 5 minutes
+          
+          while true; do
+            echo "Refreshing token..."
+            TOKEN=$(gcloud auth print-access-token)
+            echo "TOKEN=$TOKEN" >> $GITHUB_ENV
+            sleep 5  # Sleep for 30 seconds
+          done &
           
           for input_file in "$INPUTS_DIR"/*.json; do
             echo "Processing input file: $input_file"
