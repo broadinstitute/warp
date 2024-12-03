@@ -18,6 +18,7 @@ import requests
 import time
 import json
 import sys
+import subprocess
 from urllib.parse import quote
 
 
@@ -63,6 +64,22 @@ class FirecloudAPI:
             print(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
 
+    def refresh_token(self):
+        """
+        Refreshes the API token using gcloud's application default credentials.
+        :return: The new token as a string
+        """
+        try:
+            # Execute the gcloud command to get the new access token
+            result = subprocess.run(
+                ["gcloud", "auth", "application-default", "print-access-token"],
+                capture_output=True, text=True, check=True
+            )
+            return result.stdout.strip()  # Return the new token
+        except subprocess.CalledProcessError as e:
+            print(f"Error refreshing token: {e.stderr}", file=sys.stderr)
+            return None
+
     def create_submission(self, submission_data):
         """
         Submits a workflow to the Firecloud API.
@@ -88,17 +105,26 @@ class FirecloudAPI:
     def poll_submission_status(self, submission_id):
         """
         Polls the status of a submission until it is complete and returns a dictionary of workflow IDs and their statuses.
-
         :param submission_id: The ID of the submission to poll
         :return: Dictionary with workflow IDs as keys and their statuses as values
         """
-        # Construct the API endpoint URL for polling submission status
         status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
         workflow_status_map = {}
 
         # Continuously poll the status of the submission until completion
         while True:
             status_response = requests.get(status_url, headers=self.headers)
+
+            if status_response.status_code == 401:
+                print("Token expired, refreshing token...")
+                new_token = self.refresh_token()  # Get the new token
+                if new_token:
+                    self.token = new_token
+                    self.headers["Authorization"] = f"Bearer {self.token}"
+                    status_response = requests.get(status_url, headers=self.headers)
+                else:
+                    print("Failed to refresh token", file=sys.stderr)
+                    return {}
 
             # Check if the response status code is successful (200)
             if status_response.status_code != 200:
@@ -107,14 +133,12 @@ class FirecloudAPI:
                 return {}
 
             try:
-                # Parse the response as JSON
                 status_data = status_response.json()
             except json.JSONDecodeError:
                 print("Error decoding JSON response.", file=sys.stderr)
                 print(f"Response content: {status_response.text}", file=sys.stderr)
                 return {}
 
-            # Retrieve workflows and their statuses
             workflows = status_data.get("workflows", [])
             for workflow in workflows:
                 workflow_id = workflow.get("workflowId")
@@ -122,12 +146,11 @@ class FirecloudAPI:
                 if workflow_id and workflow_status:
                     workflow_status_map[workflow_id] = workflow_status
 
-            # Check if the submission is complete
             submission_status = status_data.get("status", "")
             if submission_status == "Done":
                 break
 
-            # Wait for 60 seconds before polling again
+            # Wait for 20 seconds before polling again
             time.sleep(20)
 
         return workflow_status_map
