@@ -249,7 +249,7 @@ jobs:
             echo "Time left for token expiry: $TIME_LEFT  seconds"
           
             # If token expires in less than 5 minutes, refresh it
-            if [ $TIME_LEFT -le 300 ]; then
+            if [ $TIME_LEFT -le 3600 ]; then
               echo "Token is about to expire in $TIME_LEFT seconds, refreshing..."
               # Refresh the token
               TOKEN=$(gcloud auth application-default print-access-token)
