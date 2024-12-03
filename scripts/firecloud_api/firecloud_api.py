@@ -105,30 +105,17 @@ class FirecloudAPI:
     def poll_submission_status(self, submission_id):
         """
         Polls the status of a submission until it is complete and returns a dictionary of workflow IDs and their statuses.
+
         :param submission_id: The ID of the submission to poll
         :return: Dictionary with workflow IDs as keys and their statuses as values
         """
+        # Construct the API endpoint URL for polling submission status
         status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
         workflow_status_map = {}
 
         # Continuously poll the status of the submission until completion
         while True:
             status_response = requests.get(status_url, headers=self.headers)
-            print(f"Polling status for submission {submission_id}...")
-            print(f"Status response: {status_response.text}")
-            print(f"Status code: {status_response.status_code}")
-
-            #if status_response.status_code == 401:
-            #    print("Token expired, refreshing token...")
-            #    new_token = self.refresh_token()
-            #    print(f"New token: {new_token}")
-            #    if new_token:
-            #        self.token = new_token
-            #        self.headers["Authorization"] = f"Bearer {self.token}"
-            #        status_response = requests.get(status_url, headers=self.headers)
-            #    else:
-            #        print("Failed to refresh token", file=sys.stderr)
-            #        return {}
 
             # Check if the response status code is successful (200)
             if status_response.status_code != 200:
@@ -137,12 +124,14 @@ class FirecloudAPI:
                 return {}
 
             try:
+                # Parse the response as JSON
                 status_data = status_response.json()
             except json.JSONDecodeError:
                 print("Error decoding JSON response.", file=sys.stderr)
                 print(f"Response content: {status_response.text}", file=sys.stderr)
                 return {}
 
+            # Retrieve workflows and their statuses
             workflows = status_data.get("workflows", [])
             for workflow in workflows:
                 workflow_id = workflow.get("workflowId")
@@ -150,11 +139,12 @@ class FirecloudAPI:
                 if workflow_id and workflow_status:
                     workflow_status_map[workflow_id] = workflow_status
 
+            # Check if the submission is complete
             submission_status = status_data.get("status", "")
             if submission_status == "Done":
                 break
 
-            # Wait for 20 seconds before polling again
+            # Wait for 60 seconds before polling again
             time.sleep(20)
 
         return workflow_status_map
