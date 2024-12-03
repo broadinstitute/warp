@@ -118,17 +118,17 @@ class FirecloudAPI:
             print(f"Status response: {status_response.text}")
             print(f"Status code: {status_response.status_code}")
 
-            if status_response.status_code == 401:
-                print("Token expired, refreshing token...")
-                new_token = self.refresh_token()
-                print(f"New token: {new_token}")
-                if new_token:
-                    self.token = new_token
-                    self.headers["Authorization"] = f"Bearer {self.token}"
-                    status_response = requests.get(status_url, headers=self.headers)
-                else:
-                    print("Failed to refresh token", file=sys.stderr)
-                    return {}
+            #if status_response.status_code == 401:
+            #    print("Token expired, refreshing token...")
+            #    new_token = self.refresh_token()
+            #    print(f"New token: {new_token}")
+            #    if new_token:
+            #        self.token = new_token
+            #        self.headers["Authorization"] = f"Bearer {self.token}"
+            #        status_response = requests.get(status_url, headers=self.headers)
+            #    else:
+            #        print("Failed to refresh token", file=sys.stderr)
+            #        return {}
 
             # Check if the response status code is successful (200)
             if status_response.status_code != 200:
