@@ -199,6 +199,8 @@ jobs:
           MAX_RETRIES=2
           RETRY_DELAY=300  # 300 seconds = 5 minutes
           
+          gcloud auth list
+          
           while true; do
             echo "Refreshing token..."
             TOKEN=$(gcloud auth print-access-token --lifetime 60 --impersonate-service-account=pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com)
