@@ -1,4 +1,3 @@
-
 name: Test Illumina Genotyping Array
 
 # Controls when the workflow will run
@@ -73,26 +72,6 @@ jobs:
           access_token_lifetime: '3600' # seconds, default is 3600
           access_token_scopes: 'profile, email, openid'
 
-      - name: Periodically Refresh Token
-        id: refresh_token
-        run: |
-          while true; do
-            echo "Refreshing token..."
-            TOKEN=$(gcloud auth print-access-token)
-            echo "TOKEN=$TOKEN" >> $GITHUB_ENV
-            sleep 1800  # Sleep for 30 minutes
-          done &
-
-      #- name: Set Token Expiry Time
-      #  id: set_token_expiry
-      #  run: |
-      #    # Get the current time and set expiration time to 1 hour from now (3600 seconds)
-      #    CURRENT_TIME=$(date +%s)
-      #    EXPIRATION_TIME=$((CURRENT_TIME + 3600))  # 1 hour from current time
-      #    echo "Current time: $CURRENT_TIME"
-      #    echo "Expiration time: $EXPIRATION_TIME"
-      #    echo "expiration_time=$EXPIRATION_TIME" >> $GITHUB_ENV
-
       # Set the branch name.
       # github.head_ref contains the name of the branch in the context of a pull request
       # if github.head_ref is empty, it implies the workflow was triggered manually
@@ -126,6 +105,16 @@ jobs:
         run: |
           # Use the testType provided by the user
           echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
+
+      - name: Periodically Refresh Token
+        id: refresh_token
+        run: |
+          while true; do
+            echo "Refreshing token..."
+            TOKEN=$(gcloud auth print-access-token)
+            echo "TOKEN=$TOKEN" >> $GITHUB_ENV
+            sleep 1800  # Sleep for 30 minutes
+          done &
 
       - name: Submit job, poll status, and get outputs
         id: pipeline_run
@@ -251,27 +240,6 @@ jobs:
           
           echo "Monitoring the status of submitted workflows..."
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
-            # Before polling, check if the token is about to expire
-            CURRENT_TIME=$(date +%s)
-            echo "Current time: $CURRENT_TIME"
-            echo "Expiration time: $expiration_time"
-            TIME_LEFT=$(( $expiration_time - $CURRENT_TIME ))
-            echo "Time left for token expiry: $TIME_LEFT  seconds"
-          
-            # If token expires in less than 5 minutes, refresh it
-            if [ $TIME_LEFT -le 3600 ]; then
-              echo "Token is about to expire in $TIME_LEFT seconds, refreshing..."
-              # Refresh the token
-              TOKEN=$(gcloud auth application-default print-access-token)
-              echo "Token refreshed"
-              # Update expiration time after refreshing
-              CURRENT_TIME=$(date +%s)
-              EXPIRATION_TIME=$((CURRENT_TIME + 3600))  # 1 hour from now
-              echo "New expiration time: $EXPIRATION_TIME"
-            else
-              echo "Token valid, no need to refresh. Time left: $TIME_LEFT seconds"
-            fi
-
             echo "Polling submission status for Submission ID: $SUBMISSION_ID"
             RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID") 
 
