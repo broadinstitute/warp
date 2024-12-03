@@ -72,11 +72,9 @@ jobs:
           access_token_lifetime: '60' # seconds, default is 3600
           access_token_scopes: 'profile, email, openid'
 
-      - name: Debug Authentication
+      - name: Debug Auth Outputs
         run: |
-          echo "Checking gcloud authentication..."
-          gcloud auth list
-          gcloud auth print-access-token
+          echo "Access Token: ${{ steps.auth.outputs.access_token }}"
 
       # Set the branch name.
       # github.head_ref contains the name of the branch in the context of a pull request
