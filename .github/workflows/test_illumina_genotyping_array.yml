@@ -72,6 +72,12 @@ jobs:
           access_token_lifetime: '60' # seconds, default is 3600
           access_token_scopes: 'profile, email, openid'
 
+      - name: Debug Authentication
+        run: |
+          echo "Checking gcloud authentication..."
+          gcloud auth list
+          gcloud auth print-access-token
+
       # Set the branch name.
       # github.head_ref contains the name of the branch in the context of a pull request
       # if github.head_ref is empty, it implies the workflow was triggered manually
