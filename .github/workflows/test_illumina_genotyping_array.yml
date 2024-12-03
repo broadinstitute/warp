@@ -203,7 +203,7 @@ jobs:
             echo "Refreshing token..."
             TOKEN=$(gcloud auth print-access-token)
             echo "TOKEN=$TOKEN" >> $GITHUB_ENV
-            sleep 5  # Sleep for 30 seconds
+            sleep 30  # Sleep for 30 seconds
           done &
           
           for input_file in "$INPUTS_DIR"/*.json; do
