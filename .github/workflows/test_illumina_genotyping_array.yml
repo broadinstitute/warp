@@ -201,7 +201,7 @@ jobs:
           
           while true; do
             echo "Refreshing token..."
-            TOKEN=$(gcloud auth print-access-token --lifetime 60)
+            TOKEN=$(gcloud auth print-access-token --lifetime 60 --impersonate-service-account = pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com)
             echo "TOKEN=$TOKEN"
             sleep 30  # Sleep for 30 seconds
           done &
