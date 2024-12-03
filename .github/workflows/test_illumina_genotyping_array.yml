@@ -201,9 +201,8 @@ jobs:
           
           while true; do
             echo "Refreshing token..."
-            TOKEN=$(gcloud auth print-access-token)
+            TOKEN=$(gcloud auth print-access-token --lifetime 60)
             echo "TOKEN=$TOKEN"
-            echo "TOKEN=$TOKEN" >> $GITHUB_ENV
             sleep 30  # Sleep for 30 seconds
           done &
           
