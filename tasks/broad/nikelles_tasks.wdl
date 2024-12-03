@@ -31,4 +31,10 @@ task WriteHelloGreeting {
     output {
         File output_file = "output.txt"
     }
+    runtime {
+        docker: "ubuntu:latest"
+        disks: "local-disk 10 HDD"
+        memory: "2 GiB"
+        preemptible: 3
+    }
 }
