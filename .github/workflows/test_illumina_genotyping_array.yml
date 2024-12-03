@@ -191,7 +191,7 @@ jobs:
           while true; do
             echo "Refreshing token..."
             TOKEN=$(gcloud auth print-access-token)
-            sleep 50  # Sleep for 30 seconds
+            sleep 3000 # sleep for 50 minutes
           done &
           
           for input_file in "$INPUTS_DIR"/*.json; do
