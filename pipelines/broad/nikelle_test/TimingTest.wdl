@@ -20,6 +20,7 @@ workflow TimingTest {
 
     output {
         String greeting = WriteHelloGreetingWorkflow.output_file
+        String greeting2 = WriteHelloGreetingTask.output_file
 
     }
     meta {
