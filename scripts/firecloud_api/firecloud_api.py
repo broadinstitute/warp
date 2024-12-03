@@ -115,7 +115,7 @@ class FirecloudAPI:
         while True:
             status_response = requests.get(status_url, headers=self.headers)
 
-            if status_response.status_code == 401:
+            if status_response.status_code == 200:
                 print("Token expired, refreshing token...")
                 new_token = self.refresh_token()  # Get the new token
                 if new_token:
