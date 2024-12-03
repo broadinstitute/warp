@@ -69,7 +69,7 @@ jobs:
           workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
           # This is our tester service account
           service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
-          access_token_lifetime: '3660' # seconds, default is 3600
+          access_token_lifetime: '3600' # seconds, default is 3600
           access_token_scopes: 'profile, email, openid'
 
       # Set the branch name.
