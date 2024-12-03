@@ -69,18 +69,8 @@ jobs:
           workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
           # This is our tester service account
           service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
-          access_token_lifetime: '60' # seconds, default is 3600
+          access_token_lifetime: '3660' # seconds, default is 3600
           access_token_scopes: 'profile, email, openid'
-
-      - name: Debug Auth Outputs
-        run: |
-          echo "Access Token: ${{ steps.auth.outputs.access_token }}"
-      - name: Authenticate gcloud with token
-        run: |
-          echo "${{ steps.auth.outputs.access_token }}" | gcloud auth activate-service-account --key-file=-
-          gcloud config set project warp-pipeline-dev
-          gcloud auth list
-
 
       # Set the branch name.
       # github.head_ref contains the name of the branch in the context of a pull request
@@ -200,10 +190,8 @@ jobs:
                     
           while true; do
             echo "Refreshing token..."
-            gcloud auth list
-            TOKEN=$(gcloud auth print-access-token --lifetime 60 --impersonate-service-account=pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com)
-            echo "TOKEN=$TOKEN"
-            sleep 30  # Sleep for 30 seconds
+            TOKEN=$(gcloud auth print-access-token)
+            sleep 50  # Sleep for 30 seconds
           done &
           
           for input_file in "$INPUTS_DIR"/*.json; do
