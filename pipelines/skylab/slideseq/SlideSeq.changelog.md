@@ -7,6 +7,7 @@
 2024-11-15 (Date of Last Commit)
 
 * Added bam validation in the StarSoloFastq task; this does not affect the outputs of the pipeline
+* Updated the warp-tools docker; this update changes the way gene_names are identified when creating gene expression h5ad files
 
 # 3.4.5
 2024-11-12 (Date of Last Commit)
