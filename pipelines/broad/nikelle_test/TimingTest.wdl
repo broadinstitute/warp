@@ -28,7 +28,7 @@ workflow TimingTest {
 }
 
 
-task WriteHelloGreeting {
+task WriteHelloGreetingTask {
     input {
         String name
     }
