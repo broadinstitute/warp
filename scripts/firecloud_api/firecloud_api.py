@@ -114,6 +114,9 @@ class FirecloudAPI:
         # Continuously poll the status of the submission until completion
         while True:
             status_response = requests.get(status_url, headers=self.headers)
+            print(f"Polling status for submission {submission_id}...")
+            print(f"Status response: {status_response.text}")
+            print(f"Status code: {status_response.status_code}")
 
             if status_response.status_code == 200:
                 print("Token expired, refreshing token...")
