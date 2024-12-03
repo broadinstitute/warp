@@ -302,54 +302,6 @@ jobs:
               echo "" >> $GITHUB_STEP_SUMMARY
             done
 
-      - name: Poll for Status and Refresh Token if Expiring
-        id: poll_status
-        run: |
-          MAX_RETRIES=2
-          RETRY_DELAY=300  # 300 seconds = 5 minutes
-          CURRENT_TIME=$(date +%s) # current timestamp in seconds
-          TIME_LEFT=$(( $EXPIRATION_TIME - $CURRENT_TIME ))
-          echo "Time left for token expiry: $TIME_LEFT seconds"
-          echo "The current time is: $CURRENT_TIME"
-          echo "The expiration time is: $EXPIRATION_TIME"
-
-          # If token expires in less than 5 minutes, refresh the token
-          if [ $TIME_LEFT -le 300 ]; then
-            echo "Token is about to expire in $TIME_LEFT seconds, refreshing..."
-            # Refresh the token
-            TOKEN=$(gcloud auth application-default print-access-token)
-            echo "Token refreshed"
-          else
-            echo "Token valid, no need to refresh. Time left: $TIME_LEFT seconds"
-          fi
-
-          # Proceed with polling workflow status
-          echo "Polling for workflow status..."
-          for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
-            echo "Polling submission status for Submission ID: $SUBMISSION_ID"
-            RESPONSE=$(firecloud_action poll_status --submission_id "$SUBMISSION_ID")
-
-            if [ -z "$RESPONSE" ]; then
-              echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
-              continue
-            fi
-
-            # Parse and store workflow statuses
-            WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
-            echo "Statuses for submission $SUBMISSION_ID:"
-            echo "$WORKFLOW_STATUSES_FOR_SUBMISSION"
-
-            # Append to aggregate statuses
-            WORKFLOW_STATUSES["$SUBMISSION_ID"]=$WORKFLOW_STATUSES_FOR_SUBMISSION
-
-            # retrieve workflow outputs
-            echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
-            for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
-              WORKFLOW_OUTPUT=$(firecloud_action get_outputs --submission_id "$SUBMISSION_ID" --workflow_id "$WORKFLOW_ID" --pipeline_name "$PIPELINE_NAME")
-              ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
-            done
-          done
-
       - name: Print Summary on Success
         if: success()
         run: |
