@@ -118,7 +118,7 @@ class FirecloudAPI:
             print(f"Status response: {status_response.text}")
             print(f"Status code: {status_response.status_code}")
 
-            if status_response.status_code == 200:
+            if status_response.status_code == 401:
                 print("Token expired, refreshing token...")
                 new_token = self.refresh_token()
                 print(f"New token: {new_token}")
