@@ -117,7 +117,8 @@ class FirecloudAPI:
 
             if status_response.status_code == 200:
                 print("Token expired, refreshing token...")
-                new_token = self.refresh_token()  # Get the new token
+                new_token = self.refresh_token()
+                print(f"New token: {new_token}")
                 if new_token:
                     self.token = new_token
                     self.headers["Authorization"] = f"Bearer {self.token}"
