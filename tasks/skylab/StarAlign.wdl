@@ -352,7 +352,7 @@ task STARsoloFastq {
       find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
       find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
 
-      echo "Listing the files in the current directory"
+      echo "Listing the files in the current directory:"
       ls -l
 
       mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
