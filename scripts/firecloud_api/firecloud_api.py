@@ -64,21 +64,21 @@ class FirecloudAPI:
             print(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
 
-    def refresh_token(self):
-        """
-        Refreshes the API token using gcloud's application default credentials.
-        :return: The new token as a string
-        """
-        try:
-            # Execute the gcloud command to get the new access token
-            result = subprocess.run(
-                ["gcloud", "auth", "application-default", "print-access-token"],
-                capture_output=True, text=True, check=True
-            )
-            return result.stdout.strip()  # Return the new token
-        except subprocess.CalledProcessError as e:
-            print(f"Error refreshing token: {e.stderr}", file=sys.stderr)
-            return None
+    #def refresh_token(self):
+    #    """
+    #    Refreshes the API token using gcloud's application default credentials.
+    #    :return: The new token as a string
+    #    """
+    #    try:
+    #        # Execute the gcloud command to get the new access token
+    #        result = subprocess.run(
+    #            ["gcloud", "auth", "application-default", "print-access-token"],
+    #            capture_output=True, text=True, check=True
+    #        )
+    #        return result.stdout.strip()  # Return the new token
+    #    except subprocess.CalledProcessError as e:
+    #        print(f"Error refreshing token: {e.stderr}", file=sys.stderr)
+    #        return None
 
     def create_submission(self, submission_data):
         """
