@@ -8,14 +8,17 @@ on:
   #     - kp_GHA_Terra_auth_PD-2682
   pull_request:
     branches: [ "develop", "staging", "master" ]
-    # Only run if files in these paths changed: pipelines/broad/genotyping/illumina, tasks, verification, .github/workflows/test_illumina_genotyping_array.yml
+    # Only run if files in these paths changed:
     ####################################
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
       - 'pipelines/broad/genotyping/illumina/**'
-      - 'tasks/**'
-      - 'verification/**'
+      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
+      - 'tasks/broad/Qc.wdl'
+      - 'verification/VerifyIlluminaGenotypingArray.wdl'
+      - 'tasks/broad/Utilities.wdl'
+      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
       - '.github/workflows/test_illumina_genotyping_array.yml'
 
 
@@ -54,6 +57,11 @@ jobs:
       id-token: 'write'
 
     steps:
+      # Add a step to wait to account for github -> dockstore -> terra delays
+      - name: Wait Before Starting
+        run: |
+          echo "Waiting for 5 minutes before starting..."
+          sleep 300  # time in seconds
       # actions/checkout MUST come before auth
       - uses: actions/checkout@v3
         with:
@@ -105,11 +113,6 @@ jobs:
         run: |
           # Use the testType provided by the user
           echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
-
-      - name: Delay before submitting workflows
-        run: |
-          echo "Waiting for 5 minutes before submitting workflows..."
-          sleep 300  # 300 seconds = 5 minutes
 
       - name: Submit job, poll status, and get outputs
         id: pipeline_run
