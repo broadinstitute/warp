@@ -6,7 +6,7 @@ import "../../../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow ReblockGVCF {
 
-  String pipeline_version = "2.3.3"
+  String pipeline_version = "3.0.0"
 
 
   input {
