@@ -1,3 +1,8 @@
+# 1.9.0
+2024-12-05 (Date of Last Commit)
+
+* Added an optional task to the Optimus.wdl that will run CellBender on the Optimus output h5ad file
+
 # 1.8.3
 2024-11-15 (Date of Last Commit)
 
