@@ -1,3 +1,8 @@
+# 3.1.0
+2024-11-26 (Date of Last Commit)
+
+* Added metadata.txt file as an output to the pipeline
+
 # 3.0.0
 2023-12-06 (Date of Last Commit)
 

@@ -1,3 +1,8 @@
+# 5.9.3
+2024-12-3 (Date of Last Commit)
+
+* Fixed a bug in the StarSoloFastq task that caused the pipeline to not output a UniqueAndMult-Uniform.mtx when --soloMultiMappers Uniform was passed to STAR
+
 # 5.9.2
 2024-11-22 (Date of Last Commit)
 
