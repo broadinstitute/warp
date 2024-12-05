@@ -71,7 +71,7 @@ workflow Optimus {
   # version of this pipeline
 
 
-  String pipeline_version = "7.8.2"
+  String pipeline_version = "7.8.4"
 
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
@@ -91,8 +91,9 @@ workflow Optimus {
   String pytools_docker = "pytools:1.0.0-1661263730"
   String empty_drops_docker = "empty-drops:1.0.1-4.2"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
-  String warp_tools_docker_2_2_0 = "warp-tools:2.4.0"
+  String warp_tools_docker_2_2_0 = "warp-tools:2.5.0"
   String star_merge_docker = "star-merge-npz:1.3.0"
+  String samtools_star = "samtools-star:1.0.0-1.11-2.7.11a-1731516196"
 
 
   #TODO how do we handle these?
@@ -183,7 +184,7 @@ workflow Optimus {
         count_exons = count_exons,
         output_bam_basename = output_bam_basename + "_" + idx,
         soloMultiMappers = soloMultiMappers,
-        star_docker_path = docker_prefix + star_docker
+        samtools_star_docker_path = docker_prefix + samtools_star
     }
   }
   call Merge.MergeSortBamFiles as MergeBam {
