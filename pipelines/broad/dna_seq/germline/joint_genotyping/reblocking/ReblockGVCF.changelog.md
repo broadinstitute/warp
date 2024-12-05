@@ -1,4 +1,4 @@
-# 3.0.0
+# 2.4.0
 2024-12-05 (Date of Last Commit)
 
 * Updated output names for ReblockGVCF workflow from output_vcf and output_vcf_index to reblocked_gvcf and reblocked_gvcf_index respectively
