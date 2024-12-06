@@ -53,10 +53,6 @@ workflow TestIlluminaGenotypingArray {
       allowNestedInputs: true
     }
 
-    call Utilities.EchoCommitHash as EchoCommitHash {
-        input:
-            commit_hash_input = commit_hash
-    }
 
     call IlluminaGenotypingArray.IlluminaGenotypingArray {
       input:
@@ -91,8 +87,7 @@ workflow TestIlluminaGenotypingArray {
         control_sample_name = control_sample_name,
         disk_size = disk_size,
         preemptible_tries = preemptible_tries,
-        genotype_concordance_threshold = genotype_concordance_threshold,
-        commit_hash = EchoCommitHash.commit_hash_file
+        genotype_concordance_threshold = genotype_concordance_threshold
     }
 
 
@@ -200,7 +195,8 @@ workflow TestIlluminaGenotypingArray {
           truth_green_idat_md5 = GetGreenIdatMd5.truth_file,
           test_green_idat_md5 = GetGreenIdatMd5.results_file,
           bead_pool_manifest_file = bead_pool_manifest_file,
-          done = CopyToTestResults.done
+          done = CopyToTestResults.done,
+          commit_hash = commit_hash
       }
     }
 

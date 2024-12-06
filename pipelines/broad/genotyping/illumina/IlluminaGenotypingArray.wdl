@@ -75,7 +75,6 @@ workflow IlluminaGenotypingArray {
 
     Float genotype_concordance_threshold = 0.95
 
-    File commit_hash
   }
 
 
@@ -366,7 +365,6 @@ workflow IlluminaGenotypingArray {
     File? genotype_concordance_detail_metrics = GenotypeConcordance.detail_metrics
     File? genotype_concordance_contingency_metrics = GenotypeConcordance.contingency_metrics
     Boolean? genotype_concordance_failed = GenotypeConcordance.fails_concordance
-    File commit_hash_output = commit_hash
   }
   meta {
     allowNestedInputs: true

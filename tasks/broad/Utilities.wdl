@@ -316,4 +316,4 @@ task EchoCommitHash {
         docker: "ubuntu:20.04"
         memory:  "2000 MiB"
     }
-    }
+}
