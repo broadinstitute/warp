@@ -52,7 +52,12 @@ workflow TestIlluminaGenotypingArray {
     meta {
       allowNestedInputs: true
     }
-  
+
+    call Utilities.EchoCommitHash as EchoCommitHash {
+        input:
+            commit_hash = commit_hash
+    }
+
     call IlluminaGenotypingArray.IlluminaGenotypingArray {
       input:
         sample_alias = sample_alias,
@@ -124,11 +129,6 @@ workflow TestIlluminaGenotypingArray {
                                     select_all([IlluminaGenotypingArray.arrays_variant_calling_detail_metrics]),
                                     select_all([IlluminaGenotypingArray.contamination_metrics]),
     ])
-
-    call Utilities.EchoCommitHash as EchoCommitHash {
-        input:
-            commit_hash = commit_hash
-    }
 
     # Copy results of pipeline to test results bucket
     call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
