@@ -1,3 +1,8 @@
+# 5.9.4
+2024-12-05 (Date of Last Commit)
+
+* Moved the optional CellBender task to the Optimus.wdl
+
 # 5.9.3
 2024-12-3 (Date of Last Commit)
 
