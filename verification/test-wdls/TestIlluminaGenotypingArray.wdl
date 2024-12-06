@@ -205,6 +205,5 @@ workflow TestIlluminaGenotypingArray {
     }
 
     output {
-        File commit_hash = EchoCommitHash.commit_hash_file
     }
 }
