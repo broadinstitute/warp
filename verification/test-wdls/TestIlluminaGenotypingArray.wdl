@@ -91,8 +91,8 @@ workflow TestIlluminaGenotypingArray {
         control_sample_name = control_sample_name,
         disk_size = disk_size,
         preemptible_tries = preemptible_tries,
-        genotype_concordance_threshold = genotype_concordance_threshold
-  
+        genotype_concordance_threshold = genotype_concordance_threshold,
+        commit_hash = EchoCommitHash.commit_hash_file
     }
 
     

@@ -74,6 +74,14 @@ workflow IlluminaGenotypingArray {
     Int preemptible_tries
 
     Float genotype_concordance_threshold = 0.95
+
+    File commit_hash
+  }
+
+
+  call CheckCommitHash {
+    input:
+      commit_hash = commit_hash
   }
 
   call GenotypingTasks.AutoCall {
@@ -334,6 +342,8 @@ workflow IlluminaGenotypingArray {
     }
   }
 
+
+
   output {
     String chip_well_barcode_output = chip_well_barcode
     Int analysis_version_number_output = analysis_version_number
@@ -361,8 +371,22 @@ workflow IlluminaGenotypingArray {
     File? genotype_concordance_detail_metrics = GenotypeConcordance.detail_metrics
     File? genotype_concordance_contingency_metrics = GenotypeConcordance.contingency_metrics
     Boolean? genotype_concordance_failed = GenotypeConcordance.fails_concordance
+    String commit_hash_output = CheckCommitHash.commit_hash_output
   }
   meta {
     allowNestedInputs: true
   }
 }
+
+    task CheckCommitHash
+    {
+        input {
+          File commit_hash
+            }
+        command {
+        echo "Commit hash: $(cat ${commit_hash})"
+        }
+        output {
+        String commit_hash_output = read_string(commit_hash)
+        }
+    }
