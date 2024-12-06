@@ -234,7 +234,7 @@ task GetValidationInputs {
     String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     Int cpu = 1
     Int memory_mb = 2000
-    Int disk_size_gb = 20
+    Int disk_size_gb = 30
   }
 
   meta {
