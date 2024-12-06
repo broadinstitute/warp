@@ -200,13 +200,13 @@ workflow TestIlluminaGenotypingArray {
           truth_green_idat_md5 = GetGreenIdatMd5.truth_file, 
           test_green_idat_md5 = GetGreenIdatMd5.results_file,
           bead_pool_manifest_file = bead_pool_manifest_file,
-          done = CopyToTestResults.done
+          done = CopyToTestResults.done,
+          commit_hash = EchoCommitHash.commit_hash_file
       }
   
     }
 
     output {
         File commit_hash = EchoCommitHash.commit_hash_file
-
     }
 }
