@@ -50,7 +50,8 @@ workflow VerifyIlluminaGenotypingArray {
 
   call Utilities.EchoCommitHash as EchoCommitHash {
     input:
-      commit_hash_input = commit_hash
+      commit_hash_input = commit_hash,
+      gcs_output_path = "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/"
   }
 
   call MetricsVerification.CompareTwoNumbers {
