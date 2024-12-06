@@ -96,7 +96,7 @@ def main():
     update_truth_bool = args.update_truth.lower() == "true"
 
     # Update the test inputs to work with the test wrapper WDL
-    update_test_inputs(args.inputs_json, args.truth_path, args.results_path, update_truth_bool)
+    update_test_inputs(args.inputs_json, args.truth_path, args.results_path, update_truth_bool, args.commit_hash)
 
 
 if __name__ == "__main__":
