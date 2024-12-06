@@ -301,3 +301,20 @@ task GetValidationInputs {
   }
 
 }
+
+task EchoCommitHash {
+    input {
+        String commit_hash
+    }
+    command <<<
+        echo ~{commit_hash} > commit_hash.txt
+    >>>
+    output {
+        File commit_hash_file = "commit_hash.txt"
+    }
+    runtime {
+        docker: "ubuntu:20.04"
+        memory:  "2000 MiB"
+        disks: "10 HDD"
+    }
+    }

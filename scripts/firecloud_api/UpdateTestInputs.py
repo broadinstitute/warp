@@ -3,7 +3,7 @@ import json
 import os
 
 
-def update_test_inputs(inputs_json, truth_path, results_path, update_truth):
+def update_test_inputs(inputs_json, truth_path, results_path, update_truth, commit_hash):
     # Update the test inputs JSON to work with the test wrapper WDL
     # The test wrapper WDL runs the pipeline WDL and verifies the results
     # The test wrapper WDL requires the following inputs:
@@ -33,11 +33,16 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth):
     test_inputs[f"{test_name}.results_path"] = f"{results_path}/{sample_name}/"
     test_inputs[f"{test_name}.truth_path"] = f"{truth_path}/{sample_name}/"
     test_inputs[f"{test_name}.update_truth"] = update_truth
+    test_inputs[f"{test_name}.commit_hash"] = commit_hash
 
     # Save the updated test inputs JSON
     output_name = f"updated_{sample_name}.json"
     with open(output_name, 'w') as file:
         json.dump(test_inputs, file, indent=4)
+
+    #print out the contents of the updated json file
+    with open(output_name, 'r') as file:
+        print(file.read())
 
     print(f"{output_name}")
     return output_name
@@ -79,6 +84,12 @@ def main():
         choices=["true", "false"],
         help="Boolean flag to update the truth data. If true, the truth data will be updated with the test data. ",
     )
+
+    parser.add_argument(
+        "--commit_hash",
+        required=True,
+        help="Commit hash of the current pipeline run")
+
 
     args = parser.parse_args()
     # convert the update_truth flag to a boolean

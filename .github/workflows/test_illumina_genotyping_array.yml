@@ -17,6 +17,7 @@ on:
       - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
       - 'tasks/broad/Qc.wdl'
       - 'verification/VerifyIlluminaGenotypingArray.wdl'
+      - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
       - '.github/workflows/test_illumina_genotyping_array.yml'
@@ -61,7 +62,7 @@ jobs:
       - name: Wait Before Starting
         run: |
           echo "Waiting for 5 minutes before starting..."
-          sleep 300  # time in seconds
+          sleep 1  # time in seconds, update this when we really want a delay
       # actions/checkout MUST come before auth
       - uses: actions/checkout@v3
         with:
@@ -80,7 +81,11 @@ jobs:
           access_token_lifetime: '3600' # seconds, default is 3600
           access_token_scopes: 'profile, email, openid'
 
-      # Set the branch name.
+      - name: Set Commit Hash
+        id: set_commit_hash
+        run: echo "COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
+
+        # Set the branch name.
       # github.head_ref contains the name of the branch in the context of a pull request
       # if github.head_ref is empty, it implies the workflow was triggered manually
       # ${GITHUB_REF##*/} extracts the branch name from GITHUB_REF.
@@ -207,7 +212,8 @@ jobs:
             test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path "$TRUTH_PATH" \
                                                                                 --results_path "$RESULTS_PATH" \
                                                                                 --inputs_json "$input_file" \
-                                                                                --update_truth "$UPDATE_TRUTH_BOOL")
+                                                                                --update_truth "$UPDATE_TRUTH_BOOL" \
+                                                                                --commit_hash "$COMMIT_HASH" )
             echo "Uploading the test input file: $test_input_file"
             echo "Branch name: $branch_name"
           

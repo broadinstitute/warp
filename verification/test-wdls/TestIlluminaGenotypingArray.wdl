@@ -46,6 +46,7 @@ workflow TestIlluminaGenotypingArray {
       String truth_path
       String results_path
       Boolean update_truth
+      String commit_hash
     }
 
     meta {
@@ -199,9 +200,13 @@ workflow TestIlluminaGenotypingArray {
       }
   
     }
+    call Utilities.EchoCommitHash {
+      input:
+        commit_hash = commit_hash
+    }
 
+    output {
+        File commit_hash = EchoCommitHash.commit_hash_file
 
-
-
-
+    }
 }
