@@ -134,8 +134,7 @@ workflow TestIlluminaGenotypingArray {
     call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
       input:
         files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-        destination_cloud_path    = results_path,
-        commit_hash               = EchoCommitHash.commit_hash_file
+        destination_cloud_path    = results_path
     }
   
     # If updating truth then copy output to truth bucket
@@ -143,8 +142,7 @@ workflow TestIlluminaGenotypingArray {
       call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
         input: 
           files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-          destination_cloud_path    = truth_path,
-            commit_hash               = EchoCommitHash.commit_hash_file
+          destination_cloud_path    = truth_path
       }
     }
 

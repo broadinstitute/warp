@@ -19,12 +19,10 @@ task TerraCopyFilesFromCloudToCloud {
   input {
     Array[String] files_to_copy
     String destination_cloud_path
-    File commit_hash
   }
 
   command {
     set -euo pipefail
-
 
     gcloud config set storage/process_count 16
     gcloud config set storage/thread_count  2
