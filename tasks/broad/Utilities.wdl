@@ -315,6 +315,5 @@ task EchoCommitHash {
     runtime {
         docker: "ubuntu:20.04"
         memory:  "2000 MiB"
-        disks: "local-disk 10 HDD"
     }
     }
