@@ -292,7 +292,7 @@ jobs:
 
       - name: Download Commit Hash from GCP
         run: |
-          gsutil cp gs:///fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt ./commit_hash.txt
+          gsutil cp gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt ./commit_hash.txt
 
       - name: Check Commit Hash
         id: check_commit_hash
