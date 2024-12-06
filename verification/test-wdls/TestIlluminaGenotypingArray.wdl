@@ -125,6 +125,11 @@ workflow TestIlluminaGenotypingArray {
                                     select_all([IlluminaGenotypingArray.contamination_metrics]),
     ])
 
+    call Utilities.EchoCommitHash as EchoCommitHash {
+        input:
+            commit_hash = commit_hash
+    }
+
     # Copy results of pipeline to test results bucket
     call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
       input:
@@ -180,7 +185,6 @@ workflow TestIlluminaGenotypingArray {
             results_path = results_path,
             truth_path = truth_path
         }
-
       call VerifyIlluminaGenotypingArray.VerifyIlluminaGenotypingArray as Verify {
         input:
           truth_metrics = GetMetrics.truth_files, 
@@ -199,10 +203,6 @@ workflow TestIlluminaGenotypingArray {
           done = CopyToTestResults.done
       }
   
-    }
-    call Utilities.EchoCommitHash {
-      input:
-        commit_hash = commit_hash
     }
 
     output {
