@@ -55,7 +55,7 @@ workflow TestIlluminaGenotypingArray {
 
     call Utilities.EchoCommitHash as EchoCommitHash {
         input:
-            commit_hash = commit_hash
+            commit_hash_input = commit_hash
     }
 
     call IlluminaGenotypingArray.IlluminaGenotypingArray {
@@ -95,7 +95,7 @@ workflow TestIlluminaGenotypingArray {
         commit_hash = EchoCommitHash.commit_hash_file
     }
 
-    
+
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
@@ -112,7 +112,7 @@ workflow TestIlluminaGenotypingArray {
                                     select_all([IlluminaGenotypingArray.output_vcf_md5_cloud_path]),
     ])
 
-    
+
     # Collect all of the pipeline metrics into single Array[String]
     Array[String] pipeline_metrics = flatten([
                                     # File? outputs
@@ -136,11 +136,11 @@ workflow TestIlluminaGenotypingArray {
         files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
         destination_cloud_path    = results_path
     }
-  
+
     # If updating truth then copy output to truth bucket
     if (update_truth){
       call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
-        input: 
+        input:
           files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
           destination_cloud_path    = truth_path
       }
@@ -187,17 +187,17 @@ workflow TestIlluminaGenotypingArray {
         }
       call VerifyIlluminaGenotypingArray.VerifyIlluminaGenotypingArray as Verify {
         input:
-          truth_metrics = GetMetrics.truth_files, 
+          truth_metrics = GetMetrics.truth_files,
           test_metrics = GetMetrics.results_files,
-          truth_gtc = GetGtc.truth_file, 
+          truth_gtc = GetGtc.truth_file,
           test_gtc = GetGtc.results_file,
-          truth_vcf = GetVcf.truth_file, 
+          truth_vcf = GetVcf.truth_file,
           test_vcf = GetVcf.results_file,
-          truth_fp_vcf = GetFpVcf.truth_file, 
+          truth_fp_vcf = GetFpVcf.truth_file,
           test_fp_vcf = GetFpVcf.results_file,
-          truth_red_idat_md5 = GetRedIdatMd5.truth_file, 
+          truth_red_idat_md5 = GetRedIdatMd5.truth_file,
           test_red_idat_md5 = GetRedIdatMd5.results_file,
-          truth_green_idat_md5 = GetGreenIdatMd5.truth_file, 
+          truth_green_idat_md5 = GetGreenIdatMd5.truth_file,
           test_green_idat_md5 = GetGreenIdatMd5.results_file,
           bead_pool_manifest_file = bead_pool_manifest_file,
           done = CopyToTestResults.done
