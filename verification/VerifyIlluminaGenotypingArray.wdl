@@ -41,7 +41,6 @@ workflow VerifyIlluminaGenotypingArray {
     File test_green_idat_md5
 
     Boolean? done
-    String commit_hash
   }
 
   call MetricsVerification.CompareTwoNumbers {
@@ -112,7 +111,6 @@ workflow VerifyIlluminaGenotypingArray {
       file2 = truth_red_idat_md5
   }
   output {
-    String commit_hash_verify = commit_hash
   }
   meta {
     allowNestedInputs: true
