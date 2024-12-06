@@ -121,6 +121,7 @@ workflow VerifyIlluminaGenotypingArray {
       file2 = truth_red_idat_md5
   }
   output {
+    File commit_hash_output = EchoCommitHash.commit_hash_file
   }
   meta {
     allowNestedInputs: true
