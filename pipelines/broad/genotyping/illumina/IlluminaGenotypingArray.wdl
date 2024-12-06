@@ -79,11 +79,6 @@ workflow IlluminaGenotypingArray {
   }
 
 
-  call CheckCommitHash {
-    input:
-      commit_hash = commit_hash
-  }
-
   call GenotypingTasks.AutoCall {
     input:
       chip_well_barcode = chip_well_barcode,
@@ -371,22 +366,9 @@ workflow IlluminaGenotypingArray {
     File? genotype_concordance_detail_metrics = GenotypeConcordance.detail_metrics
     File? genotype_concordance_contingency_metrics = GenotypeConcordance.contingency_metrics
     Boolean? genotype_concordance_failed = GenotypeConcordance.fails_concordance
-    String commit_hash_output = CheckCommitHash.commit_hash_output
+    File commit_hash_output = commit_hash
   }
   meta {
     allowNestedInputs: true
   }
 }
-
-    task CheckCommitHash
-    {
-        input {
-          File commit_hash
-            }
-        command {
-        echo "Commit hash: $(cat ${commit_hash})"
-        }
-        output {
-        String commit_hash_output = read_string(commit_hash)
-        }
-    }
