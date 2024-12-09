@@ -33,6 +33,9 @@ try:
     decoded_sa = base64.b64decode(sa_json_b64).decode('utf-8')
     sa_credentials = service_account.Credentials.from_service_account_info(json.loads(decoded_sa), scopes=scopes)
     print("Service account credentials loaded successfully.")
+except Exception as e:
+    print(f"Failed to load service account credentials: {e}")
+    sa_credentials = None  # Set a fallback or exit as appropriate
 
 class FirecloudAPI:
     def __init__(self, token, namespace, workspace_name):
@@ -113,7 +116,7 @@ class FirecloudAPI:
             print(f"Response content: {response.text}")
             return None
 
-    
+
     def poll_submission_status(self, submission_id):
         """
         Polls the status of a submission until it is complete and returns a dictionary of workflow IDs and their statuses.
@@ -277,7 +280,7 @@ if __name__ == "__main__":
           print("For 'poll_status', --submission_id is required.", file=sys.stderr)
       else:
           workflow_status_map = firecloud_api.poll_submission_status(args.submission_id)
-          
+
           # Convert the dictionary to a JSON string and print it
           if workflow_status_map:
               print(json.dumps(workflow_status_map))  # Output the dictionary as a JSON string for bash parsing
