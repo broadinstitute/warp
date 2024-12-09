@@ -8,7 +8,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "1.8.4"
+    String pipeline_version = "1.9.0"
 
 
     input {
@@ -56,6 +56,9 @@ workflow PairedTag {
 
         # Expected to be either 'gcp' or 'azure'
         String cloud_provider
+
+        # If true, run cellbender
+        Boolean run_cellbender = false
     }
 
     # All docker images that are needed for tasks in this workflow
@@ -98,7 +101,8 @@ workflow PairedTag {
             count_exons = count_exons,
             cloud_provider = cloud_provider,
             soloMultiMappers = soloMultiMappers,
-            gex_nhash_id = gex_nhash_id
+            gex_nhash_id = gex_nhash_id,
+            run_cellbender = run_cellbender
     }
 
     # Call the ATAC workflow
@@ -176,5 +180,13 @@ workflow PairedTag {
         Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
         Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
         Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
+        File? cell_barcodes_csv = Optimus.cell_barcodes_csv
+        File? checkpoint_file = Optimus.checkpoint_file
+        Array[File]? h5_array = Optimus.h5_array
+        Array[File]? html_report_array = Optimus.html_report_array
+        File? log = Optimus.log
+        Array[File]? metrics_csv_array = Optimus.metrics_csv_array
+        String? output_directory = Optimus.output_directory
+        File? summary_pdf = Optimus.summary_pdf
     }
 }

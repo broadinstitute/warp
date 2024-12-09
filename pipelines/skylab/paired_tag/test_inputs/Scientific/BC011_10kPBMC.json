@@ -32,5 +32,6 @@
   "PairedTag.soloMultiMappers":"Uniform",
   "PairedTag.gex_nhash_id":"example_1234",
   "PairedTag.atac_nhash_id":"example_1234",
-  "PairedTag.cloud_provider": "gcp"
+  "PairedTag.cloud_provider": "gcp",
+  "PairedTag.run_cellbender":"false"
 }
