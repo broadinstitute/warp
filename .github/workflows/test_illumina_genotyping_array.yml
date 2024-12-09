@@ -226,6 +226,8 @@ jobs:
             echo "Branch name: $branch_name"
       
             firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name $branch_name
+            done
+
       #      attempt=1
       #      while [ $attempt -le $MAX_RETRIES ]; do
       #        echo "Attempt $attempt: Submitting job for input file: $input_file"
