@@ -115,9 +115,20 @@ class FirecloudAPI:
         return {key: f'"{value}"' for key, value in inputs_json.items()}
 
     def main(self):
-        logging.info("Starting job submission and monitoring process.")
-        submission_id = self.submit_job()
-        # Additional steps for monitoring can go here...
+        logging.info("Starting process based on action.")
+
+        if self.action == "submit_job":
+            submission_id = self.submit_job()
+            logging.info(f"Job submission complete with ID: {submission_id}")
+        elif self.action == "upload_test_inputs":
+            success = self.upload_test_inputs(self.pipeline_name, self.test_input_file, self.branch_name)
+            if success:
+                logging.info("Test inputs uploaded successfully.")
+            else:
+                logging.error("Failed to upload test inputs.")
+        else:
+            logging.error(f"Unknown action: {self.action}")
+
 
 
 if __name__ == "__main__":
@@ -136,7 +147,8 @@ if __name__ == "__main__":
         sa_json_b64=args.sa_json_b64,
         user=args.user,
         workspace_namespace=args.workspace_namespace,
-        workspace_name=args.workspace_name,
+        workspace_name=args.workspace_name
+
     )
 
     if 'upload_test_inputs' in sys.argv:
