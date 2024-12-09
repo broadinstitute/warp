@@ -29,35 +29,11 @@ from google.oauth2 import service_account
 sa_json_b64 = os.environ.get("SA_JSON_B64")
 print(f"Service account JSON: {sa_json_b64}")
 
-def is_base64_encoded(data):
-    """Checks if a string is a valid Base64-encoded string."""
-    try:
-        # Try to decode and re-encode the string to check its validity
-        base64.b64decode(data, validate=True)
-        return True
-    except (base64.binascii.Error, TypeError):
-        return False
-# Retrieve SA_JSON_B64 from the environment variable
-sa_json_b64 = os.environ.get("SA_JSON_B64")
-print(f"Service account JSON (Base64): {sa_json_b64}")
-
-# Check if the string is Base64-encoded
-if sa_json_b64 and is_base64_encoded(sa_json_b64):
-    try:
-        # Decode the Base64 string and parse as JSON
-        decoded_sa = base64.b64decode(sa_json_b64).decode('utf-8')
-        sa_credentials = json.loads(decoded_sa)  # Assuming the decoded content is a valid JSON
-        print("Service account credentials loaded successfully.")
-    except (json.JSONDecodeError, UnicodeDecodeError) as e:
-        print(f"Failed to parse decoded JSON: {e}")
-else:
-    print("The SA_JSON_B64 is not a valid Base64-encoded string.")
-
 
 try:
     scopes = ['profile', 'email', 'openid']
-    decoded_sa = base64.b64decode(sa_json_b64).decode('utf-8')
-    sa_credentials = service_account.Credentials.from_service_account_info(json.loads(decoded_sa), scopes=scopes)
+    #decoded_sa = base64.b64decode(sa_json_b64).decode('utf-8')
+    sa_credentials = service_account.Credentials.from_service_account_info(json.loads(sa_json_b64), scopes=scopes)
     print("Service account credentials loaded successfully.")
 except Exception as e:
     print(f"Failed to load service account credentials: {e}")
