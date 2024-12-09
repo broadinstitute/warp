@@ -63,7 +63,7 @@ workflow Optimus {
     Boolean count_exons = false
 
     # Set starsolo disk size as adjustable parameter
-    Int disk_starsolo
+    # Int disk_starsolo
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
@@ -183,8 +183,8 @@ workflow Optimus {
         count_exons = count_exons,
         output_bam_basename = output_bam_basename + "_" + idx,
         soloMultiMappers = soloMultiMappers,
-        samtools_star_docker_path = docker_prefix + samtools_star,
-        disk = disk_starsolo
+        samtools_star_docker_path = docker_prefix + samtools_star
+        #disk = disk_starsolo
     }
   }
   call Merge.MergeSortBamFiles as MergeBam {
