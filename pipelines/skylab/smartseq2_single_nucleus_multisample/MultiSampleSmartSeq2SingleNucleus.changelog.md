@@ -1,3 +1,13 @@
+# 2.0.6
+2024-11-15 (Date of Last Commit)
+
+* Fixed a bug in the StarSoloFastq task that caused the pipeline to not output a UniqueAndMult-Uniform.mtx when --soloMultiMappers Uniform was passed to STAR; this does not affect the outputs of the pipeline
+
+# 2.0.5
+2024-11-15 (Date of Last Commit)
+
+* Added bam validation in the StarSoloFastq task; this does not affect the outputs of the pipeline
+
 # 2.0.4
 2024-11-12 (Date of Last Commit)
 
