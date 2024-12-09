@@ -11,7 +11,7 @@ from google.auth import credentials
 from google.oauth2 import service_account
 
 # Configuration and environment variables
-USER = os.getenv("USER")
+USER = os.getenv("pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com")
 WORKSPACE_NAMESPACE = os.getenv("WORKSPACE_NAMESPACE")
 WORKSPACE_NAME = os.getenv("WORKSPACE_NAME")
 METHOD_NAMESPACE = os.getenv("METHOD_NAMESPACE")
