@@ -27,5 +27,5 @@
   "PairedTag.cloud_provider": "gcp",
   "PairedTag.gex_nhash_id":"example_1234",
   "PairedTag.atac_nhash_id":"example_1234",
-  "PairedTag.run_cellbender":"true"
+  "PairedTag.run_cellbender":"false"
 }

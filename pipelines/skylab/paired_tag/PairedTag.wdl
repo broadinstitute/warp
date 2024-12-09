@@ -58,7 +58,7 @@ workflow PairedTag {
         String cloud_provider
 
         # If true, run cellbender
-        Boolean run_cellbender = true
+        Boolean run_cellbender = false
     }
 
     # All docker images that are needed for tasks in this workflow
