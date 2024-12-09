@@ -159,9 +159,9 @@ jobs:
           RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
           
           
-          # Function to call the Firecloud API using the firecloud_api.py script
+          # Function to call the Firecloud API using the firecloud_api2.py script
           firecloud_action() {
-            python3 scripts/firecloud_api/firecloud_api2.py --token "$TOKEN" --namespace "$NAMESPACE" --workspace "$WORKSPACE" --action "$1" "${@:2}"
+            python3 scripts/firecloud_api/firecloud_api2.py --action "$1" "${@:2}"
           }
         
 
