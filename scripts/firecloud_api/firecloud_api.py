@@ -207,13 +207,7 @@ class FirecloudAPI:
             url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
 
             print(url)
-            token = self.get_user_token()
-            print(f"printing: {token}")
-            headers = {
-                'accept': '*/*',
-                'Authorization': f'Bearer {token}',
-                'Content-Type': 'application/json'
-            }
+
             # get the current method configuration
             response = requests.get(url, headers=self.headers)
             config = response.json()

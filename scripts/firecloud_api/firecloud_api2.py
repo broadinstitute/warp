@@ -1,86 +1,50 @@
 import base64
 import json
 import logging
-import os
 import requests
 import traceback
 from time import sleep
 from datetime import datetime, timezone
+from urllib.parse import quote
 from google.auth.transport.requests import Request
-from google.auth import credentials
 from google.oauth2 import service_account
+import argparse
 
-# Configuration and environment variables
-USER = os.getenv("pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com")
-WORKSPACE_NAMESPACE = os.getenv("warp-pipelines")
-WORKSPACE_NAME = os.getenv("WARP Tests")
-METHOD_NAMESPACE = os.getenv("warp-")
-METHOD_NAME = os.getenv("METHOD_NAME")
-ENTITY_TYPE = os.getenv("ENTITY_TYPE")
-ENTITY_ID = os.getenv("ENTITY_ID")
-sa_json_b64 = os.environ.get("SA_JSON_B64")
 
-# Configure logging
-LOG_FORMAT = "%(asctime)s %(levelname)-8s %(message)s"
-LOG_LEVEL = "INFO"
-logging.basicConfig(
-    format=LOG_FORMAT,
-    level=getattr(logging, LOG_LEVEL),
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-class FireCloudAPI:
+class FirecloudAPI:
     def __init__(self, sa_json_b64, user, workspace_namespace, workspace_name, method_namespace, method_name, entity_type, entity_id):
-        """
-        Initialize the FireCloudJobManager with configuration.
-        """
+        self.sa_json_b64 = sa_json_b64
         self.user = user
-        self.workspace_namespace = workspace_namespace
+        self.namespace = workspace_namespace
         self.workspace_name = workspace_name
         self.method_namespace = method_namespace
         self.method_name = method_name
         self.entity_type = entity_type
         self.entity_id = entity_id
-        self.credentials = self._load_credentials(sa_json_b64)
+        self.base_url = "https://api.firecloud.org/api"
+        self.headers = self._build_auth_headers()
 
-        # Configure logging
-        LOG_FORMAT = "%(asctime)s %(levelname)-8s %(message)s"
-        logging.basicConfig(format=LOG_FORMAT, level=logging.INFO, datefmt="%Y-%m-%d %H:%M:%S")
-
-    def _load_credentials(self, sa_json_b64):
-        """
-        Load the service account credentials.
-        """
+    def _build_auth_headers(self):
         scopes = ["profile", "email", "openid"]
-        decoded_sa = json.loads(sa_json_b64)
-        sa_credentials = service_account.Credentials.from_service_account_info(decoded_sa, scopes=scopes)
-        return sa_credentials.with_subject(self.user)
-
-    def get_user_token(self):
-        """
-        Obtain and refresh the user access token.
-        """
-        if not self.credentials.valid or (self.credentials.expiry and (self.credentials.expiry - datetime.now(timezone.utc)).total_seconds() < 60):
-            logging.info("Refreshing user access token.")
-            self.credentials.refresh(Request())
-        return self.credentials.token
-
-    def build_auth_headers(self, token):
-        """
-        Construct standard authorization headers.
-        """
+        sa_credentials = service_account.Credentials.from_service_account_info(
+            json.loads(base64.b64decode(self.sa_json_b64).decode("utf-8")), scopes=scopes
+        )
+        delegated_credentials = sa_credentials.with_subject(self.user)
+        token = self._get_user_token(delegated_credentials)
         return {
             "content-type": "application/json",
             "Authorization": f"Bearer {token}",
         }
 
+    def _get_user_token(self, credentials):
+        if not credentials.valid or (credentials.expiry and (credentials.expiry - datetime.now(timezone.utc)).total_seconds() < 60):
+            logging.info("Refreshing user access token.")
+            credentials.refresh(Request())
+        return credentials.token
+
     def submit_job(self):
-        """
-        Submit a job to the specified workspace.
-        """
-        logging.info(f"Submitting job for method {self.method_namespace}/{self.method_name} in workspace {self.workspace_namespace}/{self.workspace_name}.")
-        uri = f"https://api.firecloud.org/api/workspaces/{self.workspace_namespace}/{self.workspace_name}/submissions"
-        token = self.get_user_token()
-        headers = self.build_auth_headers(token)
+        logging.info(f"Submitting job for method {self.method_namespace}/{self.method_name} in workspace {self.namespace}/{self.workspace_name}.")
+        uri = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions"
         body = {
             "deleteIntermediateOutputFiles": False,
             "methodConfigurationNamespace": self.method_namespace,
@@ -89,93 +53,94 @@ class FireCloudAPI:
             "entityName": self.entity_id,
             "useCallCache": False,
         }
-
-        response = requests.post(uri, json=body, headers=headers)
+        response = requests.post(uri, json=body, headers=self.headers)
         if response.status_code != 201:
             logging.error(f"Failed to submit job. Status code: {response.status_code}. Response: {response.text}")
             raise Exception("Submission failed.")
-
         submission_id = response.json().get("submissionId")
         logging.info(f"Job submitted successfully. Submission ID: {submission_id}")
         return submission_id
 
-    def poll_submission_status(self, submission_id):
+    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
         """
-        Poll the status of the submission until completion.
-        """
-        logging.info(f"Polling status for submission ID: {submission_id}")
-        uri = f"https://api.firecloud.org/api/workspaces/{self.workspace_namespace}/{self.workspace_name}/submissions/{submission_id}"
-        token = self.get_user_token()
-        headers = self.build_auth_headers(token)
+        Uploads test inputs to the workspace via Firecloud API.
 
-        response = requests.get(uri, headers=headers)
+        :param test_inputs: JSON data containing test inputs
+        :return: True if successful, False otherwise
+        """
+        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
+        print(url)
+
+        # Get the current method configuration
+        response = requests.get(url, headers=self.headers)
         if response.status_code != 200:
-            logging.error(f"Error polling submission status. Status code: {response.status_code}. Response: {response.text}")
-            raise Exception("Failed to poll submission status.")
+            print(f"Failed to fetch method configuration. Status: {response.status_code}")
+            return False
 
-        submission_status = response.json().get("status")
-        workflows = response.json().get("workflows", [])
-        workflow_status = workflows[0]["status"] if workflows else "Unknown"
-        logging.info(f"Submission status: {submission_status}. Workflow status: {workflow_status}")
-        return submission_status, workflow_status
+        config = response.json()
+        print(f"Current method configuration: {json.dumps(config, indent=2)}")
 
-    def monitor_submission(self, submission_id, timeout_minutes=60):
-        """
-        Monitor the submission until it completes or times out.
-        """
-        sleep_seconds = 60
-        max_polls = timeout_minutes * 60 // sleep_seconds
+        # Update the config with the new inputs
+        print(f"Opening test inputs file: {test_inputs}")
+        with open(test_inputs, 'r') as file:
+            inputs_json = json.load(file)
+            print("Test inputs loaded successfully.")
+            inputs_json = self.quote_values(inputs_json)
+            config["inputs"] = inputs_json
 
-        for _ in range(max_polls):
-            submission_status, workflow_status = self.poll_submission_status(submission_id)
-            if submission_status == "Done":
-                return workflow_status
-            sleep(sleep_seconds)
+        # Construct the methodUri with the branch name
+        base_url = f"github.com/broadinstitute/warp/{pipeline_name}"
+        method_uri = f"dockstore://{quote(base_url)}/{branch_name}"
+        print(f"Updating methodUri with branch name: {method_uri}")
+        config["methodRepoMethod"]["methodUri"] = method_uri
 
-        raise TimeoutError("Monitoring submission timed out.")
+        # Increment methodConfigVersion
+        config["methodConfigVersion"] += 1
+        print(f"Updated method configuration: {json.dumps(config, indent=2)}")
+
+        # Post the updated method config to the workspace
+        response = requests.post(url, headers=self.headers, json=config)
+        print(f"Response status code: {response.status_code}")
+        print(f"Response text: {response.text}")
+
+        if response.status_code == 200:
+            print("Test inputs uploaded successfully.")
+            return True
+        else:
+            print(f"Failed to upload test inputs. Status code: {response.status_code}")
+            return False
+
+    @staticmethod
+    def quote_values(inputs_json):
+        return {key: f'"{value}"' for key, value in inputs_json.items()}
+
+    def main(self):
+        logging.info("Starting job submission and monitoring process.")
+        submission_id = self.submit_job()
+        # Additional steps for monitoring can go here...
 
 
-# Example Usage
 if __name__ == "__main__":
-    import argparse
-
-    # Parse arguments passed via CLI or a configuration file like YAML
-    parser = argparse.ArgumentParser(description="FireCloud Job Manager")
+    parser = argparse.ArgumentParser()
     parser.add_argument("--sa-json-b64", required=True, help="Base64 encoded service account JSON")
-    parser.add_argument("--user", required=True, help="Impersonated user email")
+    parser.add_argument("--user", required=True, help="User email for impersonation")
     parser.add_argument("--workspace-namespace", required=True, help="Workspace namespace")
     parser.add_argument("--workspace-name", required=True, help="Workspace name")
-    parser.add_argument("--method-namespace", required=True, help="Method configuration namespace")
-    parser.add_argument("--method-name", required=True, help="Method configuration name")
-    parser.add_argument("--entity-type", required=True, help="Entity type for the job")
-    parser.add_argument("--entity-id", required=True, help="Entity ID for the job")
+    parser.add_argument("--method-namespace", required=True, help="Method namespace")
+    parser.add_argument("--method-name", required=True, help="Method name")
+    parser.add_argument("--entity-type", required=True, help="Entity type")
+    parser.add_argument("--entity-id", required=True, help="Entity ID")
     args = parser.parse_args()
 
-    try:
-        # Initialize manager
-        manager = FireCloudJobAPI(
-            args.sa_json_b64,
-            args.user,
-            args.workspace_namespace,
-            args.workspace_name,
-            args.method_namespace,
-            args.method_name,
-            args.entity_type,
-            args.entity_id,
-        )
+    api = FirecloudAPI(
+        sa_json_b64=args.sa_json_b64,
+        user=args.user,
+        workspace_namespace=args.workspace_namespace,
+        workspace_name=args.workspace_name,
+        method_namespace=args.method_namespace,
+        method_name=args.method_name,
+        entity_type=args.entity_type,
+        entity_id=args.entity_id,
+    )
 
-        # Submit job
-        submission_id = manager.submit_job()
-
-        # Monitor job
-        workflow_status = manager.monitor_submission(submission_id)
-        if workflow_status == "Succeeded":
-            logging.info("Job completed successfully.")
-        else:
-            logging.error(f"Job failed with workflow status: {workflow_status}")
-            exit(1)
-
-    except Exception as e:
-        logging.error(f"Error during execution: {str(e)}")
-        traceback.print_exc()
-        exit(1)
+    api.main()
