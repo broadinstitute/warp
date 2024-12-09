@@ -188,7 +188,7 @@ class FirecloudAPI:
             "Authorization": f"Bearer {token}",
         }
 
-    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
+    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name, credentials: credentials):
             """
             Uploads test inputs to the workspace via Firecloud API.
 
