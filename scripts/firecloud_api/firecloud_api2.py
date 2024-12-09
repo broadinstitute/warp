@@ -147,7 +147,8 @@ if __name__ == "__main__":
         sa_json_b64=args.sa_json_b64,
         user=args.user,
         workspace_namespace=args.workspace_namespace,
-        workspace_name=args.workspace_name
+        workspace_name=args.workspace_name,
+        action=args.action
 
     )
 
