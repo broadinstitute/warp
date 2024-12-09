@@ -65,11 +65,7 @@ class FirecloudAPI:
         """
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
         print(url)
-        echo "SA_JSON_B64: $SA_JSON_B64"
-        echo "Branch name: $branch_name"
-        echo "Workspace Namespace: warp-pipelines"
-        echo "Workspace Name: WARP Tests"
-                # Get the current method configuration
+        # Get the current method configuration
         response = requests.get(url, headers=self.headers)
         if response.status_code != 200:
             print(f"Failed to fetch method configuration. Status: {response.status_code}")
