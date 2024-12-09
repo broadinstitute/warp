@@ -120,6 +120,9 @@ if __name__ == "__main__":
     parser.add_argument("--user", required=True, help="User email for impersonation")
     parser.add_argument('--workspace-namespace', required=True, help='Namespace of the workspace.')
     parser.add_argument('--workspace-name', required=True, help='Name of the workspace.')
+    parser.add_argument('--pipeline_name', required=True, help="Pipeline name")
+    parser.add_argument('--test_input_file', required=True, help="Path to test input file")
+    parser.add_argument('--branch_name', required=True, help="Branch name for the method repository")
     args = parser.parse_args()
 
     api = FirecloudAPI(
@@ -129,11 +132,8 @@ if __name__ == "__main__":
         workspace_name=args.workspace_name,
     )
 
-    if args.action == "upload_test_inputs":
-        api.upload_test_inputs(
-            pipeline_name=args.pipeline_name,
-            test_inputs=args.test_input_file,
-            branch_name=args.branch_name
-        )
+    if 'upload_test_inputs' in sys.argv:
+        api.upload_test_inputs(args.pipeline_name, args.test_input_file, args.branch_name)
+
 
     api.main()
