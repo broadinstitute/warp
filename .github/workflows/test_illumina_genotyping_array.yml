@@ -133,6 +133,9 @@ jobs:
 
       - name: Update test inputs
         run: |
+          UPDATE_TRUTH="${{ github.event.inputs.updateTruth || 'false' }}"
+          echo "Update truth: $UPDATE_TRUTH"
+          
           # Convert UPDATE_TRUTH to a boolean-friendly format ("true" -> true, "false" -> false)
           if [ "$UPDATE_TRUTH" = "true" ]; then
               UPDATE_TRUTH_BOOL=true
@@ -140,7 +143,6 @@ jobs:
               UPDATE_TRUTH_BOOL=false
           fi
           
-          UPDATE_TRUTH="${{ github.event.inputs.updateTruth || 'false' }}"
           TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
 
