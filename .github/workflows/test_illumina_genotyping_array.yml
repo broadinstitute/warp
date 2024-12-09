@@ -89,6 +89,7 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: |
+          pwd
           cd warp/scripts/firecloud_api/
           pip install -r requirements.txt
 
