@@ -20,7 +20,19 @@ import json
 import sys
 import subprocess
 from urllib.parse import quote
+import base64
+import os
+from google.auth.transport.requests import Request
+from google.auth import credentials
+from google.oauth2 import service_account
 
+sa_json_b64 = os.environ.get("SA_JSON_B64")
+
+try:
+    scopes = ['profile', 'email', 'openid']
+    decoded_sa = base64.b64decode(sa_json_b64).decode('utf-8')
+    sa_credentials = service_account.Credentials.from_service_account_info(json.loads(decoded_sa), scopes=scopes)
+    print("Service account credentials loaded successfully.")
 
 class FirecloudAPI:
     def __init__(self, token, namespace, workspace_name):

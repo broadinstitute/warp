@@ -47,6 +47,7 @@ env:
   PROJECT_NAME: WARP
   # Github repo name
   REPOSITORY_NAME: ${{ github.event.repository.name }}
+  SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_CREDENTIALS }}
 
 
 jobs:
@@ -68,18 +69,28 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v2'
+      # id: 'auth'
+      # name: 'Authenticate to Google Cloud'
+      # uses: 'google-github-actions/auth@v2'
+      # with:
+      #   token_format: 'access_token'
+      #   # Centralized in dsp-tools-k8s; ask in #dsp-devops-champions for help troubleshooting
+      #   # This is provided by the DevOps team - do not change!
+      #   workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
+      #   # This is our tester service account
+      #   service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
+      #   access_token_lifetime: '3600' # seconds, default is 3600
+      #   access_token_scopes: 'profile, email, openid'
+
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
         with:
-          token_format: 'access_token'
-          # Centralized in dsp-tools-k8s; ask in #dsp-devops-champions for help troubleshooting
-          # This is provided by the DevOps team - do not change!
-          workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
-          # This is our tester service account
-          service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
-          access_token_lifetime: '3600' # seconds, default is 3600
-          access_token_scopes: 'profile, email, openid'
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          cd warp/scripts/firecloud_api/
+          pip install -r requirements.txt
 
       - name: Set Commit Hash
         id: set_commit_hash
