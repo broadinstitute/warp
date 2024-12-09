@@ -160,7 +160,7 @@ jobs:
              echo "Uploading the test input file: $test_input_file"
              echo "Branch name: $branch_name"
 
-          #done
+          done
 
 
       #- name: Update and Upload method configuration
