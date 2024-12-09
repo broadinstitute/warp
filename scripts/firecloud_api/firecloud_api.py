@@ -29,19 +29,10 @@ from datetime import datetime, timezone
 
 sa_json_b64 = os.environ.get("SA_JSON_B64")
 print(f"Service account JSON: {sa_json_b64}")
-#
-#
-#try:
-#    scopes = ['profile', 'email', 'openid']
-#    #decoded_sa = base64.b64decode(sa_json_b64).decode('utf-8')
-#    sa_credentials = service_account.Credentials.from_service_account_info(json.loads(sa_json_b64), scopes=scopes)
-#    print("Service account credentials loaded successfully.")
-#except Exception as e:
-#    print(f"Failed to load service account credentials: {e}")
-#    sa_credentials = None  # Set a fallback or exit as appropriate
+
 
 class FirecloudAPI:
-    def __init__(self, token, namespace, workspace_name):
+    def __init__(self, token, namespace, workspace_name, sa_json_b64):
         """
         Initializes the FirecloudAPI object with authentication and workspace details.
 
@@ -57,20 +48,31 @@ class FirecloudAPI:
             'accept': '*/*',
             'Authorization': f'Bearer {self.token}',
         }
+        try:
+            scopes = ['profile', 'email', 'openid']
+            #decoded_sa = base64.b64decode(sa_json_b64).decode('utf-8')
+            decoded_sa = sa_json_b64
+            self.sa_credentials = service_account.Credentials.from_service_account_info(
+                json.loads(decoded_sa), scopes=scopes)
+            print("Service account credentials loaded successfully.")
+        except Exception as e:
+            print(f"Failed to load service account credentials: {e}")
+            self.sa_credentials = None
 
-    def get_user_token(self, credentials):
+
+    def get_user_token(self):
         """
         Get test user's access token.
         """
-        if not credentials.valid:
+        if not sa_credentials.valid:
             print("Fetching user's new access token")
-            credentials.refresh(Request())
+            sa_credentials.refresh(Request())
         else:
-            expiry_timestamp = credentials.expiry.replace(tzinfo=timezone.utc).timestamp()
+            expiry_timestamp = sa_credentials.expiry.replace(tzinfo=timezone.utc).timestamp()
             now_timestamp = datetime.now(timezone.utc).timestamp()
             if expiry_timestamp - now_timestamp < 60:
                 print("Fetching user's new access token")
-                credentials.refresh(Request())
+                sa_credentials.refresh(Request())
         return credentials.token
 
     def get_workflow_outputs(self, submission_id, workflow_id, pipeline_name):
@@ -188,7 +190,7 @@ class FirecloudAPI:
             "Authorization": f"Bearer {token}",
         }
 
-    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name, credentials: credentials):
+    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
             """
             Uploads test inputs to the workspace via Firecloud API.
 
@@ -200,7 +202,7 @@ class FirecloudAPI:
             url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
 
             print(url)
-            token = self.get_user_token(credentials)
+            token = self.get_user_token()
             print(f"printing: {token}")
             headers = {
                 'accept': '*/*',
