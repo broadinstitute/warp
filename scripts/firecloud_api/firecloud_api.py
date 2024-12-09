@@ -27,8 +27,13 @@ from google.auth import credentials
 from google.oauth2 import service_account
 from datetime import datetime, timezone
 
-sa_json_b64 = os.environ.get("SA_JSON_B64")
+sa_json_b64 = os.getenv("PDT_TESTER_SA_CREDENTIALS")
 print(f"Service account JSON: {sa_json_b64}")
+if sa_json_b64:
+    print(f"Service account JSON is set.")
+else:
+    print(f"Error: Service account JSON is missing.")
+
 
 
 class FirecloudAPI:
@@ -265,7 +270,6 @@ if __name__ == "__main__":
     parser.add_argument('--submission_data_file', help='Path to submission data JSON file (required for submit)')
     parser.add_argument('--test_input_file', help='Path to test inputs JSON file (required for upload_test_inputs)')
     parser.add_argument('--branch_name', help='Branch name for the method configuration (required for upload)')
-    parser.add_argument('--sa_json_b64', required=True, help='Base64-encoded service account JSON')
 
     args = parser.parse_args()
 
