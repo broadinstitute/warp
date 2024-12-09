@@ -27,6 +27,8 @@ from google.auth import credentials
 from google.oauth2 import service_account
 
 sa_json_b64 = os.environ.get("SA_JSON_B64")
+print(f"Service account JSON: {sa_json_b64}")
+
 
 try:
     scopes = ['profile', 'email', 'openid']
