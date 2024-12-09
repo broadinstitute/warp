@@ -19,6 +19,8 @@ METHOD_NAME = os.getenv("METHOD_NAME")
 ENTITY_TYPE = os.getenv("ENTITY_TYPE")
 ENTITY_ID = os.getenv("ENTITY_ID")
 sa_json_b64 = os.environ.get("SA_JSON_B64")
+#print the json
+print("sa_json_b64 is")
 print(sa_json_b64)
 
 # Configure logging
@@ -117,7 +119,7 @@ def main():
         logging.info("Starting job submission and monitoring process.")
         scopes = ["profile", "email", "openid"]
         #decoded_sa = base64.b64decode(SA_JSON_B64).decode("utf-8")
-        decoded_sa = SA_JSON_B64
+        decoded_sa=sa_json_b64
         sa_credentials = service_account.Credentials.from_service_account_info(
             json.loads(decoded_sa), scopes=scopes
         )
