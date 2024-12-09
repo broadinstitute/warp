@@ -18,7 +18,8 @@ METHOD_NAMESPACE = os.getenv("METHOD_NAMESPACE")
 METHOD_NAME = os.getenv("METHOD_NAME")
 ENTITY_TYPE = os.getenv("ENTITY_TYPE")
 ENTITY_ID = os.getenv("ENTITY_ID")
-SA_JSON_B64 = os.getenv("SA_JSON_B64")
+sa_json_b64 = os.environ.get("SA_JSON_B64")
+print(sa_json_b64)
 
 # Configure logging
 LOG_FORMAT = "%(asctime)s %(levelname)-8s %(message)s"
