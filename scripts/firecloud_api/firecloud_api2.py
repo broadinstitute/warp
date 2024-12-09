@@ -121,10 +121,6 @@ if __name__ == "__main__":
     parser.add_argument("--user", required=True, help="User email for impersonation")
     parser.add_argument('--workspace-namespace', required=True, help='Namespace of the workspace.')
     parser.add_argument('--workspace-name', required=True, help='Name of the workspace.')
-    parser.add_argument("--method-namespace", required=True, help="Method namespace")
-    parser.add_argument("--method-name", required=True, help="Method name")
-    parser.add_argument("--entity-type", required=True, help="Entity type")
-    parser.add_argument("--entity-id", required=True, help="Entity ID")
     args = parser.parse_args()
 
     api = FirecloudAPI(
