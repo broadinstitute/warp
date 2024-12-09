@@ -9,6 +9,7 @@ from urllib.parse import quote
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 import argparse
+import sys
 
 
 class FirecloudAPI:
