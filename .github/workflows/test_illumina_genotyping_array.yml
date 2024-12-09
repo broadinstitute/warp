@@ -229,7 +229,7 @@ jobs:
             echo "Uploading the test input file: $test_input_file"
             echo "Branch name: $branch_name"
           
-            firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name $branch_name
+            firecloud_action upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name $branch_name --sa_json_b64 $SA_JSON_B64
             attempt=1
             while [ $attempt -le $MAX_RETRIES ]; do
               echo "Attempt $attempt: Submitting job for input file: $input_file"
