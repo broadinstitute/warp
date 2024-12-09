@@ -225,7 +225,7 @@ jobs:
             echo "Uploading the test input file: $test_input_file"
             echo "Branch name: $branch_name"
       
-            python3 scripts/firecloud_api/firecloud_api2.py upload_test_inputs --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name $branch_name
+            python3 scripts/firecloud_api/firecloud_api2.py upload_test_inputs --workspace_namespace warp-pipelines --workspace_name "WARP Tests" --pipeline_name $PIPELINE_NAME --test_input_file "$test_input_file" --branch_name $branch_name
             done
 
       #      attempt=1
