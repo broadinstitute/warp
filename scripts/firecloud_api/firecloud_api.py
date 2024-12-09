@@ -58,7 +58,7 @@ class FirecloudAPI:
             'Authorization': f'Bearer {self.token}',
         }
 
-    def get_user_token(self, credentials: credentials):
+    def get_user_token(self, credentials):
         """
         Get test user's access token.
         """
