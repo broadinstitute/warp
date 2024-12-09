@@ -133,7 +133,6 @@ jobs:
 
       - name: Update test inputs
         run: |
-          
           # Convert UPDATE_TRUTH to a boolean-friendly format ("true" -> true, "false" -> false)
           if [ "$UPDATE_TRUTH" = "true" ]; then
               UPDATE_TRUTH_BOOL=true
@@ -159,120 +158,113 @@ jobs:
                  --commit_hash "$COMMIT_HASH" )
              echo "Uploading the test input file: $test_input_file"
              echo "Branch name: $branch_name"
-          #python3 scripts/firecloud_api/firecloud_api2.py upload_test_inputs \
-          #--workspace-namespace warp-pipelines \
-          #--workspace-name "WARP Tests" \
-          #--pipeline_name "$PIPELINE_NAME" \
-          #--test_input_file "$test_input_file" \
-          #--branch_name "$branch_name" \
-          #--sa-json-b64 "$SA_JSON_B64" \
-          #--user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
+
           #done
 
 
-      - name: Update and Upload method configuration
-        id: pipeline_run
-        run: |
-          # Set common environment variables
-          TOKEN="${{ steps.auth.outputs.access_token }}"
-          NAMESPACE="warp-pipelines"
-          WORKSPACE="WARP Tests"
-          USE_CALL_CACHE="${{ github.event.inputs.useCallCache || 'true' }}"
-          UPDATE_TRUTH="${{ github.event.inputs.updateTruth || 'false' }}"
-          #TEST_TYPE="${{ github.event.inputs.testType || 'Plumbing' }}"
-          TEST_TYPE="${{ env.testType }}"
-          TRUTH_BRANCH="${{ github.event.inputs.truthBranch || 'master' }}"
-          CURRENT_TIME=$(date +"%Y-%m-%d-%H-%M-%S")
-          
-          echo "truth branch: $TRUTH_BRANCH"
-          
-          ########################################
-          # SET PIPELINE SPECIFIC VARIABLES HERE #
-          ########################################
-          PIPELINE_NAME="TestIlluminaGenotypingArray"
-          PIPELINE_DIR="pipelines/broad/genotyping/illumina"
-          # TODO: Need to set the truth and result paths appropriately
-          # TODO: Need to dynamically set the truth branch, for now it is hardcoded to master branch
-          # We may want to keep the truth and resuts buckets separate for TTL reasons
-          TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
-          RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
-          
-          
-          # Function to call the Firecloud API using the firecloud_api2.py script
-          firecloud_action() {
-            python3 scripts/firecloud_api/firecloud_api2.py --action "$1" "${@:2}"
-          }
-        
-
-          # Convert USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
-            if [ "$USE_CALL_CACHE" == "true" ]; then
-                USE_CALL_CACHE_BOOL=true
-            else
-                USE_CALL_CACHE_BOOL=false
-            fi
-      
-      
-          # Convert UPDATE_TRUTH to a boolean-friendly format ("true" -> true, "false" -> false)
-          if [ "$UPDATE_TRUTH" = "true" ]; then
-              UPDATE_TRUTH_BOOL=true
-          else
-              UPDATE_TRUTH_BOOL=false
-          fi
-      
-          # Create the submission_data.json file which will be the same for all inputs
-          SUBMISSION_DATA_FILE="submission_data.json"
-      
-          # Use a heredoc to generate the JSON file content dynamically
-          cat <<EOF > "$SUBMISSION_DATA_FILE"
-          {
-            "methodConfigurationNamespace": "warp-pipelines",
-            "methodConfigurationName": "$PIPELINE_NAME",
-            "useCallCache": $USE_CALL_CACHE_BOOL,
-            "deleteIntermediateOutputFiles": false,
-            "useReferenceDisks": true,
-            "memoryRetryMultiplier": 1.2,
-            "workflowFailureMode": "NoNewCalls",
-            "userComment": "Automated submission",
-            "ignoreEmptyOutputs": false
-          }
-          EOF
-          echo "Created submission data file: $SUBMISSION_DATA_FILE"
-
-          # Initialize variables to aggregate statuses and outputs
-          ALL_WORKFLOW_STATUSES="Workflow ID | Status"$'\n'"--- | ---"
-          ALL_OUTPUTS=""
-      
-          # Initialize arrays to track submission and workflow statuses
-          declare -a SUBMISSION_IDS
-          declare -A WORKFLOW_STATUSES
-
-          # Loop through each file in the appropriate test inputs directory
-          INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
-      
-          echo "Running tests with test type: $TEST_TYPE"
-      
-          MAX_RETRIES=2
-          RETRY_DELAY=300  # 300 seconds = 5 minutes
- 
-          for input_file in "$INPUTS_DIR"/*.json; do
-            echo "Processing input file: $input_file"
-            test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path "$TRUTH_PATH" \
-                                                                                --results_path "$RESULTS_PATH" \
-                                                                                --inputs_json "$input_file" \
-                                                                                --update_truth "$UPDATE_TRUTH_BOOL" \
-                                                                                --commit_hash "$COMMIT_HASH" )
-            echo "Uploading the test input file: $test_input_file"
-            echo "Branch name: $branch_name"
-      
-            python3 scripts/firecloud_api/firecloud_api2.py upload_test_inputs \
-              --workspace-namespace warp-pipelines \
-              --workspace-name "WARP Tests" \
-              --pipeline_name "$PIPELINE_NAME" \
-              --test_input_file "$test_input_file" \
-              --branch_name "$branch_name" \
-              --sa-json-b64 "$SA_JSON_B64" \
-              --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"      
-          done
+      #- name: Update and Upload method configuration
+      #  id: pipeline_run
+      #  run: |
+      #    # Set common environment variables
+      #    TOKEN="${{ steps.auth.outputs.access_token }}"
+      #    NAMESPACE="warp-pipelines"
+      #    WORKSPACE="WARP Tests"
+      #    USE_CALL_CACHE="${{ github.event.inputs.useCallCache || 'true' }}"
+      #    UPDATE_TRUTH="${{ github.event.inputs.updateTruth || 'false' }}"
+      #    #TEST_TYPE="${{ github.event.inputs.testType || 'Plumbing' }}"
+      #    TEST_TYPE="${{ env.testType }}"
+      #    TRUTH_BRANCH="${{ github.event.inputs.truthBranch || 'master' }}"
+      #    CURRENT_TIME=$(date +"%Y-%m-%d-%H-%M-%S")
+      #
+      #    echo "truth branch: $TRUTH_BRANCH"
+      #
+      #    ########################################
+      #    # SET PIPELINE SPECIFIC VARIABLES HERE #
+      #    ########################################
+      #    PIPELINE_NAME="TestIlluminaGenotypingArray"
+      #    PIPELINE_DIR="pipelines/broad/genotyping/illumina"
+      #    # TODO: Need to set the truth and result paths appropriately
+      #    # TODO: Need to dynamically set the truth branch, for now it is hardcoded to master branch
+      #    # We may want to keep the truth and resuts buckets separate for TTL reasons
+      #    TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
+      #    RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
+      #
+      #
+      #    # Function to call the Firecloud API using the firecloud_api2.py script
+      #    firecloud_action() {
+      #      python3 scripts/firecloud_api/firecloud_api2.py --action "$1" "${@:2}"
+      #    }
+      #
+#
+      #    # Convert USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
+      #      if [ "$USE_CALL_CACHE" == "true" ]; then
+      #          USE_CALL_CACHE_BOOL=true
+      #      else
+      #          USE_CALL_CACHE_BOOL=false
+      #      fi
+      #
+      #
+      #    # Convert UPDATE_TRUTH to a boolean-friendly format ("true" -> true, "false" -> false)
+      #    if [ "$UPDATE_TRUTH" = "true" ]; then
+      #        UPDATE_TRUTH_BOOL=true
+      #    else
+      #        UPDATE_TRUTH_BOOL=false
+      #    fi
+      #
+      #    # Create the submission_data.json file which will be the same for all inputs
+      #    SUBMISSION_DATA_FILE="submission_data.json"
+      #
+      #    # Use a heredoc to generate the JSON file content dynamically
+      #    cat <<EOF > "$SUBMISSION_DATA_FILE"
+      #    {
+      #      "methodConfigurationNamespace": "warp-pipelines",
+      #      "methodConfigurationName": "$PIPELINE_NAME",
+      #      "useCallCache": $USE_CALL_CACHE_BOOL,
+      #      "deleteIntermediateOutputFiles": false,
+      #      "useReferenceDisks": true,
+      #      "memoryRetryMultiplier": 1.2,
+      #      "workflowFailureMode": "NoNewCalls",
+      #      "userComment": "Automated submission",
+      #      "ignoreEmptyOutputs": false
+      #    }
+      #    EOF
+      #    echo "Created submission data file: $SUBMISSION_DATA_FILE"
+#
+      #    # Initialize variables to aggregate statuses and outputs
+      #    ALL_WORKFLOW_STATUSES="Workflow ID | Status"$'\n'"--- | ---"
+      #    ALL_OUTPUTS=""
+      #
+      #    # Initialize arrays to track submission and workflow statuses
+      #    declare -a SUBMISSION_IDS
+      #    declare -A WORKFLOW_STATUSES
+#
+      #    # Loop through each file in the appropriate test inputs directory
+      #    INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
+      #
+      #    echo "Running tests with test type: $TEST_TYPE"
+      #
+      #    MAX_RETRIES=2
+      #    RETRY_DELAY=300  # 300 seconds = 5 minutes
+ #
+      #    for input_file in "$INPUTS_DIR"/*.json; do
+      #      echo "Processing input file: $input_file"
+      #      test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path "$TRUTH_PATH" \
+      #                                                                          --results_path "$RESULTS_PATH" \
+      #                                                                          --inputs_json "$input_file" \
+      #                                                                          --update_truth "$UPDATE_TRUTH_BOOL" \
+      #                                                                          --commit_hash "$COMMIT_HASH" )
+      #      echo "Uploading the test input file: $test_input_file"
+      #      echo "Branch name: $branch_name"
+      #
+      #      python3 scripts/firecloud_api/firecloud_api2.py upload_test_inputs \
+      #        --workspace-namespace warp-pipelines \
+      #        --workspace-name "WARP Tests" \
+      #        --pipeline_name "$PIPELINE_NAME" \
+      #        --test_input_file "$test_input_file" \
+      #        --branch_name "$branch_name" \
+      #        --sa-json-b64 "$SA_JSON_B64" \
+      #        --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
+      #    done
 
       #      attempt=1
       #      while [ $attempt -le $MAX_RETRIES ]; do
