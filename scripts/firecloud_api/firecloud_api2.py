@@ -16,9 +16,9 @@ class FirecloudAPI:
         self.sa_json_b64 = sa_json_b64
         self.namespace = workspace_namespace
         self.workspace_name = workspace_name
+        self.user = user  # Store the user email
         self.base_url = "https://api.firecloud.org/api"
         self.headers = self._build_auth_headers()
-        self.user = user
 
     def _build_auth_headers(self):
         scopes = ["profile", "email", "openid"]
