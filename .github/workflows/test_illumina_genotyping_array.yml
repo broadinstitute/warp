@@ -90,7 +90,7 @@ jobs:
       - name: Install dependencies
         run: |
           pwd
-          cd warp/scripts/firecloud_api/
+          cd scripts/firecloud_api/
           pip install -r requirements.txt
 
       - name: Set Commit Hash
