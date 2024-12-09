@@ -124,8 +124,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--sa-json-b64", required=True, help="Base64 encoded service account JSON")
     parser.add_argument("--user", required=True, help="User email for impersonation")
-    parser.add_argument("--workspace-namespace", required=True, help="Workspace namespace")
-    parser.add_argument("--workspace-name", required=True, help="Workspace name")
+    parser.add_argument('--workspace-namespace', required=True, help='Namespace of the workspace.')
+    parser.add_argument('--workspace-name', required=True, help='Name of the workspace.')
     parser.add_argument("--method-namespace", required=True, help="Method namespace")
     parser.add_argument("--method-name", required=True, help="Method name")
     parser.add_argument("--entity-type", required=True, help="Entity type")
@@ -142,5 +142,12 @@ if __name__ == "__main__":
         entity_type=args.entity_type,
         entity_id=args.entity_id,
     )
+
+    if args.action == "upload_test_inputs":
+        api.upload_test_inputs(
+            pipeline_name=args.pipeline_name,
+            test_inputs=args.test_input_file,
+            branch_name=args.branch_name
+        )
 
     api.main()
