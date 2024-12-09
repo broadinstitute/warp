@@ -12,12 +12,13 @@ import argparse
 
 
 class FirecloudAPI:
-    def __init__(self, workspace_namespace, workspace_name, sa_json_b64):
+    def __init__(self, workspace_namespace, workspace_name, sa_json_b64, user):
         self.sa_json_b64 = sa_json_b64
         self.namespace = workspace_namespace
         self.workspace_name = workspace_name
         self.base_url = "https://api.firecloud.org/api"
         self.headers = self._build_auth_headers()
+        self.user = user
 
     def _build_auth_headers(self):
         scopes = ["profile", "email", "openid"]
