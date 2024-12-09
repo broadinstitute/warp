@@ -115,7 +115,8 @@ def main():
     try:
         logging.info("Starting job submission and monitoring process.")
         scopes = ["profile", "email", "openid"]
-        decoded_sa = base64.b64decode(SA_JSON_B64).decode("utf-8")
+        #decoded_sa = base64.b64decode(SA_JSON_B64).decode("utf-8")
+        decoded_sa = SA_JSON_B64
         sa_credentials = service_account.Credentials.from_service_account_info(
             json.loads(decoded_sa), scopes=scopes
         )
