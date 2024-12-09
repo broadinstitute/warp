@@ -274,7 +274,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Initialize the FirecloudAPI instance with provided arguments
-    firecloud_api = FirecloudAPI(args.token, args.namespace, args.workspace, args.sa_json_b64)
+    firecloud_api = FirecloudAPI(args.token, args.namespace, args.workspace)
 
     # Perform actions based on the specified action argument
     if args.action == 'get_outputs':
