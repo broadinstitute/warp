@@ -131,6 +131,45 @@ jobs:
           # Use the testType provided by the user
           echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
 
+      - name: Update test inputs
+        run: |
+          
+          # Convert UPDATE_TRUTH to a boolean-friendly format ("true" -> true, "false" -> false)
+          if [ "$UPDATE_TRUTH" = "true" ]; then
+              UPDATE_TRUTH_BOOL=true
+          else
+              UPDATE_TRUTH_BOOL=false
+          fi
+          
+          UPDATE_TRUTH="${{ github.event.inputs.updateTruth || 'false' }}"
+          TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
+          RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
+
+          PIPELINE_NAME="TestIlluminaGenotypingArray"
+          PIPELINE_DIR="pipelines/broad/genotyping/illumina"
+          TEST_TYPE="${{ env.testType }}"
+          INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
+          
+          for input_file in "$INPUTS_DIR"/*.json; do
+             echo "Processing input file: $input_file"
+             test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path "$TRUTH_PATH" \
+                 --results_path "$RESULTS_PATH" \
+                 --inputs_json "$input_file" \
+                 --update_truth "$UPDATE_TRUTH_BOOL" \
+                 --commit_hash "$COMMIT_HASH" )
+             echo "Uploading the test input file: $test_input_file"
+             echo "Branch name: $branch_name"
+          #python3 scripts/firecloud_api/firecloud_api2.py upload_test_inputs \
+          #--workspace-namespace warp-pipelines \
+          #--workspace-name "WARP Tests" \
+          #--pipeline_name "$PIPELINE_NAME" \
+          #--test_input_file "$test_input_file" \
+          #--branch_name "$branch_name" \
+          #--sa-json-b64 "$SA_JSON_B64" \
+          #--user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
+          #done
+
+
       - name: Update and Upload method configuration
         id: pipeline_run
         run: |
