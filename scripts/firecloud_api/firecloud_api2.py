@@ -116,6 +116,7 @@ class FirecloudAPI:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("action", choices=["upload_test_inputs", "submit_job"], help="Action to perform")
     parser.add_argument("--sa-json-b64", required=True, help="Base64 encoded service account JSON")
     parser.add_argument("--user", required=True, help="User email for impersonation")
     parser.add_argument('--workspace-namespace', required=True, help='Namespace of the workspace.')
