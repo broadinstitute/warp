@@ -25,6 +25,7 @@ import os
 from google.auth.transport.requests import Request
 from google.auth import credentials
 from google.oauth2 import service_account
+from datetime import datetime, timezone
 
 sa_json_b64 = os.environ.get("SA_JSON_B64")
 print(f"Service account JSON: {sa_json_b64}")
@@ -80,22 +81,6 @@ class FirecloudAPI:
         else:
             print(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
-
-    #def refresh_token(self):
-    #    """
-    #    Refreshes the API token using gcloud's application default credentials.
-    #    :return: The new token as a string
-    #    """
-    #    try:
-    #        # Execute the gcloud command to get the new access token
-    #        result = subprocess.run(
-    #            ["gcloud", "auth", "application-default", "print-access-token"],
-    #            capture_output=True, text=True, check=True
-    #        )
-    #        return result.stdout.strip()  # Return the new token
-    #    except subprocess.CalledProcessError as e:
-    #        print(f"Error refreshing token: {e.stderr}", file=sys.stderr)
-    #        return None
 
     def create_submission(self, submission_data):
         """
@@ -180,7 +165,25 @@ class FirecloudAPI:
             return data  # Return as-is if it's not a string, int, float, or boolean
 
 
-    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
+    def get_user_token(credentials: credentials):
+        """
+        Get test user's access token
+        """
+        # if token is expired or about to expire in 10 seconds, refresh and then use it
+        if not credentials.valid:
+            print("Fetching user's new access token")
+            credentials.refresh(Request())
+        else:
+            expiry_timestamp = credentials.expiry.replace(tzinfo=timezone.utc).timestamp()
+            now_timestamp = datetime.now(timezone.utc).timestamp()
+            # if token is about to expire in 1 minute, refresh and then use it
+            if expiry_timestamp - now_timestamp < 60:
+                print("Fetching user's new access token")
+                credentials.refresh(Request())
+
+        return credentials.token
+
+def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
         """
         Uploads test inputs to the workspace via Firecloud API.
 
@@ -192,6 +195,12 @@ class FirecloudAPI:
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
 
         print(url)
+        token = get_user_token(credentials)
+        headers = {
+            'accept': '*/*',
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
         # get the current method configuration
         response = requests.get(url, headers=self.headers)
         config = response.json()
