@@ -267,8 +267,7 @@ if __name__ == "__main__":
     parser.add_argument('--branch_name', help='Branch name for the method configuration (required for upload)')
     parser.add_argument('--sa_json_b64', required=True, help='Base64-encoded service account JSON')
 
-
-args = parser.parse_args()
+    args = parser.parse_args()
 
     # Initialize the FirecloudAPI instance with provided arguments
     firecloud_api = FirecloudAPI(args.token, args.namespace, args.workspace)
