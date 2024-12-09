@@ -22,8 +22,12 @@ class FirecloudAPI:
 
     def _build_auth_headers(self):
         scopes = ["profile", "email", "openid"]
+        #sa_credentials = service_account.Credentials.from_service_account_info(
+        #    json.loads(base64.b64decode(self.sa_json_b64).decode("utf-8")), scopes=scopes
+        #)
+        #TODO - Fix this, probably needs to be encoded in base64
         sa_credentials = service_account.Credentials.from_service_account_info(
-            json.loads(base64.b64decode(self.sa_json_b64).decode("utf-8")), scopes=scopes
+            json.loads(self.sa_json_b64), scopes=scopes
         )
         delegated_credentials = sa_credentials.with_subject(self.user)
         token = self._get_user_token(delegated_credentials)
