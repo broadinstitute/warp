@@ -239,12 +239,13 @@ jobs:
                 echo "Max retries reached. Exiting..."
               fi
             done
+            echo "SUBMISSION_IDS=$(IFS=,; echo "${SUBMISSION_IDS[*]}")" >> $GITHUB_ENV
           done
 
       - name: Monitor Workflow Status
         run: |
           echo "Monitoring the status of submitted workflows..."
-          SUBMISSION_IDS=${{ steps.submit.outputs.submission_ids }}
+          cat $GITHUB_ENV
           #print the submission ids in the array
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
             echo "the submission ids are $SUBMISSION_ID"
