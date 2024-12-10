@@ -168,6 +168,11 @@ if __name__ == "__main__":
             parser.error("Arguments --pipeline_name, --test_input_file, and --branch_name are required for 'upload_test_inputs'")
         api.upload_test_inputs(args.pipeline_name, args.test_input_file, args.branch_name)
     elif args.action == "submit_job":
-        api.submit_job()
+        if not args.submission_data_file:
+            parser.error("Argument --submission_data_file is required for 'submit_job'")
+        with open(args.submission_data_file, 'r') as file:
+            submission_data = json.load(file)
+        api.submit_job(submission_data)
+
 
     #api.main()
