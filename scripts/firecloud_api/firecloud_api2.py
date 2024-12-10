@@ -59,7 +59,7 @@ class FirecloudAPI:
         if response.status_code == 201:
             submission_id = response.json().get('submissionId')
             print(f"Job submitted successfully. Submission ID is: {submission_id}")
-            #os.environ['SUBMISSION_ID'] = submission_id
+            os.environ['SUBMISSION_ID'] = submission_id
             return submission_id
         else:
             print(f"Failed to submit job. Status code: {response.status_code}")
