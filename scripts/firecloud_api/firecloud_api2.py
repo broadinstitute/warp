@@ -146,6 +146,8 @@ if __name__ == "__main__":
         choices=["submit_job", "upload_test_inputs"],
         help="Action to perform: 'submit_job' or 'upload_test_inputs'"
     )
+    parser.add_argument("--method_namespace", help="Method namespace")
+    parser.add_argument("--method_name", help="Method name")
     args = parser.parse_args()
 
     # Pass action to the FirecloudAPI constructor
