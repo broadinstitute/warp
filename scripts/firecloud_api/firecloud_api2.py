@@ -53,25 +53,22 @@ class FirecloudAPI:
 
         print(f"POST request to URL: {uri}")
 
-        try:
-            response = requests.post(uri, json=submission_data_file, headers=self.headers)
-            print(f"Response received. Status code: {response.status_code}")
-            print(f"Response text: {response.text}")
-            #print the submission data file
-            print(f"Submission data file: {json.dumps(submission_data_file, indent=2)}")
+        response = requests.post(uri, json=submission_data_file, headers=self.headers)
+        print(f"Response received. Status code: {response.status_code}")
+        #print(f"Response text: {response.text}")
+        #print the submission data file
+        print(f"Submission data file: {json.dumps(submission_data_file, indent=2)}")
 
 
-            # Check if the submission was created successfully
-            if response.status_code != 201:
-                print(f"Failed to submit job. Status code: {response.status_code}. Response: {response.text}")
-                raise Exception("Submission failed.")
-            submission_id = response.json().get("submissionId")
-            print(f"Received submission ID: {submission_id}")
-            print(f"Job submitted successfully. Submission ID: {submission_id}")
-            return submission_id
-        except Exception as e:
-            print(f"Received submission ID: {submission_id}")
-            raise
+        # Check if the submission was created successfully
+        if response.status_code != 201:
+            print(f"Failed to submit job. Status code: {response.status_code}. Response: {response.text}")
+            raise Exception("Submission failed.")
+        submission_id = response.json().get("submissionId")
+        print(f"Received submission ID: {submission_id}")
+        print(f"Job submitted successfully. Submission ID: {submission_id}")
+        return submission_id
+
 
     def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
         """
