@@ -239,17 +239,13 @@ jobs:
                 echo "Max retries reached. Exiting..."
               fi
             done
-            echo "SUBMISSION_IDS=$(IFS=,; echo "${SUBMISSION_IDS[*]}")" >> $GITHUB_ENV
           done
+          echo "::set-output name=submission_ids::$(IFS=,; echo "${SUBMISSION_IDS[*]}")"
 
       - name: Monitor Workflow Status
         run: |
           echo "Monitoring the status of submitted workflows..."
-          cat $GITHUB_ENV
-          #print the submission ids in the array
-          for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
-            echo "the submission ids are $SUBMISSION_ID"
-          done
+          IFS=',' read -r -a SUBMISSION_IDS <<< "$SUBMISSION_IDS"
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
             echo "Polling submission status for Submission ID: $SUBMISSION_ID"
             RESPONSE=$(python3 scripts/firecloud_api/firecloud_api2.py poll_job_status \
@@ -299,7 +295,7 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
           done
         env:
-          SUBMISSION_IDS: ${{ steps.submit.outputs.submission_ids }} # Pass IDs from a previous step
+          SUBMISSION_IDS: ${{ steps.submit_jobs.outputs.submission_ids }} # Pass IDs from a previous step
           PIPELINE_NAME: TestIlluminaGenotypingArray
           NAMESPACE: warp-pipelines
           WORKSPACE: WARP Tests
