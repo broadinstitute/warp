@@ -24,9 +24,6 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, comm
     # Append "Test" in front of the pipeline name
     test_name = f"Test{pipeline_name}"
 
-    #echo the truth path
-    print(f"The Truth path is: {truth_path}")
-
     # Update all keys in the json file to replace the pipeline name with the test name
     for key in list(test_inputs.keys()):
         new_key = key.replace(pipeline_name, test_name)
