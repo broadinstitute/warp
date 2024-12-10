@@ -1,6 +1,5 @@
 import base64
 import json
-import logging
 import requests
 import traceback
 from time import sleep
@@ -11,7 +10,13 @@ from google.oauth2 import service_account
 import argparse
 import sys
 import os
+import logging
 
+# Configure logging to display INFO level and above messages
+logging.basicConfig(
+    level=logging.INFO,  # This will show INFO and higher levels (INFO, WARNING, ERROR, CRITICAL)
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 class FirecloudAPI:
     def __init__(self, workspace_namespace, workspace_name, sa_json_b64, user, action, method_namespace, method_name):
