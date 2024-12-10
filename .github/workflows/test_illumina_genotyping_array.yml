@@ -222,38 +222,34 @@ jobs:
               #          --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
               #          --submission_data_file "$SUBMISSION_DATA_FILE")
               #
+              
               RAW_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api2.py submit_job \
                --workspace-namespace "warp-pipelines" \
                --workspace-name "WARP Tests" \
                --sa-json-b64 "$SA_JSON_B64" \
                --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
                --submission_data_file "$SUBMISSION_DATA_FILE")
-              echo "Raw Response: $RAW_RESPONSE"
+              
+              SUBMISSION_ID=$(echo "$RAW_RESPONSE" | jq -r '.submissionId')
           
               echo "Submission ID: $SUBMISSION_ID"
               cat $SUBMISSION_ID
-                
-              if [[ "$SUBMISSION_ID" == *"404"* ]]; then
-                  echo "Error: Dockstore method not found. Retrying in $RETRY_DELAY seconds..."
-              elif [[ -z "$SUBMISSION_ID" ]]; then
-                  echo "Error: Empty submission ID received. Retrying..."
-                  if [ $attempt -ge $MAX_RETRIES ]; then
-                        echo "Max retries reached. Exiting..."
-                        exit 1
+           
+              if [[ "$RAW_RESPONSE" == *"404"* || -z "$SUBMISSION_ID" ]]; then
+                  echo "Error in submission, retrying in $RETRY_DELAY seconds..."
+                  ((attempt++))
+                  if [ $attempt -gt $MAX_RETRIES ]; then
+                      echo "Max retries reached. Exiting..."
+                      exit 1
                   fi
-              else
-                  echo "Submission successful. Submission ID: $SUBMISSION_ID"
-                  SUBMISSION_IDS+=("$SUBMISSION_ID")
-                  break
+                  sleep $RETRY_DELAY
+                  continue
               fi
-
-              if [ $attempt -gt $MAX_RETRIES ]; then
-                echo "Max retries reached. Exiting..."
-              fi
-            done
+            
+            echo "Submission successful. Submission ID: $SUBMISSION_ID"
+            SUBMISSION_IDS+=("$SUBMISSION_ID")
+            break
           done
-          echo "Generated Submission IDs: ${SUBMISSION_IDS[*]}"
-          echo "::set-output name=submission_ids::$(IFS=,; echo "${SUBMISSION_IDS[*]}")"
 
      #- name: Monitor Workflow Status
      #  run: |
