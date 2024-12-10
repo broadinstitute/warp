@@ -214,12 +214,12 @@ jobs:
              
             while [ $attempt -le $MAX_RETRIES ]; do
               echo "Attempt $attempt: Submitting job for input file: $input_file"
-              SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api2.py submit_job \
+              python3 scripts/firecloud_api/firecloud_api2.py submit_job \
                         --workspace-namespace "warp-pipelines" \
                         --workspace-name "WARP Tests" \
                         --sa-json-b64 "$SA_JSON_B64" \
                         --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
-                        --submission_data_file "$SUBMISSION_DATA_FILE")
+                        --submission_data_file "$SUBMISSION_DATA_FILE"
               
               echo "Submission ID: $SUBMISSION_ID"
                 
