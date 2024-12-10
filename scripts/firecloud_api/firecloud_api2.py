@@ -53,9 +53,12 @@ class FirecloudAPI:
         response = requests.post(url, json=submission_data_file, headers=self.headers)
 
         # Print status code and response body for debugging
-        print(f"Response status code: {response.status_code}")
+        print(f"Response status code for submitting job: {response.status_code}")
         print(f"Response body: {response.text}")
-        sys.stdout.flush()
+
+        if response.status_code != 201:
+            print(f"Failed to submit job. Status code: {response.status_code}")
+            print(f"Response body: {response.text}")
 
         if response.status_code == 200:
             try:
@@ -77,6 +80,7 @@ class FirecloudAPI:
             print(f"Failed to submit job. Status code: {response.status_code}")
             print(f"Response body: {response.text}")
             return None
+
 
     def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
         """
@@ -119,7 +123,7 @@ class FirecloudAPI:
 
         # post the updated method config to the workspace
         response = requests.post(url, headers=self.headers, json=config)
-        print(f"Response status code: {response.status_code}")
+        print(f"Response status code for uploading inputs: {response.status_code}")
         print(f"Response text: {response.text}")
 
         # Check if the test inputs were uploaded successfully
