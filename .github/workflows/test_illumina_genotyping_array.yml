@@ -223,15 +223,13 @@ jobs:
               #          --submission_data_file "$SUBMISSION_DATA_FILE")
               #
               
-              RAW_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api2.py submit_job \
+              SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api2.py submit_job \
                --workspace-namespace "warp-pipelines" \
                --workspace-name "WARP Tests" \
                --sa-json-b64 "$SA_JSON_B64" \
                --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
                --submission_data_file "$SUBMISSION_DATA_FILE")
-                        
-              SUBMISSION_ID=$(echo "$RAW_RESPONSE" | jq -r '.submissionId')
-          
+                                  
               echo "Submission ID: $SUBMISSION_ID"
               cat $SUBMISSION_ID
            
