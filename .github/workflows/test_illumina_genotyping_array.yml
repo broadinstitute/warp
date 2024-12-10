@@ -170,6 +170,26 @@ jobs:
           echo "Truth path: $TRUTH_PATH"
           RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
           
+          # Create the submission_data.json file which will be the same for all inputs
+          SUBMISSION_DATA_FILE="submission_data.json"
+          
+          # Use a heredoc to generate the JSON file content dynamically
+          cat <<EOF > "$SUBMISSION_DATA_FILE"
+          {
+            "methodConfigurationNamespace": "warp-pipelines",
+            "methodConfigurationName": "$PIPELINE_NAME",
+            "useCallCache": $USE_CALL_CACHE_BOOL,
+            "deleteIntermediateOutputFiles": false,
+            "useReferenceDisks": true,
+            "memoryRetryMultiplier": 1.2,
+            "workflowFailureMode": "NoNewCalls",
+            "userComment": "Automated submission",
+            "ignoreEmptyOutputs": false
+          }
+          EOF
+          
+          echo "Created submission data file: $SUBMISSION_DATA_FILE"
+          
           for input_file in "$INPUTS_DIR"/*.json; do
             echo "Processing input file: $input_file"
             test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path "$TRUTH_PATH" \
@@ -189,24 +209,6 @@ jobs:
                 --branch_name "$branch_name" \
                 --sa-json-b64 "$SA_JSON_B64" \
                 --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
-          
-            # Create the submission_data.json file which will be the same for all inputs
-            SUBMISSION_DATA_FILE="submission_data.json"
-            # Use a heredoc to generate the JSON file content dynamically
-            cat <<EOF > "$SUBMISSION_DATA_FILE"
-            {
-            "methodConfigurationNamespace": "warp-pipelines",
-            "methodConfigurationName": "$PIPELINE_NAME",
-            "useCallCache": $USE_CALL_CACHE_BOOL,
-            "deleteIntermediateOutputFiles": false,
-            "useReferenceDisks": true,
-            "memoryRetryMultiplier": 1.2,
-            "workflowFailureMode": "NoNewCalls",
-            "userComment": "Automated submission",
-            "ignoreEmptyOutputs": false
-            }
-            EOF
-            echo "Created submission data file: $SUBMISSION_DATA_FILE"
 
             attempt=1
              
