@@ -184,8 +184,8 @@ jobs:
             PIPELINE_DIR="pipelines/broad/genotyping/illumina"
             TEST_TYPE="${{ env.testType }}"
             INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
+            USE_CALL_CACHE="${{ github.event.inputs.useCallCache || 'true' }}"
           
-            # Convert USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
             if [ "$USE_CALL_CACHE" == "true" ]; then
                 USE_CALL_CACHE_BOOL=true
             else
