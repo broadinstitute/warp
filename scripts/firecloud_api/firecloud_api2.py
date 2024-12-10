@@ -49,24 +49,34 @@ class FirecloudAPI:
         return credentials.token
 
     def submit_job(self, submission_data_file):
-        # Construct the API endpoint URL for creating a new submission
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
         response = requests.post(url, json=submission_data_file, headers=self.headers)
-        print(f"Submitting job to URL: {url}")
-        print(f"Headers: {self.headers}")
-        print(f"Response status code: {response.status_code}")
-        print(f"Response text: {response.text}")
 
-        # Check if the submission was created successfully
+        # Print status code and response body for debugging
+        print(f"Response status code: {response.status_code}")
+        print(f"Response body: {response.text}")
+        sys.stdout.flush()
+
         if response.status_code == 201:
-            submission_id = response.json().get('submissionId')
-            print(f"Submission successful, ID: {submission_id}")
-            return submission_id
+            try:
+                # Parse the response as JSON
+                response_json = response.json()
+
+                # Extract the submissionId
+                submission_id = response_json.get("submissionId", None)
+                if submission_id:
+                    print(f"Submission ID extracted: {submission_id}")
+                    return submission_id
+                else:
+                    print("Error: submissionId not found in the response.")
+                    return None
+            except json.JSONDecodeError:
+                print("Error: Failed to parse JSON response.")
+                return None
         else:
             print(f"Failed to submit job. Status code: {response.status_code}")
-            print(f"Response content: {response.text}")
+            print(f"Response body: {response.text}")
             return None
-
 
     def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
         """
