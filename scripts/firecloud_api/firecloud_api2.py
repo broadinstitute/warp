@@ -13,7 +13,7 @@ import sys
 
 
 class FirecloudAPI:
-    def __init__(self, workspace_namespace, workspace_name, sa_json_b64, user, action):
+    def __init__(self, workspace_namespace, workspace_name, sa_json_b64, user, action, method_namespace, method_name):
         self.sa_json_b64 = sa_json_b64
         self.namespace = workspace_namespace
         self.workspace_name = workspace_name
@@ -21,6 +21,8 @@ class FirecloudAPI:
         self.base_url = "https://api.firecloud.org/api"
         self.headers = self._build_auth_headers()
         self.action = action
+        self.method_namespace = method_namespace
+        self.method_name = method_name
 
 
     def _build_auth_headers(self):
@@ -45,18 +47,12 @@ class FirecloudAPI:
             credentials.refresh(Request())
         return credentials.token
 
-    def submit_job(self):
+    def submit_job(self, submission_date):
         logging.info(f"Submitting job for method {self.method_namespace}/{self.method_name} in workspace {self.namespace}/{self.workspace_name}.")
         uri = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions"
-        body = {
-            "deleteIntermediateOutputFiles": False,
-            "methodConfigurationNamespace": self.method_namespace,
-            "methodConfigurationName": self.method_name,
-            "entityType": self.entity_type,
-            "entityName": self.entity_id,
-            "useCallCache": False,
-        }
-        response = requests.post(uri, json=body, headers=self.headers)
+        response = requests.post(uri, json=submission_date, headers=self.headers)
+
+        # Check if the submission was created successfully
         if response.status_code != 201:
             logging.error(f"Failed to submit job. Status code: {response.status_code}. Response: {response.text}")
             raise Exception("Submission failed.")
