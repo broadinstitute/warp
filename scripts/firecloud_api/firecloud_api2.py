@@ -58,18 +58,13 @@ class FirecloudAPI:
         # Check if the submission was created successfully
         if response.status_code == 201:
             submission_id = response.json().get('submissionId')
-            print(f"Job submitted successfully. Submission ID: {submission_id}")
+            print(f"Job submitted successfully. Submission ID is: {submission_id}")
+            os.environ['SUBMISSION_ID'] = submission_id
             return submission_id
         else:
             print(f"Failed to submit job. Status code: {response.status_code}")
             print(f"Response content: {response.text}")
             return None
-
-        #submission_id = response.json().get("submissionId")
-        print(f"Job submitted successfully. Submission ID: {submission_id}")
-        #os.environ['SUBMISSION_ID'] = submission_id
-        #return submission_id
-
 
 
     def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
