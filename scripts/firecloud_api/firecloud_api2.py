@@ -47,10 +47,10 @@ class FirecloudAPI:
             credentials.refresh(Request())
         return credentials.token
 
-    def submit_job(self, submission_date):
+    def submit_job(self, submission_data):
         logging.info(f"Submitting job for method {self.method_namespace}/{self.method_name} in workspace {self.namespace}/{self.workspace_name}.")
         uri = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions"
-        response = requests.post(uri, json=submission_date, headers=self.headers)
+        response = requests.post(uri, json=submission_data, headers=self.headers)
 
         # Check if the submission was created successfully
         if response.status_code != 201:
