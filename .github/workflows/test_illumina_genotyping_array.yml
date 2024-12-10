@@ -248,68 +248,66 @@ jobs:
             break
           done
           done
-     #- name: Monitor Workflow Status
-     #  run: |
-     #    echo "Monitoring the status of submitted workflows..."
-     #    echo "Submission IDs from the Submit Jobs step: ${{ steps.submit_jobs.outputs.submission_ids }}"
-     #    IFS=',' read -r -a SUBMISSION_IDS <<< "$SUBMISSION_IDS"
-     #    for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
-     #      echo "Polling submission status for Submission ID: $SUBMISSION_ID"
-     #      SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api2.py poll_job_status \
-     #          --submission_id "$SUBMISSION_ID" \
-     #          --sa-json-b64 "$SA_JSON_B64" \
-     #          --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
-     #          --workspace-namespace "warp-pipelines" \
-     #          --workspace-name "WARP Tests")
-     #      pwd
-     #      cat $SUBMISSION_ID
-     #      echo "SUBMISSION_ID: $SUBMISSION_ID"
-     #
-     #      if [ -z "$SUBMISSION_ID" ]; then
-     #        echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
-     #        continue
-     #      fi
-     #
-     #      # Parse and store workflow statuses
-     #      WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$SUBMISSION_ID" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
-     #      echo "Statuses for submission $SUBMISSION_ID:"
-     #      echo "$WORKFLOW_STATUSES_FOR_SUBMISSION"
-     #
-     #      # Append to aggregate statuses
-     #      WORKFLOW_STATUSES["$SUBMISSION_ID"]=$WORKFLOW_STATUSES_FOR_SUBMISSION
-     #
-     #      # Retrieve workflow outputs
-     #      echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
-     #      for WORKFLOW_ID in $(echo "$SUBMISSION_ID" | jq -r 'keys[]'); do
-     #        WORKFLOW_OUTPUT=$(python3 scripts/firecloud_api/firecloud_api2.py get_outputs \
-     #          --submission_id "$SUBMISSION_ID" \
-     #          --workflow_id "$WORKFLOW_ID" \
-     #          --pipeline_name "$PIPELINE_NAME")
-     #        ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
-     #      done
-     #    done
-     #
-     #    # Generate summary for Submission IDs
-     #    echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
-     #    for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
-     #      # Generate the Terra URL for the submission
-     #      SUBMISSION_URL="https://app.terra.bio/#workspaces/$NAMESPACE/${WORKSPACE// /%20}/job_history/$SUBMISSION_ID"
-     #
-     #      # Add the Submission ID as a hyperlink
-     #      echo "[Submission ID: $SUBMISSION_ID]($SUBMISSION_URL)" >> $GITHUB_STEP_SUMMARY
-     #
-     #      # Add the workflows and statuses for this submission
-     #      echo "${WORKFLOW_STATUSES[$SUBMISSION_ID]}" >> $GITHUB_STEP_SUMMARY
-     #
-     #      # Add a blank line for separation
-     #      echo "" >> $GITHUB_STEP_SUMMARY
-     #    done
-     #  env:
-     #    SUBMISSION_IDS: ${{ steps.submit_jobs.outputs.submission_ids }} # Pass IDs from a previous step
-     #    PIPELINE_NAME: TestIlluminaGenotypingArray
-     #    NAMESPACE: warp-pipelines
-     #    WORKSPACE: WARP Tests
 
+      - name: Monitor Workflow Status
+        run: |
+          echo "Monitoring the status of submitted workflows..."
+          echo "Submission IDs from the Submit Jobs step: ${{ steps.submit_jobs.outputs.submission_ids }}"
+          IFS=',' read -r -a SUBMISSION_IDS <<< "$SUBMISSION_IDS"
+          for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
+            echo "Polling submission status for Submission ID: $SUBMISSION_ID"
+            SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api2.py poll_job_status \
+                --submission_id "$SUBMISSION_ID" \
+                --sa-json-b64 "$SA_JSON_B64" \
+                --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
+                --workspace-namespace "warp-pipelines" \
+                --workspace-name "WARP Tests")
+     
+      
+            if [ -z "$SUBMISSION_ID" ]; then
+              echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
+              continue
+            fi
+      
+            # Parse and store workflow statuses
+            WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$SUBMISSION_ID" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
+            echo "Statuses for submission $SUBMISSION_ID:"
+            echo "$WORKFLOW_STATUSES_FOR_SUBMISSION"
+      
+            # Append to aggregate statuses
+            WORKFLOW_STATUSES["$SUBMISSION_ID"]=$WORKFLOW_STATUSES_FOR_SUBMISSION
+      
+            # Retrieve workflow outputs
+            echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
+            for WORKFLOW_ID in $(echo "$SUBMISSION_ID" | jq -r 'keys[]'); do
+              WORKFLOW_OUTPUT=$(python3 scripts/firecloud_api/firecloud_api2.py get_outputs \
+                --submission_id "$SUBMISSION_ID" \
+                --workflow_id "$WORKFLOW_ID" \
+                --pipeline_name "$PIPELINE_NAME")
+              ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
+            done
+          done
+      
+          # Generate summary for Submission IDs
+          echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
+          for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
+            # Generate the Terra URL for the submission
+            SUBMISSION_URL="https://app.terra.bio/#workspaces/$NAMESPACE/${WORKSPACE// /%20}/job_history/$SUBMISSION_ID"
+      
+            # Add the Submission ID as a hyperlink
+            echo "[Submission ID: $SUBMISSION_ID]($SUBMISSION_URL)" >> $GITHUB_STEP_SUMMARY
+      
+            # Add the workflows and statuses for this submission
+            echo "${WORKFLOW_STATUSES[$SUBMISSION_ID]}" >> $GITHUB_STEP_SUMMARY
+      
+            # Add a blank line for separation
+            echo "" >> $GITHUB_STEP_SUMMARY
+          done
+        env:
+          SUBMISSION_IDS: ${{ steps.submit_jobs.outputs.submission_ids }} # Pass IDs from a previous step
+          PIPELINE_NAME: TestIlluminaGenotypingArray
+          NAMESPACE: warp-pipelines
+          WORKSPACE: WARP Tests
 
 
 
