@@ -256,6 +256,9 @@ jobs:
                 --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
                 --workspace-namespace "warp-pipelines" \
                 --workspace-name "WARP Tests")
+            
+            cat $RESPONSE
+            echo "Response: $RESPONSE"
       
             if [ -z "$RESPONSE" ]; then
               echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
