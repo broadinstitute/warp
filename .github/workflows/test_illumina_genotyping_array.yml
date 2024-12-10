@@ -250,23 +250,23 @@ jobs:
           IFS=',' read -r -a SUBMISSION_IDS <<< "$SUBMISSION_IDS"
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
             echo "Polling submission status for Submission ID: $SUBMISSION_ID"
-            My_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api2.py poll_job_status \
+            SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api2.py poll_job_status \
                 --submission_id "$SUBMISSION_ID" \
                 --sa-json-b64 "$SA_JSON_B64" \
                 --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
                 --workspace-namespace "warp-pipelines" \
                 --workspace-name "WARP Tests")
             
-            cat My_RESPONSE
-            echo "Response: My_RESPONSE"
+            cat $SUBMISSION_ID
+            echo "SUBMISSION_ID: $SUBMISSION_ID"
         
-            if [ -z "$RESPONSE" ]; then
+            if [ -z "$SUBMISSION_ID" ]; then
               echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
               continue
             fi
       
             # Parse and store workflow statuses
-            WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
+            WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$SUBMISSION_ID" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
             echo "Statuses for submission $SUBMISSION_ID:"
             echo "$WORKFLOW_STATUSES_FOR_SUBMISSION"
       
@@ -275,7 +275,7 @@ jobs:
       
             # Retrieve workflow outputs
             echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
-            for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
+            for WORKFLOW_ID in $(echo "$SUBMISSION_ID" | jq -r 'keys[]'); do
               WORKFLOW_OUTPUT=$(python3 scripts/firecloud_api/firecloud_api2.py get_outputs \
                 --submission_id "$SUBMISSION_ID" \
                 --workflow_id "$WORKFLOW_ID" \
