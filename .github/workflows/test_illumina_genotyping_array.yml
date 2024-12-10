@@ -199,8 +199,8 @@ jobs:
             cat <<EOF > "$SUBMISSION_DATA_FILE"
             {
             "methodConfigurationNamespace": "warp-pipelines",
-            "methodConfigurationName": "$PIPELINE_NAME",
-            "useCallCache": $USE_CALL_CACHE_BOOL,
+            "methodConfigurationName": "TestIlluminaGenotypingArray",
+            "useCallCache": true,
             "deleteIntermediateOutputFiles": false,
             "useReferenceDisks": true,
             "memoryRetryMultiplier": 1.2,
