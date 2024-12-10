@@ -71,18 +71,17 @@ class FirecloudAPI:
         :param test_inputs: JSON data containing test inputs
         :return: True if successful, False otherwise
         """
+        # Construct the API endpoint URL for the method configuration
+        # properly encode the space in WARP Tests as %20 using from urllib.parse import quote
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
-        print(url)
-        # Get the current method configuration
-        response = requests.get(url, headers=self.headers)
-        if response.status_code != 200:
-            print(f"Failed to fetch method configuration. Status: {response.status_code}")
-            return False
 
+        print(url)
+
+        # get the current method configuration
+        response = requests.get(url, headers=self.headers)
         config = response.json()
         print(f"Current method configuration: {json.dumps(config, indent=2)}")
-
-        # Update the config with the new inputs
+        # update the config with the new inputs
         print(f"Opening test inputs file: {test_inputs}")
         with open(test_inputs, 'r') as file:
             inputs_json = json.load(file)
@@ -91,20 +90,25 @@ class FirecloudAPI:
             config["inputs"] = inputs_json
 
         # Construct the methodUri with the branch name
-        base_url = f"github.com/broadinstitute/warp/{pipeline_name}"
+        base_url = "github.com/broadinstitute/warp/{pipeline_name}"
         method_uri = f"dockstore://{quote(base_url)}/{branch_name}"
         print(f"Updating methodUri with branch name: {method_uri}")
         config["methodRepoMethod"]["methodUri"] = method_uri
 
-        # Increment methodConfigVersion
-        config["methodConfigVersion"] += 1
+        print(f"Updating methodVersion with branch name: {branch_name}")
+        config["methodRepoMethod"]["methodVersion"] = branch_name
+
+        # We need to increment the methodConfigVersion by 1 every time we update the method configuration
+        config["methodConfigVersion"] += 1  # Increment version number by  1
         print(f"Updated method configuration: {json.dumps(config, indent=2)}")
 
-        # Post the updated method config to the workspace
+
+        # post the updated method config to the workspace
         response = requests.post(url, headers=self.headers, json=config)
         print(f"Response status code: {response.status_code}")
         print(f"Response text: {response.text}")
 
+        # Check if the test inputs were uploaded successfully
         if response.status_code == 200:
             print("Test inputs uploaded successfully.")
             return True
