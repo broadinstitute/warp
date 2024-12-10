@@ -166,6 +166,9 @@ class FirecloudAPI:
                 logging.info("Test inputs uploaded successfully.")
             else:
                 logging.error("Failed to upload test inputs.")
+        elif self.action == "poll_job_status":
+            status = self.poll_job_status()
+            logging.info(f"Final job status: {status}")
         else:
             logging.error(f"Unknown action: {self.action}")
 
@@ -217,6 +220,13 @@ if __name__ == "__main__":
             submission_data = json.load(file)
         # Submit the job with the loaded submission data
         api.submit_job(submission_data)
+
+    elif args.action == "pollpoll_job_status":
+        # Check for required argument for poll_job_status action
+        if not args.submission_id:
+            parser.error("Argument --submission_id is required for 'poll_job_status'")
+        # Poll the job status with the provided submission ID
+        api.poll_job_status(args.submission_id)
 
 
 
