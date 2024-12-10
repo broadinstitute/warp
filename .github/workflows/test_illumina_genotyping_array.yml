@@ -244,6 +244,10 @@ jobs:
       - name: Monitor Workflow Status
         run: |
           echo "Monitoring the status of submitted workflows..."
+          #print the submission ids in the array
+          for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
+            echo "the submission ids are $SUBMISSION_ID"
+          done
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
             echo "Polling submission status for Submission ID: $SUBMISSION_ID"
             RESPONSE=$(python3 scripts/firecloud_api/firecloud_api2.py poll_job_status \
