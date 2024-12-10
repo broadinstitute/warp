@@ -231,9 +231,8 @@ jobs:
                --submission_data_file "$SUBMISSION_DATA_FILE")
                                   
               echo "Submission ID: $SUBMISSION_ID"
-              cat $SUBMISSION_ID
            
-              if [[ "$RAW_RESPONSE" == *"404"* || -z "$SUBMISSION_ID" ]]; then
+              if [[ "$SUBMISSION_ID" == *"404"* || -z "$SUBMISSION_ID" ]]; then
                   echo "Error in submission, retrying in $RETRY_DELAY seconds..."
                   ((attempt++))
                   if [ $attempt -gt $MAX_RETRIES ]; then
