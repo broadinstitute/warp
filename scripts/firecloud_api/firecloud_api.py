@@ -105,12 +105,6 @@ class FirecloudAPI:
             return None, None
 
     def create_submission(self, submission_data):
-        """
-        Submits a workflow to the Firecloud API.
-
-        :param submission_data: JSON data containing submission details
-        :return: Submission ID if successful, None otherwise
-        """
         # Construct the API endpoint URL for creating a new submission
         url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions"
         response = requests.post(url, headers=self.headers, json=submission_data)
