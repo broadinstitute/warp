@@ -248,6 +248,9 @@ jobs:
             break
           done
           done
+          #export submission ids to github env
+          echo "submission_ids=${SUBMISSION_IDS[@]}" >> $GITHUB_ENV
+          cat $GITHUB_ENV
 
       - name: Monitor Workflow Status
         run: |
