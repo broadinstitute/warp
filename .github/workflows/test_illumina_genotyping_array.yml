@@ -244,6 +244,7 @@ jobs:
       - name: Monitor Workflow Status
         run: |
           echo "Monitoring the status of submitted workflows..."
+          SUBMISSION_IDS=${{ steps.submit.outputs.submission_ids }}
           #print the submission ids in the array
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
             echo "the submission ids are $SUBMISSION_ID"
