@@ -132,16 +132,15 @@ class FirecloudAPI:
             logging.error(f"Unknown action: {self.action}")
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--sa-json-b64", required=True, help="Base64 encoded service account JSON")
     parser.add_argument("--user", required=True, help="User email for impersonation")
-    parser.add_argument('--workspace-namespace', required=True, help='Namespace of the workspace.')
-    parser.add_argument('--workspace-name', required=True, help='Name of the workspace.')
-    parser.add_argument('--pipeline_name', required=True, help="Pipeline name")
-    parser.add_argument('--test_input_file', required=True, help="Path to test input file")
-    parser.add_argument('--branch_name', required=True, help="Branch name for the method repository")
+    parser.add_argument("--workspace-namespace", required=True, help="Namespace of the workspace.")
+    parser.add_argument("--workspace-name", required=True, help="Name of the workspace.")
+    parser.add_argument("--pipeline_name", help="Pipeline name (required for 'upload_test_inputs')")
+    parser.add_argument("--test_input_file", help="Path to test input file (required for 'upload_test_inputs')")
+    parser.add_argument("--branch_name", help="Branch name for the method repository (required for 'upload_test_inputs')")
     parser.add_argument(
         "action",
         choices=["submit_job", "upload_test_inputs"],
@@ -149,14 +148,16 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    # Pass action to the FirecloudAPI constructor
     api = FirecloudAPI(
         sa_json_b64=args.sa_json_b64,
         user=args.user,
         workspace_namespace=args.workspace_namespace,
-        workspace_name=args.workspace_name
+        workspace_name=args.workspace_name,
+        action=args.action
     )
 
-    # Call the appropriate method based on action
+    # Perform the selected action
     if args.action == "upload_test_inputs":
         if not args.pipeline_name or not args.test_input_file or not args.branch_name:
             parser.error("Arguments --pipeline_name, --test_input_file, and --branch_name are required for 'upload_test_inputs'")
@@ -164,5 +165,4 @@ if __name__ == "__main__":
     elif args.action == "submit_job":
         api.submit_job()
 
-
-    api.main()
+    #api.main()
