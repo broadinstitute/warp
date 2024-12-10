@@ -230,10 +230,12 @@ if __name__ == "__main__":
         if not args.submission_data_file:
             parser.error("Argument --submission_data_file is required for 'submit_job'")
         # Load the submission data from the provided file
-        with open(args.submission_data_file, 'r') as file:
-            submission_data = json.load(file)
-        # Submit the job with the loaded submission data
-        api.submit_job(submission_data)
+        else:
+            with open(args.submission_data_file, 'r') as file:
+                submission_data = json.load(file)
+             # Submit the job with the loaded submission data
+             submission_id = api.submit_job(submission_data)
+             print(submission_id)
 
     elif args.action == "poll_job_status":
         # Check for required argument for poll_job_status action
