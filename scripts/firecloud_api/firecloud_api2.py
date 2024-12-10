@@ -13,13 +13,14 @@ import sys
 
 
 class FirecloudAPI:
-    def __init__(self, workspace_namespace, workspace_name, sa_json_b64, user):
+    def __init__(self, workspace_namespace, workspace_name, sa_json_b64, user, action):
         self.sa_json_b64 = sa_json_b64
         self.namespace = workspace_namespace
         self.workspace_name = workspace_name
         self.user = user  # Store the user email
         self.base_url = "https://api.firecloud.org/api"
         self.headers = self._build_auth_headers()
+        self.action = action
 
 
     def _build_auth_headers(self):
@@ -141,6 +142,11 @@ if __name__ == "__main__":
     parser.add_argument('--pipeline_name', required=True, help="Pipeline name")
     parser.add_argument('--test_input_file', required=True, help="Path to test input file")
     parser.add_argument('--branch_name', required=True, help="Branch name for the method repository")
+    parser.add_argument(
+        "action",
+        choices=["submit_job", "upload_test_inputs"],
+        help="Action to perform: 'submit_job' or 'upload_test_inputs'"
+    )
     args = parser.parse_args()
 
     api = FirecloudAPI(
@@ -150,8 +156,13 @@ if __name__ == "__main__":
         workspace_name=args.workspace_name
     )
 
-    if 'upload_test_inputs' in sys.argv:
+    # Call the appropriate method based on action
+    if args.action == "upload_test_inputs":
+        if not args.pipeline_name or not args.test_input_file or not args.branch_name:
+            parser.error("Arguments --pipeline_name, --test_input_file, and --branch_name are required for 'upload_test_inputs'")
         api.upload_test_inputs(args.pipeline_name, args.test_input_file, args.branch_name)
+    elif args.action == "submit_job":
+        api.submit_job()
 
 
     api.main()
