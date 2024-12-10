@@ -152,6 +152,7 @@ jobs:
           echo "Running tests with test type: $TEST_TYPE"
           
           TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
+          echo "Truth path: $TRUTH_PATH"
           RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
           
           for input_file in "$INPUTS_DIR"/*.json; do
