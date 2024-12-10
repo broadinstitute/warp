@@ -234,17 +234,15 @@ jobs:
               cat $SUBMISSION_ID
                 
               if [[ "$SUBMISSION_ID" == *"404"* ]]; then
-                echo "Error: Dockstore method not found. Retrying in $RETRY_DELAY seconds..."
-                sleep $RETRY_DELAY
-                ((attempt++))
+                  echo "Error: Dockstore method not found. Retrying in $RETRY_DELAY seconds..."
               elif [ -z "$SUBMISSION_ID" ]; then
-                echo "Submission failed for input file: $input_file. No submission ID received."
-                break
+                  echo "Error: Empty submission ID received. Retrying..."
               else
-                echo "Submission successful. Submission ID: $SUBMISSION_ID"
-                SUBMISSION_IDS+=("$SUBMISSION_ID")
-                break
+                  echo "Submission successful. Submission ID: $SUBMISSION_ID"
+                  SUBMISSION_IDS+=("$SUBMISSION_ID")
+                  break
               fi
+
               if [ $attempt -gt $MAX_RETRIES ]; then
                 echo "Max retries reached. Exiting..."
               fi

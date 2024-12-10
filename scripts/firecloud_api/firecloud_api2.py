@@ -59,7 +59,6 @@ class FirecloudAPI:
         if response.status_code == 201:
             submission_id = response.json().get('submissionId')
             print(f"Job submitted successfully. Submission ID is: {submission_id}")
-            os.environ['SUBMISSION_ID'] = submission_id
             return submission_id
         else:
             print(f"Failed to submit job. Status code: {response.status_code}")
@@ -219,7 +218,7 @@ if __name__ == "__main__":
         # Submit the job with the loaded submission data
         api.submit_job(submission_data)
 
-    elif args.action == "pollpoll_job_status":
+    elif args.action == "poll_job_status":
         # Check for required argument for poll_job_status action
         if not args.submission_id:
             parser.error("Argument --submission_id is required for 'poll_job_status'")
