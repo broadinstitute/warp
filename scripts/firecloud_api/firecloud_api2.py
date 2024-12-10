@@ -149,7 +149,7 @@ if __name__ == "__main__":
     parser.add_argument("--method_namespace", help="Method namespace")
     parser.add_argument("--method_name", help="Method name")
     parser.add_argument('--submission_data_file', help='Path to submission data JSON file (required for submit)')
-args = parser.parse_args()
+    args = parser.parse_args()
 
     # Pass action to the FirecloudAPI constructor
     api = FirecloudAPI(
