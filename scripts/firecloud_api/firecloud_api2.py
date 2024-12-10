@@ -10,6 +10,7 @@ from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 import argparse
 import sys
+import os
 
 
 class FirecloudAPI:
@@ -67,7 +68,9 @@ class FirecloudAPI:
         submission_id = response.json().get("submissionId")
         print(f"Received submission ID: {submission_id}")
         print(f"Job submitted successfully. Submission ID: {submission_id}")
+        os.environ['SUBMISSION_ID'] = submission_id
         return submission_id
+
 
 
     def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
