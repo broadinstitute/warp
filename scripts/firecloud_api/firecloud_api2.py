@@ -48,7 +48,7 @@ class FirecloudAPI:
         return credentials.token
 
     def submit_job(self, submission_data):
-        logging.info(f"Submitting job for method {self.method_namespace}/{self.method_name} in workspace {self.namespace}/{self.workspace_name}.")
+        #logging.info(f"Submitting job for method {self.method_namespace}/{self.method_name} in workspace {self.namespace}/{self.workspace_name}.")
         uri = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions"
         response = requests.post(uri, json=submission_data, headers=self.headers)
 
