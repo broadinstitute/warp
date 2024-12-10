@@ -59,6 +59,7 @@ class FirecloudAPI:
         if response.status_code != 201:
             print(f"Failed to submit job. Status code: {response.status_code}")
             print(f"Response body: {response.text}")
+            exit(1)
 
         if response.status_code == 200:
             try:
