@@ -53,14 +53,12 @@ class FirecloudAPI:
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
         response = requests.post(url, json=submission_data_file, headers=self.headers)
         print(f"Response received. Status code: {response.status_code}")
-        #print(f"Response text: {response.text}")
-        #print the submission data file
-        print(f"Submission data file: {json.dumps(submission_data_file, indent=2)}")
 
 
         # Check if the submission was created successfully
         if response.status_code == 201:
             submission_id = response.json().get('submissionId')
+            print(f"Job submitted successfully. Submission ID: {submission_id}")
             return submission_id
         else:
             print(f"Failed to submit job. Status code: {response.status_code}")
