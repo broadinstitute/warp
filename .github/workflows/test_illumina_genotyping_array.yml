@@ -240,11 +240,13 @@ jobs:
               fi
             done
           done
+          echo "Generated Submission IDs: ${SUBMISSION_IDS[*]}"
           echo "::set-output name=submission_ids::$(IFS=,; echo "${SUBMISSION_IDS[*]}")"
 
       - name: Monitor Workflow Status
         run: |
           echo "Monitoring the status of submitted workflows..."
+          echo "Submission IDs from the Submit Jobs step: ${{ steps.submit_jobs.outputs.submission_ids }}"
           IFS=',' read -r -a SUBMISSION_IDS <<< "$SUBMISSION_IDS"
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
             echo "Polling submission status for Submission ID: $SUBMISSION_ID"
