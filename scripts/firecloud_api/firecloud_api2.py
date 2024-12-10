@@ -50,12 +50,14 @@ class FirecloudAPI:
     def submit_job(self, submission_data_file):
         #logging.info(f"Submitting job for method {self.method_namespace}/{self.method_name} in workspace {self.namespace}/{self.workspace_name}.")
         uri = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions"
-        logging.debug(f"POST request to URL: {uri}")
+        print(f"POST request to URL: {uri}")
 
         try:
             response = requests.post(uri, json=submission_data_file, headers=self.headers)
             logging.debug(f"Response received. Status code: {response.status_code}")
+            print(f"Response received. Status code: {response.status_code}")
             logging.debug(f"Response text: {response.text}")
+            print(f"Response text: {response.text}")
 
 
             # Check if the submission was created successfully

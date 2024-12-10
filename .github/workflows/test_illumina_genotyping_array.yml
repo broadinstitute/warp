@@ -231,7 +231,7 @@ jobs:
               while [ $attempt -le $MAX_RETRIES ]; do
                 echo "Attempt $attempt: Submitting job for input file: $input_file"
                 #echo "Submitting job for input file: $input_file"
-                cat "$SUBMISSION_DATA_FILE"
+                #cat "$SUBMISSION_DATA_FILE"
                 python3 scripts/firecloud_api/firecloud_api2.py submit_job \
                           --workspace-namespace "warp-pipelines" \
                           --workspace-name "WARP Tests" \
