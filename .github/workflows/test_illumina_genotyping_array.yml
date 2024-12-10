@@ -214,11 +214,14 @@ jobs:
             echo "Running tests with test type: $TEST_TYPE"
           
             attempt=1
+          
+        
             while [ $attempt -le $MAX_RETRIES ]; do
               echo "Attempt $attempt: Submitting job for input file: $input_file"
               #echo "Submitting job for input file: $input_file"
               cat "$SUBMISSION_DATA_FILE"
-              SUBMISSION_ID=$(firecloud_action submit --submission_data_file "$SUBMISSION_DATA_FILE")
+              python3 scripts/firecloud_api/firecloud_api2.py submit --submission_data_file "$SUBMISSION_DATA_FILE"
+              #SUBMISSION_ID=$(firecloud_action submit_job --submission_data_file "$SUBMISSION_DATA_FILE")
           
               if [[ "$SUBMISSION_ID" == *"404"* ]]; then
                 echo "Error: Dockstore method not found. Retrying in $RETRY_DELAY seconds..."
