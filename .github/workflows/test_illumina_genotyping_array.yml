@@ -232,12 +232,12 @@ jobs:
                 echo "Attempt $attempt: Submitting job for input file: $input_file"
                 #echo "Submitting job for input file: $input_file"
                 #cat "$SUBMISSION_DATA_FILE"
-                python3 scripts/firecloud_api/firecloud_api2.py submit_job \
+                $SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api2.py submit_job \
                           --workspace-namespace "warp-pipelines" \
                           --workspace-name "WARP Tests" \
                           --sa-json-b64 "$SA_JSON_B64" \
                           --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
-                          --submission_data_file "$SUBMISSION_DATA_FILE"
+                          --submission_data_file "$SUBMISSION_DATA_FILE")
                 #echo "submission id is $SUBMISSION_ID"
         
                 #SUBMISSION_ID=$(firecloud_action submit_job --submission_data_file "$SUBMISSION_DATA_FILE")
