@@ -134,6 +134,8 @@ jobs:
       - name: Update test inputs
         run: |
           UPDATE_TRUTH="${{ github.event.inputs.updateTruth || 'false' }}"
+          TRUTH_BRANCH="${{ github.event.inputs.truthBranch || 'master' }}"
+          CURRENT_TIME=$(date +"%Y-%m-%d-%H-%M-%S")
           
           # Convert UPDATE_TRUTH to a boolean-friendly format ("true" -> true, "false" -> false)
           if [ "$UPDATE_TRUTH" = "true" ]; then
