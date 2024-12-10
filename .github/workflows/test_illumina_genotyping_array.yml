@@ -229,6 +229,7 @@ jobs:
                           --workspace-name "WARP Tests" \
                           --sa-json-b64 "$SA_JSON_B64" \
                           --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
+                          --submission_data_file "$SUBMISSION_DATA_FILE"
         
                 #SUBMISSION_ID=$(firecloud_action submit_job --submission_data_file "$SUBMISSION_DATA_FILE")
             

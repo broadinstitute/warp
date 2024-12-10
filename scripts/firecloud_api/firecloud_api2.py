@@ -47,10 +47,10 @@ class FirecloudAPI:
             credentials.refresh(Request())
         return credentials.token
 
-    def submit_job(self, submission_data):
+    def submit_job(self, submission_data_file):
         #logging.info(f"Submitting job for method {self.method_namespace}/{self.method_name} in workspace {self.namespace}/{self.workspace_name}.")
         uri = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions"
-        response = requests.post(uri, json=submission_data, headers=self.headers)
+        response = requests.post(uri, json=submission_data_file, headers=self.headers)
 
         # Check if the submission was created successfully
         if response.status_code != 201:
@@ -148,7 +148,8 @@ if __name__ == "__main__":
     )
     parser.add_argument("--method_namespace", help="Method namespace")
     parser.add_argument("--method_name", help="Method name")
-    args = parser.parse_args()
+    parser.add_argument('--submission_data_file', help='Path to submission data JSON file (required for submit)')
+args = parser.parse_args()
 
     # Pass action to the FirecloudAPI constructor
     api = FirecloudAPI(
