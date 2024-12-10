@@ -53,15 +53,10 @@ class FirecloudAPI:
         response = requests.post(url, json=submission_data_file, headers=self.headers)
 
         # Print status code and response body for debugging
-        print(f"Response status code for submitting job: {response.status_code}")
-        print(f"Response body: {response.text}")
+        logging.info(f"Response status code for submitting job: {response.status_code}")
+        logging.info(f"Response body: {response.text}")
 
-        if response.status_code != 201:
-            print(f"Failed to submit job. Status code: {response.status_code}")
-            print(f"Response body: {response.text}")
-            exit(1)
-
-        if response.status_code == 200:
+        if response.status_code == 201:
             try:
                 # Parse the response as JSON
                 response_json = response.json()
@@ -69,17 +64,17 @@ class FirecloudAPI:
                 # Extract the submissionId
                 submission_id = response_json.get("submissionId", None)
                 if submission_id:
-                    print(f"Submission ID extracted: {submission_id}")
+                    logging.info(f"Submission ID extracted: {submission_id}")
                     return submission_id
                 else:
-                    print("Error: submissionId not found in the response.")
+                    logging.error("Error: submissionId not found in the response.")
                     return None
             except json.JSONDecodeError:
-                print("Error: Failed to parse JSON response.")
+                logging.error("Error: Failed to parse JSON response.")
                 return None
         else:
-            print(f"Failed to submit job. Status code: {response.status_code}")
-            print(f"Response body: {response.text}")
+            logging.error(f"Failed to submit job. Status code: {response.status_code}")
+            logging.error(f"Response body: {response.text}")
             return None
 
 
