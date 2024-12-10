@@ -256,7 +256,7 @@ jobs:
                 --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
                 --workspace-namespace "warp-pipelines" \
                 --workspace-name "WARP Tests")
-            
+            pwd
             cat $SUBMISSION_ID
             echo "SUBMISSION_ID: $SUBMISSION_ID"
         
