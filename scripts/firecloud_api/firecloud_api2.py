@@ -154,7 +154,9 @@ if __name__ == "__main__":
         user=args.user,
         workspace_namespace=args.workspace_namespace,
         workspace_name=args.workspace_name,
-        action=args.action
+        action=args.action,
+        method_namespace=args.method_namespace,
+        method_name=args.method_name
     )
 
     # Perform the selected action
