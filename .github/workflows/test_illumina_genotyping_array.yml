@@ -185,6 +185,13 @@ jobs:
             TEST_TYPE="${{ env.testType }}"
             INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
           
+            # Convert USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
+            if [ "$USE_CALL_CACHE" == "true" ]; then
+                USE_CALL_CACHE_BOOL=true
+            else
+                USE_CALL_CACHE_BOOL=false
+            fi
+          
             # Create the submission_data.json file which will be the same for all inputs
             SUBMISSION_DATA_FILE="submission_data.json"
           
