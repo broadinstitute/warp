@@ -130,25 +130,25 @@ class FirecloudAPI:
         :param timeout: Maximum time (in seconds) to wait before giving up.
         :return: The final status of the job.
         """
-    uri = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions/{submission_id}"
-    start_time = datetime.now()
+        uri = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions/{submission_id}"
+        start_time = datetime.now()
 
-    while (datetime.now() - start_time).total_seconds() < timeout:
-        response = requests.get(uri, headers=self.headers)
-        if response.status_code != 200:
-            print(f"Failed to fetch submission status. Status code: {response.status_code}. Response: {response.text}")
-            raise Exception("Failed to fetch job status.")
+        while (datetime.now() - start_time).total_seconds() < timeout:
+            response = requests.get(uri, headers=self.headers)
+            if response.status_code != 200:
+                print(f"Failed to fetch submission status. Status code: {response.status_code}. Response: {response.text}")
+                raise Exception("Failed to fetch job status.")
 
-        status = response.json().get("status")
-        print(f"Current status for submission {submission_id}: {status}")
+            status = response.json().get("status")
+            print(f"Current status for submission {submission_id}: {status}")
 
-        if status in ["Done", "Failed", "Aborted"]:
-            print(f"Job {submission_id} reached terminal status: {status}")
-            return status
+            if status in ["Done", "Failed", "Aborted"]:
+                print(f"Job {submission_id} reached terminal status: {status}")
+                return status
 
-        sleep(polling_interval)
+            sleep(polling_interval)
 
-    raise TimeoutError(f"Polling timed out after {timeout} seconds for submission {submission_id}.")
+        raise TimeoutError(f"Polling timed out after {timeout} seconds for submission {submission_id}.")
 
     @staticmethod
     def quote_values(inputs_json):
