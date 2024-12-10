@@ -233,9 +233,9 @@ if __name__ == "__main__":
         else:
             with open(args.submission_data_file, 'r') as file:
                 submission_data = json.load(file)
-             # Submit the job with the loaded submission data
-             submission_id = api.submit_job(submission_data)
-             print(submission_id)
+            # Submit the job with the loaded submission data
+            submission_id = api.submit_job(submission_data)
+            print(submission_id)
 
     elif args.action == "poll_job_status":
         # Check for required argument for poll_job_status action
