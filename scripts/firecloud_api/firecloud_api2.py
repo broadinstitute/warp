@@ -52,8 +52,6 @@ class FirecloudAPI:
         # Construct the API endpoint URL for creating a new submission
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
         response = requests.post(url, json=submission_data_file, headers=self.headers)
-        print(f"Response received. Status code: {response.status_code}")
-
 
         # Check if the submission was created successfully
         if response.status_code == 201:
