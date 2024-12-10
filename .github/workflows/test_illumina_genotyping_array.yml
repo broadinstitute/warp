@@ -203,6 +203,7 @@ jobs:
             }
             EOF
             echo "Created submission data file: $SUBMISSION_DATA_FILE"
+            cat "$SUBMISSION_DATA_FILE"
             
             # Initialize variables to aggregate statuses and outputs
             ALL_WORKFLOW_STATUSES="Workflow ID | Status"$'\n'"--- | ---"
