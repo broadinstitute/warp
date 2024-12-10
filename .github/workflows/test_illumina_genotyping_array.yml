@@ -250,6 +250,7 @@ jobs:
             SUBMISSION_IDS+=("$SUBMISSION_ID")
             break
           done
+        done
 
      #- name: Monitor Workflow Status
      #  run: |
