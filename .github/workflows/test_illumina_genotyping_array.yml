@@ -144,14 +144,15 @@ jobs:
               UPDATE_TRUTH_BOOL=false
           fi
           
-          TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
-          RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
 
           PIPELINE_NAME="TestIlluminaGenotypingArray"
           PIPELINE_DIR="pipelines/broad/genotyping/illumina"
           TEST_TYPE="${{ env.testType }}"
           INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
           echo "Running tests with test type: $TEST_TYPE"
+          
+          TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
+          RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
           
           for input_file in "$INPUTS_DIR"/*.json; do
              echo "Processing input file: $input_file"
