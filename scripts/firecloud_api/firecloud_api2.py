@@ -55,10 +55,11 @@ class FirecloudAPI:
 
         try:
             response = requests.post(uri, json=submission_data_file, headers=self.headers)
-            logging.debug(f"Response received. Status code: {response.status_code}")
             print(f"Response received. Status code: {response.status_code}")
-            logging.debug(f"Response text: {response.text}")
             print(f"Response text: {response.text}")
+            print(f"Response headers: {response.headers}")
+            #print the submission data file
+            print(f"Submission data file: {json.dumps(submission_data_file, indent=2)}")
 
 
             # Check if the submission was created successfully
