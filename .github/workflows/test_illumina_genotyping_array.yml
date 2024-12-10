@@ -229,8 +229,10 @@ jobs:
                --sa-json-b64 "$SA_JSON_B64" \
                --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
                --submission_data_file "$SUBMISSION_DATA_FILE")
+          
+              echo "Raw response: $RAW_RESPONSE"
               
-              SUBMISSION_ID=$(echo "$RAW_RESPONSE" | jq -r '.submissionId')
+              SUBMISSION_ID=$(cat "$RAW_RESPONSE" | jq -r '.submissionId')
           
               echo "Submission ID: $SUBMISSION_ID"
               cat $SUBMISSION_ID
