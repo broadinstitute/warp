@@ -49,7 +49,8 @@ class FirecloudAPI:
 
     def submit_job(self, submission_data_file):
         #logging.info(f"Submitting job for method {self.method_namespace}/{self.method_name} in workspace {self.namespace}/{self.workspace_name}.")
-        uri = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions"
+        uri = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
+
         print(f"POST request to URL: {uri}")
 
         try:
