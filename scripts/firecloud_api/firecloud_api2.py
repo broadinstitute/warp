@@ -53,7 +53,6 @@ class FirecloudAPI:
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
         response = requests.post(url, json=submission_data_file, headers=self.headers)
         print(f"Submitting job to URL: {url}")
-        print(f"Submission data: {json.dumps(submission_data_file, indent=2)}")
         print(f"Headers: {self.headers}")
         print(f"Response status code: {response.status_code}")
         print(f"Response text: {response.text}")
