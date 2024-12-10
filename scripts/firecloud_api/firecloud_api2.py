@@ -57,7 +57,7 @@ class FirecloudAPI:
         print(f"Response body: {response.text}")
         sys.stdout.flush()
 
-        if response.status_code == 201:
+        if response.status_code == 200:
             try:
                 # Parse the response as JSON
                 response_json = response.json()
