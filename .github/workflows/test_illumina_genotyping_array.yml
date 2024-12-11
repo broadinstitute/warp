@@ -264,13 +264,13 @@ jobs:
                 --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
                 --workspace-namespace "warp-pipelines" \
                 --workspace-name "WARP Tests")
-    
+          
+            echo "Response: $RESPONSE"
             if [ -z "$RESPONSE" ]; then
                 echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
                 continue
             fi
           
-            echo "Response: $RESPONSE"
           
             # Parse and store workflow statuses
             WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
