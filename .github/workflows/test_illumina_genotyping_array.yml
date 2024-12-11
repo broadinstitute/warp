@@ -256,6 +256,7 @@ jobs:
           echo "Monitoring the status of submitted workflows..."
           # Convert the space-separated string into an array
           IFS=' ' read -r -a submission_ids_array <<< "$submission_ids"
+          echo "submission_ids_array: ${submission_ids_array[@]}"
           for SUBMISSION_ID in "${submission_ids_array[@]}"; do
             echo "Polling submission status for Submission ID: $SUBMISSION_ID"
             RESPONSE=$(python3 scripts/firecloud_api/firecloud_api2.py poll_job_status \
