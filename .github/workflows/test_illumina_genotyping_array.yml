@@ -265,12 +265,11 @@ jobs:
               echo "$RESPONSE"
       
               WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
-              echo "Raw Workflow Statuses: $WORKFLOW_STATUSES_FOR_SUBMISSION"
-      
-              CLEANED_WORKFLOW_STATUSES=$(echo "$WORKFLOW_STATUSES_FOR_SUBMISSION" | awk '!seen[$0]++')
-              echo "Cleaned Workflow Statuses: $CLEANED_WORKFLOW_STATUSES"
-      
-              WORKFLOW_STATUSES["$SUBMISSION_ID"]="$CLEANED_WORKFLOW_STATUSES"
+              echo "Statuses for submission $SUBMISSION_ID:"
+              echo "$WORKFLOW_STATUSES_FOR_SUBMISSION"
+    
+              echo "Appending to aggregate statuses"
+              WORKFLOW_STATUSES["$SUBMISSION_ID"]="$WORKFLOW_STATUSES_FOR_SUBMISSION"
               break
             done
           done
