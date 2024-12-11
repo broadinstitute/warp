@@ -188,80 +188,95 @@ jobs:
           }
           EOF
           
-          echo "Created submission data file: $SUBMISSION_DATA_FILE"
-          
-          for input_file in "$INPUTS_DIR"/*.json; do
-            test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path "$TRUTH_PATH" \
-                --results_path "$RESULTS_PATH" \
-                --inputs_json "$input_file" \
-                --update_truth "$UPDATE_TRUTH_BOOL" \
-                --commit_hash "$COMMIT_HASH" )
-            echo "Uploading the test input file: $test_input_file"
-            python3 scripts/firecloud_api/firecloud_api2.py \
-                upload_test_inputs \
-                --workspace-namespace warp-pipelines \
-                --workspace-name "WARP Tests" \
-                --pipeline_name "$PIPELINE_NAME" \
-                --test_input_file "$test_input_file" \
-                --branch_name "$branch_name" \
-                --sa-json-b64 "$SA_JSON_B64" \
-                --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
-
-            attempt=1
-            while [ $attempt -le $MAX_RETRIES ]; do
-              SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api2.py submit_job \
-               --workspace-namespace "warp-pipelines" \
+         echo "Created submission data file: $SUBMISSION_DATA_FILE"
+         
+         # 1. Submit all jobs first and store their submission IDs
+         for input_file in "$INPUTS_DIR"/*.json; do
+           test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path "$TRUTH_PATH" \
+               --results_path "$RESULTS_PATH" \
+               --inputs_json "$input_file" \
+               --update_truth "$UPDATE_TRUTH_BOOL" \
+               --commit_hash "$COMMIT_HASH" )
+           echo "Uploading the test input file: $test_input_file"
+           python3 scripts/firecloud_api/firecloud_api2.py \
+               upload_test_inputs \
+               --workspace-namespace warp-pipelines \
                --workspace-name "WARP Tests" \
+               --pipeline_name "$PIPELINE_NAME" \
+               --test_input_file "$test_input_file" \
+               --branch_name "$branch_name" \
                --sa-json-b64 "$SA_JSON_B64" \
-               --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
-               --submission_data_file "$SUBMISSION_DATA_FILE")
-
-              echo "Submission ID: $SUBMISSION_ID"
-          
-              if [[ "$SUBMISSION_ID" == *"404"* || -z "$SUBMISSION_ID" ]]; then
-                  echo "Error in submission, retrying in $RETRY_DELAY seconds..."
-                  ((attempt++))
-                  if [ $attempt -gt $MAX_RETRIES ]; then
-                      echo "Max retries reached. Exiting..."
-                      exit 1
-                  fi
-                  sleep $RETRY_DELAY
-                  continue
-              fi
-          
-              echo "Submission successful. Submission ID: $SUBMISSION_ID"
-              SUBMISSION_IDS+=("$SUBMISSION_ID")
-          
-              # Polling the submission right after it's made
-              echo "Polling submission status for Submission ID: $SUBMISSION_ID"
-              RESPONSE=$(python3 scripts/firecloud_api/firecloud_api2.py poll_job_status \
-                  --submission_id "$SUBMISSION_ID" \
-                  --sa-json-b64 "$SA_JSON_B64" \
-                  --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
-                  --workspace-namespace "warp-pipelines" \
-                  --workspace-name "WARP Tests")
-          
-              if [ -z "$RESPONSE" ]; then
-                  echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
-                  continue
-              fi
-          
-              echo "Raw Workflow Statuses:"
-              echo "$RESPONSE"
-
-              WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
-              echo "Raw Workflow Statuses: $WORKFLOW_STATUSES_FOR_SUBMISSION"
-
-              CLEANED_WORKFLOW_STATUSES=$(echo "$WORKFLOW_STATUSES_FOR_SUBMISSION" | awk '!seen[$0]++')
-              echo "Cleaned Workflow Statuses: $CLEANED_WORKFLOW_STATUSES"
-          
-              WORKFLOW_STATUSES["$SUBMISSION_ID"]="$CLEANED_WORKFLOW_STATUSES"
-              echo "Stored Workflow Statuses for $SUBMISSION_ID: ${WORKFLOW_STATUSES[$SUBMISSION_ID]}"
-              break
-            done
-          done
-          
-          echo "submission_ids=${SUBMISSION_IDS[@]}" >> $GITHUB_ENV
+               --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
+     
+           attempt=1
+           while [ $attempt -le $MAX_RETRIES ]; do
+             SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api2.py submit_job \
+              --workspace-namespace "warp-pipelines" \
+              --workspace-name "WARP Tests" \
+              --sa-json-b64 "$SA_JSON_B64" \
+              --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
+              --submission_data_file "$SUBMISSION_DATA_FILE")
+     
+             echo "Submission ID: $SUBMISSION_ID"
+           
+             if [[ "$SUBMISSION_ID" == *"404"* || -z "$SUBMISSION_ID" ]]; then
+                 echo "Error in submission, retrying in $RETRY_DELAY seconds..."
+                 ((attempt++))
+                 if [ $attempt -gt $MAX_RETRIES ]; then
+                     echo "Max retries reached. Exiting..."
+                     exit 1
+                 fi
+                 sleep $RETRY_DELAY
+                 continue
+             fi
+           
+             echo "Submission successful. Submission ID: $SUBMISSION_ID"
+             SUBMISSION_IDS+=("$SUBMISSION_ID")
+             break
+           done
+         done
+         
+         echo "All jobs have been submitted. Now starting polling for statuses..."
+     
+         # 2. After all submissions are done, start polling for statuses of all jobs
+         for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
+           attempt=1
+           while [ $attempt -le $MAX_RETRIES ]; do
+             echo "Polling for Submission ID: $SUBMISSION_ID"
+             RESPONSE=$(python3 scripts/firecloud_api/firecloud_api2.py poll_job_status \
+                 --submission_id "$SUBMISSION_ID" \
+                 --sa-json-b64 "$SA_JSON_B64" \
+                 --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
+                 --workspace-namespace "warp-pipelines" \
+                 --workspace-name "WARP Tests")
+             
+             if [ -z "$RESPONSE" ]; then
+                 echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
+                 ((attempt++))
+                 if [ $attempt -gt $MAX_RETRIES ]; then
+                     echo "Max retries reached. Exiting..."
+                     exit 1
+                 fi
+                 sleep $RETRY_DELAY
+                 continue
+             fi
+         
+             echo "Raw Workflow Statuses:"
+             echo "$RESPONSE"
+     
+             WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
+             echo "Raw Workflow Statuses: $WORKFLOW_STATUSES_FOR_SUBMISSION"
+     
+             CLEANED_WORKFLOW_STATUSES=$(echo "$WORKFLOW_STATUSES_FOR_SUBMISSION" | awk '!seen[$0]++')
+             echo "Cleaned Workflow Statuses: $CLEANED_WORKFLOW_STATUSES"
+     
+             WORKFLOW_STATUSES["$SUBMISSION_ID"]="$CLEANED_WORKFLOW_STATUSES"
+             break
+           done
+         done
+     
+         echo "submission_ids=${SUBMISSION_IDS[@]}" >> $GITHUB_ENV
+         echo "workflow_statuses=${WORKFLOW_STATUSES[@]}" >> $GITHUB_ENV
           
 
    #   - name: Monitor Workflow Status
