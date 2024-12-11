@@ -275,6 +275,8 @@ jobs:
             # Parse and store workflow statuses
             echo "Parsing workflow statuses for submissions"
             WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
+            echo "RESPONSE: $RESPONSE"
+            echo "Parsed WORKFLOW_STATUSES_FOR_SUBMISSION: $WORKFLOW_STATUSES_FOR_SUBMISSION"  
             echo "Workflow statuses for submission $WORKFLOW_STATUSES_FOR_SUBMISSION:"
             echo "Statuses for submission $SUBMISSION_ID:"
             echo "$WORKFLOW_STATUSES_FOR_SUBMISSION"
