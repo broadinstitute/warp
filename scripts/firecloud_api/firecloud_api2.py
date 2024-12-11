@@ -52,6 +52,7 @@ class FirecloudAPI:
         if not credentials.valid or (credentials.expiry and (credentials.expiry - datetime.now(timezone.utc)).total_seconds() < 60):
             logging.info("Refreshing user access token.")
             credentials.refresh(Request())
+            logging.info("Token Refreshed.")
         return credentials.token
 
     def submit_job(self, submission_data_file):
@@ -149,20 +150,21 @@ class FirecloudAPI:
 
         # Continuously poll the status of the submission until completion
         while True:
+            logging.info(f"Polling submission ID: {submission_id}")
             status_response = requests.get(status_url, headers=self.headers)
 
             # Check if the response status code is successful (200)
             if status_response.status_code != 200:
-                print(f"Error: Received status code {status_response.status_code}", file=sys.stderr)
-                print(f"Response content: {status_response.text}", file=sys.stderr)
+                logging.error(f"Error: Received status code {status_response.status_code}", file=sys.stderr)
+                logging.info(f"Response content: {status_response.text}", file=sys.stderr)
                 return {}
 
             try:
                 # Parse the response as JSON
                 status_data = status_response.json()
             except json.JSONDecodeError:
-                print("Error decoding JSON response.", file=sys.stderr)
-                print(f"Response content: {status_response.text}", file=sys.stderr)
+                logging.error("Error decoding JSON response.", file=sys.stderr)
+                logging.info(f"Response content: {status_response.text}", file=sys.stderr)
                 return {}
 
             # Retrieve workflows and their statuses
