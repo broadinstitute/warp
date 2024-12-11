@@ -270,6 +270,18 @@ jobs:
     
               echo "Appending to aggregate statuses"
               WORKFLOW_STATUSES["$SUBMISSION_ID"]="$WORKFLOW_STATUSES_FOR_SUBMISSION"
+          
+              # retrieve workflow outputs
+              echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
+              for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
+                   WORKFLOW_OUTPUT=$(python3 scripts/firecloud_api/firecloud_api2.py get_workflow_outputs \
+                    --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
+                    --sa-json-b64 "$SA_JSON_B64" \
+                    --submission_id "$SUBMISSION_ID" \
+                    --workflow_id "$WORKFLOW_ID" \
+                    --pipeline_name "$PIPELINE_NAME")
+                    ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
+                done
               break
             done
           done

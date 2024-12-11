@@ -191,6 +191,30 @@ class FirecloudAPI:
     def quote_values(inputs_json):
         return {key: f'"{value}"' for key, value in inputs_json.items()}
 
+    def get_workflow_outputs(self, submission_id, workflow_id, pipeline_name):
+        """
+        Fetches workflow outputs from the Firecloud API.
+
+        :param submission_id: The ID of the submission
+        :param workflow_id: The ID of the workflow
+        :param pipeline_name: The name of the pipeline whose outputs are required
+        :return: Outputs dictionary and a list of output values
+        """
+        # Construct the API endpoint URL for fetching workflow outputs
+        url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}/workflows/{workflow_id}/outputs"
+        response = requests.get(url, headers=self.headers)
+
+        # Check if the API request was successful
+        if response.status_code == 200:
+            json_response = response.json()
+            # Extract outputs for the specified pipeline name
+            outputs = json_response.get('tasks', {}).get(pipeline_name, {}).get('outputs', {})
+            output_values = list(outputs.values())
+            return outputs, output_values
+        else:
+            logging.error(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
+            return None, None
+
     def main(self):
         logging.info("Starting process based on action.")
 
@@ -206,6 +230,16 @@ class FirecloudAPI:
         elif self.action == "poll_job_status":
             status = self.poll_job_status()
             logging.info(f"Final job status: {status}")
+        elif self.action == "get_workflow_outputs":
+            if not args.submission_id or not args.workflow_id or not args.pipeline_name:
+                parser.error("Arguments --submission_id, --workflow_id, and --pipeline_name are required for 'get_workflow_outputs'")
+            # Fetch workflow outputs
+            outputs, output_values = self.get_workflow_outputs(args.submission_id, args.workflow_id, args.pipeline_name)
+            if outputs:
+                logging.info(f"Workflow outputs: {json.dumps(outputs, indent=2)}")
+                logging.info(f"Output values: {output_values}")
+            else:
+                logging.error("Failed to retrieve workflow outputs.")
         else:
             logging.error(f"Unknown action: {self.action}")
 
@@ -219,11 +253,8 @@ if __name__ == "__main__":
     parser.add_argument("--pipeline_name", help="Pipeline name (required for 'upload_test_inputs')")
     parser.add_argument("--test_input_file", help="Path to test input file (required for 'upload_test_inputs')")
     parser.add_argument("--branch_name", help="Branch name for the method repository (required for 'upload_test_inputs')")
-    parser.add_argument(
-        "action",
-        choices=["submit_job", "upload_test_inputs", "poll_job_status"],
-        help="Action to perform: 'submit_job' or 'upload_test_inputs' or 'poll_job_status'"
-    )
+    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs"],
+                    help="Action to perform: 'submit_job' or 'upload_test_inputs' or 'poll_job_status' or 'get_workflow_outputs'")
     parser.add_argument("--method_namespace", help="Method namespace")
     parser.add_argument("--method_name", help="Method name")
     parser.add_argument('--submission_data_file', help='Path to submission data JSON file (required for submit)')
