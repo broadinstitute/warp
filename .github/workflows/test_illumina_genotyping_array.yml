@@ -278,6 +278,8 @@ jobs:
                     --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
                     --sa-json-b64 "$SA_JSON_B64" \
                     --submission_id "$SUBMISSION_ID" \
+                    --workspace-namespace warp-pipelines \
+                    --workspace-name "WARP Tests" \
                     --workflow_id "$WORKFLOW_ID" \
                     --pipeline_name "$PIPELINE_NAME")
                     ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
