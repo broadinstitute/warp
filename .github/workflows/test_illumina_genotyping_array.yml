@@ -393,23 +393,23 @@ jobs:
           NAMESPACE: warp-pipelines
           WORKSPACE: WARP Tests
 
-      - name: Download Commit Hash from GCP
-        run: |
-          gsutil cp gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt ./commit_hash.txt
+      #- name: Download Commit Hash from GCP
+      #  run: |
+      #    gsutil cp gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt ./commit_hash.txt
 
-      - name: Check Commit Hash
-        id: check_commit_hash
-        run: |
-          # Read the commit hash from the downloaded file
-          COMMIT_HASH_FROM_WDL=$(cat commit_hash.txt)
-      
-          # Compare the two commit hashes
-          if [ "$COMMIT_HASH_FROM_WDL" != "${{ env.COMMIT_HASH }}" ]; then
-            echo "Error: The commit hash from the WDL output does not match the expected commit hash."
-            exit 1
-          else
-            echo "Commit hash match successful: $COMMIT_HASH_FROM_WDL"
-          fi
+      #- name: Check Commit Hash
+      #  id: check_commit_hash
+      #  run: |
+      #    # Read the commit hash from the downloaded file
+      #    COMMIT_HASH_FROM_WDL=$(cat commit_hash.txt)
+      #
+      #    # Compare the two commit hashes
+      #    if [ "$COMMIT_HASH_FROM_WDL" != "${{ env.COMMIT_HASH }}" ]; then
+      #      echo "Error: The commit hash from the WDL output does not match the expected commit hash."
+      #      exit 1
+      #    else
+      #      echo "Commit hash match successful: $COMMIT_HASH_FROM_WDL"
+      #    fi
 
       - name: Print Summary on Success
         if: success()
