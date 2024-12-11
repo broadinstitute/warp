@@ -9,8 +9,8 @@ from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 import argparse
 import sys
-import os
 import logging
+import time
 
 # Configure logging to display INFO level and above messages
 logging.basicConfig(
@@ -135,34 +135,52 @@ class FirecloudAPI:
             print(f"Failed to upload test inputs. Status code: {response.status_code}")
             return False
 
-    def poll_job_status(self, submission_id, polling_interval=30, timeout=3600):
+    def poll_submission_status(self, submission_id):
         """
-        Polls the status of a job submission until it reaches a terminal state.
-        :param submission_id: The ID of the job submission to monitor.
-        :param polling_interval: Time (in seconds) between status checks.
-        :param timeout: Maximum time (in seconds) to wait before giving up.
-        :return: The final status of the job.
+        Polls the status of a submission until it is complete and returns a dictionary of workflow IDs and their statuses.
+
+        :param submission_id: The ID of the submission to poll
+        :return: Dictionary with workflow IDs as keys and their statuses as values
         """
-        uri = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions/{submission_id}"
-        start_time = datetime.now()
+        # Construct the API endpoint URL for polling submission status
+        status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
+        workflow_status_map = {}
 
-        while (datetime.now() - start_time).total_seconds() < timeout:
-            response = requests.get(uri, headers=self.headers)
-            if response.status_code != 200:
-                print(f"Failed to fetch submission status. Status code: {response.status_code}. Response: {response.text}")
-                raise Exception("Failed to fetch job status.")
+        # Continuously poll the status of the submission until completion
+        while True:
+            status_response = requests.get(status_url, headers=self.headers)
 
-            status = response.json().get("status")
-            print(f"Current status for submission {submission_id}: {status}")
+            # Check if the response status code is successful (200)
+            if status_response.status_code != 200:
+                print(f"Error: Received status code {status_response.status_code}", file=sys.stderr)
+                print(f"Response content: {status_response.text}", file=sys.stderr)
+                return {}
 
-            if status in ["Done", "Failed", "Aborted"]:
-                print(f"Job {submission_id} reached terminal status: {status}")
-                return status
+            try:
+                # Parse the response as JSON
+                status_data = status_response.json()
+            except json.JSONDecodeError:
+                print("Error decoding JSON response.", file=sys.stderr)
+                print(f"Response content: {status_response.text}", file=sys.stderr)
+                return {}
 
-            sleep(polling_interval)
+            # Retrieve workflows and their statuses
+            workflows = status_data.get("workflows", [])
+            for workflow in workflows:
+                workflow_id = workflow.get("workflowId")
+                workflow_status = workflow.get("status")
+                if workflow_id and workflow_status:
+                    workflow_status_map[workflow_id] = workflow_status
 
-        raise TimeoutError(f"Polling timed out after {timeout} seconds for submission {submission_id}.")
+            # Check if the submission is complete
+            submission_status = status_data.get("status", "")
+            if submission_status == "Done":
+                break
 
+            # Wait for 60 seconds before polling again
+            time.sleep(20)
+
+        return workflow_status_map
     @staticmethod
     def quote_values(inputs_json):
         return {key: f'"{value}"' for key, value in inputs_json.items()}
