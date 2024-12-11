@@ -265,7 +265,6 @@ jobs:
                 --workspace-namespace "warp-pipelines" \
                 --workspace-name "WARP Tests")
           
-            echo "Response: $RESPONSE"
             if [ -z "$RESPONSE" ]; then
                 echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
                 continue
@@ -274,6 +273,7 @@ jobs:
           
             # Parse and store workflow statuses
             WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
+            echo "Workflow statuses for submission $WORKFLOW_STATUSES_FOR_SUBMISSION:"
             echo "Statuses for submission $SUBMISSION_ID:"
             echo "$WORKFLOW_STATUSES_FOR_SUBMISSION"
       
@@ -282,7 +282,7 @@ jobs:
       
             # Retrieve workflow outputs
             echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
-            for WORKFLOW_ID in $(echo "$SUBMISSION_ID" | jq -r 'keys[]'); do
+            for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
               WORKFLOW_OUTPUT=$(python3 scripts/firecloud_api/firecloud_api2.py get_outputs \
                 --submission_id "$SUBMISSION_ID" \
                 --workflow_id "$WORKFLOW_ID" \
