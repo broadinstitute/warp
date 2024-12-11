@@ -180,7 +180,7 @@ class FirecloudAPI:
             if submission_status == "Done":
                 break
 
-            # Wait for 60 seconds before polling again
+            # Wait for 20 seconds before polling again
             time.sleep(20)
 
         return workflow_status_map
@@ -259,11 +259,17 @@ if __name__ == "__main__":
             print(submission_id)
 
     elif args.action == "poll_job_status":
-        # Check for required argument for poll_job_status action
         if not args.submission_id:
             parser.error("Argument --submission_id is required for 'poll_job_status'")
-        # Poll the job status with the provided submission ID
-        api.poll_job_status(args.submission_id)
+        else:
+            # Poll the job status with the provided submission ID
+            workflow_status_map = api.poll_job_status(args.submission_id)
+
+            # Convert the dictionary to a JSON string and print it
+            if workflow_status_map:
+                print(json.dumps(workflow_status_map))  # Output the dictionary as a JSON string for bash parsing
+            else:
+                print("No workflows found or an error occurred.", file=sys.stderr)
 
 
 
