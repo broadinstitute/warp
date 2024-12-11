@@ -249,15 +249,13 @@ jobs:
           done
           done
           #export submission ids to github env
-          echo "submission_ids=${SUBMISSION_IDS[@]}" >> $GITHUB_ENV
+          echo "SUBMISSION_IDS=${SUBMISSION_IDS[@]}" >> $GITHUB_ENV
           echo $GITHUB_ENV
 
       - name: Monitor Workflow Status
         run: |
           echo "Monitoring the status of submitted workflows..."
-          echo "Submission IDs from the Submit Jobs step: ${{ steps.submit_jobs.outputs.submission_ids }}"
-          echo $submission_ids
-          IFS=',' read -r -a SUBMISSION_IDS <<< "$SUBMISSION_IDS"
+          echo "SUBMISSION_IDS: $SUBMISSION_IDS"
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
             echo "Polling submission status for Submission ID: $SUBMISSION_ID"
             SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api2.py poll_job_status \
