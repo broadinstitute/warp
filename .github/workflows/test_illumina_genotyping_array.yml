@@ -274,10 +274,6 @@ jobs:
               break
             done
           done
-      
-          echo "submission_ids=${SUBMISSION_IDS[@]}" >> $GITHUB_ENV
-          echo "workflow_statuses=${WORKFLOW_STATUSES[@]}" >> $GITHUB_ENV
-          
 
    #   - name: Monitor Workflow Status
    #     run: |
