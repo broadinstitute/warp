@@ -277,23 +277,23 @@ jobs:
             echo "Workflow statuses for submission $WORKFLOW_STATUSES_FOR_SUBMISSION:"
             echo "Statuses for submission $SUBMISSION_ID:"
             echo "$WORKFLOW_STATUSES_FOR_SUBMISSION"
-          done
-        
+            #up until here there are no issues with the script        
       
-      #   #   # Append to aggregate statuses
-      #   #   echo "Appending to aggregate statuses"
-      #   #   WORKFLOW_STATUSES["$SUBMISSION_ID"]=$WORKFLOW_STATUSES_FOR_SUBMISSION
-      #
-         #   # Retrieve workflow outputs
-         #   echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
-         #   for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
-         #     WORKFLOW_OUTPUT=$(python3 scripts/firecloud_api/firecloud_api2.py get_outputs \
-         #       --submission_id "$SUBMISSION_ID" \
-         #       --workflow_id "$WORKFLOW_ID" \
-         #       --pipeline_name "$PIPELINE_NAME")
-         #     ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
-         #   done
-         # done
+            # Append to aggregate statuses
+            echo "Appending to aggregate statuses"
+            WORKFLOW_STATUSES["$SUBMISSION_ID"]=$WORKFLOW_STATUSES_FOR_SUBMISSION
+          done
+
+       #  #   # Retrieve workflow outputs
+       #  #   echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
+       #  #   for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
+       #  #     WORKFLOW_OUTPUT=$(python3 scripts/firecloud_api/firecloud_api2.py get_outputs \
+       #  #       --submission_id "$SUBMISSION_ID" \
+       #  #       --workflow_id "$WORKFLOW_ID" \
+       #  #       --pipeline_name "$PIPELINE_NAME")
+       #  #     ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
+       #  #   done
+       #  # done
       
         #  # Generate summary for Submission IDs
         #  echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
