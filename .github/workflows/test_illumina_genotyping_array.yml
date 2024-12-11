@@ -277,10 +277,12 @@ jobs:
             echo "Workflow statuses for submission $WORKFLOW_STATUSES_FOR_SUBMISSION:"
             echo "Statuses for submission $SUBMISSION_ID:"
             echo "$WORKFLOW_STATUSES_FOR_SUBMISSION"
+          done
+        
       
-         #   # Append to aggregate statuses
-         #   echo "Appending to aggregate statuses"
-         #   WORKFLOW_STATUSES["$SUBMISSION_ID"]=$WORKFLOW_STATUSES_FOR_SUBMISSION
+      #   #   # Append to aggregate statuses
+      #   #   echo "Appending to aggregate statuses"
+      #   #   WORKFLOW_STATUSES["$SUBMISSION_ID"]=$WORKFLOW_STATUSES_FOR_SUBMISSION
       #
          #   # Retrieve workflow outputs
          #   echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
@@ -291,7 +293,7 @@ jobs:
          #       --pipeline_name "$PIPELINE_NAME")
          #     ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
          #   done
-          done
+         # done
       
         #  # Generate summary for Submission IDs
         #  echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
@@ -309,7 +311,7 @@ jobs:
         #    echo "" >> $GITHUB_STEP_SUMMARY
         #  done
         env:
-          SUBMISSION_IDS: ${{ steps.submit_jobs.outputs.submission_ids }} # Pass IDs from a previous step
+          #SUBMISSION_IDS: ${{ steps.submit_jobs.outputs.submission_ids }} # Pass IDs from a previous step
           PIPELINE_NAME: TestIlluminaGenotypingArray
           NAMESPACE: warp-pipelines
           WORKSPACE: WARP Tests
