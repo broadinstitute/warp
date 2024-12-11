@@ -309,7 +309,7 @@ jobs:
         #    echo "" >> $GITHUB_STEP_SUMMARY
         #  done
         env:
-          #SUBMISSION_IDS: ${{ steps.submit_jobs.outputs.submission_ids }} # Pass IDs from a previous step
+          SUBMISSION_IDS: ${{ steps.submit_jobs.outputs.submission_ids }} # Pass IDs from a previous step
           PIPELINE_NAME: TestIlluminaGenotypingArray
           NAMESPACE: warp-pipelines
           WORKSPACE: WARP Tests
