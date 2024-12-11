@@ -47,7 +47,7 @@ env:
   PROJECT_NAME: WARP
   # Github repo name
   REPOSITORY_NAME: ${{ github.event.repository.name }}
-  SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_CREDENTIALS }}
+  SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
 
 
 jobs:
