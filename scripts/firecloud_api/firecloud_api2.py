@@ -174,6 +174,9 @@ class FirecloudAPI:
                 workflow_status = workflow.get("status")
                 if workflow_id and workflow_status:
                     workflow_status_map[workflow_id] = workflow_status
+                    logging.info(f"Workflow ID: {workflow_id}, Status: {workflow_status}")
+                    #print the dictionary
+                    print(json.dumps(workflow_status_map))
 
             # Check if the submission is complete
             submission_status = status_data.get("status", "")
