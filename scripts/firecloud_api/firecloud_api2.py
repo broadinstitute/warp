@@ -9,6 +9,7 @@ from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 import argparse
 import sys
+import os
 import logging
 import time
 
@@ -135,7 +136,7 @@ class FirecloudAPI:
             print(f"Failed to upload test inputs. Status code: {response.status_code}")
             return False
 
-    def poll_submission_status(self, submission_id):
+    def poll_job_status(self, submission_id):
         """
         Polls the status of a submission until it is complete and returns a dictionary of workflow IDs and their statuses.
 
