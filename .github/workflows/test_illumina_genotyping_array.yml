@@ -279,6 +279,7 @@ jobs:
             echo "$WORKFLOW_STATUSES_FOR_SUBMISSION"
       
             # Append to aggregate statuses
+            echo "Appending to aggregate statuses"
             WORKFLOW_STATUSES["$SUBMISSION_ID"]=$WORKFLOW_STATUSES_FOR_SUBMISSION
       
             # Retrieve workflow outputs
