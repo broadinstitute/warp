@@ -154,15 +154,15 @@ class FirecloudAPI:
 
             # Check if the response status code is successful (200)
             if status_response.status_code != 200:
-                logging.error(f"Error: Received status code {status_response.status_code}", file=sys.stderr)
-                logging.info(f"Response content: {status_response.text}", file=sys.stderr)
+                logging.error(f"Error: Received status code {status_response.status_code}")
+                logging.info(f"Response content: {status_response.text}")
                 return {}
             try:
                 # Parse the response as JSON
                 status_data = status_response.json()
             except json.JSONDecodeError:
-                logging.error("Error decoding JSON response.", file=sys.stderr)
-                logging.info(f"Response content: {status_response.text}", file=sys.stderr)
+                logging.error("Error decoding JSON response.")
+                logging.info(f"Response content: {status_response.text}")
                 return {}
 
             # Retrieve workflows and their statuses
@@ -299,7 +299,7 @@ if __name__ == "__main__":
             if workflow_status_map:
                 print(json.dumps(workflow_status_map))  # Output the dictionary as a JSON string for bash parsing
             else:
-                print("No workflows found or an error occurred.", file=sys.stderr)
+                print("No workflows found or an error occurred.")
 
 
 
