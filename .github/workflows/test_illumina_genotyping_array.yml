@@ -107,11 +107,12 @@ jobs:
           DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
           branch_name: ${{ env.branch_name }}
 
-      - name: Set Commit Hash
-        id: set_commit_hash
+      - name: Fetch Github Commit Hash
+        id: fetch_github_commit_hash
         run: |
           echo "GITHUB_COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
-          echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
+          #echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
+          echo "GitHub Commit Hash: ${{ github.sha }}
 
       - name: Compare Dockstore and Commit Hashes
         id: compare_hashes
