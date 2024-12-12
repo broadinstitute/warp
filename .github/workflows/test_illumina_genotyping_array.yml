@@ -91,7 +91,7 @@ jobs:
       - name: Fetch Dockstore Workflow CommitID
         run: |
           # Wait for Dockstore to update
-          sleep 20
+          sleep 180
           # Capture the output of the script (commit ID)
           DOCKSTORE_COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
             $DOCKSTORE_TOKEN \
@@ -111,7 +111,6 @@ jobs:
         id: fetch_github_commit_hash
         run: |
           echo "GITHUB_COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
-          #echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
           echo "GitHub Commit Hash: ${{ github.sha }}"
 
       - name: Compare Dockstore and Commit Hashes
