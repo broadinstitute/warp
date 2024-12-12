@@ -218,7 +218,7 @@ class FirecloudAPI:
             time.sleep(20)
 
         return workflow_status_map
-    @staticmethod
+
     def quote_values(inputs_json):
         return {key: f'"{value}"' for key, value in inputs_json.items()}
 
