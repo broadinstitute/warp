@@ -188,7 +188,10 @@ class FirecloudAPI:
 
         # Continuously poll the status of the submission until completion
         while True:
-            status_response = requests.get(status_url, headers=self.build_auth_headers(self.delegated_creds.token))
+            # Get the token and headers
+            token = self.get_user_token(self.delegated_creds)
+            headers = self.build_auth_headers(token)
+            status_response = requests.get(status_url, headers=headers)
 
             # Check if the response status code is successful (200)
             if status_response.status_code != 200:
