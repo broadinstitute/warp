@@ -120,7 +120,7 @@ class FirecloudAPI:
             return None
 
 
-    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name, credentials: credentials):
+    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
         """
         Uploads test inputs to the workspace via Firecloud API.
 
@@ -131,7 +131,7 @@ class FirecloudAPI:
         # properly encode the space in WARP Tests as %20 using from urllib.parse import quote
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
 
-        token = get_user_token(credentials)
+        token = get_user_token(self.delegated_creds)
         headers = build_auth_headers(token)
 
         # get the current method configuration
