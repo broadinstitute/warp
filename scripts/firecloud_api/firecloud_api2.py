@@ -219,7 +219,7 @@ class FirecloudAPI:
 
         return workflow_status_map
 
-    def quote_values(inputs_json):
+    def quote_values(self, inputs_json):
         return {key: f'"{value}"' for key, value in inputs_json.items()}
 
     def get_workflow_outputs(self, submission_id, workflow_id, pipeline_name):
