@@ -53,7 +53,7 @@ class FirecloudAPI:
    #        "Authorization": f"Bearer {token}",
    #    }
 
-    def build_auth_headers(token: str):
+    def build_auth_headers(self, token: str):
         if not self.delegated_creds.valid:
             logging.info("Refreshing credentials.")
             self.delegated_creds.refresh(Request())
@@ -161,7 +161,7 @@ class FirecloudAPI:
 
 
         # post the updated method config to the workspace
-        response = requests.post(url, headers=self.headers, json=config)
+        response = requests.post(url, headers=headers, json=config)
         print(f"Response status code for uploading inputs: {response.status_code}")
         print(f"Response text: {response.text}")
 
