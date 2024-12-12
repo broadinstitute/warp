@@ -97,6 +97,7 @@ jobs:
         run: |
           python scripts/dockstore_api/fetch_dockstore_id.py $DOCKSTORE_TOKEN github.com%2Fbroadinstitute%2Fwarp%2FIlluminaGenotypingArray BIOWORKFLOW np_jw_test_illumina_genotyping_arrays
         env:
+          ##TODO NEED TO ADD DOCKSTORE_TOKEN FOR SERVICE ACCOUNT##
           DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
 
       - name: Set Commit Hash

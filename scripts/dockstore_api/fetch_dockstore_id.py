@@ -15,8 +15,19 @@ def fetch_workflow_id(token, repository, subclass, version_name):
 
     response = requests.get(url, params=params, headers=headers)
     response.raise_for_status()
-    workflow_data = response.json()
-    print(workflow_data.get("id"))
+    data = response.json()
+
+    # Extract workflow and version IDs
+    workflow_id = data.get("id")
+    version_id = next(
+        (version["id"] for version in data.get("workflowVersions", [])
+         if version["name"] == {version_name}),
+        None
+    )
+
+    print(f"Workflow ID: {workflow_id}")
+    print(f"Version ID: {version_id}")
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
