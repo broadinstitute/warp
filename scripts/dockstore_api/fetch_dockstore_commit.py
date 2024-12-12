@@ -20,7 +20,7 @@ def fetch_workflow_and_version_ids(token, repository, subclass, version_name):
         None
     )
     #increase the version number by 1
-    version_id = version_id + 1
+    #version_id = version_id + 1
 
     if not workflow_id or not version_id:
         raise ValueError("Workflow ID or Version ID could not be found.")
