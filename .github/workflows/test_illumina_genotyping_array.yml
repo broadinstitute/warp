@@ -112,7 +112,7 @@ jobs:
         run: |
           echo "GITHUB_COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
           #echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
-          echo "GitHub Commit Hash: ${{ github.sha }}
+          echo "GitHub Commit Hash: ${{ github.sha }}"
 
       - name: Compare Dockstore and Commit Hashes
         id: compare_hashes
