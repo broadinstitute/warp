@@ -80,6 +80,22 @@ jobs:
           cd scripts/firecloud_api/
           pip install -r requirements.txt
 
+      # Set the branch name.
+      # github.head_ref contains the name of the branch in the context of a pull request
+      # if github.head_ref is empty, it implies the workflow was triggered manually
+      # ${GITHUB_REF##*/} extracts the branch name from GITHUB_REF.
+      # The ##*/ is a parameter expansion that removes the refs/heads/ prefix, leaving just the branch name.
+      - name: Set Branch Name
+        id: set_branch
+        run: |
+          if [ -z "${{ github.head_ref }}" ]; then
+            echo "Branch name is missing, using ${GITHUB_REF##*/}"
+            echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          else
+            echo "Branch name from PR: ${{ github.head_ref }}"
+            echo "branch_name=${{ github.head_ref }}" >> $GITHUB_ENV
+          fi
+
       - name: Fetch Dockstore Workflow CommitID
         run: |
           # Wait for Dockstore to update
@@ -88,13 +104,14 @@ jobs:
           COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
             $DOCKSTORE_TOKEN \
             github.com%2Fbroadinstitute%2Fwarp%2FIlluminaGenotypingArray \
-            np_jw_test_illumina_genotyping_arrays)
+            $branch_name)
           # Export the commit hash as an environment variable
           echo "DOCKSTORE_COMMIT_HASH=$COMMIT_HASH_FROM_FETCH" >> $GITHUB_ENV
 
         env:
           ##TODO NEED TO ADD DOCKSTORE_TOKEN FOR SERVICE ACCOUNT##
           DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
+          branch_name: ${{ env.branch_name }}
 
       - name: Set Commit Hash
         id: set_commit_hash
@@ -117,23 +134,6 @@ jobs:
         env:
           DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
           COMMIT_HASH: ${{ env.COMMIT_HASH }}
-
-
-        # Set the branch name.
-      # github.head_ref contains the name of the branch in the context of a pull request
-      # if github.head_ref is empty, it implies the workflow was triggered manually
-      # ${GITHUB_REF##*/} extracts the branch name from GITHUB_REF.
-      # The ##*/ is a parameter expansion that removes the refs/heads/ prefix, leaving just the branch name.
-      - name: Set Branch Name
-        id: set_branch
-        run: |
-          if [ -z "${{ github.head_ref }}" ]; then
-            echo "Branch name is missing, using ${GITHUB_REF##*/}"
-            echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
-          else
-            echo "Branch name from PR: ${{ github.head_ref }}"
-            echo "branch_name=${{ github.head_ref }}" >> $GITHUB_ENV
-          fi
 
       - name: Set Test Type for PRs
         if: ${{ github.event_name == 'pull_request' }}
@@ -220,7 +220,7 @@ jobs:
                 --update_truth "$UPDATE_TRUTH_BOOL" \
                 --commit_hash "$COMMIT_HASH" )
             echo "Uploading the test input file: $test_input_file"
-            python3 scripts/firecloud_api/firecloud_api2.py \
+            python3 scripts/firecloud_api/firecloud_api.py \
                 upload_test_inputs \
                 --workspace-namespace warp-pipelines \
                 --workspace-name "WARP Tests" \
@@ -232,7 +232,7 @@ jobs:
       
             attempt=1
             while [ $attempt -le $MAX_RETRIES ]; do
-              SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api2.py submit_job \
+              SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api.py submit_job \
                --workspace-namespace "warp-pipelines" \
                --workspace-name "WARP Tests" \
                --sa-json-b64 "$SA_JSON_B64" \
@@ -265,7 +265,7 @@ jobs:
             attempt=1
             while [ $attempt -le $MAX_RETRIES ]; do
               echo "Polling for Submission ID: $SUBMISSION_ID"
-              RESPONSE=$(python3 scripts/firecloud_api/firecloud_api2.py poll_job_status \
+              RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py poll_job_status \
                   --submission_id "$SUBMISSION_ID" \
                   --sa-json-b64 "$SA_JSON_B64" \
                   --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
@@ -289,7 +289,7 @@ jobs:
               # retrieve workflow outputs
               echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
               for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
-                   WORKFLOW_OUTPUT=$(python3 scripts/firecloud_api/firecloud_api2.py get_workflow_outputs \
+                   WORKFLOW_OUTPUT=$(python3 scripts/firecloud_api/firecloud_api.py get_workflow_outputs \
                     --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
                     --sa-json-b64 "$SA_JSON_B64" \
                     --submission_id "$SUBMISSION_ID" \
