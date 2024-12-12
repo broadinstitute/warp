@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from urllib.parse import quote
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
+from google.auth import credentials
 import argparse
 import sys
 import os
@@ -31,33 +32,68 @@ class FirecloudAPI:
         self.method_namespace = method_namespace
         self.method_name = method_name
 
-
-    def _build_auth_headers(self):
-        scopes = ["profile", "email", "openid"]
+        # Setup credentials once during initialization
+        scopes = ['profile', 'email', 'openid']
+        decoded_sa = base64.b64decode(sa_json_b64).decode('utf-8')
         sa_credentials = service_account.Credentials.from_service_account_info(
-            json.loads(base64.b64decode(self.sa_json_b64).decode("utf-8")), scopes=scopes
+            json.loads(decoded_sa),
+            scopes=scopes
         )
-        #TODO - Fix this, probably needs to be encoded in base64
-        #sa_credentials = service_account.Credentials.from_service_account_info(
-        #    json.loads(self.sa_json_b64), scopes=scopes
-        #)
-        delegated_credentials = sa_credentials.with_subject(self.user)
-        token = self._get_user_token(delegated_credentials)
+        self.delegated_creds = sa_credentials.with_subject(user)
+
+
+   #def _build_auth_headers(self):
+   #    scopes = ["profile", "email", "openid"]
+   #    sa_credentials = service_account.Credentials.from_service_account_info(
+   #        json.loads(base64.b64decode(self.sa_json_b64).decode("utf-8")), scopes=scopes
+   #    )
+   #    delegated_credentials = sa_credentials.with_subject(self.user)
+   #    token = self._get_user_token(delegated_credentials)
+   #    return {
+   #        "content-type": "application/json",
+   #        "Authorization": f"Bearer {token}",
+   #    }
+
+    def build_auth_headers(token: str):
+        if not self.delegated_creds.valid:
+            logging.info("Refreshing credentials.")
+            self.delegated_creds.refresh(Request())
+        token = self.delegated_creds.token
         return {
             "content-type": "application/json",
             "Authorization": f"Bearer {token}",
         }
 
-    def _get_user_token(self, credentials):
-        if not credentials.valid or (credentials.expiry and (credentials.expiry - datetime.now(timezone.utc)).total_seconds() < 60):
-            logging.info("Refreshing user access token.")
+    #def _get_user_token(self, credentials):
+    #    if not credentials.valid or (credentials.expiry and (credentials.expiry - datetime.now(timezone.utc)).total_seconds() < 60):
+    #        logging.info("Refreshing user access token.")
+    #        credentials.refresh(Request())
+    #        logging.info("Token Refreshed.")
+    #    return credentials.token
+
+    def get_user_token(credentials: credentials):
+        """
+        Get test user's access token
+        """
+        # if token is expired or about to expire in 10 seconds, refresh and then use it
+        if not credentials.valid:
+            logging.info("Fetching user's new access token")
             credentials.refresh(Request())
-            logging.info("Token Refreshed.")
+        else:
+            expiry_timestamp = credentials.expiry.replace(tzinfo=timezone.utc).timestamp()
+            now_timestamp = datetime.now(timezone.utc).timestamp()
+            # if token is about to expire in 1 minute, refresh and then use it
+            if expiry_timestamp - now_timestamp < 60:
+                logging.info("Fetching user's new access token")
+                credentials.refresh(Request())
+
         return credentials.token
 
     def submit_job(self, submission_data_file):
+        token = get_user_token(credentials)
+        headers = build_auth_headers(token)
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
-        response = requests.post(url, json=submission_data_file, headers=self.headers)
+        response = requests.post(url, json=submission_data_file, headers=headers)
 
         # Print status code and response body for debugging
         logging.info(f"Response status code for submitting job: {response.status_code}")
