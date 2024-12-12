@@ -1,5 +1,12 @@
 import requests
 import sys
+import logging
+
+# Configure logging to display INFO level and above messages
+logging.basicConfig(
+    level=logging.INFO,  # This will show INFO and higher levels (INFO, WARNING, ERROR, CRITICAL)
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 def fetch_commit_id(token, repository, version_name):
     # Fetch the workflow data
@@ -15,6 +22,7 @@ def fetch_commit_id(token, repository, version_name):
 
     # Extract workflow ID and version ID
     workflow_id = data.get("id")
+
     version_id = next(
         (version["id"] for version in data.get("workflowVersions", [])
          if version["name"] == version_name),
@@ -35,18 +43,18 @@ def fetch_commit_id(token, repository, version_name):
     if not commit_id:
         raise ValueError("Commit ID could not be found.")
 
-    print(f"Dockstore Commit ID: {commit_id}")
+    logging.info(f"Dockstore Commit ID: {commit_id}")
     return commit_id
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Usage: python fetch_dockstore_commit.py <token> <repository> <version_name>")
+        logging.error("Usage: python fetch_dockstore_commit.py <token> <repository> <version_name>")
         sys.exit(1)
 
     _, token, repository, version_name = sys.argv
 
     try:
         commit_id = fetch_commit_id(token, repository, version_name)
-        print(commit_id)
+        logging.info(commit_id)
     except Exception as e:
-        print(f"Error: {e}")
+        logging.error(f"Error: {e}")
