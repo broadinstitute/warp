@@ -69,6 +69,9 @@ workflow Optimus {
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
     # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
     # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
+
+    # Set to true if slide-tags calls optimus, other wise set to false
+    Boolean is_slidetag = false
   }
 
   # version of this pipeline
@@ -183,8 +186,8 @@ workflow Optimus {
         count_exons = count_exons,
         output_bam_basename = output_bam_basename + "_" + idx,
         soloMultiMappers = soloMultiMappers,
-        samtools_star_docker_path = docker_prefix + samtools_star
-        #disk = disk_starsolo
+        samtools_star_docker_path = docker_prefix + samtools_star,
+        is_slidetag = is_slidetag
     }
   }
   call Merge.MergeSortBamFiles as MergeBam {

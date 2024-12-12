@@ -229,10 +229,13 @@ task STARsoloFastq {
     String samtools_star_docker_path
     Int machine_mem_mb = 64000
     Int cpu = 8
-    # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Int disk = ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
-    # by default request non preemptible machine to make sure the slow star alignment step completes
+   # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 3
+
+    # if slide_tags true set disk to 1000 otherwise dynamic allocation based on input size
+    # dynamic allocation multiplies input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
+    Boolean is_slidetag
+    Int disk = is_slidetag ? 1000 : ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
   }
 
   meta {
