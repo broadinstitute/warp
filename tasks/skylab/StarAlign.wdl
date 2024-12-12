@@ -235,7 +235,10 @@ task STARsoloFastq {
     # if slide_tags true set disk to 1000 otherwise dynamic allocation based on input size
     # dynamic allocation multiplies input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
     Boolean is_slidetag
-    Int disk = is_slidetag ? 1000 : ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
+    Int disk = if is_slidetag then 1000 else 
+    ceil(size(tar_star_reference, "Gi") * 3) + 
+    ceil(size(r1_fastq, "Gi") * 20) + 
+    ceil(size(r2_fastq, "Gi") * 20)
   }
 
   meta {
