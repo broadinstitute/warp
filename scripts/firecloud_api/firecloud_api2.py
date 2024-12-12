@@ -27,7 +27,6 @@ class FirecloudAPI:
         self.workspace_name = workspace_name
         self.user = user  # Store the user email
         self.base_url = "https://api.firecloud.org/api"
-        self.headers = self._build_auth_headers()
         self.action = action
         self.method_namespace = method_namespace
         self.method_name = method_name
