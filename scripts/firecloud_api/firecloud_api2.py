@@ -131,8 +131,8 @@ class FirecloudAPI:
         # properly encode the space in WARP Tests as %20 using from urllib.parse import quote
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
 
-        token = get_user_token(self.delegated_creds)
-        headers = build_auth_headers(token)
+        token = self.get_user_token(self.delegated_creds)
+        headers = self.build_auth_headers(token)
 
         # get the current method configuration
         response = requests.get(url, headers=headers)
