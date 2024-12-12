@@ -129,7 +129,7 @@ jobs:
           fi
         env:
           DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
-          GITHUB_COMMIT_HASH: ${{ env.$GITHUB_COMMIT_HASH }}
+          GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
 
       - name: Set Test Type for PRs
         if: ${{ github.event_name == 'pull_request' }}
