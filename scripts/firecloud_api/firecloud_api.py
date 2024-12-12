@@ -18,9 +18,7 @@ import requests
 import time
 import json
 import sys
-import subprocess
 from urllib.parse import quote
-import base64
 import os
 from google.auth.transport.requests import Request
 from google.auth import credentials
