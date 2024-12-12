@@ -341,8 +341,3 @@ if __name__ == "__main__":
                 print(json.dumps(workflow_status_map))  # Output the dictionary as a JSON string for bash parsing
             else:
                 print("No workflows found or an error occurred.")
-
-
-
-
-    #api.main()

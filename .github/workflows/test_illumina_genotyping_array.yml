@@ -93,6 +93,12 @@ jobs:
           cd scripts/firecloud_api/
           pip install -r requirements.txt
 
+      - name: Fetch Dockstore Workflow ID
+        run: |
+          python scripts/dockstore_api/fetch_dockstore_id.py $DOCKSTORE_TOKEN github.com%2Fbroadinstitute%2Fwarp%2FIlluminaGenotypingArray BIOWORKFLOW np_jw_test_illumina_genotyping_arrays
+        env:
+          DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
+
       - name: Set Commit Hash
         id: set_commit_hash
         run: echo "COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
@@ -295,96 +301,11 @@ jobs:
               echo "" >> $GITHUB_STEP_SUMMARY
             done
           done
-
-   #   - name: Monitor Workflow Status
-   #     run: |
-   #       echo "Monitoring the status of submitted workflows..."
-   #       # Convert the space-separated string into an array
-   #       IFS=' ' read -r -a submission_ids_array <<< "$submission_ids"
-   #
-   #           # Ensure the array is populated
-   #       if [ ${#submission_ids_array[@]} -eq 0 ]; then
-   #           echo "No submission IDs found. Exiting..."
-   #           exit 1
-   #       fi
-   #
-   #       declare -A WORKFLOW_STATUSES
-   #
-   #       echo "submission_ids_array: ${submission_ids_array[@]}"
-   #
-   #       for SUBMISSION_ID in "${submission_ids_array[@]}"; do
-   #         echo "Polling submission status for Submission ID: $SUBMISSION_ID"
-   #         RESPONSE=$(python3 scripts/firecloud_api/firecloud_api2.py poll_job_status \
-   #             --submission_id "$SUBMISSION_ID" \
-   #             --sa-json-b64 "$SA_JSON_B64" \
-   #             --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
-   #             --workspace-namespace "warp-pipelines" \
-   #             --workspace-name "WARP Tests")
-   #
-   #         if [ -z "$RESPONSE" ]; then
-   #             echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
-   #             continue
-   #         fi
-   #
-   #            # Debug raw response
-   #         echo "Raw Workflow Statuses:"
-   #         echo "$RESPONSE"
-   #
-   #         # Parse and store workflow statuses
-   #         echo "Parsing workflow statuses for submissions"
-   #         WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
-   #         echo "Raw Workflow Statuses: $WORKFLOW_STATUSES_FOR_SUBMISSION"
-   #         #up until here there are no issues with the script
-   #
-   #        # Remove duplicates and sanitize
-   #         CLEANED_WORKFLOW_STATUSES=$(echo "$WORKFLOW_STATUSES_FOR_SUBMISSION" | awk '!seen[$0]++')
-   #           # Debug cleaned statuses
-   #         echo "Cleaned Workflow Statuses: $CLEANED_WORKFLOW_STATUSES"
-   #
-   #         # Reset and assign to associative array
-   #         WORKFLOW_STATUSES["$SUBMISSION_ID"]="$CLEANED_WORKFLOW_STATUSES"
-   #
-   #         #Debug stored status
-   #          echo "Stored Workflow Statuses for $SUBMISSION_ID: ${WORKFLOW_STATUSES[$SUBMISSION_ID]}"
-#
-   #        # Append to aggregate statuses
-   #         echo "Appending to aggregate statuses"
-   #         CLEANED_WORKFLOW_STATUSES=$(echo "$WORKFLOW_STATUSES_FOR_SUBMISSION" | tr -d '\n' | tr -d '\r')
-   #         echo "CLEANED_WORKFLOW_STATUSES: $CLEANED_WORKFLOW_STATUSES"
-   #         WORKFLOW_STATUSES["$SUBMISSION_ID"]="$CLEANED_WORKFLOW_STATUSES"
-   #       done
-
-       #  #   # Retrieve workflow outputs
-       #  #   echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
-       #  #   for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
-       #  #     WORKFLOW_OUTPUT=$(python3 scripts/firecloud_api/firecloud_api2.py get_outputs \
-       #  #       --submission_id "$SUBMISSION_ID" \
-       #  #       --workflow_id "$WORKFLOW_ID" \
-       #  #       --pipeline_name "$PIPELINE_NAME")
-       #  #     ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
-       #  #   done
-       #  # done
-      
-        #  # Generate summary for Submission IDs
-        #  echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
-        #  for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
-        #    # Generate the Terra URL for the submission
-        #    SUBMISSION_URL="https://app.terra.bio/#workspaces/$NAMESPACE/${WORKSPACE// /%20}/job_history/$SUBMISSION_ID"
-      #
-        #    # Add the Submission ID as a hyperlink
-        #    echo "[Submission ID: $SUBMISSION_ID]($SUBMISSION_URL)" >> $GITHUB_STEP_SUMMARY
-      #
-        #    # Add the workflows and statuses for this submission
-        #    echo "${WORKFLOW_STATUSES[$SUBMISSION_ID]}" >> $GITHUB_STEP_SUMMARY
-      #
-        #    # Add a blank line for separation
-        #    echo "" >> $GITHUB_STEP_SUMMARY
-        #  done
         env:
-          #SUBMISSION_IDS: ${{ steps.submit_jobs.outputs.submission_ids }} # Pass IDs from a previous step
           PIPELINE_NAME: TestIlluminaGenotypingArray
           NAMESPACE: warp-pipelines
           WORKSPACE: WARP Tests
+
 
       #- name: Download Commit Hash from GCP
       #  run: |
