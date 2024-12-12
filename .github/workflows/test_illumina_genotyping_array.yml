@@ -69,19 +69,6 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      # id: 'auth'
-      # name: 'Authenticate to Google Cloud'
-      # uses: 'google-github-actions/auth@v2'
-      # with:
-      #   token_format: 'access_token'
-      #   # Centralized in dsp-tools-k8s; ask in #dsp-devops-champions for help troubleshooting
-      #   # This is provided by the DevOps team - do not change!
-      #   workload_identity_provider: 'projects/1038484894585/locations/global/workloadIdentityPools/github-wi-pool/providers/github-wi-provider'
-      #   # This is our tester service account
-      #   service_account: 'pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com'
-      #   access_token_lifetime: '3600' # seconds, default is 3600
-      #   access_token_scopes: 'profile, email, openid'
-
       - name: Set up python
         id: setup-python
         uses: actions/setup-python@v4
@@ -93,11 +80,13 @@ jobs:
           cd scripts/firecloud_api/
           pip install -r requirements.txt
 
-      - name: Fetch Dockstore Workflow ID
+      - name: Fetch Dockstore Workflow CommitID
         run: |
           #sleep for 3 minutes to allow dockstore to update
           sleep 180
           python scripts/dockstore_api/fetch_dockstore_commit.py $DOCKSTORE_TOKEN github.com%2Fbroadinstitute%2Fwarp%2FIlluminaGenotypingArray BIOWORKFLOW np_jw_test_illumina_genotyping_arrays
+          echo "DOCKSTORE_COMMIT_HASH=$COMMIT_HASH_FROM_FETCH" >> $GITHUB_ENV
+
         env:
           ##TODO NEED TO ADD DOCKSTORE_TOKEN FOR SERVICE ACCOUNT##
           DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
@@ -105,6 +94,25 @@ jobs:
       - name: Set Commit Hash
         id: set_commit_hash
         run: echo "COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
+
+      - name: Compare Dockstore and Commit Hashes
+        id: compare_hashes
+        run: |
+          echo "Comparing hashes..."
+          echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
+          echo "GitHub Commit Hash: $COMMIT_HASH"
+
+          if [ "$DOCKSTORE_COMMIT_HASH" != "$COMMIT_HASH" ]; then
+            echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash!"
+            echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $COMMIT_HASH"
+            exit 1
+          else
+            echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
+          fi
+        env:
+          DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
+          COMMIT_HASH: ${{ env.COMMIT_HASH }}
+
 
         # Set the branch name.
       # github.head_ref contains the name of the branch in the context of a pull request
@@ -308,25 +316,6 @@ jobs:
           PIPELINE_NAME: TestIlluminaGenotypingArray
           NAMESPACE: warp-pipelines
           WORKSPACE: WARP Tests
-
-
-      #- name: Download Commit Hash from GCP
-      #  run: |
-      #    gsutil cp gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt ./commit_hash.txt
-
-      #- name: Check Commit Hash
-      #  id: check_commit_hash
-      #  run: |
-      #    # Read the commit hash from the downloaded file
-      #    COMMIT_HASH_FROM_WDL=$(cat commit_hash.txt)
-      #
-      #    # Compare the two commit hashes
-      #    if [ "$COMMIT_HASH_FROM_WDL" != "${{ env.COMMIT_HASH }}" ]; then
-      #      echo "Error: The commit hash from the WDL output does not match the expected commit hash."
-      #      exit 1
-      #    else
-      #      echo "Commit hash match successful: $COMMIT_HASH_FROM_WDL"
-      #    fi
 
       - name: Print Summary on Success
         if: success()
