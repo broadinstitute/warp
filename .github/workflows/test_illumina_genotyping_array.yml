@@ -95,6 +95,8 @@ jobs:
 
       - name: Fetch Dockstore Workflow ID
         run: |
+          #sleep for 3 minutes to allow dockstore to update
+          sleep 180
           python scripts/dockstore_api/fetch_dockstore_commit.py $DOCKSTORE_TOKEN github.com%2Fbroadinstitute%2Fwarp%2FIlluminaGenotypingArray BIOWORKFLOW np_jw_test_illumina_genotyping_arrays
         env:
           ##TODO NEED TO ADD DOCKSTORE_TOKEN FOR SERVICE ACCOUNT##
