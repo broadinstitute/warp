@@ -89,8 +89,8 @@ class FirecloudAPI:
         return credentials.token
 
     def submit_job(self, submission_data_file):
-        token = get_user_token(credentials)
-        headers = build_auth_headers(token)
+        token = self.get_user_token(self.delegated_creds)
+        headers = self.build_auth_headers(token)
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
         response = requests.post(url, json=submission_data_file, headers=headers)
 
