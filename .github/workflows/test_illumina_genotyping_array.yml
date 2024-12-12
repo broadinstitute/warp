@@ -236,7 +236,7 @@ jobs:
             done
           done
           
-          echo "All jobs have been submitted. Now starting polling for statuses..."
+          echo "All jobs have been submitted. Starting to poll for statuses..."
       
           # 2. After all submissions are done, start polling for statuses of all jobs
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
@@ -260,15 +260,8 @@ jobs:
                   sleep $RETRY_DELAY
                   continue
               fi
-          
-              echo "Raw Workflow Statuses:"
-              echo "$RESPONSE"
       
               WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
-              echo "Statuses for submission $SUBMISSION_ID:"
-              echo "$WORKFLOW_STATUSES_FOR_SUBMISSION"
-    
-              echo "Appending to aggregate statuses"
               WORKFLOW_STATUSES["$SUBMISSION_ID"]="$WORKFLOW_STATUSES_FOR_SUBMISSION"
           
               # retrieve workflow outputs

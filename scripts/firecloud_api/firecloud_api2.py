@@ -150,7 +150,6 @@ class FirecloudAPI:
 
         # Continuously poll the status of the submission until completion
         while True:
-            logging.info(f"Polling submission ID: {submission_id}")
             status_response = requests.get(status_url, headers=self.headers)
 
             # Check if the response status code is successful (200)
@@ -158,7 +157,6 @@ class FirecloudAPI:
                 logging.error(f"Error: Received status code {status_response.status_code}", file=sys.stderr)
                 logging.info(f"Response content: {status_response.text}", file=sys.stderr)
                 return {}
-
             try:
                 # Parse the response as JSON
                 status_data = status_response.json()
@@ -174,9 +172,6 @@ class FirecloudAPI:
                 workflow_status = workflow.get("status")
                 if workflow_id and workflow_status:
                     workflow_status_map[workflow_id] = workflow_status
-                    logging.info(f"Workflow ID: {workflow_id}, Status: {workflow_status}")
-                    #print the dictionary
-                    print(json.dumps(workflow_status_map))
 
             # Check if the submission is complete
             submission_status = status_data.get("status", "")
