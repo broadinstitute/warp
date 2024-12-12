@@ -83,7 +83,7 @@ jobs:
       - name: Fetch Dockstore Workflow CommitID
         run: |
           # Wait for Dockstore to update
-          sleep 10
+          sleep 180
           # Capture the output of the script (commit ID)
           COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
             $DOCKSTORE_TOKEN \
