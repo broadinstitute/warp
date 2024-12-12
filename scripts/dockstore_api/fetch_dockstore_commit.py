@@ -35,6 +35,7 @@ def fetch_commit_id(token, repository, version_name):
     if not commit_id:
         raise ValueError("Commit ID could not be found.")
 
+    print(f"Dockstore Commit ID: {commit_id}")
     return commit_id
 
 if __name__ == "__main__":
