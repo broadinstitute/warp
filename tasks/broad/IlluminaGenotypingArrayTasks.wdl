@@ -249,6 +249,9 @@ task CreateVerifyIDIntensityContaminationMetricsFile {
 
   command {
     set -eo pipefail
+    #TESTING
+    #sleep for 55 minutes
+    sleep 3300
 
     # Since VerifyIDIntensity might have been run in multi-sample mode and we only want the contamination
     # of the *first* sample, we create a truncated version of the input_file with ONLY THAT FIRST LINE
