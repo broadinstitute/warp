@@ -1,3 +1,8 @@
+# 2.0.7
+2024-12-12 (Date of Last Commit)
+
+*  Added a boolean variable is_slidetag; this does not affect the outputs of the pipeline.
+
 # 2.0.6
 2024-11-15 (Date of Last Commit)
 
