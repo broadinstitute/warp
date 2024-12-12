@@ -78,6 +78,7 @@ class FirecloudAPI:
         if not credentials.valid:
             logging.info("Fetching user's new access token")
             credentials.refresh(Request())
+            logging.info("Token refreshed.")
         else:
             expiry_timestamp = credentials.expiry.replace(tzinfo=timezone.utc).timestamp()
             now_timestamp = datetime.now(timezone.utc).timestamp()
@@ -85,6 +86,7 @@ class FirecloudAPI:
             if expiry_timestamp - now_timestamp < 60:
                 logging.info("Fetching user's new access token")
                 credentials.refresh(Request())
+                logging.info("Token refreshed.")
 
         return credentials.token
 
