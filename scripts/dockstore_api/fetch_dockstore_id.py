@@ -16,12 +16,14 @@ def fetch_workflow_id(token, repository, subclass, version_name):
     response = requests.get(url, params=params, headers=headers)
     response.raise_for_status()
     data = response.json()
+    desired_version_name = "np_jw_test_illumina_genotyping_arrays"
+
 
     # Extract workflow and version IDs
     workflow_id = data.get("id")
     version_id = next(
         (version["id"] for version in data.get("workflowVersions", [])
-         if version["name"] == {version_name}),
+         if version["name"] == desired_version_name),
         None
     )
 
