@@ -70,7 +70,7 @@ class FirecloudAPI:
     #        logging.info("Token Refreshed.")
     #    return credentials.token
 
-    def get_user_token(credentials: credentials):
+    def get_user_token(self, credentials: credentials):
         """
         Get test user's access token
         """
