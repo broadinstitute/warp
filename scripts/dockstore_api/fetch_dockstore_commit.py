@@ -3,7 +3,7 @@ import sys
 
 def fetch_commit_id(token, repository, version_name):
     # Fetch the workflow data
-    url = f"https://dockstore.org/api/workflows/path/workflow/{repository}/published"
+    url = f"https://dockstore.org/api/workflows/path/workflow/github.com%2Fbroadinstitute%2Fwarp%2F{repository}/published"
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/json",
