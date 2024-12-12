@@ -99,6 +99,7 @@ jobs:
             $branch_name)
           # Export the commit hash as an environment variable
           echo "DOCKSTORE_COMMIT_HASH=$COMMIT_HASH_FROM_FETCH" >> $GITHUB_ENV
+          echo "Dockstore Commit Hash: $COMMIT_HASH_FROM_FETCH"
 
         env:
           ## TODO NEED TO ADD DOCKSTORE_TOKEN FOR SERVICE ACCOUNT ##
