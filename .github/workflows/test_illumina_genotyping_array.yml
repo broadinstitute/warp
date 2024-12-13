@@ -131,6 +131,23 @@ jobs:
   #        DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
   #        GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
 
+      - name: Decode the base64-encoded Google Cloud service account key
+        run: |
+          # Decode the base64 secret to the JSON file
+          echo ${{ secrets.PDT_TESTER_SA_B64 }} | base64 --decode > $HOME/gcloud-key.json
+          # Set GOOGLE_APPLICATION_CREDENTIALS environment variable to point to the JSON key file
+          export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-key.json
+
+      - name: Authenticate with Google Cloud
+        run: |
+          gcloud auth activate-service-account --key-file=$HOME/gcloud-key.json
+
+      - name: Run your Google Cloud commands
+        run: |
+          # Your Google Cloud commands, e.g., gsutil or gcloud commands
+          gsutil cp gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt .
+          
+
       - name: Check gcloud auth list manually
         run: |
           # Decode the Base64 service account key and save it to a temporary file
