@@ -42,6 +42,7 @@ class FirecloudAPI:
             scopes=scopes
         )
         self.delegated_creds = sa_credentials.with_subject(user)
+        self.storage_client = storage.Client(credentials=sa_credentials, project=sa_credentials.project_id)
 
     def build_auth_headers(self, token: str):
         if not self.delegated_creds.valid:
@@ -285,13 +286,13 @@ class FirecloudAPI:
             return None
 
     def gsutil_copy(self, source, destination):
-        client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
+        #client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
         source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
         destination_bucket_name, destination_blob_name = destination.replace("gs://", "").split("/", 1)
 
-        source_bucket = client.bucket(source_bucket_name)
+        source_bucket = self.storage_client.bucket(source_bucket_name)
         source_blob = source_bucket.blob(source_blob_name)
-        destination_bucket = client.bucket(destination_bucket_name)
+        destination_bucket = self.storage_client.bucket(destination_bucket_name)
 
         source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
 
