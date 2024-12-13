@@ -49,7 +49,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.4.0"
+  String pipeline_version = "2.5.3"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -57,7 +57,7 @@ workflow ATAC {
   String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
   # Docker image names
-  String warp_tools_2_2_0 = "warp-tools:2.2.0"
+  String warp_tools_2_2_0 = "warp-tools:2.5.0"
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
@@ -592,7 +592,7 @@ task CreateFragmentFile {
     print("Print number of cells", number_of_cells)
     atac_percent_target = number_of_cells / expected_cells*100
     print("Setting percent target in nested dictionary")
-    data['Cells']['percent_target'] = atac_percent_target
+    data['Cells']['atac_percent_target'] = atac_percent_target
     
     
     # Flatten the dictionary
@@ -717,7 +717,7 @@ task CreateFragmentFile {
     echo "Starting bgzip"
     bgzip "~{input_id}.fragments.sorted.tsv"
     echo "Starting tabix"
-    tabix -s 1 -b 2 -e 3 "~{input_id}.fragments.sorted.tsv.gz"
+    tabix -s 1 -b 2 -e 3 -C "~{input_id}.fragments.sorted.tsv.gz"
   >>>
 
   runtime {
@@ -730,6 +730,8 @@ task CreateFragmentFile {
 
   output {
     File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
+    File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
+
     File Snap_metrics = "~{input_id}.metrics.h5ad"
     File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
   }

@@ -80,7 +80,7 @@ workflow VerifyMultiome {
             test_text_file = test_library_metrics,
             truth_text_file = truth_library_metrics
     }
-    call VerifyTasks.CompareTextFiles as CompareAtacLibraryMetrics {
+    call VerifyTasks.CompareAtacLibraryMetrics as CompareAtacLibraryMetrics {
         input:
             test_text_files = select_all([test_atac_library_metrics]),
             truth_text_files = select_all([truth_atac_library_metrics])

@@ -1,8 +1,30 @@
+# 2.0.6
+2024-11-15 (Date of Last Commit)
+
+* Fixed a bug in the StarSoloFastq task that caused the pipeline to not output a UniqueAndMult-Uniform.mtx when --soloMultiMappers Uniform was passed to STAR; this does not affect the outputs of the pipeline
+
+# 2.0.5
+2024-11-15 (Date of Last Commit)
+
+* Added bam validation in the StarSoloFastq task; this does not affect the outputs of the pipeline
+
+# 2.0.4
+2024-11-12 (Date of Last Commit)
+
+* Added memory and disk updates to Multiome JoinBarcodes; this does not impact the snSS2 workflow
+
+# 2.0.3
+2024-11-04 (Date of Last Commit)
+
+* Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task should not affect the snSS2 pipeline
+
+
 # 2.0.2
 2024-10-23 (Date of Last Commit)
 
 * Updated the h5adUtils WDL to rename the gene expression library CSV filename; this does not impact slideseq
 * Updated the ATAC fragment file output so that it is bgzipped; this does not impact the Multi-snSS2 workflow
+* Updated memory settings for PairedTag; does not impact the snSS2 workflow
 
 # 2.0.1
 2024-09-24 (Date of Last Commit)

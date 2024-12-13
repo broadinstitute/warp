@@ -1,3 +1,25 @@
+# 7.8.4
+2024-12-3 (Date of Last Commit)
+
+* Fixed a bug in the StarSoloFastq task that caused the pipeline to not output a UniqueAndMult-Uniform.mtx when --soloMultiMappers Uniform was passed to STAR
+
+# 7.8.3
+2024-11-22 (Date of Last Commit)
+
+* Added bam validation in the StarSoloFastq task; this does not affect the outputs of the pipeline
+* Updated the warp-tools docker; this update changes the way gene_names are identified when creating gene expression h5ad files
+
+# 7.8.2
+2024-11-12 (Date of Last Commit)
+
+* Added memory and disk updates to Multiome JoinBarcodes; this does not impact the Optimus workflow
+
+# 7.8.1
+2024-11-04 (Date of Last Commit)
+
+* Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task should not affect the Optimus pipeline
+
+
 # 7.8.0
 2024-10-23 (Date of Last Commit)
 
@@ -5,6 +27,7 @@
 * Updated gex_expected_cells to a required output
 * Reformatted the library CSV output filename to remove an extra gex
 * Updated the ATAC fragment file output so that it is bgzipped; this does  not impact the Optimus workflow
+* Updated memory settings for PairedTag; does not impact the Optimus workflow
 
 # 7.7.0
 2024-09-24 (Date of Last Commit)

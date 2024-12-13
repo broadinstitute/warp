@@ -1,3 +1,27 @@
+# 5.9.3
+2024-12-3 (Date of Last Commit)
+
+* Fixed a bug in the StarSoloFastq task that caused the pipeline to not output a UniqueAndMult-Uniform.mtx when --soloMultiMappers Uniform was passed to STAR
+
+# 5.9.2
+2024-11-22 (Date of Last Commit)
+
+* Added bam validation in the StarSoloFastq task; this does not affect the outputs of the pipeline
+* Updated the warp-tools docker; this update changes the way gene_names are identified when creating gene expression h5ad files
+
+# 5.9.1
+2024-11-12 (Date of Last Commit)
+
+* Renamed the ATAC workflow library metric percent_target to atac_percent_target for compatibility with downstream tools
+* Added more disk and memory to the JoinBarcodes task
+
+# 5.9.0
+2024-10-21 (Date of Last Commit)
+
+* Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task changes the format for the ATAC fragment file index 
+* Renamed the fragment file index from atac_fragment_tsv_tbi to atac_fragment_tsv_index
+
+
 # 5.8.0
 2024-10-23 (Date of Last Commit)
 
@@ -5,6 +29,7 @@
 * Updated the ATAC library CSV and the Gene Expression library CSV to be consistent in file naming convention and to have similar case for metric names
 * Added a new metric to the ATAC library CSV to calculate percent_target, which is the number of estimated cells by SnapATAC2 divided by expected_cells input
 * Updated the ATAC workflow so that the output fragment file is bgzipped by default
+* Updated memory settings for PairedTag; does not impact the Multiome workflow
 
 # 5.7.1
 2024-10-18 (Date of Last Commit)
