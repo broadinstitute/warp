@@ -266,6 +266,24 @@ class FirecloudAPI:
     #        exit(1)
 
 
+    def gcloud_auth_list(self):
+        try:
+            # Run the gcloud auth list command and capture output
+            result = subprocess.run(
+                ["gcloud", "auth", "list", "--format=json"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            # Parse the result as JSON
+            auth_list = json.loads(result.stdout)
+            # Output the result
+            logging.info(f"gcloud auth list output: {json.dumps(auth_list, indent=2)}")
+            return auth_list
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Error executing 'gcloud auth list': {e.stderr}")
+            return None
+
     def gsutil_copy(self, source, destination):
         client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
         source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
@@ -338,6 +356,15 @@ if __name__ == "__main__":
         method_namespace=args.method_namespace,
         method_name=args.method_name
     )
+
+    # Example: Checking the gcloud auth list before proceeding
+    auth_list = api.gcloud_auth_list()
+    if auth_list:
+        logging.info("Authenticated accounts:")
+        for account in auth_list:
+            logging.info(f"Account: {account['account']}, Active: {account['active']}")
+    else:
+        logging.error("Failed to retrieve gcloud authentication list.")
 
     # Perform the selected action
     if args.action == "upload_test_inputs":

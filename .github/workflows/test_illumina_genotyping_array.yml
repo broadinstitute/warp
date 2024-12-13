@@ -131,6 +131,10 @@ jobs:
   #        DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
   #        GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
 
+      - name: Check gcloud auth list
+        run: |
+          python scripts/firecloud_api/gcloudauth.py
+
       - name: Perform File Copy with gsutil
         run: |
           python scripts/firecloud_api/firecloud_api.py gsutil_copy \
