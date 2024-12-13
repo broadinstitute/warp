@@ -625,7 +625,7 @@ task CreateFragmentFile {
 
     if peakcalling_bool:
         print("Peak calling starting...")
-        atac_data = snap.read("~{bam_base_name}.metrics.h5ad")
+        atac_data = snap.read("~{input_id}.metrics.h5ad")
 
         # Calculate and plot the size distribution of fragments
         print("Calculating fragment size distribution")
@@ -706,7 +706,7 @@ task CreateFragmentFile {
               atac_data_mod.uns[key] = atac_data_mod.uns[key].to_pandas()
 
         print("Write into h5ad file")
-        atac_data_mod.write_h5ad("~{bam_base_name}.peaks.h5ad")
+        atac_data_mod.write_h5ad("~{input_id}.peaks.h5ad")
         print("test")
 
     CODE
