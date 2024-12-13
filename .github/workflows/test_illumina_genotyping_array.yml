@@ -133,7 +133,7 @@ jobs:
 
       - name: Check gcloud auth list
         run: |
-          python scripts/firecloud_api/gcloudauth.py
+          python scripts/firecloud_api/gcloudauth.py --key-file= "$SA_JSON_B64"
 
       - name: Perform File Copy with gsutil
         run: |
