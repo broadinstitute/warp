@@ -266,7 +266,7 @@ class FirecloudAPI:
     #        exit(1)
 
 
-    def gsutil_copy(source, destination):
+    def gsutil_copy(self, source, destination):
         client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
         source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
         destination_bucket_name, destination_blob_name = destination.replace("gs://", "").split("/", 1)
