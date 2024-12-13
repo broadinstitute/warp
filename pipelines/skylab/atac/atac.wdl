@@ -542,12 +542,6 @@ task CreateFragmentFile {
     set -euo pipefail
     set -x 
 
-    # install packages -- need to add to the docker
-    pip3 install snapatac2==2.7.0 scanpy
-    
-    file_to_change=/usr/local/lib/python3.10/site-packages/snapatac2/tools/_call_peaks.py
-    sed -i '164s/.*/        peaks = [_call_peaks(x) for x in fragments.values()]/' $file_to_change
-
     python3 <<CODE
 
     # set parameters
@@ -696,7 +690,7 @@ task CreateFragmentFile {
             print(f"Cluster {i}: {', '.join(markers)}")
 
         print("Peak calling using MACS3")
-        snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=8)
+        snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=1)
         
         print("Convert pl.DataFrame to pandas DataFrame")
         # Convert pl.DataFrame to pandas DataFrame
@@ -766,7 +760,6 @@ task PeakCalling {
     set -euo pipefail
     set -x 
     
-    file_to_change=/usr/local/lib/python3.10/site-packages/snapatac2/tools/_call_peaks.py
     python3 <<CODE
 
     # use snap atac2
