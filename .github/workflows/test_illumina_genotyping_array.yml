@@ -324,7 +324,9 @@ jobs:
             --sa-json-b64 "$SA_JSON_B64" \
             --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
             --source "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt" \
-            --destination .
+            --destination . \
+            --workspace-namespace warp-pipelines \
+            --workspace-name "WARP Tests"
         env:
           SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
 
