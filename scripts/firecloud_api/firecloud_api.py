@@ -13,6 +13,8 @@ import sys
 import os
 import logging
 import time
+import subprocess
+
 
 # Configure logging to display INFO level and above messages
 logging.basicConfig(
@@ -231,6 +233,36 @@ class FirecloudAPI:
             logging.error(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
 
+    def gsutil_copy(self, source, destination):
+        """
+        Copies files between GCS locations using gsutil with authentication.
+
+        :param source: The source GCS path (e.g., "gs://bucket/source_file").
+        :param destination: The destination GCS path (e.g., "gs://bucket/destination_file").
+        :return: Output of the gsutil command.
+        """
+        # Retrieve a valid user token
+        token = self.get_user_token(self.delegated_creds)
+
+        # Set up the environment variable for gsutil authentication
+        os.environ['GOOGLE_OAUTH_ACCESS_TOKEN'] = token
+
+        # Prepare the gsutil command
+        command = ["gsutil", "cp", source, destination]
+        #echo the command
+        print(f"Running command: {' '.join(command)}")
+
+
+        try:
+            # Execute the gsutil copy command
+            result = subprocess.run(command, capture_output=True, text=True, check=True)
+
+            # Return the command output
+            return result.stdout
+        except subprocess.CalledProcessError as e:
+            logging.error(f"gsutil copy failed: {e.stderr}")
+            raise RuntimeError(f"gsutil copy failed: {e.stderr}") from e
+
     def main(self):
         logging.info("Starting process based on action.")
 
@@ -276,6 +308,11 @@ if __name__ == "__main__":
     parser.add_argument('--submission_data_file', help='Path to submission data JSON file (required for submit)')
     parser.add_argument('--submission_id', help='Submission ID (required for poll_job_status)')
     parser.add_argument('--workflow_id', help='Workflow ID (required for get_workflow_outputs)')
+    parser.add_argument("--source", help="Source GCS path for gsutil copy")
+    parser.add_argument("--destination", help="Destination GCS path for gsutil copy")
+    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "gsutil_copy"],
+                    help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs', or 'gsutil_copy'")
+
     args = parser.parse_args()
 
     # Pass action to the FirecloudAPI constructor
@@ -321,3 +358,15 @@ if __name__ == "__main__":
                 print(json.dumps(workflow_status_map))  # Output the dictionary as a JSON string for bash parsing
             else:
                 print("No workflows found or an error occurred.")
+    elif args.action == "gsutil_copy":
+        if not args.source or not args.destination:
+            parser.error("Arguments --source and --destination are required for 'gsutil_copy'")
+        else:
+            # Perform the gsutil copy
+            try:
+                output = api.gsutil_copy(args.source, args.destination)
+                logging.info("File copy successful.")
+                print(output)
+            except RuntimeError as e:
+                logging.error(f"Error during gsutil copy: {e}")
+

@@ -149,7 +149,7 @@ jobs:
           # Use the testType provided by the user
           echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
 
-      - name: Update test inputs and Upload to Terra
+      - name: Update test inputs, Upload to Terra, Submit, Monitor and Retrieve Outputs
         run: |
           UPDATE_TRUTH="${{ github.event.inputs.updateTruth || 'false' }}"
           USE_CALL_CACHE="${{ github.event.inputs.useCallCache || 'true' }}"
@@ -317,6 +317,16 @@ jobs:
           PIPELINE_NAME: TestIlluminaGenotypingArray
           NAMESPACE: warp-pipelines
           WORKSPACE: WARP Tests
+
+      - name: Perform File Copy with gsutil
+        run: |
+          python scripts/firecloud_api/firecloud_api.py gsutil_copy \
+            --sa-json-b64 "$SA_JSON_B64" \
+            --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
+            --source "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt" \
+            --destination .
+        env:
+          SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
 
       - name: Print Summary on Success
         if: success()
