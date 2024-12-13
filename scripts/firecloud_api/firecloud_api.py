@@ -14,6 +14,7 @@ import os
 import logging
 import time
 import subprocess
+from google.cloud import storage
 
 
 # Configure logging to display INFO level and above messages
@@ -233,35 +234,49 @@ class FirecloudAPI:
             logging.error(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
 
-    def gsutil_copy(self, source, destination):
-        """
-        Copies files between GCS locations using gsutil with authentication.
+   # def gsutil_copy(self, source, destination):
+   #     """
+   #     Copies files between GCS locations using gsutil with authentication.
+#
+   #     :param source: The source GCS path (e.g., "gs://bucket/source_file").
+   #     :param destination: The destination GCS path (e.g., "gs://bucket/destination_file").
+   #     :return: Output of the gsutil command.
+   #     """
+   #     # Retrieve a valid user token
+   #     token = self.get_user_token(self.delegated_creds)
+#
+   #     # Set up the environment variable for gsutil authentication
+   #     os.environ['GOOGLE_OAUTH_ACCESS_TOKEN'] = token
+#
+   #     # Prepare the gsutil command
+   #     command = ["gsutil", "cp", source, destination]
+   #     #echo the command
+   #     print(f"Running command: {' '.join(command)}")
 
-        :param source: The source GCS path (e.g., "gs://bucket/source_file").
-        :param destination: The destination GCS path (e.g., "gs://bucket/destination_file").
-        :return: Output of the gsutil command.
-        """
-        # Retrieve a valid user token
-        token = self.get_user_token(self.delegated_creds)
 
-        # Set up the environment variable for gsutil authentication
-        os.environ['GOOGLE_OAUTH_ACCESS_TOKEN'] = token
-
-        # Prepare the gsutil command
-        command = ["gsutil", "cp", source, destination]
-        #echo the command
-        print(f"Running command: {' '.join(command)}")
+    #    try:
+    #        # Execute the gsutil copy command
+    #        result = subprocess.run(command, capture_output=True, text=True, check=True)
+#
+    #        # Return the command output
+    #        return result.stdout
+    #    except subprocess.CalledProcessError as e:
+    #        logging.error(f"gsutil copy failed: {e.stderr}")
+    #        raise RuntimeError(f"gsutil copy failed: {e.stderr}") from e
+    #        exit(1)
 
 
-        try:
-            # Execute the gsutil copy command
-            result = subprocess.run(command, capture_output=True, text=True, check=True)
+    def copy_gcs_file(source, destination):
+        client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
+        source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
+        destination_bucket_name, destination_blob_name = destination.replace("gs://", "").split("/", 1)
 
-            # Return the command output
-            return result.stdout
-        except subprocess.CalledProcessError as e:
-            logging.error(f"gsutil copy failed: {e.stderr}")
-            raise RuntimeError(f"gsutil copy failed: {e.stderr}") from e
+        source_bucket = client.bucket(source_bucket_name)
+        source_blob = source_bucket.blob(source_blob_name)
+        destination_bucket = client.bucket(destination_bucket_name)
+
+        source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
+
 
     def main(self):
         logging.info("Starting process based on action.")
