@@ -6,7 +6,7 @@ import tempfile
 import sys
 
 # Set up logging to print output to both console and file (optional)
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def gcloud_auth_list(sa_json_b64):
     try:
