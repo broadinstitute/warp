@@ -284,6 +284,14 @@ class FirecloudAPI:
             logging.error(f"Error executing 'gcloud auth list': {e.stderr}")
             return None
 
+    # Corrected logging:
+    if auth_list:
+        logging.info("Authenticated accounts:")
+        for account in auth_list:
+            logging.info(f"Account: {account['account']}, Status: {account['status']}")
+    else:
+        logging.error("Failed to retrieve gcloud authentication list.")
+
     def gsutil_copy(self, source, destination):
         client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
         source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
