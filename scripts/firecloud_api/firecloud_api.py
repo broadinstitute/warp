@@ -303,7 +303,7 @@ class FirecloudAPI:
         if auth_list:
             logging.info("Authenticated accounts:")
             for account in auth_list:
-                logging.info(f"Account: {account['account']}, Active: {account['active']}")
+                logging.info(f"Account: {account['account']}, Active: {account['status']}")
         else:
             logging.error("Failed to retrieve gcloud authentication list.")
 
@@ -370,7 +370,7 @@ if __name__ == "__main__":
     if auth_list:
         logging.info("Authenticated accounts:")
         for account in auth_list:
-            logging.info(f"Account: {account['account']}, Active: {account['active']}")
+            logging.info(f"Account: {account['account']}, Active: {account['status']}")
     else:
         logging.error("Failed to retrieve gcloud authentication list.")
 
