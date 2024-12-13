@@ -301,8 +301,6 @@ if __name__ == "__main__":
     parser.add_argument("--pipeline_name", help="Pipeline name (required for 'upload_test_inputs')")
     parser.add_argument("--test_input_file", help="Path to test input file (required for 'upload_test_inputs')")
     parser.add_argument("--branch_name", help="Branch name for the method repository (required for 'upload_test_inputs')")
-    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs"],
-                        help="Action to perform: 'submit_job' or 'upload_test_inputs' or 'poll_job_status' or 'get_workflow_outputs'")
     parser.add_argument("--method_namespace", help="Method namespace")
     parser.add_argument("--method_name", help="Method name")
     parser.add_argument('--submission_data_file', help='Path to submission data JSON file (required for submit)')
