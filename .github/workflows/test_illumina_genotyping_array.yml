@@ -131,55 +131,16 @@ jobs:
   #        DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
   #        GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
 
-      - name: Decode the base64-encoded Google Cloud service account key
-        run: |
-          # Decode the base64 secret to the JSON file
-          echo ${{ secrets.PDT_TESTER_SA_B64 }} | base64 --decode > $HOME/gcloud-key.json
-          # Set GOOGLE_APPLICATION_CREDENTIALS environment variable to point to the JSON key file
-          export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-key.json
 
       - name: Authenticate with Google Cloud
         run: |
           gcloud auth activate-service-account --key-file=$HOME/gcloud-key.json
+          gsutil cp gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt .
 
       - name: Run your Google Cloud commands
         run: |
           # Your Google Cloud commands, e.g., gsutil or gcloud commands
-          gsutil cp gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt .
-          
-
-      - name: Check gcloud auth list manually
-        run: |
-          # Decode the Base64 service account key and save it to a temporary file
-          echo "${{ secrets.PDT_TESTER_SA_B64 }}" | base64 --decode > /tmp/service-account-key.json
-    
-          gcloud auth activate-service-account pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com --key-file=/tmp/service-account-key.json
-          gcloud auth list
-          
-          rm /tmp/service-account-key.json
-        env:
-          SA_JSON_B64:
-            ${{ secrets.PDT_TESTER_SA_B64 }}
-
-      - name: Check gcloud auth list
-        run: |
-          python scripts/firecloud_api/gcloudauth.py --key-file="${{ secrets.PDT_TESTER_SA_B64 }}"
-        env:
-          SA_JSON_B64:
-            ${{ secrets.PDT_TESTER_SA_B64 }}
-
-      - name: Perform File Copy with gsutil
-        run: |
-          python scripts/firecloud_api/firecloud_api.py gsutil_copy \
-            --sa-json-b64 "$SA_JSON_B64" \
-            --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
-            --source "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt" \
-            --destination "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash1.txt" \
-            --workspace-namespace warp-pipelines \
-            --workspace-name "WARP Tests"
-        env:
-          SA_JSON_B64:
-            ${{ secrets.PDT_TESTER_SA_B64 }}
+          gsutil cp gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt .          
 
       - name: Set Test Type for PRs
         if: ${{ github.event_name == 'pull_request' }}
