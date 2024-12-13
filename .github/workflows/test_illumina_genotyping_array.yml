@@ -134,6 +134,9 @@ jobs:
       - name: Check gcloud auth list
         run: |
           python scripts/firecloud_api/gcloudauth.py --key-file= "$SA_JSON_B64"
+        env:
+          SA_JSON_B64:
+            ${{ secrets.PDT_TESTER_SA_B64 }}
 
       - name: Perform File Copy with gsutil
         run: |
