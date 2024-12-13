@@ -1,9 +1,8 @@
-import subprocess
 import logging
+import subprocess
 import os
 import base64
 import tempfile
-import sys
 
 # Set up logging to print output to both console and file (optional)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -36,7 +35,7 @@ def gcloud_auth_list(sa_json_b64):
                 logging.error("Failed to activate service account.")
                 logging.error(result.stderr)
 
-            # List authenticated accounts
+            # Now list authenticated accounts
             logging.info("Listing authenticated accounts:")
             result = subprocess.run(
                 ["gcloud", "auth", "list"],

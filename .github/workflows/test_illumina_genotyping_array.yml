@@ -133,7 +133,11 @@ jobs:
 
       - name: Check gcloud auth list manually
         run: |
+          gcloud activate-service-account pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com --key-file "${{ secrets.PDT_TESTER_SA_B64 }}"
           gcloud auth list
+        env:
+          SA_JSON_B64:
+            ${{ secrets.PDT_TESTER_SA_B64 }}
 
       - name: Check gcloud auth list
         run: |
