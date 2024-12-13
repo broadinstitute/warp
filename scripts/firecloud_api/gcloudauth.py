@@ -3,6 +3,10 @@ import logging
 import os
 import base64
 import tempfile
+import sys
+
+# Set up logging to print output to both console and file (optional)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def gcloud_auth_list(sa_json_b64):
     try:
@@ -20,10 +24,17 @@ def gcloud_auth_list(sa_json_b64):
 
             # Activate the service account using the decoded JSON file
             logging.info(f"Activating service account using key file: {tmp_key_file_path}")
-            subprocess.run(
+            result = subprocess.run(
                 ["gcloud", "auth", "activate-service-account", "--key-file", tmp_key_file_path],
-                check=True
+                capture_output=True, text=True, check=True
             )
+
+            # Check if activation was successful
+            if result.returncode == 0:
+                logging.info("Service account activated successfully.")
+            else:
+                logging.error("Failed to activate service account.")
+                logging.error(result.stderr)
 
             # List authenticated accounts
             logging.info("Listing authenticated accounts:")
@@ -32,7 +43,11 @@ def gcloud_auth_list(sa_json_b64):
                 capture_output=True, text=True, check=True
             )
 
-            # Display the output
+            # Print the output directly to console
+            print("gcloud auth list output:")
+            print(result.stdout)
+
+            # Log the output
             if result.stdout.strip():
                 logging.info(f"gcloud auth list output:\n{result.stdout}")
             else:
@@ -51,3 +66,5 @@ def gcloud_auth_list(sa_json_b64):
     except Exception as e:
         logging.error(f"An unexpected error occurred: {e}")
 
+# Example usage (you would pass SA_JSON_B64 from environment):
+# gcloud_auth_list(SA_JSON_B64)
