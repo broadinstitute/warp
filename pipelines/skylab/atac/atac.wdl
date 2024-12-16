@@ -551,7 +551,7 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
-    peakcalling_bool = True 
+    peakcalling_bool = True # set peakcalling
     expected_cells = ~{atac_expected_cells}
 
     # calculate chrom size dictionary based on text file
