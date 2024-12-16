@@ -61,7 +61,7 @@ workflow ATAC {
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
-  String snap_atac_docker = "snapatac2:1.1.0"
+  String snap_atac_docker = "snapatac2:2.0.0"
 
   # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
   if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
