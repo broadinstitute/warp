@@ -134,15 +134,23 @@ task BuildStarSingleNucleus {
 
     set -eo pipefail
 
+    # Run modify_gtf.py first for all organisms
+    python3 /script/modify_gtf.py \
+    --input-gtf ~{annotation_gtf} \
+    --output-gtf ~{annotation_gtf_modified} \
+    --biotypes ~{biotypes}
+
+    # Create a temporary final GTF path
+    FINAL_GTF="~{annotation_gtf_modified}"
+    
+    # Conditionally process GTF for Marmoset
+    if [[ "~{organism}" == "Marmoset" ]]; then
+        echo "Processing Marmoset GTF file..."
     # Create a temporary GTF file path
     TEMP_GTF=$(mktemp)
     
-    # Conditionally process GTF for Marmoset first
-    if [[ "~{organism}" == "Marmoset" ]]; then
-        echo "Processing Marmoset GTF file..."
-        
-        # Create the GTF processing script
-        cat > gtf_process.sh << 'SCRIPT_EOF'
+    # Create the GTF processing script
+    cat > gtf_process.sh << 'SCRIPT_EOF'
 #!/bin/bash
 
 # Parse command line arguments
@@ -297,30 +305,25 @@ cat "$temp_dir/header.txt" \
     "$temp_dir/mt_gene_annotation.txt" > "$output_gtf"
 
 echo "Done! Processed GTF file has been written to: $output_gtf"
-SCRIPT_EOF
-        
+SCRIPT_EOF          
+        # Run the Marmoset-specific GTF processing
         chmod +x gtf_process.sh
         
-        # Run the Marmoset-specific GTF processing
-        ./gtf_process.sh -i ~{annotation_gtf} -o "$TEMP_GTF"
-        INPUT_FOR_MODIFY="$TEMP_GTF"
-    else
-        # For non-Marmoset organisms, use original GTF
-        INPUT_FOR_MODIFY="~{annotation_gtf}"
+        # Run the Marmoset-specific GTF processing on the modify_gtf.py output
+        MARMOSET_OUTPUT=$(mktemp)
+        ./gtf_process.sh -i ~{annotation_gtf_modified} -o "$MARMOSET_OUTPUT"
+        
+        # Update the final GTF path
+        mv "$MARMOSET_OUTPUT" ~{annotation_gtf_modified}
+        FINAL_GTF="~{annotation_gtf_modified}"
     fi
 
-    # Always run modify_gtf.py with the appropriate input
-    python3 /script/modify_gtf.py \
-    --input-gtf "$INPUT_FOR_MODIFY" \
-    --output-gtf ~{annotation_gtf_modified} \
-    --biotypes ~{biotypes}
-
-    # Create STAR index
+    # Create STAR index using the appropriate GTF
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
     --genomeFastaFiles ~{genome_fa} \
-    --sjdbGTFfile ~{annotation_gtf_modified} \
+    --sjdbGTFfile "$FINAL_GTF" \
     --sjdbOverhang 100 \
     --runThreadN 16
 
