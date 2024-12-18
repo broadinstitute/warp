@@ -131,7 +131,7 @@ class FirecloudAPI:
             "outputs": {},
             "prerequisites": {}
         }
-        print(f"Creating new method configuration: {json.dumps(payload, indent=2)}")
+        logging.info(f"Creating new method configuration: {json.dumps(payload, indent=2)}")
 
         method_config_name = f"{pipeline_name}_{branch_name}"
         # Construct the API endpoint URL for creating a new method configuration
