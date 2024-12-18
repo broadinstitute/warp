@@ -162,7 +162,9 @@ class FirecloudAPI:
         """
         # Construct the API endpoint URL for the method configuration
         # properly encode the space in WARP Tests as %20 using from urllib.parse import quote
-        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
+        #url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
+        method_config_name = f"{pipeline_name}_{branch_name}"
+        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
 
         token = self.get_user_token(self.delegated_creds)
         headers = self.build_auth_headers(token)
