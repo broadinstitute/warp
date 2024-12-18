@@ -497,7 +497,7 @@ task MergeStarOutput {
   }
 
   command <<<
-    set -euo pipefail
+    set -e
     set -x 
 
     declare -a barcodes_files=(~{sep=' ' barcodes})
