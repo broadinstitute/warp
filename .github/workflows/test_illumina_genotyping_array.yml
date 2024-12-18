@@ -358,6 +358,7 @@ jobs:
           PIPELINE_NAME: TestIlluminaGenotypingArray
           NAMESPACE: warp-pipelines
           WORKSPACE: WARP Tests
+          method_config_name: ${{ env.$method_config_name }}
 
 
       ### TODO is this even ok to do??? ###
