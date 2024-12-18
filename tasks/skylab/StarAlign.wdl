@@ -258,7 +258,8 @@ task STARsoloFastq {
   }
 
   command <<<
-       set -e
+    set -euo pipefail
+    set -x
 
     UMILen=10
     CBLen=16
@@ -530,9 +531,6 @@ task MergeStarOutput {
     #list files
     echo "listing files"
     ls
-
-
-
     if [ -f "${cell_reads_files[0]}" ]; then
     
       # Destination file for cell reads
