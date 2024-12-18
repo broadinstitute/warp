@@ -214,8 +214,8 @@ jobs:
                 --results_path "$RESULTS_PATH" \
                 --inputs_json "$input_file" \
                 --update_truth "$UPDATE_TRUTH_BOOL" \
-                --commit_hash "$GITHUB_COMMIT_HASH" )
-                --branch_name "$branch_name"
+                --commit_hash "$GITHUB_COMMIT_HASH" \
+                --branch_name "$branch_name" )
             echo "Uploading the test input file: $test_input_file"
             python3 scripts/firecloud_api/firecloud_api.py \
                 upload_test_inputs \
