@@ -146,11 +146,12 @@ class FirecloudAPI:
         # Check if the method configuration was created successfully
         if response.status_code == 200:
             logging.info(f"Method configuration {method_config_name} created successfully.")
-            return True
+            return method_config_name
         else:
             logging.error(f"Failed to create method configuration. Status code: {response.status_code}")
             logging.error(f"Response body: {response.text}")
-            return False
+            return None
+
 
 
     def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
