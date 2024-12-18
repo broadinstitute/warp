@@ -449,5 +449,15 @@ if __name__ == "__main__":
         if not args.pipeline_name or not args.branch_name:
             parser.error("Arguments --pipeline_name and --branch_name are required for 'create_new_method_config'")
         # Call the function to create a new method configuration
-        api.create_new_method_config(args.branch_name, args.pipeline_name)
+        method_config_name = api.create_new_method_config(args.branch_name, args.pipeline_name)
+        if method_config_name:
+            logging.info(f"Method configuration created with name: {method_config_name}")
+        else:
+            logging.error("Failed to create method configuration.")
+
+
+
+
+
+
 
