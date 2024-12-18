@@ -219,7 +219,7 @@ jobs:
             echo "Uploading the test input file: $test_input_file"
             echo "Creating new method congifuration for $branch_name"
             python3 scripts/firecloud_api/firecloud_api.py \
-                create_new_method_configuration \
+                create_new_method_config \
                 --workspace-namespace warp-pipelines \
                 --workspace-name "WARP Tests" \
                 --pipeline_name "$PIPELINE_NAME" \
