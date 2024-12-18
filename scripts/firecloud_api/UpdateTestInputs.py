@@ -22,10 +22,10 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, comm
     pipeline_name = next(iter(test_inputs)).split('.')[0]
 
     # Append "Test" in front of the pipeline name
-    test_name = f"Test{pipeline_name}"
+    #test_name = f"Test{pipeline_name}"
 
     # Create a branch-specific test name
-    #test_name = f"Test{pipeline_name}_{branch_name}"
+    test_name = f"Test{pipeline_name}_{branch_name}"
 
     # Update all keys in the json file to replace the pipeline name with the test name
     for key in list(test_inputs.keys()):

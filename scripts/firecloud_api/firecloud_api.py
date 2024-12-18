@@ -106,6 +106,51 @@ class FirecloudAPI:
             return None
 
 
+    def create_new_method_config(self, branch_name, pipeline_name):
+        """
+        Creates a new method configuration in the workspace via Firecloud API.
+
+        :param method_config_name: The name of the new method configuration
+        :param method_config_namespace: The namespace of the new method configuration
+        :param method_config: JSON data containing the new method configuration
+        :return: True if successful, False otherwise
+        """
+        #create the method config
+        payload = {
+            "deleted": False,
+            "inputs": {},
+            "methodConfigVersion": 0,
+            "methodRepoMethod": {
+                "methodUri": f"dockstore://github.com/broadinstitute/warp/{pipeline_name}/{branch_name}",
+                "sourceRepo": "dockstore",
+                "methodPath": f"github.com/broadinstitute/warp/{pipeline_name}",
+                "methodVersion": f"{branch_name}"
+            },
+            "name": f"{pipeline_name}_{branch_name}",
+            "namespace": "warp-pipelines",
+            "outputs": {},
+            "prerequisites": {}
+        }
+
+        method_config_name = f"{pipeline_name}_{branch_name}"
+        # Construct the API endpoint URL for creating a new method configuration
+        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
+
+        token = self.get_user_token(self.delegated_creds)
+        headers = self.build_auth_headers(token)
+
+        # Create the new method configuration in the workspace
+        response = requests.post(url, headers=headers, json=payload)
+
+        # Check if the method configuration was created successfully
+        if response.status_code == 200:
+            logging.info("Method configuration created successfully.")
+            return True
+        else:
+            logging.error(f"Failed to create method configuration. Status code: {response.status_code}")
+            return False
+
+
     def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
         """
         Uploads test inputs to the workspace via Firecloud API.
@@ -235,38 +280,6 @@ class FirecloudAPI:
             logging.error(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
 
-   # def gsutil_copy(self, source, destination):
-   #     """
-   #     Copies files between GCS locations using gsutil with authentication.
-#
-   #     :param source: The source GCS path (e.g., "gs://bucket/source_file").
-   #     :param destination: The destination GCS path (e.g., "gs://bucket/destination_file").
-   #     :return: Output of the gsutil command.
-   #     """
-   #     # Retrieve a valid user token
-   #     token = self.get_user_token(self.delegated_creds)
-#
-   #     # Set up the environment variable for gsutil authentication
-   #     os.environ['GOOGLE_OAUTH_ACCESS_TOKEN'] = token
-#
-   #     # Prepare the gsutil command
-   #     command = ["gsutil", "cp", source, destination]
-   #     #echo the command
-   #     print(f"Running command: {' '.join(command)}")
-
-
-    #    try:
-    #        # Execute the gsutil copy command
-    #        result = subprocess.run(command, capture_output=True, text=True, check=True)
-#
-    #        # Return the command output
-    #        return result.stdout
-    #    except subprocess.CalledProcessError as e:
-    #        logging.error(f"gsutil copy failed: {e.stderr}")
-    #        raise RuntimeError(f"gsutil copy failed: {e.stderr}") from e
-    #        exit(1)
-
-
     def gcloud_auth_list(self):
         try:
             # Run the gcloud auth list command and capture output
@@ -320,6 +333,12 @@ class FirecloudAPI:
         elif self.action == "poll_job_status":
             status = self.poll_job_status()
             logging.info(f"Final job status: {status}")
+        elif self.action == "create_new_method_config":
+            success = self.create_new_method_config(self.branch_name, self.pipeline_name)
+            if success:
+                logging.info("Method configuration created successfully.")
+            else:
+                logging.error("Failed to create method configuration.")
         elif self.action == "get_workflow_outputs":
             if not args.submission_id or not args.workflow_id or not args.pipeline_name:
                 parser.error("Arguments --submission_id, --workflow_id, and --pipeline_name are required for 'get_workflow_outputs'")
@@ -332,6 +351,7 @@ class FirecloudAPI:
                 logging.error("Failed to retrieve workflow outputs.")
         else:
             logging.error(f"Unknown action: {self.action}")
+
 
 
 if __name__ == "__main__":
@@ -350,8 +370,8 @@ if __name__ == "__main__":
     parser.add_argument('--workflow_id', help='Workflow ID (required for get_workflow_outputs)')
     parser.add_argument("--source", help="Source GCS path for gsutil copy")
     parser.add_argument("--destination", help="Destination GCS path for gsutil copy")
-    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "gsutil_copy"],
-                    help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs', or 'gsutil_copy'")
+    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "gsutil_copy", "create_new_method_config"],
+                    help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs', 'gsutil_copy' or 'create_new_method_config'")
 
     args = parser.parse_args()
 
@@ -418,4 +438,10 @@ if __name__ == "__main__":
                 print(output)
             except RuntimeError as e:
                 logging.error(f"Error during gsutil copy: {e}")
+    elif args.action == "create_new_method_config":
+        # Check for required arguments for create_new_method_config action
+        if not args.pipeline_name or not args.branch_name:
+            parser.error("Arguments --pipeline_name and --branch_name are required for 'create_new_method_config'")
+        # Call the function to create a new method configuration
+        api.create_new_method_config(args.branch_name, args.pipeline_name)
 
