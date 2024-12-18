@@ -87,6 +87,42 @@ jobs:
             echo "branch_name=${{ github.head_ref }}" >> $GITHUB_ENV
           fi
 
+      #- name: Check if method config exists
+      #  id: check-method-config
+      #  run: |
+      #    echo "Checking if method config exists..."
+      #    # Query the FireCloud API or similar service to check if the method config already exists.
+      #    METHOD_CONFIG_EXISTS=$(python3 scripts/firecloud_api/firecloud_api.py check_method_config_exists \
+      #      --workspace-namespace warp-pipelines \
+      #      --workspace-name "WARP Tests" \
+      #      --pipeline_name "$PIPELINE_NAME" \
+      #      --branch_name "$branch_name" \
+      #      --sa-json-b64 "$SA_JSON_B64" \
+      #      --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com")
+#
+      #    if [ "$METHOD_CONFIG_EXISTS" == "true" ]; then
+      #      echo "Method config already exists for this branch. Skipping creation."
+      #      echo "method_config_exists=true" >> $GITHUB_ENV
+      #    else
+      #      echo "Method config does not exist. It will be created."
+      #      echo "method_config_exists=false" >> $GITHUB_ENV
+      #    fi
+
+      - name: Create new method configuration (only if needed)
+        #if: ${{ env.method_config_exists == 'false' }}
+        run: |
+          echo "Creating new method configuration for branch: $branch_name"
+          python3 scripts/firecloud_api/firecloud_api.py \
+            create_new_method_config \
+            --workspace-namespace warp-pipelines \
+            --workspace-name "WARP Tests" \
+            --pipeline_name "$PIPELINE_NAME" \
+            --branch_name "$branch_name" \
+            --sa-json-b64 "$SA_JSON_B64" \
+            --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
+        env:
+          PIPELINE_NAME: TestIlluminaGenotypingArray
+
       - name: Fetch Dockstore Workflow CommitID
         run: |
           # Wait 3 minutes for Dockstore to update
@@ -217,17 +253,6 @@ jobs:
                 --commit_hash "$GITHUB_COMMIT_HASH" \
                 --branch_name "$branch_name" )
             echo "Uploading the test input file: $test_input_file"
-          
-            echo "Creating new method congifuration for $branch_name"
-            python3 scripts/firecloud_api/firecloud_api.py \
-                create_new_method_config \
-                --workspace-namespace warp-pipelines \
-                --workspace-name "WARP Tests" \
-                --pipeline_name "$PIPELINE_NAME" \
-                --branch_name "$branch_name" \
-                --sa-json-b64 "$SA_JSON_B64" \
-                --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" 
-  
             python3 scripts/firecloud_api/firecloud_api.py \
                 upload_test_inputs \
                 --workspace-namespace warp-pipelines \
