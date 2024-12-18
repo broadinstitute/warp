@@ -144,7 +144,7 @@ class FirecloudAPI:
 
         # Check if the method configuration was created successfully
         if response.status_code == 200:
-            logging.info("Method configuration created successfully.")
+            logging.info(f"Method configuration {method_config_name} created successfully.")
             return True
         else:
             logging.error(f"Failed to create method configuration. Status code: {response.status_code}")
