@@ -112,14 +112,16 @@ jobs:
         #if: ${{ env.method_config_exists == 'false' }}
         run: |
           echo "Creating new method configuration for branch: $branch_name"
-          python3 scripts/firecloud_api/firecloud_api.py \
+          method_config_name=$(python3 scripts/firecloud_api/firecloud_api.py \
             create_new_method_config \
             --workspace-namespace warp-pipelines \
             --workspace-name "WARP Tests" \
             --pipeline_name "$PIPELINE_NAME" \
             --branch_name "$branch_name" \
             --sa-json-b64 "$SA_JSON_B64" \
-            --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
+            --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com")
+          echo "method_config_name=$method_config_name" >> $GITHUB_ENV
+          echo "method_config_name: method_config_name"
         env:
           PIPELINE_NAME: TestIlluminaGenotypingArray
 
@@ -227,11 +229,13 @@ jobs:
           # Create the submission_data.json file which will be the same for all inputs
           SUBMISSION_DATA_FILE="submission_data.json"
           
+          echo "the method config name is: $method_config_name"
+          
           # Use a heredoc to generate the JSON file content dynamically
           cat <<EOF > "$SUBMISSION_DATA_FILE"
           {
             "methodConfigurationNamespace": "warp-pipelines",
-            "methodConfigurationName": "$PIPELINE_NAME",
+            "methodConfigurationName": "$method_config_name",
             "useCallCache": $USE_CALL_CACHE_BOOL,
             "deleteIntermediateOutputFiles": false,
             "useReferenceDisks": true,
