@@ -3,7 +3,7 @@ import json
 import os
 
 
-def update_test_inputs(inputs_json, truth_path, results_path, update_truth, commit_hash):
+def update_test_inputs(inputs_json, truth_path, results_path, update_truth, commit_hash, branch_name):
     # Update the test inputs JSON to work with the test wrapper WDL
     # The test wrapper WDL runs the pipeline WDL and verifies the results
     # The test wrapper WDL requires the following inputs:
@@ -22,7 +22,10 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, comm
     pipeline_name = next(iter(test_inputs)).split('.')[0]
 
     # Append "Test" in front of the pipeline name
-    test_name = f"Test{pipeline_name}"
+    #test_name = f"Test{pipeline_name}"
+
+    # Create a branch-specific test name
+    test_name = f"Test{pipeline_name}_{branch_name}"
 
     # Update all keys in the json file to replace the pipeline name with the test name
     for key in list(test_inputs.keys()):
@@ -36,7 +39,7 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, comm
     test_inputs[f"{test_name}.commit_hash"] = commit_hash
 
     # Save the updated test inputs JSON
-    output_name = f"updated_{sample_name}.json"
+    output_name = f"updated_{sample_name}_{branch_name}.json"
     with open(output_name, 'w') as file:
         json.dump(test_inputs, file, indent=4)
 
@@ -86,13 +89,18 @@ def main():
         required=True,
         help="Commit hash of the current pipeline run")
 
+    parser.add_argument(
+        "--branch_name",
+        required=True,
+        help="Branch name of the current pipeline run")
+
 
     args = parser.parse_args()
     # convert the update_truth flag to a boolean
     update_truth_bool = args.update_truth.lower() == "true"
 
     # Update the test inputs to work with the test wrapper WDL
-    update_test_inputs(args.inputs_json, args.truth_path, args.results_path, update_truth_bool, args.commit_hash)
+    update_test_inputs(args.inputs_json, args.truth_path, args.results_path, update_truth_bool, args.commit_hash, args.branch_name)
 
 
 if __name__ == "__main__":

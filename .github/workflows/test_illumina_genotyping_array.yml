@@ -73,7 +73,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pwd
           cd scripts/firecloud_api/
           pip install -r requirements.txt
 
@@ -91,7 +90,7 @@ jobs:
       - name: Fetch Dockstore Workflow CommitID
         run: |
           # Wait 3 minutes for Dockstore to update
-          ###### TODO need to increase sleep time to 3 minutes ######
+          ###### TODO need to increase sleep time to 3 minutes, it's set to 1 second for testing ######
           sleep 1
           # Capture the output of the script (commit ID)
           DOCKSTORE_COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
@@ -319,6 +318,8 @@ jobs:
           NAMESPACE: warp-pipelines
           WORKSPACE: WARP Tests
 
+
+      ### TODO is this even ok to do??? ###
       - name: Decode the base64-encoded Google Cloud service account key
         run: |
           # Decode the base64 secret to the JSON file
