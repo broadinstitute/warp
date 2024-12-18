@@ -134,6 +134,50 @@ task BuildStarSingleNucleus {
 
     set -eo pipefail
 
+    # Add gene_name attributes if missing
+    if ! grep -q 'gene_name' ~{annotation_gtf}; then
+        echo "Adding gene_name attributes to GTF"
+        TEMP_GTF=$(mktemp)
+        cat ~{annotation_gtf} | \
+        awk -F'\t' 'BEGIN{OFS="\t"} {
+            if ($1 ~ /^#/) {
+                print
+                next
+            }
+            attr=$9
+            has_gene_name=0
+            gene_val=""
+            gene_id_val=""
+            
+            # Split attributes and check for gene_name
+            split(attr, attrs, ";")
+            for (i in attrs) {
+                if (attrs[i] ~ /gene_name/) {
+                    has_gene_name=1
+                }
+                if (attrs[i] ~ /gene /) {
+                    match(attrs[i], /"([^"]+)"/)
+                    gene_val=substr(attrs[i], RSTART+1, RLENGTH-2)
+                }
+                if (attrs[i] ~ /gene_id /) {
+                    match(attrs[i], /"([^"]+)"/)
+                    gene_id_val=substr(attrs[i], RSTART+1, RLENGTH-2)
+                }
+            }
+            
+            # If no gene_name, add it using gene or gene_id
+            if (!has_gene_name) {
+                if (gene_val != "") {
+                    $9 = attr " gene_name \"" gene_val "\";"
+                } else if (gene_id_val != "") {
+                    $9 = attr " gene_name \"" gene_id_val "\";"
+                }
+            }
+            print
+        }' > "$TEMP_GTF"
+        mv "$TEMP_GTF" ~{annotation_gtf}
+    fi
+    
     # Run modify_gtf.py first for all organisms
     python3 /script/modify_gtf.py \
     --input-gtf ~{annotation_gtf} \
