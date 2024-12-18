@@ -154,24 +154,29 @@ task BuildStarSingleNucleus {
 #!/bin/bash
 
 # Parse command line arguments
-while getopts "i:o:" opt; do
+while getopts "i:m:o:" opt; do
     case $opt in
-        i) input_gtf="$OPTARG";;
+        i) input_gtf="$OPTARG";;      # original GTF for chrM
+        m) modified_gtf="$OPTARG";;   # modified GTF for non-chrM
         o) output_gtf="$OPTARG";;
-        *) echo "Usage: $0 -i <input_gtf[.gz]> -o <output_gtf>" >&2
+        *) echo "Usage: $0 -i <input_gtf[.gz]> -m <modified_gtf> -o <output_gtf>" >&2
            exit 1;;
     esac
 done
 
 # Check if required arguments are provided
-if [ -z "$input_gtf" ] || [ -z "$output_gtf" ]; then
-    echo "Usage: $0 -i <input_gtf[.gz]> -o <output_gtf>"
+if [ -z "$input_gtf" ] || [ -z "$modified_gtf" ] || [ -z "$output_gtf" ]; then
+    echo "Usage: $0 -i <input_gtf[.gz]> -m <modified_gtf> -o <output_gtf>"
     exit 1
 fi
 
-# Check if input file exists
+# Check if input files exist
 if [ ! -f "$input_gtf" ]; then
     echo "Input file $input_gtf does not exist!"
+    exit 1
+fi
+if [ ! -f "$modified_gtf" ]; then
+    echo "Modified GTF file $modified_gtf does not exist!"
     exit 1
 fi
 
@@ -198,10 +203,10 @@ else
     cat_cmd="cat"
 fi
 
-# Process non-chrM entries (everything except chrM)
-$cat_cmd "$input_gtf" | grep -v "^chrM" > "$temp_dir/non_chrm.gtf"
+# Process non-chrM entries from modified GTF
+$cat_cmd "$modified_gtf" | grep -v "^chrM" > "$temp_dir/non_chrm.gtf"
 
-# Process chrM entries with attribute modifications
+# Process chrM entries from original GTF
 $cat_cmd "$input_gtf" | \
     grep "^chrM" | \
     awk -F'\t' 'BEGIN{OFS="\t"} {
@@ -311,8 +316,7 @@ SCRIPT_EOF
         
         # Run the Marmoset-specific GTF processing on the modify_gtf.py output
         MARMOSET_OUTPUT=$(mktemp)
-        ./gtf_process.sh -i ~{annotation_gtf_modified} -o "$MARMOSET_OUTPUT"
-        
+        ./gtf_process.sh -i ~{annotation_gtf} -m ~{annotation_gtf_modified} -o "$MARMOSET_OUTPUT"        
         # Update the final GTF path
         mv "$MARMOSET_OUTPUT" ~{annotation_gtf_modified}
         FINAL_GTF="~{annotation_gtf_modified}"
