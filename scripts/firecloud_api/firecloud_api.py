@@ -141,7 +141,7 @@ class FirecloudAPI:
         headers = self.build_auth_headers(token)
 
         # Create the new method configuration in the workspace
-        response = requests.post(url, headers=headers, json=payload)
+        response = requests.put(url, headers=headers, json=payload)
 
         # Check if the method configuration was created successfully
         if response.status_code == 200:
