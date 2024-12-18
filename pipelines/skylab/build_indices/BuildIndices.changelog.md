@@ -1,3 +1,8 @@
+# 3.2.0
+2024-12-18 (Date of Last Commit)
+
+* Added logic to have specific changes for Marmoset reference
+
 # 3.1.0
 2024-11-26 (Date of Last Commit)
 
