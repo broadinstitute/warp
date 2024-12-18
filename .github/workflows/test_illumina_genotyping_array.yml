@@ -112,7 +112,7 @@ jobs:
         #if: ${{ env.method_config_exists == 'false' }}
         run: |
           echo "Creating new method configuration for branch: $branch_name"
-          method_config_name=$(python3 scripts/firecloud_api/firecloud_api.py \
+          METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
             create_new_method_config \
             --workspace-namespace warp-pipelines \
             --workspace-name "WARP Tests" \
@@ -120,8 +120,8 @@ jobs:
             --branch_name "$branch_name" \
             --sa-json-b64 "$SA_JSON_B64" \
             --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com")
-          echo "method_config_name=$method_config_name" >> $GITHUB_ENV
-          echo "method_config_name: method_config_name"
+          echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
+          echo "METHOD_CONFIG_NAME: $METHOD_CONFIG_NAME"
         env:
           PIPELINE_NAME: TestIlluminaGenotypingArray
 
@@ -358,7 +358,7 @@ jobs:
           PIPELINE_NAME: TestIlluminaGenotypingArray
           NAMESPACE: warp-pipelines
           WORKSPACE: WARP Tests
-          method_config_name: ${{ env.$method_config_name }}
+          METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
 
 
       ### TODO is this even ok to do??? ###
