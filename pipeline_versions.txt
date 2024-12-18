@@ -33,8 +33,8 @@ snm3C	 4.0.4	2024-08-06
 Multiome	 5.9.4	2024-12-05 
 PairedTag	 1.9.0	2024-12-05 
 MultiSampleSmartSeq2	 2.2.22	2024-09-11 
-MultiSampleSmartSeq2SingleNucleus	 2.0.6	2024-11-15 
-Optimus	 7.9.0	2024-12-05 
+MultiSampleSmartSeq2SingleNucleus	 2.0.7	2024-12-12 
+Optimus	 7.9.1	2024-12-12 
 atac	 2.5.3	2024-11-22 
 SmartSeq2SingleSample	 5.1.21	2024-09-11 
-SlideSeq	 3.4.7	2024-12-3 
+SlideSeq	 3.4.8	2024-12-12 
