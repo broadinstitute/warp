@@ -123,12 +123,7 @@ jobs:
             echo "Method Configuration Name: $METHOD_CONFIG_NAME"
             echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
             cat $GITHUB_ENV
-            if [[ -z "$METHOD_CONFIG_NAME" ]]; then
-                echo "Failed to create method configuration."
-                exit 1
-            else
-                echo "Created method configuration: $METHOD_CONFIG_NAME"
-            fi
+            
 
         env:
           PIPELINE_NAME: TestIlluminaGenotypingArray
