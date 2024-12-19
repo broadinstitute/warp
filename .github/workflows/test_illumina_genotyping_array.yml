@@ -122,7 +122,7 @@ jobs:
             --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com")
             echo "Method Configuration Name: $METHOD_CONGIF_NAME"
             echo "METHOD_CONFIG_NAME=$METHOD_CONGIF_NAME" >> $GITHUB_ENV
-            echo $GITHUB_ENV
+            cat $GITHUB_ENV
         env:
           PIPELINE_NAME: TestIlluminaGenotypingArray
 
