@@ -195,7 +195,7 @@ jobs:
               USE_CALL_CACHE_BOOL=false
           fi
           
-          PIPELINE_NAME="TestIlluminaGenotypingArray"
+          #PIPELINE_NAME="TestIlluminaGenotypingArray"
           PIPELINE_DIR="pipelines/broad/genotyping/illumina"
           TEST_TYPE="${{ env.testType }}"
           INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
@@ -332,7 +332,7 @@ jobs:
             done
           done
         env:
-          PIPELINE_NAME: TestIlluminaGenotypingArray
+          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
           NAMESPACE: warp-pipelines
           WORKSPACE: WARP Tests
           METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
@@ -350,7 +350,7 @@ jobs:
             --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
             --method_config_name "$METHOD_CONFIG_NAME"
         env:
-          PIPELINE_NAME: TestIlluminaGenotypingArray
+          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
           branch_name: ${{ env.branch_name }}
           SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
           METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
