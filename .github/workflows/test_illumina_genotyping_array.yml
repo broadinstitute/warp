@@ -228,6 +228,7 @@ jobs:
           TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           echo "Truth path: $TRUTH_PATH"
           RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
+          echo "Results path: $RESULTS_PATH"
           
           # Create the submission_data.json file which will be the same for all inputs
           SUBMISSION_DATA_FILE="submission_data.json"
