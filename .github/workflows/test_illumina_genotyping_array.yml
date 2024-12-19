@@ -47,7 +47,7 @@ env:
   PROJECT_NAME: WARP
   REPOSITORY_NAME: ${{ github.event.repository.name }}
   SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
-  #PIPELINE_NAME: IlluminaGenotypingArray
+  PIPELINE_NAME: TestIlluminaGenotypingArray
   DOCKSTORE_PIPELINE_NAME: IlluminaGenotypingArray
 
 
@@ -90,6 +90,7 @@ jobs:
       - name: Create new method configuration (only if needed)
         run: |
           echo "Creating new method configuration for branch: $branch_name"
+          echo "the pipeline name is $PIPELINE_NAME"
           METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
             create_new_method_config \
             --workspace-namespace warp-pipelines \
@@ -101,7 +102,7 @@ jobs:
 
             echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
         env:
-          PIPELINE_NAME: TestIlluminaGenotypingArray
+          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
 
       - name: Fetch Dockstore Workflow CommitID
         run: |
