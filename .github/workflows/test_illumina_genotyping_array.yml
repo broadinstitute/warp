@@ -112,16 +112,17 @@ jobs:
         #if: ${{ env.method_config_exists == 'false' }}
         run: |
           echo "Creating new method configuration for branch: $branch_name"
-          python3 scripts/firecloud_api/firecloud_api.py \
+          METHOD_CONGIF_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
             create_new_method_config \
             --workspace-namespace warp-pipelines \
             --workspace-name "WARP Tests" \
             --pipeline_name "$PIPELINE_NAME" \
             --branch_name "$branch_name" \
             --sa-json-b64 "$SA_JSON_B64" \
-            --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
-          #echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
-          #echo "METHOD_CONFIG_NAME: $METHOD_CONFIG_NAME"
+            --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com")
+            echo "Method Configuration Name: $METHOD_CONGIF_NAME"
+            echo "METHOD_CONFIG_NAME=$METHOD_CONGIF_NAME" >> $GITHUB_ENV
+            echo $GITHUB_ENV
         env:
           PIPELINE_NAME: TestIlluminaGenotypingArray
 
