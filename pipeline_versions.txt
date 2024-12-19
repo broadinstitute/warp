@@ -30,8 +30,8 @@ ExomeReprocessing	 3.3.3	2024-11-04
 BuildIndices	 3.1.0	2024-11-26 
 scATAC	 1.3.2	2023-08-03 
 snm3C	 4.0.4	2024-08-06 
-Multiome	 5.9.4	2024-12-05 
-PairedTag	 1.9.0	2024-12-05 
+Multiome	 5.9.5	2024-12-12 
+PairedTag	 1.9.1	2024-12-12 
 MultiSampleSmartSeq2	 2.2.22	2024-09-11 
 MultiSampleSmartSeq2SingleNucleus	 2.0.7	2024-12-12 
 Optimus	 7.9.1	2024-12-12 
