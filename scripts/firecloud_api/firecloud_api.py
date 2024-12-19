@@ -42,7 +42,7 @@ class FirecloudAPI:
             scopes=scopes
         )
         self.delegated_creds = sa_credentials.with_subject(user)
-        self.storage_client = storage.Client(credentials=sa_credentials, project=sa_credentials.project_id)
+        #self.storage_client = storage.Client(credentials=sa_credentials, project=sa_credentials.project_id)
 
     def build_auth_headers(self, token: str):
         if not self.delegated_creds.valid:
