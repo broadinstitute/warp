@@ -51,6 +51,7 @@ env:
   DOCKSTORE_PIPELINE_NAME: IlluminaGenotypingArray
   TESTING_WORKSPACE: WARP Tests
   WORKSPACE_NAMESPACE: warp-pipelines
+  USER: pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com
 
 
 jobs:
@@ -92,7 +93,7 @@ jobs:
       - name: Create new method configuration (only if needed)
         run: |
           echo "Creating new method configuration for branch: $branch_name"
-          echo "the pipeline name is $PIPELINE_NAME"
+
           METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
             create_new_method_config \
             --workspace-namespace $WORKSPACE_NAMESPACE \
@@ -100,24 +101,27 @@ jobs:
             --pipeline_name "$PIPELINE_NAME" \
             --branch_name "$branch_name" \
             --sa-json-b64 "$SA_JSON_B64" \
-            --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com")
+            --user "$USER")
 
             echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
           TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
           WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
+          USER: ${{ env.USER }}
 
       - name: Fetch Dockstore Workflow CommitID
         run: |
           # Wait 3 minutes for Dockstore to update
           ###### TODO need to increase sleep time to 3 minutes, it's set to 1 second for testing ######
           sleep 1
-          # Capture the output of the script (commit ID)
+          
+          
           DOCKSTORE_COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
             $DOCKSTORE_TOKEN \
             $DOCKSTORE_PIPELINE_NAME \
             $branch_name)
+          
           # Export the commit hash as an environment variable
           echo "DOCKSTORE_COMMIT_HASH=$DOCKSTORE_COMMIT_HASH_FROM_FETCH" >> $GITHUB_ENV
           echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH_FROM_FETCH"
@@ -244,7 +248,7 @@ jobs:
                 --test_input_file "$test_input_file" \
                 --branch_name "$branch_name" \
                 --sa-json-b64 "$SA_JSON_B64" \
-                --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
+                --user "$USER"
       
             attempt=1
             while [ $attempt -le $MAX_RETRIES ]; do
@@ -252,7 +256,7 @@ jobs:
                --workspace-namespace "$WORKSPACE_NAMESPACE" \
                --workspace-name "$TESTING_WORKSPACE" \
                --sa-json-b64 "$SA_JSON_B64" \
-               --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
+               --user "$USER" \
                --submission_data_file "$SUBMISSION_DATA_FILE")
       
               echo "Submission ID: $SUBMISSION_ID"
@@ -284,7 +288,7 @@ jobs:
               RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py poll_job_status \
                   --submission_id "$SUBMISSION_ID" \
                   --sa-json-b64 "$SA_JSON_B64" \
-                  --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
+                  --user "$USER" \
                   --workspace-namespace "$WORKSPACE_NAMESPACE" \
                   --workspace-name "$TESTING_WORKSPACE")
               
@@ -306,7 +310,7 @@ jobs:
               echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
               for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do
                    WORKFLOW_OUTPUT=$(python3 scripts/firecloud_api/firecloud_api.py get_workflow_outputs \
-                    --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
+                    --user "$USER" \
                     --sa-json-b64 "$SA_JSON_B64" \
                     --submission_id "$SUBMISSION_ID" \
                     --workspace-namespace $WORKSPACE_NAMESPACE \
@@ -335,29 +339,31 @@ jobs:
           done
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
-          NAMESPACE: warp-pipelines
           TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
           METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
           WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
+          USER: ${{ env.USER }}
 
       - name: Delete Method Configuration
         if: always() # Ensures it runs regardless of success or failure
         run: |
           echo "Deleting method configuration for branch: $branch_name"
           python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
-            --workspace-namespace warp-pipelines \
-            --workspace-name "WARP Tests" \
+            --workspace-namespace $WORKSPACE_NAMESPACE \
+            --workspace-name "$TESTING_WORKSPACE" \
             --pipeline_name "$PIPELINE_NAME" \
             --branch_name "$branch_name" \
             --sa-json-b64 "$SA_JSON_B64" \
-            --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
+            --user "$USER" \
             --method_config_name "$METHOD_CONFIG_NAME"
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
           branch_name: ${{ env.branch_name }}
           SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
           METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
-
+          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
+          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
+          USER: ${{ env.USER }}
 
       #### TODO is this even ok to do??? ###
       #- name: Decode the base64-encoded Google Cloud service account key
