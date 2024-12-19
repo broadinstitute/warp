@@ -50,6 +50,7 @@ env:
   PIPELINE_NAME: TestIlluminaGenotypingArray
   DOCKSTORE_PIPELINE_NAME: IlluminaGenotypingArray
   TESTING_WORKSPACE: WARP Tests
+  WORKSPACE_NAMESPACE: warp-pipelines
 
 
 jobs:
@@ -94,7 +95,7 @@ jobs:
           echo "the pipeline name is $PIPELINE_NAME"
           METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
             create_new_method_config \
-            --workspace-namespace warp-pipelines \
+            --workspace-namespace $WORKSPACE_NAMESPACE \
             --workspace-name $TESTING_WORKSPACE \
             --pipeline_name "$PIPELINE_NAME" \
             --branch_name "$branch_name" \
@@ -105,6 +106,7 @@ jobs:
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
           TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
+          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
 
       - name: Fetch Dockstore Workflow CommitID
         run: |
@@ -211,7 +213,7 @@ jobs:
           # Use a heredoc to generate the JSON file content dynamically
           cat <<EOF > "$SUBMISSION_DATA_FILE"
           {
-            "methodConfigurationNamespace": "warp-pipelines",
+            "methodConfigurationNamespace": "$WORKSPACE_NAMESPACE",
             "methodConfigurationName": "$METHOD_CONFIG_NAME",
             "useCallCache": $USE_CALL_CACHE_BOOL,
             "deleteIntermediateOutputFiles": false,
@@ -236,7 +238,7 @@ jobs:
             echo "Uploading the test input file: $test_input_file"
             python3 scripts/firecloud_api/firecloud_api.py \
                 upload_test_inputs \
-                --workspace-namespace warp-pipelines \
+                --workspace-namespace $WORKSPACE_NAMESPACE \
                 --workspace-name "WARP Tests" \
                 --pipeline_name "$PIPELINE_NAME" \
                 --test_input_file "$test_input_file" \
@@ -247,7 +249,7 @@ jobs:
             attempt=1
             while [ $attempt -le $MAX_RETRIES ]; do
               SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api.py submit_job \
-               --workspace-namespace "warp-pipelines" \
+               --workspace-namespace "$WORKSPACE_NAMESPACE" \
                --workspace-name "WARP Tests" \
                --sa-json-b64 "$SA_JSON_B64" \
                --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
@@ -283,7 +285,7 @@ jobs:
                   --submission_id "$SUBMISSION_ID" \
                   --sa-json-b64 "$SA_JSON_B64" \
                   --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
-                  --workspace-namespace "warp-pipelines" \
+                  --workspace-namespace "$WORKSPACE_NAMESPACE" \
                   --workspace-name "WARP Tests")
               
               if [ -z "$RESPONSE" ]; then
@@ -307,7 +309,7 @@ jobs:
                     --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
                     --sa-json-b64 "$SA_JSON_B64" \
                     --submission_id "$SUBMISSION_ID" \
-                    --workspace-namespace warp-pipelines \
+                    --workspace-namespace $WORKSPACE_NAMESPACE \
                     --workspace-name "WARP Tests" \
                     --workflow_id "$WORKFLOW_ID" \
                     --pipeline_name "$PIPELINE_NAME")
@@ -319,7 +321,7 @@ jobs:
             echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
             for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
               # Generate the Terra URL for the submission
-              SUBMISSION_URL="https://app.terra.bio/#workspaces/$NAMESPACE/${WORKSPACE// /%20}/job_history/$SUBMISSION_ID"
+              SUBMISSION_URL="https://app.terra.bio/#workspaces/$WORKSPACE_NAMESPACE/${WORKSPACE// /%20}/job_history/$SUBMISSION_ID"
           
               # Add the Submission ID as a hyperlink
               echo "[Submission ID: $SUBMISSION_ID]($SUBMISSION_URL)" >> $GITHUB_STEP_SUMMARY
@@ -334,8 +336,9 @@ jobs:
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
           NAMESPACE: warp-pipelines
-          WORKSPACE: WARP Tests
+          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
           METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
+          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
 
       - name: Delete Method Configuration
         if: always() # Ensures it runs regardless of success or failure
