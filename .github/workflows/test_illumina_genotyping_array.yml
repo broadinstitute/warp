@@ -390,6 +390,22 @@ jobs:
                 echo "Success: The Terra Commit Hash matches the GitHub Commit Hash."
             fi
 
+      - name: Delete Temporary Method Configuration
+        if: always() # Ensures it runs regardless of success or failure
+        run: |
+          echo "Deleting method configuration for branch: $branch_name"
+          python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
+            --workspace-namespace warp-pipelines \
+            --workspace-name "WARP Tests" \
+            --pipeline_name "$PIPELINE_NAME" \
+            --branch_name "$branch_name" \
+            --sa-json-b64 "$SA_JSON_B64" \
+            --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
+        env:
+          PIPELINE_NAME: TestIlluminaGenotypingArray
+          branch_name: ${{ env.branch_name }}
+          SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
+
       - name: Print Summary on Success
         if: success()
         run: |
