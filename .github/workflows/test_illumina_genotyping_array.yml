@@ -47,7 +47,7 @@ env:
   PROJECT_NAME: WARP
   REPOSITORY_NAME: ${{ github.event.repository.name }}
   SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
-  PIPELINE_NAME: IlluminaGenotypingArray
+  #PIPELINE_NAME: IlluminaGenotypingArray
   DOCKSTORE_PIPELINE_NAME: IlluminaGenotypingArray
 
 
