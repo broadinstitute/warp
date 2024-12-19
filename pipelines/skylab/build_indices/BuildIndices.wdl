@@ -194,7 +194,7 @@ task BuildStarSingleNucleus {
         TEMP_GTF=$(mktemp)
         
         # Create the GTF processing script
-        cat > gtf_process.sh << 'SCRIPT_EOF'
+        cat > gtf_process.sh <<TEST_EOF
         #!/bin/bash
 
         # Parse command line arguments
@@ -231,7 +231,7 @@ task BuildStarSingleNucleus {
         trap 'rm -rf "$temp_dir"' EXIT
 
         # Create header file
-        cat > "$temp_dir/header.txt" << 'EOF'
+        cat > "$temp_dir/header.txt" <<EOF
         #gtf-version 2.2
         #!genome-build mCalJa1.2.pat.X
         #!genome-build-accession NCBI_Assembly:GCF_011100555.1
@@ -354,7 +354,7 @@ task BuildStarSingleNucleus {
             "$temp_dir/mt_gene_annotation.txt" > "$output_gtf"
 
         echo "Done! Processed GTF file has been written to: $output_gtf"
-        SCRIPT_EOF          
+        TEST_EOF          
         # Run the Marmoset-specific GTF processing
         echo "Cat gtf_process.sh"
         cat gtf_process.sh
