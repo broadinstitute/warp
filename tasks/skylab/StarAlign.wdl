@@ -497,7 +497,7 @@ task MergeStarOutput {
   }
 
   command <<<
-    set -e
+    set -euo pipefail
     set -x 
 
     declare -a barcodes_files=(~{sep=' ' barcodes})
@@ -531,8 +531,8 @@ task MergeStarOutput {
     #list files
     echo "listing files"
     ls
-    if [ -f "${cell_reads_files[0]}" ]; then
-    
+    # if theres a file in cell_reads_files --  check if non empty
+    if [ -n "${cell_reads_files[*]}" ]; then
       # Destination file for cell reads
       dest="~{input_id}_cell_reads.txt"
     
