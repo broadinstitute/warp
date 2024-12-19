@@ -239,7 +239,7 @@ jobs:
             python3 scripts/firecloud_api/firecloud_api.py \
                 upload_test_inputs \
                 --workspace-namespace $WORKSPACE_NAMESPACE \
-                --workspace-name "WARP Tests" \
+                --workspace-name "$TESTING_WORKSPACE" \
                 --pipeline_name "$PIPELINE_NAME" \
                 --test_input_file "$test_input_file" \
                 --branch_name "$branch_name" \
@@ -250,7 +250,7 @@ jobs:
             while [ $attempt -le $MAX_RETRIES ]; do
               SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api.py submit_job \
                --workspace-namespace "$WORKSPACE_NAMESPACE" \
-               --workspace-name "WARP Tests" \
+               --workspace-name "$TESTING_WORKSPACE" \
                --sa-json-b64 "$SA_JSON_B64" \
                --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
                --submission_data_file "$SUBMISSION_DATA_FILE")
@@ -286,7 +286,7 @@ jobs:
                   --sa-json-b64 "$SA_JSON_B64" \
                   --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
                   --workspace-namespace "$WORKSPACE_NAMESPACE" \
-                  --workspace-name "WARP Tests")
+                  --workspace-name "$TESTING_WORKSPACE")
               
               if [ -z "$RESPONSE" ]; then
                   echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
@@ -310,7 +310,7 @@ jobs:
                     --sa-json-b64 "$SA_JSON_B64" \
                     --submission_id "$SUBMISSION_ID" \
                     --workspace-namespace $WORKSPACE_NAMESPACE \
-                    --workspace-name "WARP Tests" \
+                    --workspace-name "$TESTING_WORKSPACE" \
                     --workflow_id "$WORKFLOW_ID" \
                     --pipeline_name "$PIPELINE_NAME")
                     ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
