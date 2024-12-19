@@ -14,7 +14,7 @@ import os
 import logging
 import time
 import subprocess
-from google.cloud import storage
+#from google.cloud import storage
 
 
 # Configure logging to display INFO level and above messages
@@ -286,16 +286,16 @@ class FirecloudAPI:
             logging.error(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
 
-    def gsutil_copy(self, source, destination):
-        #client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
-        source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
-        destination_bucket_name, destination_blob_name = destination.replace("gs://", "").split("/", 1)
+   #def gsutil_copy(self, source, destination):
+   #    #client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
+   #    source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
+   #    destination_bucket_name, destination_blob_name = destination.replace("gs://", "").split("/", 1)
 
-        source_bucket = self.storage_client.bucket(source_bucket_name)
-        source_blob = source_bucket.blob(source_blob_name)
-        destination_bucket = self.storage_client.bucket(destination_bucket_name)
+   #    source_bucket = self.storage_client.bucket(source_bucket_name)
+   #    source_blob = source_bucket.blob(source_blob_name)
+   #    destination_bucket = self.storage_client.bucket(destination_bucket_name)
 
-        source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
+   #    source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
 
     def delete_method_config(self, method_config_name):
         """
@@ -380,8 +380,8 @@ if __name__ == "__main__":
     parser.add_argument("--source", help="Source GCS path for gsutil copy")
     parser.add_argument("--destination", help="Destination GCS path for gsutil copy")
     parser.add_argument("--method_config_name", help="Name of the method configuration to delete")
-    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "gsutil_copy", "create_new_method_config", "delete_method_config"],
-                    help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs', 'gsutil_copy' or 'create_new_method_config', 'delete_method_config'")
+    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "create_new_method_config", "delete_method_config"],
+                    help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs',  'create_new_method_config', or 'delete_method_config'")
 
     args = parser.parse_args()
 
@@ -428,17 +428,6 @@ if __name__ == "__main__":
                 print(json.dumps(workflow_status_map))  # Output the dictionary as a JSON string for bash parsing
             else:
                 print("No workflows found or an error occurred.")
-    elif args.action == "gsutil_copy":
-        if not args.source or not args.destination:
-            parser.error("Arguments --source and --destination are required for 'gsutil_copy'")
-        else:
-            # Perform the gsutil copy
-            try:
-                output = api.gsutil_copy(args.source, args.destination)
-                logging.info("File copy successful.")
-                print(output)
-            except RuntimeError as e:
-                logging.error(f"Error during gsutil copy: {e}")
     elif args.action == "create_new_method_config":
         # Check for required arguments for create_new_method_config action
         if not args.pipeline_name or not args.branch_name:
