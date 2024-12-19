@@ -1,3 +1,8 @@
+# 5.9.5
+2024-12-12 (Date of Last Commit)
+
+* Added a boolean variable is_slidetag. Set to true if Slide-Tags pipeline calling Optimus, otherwise false. 
+
 # 5.9.4
 2024-12-05 (Date of Last Commit)
 
