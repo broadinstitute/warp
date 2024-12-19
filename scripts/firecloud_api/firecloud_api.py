@@ -379,6 +379,7 @@ if __name__ == "__main__":
     parser.add_argument('--workflow_id', help='Workflow ID (required for get_workflow_outputs)')
     parser.add_argument("--source", help="Source GCS path for gsutil copy")
     parser.add_argument("--destination", help="Destination GCS path for gsutil copy")
+    parser.add_argument("--method_config_name", help="Name of the method configuration to delete")
     parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "gsutil_copy", "create_new_method_config", "delete_method_config"],
                     help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs', 'gsutil_copy' or 'create_new_method_config', 'delete_method_config'")
 
