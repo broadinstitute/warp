@@ -356,6 +356,9 @@ task BuildStarSingleNucleus {
         echo "Done! Processed GTF file has been written to: $output_gtf"
         SCRIPT_EOF          
         # Run the Marmoset-specific GTF processing
+        echo "Cat gtf_process.sh"
+        cat gtf_process.sh
+        echo "Done"
         chmod +x gtf_process.sh
         
         # Run the Marmoset-specific GTF processing on the modify_gtf.py output
