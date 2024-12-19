@@ -340,8 +340,8 @@ class FirecloudAPI:
             status = self.poll_job_status()
             logging.info(f"Final job status: {status}")
         elif self.action == "create_new_method_config":
-            success = self.create_new_method_config(self.branch_name, self.pipeline_name)
-            if success:
+            method_config_name = self.create_new_method_config(self.branch_name, self.pipeline_name)
+            if method_config_name:
                 logging.info("Method configuration created successfully.")
             else:
                 logging.error("Failed to create method configuration.")
