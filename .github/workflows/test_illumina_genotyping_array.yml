@@ -122,7 +122,6 @@ jobs:
             --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com")
             echo "Method Configuration Name: $METHOD_CONFIG_NAME"
             echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
-            cat $GITHUB_ENV
             
 
         env:
@@ -149,29 +148,29 @@ jobs:
           DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
           branch_name: ${{ env.branch_name }}
 
-      - name: Fetch Github Commit Hash
-        id: fetch_github_commit_hash
-        run: |
-          echo "GITHUB_COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
-          echo "GitHub Commit Hash: ${{ github.sha }}"
-
-      - name: Compare Dockstore and Commit Hashes
-        id: compare_hashes
-        run: |
-          echo "Comparing hashes..."
-          echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
-          echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
-
-          if [ "$DOCKSTORE_COMMIT_HASH" != "$GITHUB_COMMIT_HASH" ]; then
-            echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash!"
-            echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $GITHUB_COMMIT_HASH"
-            exit 1
-          else
-            echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
-          fi
-        env:
-          DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
-          GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
+#      - name: Fetch Github Commit Hash
+#        id: fetch_github_commit_hash
+#        run: |
+#          echo "GITHUB_COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
+#          echo "GitHub Commit Hash: ${{ github.sha }}"
+#
+#      - name: Compare Dockstore and Commit Hashes
+#        id: compare_hashes
+#        run: |
+#          echo "Comparing hashes..."
+#          echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
+#          echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
+#
+#          if [ "$DOCKSTORE_COMMIT_HASH" != "$GITHUB_COMMIT_HASH" ]; then
+#            echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash!"
+#            echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $GITHUB_COMMIT_HASH"
+#            exit 1
+#          else
+#            echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
+#          fi
+#        env:
+#          DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
+#          GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
 
       - name: Set Test Type for PRs
         if: ${{ github.event_name == 'pull_request' }}

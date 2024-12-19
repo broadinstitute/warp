@@ -286,24 +286,6 @@ class FirecloudAPI:
             logging.error(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
 
-    #ef gcloud_auth_list(self):
-    #   try:
-    #       # Run the gcloud auth list command and capture output
-    #       result = subprocess.run(
-    #           ["gcloud", "auth", "list", "--format=json"],
-    #           capture_output=True,
-    #           text=True,
-    #           check=True
-    #       )
-    #       # Parse the result as JSON
-    #       auth_list = json.loads(result.stdout)
-    #       # Output the result
-    #       logging.info(f"gcloud auth list output: {json.dumps(auth_list, indent=2)}")
-    #       return auth_list
-    #   except subprocess.CalledProcessError as e:
-     #       logging.error(f"Error executing 'gcloud auth list': {e.stderr}")
-     #       return None
-
     def gsutil_copy(self, source, destination):
         #client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
         source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
@@ -318,15 +300,6 @@ class FirecloudAPI:
 
     def main(self):
         logging.info("Starting process based on action.")
-        # Check gcloud authentication list
-       # auth_list = self.gcloud_auth_list()
-       # if auth_list:
-       #     logging.info("Authenticated accounts:")
-       #     for account in auth_list:
-       #         logging.info(f"Account: {account['account']}, Active: {account['status']}")
-       # else:
-       #     logging.error("Failed to retrieve gcloud authentication list.")
-
         if self.action == "submit_job":
             submission_id = self.submit_job()
             logging.info(f"Job submission complete with ID: {submission_id}")
@@ -392,16 +365,7 @@ if __name__ == "__main__":
         method_name=args.method_name
     )
 
-    # Example: Checking the gcloud auth list before proceeding
-    #auth_list = api.gcloud_auth_list()
-    #if auth_list:
-    #    logging.info("Authenticated accounts:")
-    #    for account in auth_list:
-    #        logging.info(f"Account: {account['account']}, Active: {account['status']}")
-    #else:
-    #    logging.error("Failed to retrieve gcloud authentication list.")
 
-    # Perform the selected action
     if args.action == "upload_test_inputs":
         # Check for required arguments for upload_test_inputs action
         if not args.pipeline_name or not args.test_input_file or not args.branch_name:
