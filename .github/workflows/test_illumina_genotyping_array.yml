@@ -122,8 +122,6 @@ jobs:
             --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com")
             echo "Method Configuration Name: $METHOD_CONFIG_NAME"
             echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
-            
-
         env:
           PIPELINE_NAME: TestIlluminaGenotypingArray
 
@@ -400,11 +398,13 @@ jobs:
             --pipeline_name "$PIPELINE_NAME" \
             --branch_name "$branch_name" \
             --sa-json-b64 "$SA_JSON_B64" \
-            --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com"
+            --user "pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com" \
+            --method_config_name "$METHOD_CONFIG_NAME"
         env:
           PIPELINE_NAME: TestIlluminaGenotypingArray
           branch_name: ${{ env.branch_name }}
           SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
+          METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
 
       - name: Print Summary on Success
         if: success()
