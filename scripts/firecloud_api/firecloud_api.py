@@ -297,6 +297,30 @@ class FirecloudAPI:
 
         source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
 
+    def delete_method_config(self, method_config_name):
+        """
+        Deletes a method configuration from the workspace.
+
+        :param method_config_name: The name of the method configuration to delete
+        :return: True if deletion is successful, False otherwise
+        """
+        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
+
+        token = self.get_user_token(self.delegated_creds)
+        headers = self.build_auth_headers(token)
+
+        # Send a DELETE request to delete the method configuration
+        response = requests.delete(url, headers=headers)
+
+        if response.status_code == 204:
+            logging.info(f"Method configuration {method_config_name} deleted successfully.")
+            return True
+        else:
+            logging.error(f"Failed to delete method configuration {method_config_name}. Status code: {response.status_code}")
+            logging.error(f"Response body: {response.text}")
+            return False
+
+
 
     def main(self):
         logging.info("Starting process based on action.")
@@ -318,6 +342,12 @@ class FirecloudAPI:
                 logging.info("Method configuration created successfully.")
             else:
                 logging.error("Failed to create method configuration.")
+        elif self.action == "delete_method_config":
+            success = self.delete_method_config()
+            if success:
+                logging.info("Method configuration deleted successfully.")
+            else:
+                logging.error("Failed to delete method configuration.")
         elif self.action == "get_workflow_outputs":
             if not args.submission_id or not args.workflow_id or not args.pipeline_name:
                 parser.error("Arguments --submission_id, --workflow_id, and --pipeline_name are required for 'get_workflow_outputs'")
@@ -349,8 +379,8 @@ if __name__ == "__main__":
     parser.add_argument('--workflow_id', help='Workflow ID (required for get_workflow_outputs)')
     parser.add_argument("--source", help="Source GCS path for gsutil copy")
     parser.add_argument("--destination", help="Destination GCS path for gsutil copy")
-    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "gsutil_copy", "create_new_method_config"],
-                    help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs', 'gsutil_copy' or 'create_new_method_config'")
+    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "gsutil_copy", "create_new_method_config", "delete_method_config"],
+                    help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs', 'gsutil_copy' or 'create_new_method_config', 'delete_method_config'")
 
     args = parser.parse_args()
 
@@ -419,6 +449,16 @@ if __name__ == "__main__":
             logging.info(f"Method configuration created with name: {method_config_name}")
         else:
             logging.error("Failed to create method configuration.")
+    elif args.action == "delete_method_config":
+        if not args.method_config_name:
+            parser.error("Argument --method_config_name is required for 'delete_method_config'")
+        else:
+            # Delete the method configuration
+            success = api.delete_method_config(args.method_config_name)
+            if success:
+                logging.info("Method configuration deleted successfully.")
+            else:
+                logging.error("Failed to delete method configuration.")
 
 
 
