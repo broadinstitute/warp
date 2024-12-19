@@ -231,9 +231,7 @@ jobs:
           
           # Create the submission_data.json file which will be the same for all inputs
           SUBMISSION_DATA_FILE="submission_data.json"
-          
-          echo "the method config name is: $METHOD_CONFIG_NAME"
-          
+                    
           # Use a heredoc to generate the JSON file content dynamically
           cat <<EOF > "$SUBMISSION_DATA_FILE"
           {
