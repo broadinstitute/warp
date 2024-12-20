@@ -20,29 +20,17 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, bran
     updated_inputs = {}
     for key, value in test_inputs.items():
         new_key = key.replace(pipeline_name, test_name)
-
-        if isinstance(value, str) and value.startswith("[") and value.endswith("]"):
-            # Attempt to parse stringified lists
-            try:
-                parsed_value = json.loads(value.replace("'", '"'))  # Replace single quotes with double quotes
-                if isinstance(parsed_value, list):
-                    updated_inputs[new_key] = parsed_value
-                else:
-                    updated_inputs[new_key] = value
-            except json.JSONDecodeError:
-                updated_inputs[new_key] = value
-        else:
-            updated_inputs[new_key] = value
+        updated_inputs[new_key] = value  # Keep the original value without any string conversion
 
     # Add the truth_path and results_path to the updated inputs
     updated_inputs[f"{test_name}.results_path"] = f"{results_path}/{sample_name}/"
     updated_inputs[f"{test_name}.truth_path"] = f"{truth_path}/{sample_name}/"
     updated_inputs[f"{test_name}.update_truth"] = update_truth
 
-    # Save the updated test inputs JSON
+    # Save the updated test inputs JSON with ensure_ascii=False to preserve formatting
     output_name = f"updated_{sample_name}_{branch_name}.json"
     with open(output_name, 'w') as file:
-        json.dump(updated_inputs, file, indent=4)
+        json.dump(updated_inputs, file, indent=4, ensure_ascii=False)
 
     print(f"{output_name}")
     return output_name
