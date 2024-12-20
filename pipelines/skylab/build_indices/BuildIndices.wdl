@@ -197,7 +197,7 @@ task BuildStarSingleNucleus {
         
         # Run the Marmoset-specific GTF processing on the modify_gtf.py output
         MARMOSET_OUTPUT=$(mktemp)
-        bash /script/marmoset_gtf_.sh -i ~{annotation_gtf} -m ~{annotation_gtf_modified} -o "$MARMOSET_OUTPUT"        
+        bash /script/marmoset_gtf.sh -i ~{annotation_gtf} -m ~{annotation_gtf_modified} -o "$MARMOSET_OUTPUT"        
         # Update the final GTF path
         mv "$MARMOSET_OUTPUT" ~{annotation_gtf_modified}
         FINAL_GTF="~{annotation_gtf_modified}"
