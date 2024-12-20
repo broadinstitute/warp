@@ -308,12 +308,11 @@ class FirecloudAPI:
 
         if response.status_code == 204:
             logging.info(f"Method configuration {method_config_name} deleted successfully.")
-            print("DELETE_RESPONSE: True")
+            print("True")
             return True
         else:
             logging.error(f"Failed to delete method configuration {method_config_name}. Status code: {response.status_code}")
             logging.error(f"Response body: {response.text}")
-            print(f"DELETE_RESPONSE: False - {response.status_code} - {response.text}")
             return False
 
 
