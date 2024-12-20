@@ -74,9 +74,7 @@ workflow IlluminaGenotypingArray {
     Int preemptible_tries
 
     Float genotype_concordance_threshold = 0.95
-
   }
-
 
   call GenotypingTasks.AutoCall {
     input:
@@ -335,8 +333,6 @@ workflow IlluminaGenotypingArray {
       }
     }
   }
-
-
 
   output {
     String chip_well_barcode_output = chip_well_barcode

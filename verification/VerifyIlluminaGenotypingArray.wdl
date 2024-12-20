@@ -2,9 +2,6 @@ version 1.0
 
 import "../verification/VerifyMetrics.wdl" as MetricsVerification
 import "../verification/VerifyTasks.wdl" as Tasks
-import "../tasks/broad/Utilities.wdl" as Utilities
-
-
 
 ## Copyright Broad Institute, 2018
 ##
@@ -44,7 +41,6 @@ workflow VerifyIlluminaGenotypingArray {
     File test_green_idat_md5
 
     Boolean? done
-
   }
 
   call MetricsVerification.CompareTwoNumbers {
