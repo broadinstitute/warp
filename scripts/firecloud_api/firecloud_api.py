@@ -1,14 +1,20 @@
 import base64
 import json
 import requests
+import traceback
+from time import sleep
 from datetime import datetime, timezone
 from urllib.parse import quote
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 from google.auth import credentials
 import argparse
+import sys
+import os
 import logging
 import time
+import subprocess
+#from google.cloud import storage
 
 
 # Configure logging to display INFO level and above messages
@@ -18,7 +24,6 @@ logging.basicConfig(
 )
 
 class FirecloudAPI:
-
     def __init__(self, workspace_namespace, workspace_name, sa_json_b64, user, action, method_namespace, method_name):
         self.sa_json_b64 = sa_json_b64
         self.namespace = workspace_namespace
@@ -37,6 +42,7 @@ class FirecloudAPI:
             scopes=scopes
         )
         self.delegated_creds = sa_credentials.with_subject(user)
+        #self.storage_client = storage.Client(credentials=sa_credentials, project=sa_credentials.project_id)
 
     def build_auth_headers(self, token: str):
         if not self.delegated_creds.valid:
@@ -280,6 +286,17 @@ class FirecloudAPI:
             logging.error(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
 
+    #def gsutil_copy(self, source, destination):
+    #    #client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
+    #    source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
+    #    destination_bucket_name, destination_blob_name = destination.replace("gs://", "").split("/", 1)
+
+    #    source_bucket = self.storage_client.bucket(source_bucket_name)
+    #    source_blob = source_bucket.blob(source_blob_name)
+    #    destination_bucket = self.storage_client.bucket(destination_bucket_name)
+
+    #    source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
+
     def delete_method_config(self, method_config_name):
         """
         Deletes a method configuration from the workspace.
@@ -302,6 +319,7 @@ class FirecloudAPI:
             logging.error(f"Failed to delete method configuration {method_config_name}. Status code: {response.status_code}")
             logging.error(f"Response body: {response.text}")
             return False
+
 
 
     def main(self):
@@ -363,7 +381,7 @@ if __name__ == "__main__":
     parser.add_argument("--destination", help="Destination GCS path for gsutil copy")
     parser.add_argument("--method_config_name", help="Name of the method configuration to delete")
     parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "create_new_method_config", "delete_method_config"],
-                    help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs',  'create_new_method_config', or 'delete_method_config'")
+                        help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs',  'create_new_method_config', or 'delete_method_config'")
 
     args = parser.parse_args()
 
@@ -431,3 +449,9 @@ if __name__ == "__main__":
                 logging.info("Method configuration deleted successfully.")
             else:
                 logging.error("Failed to delete method configuration.")
+
+
+
+
+
+
