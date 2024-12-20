@@ -126,6 +126,10 @@ workflows:
   - name: TestIlluminaGenotypingArray
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestIlluminaGenotypingArray.wdl
+
+  - name: TestOptimus
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestOptimus.wdl
     
   - name: VariantCalling
     subclass: WDL

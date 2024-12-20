@@ -120,7 +120,7 @@ Array[String] pipeline_outputs = flatten([
                               ])
 
   # Copy results of pipeline to test results bucket
-  call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
+  call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
     input:
       files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
       destination_cloud_path    = results_path
@@ -128,7 +128,7 @@ Array[String] pipeline_outputs = flatten([
 
   # If updating truth then copy pipeline results to truth bucket
   if (update_truth){
-    call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
+    call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
     input:
       files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
       destination_cloud_path    = truth_path
