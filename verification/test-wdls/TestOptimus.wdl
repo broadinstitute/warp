@@ -3,7 +3,7 @@ version 1.0
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../pipelines/skylab/optimus/Optimus.wdl" as Optimus
 import "../../verification/VerifyOptimus.wdl" as VerifyOptimus
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestOptimus {
 
@@ -123,8 +123,6 @@ Array[String] pipeline_outputs = flatten([
   call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
     input:
       files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path,
       destination_cloud_path    = results_path
   }
 
@@ -133,8 +131,6 @@ Array[String] pipeline_outputs = flatten([
     call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
     input:
       files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path,
       destination_cloud_path    = truth_path
     }
   }
