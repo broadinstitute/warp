@@ -104,26 +104,6 @@ jobs:
             echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
           fi
 
-      - name: Create new method configuration
-        run: |
-          echo "Creating new method configuration for branch: $BRANCH_NAME"
-
-          METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
-            create_new_method_config \
-            --workspace-namespace $WORKSPACE_NAMESPACE \
-            --workspace-name "$TESTING_WORKSPACE" \
-            --pipeline_name "$PIPELINE_NAME" \
-            --branch_name "$BRANCH_NAME" \
-            --sa-json-b64 "$SA_JSON_B64" \
-            --user "$USER")
-
-            echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
-        env:
-          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
-          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
-          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
-          USER: ${{ env.USER }}
-
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
         run: |
@@ -192,6 +172,26 @@ jobs:
         run: |
           # Use the testType provided by the user
           echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
+
+      - name: Create new method configuration
+        run: |
+          echo "Creating new method configuration for branch: $BRANCH_NAME"
+
+          METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
+            create_new_method_config \
+            --workspace-namespace $WORKSPACE_NAMESPACE \
+            --workspace-name "$TESTING_WORKSPACE" \
+            --pipeline_name "$PIPELINE_NAME" \
+            --branch_name "$BRANCH_NAME" \
+            --sa-json-b64 "$SA_JSON_B64" \
+            --user "$USER")
+
+            echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
+        env:
+          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
+          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
+          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
+          USER: ${{ env.USER }}
 
       - name: Update test inputs, Upload to Terra, Submit, Monitor and Retrieve Outputs
         run: |
@@ -367,19 +367,22 @@ jobs:
         if: always() # Ensures it runs regardless of success or failure
         run: |
           echo "Deleting method configuration for branch: $BRANCH_NAME"
-          python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
+          DELETE_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
             --workspace-namespace $WORKSPACE_NAMESPACE \
             --workspace-name "$TESTING_WORKSPACE" \
             --pipeline_name "$PIPELINE_NAME" \
             --branch_name "$BRANCH_NAME" \
             --sa-json-b64 "$SA_JSON_B64" \
             --user "$USER" \
-            --method_config_name "$METHOD_CONFIG_NAME"
-          # if the method config was not able to be deleted, fail the job
-            if [ $? -ne 0 ]; then
-                echo "Failed to delete method configuration for branch: $BRANCH_NAME"
-                exit 1
-            fi
+            --method_config_name "$METHOD_CONFIG_NAME")
+            echo "Delete response: $DELETE_RESPONSE"
+          if [ "$DELETE_RESPONSE" == "True" ]; then
+            echo "Method configuration deleted successfully."
+          else
+            echo "Error: Method configuration deletion failed."
+            exit 1
+          fi
+
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}

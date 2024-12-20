@@ -97,26 +97,6 @@ jobs:
             echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
           fi
 
-      - name: Create new method configuration
-        run: |
-          echo "Creating new method configuration for branch: $BRANCH_NAME"
-
-          METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
-            create_new_method_config \
-            --workspace-namespace $WORKSPACE_NAMESPACE \
-            --workspace-name "$TESTING_WORKSPACE" \
-            --pipeline_name "$PIPELINE_NAME" \
-            --branch_name "$BRANCH_NAME" \
-            --sa-json-b64 "$SA_JSON_B64" \
-            --user "$USER")
-
-            echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
-        env:
-          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
-          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
-          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
-          USER: ${{ env.USER }}
-
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
         run: |
@@ -168,23 +148,58 @@ jobs:
       #    DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
       #    GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
 
-      - name: Set Test Type for PRs
-        if: ${{ github.event_name == 'pull_request' }}
+      #- name: Set Test Type for PRs
+      #  if: ${{ github.event_name == 'pull_request' }}
+      #  id: set_test_type
+      #  run: |
+      #    # Default to "Scientific" if targeting master
+      #    if [ "${{ github.base_ref }}" == "master" ]; then
+      #      echo "testType=Scientific" >> $GITHUB_ENV
+      #    else
+      #      echo "testType=Plumbing" >> $GITHUB_ENV
+      #    fi
+#
+      #- name: Use Provided Test Type
+      #  if: ${{ github.event_name == 'workflow_dispatch' }}
+      #  id: use_provided_test_type
+      #  run: |
+      #    # Use the testType provided by the user
+      #    echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
+
+      - name: Set Test Type
         id: set_test_type
         run: |
-          # Default to "Scientific" if targeting master
-          if [ "${{ github.base_ref }}" == "master" ]; then
-            echo "testType=Scientific" >> $GITHUB_ENV
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # For PRs, set based on target branch
+            if [ "${{ github.base_ref }}" == "master" ]; then
+              echo "testType=Scientific" >> $GITHUB_ENV
+            else
+              echo "testType=Plumbing" >> $GITHUB_ENV
+            fi
           else
-            echo "testType=Plumbing" >> $GITHUB_ENV
+            # For workflow_dispatch, use provided test type
+            echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
           fi
 
-      - name: Use Provided Test Type
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        id: use_provided_test_type
+      - name: Create new method configuration
         run: |
-          # Use the testType provided by the user
-          echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
+          echo "Creating new method configuration for branch: $BRANCH_NAME"
+
+          METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
+            create_new_method_config \
+            --workspace-namespace $WORKSPACE_NAMESPACE \
+            --workspace-name "$TESTING_WORKSPACE" \
+            --pipeline_name "$PIPELINE_NAME" \
+            --branch_name "$BRANCH_NAME" \
+            --sa-json-b64 "$SA_JSON_B64" \
+            --user "$USER")
+
+            echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
+        env:
+          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
+          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
+          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
+          USER: ${{ env.USER }}
 
       - name: Update test inputs, Upload to Terra, Submit, Monitor and Retrieve Outputs
         run: |
