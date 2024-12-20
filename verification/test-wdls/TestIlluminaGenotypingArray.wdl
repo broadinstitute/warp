@@ -46,7 +46,6 @@ workflow TestIlluminaGenotypingArray {
       String truth_path
       String results_path
       Boolean update_truth
-      String commit_hash
     }
 
     meta {
@@ -195,8 +194,7 @@ workflow TestIlluminaGenotypingArray {
           truth_green_idat_md5 = GetGreenIdatMd5.truth_file,
           test_green_idat_md5 = GetGreenIdatMd5.results_file,
           bead_pool_manifest_file = bead_pool_manifest_file,
-          done = CopyToTestResults.done,
-          commit_hash = commit_hash
+          done = CopyToTestResults.done
       }
     }
 

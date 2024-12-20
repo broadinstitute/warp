@@ -44,14 +44,7 @@ workflow VerifyIlluminaGenotypingArray {
     File test_green_idat_md5
 
     Boolean? done
-    String commit_hash
 
-  }
-
-  call Utilities.EchoCommitHash as EchoCommitHash {
-    input:
-      commit_hash_input = commit_hash,
-      gcs_output_path = "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/"
   }
 
   call MetricsVerification.CompareTwoNumbers {
@@ -122,7 +115,6 @@ workflow VerifyIlluminaGenotypingArray {
       file2 = truth_red_idat_md5
   }
   output {
-    File commit_hash_output = EchoCommitHash.commit_hash_file
   }
   meta {
     allowNestedInputs: true

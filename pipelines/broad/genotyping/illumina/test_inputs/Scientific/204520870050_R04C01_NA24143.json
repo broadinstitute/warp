@@ -1,0 +1,26 @@
+{
+  "IlluminaGenotypingArray.sample_alias": "NA24143",
+  "IlluminaGenotypingArray.analysis_version_number": 1,
+  "IlluminaGenotypingArray.call_rate_threshold": 0.98,
+  "IlluminaGenotypingArray.reported_gender": "Female",
+  "IlluminaGenotypingArray.chip_well_barcode": "204520870050_R04C01",
+
+  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GDA-8v1-0_A5/idats/204520870050_R04C01/204520870050_R04C01_Grn.idat",
+  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GDA-8v1-0_A5/idats/204520870050_R04C01/204520870050_R04C01_Red.idat",
+
+  "IlluminaGenotypingArray.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.bpm",
+  "IlluminaGenotypingArray.extended_chip_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.1.5.extended.csv",
+  "IlluminaGenotypingArray.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A1_ClusterFile.egt",
+  "IlluminaGenotypingArray.minor_allele_frequency_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.MAF.txt",
+
+  "IlluminaGenotypingArray.disk_size": 100,
+
+  "IlluminaGenotypingArray.ref_fasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
+  "IlluminaGenotypingArray.ref_fasta_index": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",
+  "IlluminaGenotypingArray.ref_dict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
+  "IlluminaGenotypingArray.dbSNP_vcf": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz",
+  "IlluminaGenotypingArray.dbSNP_vcf_index": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz.tbi",
+  "IlluminaGenotypingArray.haplotype_database_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt",
+  "IlluminaGenotypingArray.variant_rsids_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
+  "IlluminaGenotypingArray.preemptible_tries": 3
+}

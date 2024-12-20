@@ -301,23 +301,3 @@ task GetValidationInputs {
   }
 
 }
-
-task EchoCommitHash {
-    input {
-        String commit_hash_input
-        String gcs_output_path
-    }
-    command <<<
-      echo ~{commit_hash_input} > commit_hash.txt
-
-      # copy the file to the specified GCS bucket
-      gsutil cp commit_hash.txt ~{gcs_output_path}
-    >>>
-    output {
-        File commit_hash_file = "commit_hash.txt"
-    }
-    runtime {
-        docker: "gcr.io/google.com/cloudsdktool/google-cloud-cli:499.0.0-slim"
-        memory:  "2000 MiB"
-    }
-}
