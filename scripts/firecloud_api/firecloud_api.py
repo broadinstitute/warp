@@ -1,20 +1,14 @@
 import base64
 import json
 import requests
-import traceback
-from time import sleep
 from datetime import datetime, timezone
 from urllib.parse import quote
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 from google.auth import credentials
 import argparse
-import sys
-import os
 import logging
 import time
-import subprocess
-#from google.cloud import storage
 
 
 # Configure logging to display INFO level and above messages
