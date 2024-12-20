@@ -369,6 +369,12 @@ jobs:
             --user "$USER" \
             --method_config_name "$METHOD_CONFIG_NAME")
             echo "Delete response: $DELETE_RESPONSE"
+          if [ "$DELETE_RESPONSE" == "True" ]; then
+            echo "Method configuration deleted successfully."
+          else
+            echo "Error: Method configuration deletion failed."
+            exit 1
+          fi
 
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
