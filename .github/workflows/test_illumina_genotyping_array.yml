@@ -131,29 +131,10 @@ jobs:
             exit 1
           fi
 
-      - name: Print Determined Commit Hash
-        run: |
-          echo "Determined commit hash: ${{ env.GITHUB_COMMIT_HASH }}"
-          #echo "GITHUB_COMMIT_HASH=${{ env.github_commit_hash }}" >> $GITHUB_ENV
-          
-
-      #- name: Fetch Github Commit Hash
-      #  id: fetch_github_commit_hash
-      #  run: |
-      #    echo "GITHUB_COMMIT_HASH=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
-      #    echo "GitHub Commit Hash: ${{ github.event.pull_request.head.sha }}"
-#
-      #- name: Debug Context
-      #  run: |
-      #    echo "github.sha: ${{ github.sha }}"
-      #    echo "github.event.pull_request.head.sha: ${{ github.event.pull_request.head.sha }}"
-      #    echo "github.event.pull_request.base.sha: ${{ github.event.pull_request.base.sha }}"
-
-      - name: Fetch Dockstore Workflow CommitID
+      - name: Fetch Dockstore Workflow Commit Hash
         run: |
           # Wait 5.5 minutes for Dockstore to update
           sleep 330
-          
           
           DOCKSTORE_COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
             $DOCKSTORE_TOKEN \
