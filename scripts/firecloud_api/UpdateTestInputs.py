@@ -1,7 +1,7 @@
 import argparse
 import json
 import os
-
+import ast
 
 def update_test_inputs(inputs_json, truth_path, results_path, update_truth, branch_name):
     with open(inputs_json, 'r') as file:
@@ -20,21 +20,37 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, bran
     updated_inputs = {}
     for key, value in test_inputs.items():
         new_key = key.replace(pipeline_name, test_name)
-        updated_inputs[new_key] = value  # Keep the original value without any string conversion
+
+        # Handle the case where value might be a string representation of a list
+        if isinstance(value, list):
+            # Check if any element in the list is a string representation of another list
+            processed_value = []
+            for item in value:
+                if isinstance(item, str) and item.startswith('[') and item.endswith(']'):
+                    try:
+                        # Use ast.literal_eval to safely evaluate string representation of list
+                        inner_list = ast.literal_eval(item)
+                        processed_value.extend(inner_list)
+                    except (ValueError, SyntaxError):
+                        processed_value.append(item)
+                else:
+                    processed_value.append(item)
+            updated_inputs[new_key] = processed_value
+        else:
+            updated_inputs[new_key] = value
 
     # Add the truth_path and results_path to the updated inputs
     updated_inputs[f"{test_name}.results_path"] = f"{results_path}/{sample_name}/"
     updated_inputs[f"{test_name}.truth_path"] = f"{truth_path}/{sample_name}/"
     updated_inputs[f"{test_name}.update_truth"] = update_truth
 
-    # Save the updated test inputs JSON with ensure_ascii=False to preserve formatting
+    # Save the updated test inputs JSON
     output_name = f"updated_{sample_name}_{branch_name}.json"
     with open(output_name, 'w') as file:
-        json.dump(updated_inputs, file, indent=4, ensure_ascii=False)
+        json.dump(updated_inputs, file, indent=4)
 
     print(f"{output_name}")
     return output_name
-
 
 def main():
     description = """This script updates the test inputs JSON to work with the test wrapper WDL,
