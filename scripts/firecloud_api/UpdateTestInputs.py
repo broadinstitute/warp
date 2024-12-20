@@ -5,17 +5,10 @@ import os
 
 def update_test_inputs(inputs_json, truth_path, results_path, update_truth, branch_name):
     # Update the test inputs JSON to work with the test wrapper WDL
-    # The test wrapper WDL runs the pipeline WDL and verifies the results
-    # The test wrapper WDL requires the following inputs:
-    # - truth_path: The path to the truth data
-    # - results_path: The path to the test data
-    # - update_truth: Boolean indicating whether truth should be updated, default is False
-    # The test inputs JSON will be updated to include these inputs
-
     with open(inputs_json, 'r') as file:
         test_inputs = json.load(file)
 
-    # get the sample name from the test inputs JSON, this is needed for tests with multiple inputs
+    # Get the sample name from the test inputs JSON
     sample_name = os.path.splitext(os.path.basename(inputs_json))[0]
 
     # Get the pipeline name from the test inputs JSON
@@ -24,23 +17,30 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, bran
     # Append "Test" in front of the pipeline name
     test_name = f"Test{pipeline_name}"
 
-    # Create a branch-specific test name
-    #test_name = f"Test{pipeline_name}_{branch_name}"
-
-    # Update all keys in the json file to replace the pipeline name with the test name
-    for key in list(test_inputs.keys()):
+    # Update all keys to replace the pipeline name with the test name
+    updated_inputs = {}
+    for key, value in test_inputs.items():
         new_key = key.replace(pipeline_name, test_name)
-        test_inputs[new_key] = test_inputs.pop(key)
 
-    # Add the truth_path and results_path to the test inputs JSON
-    test_inputs[f"{test_name}.results_path"] = f"{results_path}/{sample_name}/"
-    test_inputs[f"{test_name}.truth_path"] = f"{truth_path}/{sample_name}/"
-    test_inputs[f"{test_name}.update_truth"] = update_truth
+        # Fix formatting for array inputs
+        if isinstance(value, str) and value.startswith("[") and value.endswith("]"):
+            try:
+                # Attempt to parse the string as a JSON array
+                value = json.loads(value)
+            except json.JSONDecodeError:
+                pass  # Leave the value as is if parsing fails
+
+        updated_inputs[new_key] = value
+
+    # Add the truth_path and results_path to the updated inputs
+    updated_inputs[f"{test_name}.results_path"] = f"{results_path}/{sample_name}/"
+    updated_inputs[f"{test_name}.truth_path"] = f"{truth_path}/{sample_name}/"
+    updated_inputs[f"{test_name}.update_truth"] = update_truth
 
     # Save the updated test inputs JSON
     output_name = f"updated_{sample_name}_{branch_name}.json"
     with open(output_name, 'w') as file:
-        json.dump(test_inputs, file, indent=4)
+        json.dump(updated_inputs, file, indent=4)
 
     print(f"{output_name}")
     return output_name
@@ -86,11 +86,10 @@ def main():
     parser.add_argument(
         "--branch_name",
         required=True,
-        help="Branch name of the current pipeline run")
-
+        help="Branch name of the current pipeline run"
+    )
 
     args = parser.parse_args()
-    # convert the update_truth flag to a boolean
     update_truth_bool = args.update_truth.lower() == "true"
 
     # Update the test inputs to work with the test wrapper WDL
