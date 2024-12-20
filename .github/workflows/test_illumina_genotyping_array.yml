@@ -44,13 +44,20 @@ on:
 
 
 env:
+  # pipeline configuration
   PROJECT_NAME: WARP
-  REPOSITORY_NAME: ${{ github.event.repository.name }}
-  SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
   PIPELINE_NAME: TestIlluminaGenotypingArray
   DOCKSTORE_PIPELINE_NAME: IlluminaGenotypingArray
+
+  # workspace configuration
   TESTING_WORKSPACE: WARP Tests
   WORKSPACE_NAMESPACE: warp-pipelines
+
+  # github repo configuration
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
+
+  # service account configuration
+  SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
   USER: pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com
 
 
@@ -90,7 +97,7 @@ jobs:
             echo "branch_name=${{ github.head_ref }}" >> $GITHUB_ENV
           fi
 
-      - name: Create new method configuration (only if needed)
+      - name: Create new method configuration
         run: |
           echo "Creating new method configuration for branch: $branch_name"
 

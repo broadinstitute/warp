@@ -3,7 +3,7 @@ import json
 import os
 
 
-def update_test_inputs(inputs_json, truth_path, results_path, update_truth, commit_hash, branch_name):
+def update_test_inputs(inputs_json, truth_path, results_path, update_truth, branch_name):
     # Update the test inputs JSON to work with the test wrapper WDL
     # The test wrapper WDL runs the pipeline WDL and verifies the results
     # The test wrapper WDL requires the following inputs:
@@ -36,7 +36,6 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, comm
     test_inputs[f"{test_name}.results_path"] = f"{results_path}/{sample_name}/"
     test_inputs[f"{test_name}.truth_path"] = f"{truth_path}/{sample_name}/"
     test_inputs[f"{test_name}.update_truth"] = update_truth
-    test_inputs[f"{test_name}.commit_hash"] = commit_hash
 
     # Save the updated test inputs JSON
     output_name = f"updated_{sample_name}_{branch_name}.json"
@@ -85,11 +84,6 @@ def main():
     )
 
     parser.add_argument(
-        "--commit_hash",
-        required=True,
-        help="Commit hash of the current pipeline run")
-
-    parser.add_argument(
         "--branch_name",
         required=True,
         help="Branch name of the current pipeline run")
@@ -100,7 +94,7 @@ def main():
     update_truth_bool = args.update_truth.lower() == "true"
 
     # Update the test inputs to work with the test wrapper WDL
-    update_test_inputs(args.inputs_json, args.truth_path, args.results_path, update_truth_bool, args.commit_hash, args.branch_name)
+    update_test_inputs(args.inputs_json, args.truth_path, args.results_path, update_truth_bool, args.branch_name)
 
 
 if __name__ == "__main__":
