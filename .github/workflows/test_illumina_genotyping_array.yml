@@ -173,12 +173,15 @@ jobs:
             # For PRs, set based on target branch
             if [ "${{ github.base_ref }}" == "master" ]; then
               echo "testType=Scientific" >> $GITHUB_ENV
+              echo "testType=Scientific"
             else
               echo "testType=Plumbing" >> $GITHUB_ENV
+              echo "testType=Plumbing"
             fi
           else
             # For workflow_dispatch, use provided test type
             echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
+            echo "testType=${{ github.event.inputs.testType }}"
           fi
 
       - name: Create new method configuration
