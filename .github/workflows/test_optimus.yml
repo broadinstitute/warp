@@ -128,7 +128,6 @@ jobs:
           TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
           WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
           USER: ${{ env.USER }}
-          BRANCH_NAME: ${{ env.BRANCH_NAME }}
 
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
