@@ -21,13 +21,10 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, bran
     for key, value in test_inputs.items():
         new_key = key.replace(pipeline_name, test_name)
 
-        # Ensure values remain arrays where applicable
-        if isinstance(value, list):
-            updated_inputs[new_key] = value  # Keep array as is
-        elif isinstance(value, str) and value.startswith("[") and value.endswith("]"):
+        if isinstance(value, str) and value.startswith("[") and value.endswith("]"):
+            # Attempt to parse stringified lists
             try:
-                # Parse stringified arrays safely
-                parsed_value = json.loads(value)
+                parsed_value = json.loads(value.replace("'", '"'))  # Replace single quotes with double quotes
                 if isinstance(parsed_value, list):
                     updated_inputs[new_key] = parsed_value
                 else:
@@ -91,10 +88,10 @@ def main():
     parser.add_argument(
         "--branch_name",
         required=True,
-        help="Branch name of the current pipeline run"
-    )
+        help="Branch name of the current pipeline run")
 
     args = parser.parse_args()
+    # convert the update_truth flag to a boolean
     update_truth_bool = args.update_truth.lower() == "true"
 
     # Update the test inputs to work with the test wrapper WDL
