@@ -91,22 +91,22 @@ jobs:
         run: |
           if [ -z "${{ github.head_ref }}" ]; then
             echo "Branch name is missing, using ${GITHUB_REF##*/}"
-            echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
+            echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
           else
             echo "Branch name from PR: ${{ github.head_ref }}"
-            echo "branch_name=${{ github.head_ref }}" >> $GITHUB_ENV
+            echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
           fi
 
       - name: Create new method configuration
         run: |
-          echo "Creating new method configuration for branch: $branch_name"
+          echo "Creating new method configuration for branch: $BRANCH_NAME"
 
           METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
             create_new_method_config \
             --workspace-namespace $WORKSPACE_NAMESPACE \
             --workspace-name "$TESTING_WORKSPACE" \
             --pipeline_name "$PIPELINE_NAME" \
-            --branch_name "$branch_name" \
+            --branch_name "$BRANCH_NAME" \
             --sa-json-b64 "$SA_JSON_B64" \
             --user "$USER")
 
@@ -116,6 +116,7 @@ jobs:
           TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
           WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
           USER: ${{ env.USER }}
+          BRANCH_NAME: ${{ env.branch_name }}
 
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
@@ -139,7 +140,7 @@ jobs:
           DOCKSTORE_COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
             $DOCKSTORE_TOKEN \
             $DOCKSTORE_PIPELINE_NAME \
-            $branch_name)
+            $BRANCH_NAME)
           
           # Export the commit hash as an environment variable
           echo "DOCKSTORE_COMMIT_HASH=$DOCKSTORE_COMMIT_HASH_FROM_FETCH" >> $GITHUB_ENV
@@ -148,7 +149,7 @@ jobs:
           ## TODO NEED TO ADD DOCKSTORE_TOKEN FOR SERVICE ACCOUNT ##
           DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
           DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
-          branch_name: ${{ env.branch_name }}
+          BRANCH_NAME: ${{ env.branch_name }}
 
       - name: Compare Dockstore and Commit Hashes
         id: compare_hashes
@@ -250,7 +251,7 @@ jobs:
                 --results_path "$RESULTS_PATH" \
                 --inputs_json "$input_file" \
                 --update_truth "$UPDATE_TRUTH_BOOL" \
-                --branch_name "$branch_name" )
+                --branch_name "$BRANCH_NAME" )
             echo "Uploading the test input file: $test_input_file"
             python3 scripts/firecloud_api/firecloud_api.py \
                 upload_test_inputs \
@@ -258,7 +259,7 @@ jobs:
                 --workspace-name "$TESTING_WORKSPACE" \
                 --pipeline_name "$PIPELINE_NAME" \
                 --test_input_file "$test_input_file" \
-                --branch_name "$branch_name" \
+                --branch_name "$BRANCH_NAME" \
                 --sa-json-b64 "$SA_JSON_B64" \
                 --user "$USER"
       
@@ -359,18 +360,18 @@ jobs:
       - name: Delete Method Configuration
         if: always() # Ensures it runs regardless of success or failure
         run: |
-          echo "Deleting method configuration for branch: $branch_name"
+          echo "Deleting method configuration for branch: $BRANCH_NAME"
           python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
             --workspace-namespace $WORKSPACE_NAMESPACE \
             --workspace-name "$TESTING_WORKSPACE" \
             --pipeline_name "$PIPELINE_NAME" \
-            --branch_name "$branch_name" \
+            --branch_name "$BRANCH_NAME" \
             --sa-json-b64 "$SA_JSON_B64" \
             --user "$USER" \
             --method_config_name "$METHOD_CONFIG_NAME"
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
-          branch_name: ${{ env.branch_name }}
+          BRANCH_NAME: ${{ env.branch_name }}
           SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
           METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
           WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}

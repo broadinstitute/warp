@@ -375,6 +375,11 @@ jobs:
             --sa-json-b64 "$SA_JSON_B64" \
             --user "$USER" \
             --method_config_name "$METHOD_CONFIG_NAME"
+          # if the method config was not able to be deleted, fail the job
+            if [ $? -ne 0 ]; then
+                echo "Failed to delete method configuration for branch: $branch_name"
+                exit 1
+            fi
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
           branch_name: ${{ env.branch_name }}
