@@ -104,6 +104,11 @@ jobs:
             echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
           fi
 
+      - name: Debug Branch Name
+        run: |
+          echo "Determined Branch Name: $BRANCH_NAME"
+
+
       - name: Create new method configuration
         run: |
           echo "Creating new method configuration for branch: $BRANCH_NAME"
