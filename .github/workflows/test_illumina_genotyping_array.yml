@@ -112,9 +112,8 @@ jobs:
 
       - name: Fetch Dockstore Workflow CommitID
         run: |
-          # Wait 3 minutes for Dockstore to update
-          ###### TODO need to increase sleep time to 3 minutes, it's set to 1 second for testing ######
-          sleep 1
+          # Wait 5.5 minutes for Dockstore to update
+          sleep 330
           
           
           DOCKSTORE_COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
