@@ -368,7 +368,7 @@ jobs:
             --sa-json-b64 "$SA_JSON_B64" \
             --user "$USER" \
             --method_config_name "$METHOD_CONFIG_NAME")
-            echo "Delete response: DELETE_RESPONSE"
+            echo "Delete response: $DELETE_RESPONSE"
 
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
