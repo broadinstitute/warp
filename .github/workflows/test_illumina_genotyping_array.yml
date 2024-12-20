@@ -360,14 +360,16 @@ jobs:
         if: always() # Ensures it runs regardless of success or failure
         run: |
           echo "Deleting method configuration for branch: $BRANCH_NAME"
-          python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
+          DELETE_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
             --workspace-namespace $WORKSPACE_NAMESPACE \
             --workspace-name "$TESTING_WORKSPACE" \
             --pipeline_name "$PIPELINE_NAME" \
             --branch_name "$BRANCH_NAME" \
             --sa-json-b64 "$SA_JSON_B64" \
             --user "$USER" \
-            --method_config_name "$METHOD_CONFIG_NAME"
+            --method_config_name "$METHOD_CONFIG_NAME")
+            echo "Delete response: DELETE_RESPONSE"
+
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}

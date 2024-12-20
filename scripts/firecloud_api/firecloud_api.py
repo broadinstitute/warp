@@ -308,10 +308,12 @@ class FirecloudAPI:
 
         if response.status_code == 204:
             logging.info(f"Method configuration {method_config_name} deleted successfully.")
+            print("DELETE_RESPONSE: True")
             return True
         else:
             logging.error(f"Failed to delete method configuration {method_config_name}. Status code: {response.status_code}")
             logging.error(f"Response body: {response.text}")
+            print(f"DELETE_RESPONSE: False - {response.status_code} - {response.text}")
             return False
 
 
@@ -337,11 +339,15 @@ class FirecloudAPI:
             else:
                 logging.error("Failed to create method configuration.")
         elif self.action == "delete_method_config":
-            success = self.delete_method_config()
-            if success:
-                logging.info("Method configuration deleted successfully.")
+            if not args.method_config_name:
+                parser.error("Argument --method_config_name is required for 'delete_method_config'")
             else:
-                logging.error("Failed to delete method configuration.")
+                # Delete the method configuration
+                result = self.delete_method_config(args.method_config_name)
+                if result:
+                    logging.info("Method configuration deleted successfully.")
+                else:
+                    logging.error("Failed to delete method configuration.")
         elif self.action == "get_workflow_outputs":
             if not args.submission_id or not args.workflow_id or not args.pipeline_name:
                 parser.error("Arguments --submission_id, --workflow_id, and --pipeline_name are required for 'get_workflow_outputs'")
@@ -438,8 +444,8 @@ if __name__ == "__main__":
             parser.error("Argument --method_config_name is required for 'delete_method_config'")
         else:
             # Delete the method configuration
-            success = api.delete_method_config(args.method_config_name)
-            if success:
+            result = api.delete_method_config(args.method_config_name)
+            if result:
                 logging.info("Method configuration deleted successfully.")
             else:
                 logging.error("Failed to delete method configuration.")
