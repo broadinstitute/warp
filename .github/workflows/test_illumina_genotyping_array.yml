@@ -116,7 +116,7 @@ jobs:
           TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
           WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
           USER: ${{ env.USER }}
-          BRANCH_NAME: ${{ env.branch_name }}
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
 
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
@@ -149,7 +149,7 @@ jobs:
           ## TODO NEED TO ADD DOCKSTORE_TOKEN FOR SERVICE ACCOUNT ##
           DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
           DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
-          BRANCH_NAME: ${{ env.branch_name }}
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
 
       - name: Compare Dockstore and Commit Hashes
         id: compare_hashes
@@ -371,7 +371,7 @@ jobs:
             --method_config_name "$METHOD_CONFIG_NAME"
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
-          BRANCH_NAME: ${{ env.branch_name }}
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
           SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
           METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
           WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
