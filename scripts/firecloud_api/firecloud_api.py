@@ -256,7 +256,30 @@ class FirecloudAPI:
         return workflow_status_map
 
     def quote_values(self, inputs_json):
-        return {key: f'"{value}"' for key, value in inputs_json.items()}
+        """
+        Quotes values in the input JSON with escaped quotes while preserving arrays.
+
+        Args:
+            inputs_json (dict): The input JSON dictionary
+
+        Returns:
+            dict: JSON with properly escaped quoted values
+        """
+        quoted_inputs = {}
+        for key, value in inputs_json.items():
+            if isinstance(value, list):
+                # For lists, create a string representation with escaped quotes
+                quoted_list = [f'\\"{item}\\"' if isinstance(item, str) else str(item)
+                               for item in value]
+                quoted_inputs[key] = f"[ {', '.join(quoted_list)} ]"
+            elif isinstance(value, str):
+                # For strings, add escaped quotes
+                quoted_inputs[key] = f'\\"${value}\\"'
+            else:
+                # For other types (numbers, booleans, etc.), convert to string
+                quoted_inputs[key] = str(value)
+
+        return quoted_inputs
 
     def get_workflow_outputs(self, submission_id, workflow_id, pipeline_name):
         """
