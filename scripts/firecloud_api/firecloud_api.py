@@ -173,10 +173,10 @@ class FirecloudAPI:
         print(f"Opening test inputs file: {test_inputs}")
         with open(test_inputs, 'r') as file:
             inputs_json = json.load(file)
-            print(f"here is test json before quoting: {json.dumps(inputs_json, indent=2)}"
+            print(f"here is test json before quoting: {json.dumps(inputs_json, indent=2)}")
             print("Test inputs loaded successfully.")
             inputs_json = self.quote_values(inputs_json)
-            print(f"here is test json after quoting: {json.dumps(inputs_json, indent=2)}"
+            print(f"here is test json after quoting: {json.dumps(inputs_json, indent=2)}")
             config["inputs"] = inputs_json
 
         # Construct the methodUri with the branch name
