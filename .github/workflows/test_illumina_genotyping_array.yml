@@ -260,7 +260,7 @@ jobs:
           }
           EOF
           
-          echo "Created submission data file: $SUBMISSION_DATA_FILE"
+          echo "Created submission data file: $SUBMISSION_DATA_FILE" 
           
           # 1. Submit all jobs first and store their submission IDs
           for input_file in "$INPUTS_DIR"/*.json; do
