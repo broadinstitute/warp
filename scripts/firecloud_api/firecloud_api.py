@@ -257,24 +257,17 @@ class FirecloudAPI:
 
     def quote_values(self, inputs_json):
         """
-        Properly quote JSON values, handling both arrays and scalar values
+        Quote JSON values with proper array handling
         """
-        def quote_item(item):
-            if isinstance(item, bool):
-                return str(item)
-            return f'"{item}"'
+        def format_value(val):
+            if isinstance(val, bool):
+                return str(val).lower()
+            if isinstance(val, list):
+                array_items = [f'"{item}"' for item in val]
+                return f'[{", ".join(array_items)}]'
+            return f'"{val}"'
 
-        result = {}
-        for key, value in inputs_json.items():
-            if isinstance(value, list):
-                # Handle arrays by quoting each element
-                quoted_array = [quote_item(item) for item in value]
-                result[key] = f'"{json.dumps(quoted_array)}"'
-            else:
-                # Handle scalar values
-                result[key] = quote_item(value)
-
-        return result
+        return {key: format_value(value) for key, value in inputs_json.items()}
 
     def get_workflow_outputs(self, submission_id, workflow_id, pipeline_name):
         """
