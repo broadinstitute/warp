@@ -228,9 +228,9 @@ jobs:
           INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
           echo "Running tests with test type: $TEST_TYPE"
           
-          TRUTH_PATH="gs://broad-gotc-test-storage/Optimus/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
+          TRUTH_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           echo "Truth path: $TRUTH_PATH"
-          RESULTS_PATH="gs://broad-gotc-test-storage/Optimus/results/$CURRENT_TIME"
+          RESULTS_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/results/$CURRENT_TIME"
           
           # Create the submission_data.json file which will be the same for all inputs
           SUBMISSION_DATA_FILE="submission_data.json"
@@ -363,6 +363,7 @@ jobs:
           METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
           WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
           USER: ${{ env.USER }}
+          DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
 
       - name: Delete Method Configuration
         if: always() # Ensures it runs regardless of success or failure
