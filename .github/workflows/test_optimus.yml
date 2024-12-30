@@ -55,6 +55,7 @@ env:
   PROJECT_NAME: WARP
   PIPELINE_NAME: TestOptimus
   DOCKSTORE_PIPELINE_NAME: Optimus
+  PIPELINE_DIR: "pipelines/skylab/optimus"
 
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
@@ -223,7 +224,6 @@ jobs:
               USE_CALL_CACHE_BOOL=false
           fi
           
-          PIPELINE_DIR="pipelines/skylab/optimus"
           TEST_TYPE="${{ env.testType }}"
           INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
           echo "Running tests with test type: $TEST_TYPE"
@@ -364,6 +364,7 @@ jobs:
           WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
           USER: ${{ env.USER }}
           DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
+          PIPELINE_DIR: ${{ env.PIPELINE_DIR }}
 
       - name: Delete Method Configuration
         if: always() # Ensures it runs regardless of success or failure
