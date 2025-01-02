@@ -26,7 +26,6 @@ def fetch_commit_id(token, repository, version_name):
 
     # Fetch the specific version details to get the commit ID
     version_url = f"https://dockstore.org/api/workflows/{workflow_id}/workflowVersions/{version_id}"
-    print(f"Fetching commit ID from {version_url}...")
     version_response = requests.get(version_url, headers=headers)
     version_response.raise_for_status()
     version_data = version_response.json()
