@@ -127,6 +127,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestIlluminaGenotypingArray.wdl
 
+  - name: TestATAC
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestATAC.wdl
+    
   - name: TestOptimus
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestOptimus.wdl
