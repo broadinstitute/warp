@@ -45,7 +45,7 @@ env:
   # pipeline configuration
   PROJECT_NAME: WARP
   PIPELINE_NAME: Testsnm3C
-  DOCKSTORE_PIPELINE_NAME: snm3C
+  DOCKSTORE_PIPELINE_NAME: snM3C
   PIPELINE_DIR: "pipelines/skylab/snm3C"
 
   # workspace configuration
