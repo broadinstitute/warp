@@ -130,6 +130,10 @@ workflows:
   - name: TestOptimus
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestOptimus.wdl
+
+  - name: Testsnm3C
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/Testsnm3C.wdl
     
   - name: VariantCalling
     subclass: WDL
