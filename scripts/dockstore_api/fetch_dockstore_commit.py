@@ -15,7 +15,6 @@ def fetch_commit_id(token, repository, version_name):
 
     # Extract workflow ID and version ID
     workflow_id = data.get("id")
-    print(f"Workflow ID: {workflow_id}")
     version_id = next(
         (version["id"] for version in data.get("workflowVersions", [])
          if version["name"] == version_name),
