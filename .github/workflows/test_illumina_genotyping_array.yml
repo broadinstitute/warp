@@ -48,6 +48,7 @@ env:
   PROJECT_NAME: WARP
   PIPELINE_NAME: TestIlluminaGenotypingArray
   DOCKSTORE_PIPELINE_NAME: IlluminaGenotypingArray
+  PIPELINE_DIR: "pipelines/broad/genotyping/illumina"
 
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
@@ -70,7 +71,7 @@ jobs:
       id-token: 'write'
 
     steps:
-      # actions/checkout MUST come before auth
+      # actions/checkout MUST come before auth action
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
@@ -114,7 +115,7 @@ jobs:
       - name: Fetch Dockstore Workflow Commit Hash
         run: |
           # Wait 5.5 minutes for Dockstore to update
-          sleep 1
+          sleep 330
           
           DOCKSTORE_COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
             $DOCKSTORE_TOKEN \
@@ -130,41 +131,23 @@ jobs:
           DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
 
-      #- name: Compare Dockstore and Commit Hashes
-      #  id: compare_hashes
-      #  run: |
-      #    echo "Comparing hashes..."
-      #    echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
-      #    echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
-#
-      #    if [ "$DOCKSTORE_COMMIT_HASH" != "$GITHUB_COMMIT_HASH" ]; then
-      #      echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash!"
-      #      echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $GITHUB_COMMIT_HASH"
-      #      exit 1
-      #    else
-      #      echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
-      #    fi
-      #  env:
-      #    DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
-      #    GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
+      - name: Compare Dockstore and Commit Hashes
+        id: compare_hashes
+        run: |
+          echo "Comparing hashes..."
+          echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
+          echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
 
-      #- name: Set Test Type for PRs
-      #  if: ${{ github.event_name == 'pull_request' }}
-      #  id: set_test_type
-      #  run: |
-      #    # Default to "Scientific" if targeting master
-      #    if [ "${{ github.base_ref }}" == "master" ]; then
-      #      echo "testType=Scientific" >> $GITHUB_ENV
-      #    else
-      #      echo "testType=Plumbing" >> $GITHUB_ENV
-      #    fi
-#
-      #- name: Use Provided Test Type
-      #  if: ${{ github.event_name == 'workflow_dispatch' }}
-      #  id: use_provided_test_type
-      #  run: |
-      #    # Use the testType provided by the user
-      #    echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
+          if [ "$DOCKSTORE_COMMIT_HASH" != "$GITHUB_COMMIT_HASH" ]; then
+            echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash!"
+            echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $GITHUB_COMMIT_HASH"
+            exit 1
+          else
+            echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
+          fi
+        env:
+          DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
+          GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
 
       - name: Set Test Type
         id: set_test_type
@@ -233,14 +216,13 @@ jobs:
               USE_CALL_CACHE_BOOL=false
           fi
           
-          PIPELINE_DIR="pipelines/broad/genotyping/illumina"
           TEST_TYPE="${{ env.testType }}"
           INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
           echo "Running tests with test type: $TEST_TYPE"
           
-          TRUTH_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
+          TRUTH_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           echo "Truth path: $TRUTH_PATH"
-          RESULTS_PATH="gs://broad-gotc-test-storage/IlluminaGenotypingArray/results/$CURRENT_TIME"
+          RESULTS_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/results/$CURRENT_TIME"
           
           # Create the submission_data.json file which will be the same for all inputs
           SUBMISSION_DATA_FILE="submission_data.json"
@@ -373,6 +355,8 @@ jobs:
           METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
           WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
           USER: ${{ env.USER }}
+          DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
+          PIPELINE_DIR: ${{ env.PIPELINE_DIR }}
 
       - name: Delete Method Configuration
         if: always() # Ensures it runs regardless of success or failure
@@ -402,34 +386,6 @@ jobs:
           WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
           TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
           USER: ${{ env.USER }}
-
-      #### TODO is this even ok to do??? ###
-      #- name: Decode the base64-encoded Google Cloud service account key
-      #  run: |
-      #    # Decode the base64 secret to the JSON file
-      #    echo ${{ secrets.PDT_TESTER_SA_B64 }} | base64 --decode > $HOME/gcloud-key.json
-      #    # Set GOOGLE_APPLICATION_CREDENTIALS environment variable to point to the JSON key file
-      #    export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-key.json
-
-      #- name: Authenticate with Google Cloud
-      #  run: |
-      #    gcloud auth activate-service-account --key-file=$HOME/gcloud-key.json
-
-      #- name: Download the Terra Commit Hash and Compare to Github Commit Hash
-      #  run: |
-      #    gsutil cp gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/commit_hash.txt .
-      #    export TERRA_COMMIT_HASH=$(cat commit_hash.txt)
-      #    echo "Terra Commit Hash: $TERRA_COMMIT_HASH"
-      #    echo "GitHub Commit Hash: ${{ github.sha }}"
-      #
-      #    #compare the Terra commit hash to the github commit hash
-      #      if [ "$TERRA_COMMIT_HASH" != "${{ github.sha }}" ]; then
-      #          echo "Error: The Terra Commit Hash does not match the GitHub Commit Hash!"
-      #          echo "Mismatch found: Terra Commit Hash $TERRA_COMMIT_HASH != Github Commit Hash ${{ github.sha }}"
-      #          exit 1
-      #      else
-      #          echo "Success: The Terra Commit Hash matches the GitHub Commit Hash."
-      #      fi
 
       - name: Print Summary on Success
         if: success()
