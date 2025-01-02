@@ -45,7 +45,7 @@ env:
   # pipeline configuration
   PROJECT_NAME: WARP
   PIPELINE_NAME: Testsnm3C
-  DOCKSTORE_PIPELINE_NAME: snM3C
+  DOCKSTORE_PIPELINE_NAME: snm3C-seq
   PIPELINE_DIR: "pipelines/skylab/snm3C"
 
   # workspace configuration
@@ -218,9 +218,9 @@ jobs:
           INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
           echo "Running tests with test type: $TEST_TYPE"
           
-          TRUTH_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
+          TRUTH_PATH="gs://broad-gotc-test-storage/snM3C/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           echo "Truth path: $TRUTH_PATH"
-          RESULTS_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/results/$CURRENT_TIME"
+          RESULTS_PATH="gs://broad-gotc-test-storage/snM3C/results/$CURRENT_TIME"
           
           # Create the submission_data.json file which will be the same for all inputs
           SUBMISSION_DATA_FILE="submission_data.json"
