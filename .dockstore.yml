@@ -138,7 +138,7 @@ workflows:
   - name: Testsnm3C
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/Testsnm3C.wdl
-    
+
   - name: VariantCalling
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
