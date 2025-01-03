@@ -27,7 +27,7 @@ on:
       - 'verification/test-wdls/TestOptimus.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_optimus.yml'
+      - '.github/workflows/beta_test_optimus.yml'
 
 
   # Allows you to run this workflow manually from the Actions tab
