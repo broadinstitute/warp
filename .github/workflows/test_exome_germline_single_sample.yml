@@ -27,7 +27,7 @@ on:
       - 'tasks/broad/Qc.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'verification/VerifyGermlineSingleSample.wdl'
-      - ''verification/VerifyMetrics.wdl'
+      - 'verification/VerifyMetrics.wdl'
       - 'verification/VerifyTasks.wdl'
       - 'verification/test-wdls/TestExomeGermlineSingleSample.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
