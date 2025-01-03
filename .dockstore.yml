@@ -123,6 +123,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/atac/atac.wdl
 
+  - name: TestExomeGermlineSingleSample
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestExomeGermlineSingleSample.wdl
+  
   - name: TestIlluminaGenotypingArray
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestIlluminaGenotypingArray.wdl
