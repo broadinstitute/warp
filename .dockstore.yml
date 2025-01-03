@@ -131,6 +131,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestOptimus.wdl
 
+  - name: TestMultiSampleSmartSeq2SingleNucleus
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestMultiSampleSmartSeq2SingleNucleus.wdl
+
   - name: Testsnm3C
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/Testsnm3C.wdl
