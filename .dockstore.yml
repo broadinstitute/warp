@@ -139,6 +139,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestMultiome.wdl
 
+  - name: TestReblockGVCF
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestReblockGVCF.wdl
+
   - name: Testsnm3C
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/Testsnm3C.wdl
