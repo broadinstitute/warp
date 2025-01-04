@@ -627,9 +627,6 @@ task ValidateVCF {
     Int machine_mem_mb = 7000
   }
 
-  String calling_interval_list_basename = basename(calling_interval_list)
-  String calling_interval_list_index_basename = if calling_intervals_defined then "" else basename(select_first([calling_interval_list_index]))
-
   Int command_mem_mb = machine_mem_mb - 2000
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
   Int disk_size = ceil(size(input_vcf, "GiB") + size(calling_interval_list, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
@@ -639,10 +636,11 @@ task ValidateVCF {
     
     if [ ~{calling_intervals_defined} == "false" ]; then
       # We can't always assume the index was located with the vcf, so make a link so that the paths look the same
-      ln -s ~{calling_interval_list} ~{calling_interval_list_basename}
-      ln -s ~{calling_interval_list_index} ~{calling_interval_list_index_basename}
+      # Use bash basename instead of WDL to support DRS: https://support.terra.bio/hc/en-us/community/posts/4405396480027
+      ln -s ~{calling_interval_list} $(basename ~{calling_interval_list})
+      ln -s ~{calling_interval_list_index} $(basename ~{calling_interval_list_index})
       gatk --java-options "-Xms~{command_mem_mb}m -Xmx~{command_mem_mb}m" \
-        VcfToIntervalList -I ~{calling_interval_list_basename} -O intervals_from_gvcf.interval_list --VARIANT_ID_METHOD USE_FIRST
+        VcfToIntervalList -I $(basename ~{calling_interval_list}) -O intervals_from_gvcf.interval_list --VARIANT_ID_METHOD USE_FIRST
       INTERVALS="intervals_from_gvcf.interval_list"
     else
       INTERVALS="~{calling_interval_list}"
