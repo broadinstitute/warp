@@ -27,6 +27,7 @@ task TerraCopyFilesFromCloudToCloud {
 
     gcloud config set storage/process_count 16
     gcloud config set storage/thread_count  2
+    echo ~{default='no_contamination' contamination} > contamination
 
     if ! grep -q no_contamination contamination; then
       gcloud storage cp -L cp.log contamination ~{destination_cloud_path}.contamination
