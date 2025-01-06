@@ -54,7 +54,7 @@ env:
   # pipeline configuration
   PROJECT_NAME: WARP
   PIPELINE_NAME: TestMultiSampleSmartSeq2SingleNucleus
-  DOCKSTORE_PIPELINE_NAME: MultiSampleSmartSeq2SingleNucleus
+  DOCKSTORE_PIPELINE_NAME: TestMultiSampleSmartSeq2SingleNucleus
   PIPELINE_DIR: "pipelines/skylab/smartseq2_single_nucleus_multisample"
 
   # workspace configuration
