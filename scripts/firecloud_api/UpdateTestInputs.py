@@ -4,6 +4,10 @@ import os
 import ast
 
 def update_test_inputs(inputs_json, truth_path, results_path, update_truth, branch_name):
+    import json
+    import os
+    import ast
+
     with open(inputs_json, 'r') as file:
         test_inputs = json.load(file)
 
@@ -16,19 +20,28 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, bran
     # Append "Test" in front of the pipeline name
     test_name = f"Test{pipeline_name}"
 
-    # Update all keys and ensure arrays are preserved
+    # Update all keys and ensure nested inputs are handled correctly
     updated_inputs = {}
     for key, value in test_inputs.items():
-        new_key = key.replace(pipeline_name, test_name)
+        # Split the key to analyze its structure
+        key_parts = key.split('.')
 
-        # Handle the case where value might be a string representation of a list
+        # Replace the top-level component with the test_name
+        key_parts[0] = test_name
+
+        # For nested keys (more than two parts), append the original pipeline name with a `.`
+        if len(key_parts) > 2:
+            key_parts[1] = f"{pipeline_name}.{key_parts[1]}"
+
+        # Reconstruct the updated key
+        new_key = '.'.join(key_parts)
+
+        # Handle the value (ensure lists and nested values are preserved correctly)
         if isinstance(value, list):
-            # Check if any element in the list is a string representation of another list
             processed_value = []
             for item in value:
                 if isinstance(item, str) and item.startswith('[') and item.endswith(']'):
                     try:
-                        # Use ast.literal_eval to safely evaluate string representation of list
                         inner_list = ast.literal_eval(item)
                         processed_value.extend(inner_list)
                     except (ValueError, SyntaxError):
