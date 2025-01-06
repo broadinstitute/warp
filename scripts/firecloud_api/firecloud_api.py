@@ -256,34 +256,33 @@ class FirecloudAPI:
 
     def quote_values(self, inputs_json):
         """
-        Format JSON values with proper handling of WDL structs and nested structures
+        Format JSON values with proper handling of nested structures
         """
         def format_value(val):
             if isinstance(val, bool):
                 return str(val).lower()
+            elif isinstance(val, dict):
+                return json.dumps(val, indent=2)
+            elif isinstance(val, list):
+                if all(isinstance(x, str) for x in val):
+                    return json.dumps(val)
+                return json.dumps([format_value(x) for x in val])
             elif isinstance(val, (int, float)):
                 return str(val)
             elif val is None:
                 return ""
             elif isinstance(val, str):
-                # Check if it's already a JSON string
-                try:
-                    parsed = json.loads(val)
-                    if isinstance(parsed, dict):
-                        # For WDL structs, return compact JSON without newlines
-                        return json.dumps(parsed, separators=(',', ':'))
-                    return val
-                except json.JSONDecodeError:
-                    # If it's a regular string, quote it
-                    return f'"{val}"'
-            elif isinstance(val, dict):
-                # For dictionaries, return compact JSON without newlines
-                return json.dumps(val, separators=(',', ':'))
-            elif isinstance(val, list):
-                return json.dumps([format_value(x) for x in val])
+                if val.startswith("{") and val.endswith("}"):
+                    try:
+                        parsed = json.loads(val)
+                        return json.dumps(parsed, indent=2)
+                    except json.JSONDecodeError:
+                        return f'"{val}"'
+                return f'"{val}"'
             return f'"{str(val)}"'
 
         return {key: format_value(value) for key, value in inputs_json.items()}
+
     def get_workflow_outputs(self, submission_id, workflow_id, pipeline_name):
         """
         Fetches workflow outputs from the Firecloud API.
