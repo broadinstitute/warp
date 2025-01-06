@@ -5,6 +5,9 @@ import "../../pipelines/skylab/multiome/Multiome.wdl" as Multiome
 import "../../verification/VerifyMultiome.wdl" as VerifyMultiome
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender_no_cuda
+import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
+
 
 workflow TestMultiome {
 
