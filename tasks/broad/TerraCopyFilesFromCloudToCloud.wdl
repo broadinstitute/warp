@@ -19,6 +19,7 @@ task TerraCopyFilesFromCloudToCloud {
   input {
     Array[String] files_to_copy
     String destination_cloud_path
+    Float? contamination
   }
 
   command {
@@ -27,6 +28,9 @@ task TerraCopyFilesFromCloudToCloud {
     gcloud config set storage/process_count 16
     gcloud config set storage/thread_count  2
 
+    if ! grep -q no_contamination contamination; then
+      gcloud storage cp -m -L cp.log contamination ~{destination_cloud_path}.contamination
+    fi
     gcloud storage cp ~{sep=' ' files_to_copy} ~{destination_cloud_path}
   }
 
