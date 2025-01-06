@@ -256,7 +256,7 @@ class FirecloudAPI:
 
     def quote_values(self, inputs_json):
         """
-        Quote JSON values with proper array handling
+        Quote JSON values with proper WDL struct handling
         """
         def format_value(val):
             if isinstance(val, bool):
@@ -264,6 +264,12 @@ class FirecloudAPI:
             if isinstance(val, list):
                 array_items = [f'"{item}"' for item in val]
                 return f'[{", ".join(array_items)}]'
+            if isinstance(val, str) and val.startswith('{') and val.endswith('}'):
+                # Handle WDL struct format
+                return f'${{{val}}}'
+            if isinstance(val, dict):
+                # Convert dict to WDL struct format
+                return f'${{{json.dumps(val)}}}'
             return f'"{val}"'
 
         return {key: format_value(value) for key, value in inputs_json.items()}
