@@ -256,21 +256,34 @@ class FirecloudAPI:
 
     def quote_values(self, inputs_json):
         """
-        Quote JSON values with proper WDL struct handling
+        Format JSON values with proper handling of nested structures
+        """
+    def quote_values(self, inputs_json):
+        """
+        Format JSON values with proper handling of nested structures
         """
         def format_value(val):
             if isinstance(val, bool):
                 return str(val).lower()
-            if isinstance(val, list):
-                array_items = [f'"{item}"' for item in val]
-                return f'[{", ".join(array_items)}]'
-            if isinstance(val, str) and val.startswith('{') and val.endswith('}'):
-                # Handle WDL struct format
-                return f'${{{val}}}'
-            if isinstance(val, dict):
-                # Convert dict to WDL struct format
-                return f'${{{json.dumps(val)}}}'
-            return f'"{val}"'
+            elif isinstance(val, dict):
+                return json.dumps(val, indent=2)
+            elif isinstance(val, list):
+                if all(isinstance(x, str) for x in val):
+                    return json.dumps(val)
+                return json.dumps([format_value(x) for x in val])
+            elif isinstance(val, (int, float)):
+                return str(val)
+            elif val is None:
+                return ""
+            elif isinstance(val, str):
+                if val.startswith("{") and val.endswith("}"):
+                    try:
+                        parsed = json.loads(val)
+                        return json.dumps(parsed, indent=2)
+                    except json.JSONDecodeError:
+                        return f'"{val}"'
+                return f'"{val}"'
+            return f'"{str(val)}"'
 
         return {key: format_value(value) for key, value in inputs_json.items()}
 
