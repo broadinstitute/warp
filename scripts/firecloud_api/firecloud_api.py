@@ -258,10 +258,6 @@ class FirecloudAPI:
         """
         Format JSON values with proper handling of nested structures
         """
-    def quote_values(self, inputs_json):
-        """
-        Format JSON values with proper handling of nested structures
-        """
         def format_value(val):
             if isinstance(val, bool):
                 return str(val).lower()
