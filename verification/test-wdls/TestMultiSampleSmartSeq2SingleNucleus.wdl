@@ -80,7 +80,7 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
     call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
       input:
         files_to_copy             = flatten([pipeline_outputs]),
-        vault_token_path          = vault_token_path,
+        destination_cloud_path    = results_path
     }
   
     # If updating truth then copy output to truth bucket
