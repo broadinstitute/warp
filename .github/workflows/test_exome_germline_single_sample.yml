@@ -1,4 +1,4 @@
-name: Nikelle's Test ExomeGermlineSingleSample
+name: Test ExomeGermlineSingleSample
 
 # Controls when the workflow will run
 on:
@@ -126,7 +126,7 @@ jobs:
       - name: Fetch Dockstore Workflow Commit Hash
         run: |
           # Wait 5.5 minutes for Dockstore to update
-          sleep 3
+          sleep 330
           
           DOCKSTORE_COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
             $DOCKSTORE_TOKEN \
@@ -142,23 +142,23 @@ jobs:
           DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
 
-      #- name: Compare Dockstore and Commit Hashes
-      #  id: compare_hashes
-      #  run: |
-      #    echo "Comparing hashes..."
-      #    echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
-      #    echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
-#
-      #    if [ "$DOCKSTORE_COMMIT_HASH" != "$GITHUB_COMMIT_HASH" ]; then
-      #      echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash!"
-      #      echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $GITHUB_COMMIT_HASH"
-      #      exit 1
-      #    else
-      #      echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
-      #    fi
-      #  env:
-      #    DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
-      #    GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
+      - name: Compare Dockstore and Commit Hashes
+        id: compare_hashes
+        run: |
+          echo "Comparing hashes..."
+          echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
+          echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
+
+          if [ "$DOCKSTORE_COMMIT_HASH" != "$GITHUB_COMMIT_HASH" ]; then
+            echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash!"
+            echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $GITHUB_COMMIT_HASH"
+            exit 1
+          else
+            echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
+          fi
+        env:
+          DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
+          GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
 
       - name: Set Test Type
         id: set_test_type
@@ -370,34 +370,34 @@ jobs:
           DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
           PIPELINE_DIR: ${{ env.PIPELINE_DIR }}
 
-     #- name: Delete Method Configuration
-     #  if: always() # Ensures it runs regardless of success or failure
-     #  run: |
-     #    echo "Deleting method configuration for branch: $BRANCH_NAME"
-     #    DELETE_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
-     #      --workspace-namespace $WORKSPACE_NAMESPACE \
-     #      --workspace-name "$TESTING_WORKSPACE" \
-     #      --pipeline_name "$PIPELINE_NAME" \
-     #      --branch_name "$BRANCH_NAME" \
-     #      --sa-json-b64 "$SA_JSON_B64" \
-     #      --user "$USER" \
-     #      --method_config_name "$METHOD_CONFIG_NAME")
-     #      echo "Delete response: $DELETE_RESPONSE"
-     #    if [ "$DELETE_RESPONSE" == "True" ]; then
-     #      echo "Method configuration deleted successfully."
-     #    else
-     #      echo "Error: Method configuration deletion failed."
-     #      exit 1
-     #    fi
-     #
-     #  env:
-     #    PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
-     #    BRANCH_NAME: ${{ env.BRANCH_NAME }}
-     #    SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
-     #    METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
-     #    WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
-     #    TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
-     #    USER: ${{ env.USER }}
+      - name: Delete Method Configuration
+        if: always() # Ensures it runs regardless of success or failure
+        run: |
+          echo "Deleting method configuration for branch: $BRANCH_NAME"
+          DELETE_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
+            --workspace-namespace $WORKSPACE_NAMESPACE \
+            --workspace-name "$TESTING_WORKSPACE" \
+            --pipeline_name "$PIPELINE_NAME" \
+            --branch_name "$BRANCH_NAME" \
+            --sa-json-b64 "$SA_JSON_B64" \
+            --user "$USER" \
+            --method_config_name "$METHOD_CONFIG_NAME")
+            echo "Delete response: $DELETE_RESPONSE"
+          if [ "$DELETE_RESPONSE" == "True" ]; then
+            echo "Method configuration deleted successfully."
+          else
+            echo "Error: Method configuration deletion failed."
+            exit 1
+          fi
+
+        env:
+          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+          SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
+          METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
+          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
+          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
+          USER: ${{ env.USER }}
 
       - name: Print Summary on Success
         if: success()
