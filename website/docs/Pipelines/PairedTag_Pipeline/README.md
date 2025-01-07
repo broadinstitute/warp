@@ -2,8 +2,9 @@
 sidebar_position: 1
 slug: /Pipelines/PairedTag_Pipeline/README
 ---
-
 # Paired-Tag Overview
+
+![pairedtag_diagram](pairedtag_diagram.png)
 
 |                          Pipeline Version                           | Date Updated | Documentation Author | Questions or Feedback |
 |:---:| :---: | :---: | :---: |
