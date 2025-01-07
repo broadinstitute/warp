@@ -14,11 +14,13 @@ on:
     ####################################
     paths:
       - 'pipelines/broad/rna_seq/**'
+      - 'tasks/broad/UMIAwareDuplicateMarking.wdl'
+      - 'tasks/broad/RNAWithUMIsTasks.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'verification/VerifyRNAWithUMIs.wdl'
+      - 'verification/VerifyMetrics.wdl'
       - 'verification/VerifyTasks.wdl'
       - 'verification/test-wdls/TestRNAWithUMIsPipeline.wdl'
-      - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
       - '.github/workflows/test_rna_with_umis.yml'
 
@@ -46,9 +48,9 @@ on:
 env:
   # pipeline configuration
   PROJECT_NAME: WARP
-  PIPELINE_NAME: TestOptimus
-  DOCKSTORE_PIPELINE_NAME: Optimus
-  PIPELINE_DIR: "pipelines/skylab/optimus"
+  PIPELINE_NAME: TestRNAWithUMIsPipeline
+  DOCKSTORE_PIPELINE_NAME: RNAWithUMIsPipeline
+  PIPELINE_DIR: "pipelines/broad/rna_seq"
 
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
