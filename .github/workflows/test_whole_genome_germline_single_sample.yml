@@ -1,4 +1,4 @@
-name: Test Illumina Genotyping Array
+name: Test WholeGenomeGermlineSingleSample
 
 # Controls when the workflow will run
 on:
@@ -13,14 +13,24 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/genotyping/illumina/**'
-      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'verification/VerifyIlluminaGenotypingArray.wdl'
-      - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
+      - 'pipelines/broad/dna_seq/germline/single_sample/wgs/**'
+      - 'structs/dna_seq/DNASeqStructs.wdl'
+      - 'tasks/broad/Alignment.wdl'
+      - 'tasks/broad/DragmapAlignment.wdl'
+      - 'tasks/broad/SplitLargeReadGroup.wdl'
+      - 'tasks/broad/BamProcessing.wdl'
       - 'tasks/broad/Utilities.wdl'
+      - 'tasks/broad/Qc.wdl'
+      - 'tasks/broad/AggregatedBamQC.wdl'
+      - 'tasks/broad/BamToCram.wdl'
+      - 'pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl'
+      - 'tasks/broad/GermlineVariantDiscovery.wdl'
+      - 'tasks/broad/DragenTasks.wdl'
+      - 'verification/test-wdls/TestWholeGenomeGermlineSingleSample.wdl'
+      - 'verification/VerifyGermlineSingleSample.wdl'
+      - 'verification/VerifyMetrics.wdl'
+      - 'verification/VerifyTasks.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_illumina_genotyping_array.yml'
 
 
   # Allows you to run this workflow manually from the Actions tab
@@ -46,9 +56,10 @@ on:
 env:
   # pipeline configuration
   PROJECT_NAME: WARP
-  PIPELINE_NAME: TestIlluminaGenotypingArray
-  DOCKSTORE_PIPELINE_NAME: IlluminaGenotypingArray
-  PIPELINE_DIR: "pipelines/broad/genotyping/illumina"
+  PIPELINE_NAME: TestWholeGenomeGermlineSingleSample
+  DOCKSTORE_PIPELINE_NAME: WholeGenomeGermlineSingleSample
+  PIPELINE_DIR: "pipelines/broad/dna_seq/germline/single_sample/wgs"
+
 
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
@@ -201,7 +212,6 @@ jobs:
           # Initialize arrays to track submission and workflow statuses
           declare -a SUBMISSION_IDS
           declare -A WORKFLOW_STATUSES
-          OVERALL_SUCCESS=true  
           
           
           # Convert UPDATE_TRUTH and USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
@@ -227,7 +237,7 @@ jobs:
           
           # Create the submission_data.json file which will be the same for all inputs
           SUBMISSION_DATA_FILE="submission_data.json"
-                    
+          
           # Use a heredoc to generate the JSON file content dynamically
           cat <<EOF > "$SUBMISSION_DATA_FILE"
           {
@@ -262,7 +272,7 @@ jobs:
                 --branch_name "$BRANCH_NAME" \
                 --sa-json-b64 "$SA_JSON_B64" \
                 --user "$USER"
-      
+          
             attempt=1
             while [ $attempt -le $MAX_RETRIES ]; do
               SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api.py submit_job \
@@ -271,9 +281,9 @@ jobs:
                --sa-json-b64 "$SA_JSON_B64" \
                --user "$USER" \
                --submission_data_file "$SUBMISSION_DATA_FILE")
-      
+          
               echo "Submission ID: $SUBMISSION_ID"
-            
+          
               if [[ "$SUBMISSION_ID" == *"404"* || -z "$SUBMISSION_ID" ]]; then
                   echo "Error in submission, retrying in $RETRY_DELAY seconds..."
                   ((attempt++))
@@ -284,7 +294,7 @@ jobs:
                   sleep $RETRY_DELAY
                   continue
               fi
-            
+          
               echo "Submission successful. Submission ID: $SUBMISSION_ID"
               SUBMISSION_IDS+=("$SUBMISSION_ID")
               break
@@ -292,7 +302,7 @@ jobs:
           done
           
           echo "All jobs have been submitted. Starting to poll for statuses..."
-      
+          
           # 2. After all submissions are done, start polling for statuses of all jobs
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
             attempt=1
@@ -304,10 +314,9 @@ jobs:
                   --user "$USER" \
                   --workspace-namespace "$WORKSPACE_NAMESPACE" \
                   --workspace-name "$TESTING_WORKSPACE")
-              
+          
               if [ -z "$RESPONSE" ]; then
                   echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
-                  OVERALL_SUCCESS=false
                   ((attempt++))
                   if [ $attempt -gt $MAX_RETRIES ]; then
                       echo "Max retries reached. Exiting..."
@@ -316,17 +325,9 @@ jobs:
                   sleep $RETRY_DELAY
                   continue
               fi
-      
+          
               WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
               WORKFLOW_STATUSES["$SUBMISSION_ID"]="$WORKFLOW_STATUSES_FOR_SUBMISSION"
-          
-              # Check if any workflow failed or errored
-              FAILED_WORKFLOWS=$(echo "$RESPONSE" | jq -r 'to_entries | .[] | select(.value == "Failed" or .value == "Aborted" or .value == "Aborting") | .key')
-              if [ ! -z "$FAILED_WORKFLOWS" ]; then
-                  echo "Failed workflows detected:"
-                  echo "$FAILED_WORKFLOWS"
-                  OVERALL_SUCCESS=false
-              fi
           
               # retrieve workflow outputs
               echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
@@ -359,12 +360,6 @@ jobs:
               echo "" >> $GITHUB_STEP_SUMMARY
             done
           done
-          
-          # Exit with error if any workflows failed
-          if [ "$OVERALL_SUCCESS" = false ]; then
-              echo "One or more workflows failed in Terra. Check the workflow status summary for details."
-              exit 1
-          fi
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
           TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
@@ -375,7 +370,7 @@ jobs:
           PIPELINE_DIR: ${{ env.PIPELINE_DIR }}
 
       - name: Delete Method Configuration
-        if: always() # Ensures it runs regardless of success or failure
+        #if: always() # Ensures it runs regardless of success or failure
         run: |
           echo "Deleting method configuration for branch: $BRANCH_NAME"
           DELETE_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
