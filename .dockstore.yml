@@ -19,13 +19,13 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl
 
-  - name: Smartseq2_Single_Nucleus_Multisample
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl
-
   - name: Smartseq2_Single_Nucleus
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl
+
+  - name: Smartseq2_Single_Nucleus_Multisample
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl
 
   - name: IlluminaGenotypingArray
     subclass: WDL
@@ -138,6 +138,10 @@ workflows:
   - name: TestOptimus
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestOptimus.wdl
+
+  - name: TestMultiSampleSmartSeq2SingleNucleus
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestMultiSampleSmartSeq2SingleNucleus.wdl
 
   - name: TestMultiome
     subclass: WDL
