@@ -106,7 +106,7 @@ task OptimusH5adGeneration {
   >>>
 
   runtime {
-    docker: "warp_tools_docker_path"
+    docker: warp_tools_docker_path
     cpu: cpu  # note that only 1 thread is supported by pseudobam
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
