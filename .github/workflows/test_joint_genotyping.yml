@@ -1,4 +1,4 @@
-name: Test RNA with UMIs
+name: Test JointGenotyping
 
 # Controls when the workflow will run
 on:
@@ -9,16 +9,17 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/rna_seq/**'
-      - 'tasks/broad/UMIAwareDuplicateMarking.wdl'
-      - 'tasks/broad/RNAWithUMIsTasks.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'verification/VerifyRNAWithUMIs.wdl'
-      - 'verification/VerifyMetrics.wdl'
+      - 'pipelines/broad/dna_seq/germline/joint_genotyping/**'
+      - 'tasks/broad/JointGenotypingTasks.wdl'
+      - 'verification/VerifyJointGenotyping.wdl'
       - 'verification/VerifyTasks.wdl'
-      - 'verification/test-wdls/TestRNAWithUMIsPipeline.wdl'
+      - 'verification/VerifyMetrics.wdl'
+      - 'verification/VerifyGermlineSingleSample.wdl'
+      - 'verification/VerifyNA12878.wdl'
+      - 'verification/test-wdls/TestJointGenotyping.wdl'
+      - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_rna_with_umis.yml'
+      - '.github/workflows/test_joint_genotyping.yml'
 
 
   # Allows you to run this workflow manually from the Actions tab
@@ -44,9 +45,9 @@ on:
 env:
   # pipeline configuration
   PROJECT_NAME: WARP
-  PIPELINE_NAME: TestRNAWithUMIsPipeline
-  DOCKSTORE_PIPELINE_NAME: RNAWithUMIsPipeline
-  PIPELINE_DIR: "pipelines/broad/rna_seq"
+  PIPELINE_NAME: TestJointGenotyping
+  DOCKSTORE_PIPELINE_NAME: JointGenotyping
+  PIPELINE_DIR: "pipelines/broad/dna_seq/germline/joint_genotyping"
 
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
@@ -202,6 +203,7 @@ jobs:
           declare -A WORKFLOW_STATUSES
           OVERALL_SUCCESS=true
           
+          
           # Convert UPDATE_TRUTH and USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
           if [ "$UPDATE_TRUTH" = "true" ]; then
               UPDATE_TRUTH_BOOL=true
@@ -325,7 +327,7 @@ jobs:
                   echo "$FAILED_WORKFLOWS"
                   OVERALL_SUCCESS=false
               fi
-              
+          
               # retrieve workflow outputs
               echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
               for WORKFLOW_ID in $(echo "$RESPONSE" | jq -r 'keys[]'); do

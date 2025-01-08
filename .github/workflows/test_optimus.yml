@@ -2,10 +2,6 @@ name: Test Optimus
 
 # Controls when the workflow will run
 on:
-  #run on push to feature branch "kp_GHA_Terra_auth_PD-2682" - REMOVE WHEN DONE TESTING
-  # push:
-  #   branches:
-  #     - kp_GHA_Terra_auth_PD-2682
   pull_request:
     branches: [ "develop", "staging", "master" ]
     # Only run if files in these paths changed:
