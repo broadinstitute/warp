@@ -205,6 +205,7 @@ jobs:
           # Initialize arrays to track submission and workflow statuses
           declare -a SUBMISSION_IDS
           declare -A WORKFLOW_STATUSES
+          OVERALL_SUCCESS=true
           
           
           # Convert UPDATE_TRUTH and USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
@@ -310,6 +311,7 @@ jobs:
           
               if [ -z "$RESPONSE" ]; then
                   echo "Failed to retrieve Workflow IDs for submission: $SUBMISSION_ID"
+                  OVERALL_SUCCESS=true
                   ((attempt++))
                   if [ $attempt -gt $MAX_RETRIES ]; then
                       echo "Max retries reached. Exiting..."
@@ -321,6 +323,14 @@ jobs:
           
               WORKFLOW_STATUSES_FOR_SUBMISSION=$(echo "$RESPONSE" | jq -r 'to_entries | map(.key + " | " + .value) | .[]')
               WORKFLOW_STATUSES["$SUBMISSION_ID"]="$WORKFLOW_STATUSES_FOR_SUBMISSION"
+          
+              # Check if any workflow failed or errored
+              FAILED_WORKFLOWS=$(echo "$RESPONSE" | jq -r 'to_entries | .[] | select(.value == "Failed" or .value == "Aborted" or .value == "Aborting") | .key')
+              if [ ! -z "$FAILED_WORKFLOWS" ]; then
+                  echo "Failed workflows detected:"
+                  echo "$FAILED_WORKFLOWS"
+                  OVERALL_SUCCESS=false
+              fi
           
               # retrieve workflow outputs
               echo "Retrieving workflow outputs for Submission ID: $SUBMISSION_ID..."
@@ -353,6 +363,13 @@ jobs:
               echo "" >> $GITHUB_STEP_SUMMARY
             done
           done
+          
+          # Exit with error if any workflows failed
+          if [ "$OVERALL_SUCCESS" = false ]; then
+              echo "One or more workflows failed in Terra. Check the workflow status summary for details."
+              exit 1
+          fi
+
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
           TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}

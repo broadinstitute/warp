@@ -357,6 +357,12 @@ jobs:
               echo "" >> $GITHUB_STEP_SUMMARY
             done
           done
+          
+          # Exit with error if any workflows failed
+          if [ "$OVERALL_SUCCESS" = false ]; then
+              echo "One or more workflows failed in Terra. Check the workflow status summary for details."
+              exit 1
+          fi
         env:
           PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
           TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
