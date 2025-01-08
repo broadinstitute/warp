@@ -387,7 +387,7 @@ jobs:
           PIPELINE_DIR: ${{ env.PIPELINE_DIR }}
 
       - name: Delete Method Configuration
-        #if: always() # Ensures it runs regardless of success or failure
+        if: always() # Ensures it runs regardless of success or failure
         run: |
           echo "Deleting method configuration for branch: $BRANCH_NAME"
           DELETE_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
