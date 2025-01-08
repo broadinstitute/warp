@@ -1,6 +1,6 @@
 version 1.0
 
-task CountVariantsInChunksBeagle {
+task CountVariantsInChunks {
   input {
     File vcf
     File vcf_index
@@ -37,7 +37,7 @@ task CountVariantsInChunksBeagle {
   }
 }
 
-task CheckChunksBeagle {
+task CheckChunks {
   input {
     Int var_in_original
     Int var_also_in_reference
@@ -67,7 +67,7 @@ task CheckChunksBeagle {
   }
 }
 
-task PhaseBeagle {
+task Phase {
   input {
     File dataset_vcf
     File ref_panel_bref3
@@ -112,7 +112,7 @@ task PhaseBeagle {
   }
 }
 
-task ImputeBeagle {
+task Impute {
   input {
     File dataset_vcf
     File ref_panel_bref3

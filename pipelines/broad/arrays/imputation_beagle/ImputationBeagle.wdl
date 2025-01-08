@@ -85,7 +85,7 @@ workflow ImputationBeagle {
           gatk_docker = gatk_docker
       }
 
-      call beagleTasks.CountVariantsInChunksBeagle {
+      call beagleTasks.CountVariantsInChunks {
         input:
           vcf = GenerateChunk.output_vcf,
           vcf_index = GenerateChunk.output_vcf_index,
@@ -93,10 +93,10 @@ workflow ImputationBeagle {
           gatk_docker = gatk_docker
       }
 
-      call beagleTasks.CheckChunksBeagle {
+      call beagleTasks.CheckChunks {
         input:
-          var_in_original = CountVariantsInChunksBeagle.var_in_original,
-          var_also_in_reference = CountVariantsInChunksBeagle.var_also_in_reference
+          var_in_original = CountVariantsInChunks.var_in_original,
+          var_also_in_reference = CountVariantsInChunks.var_also_in_reference
       }
     }
 
@@ -107,9 +107,9 @@ workflow ImputationBeagle {
         chroms = chunk_contig,
         starts = start,
         ends = end,
-        vars_in_array = CountVariantsInChunksBeagle.var_in_original,
-        vars_in_panel = CountVariantsInChunksBeagle.var_also_in_reference,
-        valids = CheckChunksBeagle.valid,
+        vars_in_array = CountVariantsInChunks.var_in_original,
+        vars_in_panel = CountVariantsInChunks.var_also_in_reference,
+        valids = CheckChunks.valid,
         basename = output_basename
     }
 
@@ -132,7 +132,7 @@ workflow ImputationBeagle {
       Int beagle_phase_memory_in_gb = if (CountSamples.nSamples <= 1000) then 22 else ceil(beagle_cpu * 1.5)
       Int beagle_impute_memory_in_gb = if (CountSamples.nSamples <= 1000) then 30 else ceil(beagle_cpu * 4.3)
 
-      call beagleTasks.PhaseBeagle {
+      call beagleTasks.Phase {
         input:
           dataset_vcf = chunkedVcfsWithOverlapsForImputation[i],
           ref_panel_bref3 = referencePanelContig.bref3,
@@ -145,9 +145,9 @@ workflow ImputationBeagle {
           memory_mb = beagle_phase_memory_in_gb * 1024
       }
 
-      call beagleTasks.ImputeBeagle {
+      call beagleTasks.Impute {
         input:
-          dataset_vcf = PhaseBeagle.vcf,
+          dataset_vcf = Phase.vcf,
           ref_panel_bref3 = referencePanelContig.bref3,
           chrom = referencePanelContig.contig,
           basename = chunk_basename_imputed,
@@ -160,7 +160,7 @@ workflow ImputationBeagle {
 
       call tasks.CreateVcfIndex as IndexImputedBeagle {
         input:
-          vcf_input = ImputeBeagle.vcf,
+          vcf_input = Impute.vcf,
           gatk_docker = gatk_docker
       }
 
@@ -205,9 +205,9 @@ workflow ImputationBeagle {
       chroms = flatten(chunk_contig),
       starts = flatten(start),
       ends = flatten(end),
-      vars_in_array = flatten(CountVariantsInChunksBeagle.var_in_original),
-      vars_in_panel = flatten(CountVariantsInChunksBeagle.var_also_in_reference),
-      valids = flatten(CheckChunksBeagle.valid),
+      vars_in_array = flatten(CountVariantsInChunks.var_in_original),
+      vars_in_panel = flatten(CountVariantsInChunks.var_also_in_reference),
+      valids = flatten(CheckChunks.valid),
       basename = output_basename
   }
   
