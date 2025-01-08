@@ -94,7 +94,7 @@ workflow Optimus {
   String pytools_docker = "pytools:1.0.0-1661263730"
   String empty_drops_docker = "empty-drops:1.0.1-4.2"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
-  String warp_tools_docker_2_2_0 = "warp-tools:2.5.0"
+  String warp_tools_docker = "warp-tools:lk-PD-2814-add-gtf-h5ad"
   String star_merge_docker = "star-merge-npz:1.3.0"
   String samtools_star = "samtools-star:1.0.0-1.11-2.7.11a-1731516196"
 
@@ -171,7 +171,7 @@ workflow Optimus {
       chemistry = tenx_chemistry_version,
       sample_id = input_id,
       read_struct = read_struct,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
+      warp_tools_docker_path = docker_prefix + warp_tools_docker
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
@@ -203,7 +203,7 @@ workflow Optimus {
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
+      warp_tools_docker_path = docker_prefix + warp_tools_docker
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
@@ -212,7 +212,7 @@ workflow Optimus {
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
+      warp_tools_docker_path = docker_prefix + warp_tools_docker
   }
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
@@ -261,7 +261,7 @@ workflow Optimus {
         empty_drops_result = RunEmptyDrops.empty_drops_result,
         counting_mode = counting_mode,
         pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
+        warp_tools_docker_path = docker_prefix + warp_tools_docker
     }
   }
   if (count_exons  && counting_mode=="sn_rna") {
@@ -300,7 +300,7 @@ workflow Optimus {
         cell_id_exon = MergeStarOutputsExons.row_index,
         gene_id_exon = MergeStarOutputsExons.col_index,
         pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
+        warp_tools_docker_path = docker_prefix + warp_tools_docker
     }
   }
 
