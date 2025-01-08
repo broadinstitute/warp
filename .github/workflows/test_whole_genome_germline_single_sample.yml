@@ -31,6 +31,7 @@ on:
       - 'verification/VerifyMetrics.wdl'
       - 'verification/VerifyTasks.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - '.github/workflows/test_whole_genome_germline_single_sample.yml'
 
 
   # Allows you to run this workflow manually from the Actions tab
