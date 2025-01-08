@@ -106,7 +106,7 @@ task OptimusH5adGeneration {
   >>>
 
   runtime {
-    docker: warp_tools_docker_path
+    docker: "us.gcr.io/broad-gotc-prod/warp-tools:lk-PD-2814-add-gtf-h5ad"
     cpu: cpu  # note that only 1 thread is supported by pseudobam
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
