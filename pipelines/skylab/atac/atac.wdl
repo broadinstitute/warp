@@ -601,6 +601,8 @@ task CreateFragmentFile {
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
     # Add nhash_id to h5ad file as unstructured metadata
     atac_data.uns['NHashID'] = atac_nhash_id
+
+    atac_data.uns['GTF'] = str(atac_gtf)
     # calculate tsse metrics
     snap.metrics.tsse(atac_data, atac_gtf)
     # Write new atac file
