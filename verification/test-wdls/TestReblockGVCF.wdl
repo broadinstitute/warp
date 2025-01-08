@@ -52,8 +52,8 @@ workflow TestReblockGVCF {
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
-                                    ReblockGVCF.output_vcf_index,
-                                    ReblockGVCF.output_vcf,
+                                    ReblockGVCF.reblocked_gvcf_index,
+                                    ReblockGVCF.reblocked_gvcf,
                                     ],
                                     
     ])
@@ -80,13 +80,13 @@ workflow TestReblockGVCF {
     if (!update_truth){
         call Utilities.GetValidationInputs as GetGvcf {
           input:
-            input_file = ReblockGVCF.output_vcf,
+            input_file = ReblockGVCF.reblocked_gvcf,
             results_path = results_path,
             truth_path = truth_path
         }
         call Utilities.GetValidationInputs as GetGvcfIndex {
           input:
-            input_file = ReblockGVCF.output_vcf_index,
+            input_file = ReblockGVCF.reblocked_gvcf_index,
             results_path = results_path,
             truth_path = truth_path
         }
