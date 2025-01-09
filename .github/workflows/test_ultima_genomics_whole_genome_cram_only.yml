@@ -56,7 +56,7 @@ env:
   PROJECT_NAME: WARP
   PIPELINE_NAME: TestUltimaGenomicsWholeGenomeCramOnly
   DOCKSTORE_PIPELINE_NAME: UltimaGenomicsWholeGenomeCramOnly
-  PIPELINE_DIR: "pipelines/broad/dna_seq/germline/single_sample/ugwgs/"
+  PIPELINE_DIR: "pipelines/broad/dna_seq/somatic/single_sample/ugwgs/"
 
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
