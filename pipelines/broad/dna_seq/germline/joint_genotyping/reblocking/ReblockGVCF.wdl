@@ -6,7 +6,7 @@ import "../../../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow ReblockGVCF {
 
-  String pipeline_version = "2.3.2"
+  String pipeline_version = "2.4.0"
 
 
   input {
@@ -70,8 +70,8 @@ workflow ReblockGVCF {
     }
 
   output {
-    File output_vcf = Reblock.output_vcf
-    File output_vcf_index = Reblock.output_vcf_index
+    File reblocked_gvcf = Reblock.output_vcf
+    File reblocked_gvcf_index = Reblock.output_vcf_index
   }
   meta {
     allowNestedInputs: true
