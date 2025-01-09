@@ -1,3 +1,8 @@
+# 2.5.3
+2024-11-22 (Date of Last Commit)
+
+* Updated the warp-tools docker; this update changes the way gene_names are identified when creating gene expression h5ad files; does not impact ATAC workflow
+
 # 2.5.2
 2024-11-12 (Date of Last Commit)
 
