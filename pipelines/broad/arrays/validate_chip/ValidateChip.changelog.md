@@ -1,3 +1,23 @@
+# 1.16.7
+2024-11-04 (Date of Last Commit)
+
+* Updated to GATK version 4.6.1.0
+
+# 1.16.6
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+
+# 1.16.5
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 1.16.4
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0
+
 # 1.16.3
 2023-01-13 (Date of Last Commit)
 

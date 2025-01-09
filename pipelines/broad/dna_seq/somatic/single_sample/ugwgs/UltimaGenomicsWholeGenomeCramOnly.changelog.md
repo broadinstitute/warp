@@ -1,3 +1,79 @@
+# 1.0.23
+2024-11-04 (Date of Last Commit)
+
+* Updated to GATK version 4.6.1.0
+
+# 1.0.22
+2024-10-28 (Date of Last Commit)
+
+* Updated the docker in the ValidateVCF task; this does not affect this pipeline
+
+# 1.0.21
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+
+# 1.0.20
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 1.0.19
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs; this does not affect this pipeline
+
+# 1.0.18
+2024-07-09 (Date of Last Commit)
+
+* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers; this does not affect this pipeline
+
+# 1.0.17
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
+
+# 1.0.16
+2024-03-26 (Date of Last Commit)
+
+* ValidateVcfs requires less memory when run without interval list; this does not affect this pipeline
+
+# 1.0.15
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0.
+
+# 1.0.14
+2023-12-14 (Date of Last Commit)
+
+* Updates to Reblock task. This update has no effect on this pipeline.
+
+# 1.0.13
+2023-12-08 (Date of Last Commit)
+
+* ValidateVcfs now has optional memory parameter; this does not affect this pipeline
+
+# 1.0.12
+2023-11-29 (Date of Last Commit)
+
+* ValidateVcfs can now take in VCF as calling_interval_list that is in a separate location from its index; this does not affect this pipeline
+
+# 1.0.11
+2023-11-29 (Date of Last Commit)
+
+* Fixed bug in ReblockGVCFs; this does not affect this pipeline.
+* Reverted the VerifyBamID docker image back to the 1.0.8 UltimaGenomicsWholeGenomeCramOnly pipeline version
+
+# 1.0.10
+2023-09-18 (Date of Last Commit)
+
+* ReblockGVCFs can now take in GVCFs that are not in the same location as their index file, this update has no effect on this pipeline.
+
+# 1.0.9
+2023-08-16 (Date of Last Commit)
+
+* Updated VerifyBamID docker image in UltimaGenomicsWholeGenomeGermlineTasks.wdl to fix security vulnerabilities, this update has no effect on this pipeline.
+
 # 1.0.8
 2023-03-20 (Date of Last Commit)
 

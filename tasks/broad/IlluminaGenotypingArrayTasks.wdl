@@ -14,7 +14,7 @@ task Md5Sum {
   >>>
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3
@@ -404,7 +404,7 @@ task SelectVariants {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -441,7 +441,7 @@ task SelectIndels {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -577,7 +577,7 @@ task SubsetArrayVCF {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -676,7 +676,7 @@ task ValidateVariants {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"

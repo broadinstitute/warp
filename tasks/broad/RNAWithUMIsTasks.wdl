@@ -278,7 +278,7 @@ task GetSampleName {
   input {
     File bam
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
@@ -621,7 +621,7 @@ task GroupByUMIs {
     File bam_index
     String output_bam_basename
 
-    String docker = "us.gcr.io/broad-gotc-prod/umi_tools:1.0.0-1.1.1-1638821470"
+    String docker = "us.gcr.io/broad-gotc-prod/umi_tools:1.0.0-1.1.1-1690198330"
     Int cpu = 2
     Int memory_mb = 64000
     Int disk_size_gb = ceil(2.2 * size([bam, bam_index], "GiB")) + 100
@@ -852,7 +852,7 @@ task CalculateContamination {
     File population_vcf
     File population_vcf_index
     # runtime
-    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int cpu = 1
     Int memory_mb = 8192
     Int disk_size_gb = 256
@@ -965,7 +965,7 @@ task TransferReadTags {
     File aligned_bam
     File ubam
     String output_basename
-    String docker = "us.gcr.io/broad-gatk/gatk:4.4.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int memory_mb = 16000
     Int disk_size_gb = ceil(2 * size(aligned_bam, "GiB")) + ceil(2 * size(ubam, "GiB")) + 128
   }
@@ -994,7 +994,7 @@ task PostprocessTranscriptomeForRSEM {
     String prefix
     File input_bam # the input must be queryname sorted
     Int disk_size_gb = ceil(3*size(input_bam,"GiB")) + 128
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int memory_mb = 16000
   }
 
@@ -1019,7 +1019,7 @@ task PostprocessTranscriptomeForRSEM {
 task CreateEmptyFile {
   input {
     Int disk_size_gb = 128
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int memory_mb = 4096
   }
 

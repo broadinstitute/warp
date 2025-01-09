@@ -24,6 +24,8 @@ task SortSam {
     Int compression_level
     Int additional_disk = 20
     Int memory_multiplier = 1
+    #Setting default docker value for workflows that haven't yet been azurized. 
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
   }
   # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
   # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
@@ -46,7 +48,7 @@ task SortSam {
 
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: docker
     disks: "local-disk " + disk_size + " HDD"
     cpu: "1"
     memory: "${machine_mem_mb} MiB"
@@ -416,6 +418,8 @@ task CheckContamination {
     Int preemptible_tries
     Float contamination_underestimation_factor
     Boolean disable_sanity_check = false
+
+     String docker = "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-c1cba76e979904eb69c31520a0d7f5be63c72253-1639071840"
   }
 
   Int disk_size = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB")) + 30
@@ -464,7 +468,7 @@ task CheckContamination {
     preemptible: preemptible_tries
     memory: "7.5 GiB"
     disks: "local-disk " + disk_size + " HDD"
-    docker: "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-c1cba76e979904eb69c31520a0d7f5be63c72253-1639071840"
+    docker: docker
     cpu: 2
   }
   output {

@@ -5,7 +5,7 @@ import "../../../../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow ExternalExomeReprocessing {
 
-  String pipeline_version = "3.1.12"
+  String pipeline_version = "3.3.3"
 
 
   input {
@@ -34,6 +34,8 @@ workflow ExternalExomeReprocessing {
     String destination_cloud_path
     String vault_token_path
     String google_account_vault_path
+
+    String cloud_provider
   }
 
   call ExomeReprocessing.ExomeReprocessing {
@@ -53,7 +55,8 @@ workflow ExternalExomeReprocessing {
       fingerprint_genotypes_index = fingerprint_genotypes_index,
       cram_ref_fasta = cram_ref_fasta,
       cram_ref_fasta_index = cram_ref_fasta_index,
-      papi_settings = papi_settings
+      papi_settings = papi_settings,
+      cloud_provider = cloud_provider
   }
 
   call Copy.CopyFilesFromCloudToCloud {

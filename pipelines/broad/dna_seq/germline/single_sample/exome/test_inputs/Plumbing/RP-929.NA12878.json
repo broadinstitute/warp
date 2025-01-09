@@ -57,5 +57,6 @@
 
   "ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics": false,
   "ExomeGermlineSingleSample.AggregatedBamQC.CollectAggregationMetrics.collect_gc_bias_metrics": false,
-  "ExomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
+  "ExomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true,
+  "ExomeGermlineSingleSample.cloud_provider": "gcp"
 }

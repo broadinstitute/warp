@@ -27,6 +27,8 @@ task HaplotypeCaller_GATK35_GVCF {
     Float? contamination
     Int preemptible_tries
     Int hc_scatter
+    #Setting default docker value for workflows that haven't yet been azurized.
+    String docker = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
   }
 
   parameter_meta {
@@ -66,7 +68,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --read_filter OverclippedRead
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
+    docker: docker
     preemptible: preemptible_tries
     memory: "10000 MiB"
     cpu: "1"
@@ -96,17 +98,18 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean use_dragen_hard_filtering = false
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    #Setting default docker value for workflows that haven't yet been azurized.
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int memory_multiplier = 1
   }
   
-  Int memory_size_mb = ceil(8000 * memory_multiplier)
+  Int memory_size_mb = ceil(8000 * memory_multiplier) + 2000
 
   String output_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
   String output_file_name = vcf_basename + output_suffix
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(((size(input_bam, "GiB") + 30) / hc_scatter) + ref_size) + 20
+  Int disk_size = ceil(((size(input_bam, "GiB") + 30) / hc_scatter) + ref_size) + 50
 
   String bamout_arg = if make_bamout then "-bamout ~{vcf_basename}.bamout.bam" else ""
 
@@ -170,6 +173,8 @@ task MergeVCFs {
     Array[File] input_vcfs_indexes
     String output_vcf_name
     Int preemptible_tries = 3
+    #Setting default docker value for workflows that haven't yet been azurized.
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
   }
 
   Int disk_size = ceil(size(input_vcfs, "GiB") * 2.5) + 10
@@ -183,7 +188,7 @@ task MergeVCFs {
       OUTPUT=~{output_vcf_name}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: docker
     preemptible: preemptible_tries
     memory: "3000 MiB"
     disks: "local-disk ~{disk_size} HDD"
@@ -203,25 +208,35 @@ task Reblock {
     File ref_fasta
     File ref_fasta_index
     String output_vcf_filename
-    String docker_image = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String docker_path
     Int additional_disk = 20
     String? annotations_to_keep_command
+    String? annotations_to_remove_command
     Float? tree_score_cutoff
+    Boolean move_filters_to_genotypes = false
   }
 
   Int disk_size = ceil((size(gvcf, "GiB")) * 4) + additional_disk
+  String gvcf_basename = basename(gvcf)
+  String gvcf_index_basename = basename(gvcf_index)
 
   command {
     set -e 
 
+    # We can't always assume the index was located with the gvcf, so make a link so that the paths look the same
+    ln -s ~{gvcf} ~{gvcf_basename}
+    ln -s ~{gvcf_index} ~{gvcf_index_basename}
+
     gatk --java-options "-Xms3000m -Xmx3000m" \
       ReblockGVCF \
       -R ~{ref_fasta} \
-      -V ~{gvcf} \
+      -V ~{gvcf_basename} \
       -do-qual-approx \
       --floor-blocks -GQB 20 -GQB 30 -GQB 40 \
       ~{annotations_to_keep_command} \
+      ~{annotations_to_remove_command} \
       ~{"--tree-score-threshold-to-no-call " + tree_score_cutoff} \
+      ~{if move_filters_to_genotypes then "--add-site-filters-to-genotype" else ""} \
       -O ~{output_vcf_filename}
   }
 
@@ -230,7 +245,7 @@ task Reblock {
     disks: "local-disk " + disk_size + " HDD"
     bootDiskSizeGb: 15
     preemptible: 3
-    docker: docker_image
+    docker: docker_path
   }
 
   output {
@@ -246,7 +261,7 @@ task HardFilterVcf {
     String vcf_basename
     File interval_list
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
@@ -282,7 +297,7 @@ task DragenHardFilterVcf {
     Boolean make_gvcf
     String vcf_basename
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String gatk_docker
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
@@ -322,7 +337,7 @@ task CNNScoreVariants {
     File ref_fasta_index
     File ref_dict
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
   }
 
   Int disk_size = ceil(size(bamout, "GiB") + size(ref_fasta, "GiB") + (size(input_vcf, "GiB") * 2))
@@ -379,7 +394,7 @@ task FilterVariantTranches {
     File dbsnp_resource_vcf_index
     String info_key
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
   }
 
   Int disk_size = ceil(size(hapmap_resource_vcf, "GiB") +

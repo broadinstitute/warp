@@ -1,3 +1,20 @@
+# 3.1.0
+2024-11-26 (Date of Last Commit)
+
+* Added metadata.txt file as an output to the pipeline
+
+# 3.0.0
+2023-12-06 (Date of Last Commit)
+
+* Updated BuildIndices to use bwa-mem2
+
+# 2.2.1
+2023-11-17 (Date of Last Commit)
+* Updated the modify-gtf script to make it compatible with REFSEQ and GENCODE GTFs
+* Added gene_versions to resulting modified GTFs
+* Remove the add-introns script from the pipeline
+* Removed pipe from chrom sizes task
+
 # 2.1.2
 2023-05-02 (Date of Last Commit)
 * Updated the modify-gtf and add-intron scripts in the build indices docker so that PAR genes are removed from the GTF

@@ -6,7 +6,7 @@ import "../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 workflow WholeGenomeReprocessing {
 
-  String pipeline_version = "3.1.11"
+  String pipeline_version = "3.3.3"
 
   input {
     File? input_cram
@@ -29,6 +29,8 @@ workflow WholeGenomeReprocessing {
     File? fingerprint_genotypes_index
 
     File wgs_coverage_interval_list
+
+    String cloud_provider
   }
 
   call ToUbams.CramToUnmappedBams {
@@ -57,7 +59,8 @@ workflow WholeGenomeReprocessing {
       fingerprint_genotypes_file = fingerprint_genotypes_file,
       fingerprint_genotypes_index = fingerprint_genotypes_index,
       papi_settings = papi_settings,
-      wgs_coverage_interval_list = wgs_coverage_interval_list
+      wgs_coverage_interval_list = wgs_coverage_interval_list,
+      cloud_provider = cloud_provider
   }
 
   output {

@@ -50,7 +50,7 @@ workflow UltimaGenomicsWholeGenomeGermline {
     filtering_model_no_gt_name: "String describing the optional filtering model; default set to rf_model_ignore_gt_incl_hpol_runs"
   }
 
-  String pipeline_version = "1.0.8"
+  String pipeline_version = "1.1.3"
 
 
   References references = alignment_references.references
@@ -196,13 +196,14 @@ workflow UltimaGenomicsWholeGenomeGermline {
       ref_fasta = alignment_references.references.ref_fasta,
       ref_fasta_index = alignment_references.references.ref_fasta_index,
       tree_score_cutoff = vcf_post_processing.remove_low_tree_score_sites_cutoff,
-      annotations_to_keep_command = vcf_post_processing.annotations_to_keep_command_for_reblocking
+      annotations_to_keep_command = vcf_post_processing.annotations_to_keep_command_for_reblocking,
+      cloud_provider = "gcp"
   }
 
   # Outputs that will be retained when execution is complete
   output {
-    File output_gvcf = ReblockGVCF.output_vcf
-    File output_gvcf_index = ReblockGVCF.output_vcf_index
+    File output_gvcf = ReblockGVCF.reblocked_gvcf
+    File output_gvcf_index = ReblockGVCF.reblocked_gvcf_index
     File output_vcf = ConvertGVCFtoVCF.output_vcf
     File output_vcf_index = ConvertGVCFtoVCF.output_vcf_index
 

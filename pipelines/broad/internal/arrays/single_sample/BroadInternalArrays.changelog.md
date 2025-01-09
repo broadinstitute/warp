@@ -1,3 +1,58 @@
+# 1.1.14
+2024-11-04 (Date of Last Commit)
+
+* Updated to GATK version 4.6.1.0
+
+# 1.1.13
+2024-10-28 (Date of Last Commit)
+
+* Updated the docker in the ValidateVCF task; this does not affect this pipeline
+
+# 1.1.12
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+
+# 1.1.11
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 1.1.10
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs; this does not affect this pipeline
+
+# 1.1.9
+2024-07-09
+
+* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers; this does not affect this pipeline.
+
+# 1.1.8
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
+
+# 1.1.7
+2024-03-26 (Date of Last Commit)
+
+* ValidateVcfs requires less memory when run without interval list; this does not affect this pipeline
+
+# 1.1.6
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0.
+
+# 1.1.5
+2023-12-08 (Date of Last Commit)
+
+* ValidateVcfs now has optional memory parameter; this does not affect this pipeline
+
+# 1.1.4
+2023-11-29 (Date of Last Commit)
+
+* ValidateVcfs can now take in VCF as calling_interval_list that is in a separate location from its index; this does not affect this pipeline
+
 # 1.1.3
 2023-03-20 (Date of Last Commit)
 

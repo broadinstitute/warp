@@ -1,3 +1,29 @@
+# 1.1.15
+2024-11-04 (Date of Last Commit)
+
+* Updated to GATK version 4.6.1.0
+
+# 1.1.14
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+
+# 1.1.13
+2024-05-21 (Date of Last Commit)
+
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers. This change does not affect this pipeline.
+
+# 1.1.12
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0
+
+# 1.1.11
+2023-08-01 (Date of last Commit)
+
+* Moved ReplaceHeader to its own scatter to remove dependency between the two nested scatters to help with wall clock time
+* Updated Eagle docker to address security vulnerabilities, this has no effect on this pipeline 
+
 # 1.1.10
 2023-03-03 (Date of Last Commit)
 

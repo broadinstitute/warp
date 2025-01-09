@@ -16,7 +16,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "2.1.2"
+  String pipeline_version = "3.1.0"
 
 
   parameter_meta {
@@ -49,13 +49,25 @@ workflow BuildIndices {
         organism = organism
     }
 
+    call RecordMetadata {
+      input:
+      pipeline_version = pipeline_version,
+      input_files = [annotations_gtf, genome_fa, biotypes],
+      output_files = [
+      BuildStarSingleNucleus.star_index,
+      BuildStarSingleNucleus.modified_annotation_gtf,
+      CalculateChromosomeSizes.chrom_sizes,
+      BuildBWAreference.reference_bundle
+      ]
+    }
+
   output {
     File snSS2_star_index = BuildStarSingleNucleus.star_index
     String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
-    File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
     File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
     File reference_bundle = BuildBWAreference.reference_bundle
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
+    File metadata = RecordMetadata.metadata_file
   }
 }
 
@@ -64,7 +76,8 @@ task CalculateChromosomeSizes {
     File genome_fa
   }
   command <<<
-    samtools faidx ~{genome_fa} | cut -f1,2 > chrom.sizes
+    samtools faidx ~{genome_fa}
+    cut -f1,2 "~{genome_fa}.fai" > chrom.sizes
   >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
@@ -99,7 +112,6 @@ task BuildStarSingleNucleus {
   String ref_name = "star2.7.10a-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
   String star_index_name = "modified_~{ref_name}.tar"
   String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
-  String annotation_gtf_introns = "introns_modified_v~{gtf_annotation_version}.annotation.gtf"
 
   command <<<
     # Check that input GTF files contain input genome source, genome build version, and annotation version
@@ -126,8 +138,6 @@ task BuildStarSingleNucleus {
     --output-gtf ~{annotation_gtf_modified} \
     --biotypes ~{biotypes}
 
-    python3  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
-
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
@@ -142,12 +152,11 @@ task BuildStarSingleNucleus {
 
   output {
     File star_index = star_index_name
-    File annotation_gtf_modified_introns = annotation_gtf_introns
     File modified_annotation_gtf = annotation_gtf_modified
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1683045573"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.0.0"
     memory: "50 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -170,7 +179,7 @@ task BuildBWAreference {
     String organism
   }
 
-String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_build}"
+String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{genome_build}"
 
   command <<<
     mkdir genome
@@ -182,12 +191,12 @@ String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_b
     else
       mv ~{genome_fa} genome/genome.fa
     fi
-    bwa index genome/genome.fa
+    bwa-mem2 index genome/genome.fa
     tar --dereference -cvf - genome/ > ~{reference_name}.tar
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
+    docker: "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
     memory: "96GB"
     disks: "local-disk 100 HDD"
     disk: "100 GB" # TES
@@ -199,4 +208,61 @@ String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_b
   }
 }
 
+
+task RecordMetadata {
+  input {
+    String pipeline_version
+    Array[File] input_files
+    Array[File] output_files
+  }
+
+  command <<<
+    set -euo pipefail
+
+    # create metadata file
+    echo "Pipeline Version: ~{pipeline_version}" > metadata.txt
+    echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
+    echo "" >> metadata.txt
+
+    # echo paths and md5sums for input files
+    echo "Input Files and their md5sums:" >> metadata.txt
+    for file in ~{sep=" " input_files}; do
+      echo "$file : $(md5sum $file | awk '{print $1}')" >> metadata.txt
+    done
+    echo "" >> metadata.txt
+
+    # echo paths and md5sums for input files
+    echo "Output Files and their md5sums:" >> metadata.txt
+    for file in ~{sep=" " output_files}; do
+      echo "$file : $(md5sum $file | awk '{print $1}')" >> metadata.txt
+    done
+    echo "" >> metadata.txt
+
+    # grab workspace bucket
+    file="~{output_files[0]}"
+    workspace_bucket=$(echo $file | awk -F'/' '{print $3}')
+    echo "Workspace Bucket: $workspace_bucket" >> metadata.txt
+
+    # grab submission ID
+    submission_id=$(echo $file | awk -F'/' '{print $5}')
+    echo "Submission ID: $submission_id" >> metadata.txt
+
+    # grab workflow ID
+    workflow_id=$(echo $file | awk -F'/' '{print $7}')
+    echo "Workflow ID: $workflow_id" >> metadata.txt
+
+    echo "" >> metadata.txt
+  >>>
+
+  output {
+    File metadata_file = "metadata.txt"
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    memory: "5 GiB"
+    disks: "local-disk 100 HDD"
+    cpu: "1"
+  }
+}
 

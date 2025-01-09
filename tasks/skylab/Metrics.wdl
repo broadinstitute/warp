@@ -8,12 +8,11 @@ task CalculateCellMetrics {
     String input_id
 
     # runtime values
-
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679941323"
+    String warp_tools_docker_path
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
-    Int preemptible = 3
+    Int preemptible = 1
   }
 
   meta {
@@ -22,7 +21,7 @@ task CalculateCellMetrics {
 
   parameter_meta {
     bam_input: "Input bam file containing reads marked with tags for cell barcodes (CB), molecule barcodes (UB) and gene ids (GX)"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    warp_tools_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -59,14 +58,13 @@ task CalculateCellMetrics {
     # add the column header "CellID" to the first column in the .csv file
     sed '1s/^/CellID/' ~{input_id}.cell-metrics.csv > updated.~{input_id}.cell-metrics.csv
 
-    # remove the following columns: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, duplicate_reads, reads_mapped_intergenic
-    cut -d',' -f 1-4,8-9,11-26,29-36 updated.~{input_id}.cell-metrics.csv > ~{input_id}.cell-metrics.csv
+    mv updated.~{input_id}.cell-metrics.csv ~{input_id}.cell-metrics.csv
 
     gzip ~{input_id}.cell-metrics.csv
   }
 
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -82,15 +80,15 @@ task CalculateCellMetrics {
 task CalculateGeneMetrics {
   input {
     File bam_input
+    File original_gtf
     File? mt_genes
     String input_id
     # runtime values
-
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679941323"
-    Int machine_mem_mb = 8000
+    String warp_tools_docker_path
+    Int machine_mem_mb = 32000
     Int cpu = 4
-    Int disk = ceil(size(bam_input, "Gi") * 4) 
-    Int preemptible = 3
+    Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
+    Int preemptible = 1
   }
   
 
@@ -100,7 +98,7 @@ task CalculateGeneMetrics {
 
   parameter_meta {
     bam_input: "Input bam file containing reads marked with tags for cell barcodes (CB), molecule barcodes (UB) and gene ids (GE)"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    warp_tools_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -109,9 +107,21 @@ task CalculateGeneMetrics {
 
   command {
     set -e
-    mkdir temp
 
+     # create the tmp folder
+    mkdir temp
+    
+    # if GTF file in compressed then uncompress
+    if [[ ~{original_gtf} =~ \.gz$ ]]
+    then
+        gunzip -c ~{original_gtf} > annotation.gtf
+    else
+        mv  ~{original_gtf}  annotation.gtf
+    fi
+
+    # call TagSort with gene as metric type
     TagSort --bam-input ~{bam_input} \
+    --gtf-file annotation.gtf \
     --metric-output "~{input_id}.gene-metrics.csv" \
     --compute-metric \
     --metric-type gene \
@@ -126,15 +136,14 @@ task CalculateGeneMetrics {
     # add the column header "ID" to the first column in the .csv file
     sed '1s/^/GeneID/' ~{input_id}.gene-metrics.csv > updated.~{input_id}.gene-metrics.csv
 
-    # remove the following columns: reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, duplicate_reads
-    cut -d',' -f 1-4,8-9,11-27 updated.~{input_id}.gene-metrics.csv > ~{input_id}.gene-metrics.csv
+    mv updated.~{input_id}.gene-metrics.csv ~{input_id}.gene-metrics.csv
 
     gzip ~{input_id}.gene-metrics.csv
 
   }
 
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD" 
     disk: disk + " GB" # TES
@@ -150,10 +159,13 @@ task CalculateGeneMetrics {
 task CalculateUMIsMetrics {
   input {
     File bam_input
+    File original_gtf
     File? mt_genes
     String input_id
+    
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679490798"
+    # Did not update docker image as this task uses loom which does not play nice with the changes
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.3.0"
     Int machine_mem_mb = 16000
     Int cpu = 8
     Int disk = ceil(size(bam_input, "Gi") * 4)
@@ -179,7 +191,16 @@ task CalculateUMIsMetrics {
     set -e
     mkdir temp
 
+    # if GTF file in compressed then uncompress
+    if [[ ~{original_gtf} =~ \.gz$ ]]
+    then
+        gunzip -c ~{original_gtf} > annotation.gtf
+    else
+        mv  ~{original_gtf}  annotation.gtf
+    fi
+
     TagSort --bam-input ~{bam_input} \
+    --gtf-file annotation.gtf \
     --metric-output "~{input_id}.umi-metrics.csv" \
     --compute-metric \
     --metric-type umi \
@@ -219,7 +240,7 @@ task FastqMetricsSlideSeq {
 
 
     # Runtime attributes
-    String docker =  "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679490798"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.3.0"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3)  + 50
@@ -263,42 +284,5 @@ task FastqMetricsSlideSeq {
     File umi_distribution = "~{sample_id}.barcode_distribution_XM.txt"
     File numReads_perCell = "~{sample_id}.numReads_perCell_XC.txt"
     File numReads_perUMI = "~{sample_id}.numReads_perCell_XM.txt"
-  }
-}
-
-task DropseqMetrics {
-  input {
-    File input_bam
-    File annotation_gtf
-    String output_name
-    String? mt_sequence
-    Int disk_size = ceil(size(input_bam, "GiB") + 50)
-    Int mem_size = 25
-  }
-  command <<<
-    # Using Drop-seq tools version of Picard's CollectRNAseqMetrics.
-    # GENCODE v43 GTF is missing gene_version, which is why we're using LENIENT
-    # validation stringency.
-    mkdir /cromwell_root/tmp
-    
-    /usr/gitc/Drop-seq_tools-2.5.3/SingleCellRnaSeqMetricsCollector \
-    --ANNOTATIONS_FILE ~{annotation_gtf} \
-    --INPUT ~{input_bam} \
-    --NUM_CORE_BARCODES 40000 \
-    --OUTPUT ~{output_name} \
-    --MT_SEQUENCE ~{mt_sequence} \
-    --CELL_BARCODE_TAG CB \
-    --TMP_DIR /cromwell_root/tmp \
-    --VALIDATION_STRINGENCY LENIENT
-   
-    
-  >>>
-  runtime {
-	docker: "us.gcr.io/broad-gotc-prod/dropseq-picard:1.0.0-2.5.3-1686757901"
-    disks: "local-disk ${disk_size} HDD"
-    memory: "${mem_size} GiB"
-  }
-  output {
-    File metric_output = "~{output_name}"
   }
 }

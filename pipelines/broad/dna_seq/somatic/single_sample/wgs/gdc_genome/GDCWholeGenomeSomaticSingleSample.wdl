@@ -519,9 +519,7 @@ task gatk_baserecalibrator {
     }
 
     command {
-        gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
-            -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-            -Xloggc:gc_log.log -Xms~{jvm_mem}m -Xmx~{max_heap}m" \
+        gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal -Xlog:gc=debug:file=gc_log.log -Xms~{jvm_mem}m -Xmx~{max_heap}m" \
             BaseRecalibrator \
                 --input ~{bam} \
                 --known-sites ~{dbsnp_vcf} \
@@ -535,7 +533,7 @@ task gatk_baserecalibrator {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+        docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
@@ -567,9 +565,7 @@ task gatk_applybqsr {
     }
 
     command {
-        gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
-            -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-            -Xloggc:gc_log.log -Xms~{jvm_mem}m -Xmx~{max_heap}m" \
+        gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal -Xlog:gc=debug:file=gc_log.log -Xms~{jvm_mem}m -Xmx~{max_heap}m" \
             ApplyBQSR \
                 --input ~{input_bam} \
                 --bqsr-recal-file ~{bqsr_recal_file} \
@@ -584,7 +580,7 @@ task gatk_applybqsr {
     }
     
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+        docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
@@ -627,7 +623,7 @@ task collect_insert_size_metrics {
 
 workflow GDCWholeGenomeSomaticSingleSample {
 
-    String pipeline_version = "1.3.0"
+    String pipeline_version = "1.3.4"
 
     input {
         File? input_cram

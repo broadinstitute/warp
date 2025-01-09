@@ -15,7 +15,7 @@ workflow scATAC {
         String bin_size_list = "10000"
     }
 
-    String pipeline_version = "1.3.1"
+    String pipeline_version = "1.3.2"
 
     parameter_meta {
         input_fastq1: "read 1 input fastq, the read names must be tagged with the cellular barcodes"
@@ -85,7 +85,7 @@ task AlignPairedEnd {
         String reference_unpack_name = "genome/genome.fa"
         String output_bam
         Int min_cov = 0
-        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027"
         Int machine_mem_mb = 16000
         Int cpu = 16
         Int disk = ceil(2*(size(input_fastq1, "GiB") + size(input_fastq2, "GiB") + size(input_reference, "GiB"))) + 100
@@ -147,7 +147,7 @@ task SnapPre {
         String output_snap_basename
         String genome_name
         String genome_size_file = "genome/chrom.sizes"
-        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027"
         File input_reference
         Int cpu = 1
         Int machine_mem_mb = 16000
@@ -210,7 +210,7 @@ task SnapCellByBin {
         File snap_input
         String bin_size_list
         String snap_output_name
-        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027"
         Int cpu = 1
         Int machine_mem_mb = 16000
         Int disk = 500
@@ -254,7 +254,7 @@ task MakeCompliantBAM {
     input {
         File input_bam
         String output_bam_filename
-        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+        String docker_image = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1690997141"
         Int cpu = 1
         Int disk =  ceil(3 * (size(input_bam, "GiB"))) + 100
         Int machine_mem_mb = 4000
@@ -271,7 +271,7 @@ task MakeCompliantBAM {
     command {
         set -euo pipefail
 
-        /usr/gitc/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
+        /warptools/scripts/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
     }
 
     output {
@@ -291,7 +291,7 @@ task MakeCompliantBAM {
 task BreakoutSnap {
     input {
         File snap_input
-        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+        String docker_image = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1690997141"
         String bin_size_list
         String input_id
         Int preemptible = 3
@@ -310,7 +310,7 @@ task BreakoutSnap {
     command {
         set -euo pipefail
         mkdir output
-        python3 /usr/gitc/breakoutSnap.py --input ~{snap_input} \
+        python3 /warptools/scripts/breakoutSnap.py --input ~{snap_input} \
             --output-prefix output/~{input_id}_
     }
 

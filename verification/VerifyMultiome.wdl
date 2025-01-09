@@ -26,6 +26,12 @@ workflow VerifyMultiome {
         File test_atac_h5ad
         File truth_atac_h5ad
 
+        File test_library_metrics
+        File truth_library_metrics
+
+        File test_atac_library_metrics
+        File truth_atac_library_metrics
+
         Boolean? done
     }
 
@@ -54,13 +60,11 @@ workflow VerifyMultiome {
             truth_bam      = truth_atac_bam,
             lenient_header = true
     }
-
-    call VerifyTasks.CompareTextFiles as CompareFragmentFile {
+    call VerifyTasks.CompareTabix as CompareFragment {
         input:
-            test_text_files  = [test_fragment_file],
-            truth_text_files = [truth_fragment_file]
+            test_fragment_file  = test_fragment_file,
+            truth_fragment_file = truth_fragment_file          
     }
-
     call VerifyTasks.CompareH5adFilesATAC as CompareH5adFilesATAC {
         input:
             test_h5ad  = test_atac_h5ad,
@@ -70,5 +74,15 @@ workflow VerifyMultiome {
         input:
             test_h5ad  = test_optimus_h5ad,
             truth_h5ad = truth_optimus_h5ad
+    }
+    call VerifyTasks.CompareLibraryFiles as CompareLibraryMetrics {
+        input:
+            test_text_file = test_library_metrics,
+            truth_text_file = truth_library_metrics
+    }
+    call VerifyTasks.CompareAtacLibraryMetrics as CompareAtacLibraryMetrics {
+        input:
+            test_text_files = select_all([test_atac_library_metrics]),
+            truth_text_files = select_all([truth_atac_library_metrics])
     }
 }

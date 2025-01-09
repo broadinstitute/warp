@@ -6,6 +6,11 @@ version 1.0
 ## generation) according to the GATK Best Practices (June 2016) for germline SNP and
 ## Indel discovery in human exome sequencing data.
 ##
+## NOTE: "Reblocking" of the output GVCF is now done by default. This reduces the genomic resolution of hom-ref
+## genotype qualities, which may affect de novo calling in trios. See
+## https://broadinstitute.github.io/warp/docs/Pipelines/Exome_Germline_Single_Sample_Pipeline/README/
+## for more details.
+##
 ## Requirements/expectations :
 ## - Human exome sequencing data in unmapped BAM (uBAM) format
 ## - One or more read groups, one per uBAM file, all belonging to a single sample (SM)
@@ -35,11 +40,12 @@ import "../../../../../../tasks/broad/BamProcessing.wdl" as Processing
 import "../../../../../../tasks/broad/BamToCram.wdl" as ToCram
 import "../../../../../../pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
+import "../../../../../../tasks/broad/Utilities.wdl" as utils
 
 # WORKFLOW DEFINITION
 workflow ExomeGermlineSingleSample {
 
-  String pipeline_version = "3.1.10"
+  String pipeline_version = "3.2.3"
 
 
   input {
@@ -55,7 +61,23 @@ workflow ExomeGermlineSingleSample {
     File bait_interval_list
     String bait_set_name
 
+    Boolean skip_reblocking = false
     Boolean provide_bam_output = false
+
+    String cloud_provider
+  }
+
+  # docker images
+  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+  String gatk_docker_azure = "terrapublic.azurecr.io/gatk:4.6.1.0"
+  String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
+
+  # make sure either gcp or azr is supplied as cloud_provider input
+  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+    call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+      input:
+        message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+    }
   }
 
   # Not overridable:
@@ -134,7 +156,9 @@ workflow ExomeGermlineSingleSample {
       dbsnp_vcf_index = references.dbsnp_vcf_index,
       base_file_name = sample_and_unmapped_bams.base_file_name,
       final_vcf_base_name = final_gvcf_base_name,
-      agg_preemptible_tries = papi_settings.agg_preemptible_tries
+      agg_preemptible_tries = papi_settings.agg_preemptible_tries,
+      skip_reblocking = skip_reblocking,
+      cloud_provider = cloud_provider
   }
 
   call QC.CollectHsMetrics as CollectHsMetrics {

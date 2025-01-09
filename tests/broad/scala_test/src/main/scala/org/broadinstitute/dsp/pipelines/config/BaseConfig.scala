@@ -1,7 +1,6 @@
 package org.broadinstitute.dsp.pipelines.config
 
 import org.broadinstitute.dsp.pipelines.commandline.{
-  PapiVersion,
   CromwellEnvironment,
   WorkflowTestCategory
 }
@@ -17,5 +16,4 @@ trait BaseConfig {
   def updateTruth: Boolean
   def useTimestamp: Option[String]
   def useCallCaching: Boolean
-  def papiVersion: PapiVersion
 }

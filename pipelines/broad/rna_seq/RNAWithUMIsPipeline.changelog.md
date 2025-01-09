@@ -1,3 +1,23 @@
+# 1.0.18
+2024-11-04 (Date of Last Commit)
+
+* Updated to GATK version 4.6.1.0
+
+# 1.0.17
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+
+# 1.0.16
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0
+
+# 1.0.15
+2023-07-27 (Date of Last Commit)
+
+* Updated UMI tools docker to address security vulnerabilities, this has no effect on this pipeline
+
 # 1.0.14
 2022-05-24 (Date of Last Commit)
 

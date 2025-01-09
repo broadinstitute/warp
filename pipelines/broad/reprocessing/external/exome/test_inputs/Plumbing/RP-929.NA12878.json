@@ -1,10 +1,11 @@
 {
-  "ExternalExomeReprocessing.input_cram": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/truth/develop/RP-929.NA12878/NA12878_PLUMBING.cram",
+  "ExternalExomeReprocessing.input_cram": "gs://broad-gotc-test-storage/ExomeGermlineSingleSample/truth/plumbing/master/RP-929.NA12878/NA12878_PLUMBING.cram",
 
   "ExternalExomeReprocessing.sample_name": "NA12878 PLUMBING",
   "ExternalExomeReprocessing.base_file_name": "RP-929.NA12878",
   "ExternalExomeReprocessing.final_gvcf_base_name": "NA12878_PLUMBING",
   "ExternalExomeReprocessing.unmapped_bam_suffix": ".unmapped.bam",
+  "ExternalExomeReprocessing.cloud_provider": "gcp",
 
   "ExternalExomeReprocessing.cram_ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
   "ExternalExomeReprocessing.cram_ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",

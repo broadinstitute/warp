@@ -1,5 +1,5 @@
 {
-  "CramToUnmappedBams.input_cram": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/truth/{TRUTH_BRANCH}/C1963.CHMI_CHMI3_Nex1/CHMI_CHMI3_Nex1.cram",
+  "CramToUnmappedBams.input_cram": "gs://broad-gotc-test-storage/ExomeGermlineSingleSample/truth/scientific/master/C1963.CHMI_CHMI3_Nex1/CHMI_CHMI3_Nex1.cram",
   "CramToUnmappedBams.output_map": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/bams/C1963.CHMI_CHMI3_Nex1/readgroupid_to_bamfilename_map.txt",
   "CramToUnmappedBams.base_file_name": "C1963.CHMI_CHMI3_Nex1.Exome",
   "CramToUnmappedBams.unmapped_bam_suffix": ".unmapped.bam",

@@ -9,7 +9,7 @@ import "../../../../../tasks/broad/DragenTasks.wdl" as DragenTasks
 workflow VariantCalling {
 
 
-  String pipeline_version = "2.1.10"
+  String pipeline_version = "2.2.4"
 
 
   input {
@@ -36,6 +36,33 @@ workflow VariantCalling {
     Boolean use_gatk3_haplotype_caller = false
     Boolean skip_reblocking = false
     Boolean use_dragen_hard_filtering = false
+    String cloud_provider
+  }
+
+  # docker images
+  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+  String gatk_docker_azure = "terrapublic.azurecr.io/gatk:4.6.1.0"
+  String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
+
+  String gatk_1_3_docker_gcp = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
+  String gatk_1_3_docker_azure = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
+  String gatk_1_3_docker = if cloud_provider == "gcp" then gatk_1_3_docker_gcp else gatk_1_3_docker_azure
+
+  String picard_python_docker_gcp = "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1663951039"
+  String picard_python_docker_azure = "dsppipelinedev.azurecr.io/picard-python:1.0.0-2.26.10-1663951039"
+  String picard_python_docker = if cloud_provider == "gcp" then picard_python_docker_gcp else picard_python_docker_azure
+
+  String picard_cloud_docker_gcp = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+  String picard_cloud_docker_azure = "dsppipelinedev.azurecr.io/picard-cloud:2.26.10"
+  String picard_cloud_docker = if cloud_provider == "gcp" then picard_cloud_docker_gcp else picard_cloud_docker_azure
+
+
+  # make sure either gcp or azr is supplied as cloud_provider input
+  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+    call Utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+      input:
+        message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+    }
   }
 
   parameter_meta {
@@ -51,7 +78,8 @@ workflow VariantCalling {
         ref_dict = ref_dict,
         alignment = input_bam,
         alignment_index = input_bam_index,
-        str_table_file = select_first([ref_str])
+        str_table_file = select_first([ref_str]),
+        docker = gatk_docker
     }
   }
 
@@ -62,7 +90,8 @@ workflow VariantCalling {
     input:
       interval_list = calling_interval_list,
       scatter_count = haplotype_scatter_count,
-      break_bands_at_multiples_of = break_bands_at_multiples_of
+      break_bands_at_multiples_of = break_bands_at_multiples_of,
+      docker = picard_python_docker
   }
 
   # We need disk to localize the sharded input and output due to the scatter for HaplotypeCaller.
@@ -86,7 +115,8 @@ workflow VariantCalling {
           ref_fasta_index = ref_fasta_index,
           contamination = contamination,
           preemptible_tries = agg_preemptible_tries,
-          hc_scatter = hc_divisor
+          hc_scatter = hc_divisor,
+          docker = gatk_1_3_docker
       }
     }
 
@@ -109,7 +139,8 @@ workflow VariantCalling {
           use_dragen_hard_filtering = use_dragen_hard_filtering,
           use_spanning_event_genotyping = use_spanning_event_genotyping,
           dragstr_model = DragstrAutoCalibration.dragstr_model,
-          preemptible_tries = agg_preemptible_tries
+          preemptible_tries = agg_preemptible_tries,
+          gatk_docker = gatk_docker
        }
 
       if (use_dragen_hard_filtering) {
@@ -119,7 +150,8 @@ workflow VariantCalling {
             input_vcf_index = HaplotypeCallerGATK4.output_vcf_index,
             make_gvcf = make_gvcf,
             vcf_basename = base_file_name,
-            preemptible_tries = agg_preemptible_tries
+            preemptible_tries = agg_preemptible_tries,
+            gatk_docker = gatk_docker
         }
       }
 
@@ -130,7 +162,8 @@ workflow VariantCalling {
             input_bam = HaplotypeCallerGATK4.bamout,
             output_bam_basename = final_vcf_base_name,
             preemptible_tries = agg_preemptible_tries,
-            compression_level = 2
+            compression_level = 2,
+            docker = picard_cloud_docker
         }
       }
     }
@@ -147,7 +180,8 @@ workflow VariantCalling {
       input_vcfs = vcfs_to_merge,
       input_vcfs_indexes = vcf_indices_to_merge,
       output_vcf_name = final_vcf_base_name + hard_filter_suffix + merge_suffix,
-      preemptible_tries = agg_preemptible_tries
+      preemptible_tries = agg_preemptible_tries,
+      docker = picard_cloud_docker
   }
 
   if (make_gvcf && !skip_reblocking) {
@@ -158,7 +192,8 @@ workflow VariantCalling {
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index,
         ref_dict = ref_dict,
-        output_vcf_filename = basename(MergeVCFs.output_vcf, ".g.vcf.gz") + ".rb.g.vcf.gz"
+        output_vcf_filename = basename(MergeVCFs.output_vcf, ".g.vcf.gz") + ".rb.g.vcf.gz",
+        docker_path = gatk_docker
     }
   }
 
@@ -182,8 +217,8 @@ workflow VariantCalling {
       ref_dict = ref_dict,
       calling_interval_list = calling_interval_list,
       is_gvcf = make_gvcf,
-      extra_args = "--no-overlaps",
-      gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0",
+      extra_args = if (skip_reblocking == false) then "--no-overlaps" else "",
+      docker_path = gatk_docker,
       preemptible_tries = agg_preemptible_tries
   }
 
@@ -198,7 +233,8 @@ workflow VariantCalling {
       ref_dict = ref_dict,
       evaluation_interval_list = evaluation_interval_list,
       is_gvcf = make_gvcf,
-      preemptible_tries = agg_preemptible_tries
+      preemptible_tries = agg_preemptible_tries,
+      docker = picard_cloud_docker
   }
 
   output {

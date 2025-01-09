@@ -165,12 +165,6 @@ object PipelineTestType extends Enum[PipelineTestType] {
       )
 
   // Skylab Pipelines
-  case object MultiSampleSmartSeq2
-      extends PipelineTestType(
-        "TestMultiSampleSmartSeq2",
-        "MultiSampleSmartSeq2",
-        "/skylab/smartseq2_multisample"
-      )
   case object MultiSampleSmartSeq2SingleNucleus
       extends PipelineTestType(
         "TestMultiSampleSmartSeq2SingleNucleus",
@@ -183,19 +177,24 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "Optimus",
         "/skylab/optimus/"
       )
+  case object PairedTag
+      extends PipelineTestType(
+        "TestPairedTag",
+        "PairedTag",
+        "/skylab/paired_tag/"
+      )
   case object scATAC
       extends PipelineTestType(
         "TestscATAC",
         "scATAC",
         "/skylab/scATAC/"
       )
-  case object SmartSeq2SingleSample
+  case object snm3C
       extends PipelineTestType(
-        "TestSmartSeq2SingleSample",
-        "SmartSeq2SingleSample",
-        "/skylab/smartseq2_single_sample"
+        "Testsnm3C",
+        "snm3C",
+        "/skylab/snm3C/"
       )
-
   // CEMBA Pipelines
   //case object CEMBA
   //    extends PipelineTestType(

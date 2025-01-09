@@ -1,3 +1,92 @@
+# 3.3.3
+2024-11-04 (Date of Last Commit)
+
+* Updated to GATK version 4.6.1.0
+
+# 3.3.2
+2024-10-28 (Date of Last Commit)
+
+* Updated the docker in the ValidateVCF task; this does not affect this pipeline
+
+# 3.3.1
+2024-09-17 (Date of Last Commit)
+
+* Updated DRAGEN aligner parameters to fix non-determinism
+
+# 3.3.0
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+* Updated version drops some low quality sites from VCFs; if reblocking is enabled, the DP annotation in some ref blocks will change due to the change in HaplotypeCaller
+
+# 3.2.2
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 3.2.1
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs; this does not affect this pipeline
+
+# 3.2.0
+2024-07-09 (Date of Last Commit)
+
+* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers. cloud_provider is a new, required input.
+
+# 3.1.21
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk
+
+# 3.1.20
+2024-03-26 (Date of Last Commit)
+
+* ValidateVcfs requires less memory when run without interval list; this does not affect this pipeline
+
+# 3.1.19
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0.
+
+# 3.1.18
+2023-12-14 (Date of Last Commit)
+
+* Updated GATK for Reblock task to version 4.5.0.0
+* Added options to Reblock task to remove annotations and move filters to genotype level
+
+# 3.1.17
+2023-12-08 (Date of Last Commit)
+
+* ValidateVcfs now has optional memory parameter; this does not affect this pipeline
+
+# 3.1.16
+2023-11-29 (Date of Last Commit)
+
+* ValidateVcfs can now take in VCF as calling_interval_list that is in a separate location from its index; this does not affect this pipeline
+
+# 3.1.15
+2023-11-29 (Date of Last Commit)
+
+* Fixed bug in ReblockGVCFs; this does not affect this pipeline.
+* Reverted the VerifyBamID docker image back to the 3.1.11 WholeGenomeReprocessing pipeline version
+
+# 3.1.14
+2023-10-10 (Date of Last Commit)
+
+* Removed the SumFloats task from SplitLargeReadGroup.wdl; this does not affect the outputs
+
+# 3.1.13
+2023-09-18 (Date of Last Commit)
+
+* ReblockGVCFs can now take in GVCFs that are not in the same location as their index file, this update has no effect on this pipeline.
+
+# 3.1.12
+2023-08-23 (Date of Last Commit)
+
+* Updated VerifyBamID docker image in BamProcessing.wdl to fix security vulnerabilities, this update has no effect on this pipeline.
+* Updated the VCF validation step to only use \"--no-overlaps\" argument for reblocked vcfs
+
 # 3.1.11
 2023-03-20 (Date of Last Commit)
 

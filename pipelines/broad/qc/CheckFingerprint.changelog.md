@@ -1,3 +1,53 @@
+# 1.0.22
+2024-10-28 (Date of Last Commit)
+
+* Updated the docker in the ValidateVCF task; this does not affect this pipeline
+
+# 1.0.21
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+
+# 1.0.20
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 1.0.19
+2024-06-12 (Date of Last Commit)
+
+* ValidateVcfs is more robust to larger inputs; this does not affect this pipeline
+
+# 1.0.18
+2024-07-00 (Date of Last Commit)
+
+* Updated tasks GermlineVariantDiscovery.wdl and QC.wdl to allow multi-cloud dockers; this does not affect this pipeline
+
+# 1.0.17
+2024-07-01 (Date of Last Commit)
+
+* CalculateReadGroupChecksum requires more memory and disk; this does not affect this pipeline
+
+# 1.0.16
+2024-03-26 (Date of Last Commit)
+
+* ValidateVcfs requires less memory when run without interval list; this does not affect this pipeline
+
+# 1.0.15
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0.
+
+# 1.0.14
+2023-12-08 (Date of Last Commit)
+
+* ValidateVcfs now has optional memory parameter; this does not affect this pipeline
+
+# 1.0.13
+2023-11-29 (Date of Last Commit)
+
+* ValidateVcfs can now take in VCF as calling_interval_list that is in a separate location from its index; this does not affect this pipeline
+
 # 1.0.12
 2023-03-30 (Date of Last Commit)
 * CheckFingerprint can allow LOD 0

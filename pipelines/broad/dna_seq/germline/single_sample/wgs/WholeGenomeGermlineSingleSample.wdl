@@ -40,7 +40,7 @@ import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 workflow WholeGenomeGermlineSingleSample {
 
 
-  String pipeline_version = "3.1.11"
+  String pipeline_version = "3.3.3"
 
 
   input {
@@ -68,6 +68,8 @@ workflow WholeGenomeGermlineSingleSample {
     Boolean use_bwa_mem = true
     Boolean allow_empty_ref_alt = false
     Boolean use_dragen_hard_filtering = false
+
+    String cloud_provider
   }
 
   if (dragen_functional_equivalence_mode && dragen_maximum_quality_mode) {
@@ -192,7 +194,8 @@ workflow WholeGenomeGermlineSingleSample {
       final_vcf_base_name = final_gvcf_base_name,
       agg_preemptible_tries = papi_settings.agg_preemptible_tries,
       use_gatk3_haplotype_caller = use_gatk3_haplotype_caller_,
-      use_dragen_hard_filtering = use_dragen_hard_filtering_
+      use_dragen_hard_filtering = use_dragen_hard_filtering_,
+      cloud_provider = cloud_provider
   }
 
   if (provide_bam_output) {

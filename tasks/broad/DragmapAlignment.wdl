@@ -55,7 +55,7 @@ task SamToFastqAndDragmapAndMba {
     mkdir dragen_reference
     mv ~{dragmap_reference.reference_bin} ~{dragmap_reference.hash_table_cfg_bin} ~{dragmap_reference.hash_table_cmp} dragen_reference
 
-    dragen-os -b ~{input_bam} -r dragen_reference --interleaved=1 2> >(tee ~{output_bam_basename}.dragmap.stderr.log >&2) | samtools view -h -O BAM - > aligned.bam
+    dragen-os -b ~{input_bam} -r dragen_reference --interleaved=1 --preserve-map-align-order true 2> >(tee ~{output_bam_basename}.dragmap.stderr.log >&2) | samtools view -h -O BAM - > aligned.bam
     java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx1000m -jar /picard/picard.jar \
       MergeBamAlignment \
       VALIDATION_STRINGENCY=SILENT \

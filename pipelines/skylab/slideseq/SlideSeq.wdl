@@ -3,9 +3,11 @@ version 1.0
 import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/Metrics.wdl" as Metrics
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
+import "../../../tasks/broad/Utilities.wdl" as utils
+
 
 ## Copyright Broad Institute, 2022
 ##
@@ -23,7 +25,7 @@ import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 
 workflow SlideSeq {
 
-    String pipeline_version = "1.0.9"
+    String pipeline_version = "3.4.7"
 
     input {
         Array[File] r1_fastq
@@ -39,6 +41,33 @@ workflow SlideSeq {
         Boolean count_exons = true
         File bead_locations
 
+        String cloud_provider
+
+    }
+
+    # docker images
+    String pytools_docker = "pytools:1.0.0-1661263730"
+    String picard_cloud_docker = "picard-cloud:2.26.10"
+    String warp_tools_docker_2_2_0 = "warp-tools:2.5.0"
+    String star_merge_docker = "star-merge-npz:1.3.0"
+
+    String ubuntu_docker = "ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
+    String gcp_ubuntu_docker_prefix = "gcr.io/gcp-runtimes/"
+    String acr_ubuntu_docker_prefix = "dsppipelinedev.azurecr.io/"
+    String ubuntu_docker_prefix = if cloud_provider == "gcp" then gcp_ubuntu_docker_prefix else acr_ubuntu_docker_prefix
+
+    String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
+    String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
+
+    # choose docker prefix based on cloud provider
+    String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+
+    # make sure either gcp or azr is supplied as cloud_provider input
+    if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+        call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+            input:
+                message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+        }
     }
 
     parameter_meta {
@@ -50,8 +79,9 @@ workflow SlideSeq {
     }
 
     call StarAlign.STARGenomeRefVersion as ReferenceCheck {
-    input:
-      tar_star_reference = tar_star_reference
+        input:
+          tar_star_reference = tar_star_reference,
+          ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
     }
 
     call Metrics.FastqMetricsSlideSeq as FastqMetrics {
@@ -86,16 +116,20 @@ workflow SlideSeq {
         input:
             bam_inputs = STARsoloFastqSlideSeq.bam_output,
             output_bam_filename = output_bam_basename + ".bam",
-            sort_order = "coordinate"
+            sort_order = "coordinate",
+            picard_cloud_docker_path = docker_prefix + picard_cloud_docker
     }
     call Metrics.CalculateGeneMetrics as GeneMetrics {
         input:
             bam_input = MergeBam.output_bam,
-            input_id = input_id
+            original_gtf = annotations_gtf,
+            input_id = input_id,
+            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
     }
     call Metrics.CalculateUMIsMetrics as UMIsMetrics {
         input:
             bam_input = MergeBam.output_bam,
+            original_gtf = annotations_gtf,
             input_id = input_id
     }
 
@@ -103,7 +137,9 @@ workflow SlideSeq {
         input:
             bam_input = MergeBam.output_bam,
             original_gtf = annotations_gtf,
-            input_id = input_id
+            input_id = input_id,
+            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
+
     }
 
     call StarAlign.MergeStarOutput as MergeStarOutputs {
@@ -111,10 +147,11 @@ workflow SlideSeq {
             barcodes = STARsoloFastqSlideSeq.barcodes,
             features = STARsoloFastqSlideSeq.features,
             matrix = STARsoloFastqSlideSeq.matrix,
-            input_id = input_id
+            input_id = input_id,
+            star_merge_docker_path = docker_prefix + star_merge_docker
     }
     if ( !count_exons ) {
-        call LoomUtils.OptimusLoomGeneration as SlideseqLoomGeneration{
+        call H5adUtils.SlideseqH5adGeneration as SlideseqH5adGeneration{
             input:
                 input_id = input_id,
                 annotation_file = annotations_gtf,
@@ -124,7 +161,9 @@ workflow SlideSeq {
                 cell_id = MergeStarOutputs.row_index,
                 gene_id = MergeStarOutputs.col_index,
                 add_emptydrops_data = "no",
-                pipeline_version = "SlideSeq_v~{pipeline_version}"
+                pipeline_version = "SlideSeq_v~{pipeline_version}",
+                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
+
         }
     }
     if (count_exons) {
@@ -133,9 +172,10 @@ workflow SlideSeq {
                 barcodes = STARsoloFastqSlideSeq.barcodes_sn_rna,
                 features = STARsoloFastqSlideSeq.features_sn_rna,
                 matrix = STARsoloFastqSlideSeq.matrix_sn_rna,
-                input_id = input_id
+                input_id = input_id,
+                star_merge_docker_path = docker_prefix + star_merge_docker
         }
-        call LoomUtils.SingleNucleusOptimusLoomOutput as SlideseqLoomGenerationWithExons{
+        call H5adUtils.SingleNucleusSlideseqH5adOutput as SlideseqH5adGenerationWithExons{
             input:
                 input_id = input_id,
                 annotation_file = annotations_gtf,
@@ -147,12 +187,12 @@ workflow SlideSeq {
                 sparse_count_matrix_exon = MergeStarOutputsExons.sparse_counts,
                 cell_id_exon = MergeStarOutputsExons.row_index,
                 gene_id_exon = MergeStarOutputsExons.col_index,
-                pipeline_version = "SlideSeq_v~{pipeline_version}"
+                pipeline_version = "SlideSeq_v~{pipeline_version}",
+                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
         }
-
     }
 
-    File final_loom_output = select_first([SlideseqLoomGenerationWithExons.loom_output, SlideseqLoomGeneration.loom_output])
+    File final_h5ad_output = select_first([SlideseqH5adGenerationWithExons.h5ad_output, SlideseqH5adGeneration.h5ad_output])
 
     output {
         String pipeline_version_out = pipeline_version
@@ -173,8 +213,7 @@ workflow SlideSeq {
         File fastq_reads_per_umi = FastqMetrics.numReads_perUMI
 
 
-        # loom
-        File? loom_output_file = final_loom_output
-
+        # h5ad
+        File? h5ad_output_file = final_h5ad_output
     }
 }

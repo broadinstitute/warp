@@ -121,7 +121,7 @@ The Optimus pipeline supports data processing for the [BRAIN Initiative Cell Cen
 ### Optimus reference files for BICCN data processing
 The BICCN 2.0 Whole Mouse Brain Working Group uses the Ensembl GRCm38 reference for alignment and a modified GTF for gene annotation (see table below). All Optimus pipeline reference inputs were created with the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices).
 
-BICCN processes single-nucleus data, which is enriched in pre-mRNAs containing introns. To account for this, the BuildIndices workflow uses the `BuildStarSingleNucleus` task to add intron annotations to the GTF with a custom [python script](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snss2-build-indices/add-introns-to-gtf.py). The GTF contains all annotations for any `gene_id` that has at least one transcript. This reduces the number of genes in the GTF to \~32,000. 
+BICCN processes single-nucleus data, which is enriched in pre-mRNAs containing introns. To account for this, the BuildIndices workflow uses the `BuildStarSingleNucleus` task to add intron annotations to the GTF with a custom [python script](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/add-introns-to-gtf.py). The GTF contains all annotations for any `gene_id` that has at least one transcript. This reduces the number of genes in the GTF to \~32,000. 
 
 All reference files are available in a public Google bucket (see table below) and are accompanied by a README that details reference provenance (gs://gcp-public-data--broad-references/mm10/v0/README_mm10_singlecell_gencode.txt). 
 

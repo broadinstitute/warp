@@ -24,6 +24,7 @@ workflow TestWholeGenomeReprocessing {
       File? fingerprint_genotypes_file
       File? fingerprint_genotypes_index
       File wgs_coverage_interval_list
+      String cloud_provider
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -53,7 +54,8 @@ workflow TestWholeGenomeReprocessing {
         papi_settings = papi_settings,
         fingerprint_genotypes_file = fingerprint_genotypes_file,
         fingerprint_genotypes_index = fingerprint_genotypes_index,
-        wgs_coverage_interval_list = wgs_coverage_interval_list
+        wgs_coverage_interval_list = wgs_coverage_interval_list,
+        cloud_provider = cloud_provider
   
     }
 

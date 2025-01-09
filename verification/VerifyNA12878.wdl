@@ -10,6 +10,7 @@ workflow VerifyNA12878 {
         File truth_vcf = "gs://broad-gotc-test-storage/VerifyNA12878/nist_na12878_giab_hg38_sd_fix.vcf.gz"
         File truth_vcf_index = "gs://broad-gotc-test-storage/VerifyNA12878/nist_na12878_giab_hg38_sd_fix.vcf.gz.tbi"
         File truth_intervals = "gs://broad-gotc-test-storage/VerifyNA12878/HG001_NA12878_GRCh38_GIAB_highconf.exome.interval_list"
+        String sample_name = "NA12878"
 
         Int? preemptible_attempts
         Int? disk_space
@@ -22,6 +23,7 @@ workflow VerifyNA12878 {
             vcf_files = vcf_files,
             vcf_file_indexes = vcf_file_indexes,
             vcf_names = vcf_names,
+            sample_name = sample_name,
             truth_vcf = truth_vcf,
             truth_vcf_index = truth_vcf_index,
             truth_intervals = truth_intervals,
@@ -45,6 +47,8 @@ task RunValidation {
         File truth_vcf_index
         File truth_intervals
 
+        String sample_name
+
         # Runtime parameters
         Int? mem_gb
         Int? preemptible_attempts
@@ -67,20 +71,22 @@ task RunValidation {
         files=(~{sep=" " vcf_files})
         names=(~{sep=" " vcf_names})
         for ((i=0;i<${#files[@]};++i)); do
-            gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" SelectVariants -V ${files[i]} -sn NA12878 --exclude-non-variants \
+            gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" SelectVariants -V ${files[i]} -sn ~{sample_name} --exclude-non-variants \
             --remove-unused-alternates -O ${names[i]}.NA12878.vcf.gz
 
             gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" Concordance -eval ${names[i]}.NA12878.vcf.gz \
-            --truth ~{truth_vcf} -L ~{truth_intervals} --summary ${names[i]}.summary.tsv
+            --truth ~{truth_vcf} -L ~{truth_intervals} --summary ${names[i]}.summary.tsv -tpfn ${names[i]}.tpfn.vcf.gz -tpfp ${names[i]}.tpfp.vcf.gz
         done
     >>>
 
     output {
         Array[File] concordance_tables = glob("./*.summary.tsv")
+        Array[File] tpfn = glob("./*.tpfn.vcf.gz*")
+        Array[File] tpfp = glob("./*.tpfp.vcf.gz*")
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+        docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
 
         memory: machine_mem + " MiB"
         disks: "local-disk " + select_first([disk_space, 100]) + if use_ssd then " SSD" else " HDD"

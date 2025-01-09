@@ -1,7 +1,115 @@
-# 1.2.25
-2023-07-11 (Date of Last Commit)
+# 2.0.6
+2024-11-15 (Date of Last Commit)
 
+* Fixed a bug in the StarSoloFastq task that caused the pipeline to not output a UniqueAndMult-Uniform.mtx when --soloMultiMappers Uniform was passed to STAR; this does not affect the outputs of the pipeline
+
+# 2.0.5
+2024-11-15 (Date of Last Commit)
+
+* Added bam validation in the StarSoloFastq task; this does not affect the outputs of the pipeline
+
+# 2.0.4
+2024-11-12 (Date of Last Commit)
+
+* Added memory and disk updates to Multiome JoinBarcodes; this does not impact the snSS2 workflow
+
+# 2.0.3
+2024-11-04 (Date of Last Commit)
+
+* Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task should not affect the snSS2 pipeline
+
+
+# 2.0.2
+2024-10-23 (Date of Last Commit)
+
+* Updated the h5adUtils WDL to rename the gene expression library CSV filename; this does not impact slideseq
+* Updated the ATAC fragment file output so that it is bgzipped; this does not impact the Multi-snSS2 workflow
+* Updated memory settings for PairedTag; does not impact the snSS2 workflow
+
+# 2.0.1
+2024-09-24 (Date of Last Commit)
+
+* Added a python implementation of DoubletFinder to calculate doublet scores in gene expression data; this does not affect the snSS2 workflow
+
+# 2.0.0
+2024-09-11 (Dat of Last Commit)
+
+* Added h5ad as a format option for the cell by gene matrix output. The h5ad has the same layers and global attributes (unstructured data in h5ad) as the previous Loom output
+
+# 1.4.2
+2024-08-25-02 (Dat of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 1.4.1
+2024-07-25 (Dat of Last Commit)
+
+* Updated the warp-tools docker image to add TSO metrics to the output h5ad and metric CSV files; this does not impact the snSS2 workflow
+
+# 1.4.0
+2024-07-11 (Date of Last Commit)
+
+* Updated the PairedTag.wdl to run on Azure. cloud_provider is a new, required input.
+* Added new optional input parameter of gex_nhash_id to the STARAlign task; this does not impact the MultiSampleSmartSeq2SingleNucleus workflow 
+
+# 1.3.5
+2024-06-28 (Date of Last Commit)
+
+* Updated the STARsolo parameters for estimating cells to Emptydrops_CR; this does not impact the snSS2 pipeline
+
+# 1.3.4
+2024-04-12 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering
+
+# 1.3.3
+2024-03-26 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
+# 1.3.2
+2024-03-15 (Date of Last Commit)
+
+* Added cell metrics to the library-level metrics CSV; this does not impact the Single-nucleus Multi Sample Smartseq pipeline
+
+* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
+
+* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
+# 1.3.1
+2024-02-28 (Date of Last Commit)
+
+* Updated the Optimus workflow to produce a library-level metrics CSV; this does not impact the Single-nucleus Multi Sample Smart-seq2 pipeline
+
+# 1.3.0
+2024-01-22 (Date of Last Commit)
+
+* Updated StarAlign output metrics to include shard ids
+ 
+ # 1.2.28
+2024-01-11 (Date of Last Commit)
+
+* Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
+* Added the --soloMultiMappers flag as an optional input to the StarSoloFastq task in the StarAlign.wdl; this does affect the MultiSampleSmartSeq2SingleNucleus workflow
+ 
+# 1.2.27
+2024-01-05 (Date of Last Commit)
+
+* Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode; this does affect the MultiSampleSmartSeq2SingleNucleus workflow
+
+# 1.2.26
+2023-08-22 (Date of Last Commit)
+
+* Updated Optimus pipeline to include STARsolo v2.7.11a; does not impact snSS2
+* Added sF tag to STARsolo aligner parameters; does not impact snSS2
+* Updated TagSort tool for Optimus Metrics task to calculate metrics based on the sF tag; does not impact snSS2
+* Modified H5adUtils task to include new metrics in the final Optimus h5ad; does not impact snSS2
+
+# 1.2.25
+2023-07-18 (Date of Last Commit)
+
+* Added STARsolo v2.7.10b metric outputs as an optional pipeline output and an output of the STARalign and MergeSTAR tasks. This does not impact the snSS2 pipeline
 * Updated the CountAlignments task in the FeatureCounts.wdl to use a new docker image. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline
+
 
 # 1.2.24
 2023-06-23 (Date of Last Commit)
