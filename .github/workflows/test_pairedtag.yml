@@ -346,26 +346,28 @@ jobs:
                     --workflow_id "$WORKFLOW_ID" \
                     --pipeline_name "$PIPELINE_NAME")
                     ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
-                done
+              done
               break
-            done
-            # Generate final summary tables with hyperlinks for Submission IDs
-            echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
-            for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
-              # Generate the Terra URL for the submission
-              SUBMISSION_URL="https://app.terra.bio/#workspaces/$WORKSPACE_NAMESPACE/WARP%20Tests/job_history/$SUBMISSION_ID"
-          
-              # Add the Submission ID as a hyperlink
-              echo "[Submission ID: $SUBMISSION_ID]($SUBMISSION_URL)" >> $GITHUB_STEP_SUMMARY
-          
-              # Add the workflows and statuses for this submission
-              echo "${WORKFLOW_STATUSES[$SUBMISSION_ID]}" >> $GITHUB_STEP_SUMMARY
-          
-              # Add a blank line for separation
-              echo "" >> $GITHUB_STEP_SUMMARY
             done
           done
           
+          # Generate the final summary after all processing is complete
+          FINAL_SUMMARY="## Combined Workflow Statuses\n\n"
+          
+          # Add all workflow statuses to the summary
+          for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
+            # Generate the Terra URL for the submission
+            SUBMISSION_URL="https://app.terra.bio/#workspaces/$WORKSPACE_NAMESPACE/WARP%20Tests/job_history/$SUBMISSION_ID"
+
+            # Add the Submission ID as a hyperlink
+            FINAL_SUMMARY+="[Submission ID: $SUBMISSION_ID]($SUBMISSION_URL)\n"
+
+            # Add the workflows and statuses for this submission
+            FINAL_SUMMARY+="${WORKFLOW_STATUSES[$SUBMISSION_ID]}\n\n"
+          done
+          
+          # Write the complete summary once at the end
+          echo -e "$FINAL_SUMMARY" >> $GITHUB_STEP_SUMMARY
           # Exit with error if any workflows failed
           if [ "$OVERALL_SUCCESS" = false ]; then
               echo "One or more workflows failed in Terra. Check the workflow status summary for details."
