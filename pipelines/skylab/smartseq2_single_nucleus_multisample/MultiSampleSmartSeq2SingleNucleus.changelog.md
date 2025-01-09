@@ -1,7 +1,12 @@
-# 2.0.6
-2024-11-27 (Date of Last Commit)
+# 2.0.7
+2025-01-09 (Date of Last Commit)
 
 * Added filtered_mtx_files as an intermediate output to MergeStarOutput task; this does not affect the outputs of the pipeline
+
+# 2.0.6
+2024-11-15 (Date of Last Commit)
+
+* Fixed a bug in the StarSoloFastq task that caused the pipeline to not output a UniqueAndMult-Uniform.mtx when --soloMultiMappers Uniform was passed to STAR; this does not affect the outputs of the pipeline
 
 # 2.0.5
 2024-11-15 (Date of Last Commit)

@@ -3,13 +3,12 @@ version 1.0
 import "../../../pipelines/skylab/atac/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
-import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender_no_cuda
-import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "5.9.3"
+    String pipeline_version = "5.9.4"
+
 
     input {
         String cloud_provider
@@ -103,7 +102,8 @@ workflow Multiome {
             count_exons = count_exons,
             soloMultiMappers = soloMultiMappers,
             cloud_provider = cloud_provider,
-            gex_expected_cells = expected_cells
+            gex_expected_cells = expected_cells,
+            run_cellbender = run_cellbender
     }
 
     # Call the ATAC workflow
@@ -134,39 +134,6 @@ workflow Multiome {
             atac_fragment = Atac.fragment_file
     }
 
-    # Call CellBender
-    if (run_cellbender) {
-        if (cloud_provider == "gcp") {
-            call CellBender.run_cellbender_remove_background_gpu as CellBender {
-                input:
-                    sample_name = input_id,
-                    input_file_unfiltered = Optimus.h5ad_output_file,
-                    hardware_boot_disk_size_GB = 20,
-                    hardware_cpu_count = 4,
-                    hardware_disk_size_GB = 50,
-                    hardware_gpu_type = "nvidia-tesla-t4",
-                    hardware_memory_GB = 32,
-                    hardware_preemptible_tries = 2,
-                    hardware_zones = "us-central1-a us-central1-c",
-                    nvidia_driver_version = "470.82.01"
-            }
-        } 
-        if (cloud_provider == "azure") {
-            call CellBender_no_cuda.run_cellbender_remove_background_gpu as CellBender_no_cuda {
-                input:
-                    sample_name = input_id,
-                    input_file_unfiltered = Optimus.h5ad_output_file,
-                    hardware_boot_disk_size_GB = 20,
-                    hardware_cpu_count = 4,
-                    hardware_disk_size_GB = 50,
-                    hardware_gpu_type = "nvidia-tesla-t4",
-                    hardware_memory_GB = 32,
-                    hardware_preemptible_tries = 2,
-                    hardware_zones = "us-central1-a us-central1-c",
-                    nvidia_driver_version = "470.82.01"
-            }
-        }           
-    }
 
     meta {
         allowNestedInputs: true
@@ -201,15 +168,14 @@ workflow Multiome {
         File? gex_aligner_metrics = Optimus.aligner_metrics
         File? library_metrics = Optimus.library_metrics
         File? mtx_files = Optimus.mtx_files
+        File? cell_barcodes_csv = Optimus.cell_barcodes_csv
+        File? checkpoint_file = Optimus.checkpoint_file
+        Array[File]? h5_array = Optimus.h5_array
+        Array[File]? html_report_array = Optimus.html_report_array
+        File? log = Optimus.log
+        Array[File]? metrics_csv_array = Optimus.metrics_csv_array
+        String? output_directory = Optimus.output_directory
+        File? summary_pdf = Optimus.summary_pdf
 
-        # cellbender outputs
-        File? cell_barcodes_csv = CellBender.cell_csv
-        File? checkpoint_file = CellBender.ckpt_file
-        Array[File]? h5_array = CellBender.h5_array
-        Array[File]? html_report_array = CellBender.report_array
-        File? log = CellBender.log
-        Array[File]? metrics_csv_array = CellBender.metrics_array
-        String? output_directory = CellBender.output_dir
-        File? summary_pdf = CellBender.pdf
     }
 }

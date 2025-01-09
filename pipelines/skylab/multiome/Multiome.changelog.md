@@ -1,12 +1,19 @@
-# 5.9.3
-2024-11-27 (Date of Last Commit)
+# 5.9.4
+2025-01-09 (Date of Last Commit)
 
+* Moved the optional CellBender task to the Optimus.wdl
 * Added filtered_mtx_files as an intermediate output to MergeStarOutput task; this does not affect the outputs of the pipeline
 
+# 5.9.3
+2024-12-3 (Date of Last Commit)
+
+* Fixed a bug in the StarSoloFastq task that caused the pipeline to not output a UniqueAndMult-Uniform.mtx when --soloMultiMappers Uniform was passed to STAR
+
 # 5.9.2
-2024-11-15 (Date of Last Commit)
+2024-11-22 (Date of Last Commit)
 
 * Added bam validation in the StarSoloFastq task; this does not affect the outputs of the pipeline
+* Updated the warp-tools docker; this update changes the way gene_names are identified when creating gene expression h5ad files
 
 # 5.9.1
 2024-11-12 (Date of Last Commit)
