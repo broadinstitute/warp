@@ -23,8 +23,6 @@ workflow TestUltimaGenomicsWholeGenomeCramOnly {
       String truth_path
       String results_path
       Boolean update_truth
-      String vault_token_path
-      String google_account_vault_path
     }
 
     meta {
