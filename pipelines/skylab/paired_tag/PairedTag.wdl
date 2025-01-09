@@ -10,7 +10,6 @@ workflow PairedTag {
 
     String pipeline_version = "1.9.0"
 
-
     input {
         String input_id
         # Additional library aliquot id
