@@ -151,6 +151,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestMultiome.wdl
 
+  - name: TestSlideSeq
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/slideseq/TestSlideSeq.wdl
+
   - name: TestReblockGVCF
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestReblockGVCF.wdl
