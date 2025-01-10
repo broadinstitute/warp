@@ -605,16 +605,16 @@ task CreateFragmentFile {
     # Add GTF to uns field
     
     # Original path from args.annotation_file
-    annotation_gtf = str(atac_gtf)  # e.g., '/cromwell_root/gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf'
+    gtf_path = str(~{annotations_gtf})  # e.g., '/cromwell_root/gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf'
 
-    # Transform the path
-    if annotation_gtf.startswith('/cromwell_root/'):
-        stripped_path = annotation_gtf[len('/cromwell_root/'):]  # Remove '/cromwell_root/'
-        updated_path = f'gs://{stripped_path}'  # Add 'gs://' prefix
-    else:
-        updated_path = str(atac_gtf)
+    # # Transform the path
+    # if annotation_gtf.startswith('/cromwell_root/'):
+    #     stripped_path = annotation_gtf[len('/cromwell_root/'):]  # Remove '/cromwell_root/'
+    #     updated_path = f'gs://{stripped_path}'  # Add 'gs://' prefix
+    # else:
+    #     updated_path = str(atac_gtf)
     
-    atac_data.uns["reference_gtf_file"] = updated_path
+    atac_data.uns["reference_gtf_file"] = gtf_path
     # calculate tsse metrics
     snap.metrics.tsse(atac_data, atac_gtf)
     # Write new atac file
