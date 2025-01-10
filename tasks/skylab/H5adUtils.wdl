@@ -57,6 +57,12 @@ task OptimusH5adGeneration {
 
     touch empty_drops_result.csv
 
+    # Save the path of the annotation_file to a variable
+    gtf_path="~{annotation_file}"
+
+    # Echo the gtf_path for logging/debugging purposes
+    echo "GTF Path: $gtf_path"
+
     if [ "~{counting_mode}" == "sc_rna" ]; then
         python3 /warptools/scripts/create_h5ad_optimus.py \
           ~{if defined(empty_drops_result) then "--empty_drops_file  " + empty_drops_result  else "--empty_drops_file empty_drops_result.csv "  } \
@@ -74,6 +80,7 @@ task OptimusH5adGeneration {
           --count_matrix ~{sparse_count_matrix} \
           --expression_data_type "exonic" \
           --pipeline_version ~{pipeline_version}
+          --gtf-path $gtf_path
     else
         python3 /warptools/scripts/create_snrna_optimus_full_h5ad.py \
           --annotation_file ~{annotation_file} \
