@@ -245,6 +245,7 @@ jobs:
               "ignoreEmptyOutputs": false
             }' > "$WORKSPACE_NAMESPACE" "$METHOD_CONFIG_NAME" "$USE_CALL_CACHE_BOOL" "$test_input_file" > "$SUBMISSION_DATA_FILE"
            
+            sleep 5
             echo "Created submission data file: $SUBMISSION_DATA_FILE"
             cat "$SUBMISSION_DATA_FILE"
 
