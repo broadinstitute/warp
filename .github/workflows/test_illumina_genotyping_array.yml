@@ -251,7 +251,7 @@ jobs:
                 --inputs_json "$input_file" \
                 --update_truth "$UPDATE_TRUTH_BOOL" \
                 --branch_name "$BRANCH_NAME" )
-            echo "Uploading the test input file: $test_input_file"
+            #echo "Uploading the test input file: $test_input_file"
             python3 scripts/firecloud_api/firecloud_api.py \
                 upload_test_inputs \
                 --workspace-namespace $WORKSPACE_NAMESPACE \
