@@ -60,7 +60,8 @@ env:
 
 jobs:
   run_pipeline:
-    name: Run Pipeline: ${{ env.PIPELINE_NAME }}
+    name: >
+      Run Pipeline: ${{ env.PIPELINE_NAME }}
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
