@@ -80,7 +80,7 @@ task OptimusH5adGeneration {
           --count_matrix ~{sparse_count_matrix} \
           --expression_data_type "exonic" \
           --pipeline_version ~{pipeline_version}
-          --gtf-path $gtf_path
+          --gtf_path $gtf_path
     else
         python3 /warptools/scripts/create_snrna_optimus_full_h5ad.py \
           --annotation_file ~{annotation_file} \
