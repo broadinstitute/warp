@@ -59,8 +59,7 @@ env:
 
 
 jobs:
-  run_pipeline:
-    name: Run Pipeline
+  TestIlluminaGenotypingArray:
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
@@ -68,9 +67,6 @@ jobs:
       id-token: 'write'
 
     steps:
-      - name: Echo Pipeline Name
-        run: echo "Running ${{ env.PIPELINE_NAME }}"
-
       # actions/checkout MUST come before auth action
       - uses: actions/checkout@v3
         with:

@@ -62,7 +62,7 @@ env:
 
 
 jobs:
-  run_pipeline:
+  TestVariantCalling:
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:

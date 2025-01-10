@@ -70,7 +70,7 @@ env:
 
 
 jobs:
-  run_pipeline:
+  TestExomeGermlineSingleSample:
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:

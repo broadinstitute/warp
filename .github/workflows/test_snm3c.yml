@@ -57,7 +57,7 @@ env:
 
 
 jobs:
-  run_pipeline:
+  Testsnm3C:
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:

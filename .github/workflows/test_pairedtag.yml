@@ -68,7 +68,7 @@ env:
 
 
 jobs:
-  run_pipeline:
+  TestPairedTag:
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:

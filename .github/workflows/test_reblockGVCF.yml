@@ -60,7 +60,7 @@ env:
 
 
 jobs:
-  run_pipeline:
+  TestReblockGVCF:
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
