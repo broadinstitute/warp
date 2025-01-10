@@ -233,8 +233,7 @@ jobs:
 
             # Create the submission_data.json file for this input_file
             SUBMISSION_DATA_FILE="submission_data.json"
-            cat <<EOF > "$SUBMISSION_DATA_FILE"
-            {
+            printf '{ 
               "methodConfigurationNamespace": "$WORKSPACE_NAMESPACE",
               "methodConfigurationName": "$METHOD_CONFIG_NAME",
               "useCallCache": $USE_CALL_CACHE_BOOL,
@@ -244,8 +243,8 @@ jobs:
               "workflowFailureMode": "NoNewCalls",
               "userComment": "Automated submission",
               "ignoreEmptyOutputs": false
-            }
-           EOF
+            }' > "$WORKSPACE_NAMESPACE" "$METHOD_CONFIG_NAME" "$USE_CALL_CACHE_BOOL" "$test_input_file" > "$SUBMISSION_DATA_FILE"
+           
             echo "Created submission data file: $SUBMISSION_DATA_FILE"
 
             # Upload test input file
