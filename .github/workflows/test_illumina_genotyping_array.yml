@@ -219,6 +219,8 @@ jobs:
           TRUTH_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           echo "Truth path: $TRUTH_PATH"
           RESULTS_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/results/$CURRENT_TIME"
+          
+          
 
           # 1. Submit all jobs first and store their submission IDs
           for input_file in "$INPUTS_DIR"/*.json; do
@@ -243,7 +245,7 @@ jobs:
               "userComment": "Automated submission",
               "ignoreEmptyOutputs": false
             }
-         EOF
+           EOF
             echo "Created submission data file: $SUBMISSION_DATA_FILE"
 
             # Upload test input file
