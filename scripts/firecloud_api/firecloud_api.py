@@ -437,7 +437,14 @@ if __name__ == "__main__":
         # Load the submission data from the provided file
         else:
             with open(args.submission_data_file, 'r') as file:
-                submission_data = json.load(file)
+                #submission_data = json.load(file)
+                file_contents = file.read()
+                print(f"File content: {file_contents}")
+                try:
+                    submission_data = json.loads(file_contents)
+                except json.JSONDecodeError as e:
+                    logging.error(f"Failed to parse JSON from the file: {e}")
+                    return
             # Submit the job with the loaded submission data
             submission_id = api.submit_job(submission_data)
             print(submission_id)
