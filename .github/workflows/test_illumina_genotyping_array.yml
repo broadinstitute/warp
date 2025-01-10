@@ -243,7 +243,7 @@ jobs:
               "userComment": "Automated submission",
               "ignoreEmptyOutputs": false
             }
-            EOF
+         EOF
             echo "Created submission data file: $SUBMISSION_DATA_FILE"
 
             # Upload test input file
