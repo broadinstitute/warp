@@ -246,6 +246,7 @@ jobs:
             }' > "$WORKSPACE_NAMESPACE" "$METHOD_CONFIG_NAME" "$USE_CALL_CACHE_BOOL" "$test_input_file" > "$SUBMISSION_DATA_FILE"
            
             echo "Created submission data file: $SUBMISSION_DATA_FILE"
+            cat "$SUBMISSION_DATA_FILE"
 
             # Upload test input file
             python3 scripts/firecloud_api/firecloud_api.py \
