@@ -521,6 +521,7 @@ task CreateFragmentFile {
     String atac_nhash_id = ""
     String input_id
     Int atac_expected_cells = 3000
+    String gtf_path = annotations_gtf
   }
 
   parameter_meta {
@@ -605,7 +606,7 @@ task CreateFragmentFile {
     # Add GTF to uns field
     
     # Original path from args.annotation_file
-    gtf_path = str(~{annotations_gtf})  # e.g., '/cromwell_root/gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf'
+    gtf_path = "~{gtf_path}"  # e.g., '/cromwell_root/gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf'
 
     # # Transform the path
     # if annotation_gtf.startswith('/cromwell_root/'):

@@ -79,7 +79,7 @@ task OptimusH5adGeneration {
           ~{"--input_name_metadata_field " + input_name_metadata_field} \
           --count_matrix ~{sparse_count_matrix} \
           --expression_data_type "exonic" \
-          --pipeline_version ~{pipeline_version}
+          --pipeline_version ~{pipeline_version} \
           --gtf_path $gtf_path
     else
         python3 /warptools/scripts/create_snrna_optimus_full_h5ad.py \
