@@ -111,7 +111,7 @@ jobs:
       - name: Fetch Dockstore Workflow Commit Hash
         run: |
           # Wait 5.5 minutes for Dockstore to update
-          sleep 3
+          sleep 330
           
           DOCKSTORE_COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
             $DOCKSTORE_TOKEN \
@@ -127,23 +127,23 @@ jobs:
           DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
 
-      #- name: Compare Dockstore and Commit Hashes
-      #  id: compare_hashes
-      #  run: |
-      #    echo "Comparing hashes..."
-      #    echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
-      #    echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
-#
-      #    if [ "$DOCKSTORE_COMMIT_HASH" != "$GITHUB_COMMIT_HASH" ]; then
-      #      echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash!"
-      #      echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $GITHUB_COMMIT_HASH"
-      #      exit 1
-      #    else
-      #      echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
-      #    fi
-      #  env:
-      #    DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
-      #    GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
+      - name: Compare Dockstore and Commit Hashes
+        id: compare_hashes
+        run: |
+          echo "Comparing hashes..."
+          echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
+          echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
+
+          if [ "$DOCKSTORE_COMMIT_HASH" != "$GITHUB_COMMIT_HASH" ]; then
+            echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash!"
+            echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $GITHUB_COMMIT_HASH"
+            exit 1
+          else
+            echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
+          fi
+        env:
+          DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
+          GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
 
       - name: Set Test Type
         id: set_test_type
@@ -244,9 +244,8 @@ jobs:
               "workflowFailureMode": "NoNewCalls",
               "userComment": "%s",
               "ignoreEmptyOutputs": false
-            }' "$WORKSPACE_NAMESPACE" "$METHOD_CONFIG_NAME" "$USE_CALL_CACHE_BOOL" "$DOCKSTORE_PIPELINE_NAME $input_file_filename" > "$SUBMISSION_DATA_FILE"
+            }' "$WORKSPACE_NAMESPACE" "$METHOD_CONFIG_NAME" "$USE_CALL_CACHE_BOOL" "$input_file_filename" > "$SUBMISSION_DATA_FILE"
            
-            sleep 5
             echo "Created submission data file: $SUBMISSION_DATA_FILE"
             cat "$SUBMISSION_DATA_FILE"
 
