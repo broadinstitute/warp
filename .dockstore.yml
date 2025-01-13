@@ -51,6 +51,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl
 
+  - name: WholeGenomeReprocessing
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/reprocessing/wgs/WholeGenomeReprocessing.wdl
+
   - name: OptimusHcaAdapter
     subclass: WDL
     primaryDescriptorPath: /projects/optimus/CreateOptimusAdapterMetadata.wdl
@@ -198,6 +202,10 @@ workflows:
   - name: TestWholeGenomeGermlineSingleSample
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestWholeGenomeGermlineSingleSample.wdl
+
+  - name: TestWholeGenomeReprocessing
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestWholeGenomeReprocessing.wdl
 
   - name: VariantCalling
     subclass: WDL
