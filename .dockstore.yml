@@ -43,6 +43,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl
 
+  - name: ExomeReprocessing
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/reprocessing/exome/ExomeReprocessing.wdl
+
   - name: WholeGenomeGermlineSingleSample
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl
@@ -134,6 +138,10 @@ workflows:
   - name: TestExomeGermlineSingleSample
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestExomeGermlineSingleSample.wdl
+
+  - name: TestExomeReprocessing
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestExomeReprocessing.wdl
 
   - name: TestIlluminaGenotypingArray
     subclass: WDL
