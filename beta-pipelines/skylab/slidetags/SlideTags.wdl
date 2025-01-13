@@ -18,7 +18,7 @@ workflow SlideTags {
 
         # Optimus Inputs
         String cloud_provider = "gcp"
-        Boolean is_slidetag = true
+        Boolean is_slidetags = true
         String input_id
         Int expected_cells = 3000 ## copied from Multiome ?
         String counting_mode = "sn_rna"
@@ -71,7 +71,7 @@ workflow SlideTags {
             count_exons = count_exons,
             soloMultiMappers = soloMultiMappers,
             gex_expected_cells = expected_cells,
-            is_slidetag = is_slidetag
+            is_slidetags = is_slidetags
     } 
 
     call SpatialCount.count as spatial_count {

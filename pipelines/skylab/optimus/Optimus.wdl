@@ -76,7 +76,7 @@ workflow Optimus {
     # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
 
     # Set to true if slide-tags calls optimus, other wise set to false
-    Boolean is_slidetag = false
+    Boolean is_slidetags = false
   }
 
   # version of this pipeline
@@ -192,7 +192,7 @@ workflow Optimus {
         output_bam_basename = output_bam_basename + "_" + idx,
         soloMultiMappers = soloMultiMappers,
         samtools_star_docker_path = docker_prefix + samtools_star,
-        is_slidetag = is_slidetag
+        is_slidetags = is_slidetags
     }
   }
   call Merge.MergeSortBamFiles as MergeBam {
