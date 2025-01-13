@@ -64,18 +64,23 @@ workflow Optimus {
     # Set to Forward, Reverse, or Unstranded to account for stranded library preparations (per STARsolo documentation)
     String star_strand_mode = "Forward"
     
-# Set to true to count reads aligned to exonic regions in sn_rna mode
+    # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
+
+    # Set starsolo disk size as adjustable parameter
+    # Int disk_starsolo
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
     # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
     # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
+
+    # Set to true if slide-tags calls optimus, other wise set to false
+    Boolean is_slidetags = false
   }
 
   # version of this pipeline
-  String pipeline_version = "7.9.0"
-
+  String pipeline_version = "7.9.1"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -97,7 +102,6 @@ workflow Optimus {
   String warp_tools_docker = "warp-tools:2.6.0"
   String star_merge_docker = "star-merge-npz:1.3.0"
   String samtools_star = "samtools-star:1.0.0-1.11-2.7.11a-1731516196"
-
 
   #TODO how do we handle these?
   String alpine_docker = "alpine-bash@sha256:965a718a07c700a5204c77e391961edee37477634ce2f9cf652a8e4c2db858ff"
@@ -187,7 +191,8 @@ workflow Optimus {
         count_exons = count_exons,
         output_bam_basename = output_bam_basename + "_" + idx,
         soloMultiMappers = soloMultiMappers,
-        samtools_star_docker_path = docker_prefix + samtools_star
+        samtools_star_docker_path = docker_prefix + samtools_star,
+        is_slidetags = is_slidetags
     }
   }
   call Merge.MergeSortBamFiles as MergeBam {
@@ -356,6 +361,8 @@ workflow Optimus {
     File? aligner_metrics = MergeStarOutputs.cell_reads_out
     File library_metrics = final_library_metrics
     File? mtx_files = MergeStarOutputs.mtx_files
+    File? filtered_mtx_files = MergeStarOutputs.filtered_mtx_files
+
     Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
     Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
     Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
