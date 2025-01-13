@@ -1,7 +1,7 @@
 # 3.4.8
 2024-12-12 (Date of Last Commit)
 
-*  Added a boolean variable is_slidetags; this does not affect the outputs of the pipeline.
+*  Added a boolean variable is_slidetags; this does not affect the outputs of the pipeline
 
 # 3.4.7
 2024-12-3 (Date of Last Commit)
