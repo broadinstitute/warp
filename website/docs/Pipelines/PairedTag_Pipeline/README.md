@@ -2,13 +2,13 @@
 sidebar_position: 1
 slug: /Pipelines/PairedTag_Pipeline/README
 ---
-
 # Paired-Tag Overview
 
 |                          Pipeline Version                           | Date Updated | Documentation Author | Questions or Feedback |
 |:---:| :---: | :---: | :---: |
 | [PairedTag_v1.8.2](https://github.com/broadinstitute/warp/releases) | November, 2024 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
+![pairedtag_diagram](pairedtag_diagram.png)
 
 ## Introduction to the Paired-Tag workflow
 
