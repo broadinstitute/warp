@@ -34,6 +34,7 @@ task OptimusH5adGeneration {
     File? empty_drops_result
     String counting_mode = "sc_rna"
     String add_emptydrops_data = "yes"
+    String gtf_path = annotation_file
 
 
     String pipeline_version
@@ -58,7 +59,7 @@ task OptimusH5adGeneration {
     touch empty_drops_result.csv
 
     # Save the path of the annotation_file to a variable
-    gtf_path="~{annotation_file}"
+    gtf_path="~{gtf_path}"
 
     # Echo the gtf_path for logging/debugging purposes
     echo "GTF Path: $gtf_path"
