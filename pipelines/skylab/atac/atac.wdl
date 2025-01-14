@@ -517,7 +517,6 @@ task CreateFragmentFile {
     File bam
     File annotations_gtf
     File chrom_sizes
-    File annotations_gtf
     Boolean preindex
     Int disk_size = 500
     Int mem_size = 64
