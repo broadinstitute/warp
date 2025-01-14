@@ -22,11 +22,11 @@ jobs:
         id: gatekeeper
         run: |
           echo "The actor is: ${GITHUB_ACTOR}"
-          APPROVED_USERS=("nikellepetrillo")
+          APPROVED_USERS=("")
 
           if [[ " ${APPROVED_USERS[@]} " =~ " ${GITHUB_ACTOR} " ]]; then
             echo "User ${GITHUB_ACTOR} is approved."
-            echo "approved=false" >> $GITHUB_OUTPUT
+            echo "approved=true" >> $GITHUB_OUTPUT
             echo "error-message=none" >> $GITHUB_OUTPUT
           else
             echo "User ${GITHUB_ACTOR} is not approved."
