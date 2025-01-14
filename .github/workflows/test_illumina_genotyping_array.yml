@@ -64,7 +64,7 @@ env:
 
 jobs:
   check-authorization:
-    uses: ./.github/workflows/authorized_users.yml@${{ github.ref }}
+    uses: ./.github/workflows/authorized_users.yml
 
   TestIlluminaGenotypingArray:
     needs: check-authorization
