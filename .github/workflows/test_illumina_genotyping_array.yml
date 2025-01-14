@@ -38,11 +38,10 @@ on:
         required: false
         default: "master"
 
-
-  repository_dispatch:
-    types:
-      - trigger_illumina_genotyping
-
+  #repository_dispatch:
+  #  types:
+  #    - trigger_illumina_genotyping
+#
 
 env:
   # pipeline configuration

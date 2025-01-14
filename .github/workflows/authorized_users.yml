@@ -2,10 +2,6 @@ name: Authorized Users
 
 on:
   workflow_dispatch:
-  pull_request:
-  push:
-    branches:
-      - '*'
 
 jobs:
   check-authorization:
