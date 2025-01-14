@@ -23,7 +23,7 @@ jobs:
           # Check if the user is in the allowlist
           if [[ " ${APPROVED_USERS[@]} " =~ " ${GITHUB_ACTOR} " ]]; then
             echo "User ${GITHUB_ACTOR} is approved."
-            echo "approved=true" >> $GITHUB_OUTPUT
+            echo "approved=false" >> $GITHUB_OUTPUT
           else
             echo "User ${GITHUB_ACTOR} is not approved."
             echo "approved=false" >> $GITHUB_OUTPUT
