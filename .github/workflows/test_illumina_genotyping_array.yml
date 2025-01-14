@@ -129,12 +129,10 @@ jobs:
             # For workflow_dispatch, default based on target branch
             if [ "${{ github.ref }}" == "refs/heads/master" ]; then
               echo "testType=Scientific" >> $GITHUB_ENV
-              echo ${{ github.ref }}
-              echo "testType=Scientific as the branch is master"
+              echo "testType is set to Scientific as the branch is ${{ github.ref }} "
             else
               echo "testType=Plumbing" >> $GITHUB_ENV
-              echo ${{ github.ref }}
-              echo "testType=Plumbing as the branch is not master"
+              echo "testType is set to Plumbing as the branch is ${{ github.ref }}"
             fi
           fi
 
