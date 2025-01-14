@@ -48,7 +48,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/test_illumina_genotyping_array.yml/dispatches \
             -d '{
-              "ref": "main",
+              "ref": "develop",
               "inputs": {
                 "testType": "Plumbing",
                 "useCallCache": "true"
