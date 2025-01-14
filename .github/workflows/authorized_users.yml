@@ -50,7 +50,8 @@ jobs:
             -d '{
               "ref": "np_jw_test_illumina_genotyping_arrays",
               "inputs": {
+                "testType": "Plumbing"
               }
             }'
-          # Check the response
-          echo "Response: $?"
+          #echo repsonse
+            echo "Response: $response"
