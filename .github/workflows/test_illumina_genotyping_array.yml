@@ -113,6 +113,32 @@ jobs:
             exit 1
           fi
 
+      - name: Set Test Type
+        id: set_test_type
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # For PRs, set based on target branch
+            if [ "${{ github.base_ref }}" == "master" ]; then
+              echo "testType=Scientific" >> $GITHUB_ENV
+              echo "testType=Scientific"
+            else
+              echo "testType=Plumbing" >> $GITHUB_ENV
+              echo "testType=Plumbing"
+            fi
+          else
+            # For workflow_dispatch, default based on target branch
+            if [ "${{ github.ref }}" == "refs/heads/master" ]; then
+              echo "testType=Scientific" >> $GITHUB_ENV
+              echo "testType=Scientific"
+            elif [ "${{ github.ref }}" == "refs/heads/staging" ]; then
+              echo "testType=Plumbing" >> $GITHUB_ENV
+              echo "testType=Plumbing"
+            else
+              echo "testType=Plumbing" >> $GITHUB_ENV
+              echo "testType=Plumbing"
+            fi
+          fi
+
       - name: Fetch Dockstore Workflow Commit Hash
         run: |
           # Wait 5.5 minutes for Dockstore to update
@@ -151,28 +177,6 @@ jobs:
           DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
           GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
 
-      - name: Set Test Type
-        id: set_test_type
-        run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            # For PRs, set based on target branch
-            if [ "${{ github.base_ref }}" == "master" ]; then
-              echo "testType=Scientific" >> $GITHUB_ENV
-              echo "testType=Scientific"
-            else
-              echo "testType=Plumbing" >> $GITHUB_ENV
-              echo "testType=Plumbing"
-            fi
-          else
-            # For workflow_dispatch, use provided test type or default to "Plumbing"
-            if [ -z "${{ github.event.inputs.testType }}" ]; then
-              echo "testType=Plumbing" >> $GITHUB_ENV
-              echo "testType=Plumbing"
-             else
-               echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
-               echo "testType=${{ github.event.inputs.testType }}"
-             fi
-          fi
 
       - name: Create new method configuration
         run: |
