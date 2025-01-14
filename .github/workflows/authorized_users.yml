@@ -50,6 +50,5 @@ jobs:
             -d '{
               "ref": "develop",
               "inputs": {
-                "testType": "Plumbing"
               }
             }'
