@@ -50,7 +50,6 @@ jobs:
             -d '{
               "ref": "develop",
               "inputs": {
-                "testType": "Plumbing",
-                "useCallCache": "true"
+                "testType": "Plumbing"
               }
             }'
