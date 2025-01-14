@@ -64,6 +64,21 @@ env:
 
 
 jobs:
+  check-authorization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Trigger Authorized Users Workflow
+        id: authorized_check
+        uses: ./.github/workflows/authorized_users.yml
+
+      - name: Fail if authorization fails
+        if: steps.authorized_check.outputs.approved == 'false'
+        run: |
+          echo "This workflow is restricted. User is not authorized."
+          exit 1
   TestIlluminaGenotypingArray:
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
