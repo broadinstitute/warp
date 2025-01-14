@@ -52,3 +52,5 @@ jobs:
               "inputs": {
               }
             }'
+          # Check the response
+          echo "Response: $?"
