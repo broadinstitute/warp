@@ -1,5 +1,5 @@
 {
-  "WholeGenomeReprocessing.input_cram": "gs://broad-gotc-test-storage/single_sample/plumbing/truth/{TRUTH_BRANCH}/20k/NA12878_PLUMBING.cram",
+  "WholeGenomeReprocessing.input_cram": "gs://broad-gotc-test-storage/single_sample/plumbing/truth/master/20k/NA12878_PLUMBING.cram",
   "WholeGenomeReprocessing.output_map": "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/bams/G96830.NA12878/readgroupid_to_bamfilename_map.txt",
 
   "WholeGenomeReprocessing.sample_name": "NA12878 PLUMBING",
