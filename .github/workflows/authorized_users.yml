@@ -1,0 +1,51 @@
+name: Authorized Users
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  check-authorization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if user is approved
+        id: gatekeeper
+        run: |
+          # Define the allowlist of users and teams
+          APPROVED_USERS=("nikellepetrillo")
+          #APPROVED_TEAMS=("dsp-devops")
+
+          # Check if the user is in the allowlist
+          if [[ " ${APPROVED_USERS[@]} " =~ " ${GITHUB_ACTOR} " ]]; then
+            echo "User ${GITHUB_ACTOR} is approved."
+            echo "::set-output name=approved::true"
+          else
+            echo "User ${GITHUB_ACTOR} is not approved."
+            echo "::set-output name=approved::false"
+          fi
+
+      - name: Fail if not approved
+        if: steps.gatekeeper.outputs.approved == 'false'
+        run: |
+          echo "This workflow is restricted. Approval required."
+          exit 1
+
+      - name: Continue workflow if approved
+        if: steps.gatekeeper.outputs.approved == 'true'
+        run: |
+          echo "Proceeding with the workflow for approved user: ${GITHUB_ACTOR}"
+
+      - name: Trigger Test Illumina Genotyping Array Workflow
+        if: steps.gatekeeper.outputs.approved == 'true'
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d '{"event_type":"trigger_illumina_genotyping", "client_payload": {"testType": "Plumbing", "useCallCache": "true"}}'
+
+
+        
