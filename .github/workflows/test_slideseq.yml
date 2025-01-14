@@ -64,7 +64,7 @@ env:
 
 
 jobs:
-  run_pipeline:
+  TestSlideSeq:
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
