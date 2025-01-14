@@ -164,9 +164,14 @@ jobs:
               echo "testType=Plumbing"
             fi
           else
-            # For workflow_dispatch, use provided test type
-            echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
-            echo "testType=${{ github.event.inputs.testType }}"
+            # For workflow_dispatch, use provided test type or default to "Plumbing"
+            if [ -z "${{ github.event.inputs.testType }}" ]; then
+              echo "testType=Plumbing" >> $GITHUB_ENV
+              echo "testType=Plumbing"
+             else
+               echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
+               echo "testType=${{ github.event.inputs.testType }}"
+             fi
           fi
 
       - name: Create new method configuration
