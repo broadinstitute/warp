@@ -652,7 +652,6 @@ task PeakCalling {
     Int min_counts = 5000
     Int min_tsse = 10
     Int max_counts = 100000
-    Float probability_threshold = 0.5
     # Runtime attributes/docker
     String docker_path
     Int disk_size = 500
@@ -730,7 +729,7 @@ task PeakCalling {
         
     # Filter doublets based on scrublet scores 
     print("Filter doublets based on scrublet scores")
-    snap.pp.filter_doublets(atac_data_mod, probability_threshold=probability_threshold)
+    snap.pp.filter_doublets(atac_data_mod, probability_threshold=0.5)
     print(atac_data_mod)
         
     # Perform graph-based clustering to identify cell clusters. 
