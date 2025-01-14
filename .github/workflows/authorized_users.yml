@@ -49,9 +49,6 @@ jobs:
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/test_illumina_genotyping_array.yml/dispatches \
             -d '{
               "ref": "np_jw_test_illumina_genotyping_arrays",
-              "inputs": {
-                "testType": "Plumbing"
-              }
             }'
           #echo repsonse
-            echo "Response: $response"
+            echo "Response: $?"

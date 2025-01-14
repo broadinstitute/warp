@@ -32,7 +32,7 @@ on:
         default: "false"
       testType:
         description: 'Specify the type of test (Plumbing or Scientific)'
-        required: true
+        required: false
       truthBranch:
         description: 'Specify the branch for truth files (default: master)'
         required: false
