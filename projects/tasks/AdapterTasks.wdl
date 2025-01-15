@@ -452,7 +452,7 @@ task GetCloudFileCreationDate {
   input {
     String file_path
 
-    String docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:latest"
+    String docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:486.0.0"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = 1

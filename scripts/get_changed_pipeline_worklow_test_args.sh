@@ -63,12 +63,6 @@ function pipeline_to_args() {
       echo Multiome ${common_args};;
     MultiSampleArrays)
       echo MultiSampleArrays ${common_args};;
-    MultiSampleSmartSeq2)
-      if [[ "${test}" == "Scientific" ]]; then
-        echo MultiSampleSmartSeq2 Plumbing
-      else
-        echo MultiSampleSmartSeq2 ${common_args}
-      fi;;
     MultiSampleSmartSeq2SingleNucleus)
       if [[ "${test}" == "Scientific" ]]; then
         echo MultiSampleSmartSeq2SingleNucleus Plumbing
@@ -77,6 +71,8 @@ function pipeline_to_args() {
       fi;;
     Optimus)
       echo Optimus ${common_args};;
+    PairedTag)
+      echo PairedTag ${common_args};;
     ReblockGVCF)
       echo ReblockGvcf  ${common_args};;
     RNAWithUMIsPipeline)
@@ -89,14 +85,8 @@ function pipeline_to_args() {
       fi;;
     SlideSeq)
         echo SlideSeq ${common_args};;
-    SmartSeq2SingleSample)
-      if [[ "${test}" == "Scientific" ]]; then
-        echo SmartSeq2SingleSample Plumbing
-      else
-        echo SmartSeq2SingleSample ${common_args}
-      fi;;
-    snM3C)
-      echo snM3C ${common_args};;
+    snm3C)
+      echo snm3C ${common_args};;
     TargetedSomaticSingleSample)ValidateChip
       continue;;
     ValidateChip)
@@ -128,7 +118,6 @@ function main() {
   local -r gittish=${1}
   local -r test_all=${2}
   local -r test=${3}
-
   local -a changed_pipeline_paths=()
   local -a args=()
 

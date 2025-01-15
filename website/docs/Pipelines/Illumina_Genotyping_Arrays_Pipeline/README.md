@@ -7,7 +7,7 @@ slug: /Pipelines/Illumina_Genotyping_Arrays_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Version 1.12.16](https://github.com/broadinstitute/warp/releases) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [Version 1.12.17](https://github.com/broadinstitute/warp/releases) | March, 2024 | Elizabeth Kiernan | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
 ![The Illumina Genotyping Array Pipeline](./IlluminaGenotyping.png)
 
@@ -239,13 +239,13 @@ The Illumina Genotyping Array Pipeline is available on the cloud-based platform 
 
 ## Citing the Illumina Genotyping Array Pipeline
 
-If you use the Illumina Genotyping Array Pipeline in your research, please consider citing our preprint:
+If you use the Illumina Genotyping Array Pipeline in your research, please cite our preprint:
 
 Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Feedback and questions
 
-Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues); we welcome pipeline-related suggestions or questions.
 
 
 

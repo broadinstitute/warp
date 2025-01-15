@@ -7,7 +7,7 @@ slug: /Pipelines/Optimus_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v6.5.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2024 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [optimus_v7.8.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | October, 2024 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
 
 
 ![Optimus_diagram](Optimus_diagram.png)
@@ -18,7 +18,7 @@ Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordi
 
 It is an alignment and transcriptome quantification pipeline that corrects cell barcodes (CBs), aligns reads to the genome, corrects Unique Molecular Identifiers (UMIs), generates a count matrix in a UMI-aware manner, calculates summary metrics for genes and cells, detects empty droplets, returns read outputs in BAM format, and returns cell gene counts in numpy matrix and h5ad file formats.
 
-In addition to providing commonly used metrics such as empty drop detection and mitochondrial reads, Optimus takes special care to **keep all reads in the output BAM that may be useful to the downstream user**, such as unaligned reads or reads with uncorrectable barcodes. This design provides flexibility to the downstream user and allows for alternative filtering or leveraging the data for novel methodological development. 
+In addition to providing [cell-level](./Loom_schema.md) and [library-level](./Library-metrics.md) metrics, Optimus takes special care to **keep all reads in the output BAM that may be useful to the downstream user**, such as unaligned reads or reads with uncorrectable barcodes. This design provides flexibility to the downstream user and allows for alternative filtering or leveraging the data for novel methodological development.
 
 Optimus has been validated for analyzing both human and mouse single-cell or single-nucleus datasets. Learn more in the [validation section](#validation-against-cell-ranger).
 
@@ -38,7 +38,10 @@ The following table provides a quick glance at the Optimus pipeline features:
 | Transcriptomic reference annotation | V43 GENCODE human transcriptome and M32 mouse transcriptome | GENCODE [human GTF](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/gencode.v43.annotation.gtf.gz) and [mouse GTF](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M32/gencode.vM32.annotation.gtf.gz) |
 | Aligner and transcript quantification | STARsolo | [Dobin, et al.,2021](https://www.biorxiv.org/content/10.1101/2021.05.05.442755v1) |
 | Data input file format | File format in which sequencing data is provided | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
-| Data output file format | File formats in which Optimus output is provided | [BAM](http://samtools.github.io/hts-specs/), Python numpy arrays (internal), h5ad |
+| Data output file format | File formats in which Optimus output is provided | 
+[BAM](http://samtools.github.io/hts-specs/), Python numpy arrays (internal), h5ad |
+| Library-level metrics | Library-level metrics produced by the Optimus workflow | [Library-level metrics](https://github.com/broadinstitute/warp/blob/develop/website/docs/Pipelines/Optimus_Pipeline/Library-metrics.md) | 
+
 
 ## Set-up
 
@@ -85,23 +88,26 @@ The example configuration files also contain metadata for the reference files, d
 
 | Parameter name | Description | Optional attributes (when applicable) |
 | --- | --- | --- |
+| cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
 | whitelist |  List of known CBs; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) whitelist that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom whitelist can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom whitelist, set the input `ignore_r1_read_length` to "true". | N/A |
 | read_struct | String describing the structure of reads; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) read structure that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom read structure can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom read structure, set the input `force_no_check` to "true". | N/A |
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl). | N/A |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | N/A |
+| gex_nhash_id | Optional string to identify the library aliquot; will be echoed in the output h5ad file in the adata.uns and the library-level metrics CSV; default is null (`""`) | N/A |
 | input_name | Optional string that can be used to further identify the original biological sample. | N/A |
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the input_id. | N/A |
 | input_name_metadata_field | Optional string describing, when applicable, the metadata field containing the input_name. | N/A |
 | annotations_gtf | GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | N/A |
 | tenx_chemistry_version | Integer that specifies if data was generated with 10x v2 or v3 chemistry. Optimus validates this chemistry by examining the UMIs and CBs in the first read 1 FASTQ file. If the chemistry does not match, the pipeline will fail. You can remove the check by setting "ignore_r1_read_length = true" in the input JSON. | 2 or 3 |
 | mt_genes | Optional file containing mitochondrial gene names for a specific species. This is used for calculating gene metrics. | N/A |
-| soloMultiMappers | Optional string describing whether or not the Optimus (GEX) pipeline should run STARsolo with the `--soloMultiMappers` flag. | N/A |
+| soloMultiMappers | Optional string describing whether or not the Optimus (GEX) pipeline should run STARsolo with the `--soloMultiMappers` flag; default is "Uniform". | N/A |
 | counting_mode | String describing whether data is single-cell or single-nucleus. Single-cell mode counts reads aligned to the gene transcript, whereas single-nucleus counts whole transcript to account for nuclear pre-mRNA. | "sc_rna" or "sn_rna" |
 | output_bam_basename | String used as a basename for output BAM file; the default is set to the string used for the `input_id` parameter. | N/A |
 | star_strand_mode | Optional string for running the workflow on forward stranded, reverse stranded, or unstranded data; default is "Forward". | "Forward" (default), "Reverse", and "Unstranded" |
 | ignore_r1_read_length | Boolean that overrides a check on the 10x chemistry. Default is set to false. If true, the workflow will not ensure that the 10x_chemistry_version input matches the chemistry in the read 1 FASTQ. | "true" or "false" (default) | 
 | emptydrops_lower | UMI threshold for emptyDrops detection; default is 100. | N/A |
 | count_exons | Boolean indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**. If true, this option will output an additional layer for the h5ad file. By default, it is set to "false". If the parameter is true and used with sc_rnamode, the workflow will return an error. | "true" or "false" (default) |
+| gex_expected_cells | Optional integer input for the expected number of cells, which is used calculate library-level metrics. The default is set to 3,000. | N/A |
 
 #### Pseudogene handling
 The example Optimus reference files are downloaded directly from GENCODE (see Quickstart table) and are not modified to remove pseudogenes. This is in contrast to the [references created for Cell Ranger](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/release-notes/references#header) which remove pseudogenes and small RNAs.
@@ -254,14 +260,15 @@ The following table lists the output files produced from the pipeline. For sampl
 | matrix_col_index | `<input_id>_sparse_counts_col_index.npy` | Index of genes in count matrix. | NPY |
 | cell_metrics | `<input_id>.cell-metrics.csv.gz` | Matrix of metrics by cells. | Compressed CSV |
 | gene_metrics | `<input_id>.gene-metrics.csv.gz` |  Matrix of metrics by genes. | Compressed CSV |
-| aligner_metrics | `<input_id>.star_metrics.tar` | Tarred metrics files produced by the STARsolo aligner; contains align features, cell reads, summary, and UMI per cell metrics files. | TXT |
-| library_metrics | `<input_id>_library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. | CSV |
+| aligner_metrics | `<input_id>.star_metrics.tar` | Tarred metrics files produced by the STARsolo aligner; contains align features, cell reads, summary, and UMI per cell metrics files. See the [STARsolo metrics](./starsolo-metrics.md) for more information about these files. | TXT |
+| library_metrics | `<input_id>_<gex_nash_id>_library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. See the [Library-level metrics](./Library-metrics.md) for how metrics are calculated. | CSV |
 | multimappers_EM_matrix | `UniqueAndMult-EM.mtx` | Optional output produced when `soloMultiMappers` is "EM"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. | MTX |
 | multimappers_Uniform_matrix | `UniqueAndMult-Uniform.mtx` | Optional output produced when `soloMultiMappers` is "Uniform"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. | MTX |
 | multimappers_Rescue_matrix | `UniqueAndMult-Rescue.mtx` | Optional output produced when `soloMultiMappers` is "Rescue"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. | MTX |
 | multimappers_PropUnique_matrix | `UniqueAndMult-PropUnique.mtx` | Optional output produced when `soloMultiMappers` is "PropUnique"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.| MTX |
 | cell_calls | empty_drops_result.csv | emptyDrops results from the RunEmptyDrops task. | CSV |
 | h5ad_output_file | `<input_id>.h5ad` | h5ad file with count data (exonic or whole transcript depending on the counting_mode) and metadata. | H5AD |
+| mtx_files | `<input_id>.mtx_files.tar` | TAR file with STARsolo matrix market files (barcodes.tsv, features.tsv, and matrix.mtx) | TAR |
 
 The h5ad matrix is the default output. This matrix contains the unnormalized (unfiltered), UMI-corrected count matrices, as well as the gene and cell metrics detailed in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
@@ -300,11 +307,11 @@ This pipeline is supported and used by the [Human Cell Atlas](https://www.humanc
 
 Each consortium may use slightly different reference files for data analysis or have different post-processing steps. Learn more by reading the [Consortia Processing](./consortia-processing.md) overview.
 
-If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
+If your organization also uses this pipeline, we would like to list you! Please reach out to us by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues).
 
 ## Feedback
 
-Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues); we welcome pipeline-related suggestions or questions.
 
 ## Acknowledgements
 We are immensely grateful to the members of the [Human Cell Atlas Data Coordination Platform](https://data.humancellatlas.org/),  BRAIN Initiative ([BICAN](https://brainblog.nih.gov/brain-blog/brain-issues-suite-funding-opportunities-advance-brain-cell-atlases-through-centers) Sequencing Working Group) and [SCORCH](https://nida.nih.gov/about-nida/organization/divisions/division-neuroscience-behavior-dnb/basic-research-hiv-substance-use-disorder/scorch-program) for their invaluable and exceptional contributions to this pipeline. Our heartfelt appreciation goes to Alex Dobin, Aparna Bhaduri, Alec Wysoker, Anish Chakka, Brian Herb, Daofeng Li, Fenna Krienen, Guo-Long Zuo, Jeff Goldy, Kai Zhang, Khalid Shakir, Bo Li, Mariano Gabitto, Michael DeBerardine, Mengyi Song, Melissa Goldman, Nelson Johansen, James Nemesh, and Theresa Hodges for their unwavering dedication and remarkable efforts. 
@@ -366,4 +373,17 @@ Unlike Cell Ranger references, Optimus references are downloaded directly from G
 In the case of multi-mapped pseudogenes, Optimus and Cell Ranger will produce different results. Optimus does not count multi-mapped reads in the final count matrix, whereas Cell Ranger will keep potential multi-mapped reads because it does not identify the pseudogene reads.
 :::
 
+:::note Question How does estimated cells differ between Cell Ranger and Optimus?
 
+Overall, the estimated cells produced by Optimus and Cell Ranger should only slightly vary. However, if you are using Optimus in the Multiome pipeline and trying to compare estimated cells to Cell Ranger ARC, you might find that ARC calls fewer cells. This is because ARC sets a threshold that both the ATAC and gene expression cells must pass, whereas Optimus is only setting a threshold for the gene expression side of the pipeline.
+:::
+
+:::note Question What are [library-level metrics](https://github.com/broadinstitute/warp/blob/develop/website/docs/Pipelines/Optimus_Pipeline/Library-metrics.md) in the Optimus pipeline?
+
+Library-level metrics provide a summary of the sequencing library's quality and performance across all cells, as opposed to per-cell metrics. These metrics offer insights into the overall efficiency, coverage, and quality of the sequencing data produced.
+:::
+
+:::note How are [library-level metrics](https://github.com/broadinstitute/warp/blob/develop/website/docs/Pipelines/Optimus_Pipeline/Library-metrics.md) calculated in Optimus?
+
+Library-level metrics in Optimus are calculated using a combination of STARsolo metrics and custom metrics as defined in the library metrics table linked in the actual documentation for gene expression data. These metrics assess key aspects like total reads, sequencing depth, and overall complexity of the library, offering a higher-level view of the data's quality.
+:::

@@ -1,3 +1,19 @@
+# 1.5.2
+2024-11-04 (Date of Last Commit)
+
+* Updated to GATK version 4.6.1.0
+
+# 1.5.1
+2024-09-10 (Date of Last Commit)
+
+* Update to BGE filtering options in JointCalling; this has no effect on this pipeline
+
+# 1.5.0
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0 
+* Updated how no-calls are represented in the output VCFs (0/0 -> ./.) which also changes some annotations in the VCF
+
 # 1.4.12
 2023-12-18 (Date of Last Commit)
 

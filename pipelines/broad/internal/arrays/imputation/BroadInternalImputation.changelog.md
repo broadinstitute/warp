@@ -1,3 +1,23 @@
+# 1.1.14
+2024-11-04 (Date of Last Commit)
+
+* Updated to GATK version 4.6.1.0
+
+# 1.1.13
+2024-09-06 (Date of Last Commit)
+
+* Updated to GATK version 4.6.0.0
+
+# 1.1.12
+2024-08-02 (Date of Last Commit)
+
+* The ubuntu_16_0_4 docker image version was pinned instead of using the latest tag; this does not affect the outputs of the pipeline
+
+# 1.1.11
+2024-05-21 (Date of Last Commit)
+
+* Updated GermlineVariantDiscovery, BamProcessing, DragenTasks, Qc, and Utilities tasks to allow multi-cloud dockers; this change does not affect this pipeline
+
 # 1.1.10
 2023-12-18 (Date of Last Commit)
 

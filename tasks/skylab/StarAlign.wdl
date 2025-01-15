@@ -226,17 +226,15 @@ task STARsoloFastq {
     String? soloMultiMappers
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.1-2.7.11a-1692706072"
-
+    String samtools_star_docker_path
     String cpu_platform = "Intel Ice Lake"
     Int machine_mem_mb = 512000
     Int mem_size = 512
     Int cpu = 128
     Int disk = 2000
-    # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    # Int disk = ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
     # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 1
+
   }
 
   meta {
@@ -248,7 +246,7 @@ task STARsoloFastq {
     r2_fastq: "array of forward read FASTQ files"
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
     star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded'"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    samtools_star_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -256,7 +254,8 @@ task STARsoloFastq {
   }
 
   command <<<
-    set -e
+    set -euo pipefail
+    set -x
 
     UMILen=10
     CBLen=16
@@ -324,13 +323,18 @@ task STARsoloFastq {
         --soloFeatures $COUNTING_MODE \
         --clipAdapterType CellRanger4 \
         --outFilterScoreMin 30  \
-        --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-        --soloUMIdedup 1MM_Directional_UMItools \
+        --soloCBmatchWLtype 1MM_multi \
+        --soloUMIdedup 1MM_CR \
         --outSAMtype BAM SortedByCoordinate \
-        --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
+        --outSAMattributes UB UR UY CR CB CY NH GX GN sF cN \
         --soloBarcodeReadLength 0 \
         --soloCellReadStats Standard \
-        ~{"--soloMultiMappers " + soloMultiMappers}
+        ~{"--soloMultiMappers " + soloMultiMappers} \
+        --soloUMIfiltering MultiGeneUMI_CR \
+        --soloCellFilter EmptyDrops_CR
+
+    # validate the bam with samtools quickcheck
+    samtools quickcheck -v Aligned.sortedByCoord.out.bam
 
     echo "UMI LEN " $UMILen
 
@@ -343,13 +347,16 @@ task STARsoloFastq {
     touch Summary_sn_rna.csv
     touch UMIperCellSorted_sn_rna.txt
 
-
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
       SoloDirectory="Solo.out/Gene/raw"
       echo "SoloDirectory is $SoloDirectory"
       find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
       find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+
+      echo "Listing the files in the current directory:"
+      ls -l
+
       mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
       mv "Solo.out/Gene/raw/features.tsv" features.tsv
       mv "Solo.out/Gene/CellReads.stats" CellReads.stats
@@ -364,6 +371,10 @@ task STARsoloFastq {
         echo "SoloDirectory is $SoloDirectory"
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+
+        echo "Listing the files in the current directory"
+        ls -l
+
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
@@ -375,10 +386,18 @@ task STARsoloFastq {
         echo "SoloDirectory is $SoloDirectory"
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} echo mv {} /cromwell_root/
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+
+        echo "Listing the files in the current directory"
+        ls -l
+
         SoloDirectory="Solo.out/Gene/raw"
         echo "SoloDirectory is $SoloDirectory"
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx";  echo mv {} "/cromwell_root/$new_name"'
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
+
+        echo "Listing the files in the current directory"
+        ls -l
+
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
@@ -400,7 +419,6 @@ task STARsoloFastq {
   >>>
 
   runtime {
-    docker: docker
     memory: "~{mem_size} GiB"
     disks: "local-disk ~{disk} SSD"
     disk: disk + " GB" # TES
@@ -447,9 +465,15 @@ task MergeStarOutput {
     String? counting_mode
     
     String input_id
+    # additional library aliquot id
+    String gex_nhash_id = ""
+    Int expected_cells = 3000
+    File barcodes_single = barcodes[0]
+    File features_single = features[0]
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.2-1709308985"
+    String star_merge_docker_path
+
     Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -460,7 +484,7 @@ task MergeStarOutput {
   }
 
   parameter_meta {
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    star_merge_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_gb: "(optional) the amount of memory (GiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -468,7 +492,9 @@ task MergeStarOutput {
   }
 
   command <<<
-    set -e
+    set -euo pipefail
+    set -x 
+
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
@@ -477,8 +503,31 @@ task MergeStarOutput {
     declare -a align_features_files=(~{sep=' ' align_features})
     declare -a umipercell_files=(~{sep=' ' umipercell})
 
-    if [ -f "${cell_reads_files[0]}" ]; then
+    # create the  compressed raw count matrix with the counts, gene names and the barcodes
+    python3 /scripts/scripts/combined_mtx.py \
+    ${matrix_files[@]} \
+    ~{input_id}.uniform.mtx
+
+    mkdir matrix
+    #Using cp because mv isn't moving
+    pwd
+    ls -lR
+    cp ~{input_id}.uniform.mtx ./matrix/matrix.mtx
+    cp ~{barcodes_single} ./matrix/barcodes.tsv
+    cp ~{features_single} ./matrix/features.tsv
+
+    tar -zcvf ~{input_id}.mtx_files.tar ./matrix/*
+
+
+    # Running star for combined cell matrix
+    # outputs will be called outputbarcodes.tsv. outputmatrix.mtx, and outputfeatures.tsv
+    STAR --runMode soloCellFiltering ./matrix ./output --soloCellFilter EmptyDrops_CR
     
+    #list files
+    echo "listing files"
+    ls
+    # if theres a file in cell_reads_files --  check if non empty
+    if [ -n "${cell_reads_files[*]}" ]; then
       # Destination file for cell reads
       dest="~{input_id}_cell_reads.txt"
     
@@ -538,22 +587,38 @@ task MergeStarOutput {
     if ls *.txt 1> /dev/null 2>&1; then
       echo "listing files"
       ls
-      python3 /warptools/scripts/combine_shard_metrics.py ~{input_id}_summary.txt ~{input_id}_align_features.txt ~{input_id}_cell_reads.txt ~{counting_mode} ~{input_id}
+      python3 /scripts/scripts/combine_shard_metrics.py \
+      ~{input_id}_summary.txt \
+      ~{input_id}_align_features.txt \
+      ~{input_id}_cell_reads.txt \
+      ~{counting_mode} \
+      ~{input_id} \
+      outputbarcodes.tsv \
+      outputmatrix.mtx \
+      ~{expected_cells}
+
+      echo "tarring STAR txt files"
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
     else
       echo "No text files found in the folder."
     fi
 
+   #
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
-    python3 /warptools/scripts/create-merged-npz-output.py \
+    python3 /scripts/scripts/create-merged-npz-output.py \
         --barcodes ${barcodes_files[@]} \
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
         --input_id ~{input_id}
+
+    # tar up filtered matrix outputbarcodes.tsv, outputfeatures.tsv, outputmatrix.mtx
+    echo "Tarring up filtered matrix files"
+    tar -cvf ~{input_id}_filtered_mtx_files.tar outputbarcodes.tsv outputfeatures.tsv outputmatrix.mtx
+    echo "Done"
   >>>
 
   runtime {
-    docker: docker
+    docker: star_merge_docker_path
     memory: "${machine_mem_gb} GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -567,6 +632,9 @@ task MergeStarOutput {
     File sparse_counts = "~{input_id}_sparse_counts.npz"
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
     File? library_metrics="~{input_id}_library_metrics.csv"
+    File? mtx_files ="~{input_id}.mtx_files.tar"
+    File? filtered_mtx_files = "~{input_id}_filtered_mtx_files.tar"
+    File? outputbarcodes = "outputbarcodes.tsv"
   }
 }
 
@@ -691,6 +759,7 @@ task STARGenomeRefVersion {
   input {
     String tar_star_reference
     Int disk = 10
+    String ubuntu_docker_path
   }
 
   meta {
@@ -723,7 +792,7 @@ task STARGenomeRefVersion {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: ubuntu_docker_path
     memory: "2 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES

@@ -19,5 +19,7 @@
   "Optimus.ref_genome_fasta": "gs://gcp-public-data--broad-references/hg38/v0/GRCh38.primary_assembly.genome.fa",
   "Optimus.STARsoloFastq.cpu_platform":"Intel Cascade Lake",
   "Optimus.STARsoloFastq.cpu":"16",
-  "Optimus.STARsoloFastq.mem_size":"64" 
+  "Optimus.STARsoloFastq.mem_size":"64",
+  "Optimus.cloud_provider": "gcp",
+  "Optimus.gex_nhash_id":"example_1234"
 }

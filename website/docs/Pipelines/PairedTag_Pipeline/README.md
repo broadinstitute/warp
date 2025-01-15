@@ -2,13 +2,13 @@
 sidebar_position: 1
 slug: /Pipelines/PairedTag_Pipeline/README
 ---
-
 # Paired-Tag Overview
 
-| Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
-| :----: | :---: | :----: | :--------------: |
-| [PairedTag_v0.3.0](https://github.com/broadinstitute/warp/releases) | February, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+|                          Pipeline Version                           | Date Updated | Documentation Author | Questions or Feedback |
+|:---:| :---: | :---: | :---: |
+| [PairedTag_v1.8.2](https://github.com/broadinstitute/warp/releases) | November, 2024 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
+![pairedtag_diagram](pairedtag_diagram.png)
 
 ## Introduction to the Paired-Tag workflow
 
@@ -18,13 +18,10 @@ The workflow is a wrapper WDL script that calls two subworkflows: the Optimus wo
 
 The [Optimus workflow](../Optimus_Pipeline/README) (GEX) corrects cell barcodes (CBs) and Unique Molecular Identifiers (UMIs), aligns reads to the genome, calculates per-barcode and per-gene quality metrics, and produces a raw cell-by-gene count matrix.
 
-The [ATAC workflow](../ATAC/README) (histone modification) corrects CBs, aligns reads to the genome, calculates per-barcode quality metrics, and produces a fragment file.
+The [ATAC workflow](../ATAC/README) (histone modification) performs demultiplexing for samples that have a preindex barcode, corrects CBs, aligns reads to the genome, calculates per-barcode quality metrics, and produces a fragment file.
 
 The [wrapper WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/paired_tag/PairedTag.wdl) is available in the [WARP repository](https://github.com/broadinstitute/warp).
 
-:::info NOTE
-The Paired-Tag WDL is under active development (beta); it is not officially released and is undergoing scientific validation.
-:::
 
 ## Quickstart table
 The following table provides a quick glance at the Paired-Tag pipeline features:
@@ -63,6 +60,8 @@ The Paired-Tag workflow inputs are specified in JSON configuration files. Exampl
 | Parameter name | Description | Type |
 | --- | --- | --- |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | String |
+| gex_nhash_id | Optional identifier that can be used to demarcate the gene expression library aliquot or sample. |
+| atac_nhash_id |  Optional identifier that can be used to demarcate the ATAC library aliquot or sample. |
 | counting_mode | Optional string that determines whether the Optimus (GEX) pipeline should be run in single-cell mode (sc_rna) or single-nucleus mode (sn_rna); default is "sn_rna". | String |
 | gex_r1_fastq | Array of read 1 FASTQ files representing a single GEX 10x library. | Array[File] |
 | gex_r2_fastq | Array of read 2 FASTQ files representing a single GEX 10x library.| Array[File] |
@@ -77,6 +76,7 @@ The Paired-Tag workflow inputs are specified in JSON configuration files. Exampl
 | star_strand_mode | Optional string for the Optimus (GEX) pipeline for performing STARsolo alignment on forward stranded, reverse stranded, or unstranded data; default is "Forward". | String |
 | count_exons | Optional boolean for the Optimus (GEX) pipeline indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**; if "true" in sc_rna mode, the workflow will return an error; default is "false". | Boolean |
 | gex_whitelist | Optional file containing the list of valid barcodes for 10x multiome GEX data; default is "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt". | File |
+| soloMultiMappers | Optional string describing whether or not the Optimus (GEX) pipeline should run STARsolo with the `--soloMultiMappers` flag; default is "Uniform". | String |
 | atac_r1_fastq | Array of read 1 paired-end FASTQ files representing a single paired-tag DNA library. | Array[File] |
 | atac_r2_fastq | Array of barcodes FASTQ files representing a single paired-tag DNA library. | Array[File] |
 | atac_r3_fastq | Array of read 2 paired-end FASTQ files representing a single paired-tag DNA library. | Array[File] |
@@ -93,10 +93,10 @@ The Paired-Tag workflow inputs are specified in JSON configuration files. Exampl
 The Paired-Tag workflow calls two WARP subworkflows and an additional task which are described briefly in the table below. For more details on each subworkflow and task, see the documentation and WDL scripts linked in the table.
 
 | Subworkflow/Task | Software | Description | 
-| ----------- | -------- | ----------- |
+| --- | --- | --- |
 | Optimus ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.wdl) and [documentation](../Optimus_Pipeline/README)) | fastqprocess, STARsolo, Emptydrops | Workflow used to analyze 10x single-cell GEX data. |
 | PairedTagDemultiplex as demultiplex ([WDL](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/PairedTagUtils.wdl)) | UPStools | Task used to check the length of the read2 FASTQ (should be either 27 or 24 bp). If `preindex` is set to true, the task will perform demultiplexing of the 3-bp sample barcode from the read2 ATAC fastq files and stores it in the readname. It will then perform barcode orientation checking. The ATAC workflow will then add a combined 3 bp sample barcode and cellular barcode to the BB tag of the BAM. If `preindex` is false and then length is 27 bp, the task will perform trimming and subsequent barcode orientation checking. |
-| ATAC ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) and [documentation](../ATAC/README)) | fastqprocess, bwa-mem, SnapATAC2 | Workflow used to analyze single-nucleus paired-tag DNA (histone modifications) data. |
+| ATAC ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/atac/atac.wdl) and [documentation](../ATAC/README)) | fastqprocess, bwa-mem, SnapATAC2 | Workflow used to analyze single-nucleus paired-tag DNA (histone modifications) data. |
 | ParseBarcodes as ParseBarcodes ([WDL](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/PairedTagUtils.wdl)) | python3 | Task used to parse and split the cell barcodes and sample barcodes from the combined index in the h5ad and fragment files when `preindex` is set to true. |
 
 
@@ -104,9 +104,9 @@ The Paired-Tag workflow calls two WARP subworkflows and an additional task which
 
 | Output variable name | Filename, if applicable | Output format and description |
 |--- | --- | --- | 
-| pairedtag_pipeline_version_out | N.A. | String describing the version of the Paired-Tag pipeline used. |
-| bam_aligned_output_atac | `<input_id>_atac.bam` | BAM file containing aligned reads from ATAC workflow; contains sample and cell barcodes stored in the BB tag if `preindex` is “true”. |
-| fragment_file_atac | `<input_id>_atac.fragments.tsv` or if preindexing = true, `<input_id>_atac.fragments.BB.tsv` | TSV file containing fragment start and stop coordinates per barcode. The columns are "Chromosome", "Start", "Stop", "Barcode", and "Number of reads". When preindexing is used, additional columns include "Sample Barcode", "Cell Barcode", and "Duplicates" (which indicates if a cell barcode matches more than one sample barcode).  |
+| pairedtag_pipeline_version_out | N/A | String describing the version of the Paired-Tag pipeline used. |
+| bam_aligned_output_atac | `<input_id>_atac.bam` or if `preindex` = true, `<input_id>_atac.bam.BB.bam`  | BAM file containing aligned reads from ATAC workflow; contains sample and cell barcodes stored in the BB tag if `preindex` is “true”. |
+| fragment_file_atac | `<input_id>_atac.fragments.sorted.tsv.gz` | Bgzipped TSV file containing fragment start and stop coordinates per barcode. The columns are "Chromosome", "Start", "Stop", "Barcode", and "Number of reads". When `preindex` = true, the file has additional columns include "Sample Barcode", "Cell Barcode", and "Duplicates" (which indicates if a cell barcode matches more than one sample barcode). |
 | snap_metrics_atac | `<input_id>_atac.metrics.h5ad` | h5ad (Anndata) file containing per-barcode metrics from SnapATAC2. See the [ATAC Count Matrix Overview](../ATAC/count-matrix-overview.md) for more details. If the preindex option is used, the h5ad.obs will contain 3 extra columns: preindex (the sample barcode), CB (cell barcodes), and duplicates (indicates with a 1 if the cell barcode matches more than preindex, otherwise it is 0).|
 | genomic_reference_version_gex | `<reference_version>.txt` | File containing the Genome build, source and GTF annotation version. |
 | bam_gex | `<input_id>_gex.bam` | BAM file containing aligned reads from Optimus workflow. |
@@ -117,7 +117,13 @@ The Paired-Tag workflow calls two WARP subworkflows and an additional task which
 | gene_metrics_gex | `<input_id>_gex.gene_metrics.csv.gz` | CSV file containing the per-gene metrics. |
 | cell_calls_gex | `<input_id>_gex.emptyDrops` | TSV file containing the EmptyDrops results when the Optimus workflow is run in sc_rna mode. |
 | h5ad_output_file_gex | `<input_id>_gex.h5ad` | h5ad (Anndata) file containing the raw cell-by-gene count matrix, gene metrics, cell metrics, and global attributes. See the [Optimus Count Matrix Overview](../Optimus_Pipeline/Loom_schema.md) for more details. |
-| library_metrics | `<input_id>_library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. |
+| library_metrics | `<input_id>_gex_<gex_nhash_id>_library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. |
+| atac_library_final | `<input_id>_atac_<atac_nhash_id>_library_metrics` | CSV file containing all the library-level metrics calucalted by SnapATAC2. |
+| cloud_provider  | N/A | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". |
+| multimappers_EM_matrix | `UniqueAndMult-EM.mtx` | Optional output produced when `soloMultiMappers` is "EM"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.|
+| multimappers_Uniform_matrix | `UniqueAndMult-Uniform.mtx` | Optional output produced when `soloMultiMappers` is "Uniform" (default); see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.|
+| multimappers_Rescue_matrix | `UniqueAndMult-Rescue.mtx` | Optional output produced when `soloMultiMappers` is "Rescue"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. |
+| multimappers_PropUnique_matrix | `UniqueAndMult-PropUnique.mtx` | Optional output produced when `soloMultiMappers` is "PropUnique"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.|
 
 
 ## Versioning and testing
@@ -138,7 +144,7 @@ Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konw
 ## Consortia support
 This pipeline is supported by the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN). 
 
-If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org).
+If your organization also uses this pipeline, we would like to list you! Please reach out to us by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues).
 
 
 ## Acknowledgements
@@ -147,4 +153,4 @@ We are immensely grateful to the members of the BRAIN Initiative (BICAN Sequenci
 
 ## Feedback
 
-Please help us make our tools better by contacting the [WARP Pipelines Team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues); we welcome pipeline-related suggestions or questions.
