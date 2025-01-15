@@ -1,7 +1,8 @@
 # 2.0.7
-2024-12-12 (Date of Last Commit)
+2025-01-13 (Date of Last Commit)
 
 *  Added a boolean variable is_slidetags; this does not affect the outputs of the pipeline
+* Added reference_gtf_file to the output h5ad unstructured metadata
 
 # 2.0.6
 2024-11-15 (Date of Last Commit)
