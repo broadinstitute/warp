@@ -604,16 +604,8 @@ task CreateFragmentFile {
     atac_data.uns['NHashID'] = atac_nhash_id
 
     # Add GTF to uns field
-    
     # Original path from args.annotation_file
-    gtf_path = "~{gtf_path}"  # e.g., '/cromwell_root/gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf'
-
-    # # Transform the path
-    # if annotation_gtf.startswith('/cromwell_root/'):
-    #     stripped_path = annotation_gtf[len('/cromwell_root/'):]  # Remove '/cromwell_root/'
-    #     updated_path = f'gs://{stripped_path}'  # Add 'gs://' prefix
-    # else:
-    #     updated_path = str(atac_gtf)
+    gtf_path = "~{gtf_path}"  # e.g., 'gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf'
     
     atac_data.uns["reference_gtf_file"] = gtf_path
     # calculate tsse metrics
