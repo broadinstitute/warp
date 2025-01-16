@@ -141,8 +141,8 @@ task BuildStarSingleNucleus {
             echo Error: Source of genome build not identified in the GTF file
             exit 1;
         fi
-
         set -eo pipefail
+    fi
 
     if [[ "~{organism}" == "marmoset" ]]
     then
