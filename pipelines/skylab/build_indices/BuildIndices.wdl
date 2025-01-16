@@ -151,16 +151,16 @@ task BuildStarSingleNucleus {
         ls
         python3 /script/modify_gtf_marmoset.py \
             --input-gtf "/cromwell_root/header.gtf" \
-            --output-gtf "${annotation_gtf_modified}" \
-            --species "${organism}"
+            --output-gtf ~{annotation_gtf_modified} \
+            --species ~{organism}
         echo "listing files, should see modified gtf"
         ls 
     else
         echo "running GTF modification for non-marmoset"
         python3 /script/modify_gtf.py \
-            --input-gtf "${annotation_gtf}" \
-            --output-gtf "${annotation_gtf_modified}" \
-            --biotypes "${biotypes}"
+            --input-gtf ~{annotation_gtf} \
+            --output-gtf ~{annotation_gtf_modified} \
+            --biotypes ~{biotypes}
     fi
     # python3 /script/modify_gtf.py  \
     # --input-gtf ~{annotation_gtf} \
