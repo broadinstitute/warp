@@ -138,7 +138,7 @@ task FastqProcessingSlidSeq {
 
 
     # Runtime attributes
-    String docker =  "us.gcr.io/broad-gotc-prod/warp-tools:2.5.0"
+    String docker =  "us.gcr.io/broad-gotc-prod/warp-tools:2.6.0"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3 + size(r2_fastq, "GiB")*3) + 50

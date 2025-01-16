@@ -34,6 +34,7 @@ task OptimusH5adGeneration {
     File? empty_drops_result
     String counting_mode = "sc_rna"
     String add_emptydrops_data = "yes"
+    String gtf_path = annotation_file
 
 
     String pipeline_version
@@ -55,7 +56,7 @@ task OptimusH5adGeneration {
   command <<<
     set -euo pipefail
 
-    touch empty_drops_result.csv
+    touch empty_drops_result.csvs
 
     if [ "~{counting_mode}" == "sc_rna" ]; then
         python3 /warptools/scripts/create_h5ad_optimus.py \
@@ -73,7 +74,8 @@ task OptimusH5adGeneration {
           ~{"--input_name_metadata_field " + input_name_metadata_field} \
           --count_matrix ~{sparse_count_matrix} \
           --expression_data_type "exonic" \
-          --pipeline_version ~{pipeline_version}
+          --pipeline_version ~{pipeline_version} \
+          --gtf_path ~{gtf_path}
     else
         python3 /warptools/scripts/create_snrna_optimus_full_h5ad.py \
           --annotation_file ~{annotation_file} \
@@ -88,7 +90,8 @@ task OptimusH5adGeneration {
           ~{"--input_name_metadata_field " + input_name_metadata_field} \
           --count_matrix ~{sparse_count_matrix} \
           --expression_data_type "whole_transcript"\
-          --pipeline_version ~{pipeline_version}
+          --pipeline_version ~{pipeline_version} \
+          --gtf_path ~{gtf_path}
     fi
 
     # modify h5ad to include doublets, NHASHID, and build library metrics
@@ -158,6 +161,7 @@ task SingleNucleusOptimusH5adOutput {
         File? library_metrics
         # Cell calls from starsolo in TSV format
         File? cellbarcodes
+        String gtf_path = annotation_file
 
         String pipeline_version
 
@@ -194,7 +198,8 @@ task SingleNucleusOptimusH5adOutput {
         ~{"--input_id_metadata_field " + input_id_metadata_field} \
         ~{"--input_name_metadata_field " + input_name_metadata_field} \
         --expression_data_type "whole_transcript" \
-        --pipeline_version ~{pipeline_version}
+        --pipeline_version ~{pipeline_version} \
+        --gtf_path ~{gtf_path}
 
         # modify h5ad to include doublets, NHASHID, and build library metrics
         python3 /warptools/scripts/add_library_tso_doublets.py \
