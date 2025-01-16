@@ -255,7 +255,7 @@ workflow Optimus {
         barcodes = [STARsoloFastq.barcodes_sn_rna],
         features = [STARsoloFastq.features_sn_rna],
         matrix = [STARsoloFastq.matrix_sn_rna],
-        cell_reads = ]STARsoloFastq.cell_reads_sn_rna],
+        cell_reads = [STARsoloFastq.cell_reads_sn_rna],
         input_id = input_id,
         counting_mode = "sc_rna",
         summary = [STARsoloFastq.summary_sn_rna],
