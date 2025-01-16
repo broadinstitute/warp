@@ -123,36 +123,7 @@ task BuildStarSingleNucleus {
             ~{annotation_gtf} > "header.gtf"
     else
         echo "marmoset is not detected"
-    fi
 
-    # Check that input GTF files contain input genome source, genome build version, and annotation version
-    if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
-    then
-        echo Genome version found in the GTF file
-    else
-        echo Error: Input genome version does not match version in GTF file
-        exit 1;
-    fi
-
-    # Check that GTF file contains correct build source info in the first 10 lines of the GTF
-    if head -10 ~{annotation_gtf} | grep -qi ~{genome_source}
-    then
-        echo Source of genome build identified in the GTF file
-    else
-        echo Error: Source of genome build not identified in the GTF file
-        exit 1;
-    fi
-
-    set -eo pipefail
-
-    if [[ "~{organism}" == "marmoset" ]]
-    then
-        echo "marmoset header passes checks, running GTF modification"
-        python3 /script/modify_gtf_marmoset.py \
-            --input-gtf "header.gtf" \
-            --output-gtf "${annotation_gtf_modified}" \
-            --species "${organism}"
-    else
         # Check that input GTF files contain input genome source, genome build version, and annotation version
         if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
         then
@@ -172,6 +143,16 @@ task BuildStarSingleNucleus {
         fi
 
         set -eo pipefail
+
+    if [[ "~{organism}" == "marmoset" ]]
+    then
+        echo "marmoset header passes checks, running GTF modification"
+        python3 /script/modify_gtf_marmoset.py \
+            --input-gtf "header.gtf" \
+            --output-gtf "${annotation_gtf_modified}" \
+            --species "${organism}"
+    else
+        echo "running GTF modification for non-marmoset"
         python3 /script/modify_gtf.py \
             --input-gtf "${annotation_gtf}" \
             --output-gtf "${annotation_gtf_modified}" \
