@@ -224,6 +224,7 @@ task STARsoloFastq {
     String output_bam_basename
     Boolean? count_exons
     String? soloMultiMappers
+    String soloCBmatchWLtype = "1MM_multi" #"1MM_multi_Nbase_pseudocounts"
 
     # runtime values
     String samtools_star_docker_path
@@ -328,7 +329,7 @@ task STARsoloFastq {
         --soloFeatures $COUNTING_MODE \
         --clipAdapterType CellRanger4 \
         --outFilterScoreMin 30  \
-        --soloCBmatchWLtype 1MM_multi \
+        --soloCBmatchWLtype ~{soloCBmatchWLtype} \
         --soloUMIdedup 1MM_CR \
         --outSAMtype BAM SortedByCoordinate \
         --outSAMattributes UB UR UY CR CB CY NH GX GN sF cN \
