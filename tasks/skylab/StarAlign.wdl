@@ -227,18 +227,14 @@ task STARsoloFastq {
 
     # runtime values
     String samtools_star_docker_path
-    Int machine_mem_mb = 64000
-    Int cpu = 8
-   # by default request non preemptible machine to make sure the slow star alignment step completes
-    Int preemptible = 3
+    String cpu_platform = "Intel Ice Lake"
+    Int machine_mem_mb = 512000
+    Int mem_size = 512
+    Int cpu = 128
+    Int disk = 2000
+    # by default request non preemptible machine to make sure the slow star alignment step completes
+    Int preemptible = 1
 
-    # if slide_tags true set disk to 1000 otherwise dynamic allocation based on input size
-    # dynamic allocation multiplies input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Boolean is_slidetags
-    Int disk = if is_slidetags then 1000 else 
-    ceil(size(tar_star_reference, "Gi") * 3) + 
-    ceil(size(r1_fastq, "Gi") * 20) + 
-    ceil(size(r2_fastq, "Gi") * 20)
   }
 
   meta {
@@ -340,9 +336,9 @@ task STARsoloFastq {
     # validate the bam with samtools quickcheck
     samtools quickcheck -v Aligned.sortedByCoord.out.bam
 
-
     echo "UMI LEN " $UMILen
 
+    # why is this here?
     touch barcodes_sn_rna.tsv
     touch features_sn_rna.tsv
     touch matrix_sn_rna.mtx
@@ -350,7 +346,6 @@ task STARsoloFastq {
     touch Features_sn_rna.stats
     touch Summary_sn_rna.csv
     touch UMIperCellSorted_sn_rna.txt
-
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
@@ -424,12 +419,12 @@ task STARsoloFastq {
   >>>
 
   runtime {
-    docker: samtools_star_docker_path
-    memory: "~{machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "~{mem_size} GiB"
+    disks: "local-disk ~{disk} SSD"
     disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
+    cpuPlatform: cpu_platform
   }
 
   output {
