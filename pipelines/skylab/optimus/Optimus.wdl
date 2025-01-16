@@ -181,7 +181,7 @@ workflow Optimus {
         samtools_star_docker_path = docker_prefix + samtools_star,
         is_slidetags = is_slidetags
     }
-  }
+  
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
       bam_input = STARsoloFastq.output_bam,
