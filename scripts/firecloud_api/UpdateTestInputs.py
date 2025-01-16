@@ -2,12 +2,16 @@ import argparse
 import json
 import os
 import ast
+from decimal import Decimal
+
+def format_float(value):
+    """Format float to avoid scientific notation for small numbers."""
+    if isinstance(value, (float, int)):
+        # Convert to Decimal for precise string representation
+        return str(Decimal(str(value)))
+    return value
 
 def update_test_inputs(inputs_json, truth_path, results_path, update_truth, branch_name):
-    import json
-    import os
-    import ast
-
     with open(inputs_json, 'r') as file:
         test_inputs = json.load(file)
 
@@ -36,7 +40,7 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, bran
         # Reconstruct the updated key
         new_key = '.'.join(key_parts)
 
-        # Handle the value (ensure lists and nested values are preserved correctly)
+        # Handle different value types appropriately
         if isinstance(value, list):
             processed_value = []
             for item in value:
@@ -49,6 +53,9 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, bran
                 else:
                     processed_value.append(item)
             updated_inputs[new_key] = processed_value
+        elif isinstance(value, float):
+            # Format float values to avoid scientific notation
+            updated_inputs[new_key] = format_float(value)
         else:
             updated_inputs[new_key] = value
 
@@ -57,10 +64,13 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, bran
     updated_inputs[f"{test_name}.truth_path"] = f"{truth_path}/{sample_name}/"
     updated_inputs[f"{test_name}.update_truth"] = update_truth
 
+    # Convert the dictionary to JSON string with explicit float formatting
+    json_str = json.dumps(updated_inputs, indent=4)
+
     # Save the updated test inputs JSON
     output_name = f"updated_{sample_name}_{branch_name}.json"
     with open(output_name, 'w') as file:
-        json.dump(updated_inputs, file, indent=4)
+        file.write(json_str)
 
     print(f"{output_name}")
     return output_name
@@ -113,7 +123,6 @@ def main():
 
     # Update the test inputs to work with the test wrapper WDL
     update_test_inputs(args.inputs_json, args.truth_path, args.results_path, update_truth_bool, args.branch_name)
-
 
 if __name__ == "__main__":
     main()
