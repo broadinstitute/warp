@@ -233,7 +233,7 @@ task STARsoloFastq {
     Boolean is_slidetags
 
     # runtime values
-    String cpu_platform = "Intel Ice Lake"
+    String cpu_platform = "Intel Cascade Lake"
     Int machine_mem_mb = 512000
     Int mem_size = 512
     Int cpu = 128
