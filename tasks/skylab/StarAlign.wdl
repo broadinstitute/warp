@@ -234,7 +234,6 @@ task STARsoloFastq {
 
     # runtime values
     String cpu_platform = "Intel Cascade Lake"
-    Int machine_mem_mb = 512000
     Int mem_size = 512
     Int cpu = 128
     Int disk = 2000
@@ -427,6 +426,7 @@ task STARsoloFastq {
     disks: "local-disk ~{disk} HDD"
     disk: disk + " GB" # TES
     cpu: cpu
+    cpuPlatform: cpu_platform
     preemptible: preemptible
   }
 
