@@ -182,10 +182,10 @@ workflow PairedTag {
         File? multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
         File? cell_barcodes_csv = Optimus.cell_barcodes_csv
         File? checkpoint_file = Optimus.checkpoint_file
-        File? h5_array = Optimus.h5_array
-        File? html_report_array = Optimus.html_report_array
+        Array[File]? h5_array = Optimus.h5_array
+        Array[File]? html_report_array = Optimus.html_report_array
         File? log = Optimus.log
-        File? metrics_csv_array = Optimus.metrics_csv_array
+        Array[File]? metrics_csv_array = Optimus.metrics_csv_array
         String? output_directory = Optimus.output_directory
         File? summary_pdf = Optimus.summary_pdf
     }
