@@ -235,6 +235,7 @@ task STARsoloFastq {
     # runtime values
     String cpu_platform = "Intel Cascade Lake"
     Int mem_size = 512
+    Int machine_mem_mb = 512000
     Int cpu = 128
     Int disk = 2000
     # by default request non preemptible machine to make sure the slow star alignment step completes
