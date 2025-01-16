@@ -151,6 +151,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestIlluminaGenotypingArray.wdl
 
+  - name: TestImputation
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestImputation.wdl
+
   - name: TestJointGenotyping
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestJointGenotyping.wdl
