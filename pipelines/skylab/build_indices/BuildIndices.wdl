@@ -151,6 +151,8 @@ task BuildStarSingleNucleus {
             --input-gtf "header.gtf" \
             --output-gtf "${annotation_gtf_modified}" \
             --species "${organism}"
+        echo "listing files"
+        ls 
     else
         echo "running GTF modification for non-marmoset"
         python3 /script/modify_gtf.py \
