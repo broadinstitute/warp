@@ -233,7 +233,7 @@ task STARsoloFastq {
     Boolean is_slidetags
 
     # runtime values
-    String cpu_platform = "Intel Cascade Lake"
+    String cpu_platform = "Intel Ice Lake"
     Int mem_size = 512
     Int machine_mem_mb = 512000
     Int cpu = 128
@@ -424,7 +424,7 @@ task STARsoloFastq {
   runtime {
     docker: samtools_star_docker_path
     memory: "~{mem_size} GiB"
-    disks: "local-disk ~{disk} HDD"
+    disks: "local-disk ~{disk} SSD"
     disk: disk + " GB" # TES
     cpu: cpu
     cpuPlatform: cpu_platform
