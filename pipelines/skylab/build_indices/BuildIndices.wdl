@@ -115,9 +115,12 @@ task BuildStarSingleNucleus {
 
   command <<<
     # First check for marmoset GTF and modify header
-    if [[ "${organism,,}" == "marmoset" ]]; then
+    echo checking for marmoset
+    if [[ "~{organism}" == "marmoset" ]]; then
+        echo "marmoset is detected, running header modification"
         python3 /script/create_marmoset_header_mt_genes.py \
             ~{annotation_gtf} > "header.gtf"
+        ls
 
     # Check that input GTF files contain input genome source, genome build version, and annotation version
     if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
@@ -139,7 +142,8 @@ task BuildStarSingleNucleus {
 
     set -eo pipefail
 
-    if [[ "${organism,,}" == "marmoset" ]]; then
+    if [[ "~{organism}" == "marmoset" ]]; then
+        echo "marmoset header passes checks, running GTF modification"
         python3 /script/modify_gtf_marmoset.py \
             --input-gtf "header.gtf" \
             --output-gtf "${annotation_gtf_modified}" \
