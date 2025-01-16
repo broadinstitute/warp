@@ -121,6 +121,8 @@ task BuildStarSingleNucleus {
         echo "marmoset is detected, running header modification"
         python3 /script/create_marmoset_header_mt_genes.py \
             ~{annotation_gtf} > "header.gtf"
+        echo "listing files, should see header.gtf"
+        ls
     else
         echo "marmoset is not detected"
 
@@ -151,7 +153,7 @@ task BuildStarSingleNucleus {
             --input-gtf "header.gtf" \
             --output-gtf "${annotation_gtf_modified}" \
             --species "${organism}"
-        echo "listing files"
+        echo "listing files, should see modified gtf"
         ls 
     else
         echo "running GTF modification for non-marmoset"
