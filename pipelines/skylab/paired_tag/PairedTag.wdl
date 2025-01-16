@@ -176,16 +176,16 @@ workflow PairedTag {
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = Optimus.h5ad_output_file
         File? library_metrics = Optimus.library_metrics
-        Array[File?] multimappers_EM_matrix = Optimus.multimappers_EM_matrix
-        Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
-        Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
-        Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
+        File? multimappers_EM_matrix = Optimus.multimappers_EM_matrix
+        File? multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
+        File? multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
+        File? multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
         File? cell_barcodes_csv = Optimus.cell_barcodes_csv
         File? checkpoint_file = Optimus.checkpoint_file
-        Array[File]? h5_array = Optimus.h5_array
-        Array[File]? html_report_array = Optimus.html_report_array
+        File? h5_array = Optimus.h5_array
+        File? html_report_array = Optimus.html_report_array
         File? log = Optimus.log
-        Array[File]? metrics_csv_array = Optimus.metrics_csv_array
+        File? metrics_csv_array = Optimus.metrics_csv_array
         String? output_directory = Optimus.output_directory
         File? summary_pdf = Optimus.summary_pdf
     }
