@@ -184,7 +184,7 @@ workflow Optimus {
   
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
-      bam_input = STARsoloFastq.output_bam,
+      bam_input = STARsoloFastq.bam_output,
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id,
@@ -193,7 +193,7 @@ workflow Optimus {
 
   call Metrics.CalculateCellMetrics as CellMetrics {
     input:
-      bam_input = STARsoloFastq.output_bam,
+      bam_input = STARsoloFastq.bam_output,
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id,
@@ -331,7 +331,7 @@ workflow Optimus {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
-    File bam = STARsoloFastq.output_bam
+    File bam = STARsoloFastq.bam_output
     File matrix = MergeStarOutputs.sparse_counts
     File matrix_row_index = MergeStarOutputs.row_index
     File matrix_col_index = MergeStarOutputs.col_index
