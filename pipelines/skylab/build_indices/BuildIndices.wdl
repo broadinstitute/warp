@@ -16,7 +16,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "3.1.0"
+  String pipeline_version = "4.0.0"
 
 
   parameter_meta {
@@ -114,6 +114,11 @@ task BuildStarSingleNucleus {
   String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
 
   command <<<
+    # First check for marmoset GTF and modify header
+    if [[ "${organism,,}" == "marmoset" ]]; then
+        python3 /script/create_marmoset_header_mt_genes.py \
+            ~{annotation_gtf} > "header.gtf"
+
     # Check that input GTF files contain input genome source, genome build version, and annotation version
     if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
     then
@@ -122,6 +127,7 @@ task BuildStarSingleNucleus {
         echo Error: Input genome version does not match version in GTF file
         exit 1;
     fi
+
     # Check that GTF file contains correct build source info in the first 10 lines of the GTF
     if head -10 ~{annotation_gtf} | grep -qi ~{genome_source}
     then
@@ -133,10 +139,21 @@ task BuildStarSingleNucleus {
 
     set -eo pipefail
 
-    python3 /script/modify_gtf.py  \
-    --input-gtf ~{annotation_gtf} \
-    --output-gtf ~{annotation_gtf_modified} \
-    --biotypes ~{biotypes}
+    if [[ "${organism,,}" == "marmoset" ]]; then
+        python3 /script/modify_gtf_marmoset.py \
+            --input-gtf "header.gtf" \
+            --output-gtf "${annotation_gtf_modified}" \
+            --species "${organism}"
+    else
+        python3 /script/modify_gtf.py \
+            --input-gtf "${annotation_gtf}" \
+            --output-gtf "${annotation_gtf_modified}" \
+            --biotypes "${biotypes}"
+    fi
+    # python3 /script/modify_gtf.py  \
+    # --input-gtf ~{annotation_gtf} \
+    # --output-gtf ~{annotation_gtf_modified} \
+    # --biotypes ~{biotypes}
 
     mkdir star
     STAR --runMode genomeGenerate \
@@ -156,7 +173,7 @@ task BuildStarSingleNucleus {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.0.0"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:lk-PD-2836"
     memory: "50 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
