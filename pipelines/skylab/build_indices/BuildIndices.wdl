@@ -116,7 +116,7 @@ task BuildStarSingleNucleus {
   command <<<
     # First check for marmoset GTF and modify header
     echo "checking for marmoset"
-    if [[ "~{organism}" == "marmoset" ]]
+    if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
     then
         echo "marmoset is detected, running header modification"
         python3 /script/create_marmoset_header_mt_genes.py \
@@ -144,7 +144,7 @@ task BuildStarSingleNucleus {
         set -eo pipefail
     fi
 
-    if [[ "~{organism}" == "marmoset" ]]
+    if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
     then
         echo "marmoset detected, running marmoset GTF modification"
         echo "Listing files to check for head.gtf"
