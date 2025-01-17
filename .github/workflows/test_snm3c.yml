@@ -30,7 +30,7 @@ on:
         default: "false"
       testType:
         description: 'Specify the type of test (Plumbing or Scientific)'
-        required: true
+        required: false
       truthBranch:
         description: 'Specify the branch for truth files (default: master)'
         required: false
@@ -57,6 +57,19 @@ env:
 
 
 jobs:
+  check-authorization:
+    uses: ./.github/workflows/authorized_users.yml
+
+  authorization-failed:
+    needs: check-authorization
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authorization Failed
+        run: |
+          echo "::error::Authorization check failed - unauthorized user"
+          exit 1
+
   Testsnm3C:
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
