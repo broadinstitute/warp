@@ -29,7 +29,7 @@ BroadInternalRNAWithUMIs	 1.0.36	2024-11-04
 RNAWithUMIsPipeline	 1.0.18	2024-11-04 
 Multiome	 5.9.5	2025-01-13 
 MultiSampleSmartSeq2SingleNucleus	 2.0.7	2025-01-13 
-BuildIndices	 3.1.0	2024-11-26 
+BuildIndices	 4.0.0	2025-01-17 
 SlideSeq	 3.4.8	2025-01-13 
 PairedTag	 1.9.1	2025-01-13 
 atac	 2.5.4	2025-01-13 
