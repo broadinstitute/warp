@@ -1,0 +1,36 @@
+# In authorized_users.yml
+name: Authorized Users
+
+on:
+  workflow_call:
+    outputs:
+      approved:
+        description: 'Whether the user is approved'
+        value: ${{ jobs.check-authorization.outputs.approved }}
+      error-message:
+        description: 'Error message if not approved'
+        value: ${{ jobs.check-authorization.outputs.error-message }}
+
+jobs:
+  check-authorization:
+    runs-on: ubuntu-latest
+    outputs:
+      approved: ${{ steps.gatekeeper.outputs.approved }}
+      error-message: ${{ steps.gatekeeper.outputs.error-message }}
+    steps:
+      - name: Check if user is approved
+        id: gatekeeper
+        run: |
+          echo "The actor is: ${GITHUB_ACTOR}"
+          APPROVED_USERS=("nikellepetrillo")
+
+          if [[ " ${APPROVED_USERS[@]} " =~ " ${GITHUB_ACTOR} " ]]; then
+            echo "User ${GITHUB_ACTOR} is approved."
+            echo "approved=true" >> $GITHUB_OUTPUT
+            echo "error-message=none" >> $GITHUB_OUTPUT
+          else
+            echo "User ${GITHUB_ACTOR} is not approved."
+            echo "approved=false" >> $GITHUB_OUTPUT
+            echo "error-message=Unauthorized user: ${GITHUB_ACTOR}" >> $GITHUB_OUTPUT
+            exit 1
+          fi

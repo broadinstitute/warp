@@ -1,4 +1,4 @@
-name: Test ReblockGVCF
+name: Test ExomeReprocessing
 
 # Controls when the workflow will run
 on:
@@ -9,15 +9,28 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/**'
-      - 'tasks/broad/GermlineVariantDiscovery.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'verification/VerifyGvcf.wdl'
-      - 'verification/VerifyTasks.wdl'
-      - 'verification/test-wdls/TestReblockGVCF.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_reblockGVCF.yml'
+     - 'pipelines/broad/reprocessing/exome/**'
+     - 'pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl'
+     - 'pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl'
+     - 'tasks/broad/UnmappedBamToAlignedBam.wdl'
+     - 'tasks/broad/AggregatedBamQC.wdl'
+     - 'tasks/broad/Qc.wdl'
+     - 'tasks/broad/BamProcessing.wdl'
+     - 'tasks/broad/BamToCram.wdl'
+     - 'structs/dna_seq/DNASeqStructs.wdl'
+     - 'pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl'
+     - 'tasks/broad/GermlineVariantDiscovery.wdl'
+     - 'tasks/broad/Utilities.wdl'
+     - 'tasks/broad/DragenTasks.wdl'
+     - 'tasks/broad/Qc.wdl'
+     - 'tasks/broad/Utilities.wdl'
+     - 'verification/VerifyExomeReprocessing.wdl'
+     - 'verification/VerifyGermlineSingleSample.wdl'
+     - 'verification/test-wdls/TestCramToUnmappedBams.wdl'
+     - 'verification/VerifyMetrics.wdl'
+     - 'verification/VerifyTasks.wdl'
+     - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+     - '.github/workflows/test_exome_reprocessing.yml'
 
 
   # Allows you to run this workflow manually from the Actions tab
@@ -43,9 +56,9 @@ on:
 env:
   # pipeline configuration
   PROJECT_NAME: WARP
-  PIPELINE_NAME: TestReblockGVCF
-  DOCKSTORE_PIPELINE_NAME: ReblockGVCF
-  PIPELINE_DIR: "pipelines/broad/dna_seq/germline/joint_genotyping/reblocking"
+  PIPELINE_NAME: TestExomeReprocessing
+  DOCKSTORE_PIPELINE_NAME: ExomeReprocessing
+  PIPELINE_DIR: "pipelines/broad/reprocessing/exome"
 
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
@@ -60,7 +73,7 @@ env:
 
 
 jobs:
-  TestReblockGVCF:
+  TestExomeReprocessing:
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
@@ -164,7 +177,6 @@ jobs:
             echo "testType=${{ github.event.inputs.testType }}"
           fi
 
-
       - name: Create new method configuration
         run: |
           echo "Creating new method configuration for branch: $BRANCH_NAME"
@@ -199,30 +211,30 @@ jobs:
           # Initialize arrays to track submission and workflow statuses
           declare -a SUBMISSION_IDS
           declare -A WORKFLOW_STATUSES
-          OVERALL_SUCCESS=true
-          
-          
+          OVERALL_SUCCESS=true  
+
           # Convert UPDATE_TRUTH and USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
           if [ "$UPDATE_TRUTH" = "true" ]; then
               UPDATE_TRUTH_BOOL=true
           else
               UPDATE_TRUTH_BOOL=false
           fi
-          
+
           if [ "$USE_CALL_CACHE" == "true" ]; then
               USE_CALL_CACHE_BOOL=true
           else
               USE_CALL_CACHE_BOOL=false
           fi
-          
+
           TEST_TYPE="${{ env.testType }}"
           INPUTS_DIR="$PIPELINE_DIR/test_inputs/$TEST_TYPE"
           echo "Running tests with test type: $TEST_TYPE"
-          
+
           TRUTH_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           echo "Truth path: $TRUTH_PATH"
           RESULTS_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/results/$CURRENT_TIME"
-
+          
+          
           
           # 1. Submit all jobs first and store their submission IDs
           for input_file in "$INPUTS_DIR"/*.json; do
@@ -232,7 +244,7 @@ jobs:
                 --update_truth "$UPDATE_TRUTH_BOOL" \
                 --branch_name "$BRANCH_NAME" )
             echo "Uploading the test input file: $test_input_file"
-          
+
             # Create the submission_data.json file for this input_file
             input_file_filename=$(basename $input_file)
             SUBMISSION_DATA_FILE="submission_data.json"
@@ -251,6 +263,7 @@ jobs:
             echo "Created submission data file: $SUBMISSION_DATA_FILE"
             cat "$SUBMISSION_DATA_FILE"
 
+            # Upload test input file
             python3 scripts/firecloud_api/firecloud_api.py \
                 upload_test_inputs \
                 --workspace-namespace $WORKSPACE_NAMESPACE \
@@ -260,7 +273,7 @@ jobs:
                 --branch_name "$BRANCH_NAME" \
                 --sa-json-b64 "$SA_JSON_B64" \
                 --user "$USER"
-          
+
             attempt=1
             while [ $attempt -le $MAX_RETRIES ]; do
               SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api.py submit_job \
@@ -269,9 +282,9 @@ jobs:
                --sa-json-b64 "$SA_JSON_B64" \
                --user "$USER" \
                --submission_data_file "$SUBMISSION_DATA_FILE")
-          
+
               echo "Submission ID: $SUBMISSION_ID"
-          
+
               if [[ "$SUBMISSION_ID" == *"404"* || -z "$SUBMISSION_ID" ]]; then
                   echo "Error in submission, retrying in $RETRY_DELAY seconds..."
                   ((attempt++))
@@ -282,14 +295,16 @@ jobs:
                   sleep $RETRY_DELAY
                   continue
               fi
-          
+
               echo "Submission successful. Submission ID: $SUBMISSION_ID"
               SUBMISSION_IDS+=("$SUBMISSION_ID")
               break
             done
           done
-          
+
           echo "All jobs have been submitted. Starting to poll for statuses..."
+
+          # Continue with polling and output retrieval...
           
           # 2. After all submissions are done, start polling for statuses of all jobs
           for SUBMISSION_ID in "${SUBMISSION_IDS[@]}"; do
@@ -342,7 +357,7 @@ jobs:
               break
             done
           done
-
+          
           # Generate the final summary after all processing is complete
           FINAL_SUMMARY="## Combined Workflow Statuses\n\n"
           

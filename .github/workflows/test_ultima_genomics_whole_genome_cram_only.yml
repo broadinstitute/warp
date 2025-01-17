@@ -1,4 +1,4 @@
-name: Test ReblockGVCF
+name: Test UltimaGenomicsWholeGenomeCramOnly
 
 # Controls when the workflow will run
 on:
@@ -9,15 +9,26 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/**'
+      - 'pipelines/broad/dna_seq/somatic/single_sample/ugwgs/**'
+      - 'pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl'
+      - 'tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl'
       - 'tasks/broad/GermlineVariantDiscovery.wdl'
+      - 'structs/dna_seq/DNASeqStructs.wdl'
+      - 'tasks/broad/Alignment.wdl'
       - 'tasks/broad/Qc.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'verification/VerifyGvcf.wdl'
+      - 'tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl'
+      - 'structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl'
+      - 'tasks/broad/InternalTasks.wdl'
+      - 'tasks/broad/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl'
+      - 'pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl'
+      - 'verification/VerifyUltimaGenomicsWholeGenomeCramOnly.wdl'
+      - 'verification/VerifyMetrics.wdl'
       - 'verification/VerifyTasks.wdl'
-      - 'verification/test-wdls/TestReblockGVCF.wdl'
+      - 'verification/VerifyNA12878.wdl'
+      - 'verification/test-wdls/TestUltimaGenomicsWholeGenomeCramOnly.wdl'
+      - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_reblockGVCF.yml'
+      - '.github/workflows/test_ultima_genomics_whole_genome_cram_only.yml'
 
 
   # Allows you to run this workflow manually from the Actions tab
@@ -43,9 +54,9 @@ on:
 env:
   # pipeline configuration
   PROJECT_NAME: WARP
-  PIPELINE_NAME: TestReblockGVCF
-  DOCKSTORE_PIPELINE_NAME: ReblockGVCF
-  PIPELINE_DIR: "pipelines/broad/dna_seq/germline/joint_genotyping/reblocking"
+  PIPELINE_NAME: TestUltimaGenomicsWholeGenomeCramOnly
+  DOCKSTORE_PIPELINE_NAME: UltimaGenomicsWholeGenomeCramOnly
+  PIPELINE_DIR: "pipelines/broad/dna_seq/somatic/single_sample/ugwgs/"
 
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
@@ -60,7 +71,7 @@ env:
 
 
 jobs:
-  TestReblockGVCF:
+  run_pipeline:
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
@@ -222,7 +233,7 @@ jobs:
           TRUTH_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           echo "Truth path: $TRUTH_PATH"
           RESULTS_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/results/$CURRENT_TIME"
-
+          
           
           # 1. Submit all jobs first and store their submission IDs
           for input_file in "$INPUTS_DIR"/*.json; do
@@ -338,28 +349,25 @@ jobs:
                     --workflow_id "$WORKFLOW_ID" \
                     --pipeline_name "$PIPELINE_NAME")
                     ALL_OUTPUTS+="$WORKFLOW_OUTPUT"$'\n'
-              done
+                done
               break
             done
-          done
-
-          # Generate the final summary after all processing is complete
-          FINAL_SUMMARY="## Combined Workflow Statuses\n\n"
+            # Generate final summary tables with hyperlinks for Submission IDs
+            echo "## Combined Workflow Statuses" >> $GITHUB_STEP_SUMMARY
+            for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
+              # Generate the Terra URL for the submission
+              SUBMISSION_URL="https://app.terra.bio/#workspaces/$WORKSPACE_NAMESPACE/WARP%20Tests/job_history/$SUBMISSION_ID"
           
-          # Add all workflow statuses to the summary
-          for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
-            # Generate the Terra URL for the submission
-            SUBMISSION_URL="https://app.terra.bio/#workspaces/$WORKSPACE_NAMESPACE/WARP%20Tests/job_history/$SUBMISSION_ID"
-
-            # Add the Submission ID as a hyperlink
-            FINAL_SUMMARY+="[Submission ID: $SUBMISSION_ID]($SUBMISSION_URL)\n"
-
-            # Add the workflows and statuses for this submission
-            FINAL_SUMMARY+="${WORKFLOW_STATUSES[$SUBMISSION_ID]}\n\n"
-          done
+              # Add the Submission ID as a hyperlink
+              echo "[Submission ID: $SUBMISSION_ID]($SUBMISSION_URL)" >> $GITHUB_STEP_SUMMARY
           
-          # Write the complete summary once at the end
-          echo -e "$FINAL_SUMMARY" >> $GITHUB_STEP_SUMMARY
+              # Add the workflows and statuses for this submission
+              echo "${WORKFLOW_STATUSES[$SUBMISSION_ID]}" >> $GITHUB_STEP_SUMMARY
+          
+              # Add a blank line for separation
+              echo "" >> $GITHUB_STEP_SUMMARY
+            done
+          done
           
           # Exit with error if any workflows failed
           if [ "$OVERALL_SUCCESS" = false ]; then

@@ -1,3 +1,6 @@
+---
+sidebar_position: 3
+---
 # snM3C v4.0.1 Methods
 
 # Methods

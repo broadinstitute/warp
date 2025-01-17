@@ -1,4 +1,4 @@
-name: Test ReblockGVCF
+name: Test WholeGenomeReprocessing
 
 # Controls when the workflow will run
 on:
@@ -9,15 +9,28 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/**'
-      - 'tasks/broad/GermlineVariantDiscovery.wdl'
-      - 'tasks/broad/Qc.wdl'
+      - 'pipelines/broad/reprocessing/wgs/**'
+      - 'pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl'
+      - 'structs/dna_seq/DNASeqStructs.wdl'
+      - 'tasks/broad/Alignment.wdl'
+      - 'tasks/broad/DragmapAlignment.wdl'
+      - 'tasks/broad/SplitLargeReadGroup.wdl'
+      - 'tasks/broad/BamProcessing.wdl'
       - 'tasks/broad/Utilities.wdl'
-      - 'verification/VerifyGvcf.wdl'
+      - 'tasks/broad/Qc.wdl'
+      - 'tasks/broad/AggregatedBamQC.wdl'
+      - 'tasks/broad/BamToCram.wdl'
+      - 'pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl'
+      - 'pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl'
+      - 'tasks/broad/GermlineVariantDiscovery.wdl'
+      - 'tasks/broad/DragenTasks.wdl'
+      - 'verification/VerifyExomeReprocessing.wdl'
+      - 'verification/test-wdls/TestWholeGenomeGermlineSingleSample.wdl'
+      - 'verification/VerifyGermlineSingleSample.wdl'
+      - 'verification/VerifyMetrics.wdl'
       - 'verification/VerifyTasks.wdl'
-      - 'verification/test-wdls/TestReblockGVCF.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_reblockGVCF.yml'
+      - '.github/workflows/test_whole_genome_reprocessing.yml'
 
 
   # Allows you to run this workflow manually from the Actions tab
@@ -43,9 +56,10 @@ on:
 env:
   # pipeline configuration
   PROJECT_NAME: WARP
-  PIPELINE_NAME: TestReblockGVCF
-  DOCKSTORE_PIPELINE_NAME: ReblockGVCF
-  PIPELINE_DIR: "pipelines/broad/dna_seq/germline/joint_genotyping/reblocking"
+  PIPELINE_NAME: TestWholeGenomeReprocessing
+  DOCKSTORE_PIPELINE_NAME: WholeGenomeReprocessing
+  PIPELINE_DIR: "pipelines/broad/reprocessing/wgs"
+
 
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
@@ -60,7 +74,7 @@ env:
 
 
 jobs:
-  TestReblockGVCF:
+  TestWholeGenomeReprocessing:
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
@@ -164,7 +178,6 @@ jobs:
             echo "testType=${{ github.event.inputs.testType }}"
           fi
 
-
       - name: Create new method configuration
         run: |
           echo "Creating new method configuration for branch: $BRANCH_NAME"
@@ -222,7 +235,7 @@ jobs:
           TRUTH_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           echo "Truth path: $TRUTH_PATH"
           RESULTS_PATH="gs://broad-gotc-test-storage/$DOCKSTORE_PIPELINE_NAME/results/$CURRENT_TIME"
-
+          
           
           # 1. Submit all jobs first and store their submission IDs
           for input_file in "$INPUTS_DIR"/*.json; do
@@ -342,7 +355,7 @@ jobs:
               break
             done
           done
-
+          
           # Generate the final summary after all processing is complete
           FINAL_SUMMARY="## Combined Workflow Statuses\n\n"
           
