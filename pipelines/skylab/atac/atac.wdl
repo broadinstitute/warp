@@ -28,6 +28,8 @@ workflow ATAC {
 
     # Option for running files with preindex
     Boolean preindex = false
+    # Option for running peak calling
+    Boolean peak_calling = true
     
     # BWA ref
     File tar_bwa_reference
@@ -70,7 +72,6 @@ workflow ATAC {
             message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
     }
   }
-
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -160,15 +161,17 @@ workflow ATAC {
         input_id = input_id
 
     }
-    call PeakCalling {
-      input:
-        bam = BWAPairedEndAlignment.bam_aligned_output,
-        annotations_gtf = annotations_gtf,
-        metrics_h5ad = CreateFragmentFile.Snap_metrics,
-        docker_path = docker_prefix + snap_atac_docker
+    if (peak_calling) {
+      call PeakCalling {
+        input:
+          bam = BWAPairedEndAlignment.bam_aligned_output,
+          annotations_gtf = annotations_gtf,
+          metrics_h5ad = CreateFragmentFile.Snap_metrics,
+          docker_path = docker_prefix + snap_atac_docker
+      }
     }
   }
-
+  
   File bam_aligned_output_atac = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
   File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
   File snap_metrics_atac = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])
@@ -642,6 +645,7 @@ task CreateFragmentFile {
   }
 }
 
+# peak calling using SnapATAC2
 task PeakCalling {
   input {
     File bam
