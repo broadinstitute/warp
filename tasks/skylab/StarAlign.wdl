@@ -229,10 +229,16 @@ task STARsoloFastq {
     String samtools_star_docker_path
     Int machine_mem_mb = 64000
     Int cpu = 8
-    # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Int disk = ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
-    # by default request non preemptible machine to make sure the slow star alignment step completes
+   # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 3
+
+    # if slide_tags true set disk to 1000 otherwise dynamic allocation based on input size
+    # dynamic allocation multiplies input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
+    Boolean is_slidetags
+    Int disk = if is_slidetags then 1000 else 
+    ceil(size(tar_star_reference, "Gi") * 3) + 
+    ceil(size(r1_fastq, "Gi") * 20) + 
+    ceil(size(r2_fastq, "Gi") * 20)
   }
 
   meta {
@@ -252,7 +258,8 @@ task STARsoloFastq {
   }
 
   command <<<
-       set -e
+    set -euo pipefail
+    set -x
 
     UMILen=10
     CBLen=16
@@ -490,7 +497,9 @@ task MergeStarOutput {
   }
 
   command <<<
-    set -e
+    set -euo pipefail
+    set -x 
+
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
@@ -522,11 +531,8 @@ task MergeStarOutput {
     #list files
     echo "listing files"
     ls
-
-
-
-    if [ -f "${cell_reads_files[0]}" ]; then
-    
+    # if theres a file in cell_reads_files --  check if non empty
+    if [ -n "${cell_reads_files[*]}" ]; then
       # Destination file for cell reads
       dest="~{input_id}_cell_reads.txt"
     
@@ -609,6 +615,11 @@ task MergeStarOutput {
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
         --input_id ~{input_id}
+
+    # tar up filtered matrix outputbarcodes.tsv, outputfeatures.tsv, outputmatrix.mtx
+    echo "Tarring up filtered matrix files"
+    tar -cvf ~{input_id}_filtered_mtx_files.tar outputbarcodes.tsv outputfeatures.tsv outputmatrix.mtx
+    echo "Done"
   >>>
 
   runtime {
@@ -627,6 +638,7 @@ task MergeStarOutput {
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
     File? library_metrics="~{input_id}_library_metrics.csv"
     File? mtx_files ="~{input_id}.mtx_files.tar"
+    File? filtered_mtx_files = "~{input_id}_filtered_mtx_files.tar"
     File? outputbarcodes = "outputbarcodes.tsv"
   }
 }
