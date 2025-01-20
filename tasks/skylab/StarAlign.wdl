@@ -334,6 +334,7 @@ task STARsoloFastq {
         --outSAMtype BAM SortedByCoordinate \
         --outSAMattributes UB UR UY CR CB CY NH GX GN sF cN \
         --soloBarcodeReadLength 0 \
+        --limitBAMsortRAM 33195969137 \
         --soloCellReadStats Standard \
         ~{"--soloMultiMappers " + soloMultiMappers} \
         --soloUMIfiltering MultiGeneUMI_CR \
