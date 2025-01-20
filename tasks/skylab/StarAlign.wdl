@@ -316,7 +316,7 @@ task STARsoloFastq {
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
         exit 1;
     fi
-
+    # RAM limit 33195969137
     STAR \
         --soloType Droplet \
         --soloStrand ~{star_strand_mode} \
