@@ -1,8 +1,9 @@
-# 5.9.5
-2025-01-13 (Date of Last Commit)
+# 5.9.6
+2025-01-21 (Date of Last Commit)
 
 * Added a boolean variable is_slidetags; default is false but it is set to true if the Slide-Tags pipeline is calling Optimus
 * Added reference_gtf_file to the output h5ad unstructured metadata
+* Added the ATAC fragment file CSI index as high-level ATAC workflow output; this does not impact the Multiome workflow as Multiome already produces the csi index from ATAC
 
 # 5.9.4
 2024-12-05 (Date of Last Commit)

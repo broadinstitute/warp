@@ -27,12 +27,12 @@ BroadInternalImputation	 1.1.14	2024-11-04
 BroadInternalArrays	 1.1.14	2024-11-04 
 BroadInternalRNAWithUMIs	 1.0.36	2024-11-04 
 RNAWithUMIsPipeline	 1.0.18	2024-11-04 
-Multiome	 5.9.5	2025-01-13 
+Multiome	 5.9.6	2025-01-21 
 MultiSampleSmartSeq2SingleNucleus	 2.0.7	2025-01-13 
 BuildIndices	 4.0.0	2025-01-17 
 SlideSeq	 3.4.8	2025-01-13 
-PairedTag	 1.9.1	2025-01-13 
-atac	 2.5.4	2025-01-13 
+PairedTag	 1.10.0	2025-01-21 
+atac	 2.6.0	2025-01-21 
 scATAC	 1.3.2	2023-08-03 
 snm3C	 4.0.4	2024-08-06 
 Optimus	 7.9.1	2025-01-13 
