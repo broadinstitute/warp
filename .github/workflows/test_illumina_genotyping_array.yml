@@ -68,7 +68,7 @@ jobs:
 
   TestIlluminaGenotypingArray:
     needs: check-authorization
-    if: ${{ needs.check-authorization.outputs.approved == 'true' }
+    if: ${{ needs.check-authorization.outputs.approved == 'true' }}
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
