@@ -1,3 +1,8 @@
+# 2.5.4
+2025-01-13 (Date of Last Commit)
+
+* Added reference_gtf_file to the output h5ad unstructured metadata
+
 # 2.5.3
 2024-11-22 (Date of Last Commit)
 
