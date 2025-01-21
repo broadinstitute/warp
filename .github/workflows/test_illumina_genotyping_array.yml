@@ -64,24 +64,25 @@ env:
 
 jobs:
   check-authorization:
-    uses: ./.github/workflows/authorized_users.yml
-
-  authorization-failed:
-    needs: check-authorization
-    if: ${{ failure() }}
     runs-on: ubuntu-latest
     steps:
-      - name: Authorization Failed
+      - name: Check Authorization
+        id: authorization
         run: |
-          echo "::error::Authorization check failed - unauthorized user"
-          exit 1
+          # Run the authorization script and set the result
+          AUTHORIZED_USERS=("nikellepetrillo") # Replace with your list of authorized users
+          CURRENT_USER="${{ github.actor }}"
+          if [[ " ${AUTHORIZED_USERS[@]} " =~ " ${CURRENT_USER} " ]]; then
+            echo "approved=true" >> $GITHUB_OUTPUT
+          else
+            echo "approved=false" >> $GITHUB_OUTPUT
+            echo "::error::Authorization check failed - unauthorized user"
+            exit 1
+          fi
 
   TestIlluminaGenotypingArray:
-    needs: [check-authorization, authorization-failed]
-    if: |
-      always() &&
-      needs.check-authorization.outputs.approved == 'true' &&
-      needs.check-authorization.result == 'success'
+    needs: check-authorization
+    if: needs.check-authorization.result == 'success'
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
