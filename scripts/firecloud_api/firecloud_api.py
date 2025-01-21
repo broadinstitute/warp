@@ -551,8 +551,7 @@ if __name__ == "__main__":
         # Cancel old submissions
         cancelled_count = api.cancel_old_submissions(
             args.pipeline_name,
-            args.branch_name,
-            current_commit
+            args.branch_name
         )
         print(f"Cancelled {cancelled_count} old submissions")
 
