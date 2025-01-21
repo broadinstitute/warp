@@ -377,13 +377,13 @@ class FirecloudAPI:
         """
         Cancel a specific workflow submission.
         """
-        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions/{submission_id}/abort"
+        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions/{submission_id}"
         token = self.get_user_token(self.delegated_creds)
         headers = self.build_auth_headers(token)
 
-        response = requests.post(url, headers=headers)
+        response = requests.delete(url, headers=headers)
 
-        if response.status_code != 204:
+        if response.status_code not in [204]:
             logging.error(f"Failed to cancel submission {submission_id}. Status code: {response.status_code}")
             logging.error(f"Response body: {response.text}")
             return False
