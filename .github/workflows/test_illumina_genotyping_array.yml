@@ -70,7 +70,7 @@ jobs:
         id: authorization
         run: |
           # Run the authorization script and set the result
-          AUTHORIZED_USERS=("nikellepetrillo") # Replace with your list of authorized users
+          AUTHORIZED_USERS=("nikellepetrilloo") # Replace with your list of authorized users
           CURRENT_USER="${{ github.actor }}"
           if [[ " ${AUTHORIZED_USERS[@]} " =~ " ${CURRENT_USER} " ]]; then
             echo "approved=true" >> $GITHUB_OUTPUT
