@@ -149,6 +149,7 @@ workflow Multiome {
         File fragment_file_index = JoinBarcodes.atac_fragment_tsv_index
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
         File atac_library_metrics = Atac.library_metrics_file
+        File? peak_call_atac = Atac.peakcall_h5ad_file
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
