@@ -98,6 +98,17 @@ jobs:
             echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
           fi
 
+      - name: Cancel Previous Runs
+        run: |
+          python firecloud_api.py \
+            --workspace-namespace "${{ env.WORKSPACE_NAMESPACE }}" \
+            --workspace-name "${{ env.TESTING_WORKSPACE }}" \
+            --pipeline_name "${{ env.PIPELINE_NAME }}" \
+            --branch_name "${{ env.BRANCH_NAME }}" \
+            --sa-json-b64 "${{ secrets.PDT_TESTER_SA_B64 }}" \
+            --user "${{ env.USER }}" \
+            cancel_old_submissions
+
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
         run: |

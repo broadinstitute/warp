@@ -342,6 +342,70 @@ class FirecloudAPI:
             logging.error(f"Response body: {response.text}")
             return False
 
+    def get_active_submissions(self, method_config_name=None):
+        """
+        Get all active workflow submissions for the workspace.
+        Optionally filter by method configuration name.
+        """
+        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
+        token = self.get_user_token(self.delegated_creds)
+        headers = self.build_auth_headers(token)
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code != 200:
+            logging.error(f"Failed to get submissions. Status code: {response.status_code}")
+            logging.error(f"Response body: {response.text}")
+            return []
+
+        submissions = response.json()
+        active_submissions = []
+
+        for submission in submissions:
+            # Check if submission is active (not Done, Aborted, or Failed)
+            if submission['status'] in ['Submitted', 'Running', 'Queued']:
+                # If method_config_name is specified, filter by it
+                if method_config_name:
+                    if submission.get('methodConfigurationName') == method_config_name:
+                        active_submissions.append(submission)
+                else:
+                    active_submissions.append(submission)
+
+        return active_submissions
+
+    def cancel_submission(self, submission_id):
+        """
+        Cancel a specific workflow submission.
+        """
+        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions/{submission_id}/abort"
+        token = self.get_user_token(self.delegated_creds)
+        headers = self.build_auth_headers(token)
+
+        response = requests.post(url, headers=headers)
+
+        if response.status_code != 204:
+            logging.error(f"Failed to cancel submission {submission_id}. Status code: {response.status_code}")
+            logging.error(f"Response body: {response.text}")
+            return False
+
+        logging.info(f"Successfully cancelled submission {submission_id}")
+        return True
+
+    def cancel_old_submissions(self, pipeline_name, branch_name):
+        """
+        Cancel all active submissions for a pipeline's method configuration.
+        Returns the number of cancelled submissions.
+        """
+        method_config_name = f"{pipeline_name}_{branch_name}"
+        active_submissions = self.get_active_submissions(method_config_name)
+        cancelled_count = 0
+
+        for submission in active_submissions:
+            if self.cancel_submission(submission['submissionId']):
+                cancelled_count += 1
+                logging.info(f"Cancelled submission {submission['submissionId']}")
+
+        return cancelled_count
 
 
     def main(self):
@@ -406,7 +470,7 @@ if __name__ == "__main__":
     parser.add_argument("--source", help="Source GCS path for gsutil copy")
     parser.add_argument("--destination", help="Destination GCS path for gsutil copy")
     parser.add_argument("--method_config_name", help="Name of the method configuration to delete")
-    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "create_new_method_config", "delete_method_config"],
+    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "create_new_method_config", "delete_method_config", "cancel_old_submissions"],
                         help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs',  'create_new_method_config', or 'delete_method_config'")
 
     args = parser.parse_args()
@@ -475,6 +539,22 @@ if __name__ == "__main__":
                 logging.info("Method configuration deleted successfully.")
             else:
                 logging.error("Failed to delete method configuration.")
+    elif args.action == "cancel_old_submissions":
+        if not all([args.pipeline_name, args.branch_name]):
+            parser.error("Arguments --pipeline_name and --branch_name are required for 'cancel_old_submissions'")
+
+        # Get the current commit hash from the environment or as an argument
+        current_commit = os.environ.get('GITHUB_SHA')
+        if not current_commit:
+            parser.error("GITHUB_SHA environment variable is required for 'cancel_old_submissions'")
+
+        # Cancel old submissions
+        cancelled_count = api.cancel_old_submissions(
+            args.pipeline_name,
+            args.branch_name,
+            current_commit
+        )
+        print(f"Cancelled {cancelled_count} old submissions")
 
 
 
