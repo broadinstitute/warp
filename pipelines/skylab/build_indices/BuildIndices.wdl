@@ -16,7 +16,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "3.1.0"
+  String pipeline_version = "4.0.0"
 
 
   parameter_meta {
@@ -114,29 +114,58 @@ task BuildStarSingleNucleus {
   String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
 
   command <<<
-    # Check that input GTF files contain input genome source, genome build version, and annotation version
-    if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
+    # First check for marmoset GTF and modify header
+    echo "checking for marmoset"
+    if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
     then
-        echo Genome version found in the GTF file
+        echo "marmoset is detected, running header modification"
+        python3 /script/create_marmoset_header_mt_genes.py \
+            ~{annotation_gtf} > "/cromwell_root/header.gtf"
     else
-        echo Error: Input genome version does not match version in GTF file
-        exit 1;
-    fi
-    # Check that GTF file contains correct build source info in the first 10 lines of the GTF
-    if head -10 ~{annotation_gtf} | grep -qi ~{genome_source}
-    then
-        echo Source of genome build identified in the GTF file
-    else
-        echo Error: Source of genome build not identified in the GTF file
-        exit 1;
+        echo "marmoset is not detected"
+
+        # Check that input GTF files contain input genome source, genome build version, and annotation version
+        if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
+        then
+            echo Genome version found in the GTF file
+        else
+            echo Error: Input genome version does not match version in GTF file
+            exit 1;
+        fi
+
+        # Check that GTF file contains correct build source info in the first 10 lines of the GTF
+        if head -10 ~{annotation_gtf} | grep -qi ~{genome_source}
+        then
+            echo Source of genome build identified in the GTF file
+        else
+            echo Error: Source of genome build not identified in the GTF file
+            exit 1;
+        fi
+        set -eo pipefail
     fi
 
-    set -eo pipefail
-
-    python3 /script/modify_gtf.py  \
-    --input-gtf ~{annotation_gtf} \
-    --output-gtf ~{annotation_gtf_modified} \
-    --biotypes ~{biotypes}
+    if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
+    then
+        echo "marmoset detected, running marmoset GTF modification"
+        echo "Listing files to check for head.gtf"
+        ls
+        python3 /script/modify_gtf_marmoset.py \
+            --input-gtf "/cromwell_root/header.gtf" \
+            --output-gtf ~{annotation_gtf_modified} \
+            --species ~{organism}
+        echo "listing files, should see modified gtf"
+        ls 
+    else
+        echo "running GTF modification for non-marmoset"
+        python3 /script/modify_gtf.py \
+            --input-gtf ~{annotation_gtf} \
+            --output-gtf ~{annotation_gtf_modified} \
+            --biotypes ~{biotypes}
+    fi
+    # python3 /script/modify_gtf.py  \
+    # --input-gtf ~{annotation_gtf} \
+    # --output-gtf ~{annotation_gtf_modified} \
+    # --biotypes ~{biotypes}
 
     mkdir star
     STAR --runMode genomeGenerate \
@@ -156,7 +185,7 @@ task BuildStarSingleNucleus {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.0.0"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.1.0"
     memory: "50 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
