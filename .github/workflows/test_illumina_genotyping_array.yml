@@ -38,11 +38,6 @@ on:
         required: false
         default: "master"
 
-  #repository_dispatch:
-  #  types:
-  #    - trigger_illumina_genotyping
-#
-
 env:
   # pipeline configuration
   PROJECT_NAME: WARP
