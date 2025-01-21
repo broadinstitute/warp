@@ -180,7 +180,7 @@ workflow ATAC {
   # if peakcalling task not called set peakcall_h5ad to null
   File peakcall_h5ad = snap_metrics_atac
   if (peak_calling) {
-    File peakcall_h5ad = PeakCalling.peaks_h5ad
+     peakcall_h5ad = PeakCalling.peaks_h5ad
   }
     
   output {
@@ -188,7 +188,7 @@ workflow ATAC {
     File fragment_file = fragment_file_atac
     File snap_metrics = snap_metrics_atac
     File library_metrics_file = library_metrics
-    File peakcall_h5ad_file = peakcall_h5ad
+    File? peakcall_h5ad_file = peakcall_h5ad
   }
 }
 
