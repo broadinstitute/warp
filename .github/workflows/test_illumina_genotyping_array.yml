@@ -100,7 +100,7 @@ jobs:
 
       - name: Cancel Previous Runs
         run: |
-          python firecloud_api.py \
+          python3 scripts/firecloud_api/firecloud_api.py \
             --workspace-namespace "${{ env.WORKSPACE_NAMESPACE }}" \
             --workspace-name "${{ env.TESTING_WORKSPACE }}" \
             --pipeline_name "${{ env.PIPELINE_NAME }}" \
