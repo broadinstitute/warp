@@ -1,4 +1,3 @@
-# In authorized_users.yml
 name: Authorized Users
 
 on:
@@ -22,7 +21,7 @@ jobs:
         id: gatekeeper
         run: |
           echo "The actor is: ${GITHUB_ACTOR}"
-          APPROVED_USERS=("nikellepetrillo")
+          APPROVED_USERS=("nikellepetrillo") # Add more users as needed
 
           if [[ " ${APPROVED_USERS[@]} " =~ " ${GITHUB_ACTOR} " ]]; then
             echo "User ${GITHUB_ACTOR} is approved."
