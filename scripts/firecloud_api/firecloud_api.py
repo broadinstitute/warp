@@ -9,7 +9,7 @@ from google.auth import credentials
 import argparse
 import logging
 import time
-
+import os
 
 # Configure logging to display INFO level and above messages
 logging.basicConfig(
