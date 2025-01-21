@@ -41,7 +41,6 @@ on:
         required: false
         default: "master"
 
-
 env:
   # pipeline configuration
   PROJECT_NAME: WARP
