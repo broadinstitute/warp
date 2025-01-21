@@ -178,8 +178,11 @@ workflow ATAC {
   File library_metrics = select_first([BB_fragment.atac_library_metrics, CreateFragmentFile.atac_library_metrics])
   
   # if peakcalling task not called set peakcall_h5ad to null
-  File peakcall_h5ad = (if (peak_calling) PeakCalling.peaks_h5ad else snap_metrics_atac)
-
+  File peakcall_h5ad = snap_metrics_atac
+  if (peak_calling) {
+    File peakcall_h5ad_file = PeakCalling.peaks_h5ad
+  }
+    
   output {
     File bam_aligned_output = bam_aligned_output_atac
     File fragment_file = fragment_file_atac
