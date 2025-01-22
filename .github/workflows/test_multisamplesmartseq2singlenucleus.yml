@@ -376,8 +376,13 @@ jobs:
           echo -e "$FINAL_SUMMARY" >> $GITHUB_STEP_SUMMARY
           
           # Exit with error if any workflows failed
-          if [ "$OVERALL_SUCCESS" = false ]; then
+          if [ "$OVERALL_SUCCESS" = false ]; then          
+              echo ""
+              echo "****************************************************************************************"
+              echo "****************************************************************************************"
               echo "One or more workflows failed in Terra. Check the workflow status summary for details."
+              echo "****************************************************************************************"
+              echo "****************************************************************************************"
               exit 1
           fi
         env:
