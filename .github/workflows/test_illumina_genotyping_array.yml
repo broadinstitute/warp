@@ -334,7 +334,6 @@ jobs:
               if [ ! -z "$FAILED_WORKFLOWS" ]; then
                   echo "Failed workflows detected:"
                   echo "$FAILED_WORKFLOWS"
-                  echo ""
                   OVERALL_SUCCESS=false
               fi
           
