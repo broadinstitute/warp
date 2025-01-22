@@ -1,3 +1,15 @@
+# 7.9.1
+2025-01-13 (Date of Last Commit)
+
+* Added a boolean variable is_slidetags; set to false by default, but set to true if the Slide-Tags pipeline is calling Optimus
+
+* Added reference_gtf_file to the output h5ad unstructured metadata
+
+# 7.9.0
+2024-12-05 (Date of Last Commit)
+
+* Added an optional task to the Optimus.wdl that will run CellBender on the Optimus output h5ad file
+
 # 7.8.4
 2024-12-3 (Date of Last Commit)
 
