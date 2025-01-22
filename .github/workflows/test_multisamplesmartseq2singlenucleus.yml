@@ -378,11 +378,16 @@ jobs:
           # Exit with error if any workflows failed
           if [ "$OVERALL_SUCCESS" = false ]; then          
               echo ""
+              echo ""
               echo "****************************************************************************************"
               echo "****************************************************************************************"
+              echo ""
               echo "One or more workflows failed in Terra. Check the workflow status summary for details."
+              echo ""
               echo "****************************************************************************************"
               echo "****************************************************************************************"
+              echo ""
+              echo ""
               exit 1
           fi
         env:
