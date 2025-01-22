@@ -8,7 +8,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "1.9.1"
+    String pipeline_version = "1.10.0"
 
 
     input {
@@ -33,7 +33,7 @@ workflow PairedTag {
         Boolean count_exons = false
         File gex_whitelist = if cloud_provider == "gcp" then "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt" else "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_gex.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
 
-        String? soloMultiMappers = "Uniform"
+        String? soloMultiMappers = "EM"
         # ATAC inputs
         # Array of input fastq files
         Array[File] atac_r1_fastq
@@ -153,6 +153,7 @@ workflow PairedTag {
     }
     
     File atac_fragment_out = select_first([ParseBarcodes.atac_fragment_tsv,Atac_preindex.fragment_file])
+    File atac_fragment_index_out = select_first([ParseBarcodes.atac_fragment_tsv_tbi,Atac_preindex.fragment_file_index])
     File atac_h5ad_out = select_first([ParseBarcodes.atac_h5ad_file, Atac_preindex.snap_metrics])
     
     output {
@@ -164,6 +165,7 @@ workflow PairedTag {
         File fragment_file_atac = atac_fragment_out
         File snap_metrics_atac = atac_h5ad_out
         File atac_library_final = Atac_preindex.library_metrics_file
+        File fragment_file_index_atac = atac_fragment_index_out
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
