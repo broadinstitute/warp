@@ -74,12 +74,7 @@ env:
 
 
 jobs:
-  check-authorization:
-    uses: ./.github/workflows/authorized_users.yml
-
   TestWholeGenomeReprocessing:
-    needs: check-authorization
-    if: ${{ needs.check-authorization.outputs.approved == 'true' }}
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
