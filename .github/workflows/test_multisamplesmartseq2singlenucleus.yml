@@ -66,12 +66,7 @@ env:
 
 
 jobs:
-  check-authorization:
-    uses: ./.github/workflows/authorized_users.yml
-
   TestMultiSampleSmartSeq2SingleNucleus:
-    needs: check-authorization
-    if: ${{ needs.check-authorization.outputs.approved == 'true' }}
     runs-on: ubuntu-latest
     # Add "id-token" with the intended permissions.
     permissions:
