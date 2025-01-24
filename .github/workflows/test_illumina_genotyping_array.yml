@@ -151,7 +151,8 @@ jobs:
           # Wait 5.5 minutes for Dockstore to update
           sleep 3
           
-          MAX_WAIT_TIME=$((15 * 60)) # 15 minutes in seconds
+          #MAX_WAIT_TIME=$((15 * 60)) # 15 minutes in seconds
+          MAX_WAIT_TIME=$((1*1)) # 15 minutes in seconds
           WAIT_INTERVAL=60          # 1 minute in seconds
           TOTAL_WAITED=0
 
