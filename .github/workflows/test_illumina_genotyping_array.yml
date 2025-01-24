@@ -153,7 +153,8 @@ jobs:
           
           #MAX_WAIT_TIME=$((15 * 60)) # 15 minutes in seconds
           MAX_WAIT_TIME=$((1*1)) # 15 minutes in seconds
-          WAIT_INTERVAL=60          # 1 minute in seconds
+          #WAIT_INTERVAL=60          # 1 minute in seconds
+          WAIT_INTERVAL=1          # 1 minute in seconds
           TOTAL_WAITED=0
 
           echo "Starting hash comparison with retry mechanism..."
