@@ -76,7 +76,8 @@ jobs:
         uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ github.token }}
-          all_but_latest: true      # This ensures only the latest run continues
+          all_but_latest: true
+          ignore_sha: true
 
       - name: Set up python
         id: setup-python
