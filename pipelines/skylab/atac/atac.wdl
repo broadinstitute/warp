@@ -167,6 +167,7 @@ workflow ATAC {
           bam = BWAPairedEndAlignment.bam_aligned_output,
           annotations_gtf = annotations_gtf,
           metrics_h5ad = CreateFragmentFile.Snap_metrics,
+          chrom_sizes = chrom_sizes,
           docker_path = docker_prefix + snap_atac_docker
       }
     }
@@ -657,7 +658,8 @@ task PeakCalling {
   input {
     File bam
     File annotations_gtf
-    File metrics_h5ad   
+    File metrics_h5ad  
+    File chrom_sizes
     # SnapATAC2 parameters
     Int min_counts = 5000
     Int min_tsse = 10
@@ -694,6 +696,7 @@ task PeakCalling {
     bam_base_name = "~{bam_base_name}"
     atac_gtf = "~{annotations_gtf}"
     metrics_h5ad = "~{metrics_h5ad}"
+    chrom_sizes = "~{chrom_sizes}"
     min_counts = "~{min_counts}"
     min_tsse = "~{min_tsse}"
     max_counts = "~{max_counts}"
@@ -772,6 +775,9 @@ task PeakCalling {
     print("Peak calling using MACS3")
     snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=1)
     
+    peaks = snap.tl.merge_peaks(atac_data_mod.uns['macs3'], chrom_sizes)
+    peak_matrix = snap.pp.make_peak_matrix(atac_data_mod, use_rep=peaks['Peaks'])
+
     print("Convert pl.DataFrame to pandas DataFrame")
     # Convert pl.DataFrame to pandas DataFrame
     for key in atac_data_mod.uns.keys():
@@ -781,6 +787,7 @@ task PeakCalling {
 
     print("Write into h5ad file")
     atac_data_mod.write_h5ad("~{bam_base_name}.peaks.h5ad")
+    peak_matrix.write_h5ad("~{bam_base_name}.matrix.h5ad")
     print("test")
      
     CODE
@@ -795,6 +802,6 @@ task PeakCalling {
 
   output {
     File peaks_h5ad = "~{bam_base_name}.peaks.h5ad"
+    File matrix_h5ad = "~{bam_base_name}.matrix.h5ad"
   }
-
 }
