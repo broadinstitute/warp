@@ -542,11 +542,6 @@ if __name__ == "__main__":
         if not all([args.pipeline_name, args.branch_name]):
             parser.error("Arguments --pipeline_name and --branch_name are required for 'cancel_old_submissions'")
 
-        # Get the current commit hash from the environment or as an argument
-        current_commit = os.environ.get('GITHUB_SHA')
-        if not current_commit:
-            parser.error("GITHUB_SHA environment variable is required for 'cancel_old_submissions'")
-
         # Cancel old submissions
         cancelled_count = api.cancel_old_submissions(
             args.pipeline_name,
