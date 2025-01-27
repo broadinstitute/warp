@@ -72,7 +72,7 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - name: Cancel Previous Runs
+      - name: Cancel Previous GHA Runs
         uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ github.token }}
@@ -100,7 +100,7 @@ jobs:
             echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
           fi
 
-      - name: Cancel Previous Runs
+      - name: Cancel Previous Terra Runs
         run: |
           python3 scripts/firecloud_api/firecloud_api.py \
             --workspace-namespace "${{ env.WORKSPACE_NAMESPACE }}" \
