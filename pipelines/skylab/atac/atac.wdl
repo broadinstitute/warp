@@ -778,7 +778,11 @@ task PeakCalling {
     snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=1)
     
     print("Merge peaks and create peak matrix")
-    peaks = snap.tl.merge_peaks(atac_data_mod.uns['macs3'], chrom_sizes)
+    # read chrom sizes
+    chromsize_dict = pd.read_csv(chrom_sizes, sep='\t', header=None)
+    chromsize_dict = pd.Series(mouse_chromsize[1].values, index=mouse_chromsize[0]).to_dict()
+    # merge peaks and create peak matrix
+    peaks = snap.tl.merge_peaks(atac_data_mod.uns['macs3'], chromsize_dict)
     peak_matrix = snap.pp.make_peak_matrix(atac_data_mod, use_rep=peaks['Peaks'])
     print(type(peak_matrix))
 
