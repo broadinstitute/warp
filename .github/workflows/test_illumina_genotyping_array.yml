@@ -64,6 +64,7 @@ jobs:
     permissions:
       contents: 'read'
       id-token: 'write'
+      actions: write
 
     steps:
       # actions/checkout MUST come before auth action
@@ -75,7 +76,6 @@ jobs:
         uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ github.token }}
-          workflow_type: "all"       # This ensures it catches manually triggered workflows
           all_but_latest: true      # This ensures only the latest run continues
 
       - name: Set up python
