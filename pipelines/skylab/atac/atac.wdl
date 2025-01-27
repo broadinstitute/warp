@@ -777,8 +777,10 @@ task PeakCalling {
     print("Peak calling using MACS3")
     snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=1)
     
+    print("Merge peaks and create peak matrix")
     peaks = snap.tl.merge_peaks(atac_data_mod.uns['macs3'], chrom_sizes)
     peak_matrix = snap.pp.make_peak_matrix(atac_data_mod, use_rep=peaks['Peaks'])
+    print(type(peak_matrix))
 
     print("Convert pl.DataFrame to pandas DataFrame")
     # Convert pl.DataFrame to pandas DataFrame
