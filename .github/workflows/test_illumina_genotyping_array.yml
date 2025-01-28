@@ -33,6 +33,10 @@ on:
       testType:
         description: 'Specify the type of test (Plumbing or Scientific)'
         required: false
+        type: choice
+        options:
+          - Plumbing
+          - Scientific
       truthBranch:
         description: 'Specify the branch for truth files (default: master)'
         required: false
@@ -177,8 +181,12 @@ jobs:
               echo "testType=Plumbing"
             fi
           else
-            # For workflow_dispatch, default based on target branch
-            if [ "${{ github.ref }}" == "refs/heads/master" ]; then
+            # # For workflow_dispatch, check manual input first
+            if [ ! -z "${{ github.event.inputs.testType }}" ]; then
+              echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
+              echo "testType is set to ${{ github.event.inputs.testType }} from manual input"
+            # If no manual input, default based on target branch
+            elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
               echo "testType=Scientific" >> $GITHUB_ENV
               echo "testType is set to Scientific as the branch is ${{ github.ref }} "
             else
