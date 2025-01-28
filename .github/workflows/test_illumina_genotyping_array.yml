@@ -291,6 +291,7 @@ jobs:
                 --test_input_file "$test_input_file" \
                 --branch_name "$BRANCH_NAME" \
                 --sa-json-b64 "$SA_JSON_B64" \
+                --test_type "$testType" \
                 --user "$USER"
 
             attempt=1
