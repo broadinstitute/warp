@@ -693,6 +693,7 @@ task PeakCalling {
     import scanpy as sc
     import numpy as np
     import polars as pl
+    import pandas as pd
 
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
