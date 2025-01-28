@@ -159,15 +159,18 @@ class FirecloudAPI:
             return None
 
 
-    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
+    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name, test_type):
         """
         Uploads test inputs to the workspace via Firecloud API.
 
         :param test_inputs: JSON data containing test inputs
+        :param pipeline_name: The name of the pipeline
+        :param branch_name: The name of the branch
+        :param test_type: The type of test (Scientific or Plumbing)
         :return: True if successful, False otherwise
         """
 
-        method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
+        method_config_name = self.get_method_config_name(pipeline_name, branch_name, test_type)
         print(f"Method config name: {method_config_name}")
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
 
@@ -441,7 +444,7 @@ class FirecloudAPI:
             result = self.delete_method_config(method_config_name)
             print(str(result).lower())
         elif self.action == "upload_test_inputs":
-            success = self.upload_test_inputs(self.pipeline_name, self.test_input_file, self.branch_name)
+            success = self.upload_test_inputs(self.pipeline_name, self.test_input_file, self.branch_name, self.test_type)
             if success:
                 logging.info("Test inputs uploaded successfully.")
             else:
@@ -520,7 +523,7 @@ if __name__ == "__main__":
         if not args.pipeline_name or not args.test_input_file or not args.branch_name:
             parser.error("Arguments --pipeline_name, --test_input_file, and --branch_name are required for 'upload_test_inputs'")
         # Call the function to upload test inputs
-        api.upload_test_inputs(args.pipeline_name, args.test_input_file, args.branch_name)
+        api.upload_test_inputs(args.pipeline_name, args.test_input_file, args.branch_name, args.test_type)
 
     elif args.action == "submit_job":
         # Check for required argument for submit_job action
