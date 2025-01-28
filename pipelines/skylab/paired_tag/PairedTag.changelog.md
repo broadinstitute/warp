@@ -4,7 +4,7 @@
 * Added a boolean variable is_slidetags; default is false, but set to true if Slide-Tags pipeline is calling Optimus
 * Added reference_gtf_file to the output h5ad unstructured metadata 
 * Added the fragment file CSI index as workflow output
-* Updated the default STARsolo multimapping parameter to the "EM" tehcnique
+* Updated the default STARsolo multimapping parameter to the EM tehcnique
 
 # 1.9.0
 2024-12-05 (Date of Last Commit)
