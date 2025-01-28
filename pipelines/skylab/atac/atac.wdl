@@ -781,11 +781,13 @@ task PeakCalling {
     print("Merge peaks and create peak matrix")
     # read chrom sizes
     chromsize_dict = pd.read_csv(chrom_sizes, sep='\t', header=None)
-    chromsize_dict = pd.Series(mouse_chromsize[1].values, index=mouse_chromsize[0]).to_dict()
+    chromsize_dict = pd.Series(chromsize_dict[1].values, index=chromsize_dict[0]).to_dict()
     # merge peaks and create peak matrix
     peaks = snap.tl.merge_peaks(atac_data_mod.uns['macs3'], chromsize_dict)
+    print(peaks)
     peak_matrix = snap.pp.make_peak_matrix(atac_data_mod, use_rep=peaks['Peaks'])
     print(type(peak_matrix))
+    print(peak_matrix)
 
     print("Convert pl.DataFrame to pandas DataFrame")
     # Convert pl.DataFrame to pandas DataFrame
