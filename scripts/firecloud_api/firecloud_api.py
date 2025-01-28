@@ -37,7 +37,7 @@ class FirecloudAPI:
         )
         self.delegated_creds = sa_credentials.with_subject(user)
 
-    def get_method_config_name(self, pipeline_name, branch_name, test_type=None):
+    def get_method_config_name(self, pipeline_name, branch_name, test_type):
         """
         Helper method to consistently generate method configuration names
 
@@ -46,8 +46,6 @@ class FirecloudAPI:
         :param test_type: Type of test (Scientific or Plumbing)
         :return: Formatted method configuration name
         """
-        if test_type is None:
-            test_type = args.test_type if hasattr(args, 'test_type') and args.test_type else "Plumbing"
         return f"{pipeline_name}_{test_type}_{branch_name}"
 
     def build_auth_headers(self, token: str):
@@ -121,11 +119,9 @@ class FirecloudAPI:
         :param test_type: The type of test (Scientific or Plumbing)
         :return: The name of the created method configuration or None if failed
         """
-        # Get test_type from args
-        test_type = args.test_type if hasattr(args, 'test_type') and args.test_type else "Plumbing"
 
         # Create method config name with test type
-        method_config_name = f"{pipeline_name}_{test_type}_{branch_name}"
+        method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
 
         payload = {
             "deleted": False,
@@ -170,9 +166,8 @@ class FirecloudAPI:
         :param test_inputs: JSON data containing test inputs
         :return: True if successful, False otherwise
         """
-        test_type = args.test_type if hasattr(args, 'test_type') and args.test_type else "Plumbing"
 
-        method_config_name = f"{pipeline_name}_{test_type}_{branch_name}"
+        method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
         print(f"Method config name: {method_config_name}")
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
 
@@ -409,8 +404,7 @@ class FirecloudAPI:
         Cancel all active submissions for a pipeline's method configuration.
         Returns the number of cancelled submissions.
         """
-        test_type = args.test_type if hasattr(args, 'test_type') and args.test_type else "Plumbing"
-        method_config_name = self.get_method_config_name(pipeline_name, branch_name, test_type)
+        method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
         active_submissions = self.get_active_submissions(method_config_name)
         cancelled_count = 0
 
@@ -424,7 +418,6 @@ class FirecloudAPI:
 
     def main(self):
         logging.info("Starting process based on action.")
-        test_type = args.test_type if hasattr(args, 'test_type') and args.test_type else "Plumbing"
 
         if self.action == "submit_job":
             submission_id = self.submit_job()
@@ -442,7 +435,7 @@ class FirecloudAPI:
             if not args.method_config_name:
                 if not all([args.pipeline_name, args.branch_name]):
                     parser.error("Either --method_config_name or both --pipeline_name and --branch_name are required")
-                method_config_name = self.get_method_config_name(args.pipeline_name, args.branch_name, test_type)
+                method_config_name = self.get_method_config_name(args.pipeline_name, args.branch_name, args.test_type)
             else:
                 method_config_name = args.method_config_name
             result = self.delete_method_config(method_config_name)
@@ -504,7 +497,7 @@ if __name__ == "__main__":
     parser.add_argument("--source", help="Source GCS path for gsutil copy")
     parser.add_argument("--destination", help="Destination GCS path for gsutil copy")
     parser.add_argument("--method_config_name", help="Name of the method configuration to delete")
-    parser.add_argument("--test_type", help="Test type (Scientific or Plumbing)", default="Plumbing" )
+    parser.add_argument("--test_type", help="Test type (Scientific or Plumbing)")
     parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "create_new_method_config", "delete_method_config", "cancel_old_submissions"],
                         help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs',  'create_new_method_config', or 'delete_method_config'")
 
