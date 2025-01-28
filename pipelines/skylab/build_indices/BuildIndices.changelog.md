@@ -1,3 +1,9 @@
+# 4.0.0
+2025-01-17 (Date of Last Commit)
+
+* Updated the WDL to include a new docker version 2.1.0 which has new python scripts for handling a custom marmoset GTF input
+* Updated the WDL to run new marmoset scripts if the organism input is set to marmoset
+
 # 3.1.0
 2024-11-26 (Date of Last Commit)
 

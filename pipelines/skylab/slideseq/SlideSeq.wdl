@@ -25,7 +25,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow SlideSeq {
 
-    String pipeline_version = "3.4.7"
+    String pipeline_version = "3.4.8"
 
     input {
         Array[File] r1_fastq
@@ -48,7 +48,7 @@ workflow SlideSeq {
     # docker images
     String pytools_docker = "pytools:1.0.0-1661263730"
     String picard_cloud_docker = "picard-cloud:2.26.10"
-    String warp_tools_docker_2_2_0 = "warp-tools:2.5.0"
+    String warp_tools_docker = "warp-tools:2.6.0"
     String star_merge_docker = "star-merge-npz:1.3.0"
 
     String ubuntu_docker = "ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
@@ -124,7 +124,7 @@ workflow SlideSeq {
             bam_input = MergeBam.output_bam,
             original_gtf = annotations_gtf,
             input_id = input_id,
-            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
+            warp_tools_docker_path = docker_prefix + warp_tools_docker
     }
     call Metrics.CalculateUMIsMetrics as UMIsMetrics {
         input:
@@ -138,7 +138,7 @@ workflow SlideSeq {
             bam_input = MergeBam.output_bam,
             original_gtf = annotations_gtf,
             input_id = input_id,
-            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
+            warp_tools_docker_path = docker_prefix + warp_tools_docker
 
     }
 
@@ -162,7 +162,7 @@ workflow SlideSeq {
                 gene_id = MergeStarOutputs.col_index,
                 add_emptydrops_data = "no",
                 pipeline_version = "SlideSeq_v~{pipeline_version}",
-                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
+                warp_tools_docker_path = docker_prefix + warp_tools_docker
 
         }
     }
@@ -188,7 +188,7 @@ workflow SlideSeq {
                 cell_id_exon = MergeStarOutputsExons.row_index,
                 gene_id_exon = MergeStarOutputsExons.col_index,
                 pipeline_version = "SlideSeq_v~{pipeline_version}",
-                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_2_0
+                warp_tools_docker_path = docker_prefix + warp_tools_docker
         }
     }
 

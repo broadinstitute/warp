@@ -49,7 +49,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.5.3"
+  String pipeline_version = "2.6.0"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -57,7 +57,7 @@ workflow ATAC {
   String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
   # Docker image names
-  String warp_tools_2_2_0 = "warp-tools:2.5.0"
+  String warp_tools_docker = "warp-tools:2.6.0"
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
@@ -99,7 +99,7 @@ workflow ATAC {
       output_base_name = input_id,
       num_output_files = GetNumSplits.ranks_per_node_out,
       whitelist = whitelist,
-      docker_path = docker_prefix + warp_tools_2_2_0
+      docker_path = docker_prefix + warp_tools_docker
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
@@ -164,12 +164,14 @@ workflow ATAC {
 
   File bam_aligned_output_atac = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
   File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
+  File fragment_file_index_atac = select_first([BB_fragment.fragment_file_index, CreateFragmentFile.fragment_file_index])
   File snap_metrics_atac = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])
   File library_metrics = select_first([BB_fragment.atac_library_metrics, CreateFragmentFile.atac_library_metrics])
 
   output {
     File bam_aligned_output = bam_aligned_output_atac
     File fragment_file = fragment_file_atac
+    File fragment_file_index = fragment_file_index_atac
     File snap_metrics = snap_metrics_atac
     File library_metrics_file = library_metrics
   }
@@ -521,6 +523,7 @@ task CreateFragmentFile {
     String atac_nhash_id = ""
     String input_id
     Int atac_expected_cells = 3000
+    String gtf_path = annotations_gtf
   }
 
   parameter_meta {
@@ -601,6 +604,12 @@ task CreateFragmentFile {
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
     # Add nhash_id to h5ad file as unstructured metadata
     atac_data.uns['NHashID'] = atac_nhash_id
+
+    # Add GTF to uns field
+    # Original path from args.annotation_file
+    gtf_path = "~{gtf_path}"  # e.g., 'gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf'
+    
+    atac_data.uns["reference_gtf_file"] = gtf_path
     # calculate tsse metrics
     snap.metrics.tsse(atac_data, atac_gtf)
     # Write new atac file
