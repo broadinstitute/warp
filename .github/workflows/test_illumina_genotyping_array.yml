@@ -197,6 +197,7 @@ jobs:
             --workspace-name "$TESTING_WORKSPACE" \
             --pipeline_name "$PIPELINE_NAME" \
             --branch_name "$BRANCH_NAME" \
+            --test_type "$testType" \
             --sa-json-b64 "$SA_JSON_B64" \
             --user "$USER")
 
@@ -260,7 +261,7 @@ jobs:
             SUBMISSION_DATA_FILE="submission_data.json"
             printf '{
               "methodConfigurationNamespace": "%s",
-              "methodConfigurationName": "%s",
+              "methodConfigurationName": "%s_%s_%s",
               "useCallCache": %s,
               "deleteIntermediateOutputFiles": false,
               "useReferenceDisks": true,
@@ -268,7 +269,7 @@ jobs:
               "workflowFailureMode": "NoNewCalls",
               "userComment": "%s",
               "ignoreEmptyOutputs": false
-            }' "$WORKSPACE_NAMESPACE" "$METHOD_CONFIG_NAME" "$USE_CALL_CACHE_BOOL" "$input_file_filename" > "$SUBMISSION_DATA_FILE"
+            }' "$WORKSPACE_NAMESPACE" "$PIPELINE_NAME" "$TEST_TYPE" "$BRANCH_NAME" "$USE_CALL_CACHE_BOOL" "$input_file_filename" > "$SUBMISSION_DATA_FILE"
            
             echo "Created submission data file: $SUBMISSION_DATA_FILE"
             cat "$SUBMISSION_DATA_FILE"
@@ -419,9 +420,10 @@ jobs:
             --workspace-name "$TESTING_WORKSPACE" \
             --pipeline_name "$PIPELINE_NAME" \
             --branch_name "$BRANCH_NAME" \
+            --test_type "$testType" \
             --sa-json-b64 "$SA_JSON_B64" \
             --user "$USER" \
-            --method_config_name "$METHOD_CONFIG_NAME")
+            --method_config_name "${PIPELINE_NAME}_${testType}_${BRANCH_NAME}")
             echo "Delete response: $DELETE_RESPONSE"
           if [ "$DELETE_RESPONSE" == "True" ]; then
             echo "Method configuration deleted successfully."
