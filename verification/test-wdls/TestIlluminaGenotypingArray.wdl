@@ -4,7 +4,7 @@ version 1.0
 import "../../pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl" as IlluminaGenotypingArray
 import "../../verification/VerifyIlluminaGenotypingArray.wdl" as VerifyIlluminaGenotypingArray
 import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestIlluminaGenotypingArray {
 
@@ -46,14 +46,13 @@ workflow TestIlluminaGenotypingArray {
       String truth_path
       String results_path
       Boolean update_truth
-      String vault_token_path
-      String google_account_vault_path
     }
 
     meta {
       allowNestedInputs: true
     }
-  
+
+
     call IlluminaGenotypingArray.IlluminaGenotypingArray {
       input:
         sample_alias = sample_alias,
@@ -88,10 +87,9 @@ workflow TestIlluminaGenotypingArray {
         disk_size = disk_size,
         preemptible_tries = preemptible_tries,
         genotype_concordance_threshold = genotype_concordance_threshold
-  
     }
 
-    
+
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
@@ -108,7 +106,7 @@ workflow TestIlluminaGenotypingArray {
                                     select_all([IlluminaGenotypingArray.output_vcf_md5_cloud_path]),
     ])
 
-    
+
     # Collect all of the pipeline metrics into single Array[String]
     Array[String] pipeline_metrics = flatten([
                                     # File? outputs
@@ -127,21 +125,17 @@ workflow TestIlluminaGenotypingArray {
     ])
 
     # Copy results of pipeline to test results bucket
-    call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
+    call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
       input:
         files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-        vault_token_path          = vault_token_path,
-        google_account_vault_path = google_account_vault_path,
         destination_cloud_path    = results_path
     }
-  
+
     # If updating truth then copy output to truth bucket
     if (update_truth){
-      call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
-        input: 
+      call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
+        input:
           files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-          vault_token_path          = vault_token_path,
-          google_account_vault_path = google_account_vault_path,
           destination_cloud_path    = truth_path
       }
     }
@@ -185,29 +179,25 @@ workflow TestIlluminaGenotypingArray {
             results_path = results_path,
             truth_path = truth_path
         }
-
       call VerifyIlluminaGenotypingArray.VerifyIlluminaGenotypingArray as Verify {
         input:
-          truth_metrics = GetMetrics.truth_files, 
+          truth_metrics = GetMetrics.truth_files,
           test_metrics = GetMetrics.results_files,
-          truth_gtc = GetGtc.truth_file, 
+          truth_gtc = GetGtc.truth_file,
           test_gtc = GetGtc.results_file,
-          truth_vcf = GetVcf.truth_file, 
+          truth_vcf = GetVcf.truth_file,
           test_vcf = GetVcf.results_file,
-          truth_fp_vcf = GetFpVcf.truth_file, 
+          truth_fp_vcf = GetFpVcf.truth_file,
           test_fp_vcf = GetFpVcf.results_file,
-          truth_red_idat_md5 = GetRedIdatMd5.truth_file, 
+          truth_red_idat_md5 = GetRedIdatMd5.truth_file,
           test_red_idat_md5 = GetRedIdatMd5.results_file,
-          truth_green_idat_md5 = GetGreenIdatMd5.truth_file, 
+          truth_green_idat_md5 = GetGreenIdatMd5.truth_file,
           test_green_idat_md5 = GetGreenIdatMd5.results_file,
           bead_pool_manifest_file = bead_pool_manifest_file,
           done = CopyToTestResults.done
       }
-  
     }
 
-
-
-
-
+    output {
+    }
 }

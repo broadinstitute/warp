@@ -2,7 +2,7 @@ version 1.0
 
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../verification/VerifyRNAWithUMIs.wdl" as VerifyRNAWithUMIs
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 import "../../pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
 
 workflow TestRNAWithUMIsPipeline {
@@ -48,8 +48,6 @@ workflow TestRNAWithUMIsPipeline {
       String truth_path
       String results_path
       Boolean update_truth
-      String vault_token_path
-      String google_account_vault_path
   }
 
   meta {
@@ -110,21 +108,17 @@ workflow TestRNAWithUMIsPipeline {
   Array[String] pipeline_text_metrics = select_all([RNAWithUMIsPipeline.rnaseqc2_metrics])
 
   #Copy results of pipeline to test results bucket
-  call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
+  call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
     input:
       files_to_copy             = flatten([pipeline_outputs, pipeline_metrics, pipeline_text_metrics]),
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path,
       destination_cloud_path    = results_path
   }
 
   # If updating truth then copy pipeline results to truth bucket
   if (update_truth) {
-    call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
+    call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
     input:
       files_to_copy             = flatten([pipeline_outputs, pipeline_metrics, pipeline_text_metrics]),
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path,
       destination_cloud_path    = truth_path
     }
   }
