@@ -7,7 +7,7 @@ slug: /Pipelines/BuildIndices_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [BuildIndices_v3.0.0](https://github.com/broadinstitute/warp/releases) | December, 2023 | Kaylee Mathews | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
+| [BuildIndices_v4.0.0](https://github.com/broadinstitute/warp/releases) | January, 2025 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
 ![BuildIndices_diagram](./buildindices_diagram.png)
 
@@ -48,6 +48,11 @@ The BuildIndices pipeline can be deployed using [Cromwell](https://cromwell.read
 The BuildIndices workflow inputs are specified in JSON configuration files. Configuration files for [macaque](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/Macaque.json) and [mouse](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/Mouse.json) references can be found in the WARP repository.
 
 #### Input descriptions
+The table below describes the input variables for the BuildIndices workflow. 
+
+:::tip
+Marmoset scripts expect a custom-modified input Marmoset GTF file and FASTA file. These inputs and accompanying README are located in a [public Google Drive](https://drive.google.com/drive/folders/15JcUhwOqkJwTVS8BOlA0yIdjh4RwJOdz) maintained by Mike Debardine from the BICAN consortium.
+:::
 
 | Parameter name | Description | Type |
 | --- | --- | --- |
@@ -64,7 +69,7 @@ The BuildIndices workflow inputs are specified in JSON configuration files. Conf
 Overall, the BuildIndices workflow:
 1. Checks inputs, modifies reference files, and creates STAR index.
 2. Calculates chromosome sizes.
-3. Builds reference bundle for bwa.
+3. Builds reference bundle for bwa-mem2.
 
 The tasks and tools used in the BuildIndices workflow are detailed in the table below. 
 
@@ -72,7 +77,7 @@ To see specific tool parameters, select the [workflow WDL link](https://github.c
 
 | Task name | Tool | Software | Description | 
 | --- | --- | --- | --- | 
-| BuildStarSingleNucleus | [modify_gtf.py](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/modify_gtf.py), STAR | [warp-tools](https://github.com/broadinstitute/warp-tools/tree/develop), [STAR](https://github.com/alexdobin/STAR) | Checks that the input GTF file contains input genome source, genome build version, and annotation version with correct build source information, modifies files for the STAR aligner, and creates STAR index file. |
+| BuildStarSingleNucleus | [modify_gtf.py](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/modify_gtf.py), STAR | [warp-tools](https://github.com/broadinstitute/warp-tools/tree/develop), [STAR](https://github.com/alexdobin/STAR) | Checks that the input GTF file contains input genome source, genome build version, and annotation version with correct build source information, modifies files for the STAR aligner, and creates STAR index file. If "Marmoset" is selected as organism, a [Marmoset-specific custom script](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/modify_gtf_marmoset.py) is run to modify the GTF |
 | CalculateChromosomeSizes | faidx | [Samtools](http://www.htslib.org/) | Reads the genome FASTA file to create a FASTA index file that contains the genome chromosome sizes. |
 | BuildBWAreference | index | [bwa-mem2](https://github.com/bwa-mem2/bwa-mem2) | Builds the reference bundle for the bwa aligner. |
 
@@ -84,7 +89,7 @@ The BuildStarSingleNucleus task reads the input GTF file and verifies that the `
 
 **Modify reference files and create STAR index**
 
-The BuildStarSingleNucleus task uses a custom python script, [`modify_gtf.py`](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/modify_gtf.py), and a list of biotypes ([example](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/Biotypes.tsv)) to filter the input GTF file for only the biotypes indicated in the list with the value “Y” in the second column. The defaults in the custom code produce reference outputs that are similar to those built with 10x Genomics reference scripts.
+The BuildStarSingleNucleus task uses a custom python script, [`modify_gtf.py`](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/modify_gtf.py) or [`modify_get_marmoset`](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/modify_gtf_marmoset.py), and a list of biotypes ([example](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/Biotypes.tsv)) to filter the input GTF file for only the biotypes indicated in the list with the value “Y” in the second column. The defaults in the custom code produce reference outputs that are similar to those built with 10x Genomics reference scripts.
 
 The task uses the filtered GTF file and STAR `--runMode genomeGenerate` to generate the index file for the STAR aligner. Outputs of the task include the modified GTF and compressed STAR index files.
 
@@ -119,10 +124,127 @@ If you use the BuildIndices Pipeline in your research, please consider citing ou
 Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Consortia support
-This pipeline is supported by the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN). 
+This pipeline is supported by the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN) and SCORCH. 
 
 If your organization also uses this pipeline, we would like to list you! Please reach out to us by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues).
+
+## Example references
+Example references are available in the Broad Public Reference bucket, a Google bucket that hosts reference files at no charge to the end-user.
+
+### Human
+| File Type               | File Location |
+|-------------------------|--------------|
+| Genomics Reference     | GRCh38, primary assembly (PRI) |
+| Gene annotation (PRI)  | GENCODE Release 43 GRCh38.p13 |
+| Reference README       | `gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/v43_README.txt` |
+| STAR Index TAR         | `gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_star2.7.10a-Human-GENCODE-build-GRCh38-43.tar` |
+| STAR Annotation GTF    | `gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf` |
+| BWA-MEM2 Index TAR     | `gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar` |
+| Chromosome Sizes       | `gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/chrom.sizes` |
+
+### Mouse
+
+| File Type               | File Location |
+|-------------------------|--------------|
+| Genomics Reference     | GRCm39, primary assembly (PRI) |
+| Gene annotation (PRI)  | GENCODE Release 32 |
+| Reference README       | `gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/M32_README.txt` |
+| STAR Index TAR         | `gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_star2.7.10a-Mouse-GENCODE-build-GRCm39-M32.tar` |
+| STAR Annotation GTF    | `gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_vM32.annotation.gtf` |
+| BWA-MEM2 Index TAR     | `gs://gcp-public-data--broad-references/GRCm39/bwa/v2_2_1/bwa-mem2-2.2.1-Mouse-GENCODE-build-GRCm39.tar` |
+| Chromosome Sizes       | `gs://gcp-public-data--broad-references/GRCm39/bwa/v2_2_1/chrom.sizes` |
+
+### Macaque
+Inputs for the Macaque reference below were modified using a custom tool to handle nuclear mitochondrial inserts, [numty-dumpty](https://github.com/nkschaefer/numty-dumpty). See the README for the [STAR index](https://storage.cloud.google.com/gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/numty_dumpty/README_STAR.txt) and the [bwa-mem2 index]
+(https://storage.cloud.google.com/gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/numty_dumpty/README_BWA.txt).
+
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomics Reference     | mmul10 |
+| Gene annotation  | RefSeq annotation version 103 |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/numty_dumpty/numt_modified_star2.7.10a-Macaque-NCBI-build-GCF_003339765.1-103.tar` |
+| BWA Index TAR      | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/numty_dumpty/numt_bwa-mem2-2.2.1-Macaque-NCBI-build-GCF_003339765.1.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/numty_dumpty/numt_modified_v103.annotation.gtf` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/numty_dumpty/numt_chrom.sizes` |
+
+
+This macaque reference works with the Optimus, Multiome, and Paired-tag workflows. However, mitochondrial genes are not demarcated with an "mt-" tag. A separate text file with MT genes is required. An example is the list below:
+
+```
+ND1
+ND2
+COX1
+COX2
+ATP8
+ATP6
+COX3
+ND3
+ND4L
+ND4
+ND5
+ND6
+CYTB
+```
+
+An example file with this list is located in a public Google bucket here: gs://warp-testing-public/references/BuildIndices_outs/Macaque_MT_genes.txt
+
+### Marmoset
+Marmoset scripts expect a custom-modified input Marmoset GTF file. These inputs and accompanying README are located in a [public Google Drive](https://drive.google.com/drive/folders/15JcUhwOqkJwTVS8BOlA0yIdjh4RwJOdz) maintained by Mike Debardine from the BICAN consortium.
+
+
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomics Reference     | mCalJa1.2.pat.X (GenBank Accession GCA_011100555.2 and RefSeq Accession GCF_011100555.1) |
+| Gene annotation  | Custom (see note above table) |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/mCalJa1/mCalJa1.2.pat.X/chrom.sizes` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/mCalJa1/mCalJa1.2.pat.X/modified_vGCF_011100555.1-RS_2023_03.annotation.gtf` |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/mCalJa1/mCalJa1.2.pat.X/bwa-mem2-2.2.1-Marmoset-RefSeq-build-mCalJa1.2.pat.X.tar` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/mCalJa1/mCalJa1.2.pat.X/modified_star2.7.10a-Marmoset-RefSeq-build-mCalJa1.2.pat.X-GCF_011100555.1-RS_2023_03.tar` |
+
+### Armadillo
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | mDasNov1.hap2 (NCBI) |
+| Gene Annotation    | RefSeq GCF_030445035.1-RS_2023_07 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/D.novemcinctus/mDasNov1.hap2/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Armadillo-NCBI-build-mDasNov1.hap2.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/D.novemcinctus/mDasNov1.hap2/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/D.novemcinctus/mDasNov1.hap2/cleanome/star/v2_7_10a/modified_star2.7.10a-Armadillo-NCBI-build-mDasNov1.hap2-2.2.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/D.novemcinctus/mDasNov1.hap2/cleanome/star/v2_7_10a/modified_v2.2.annotation.gtf` |
+
+### Opposum
+
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | mMonDom1.pri (NCBI) |
+| Gene Annotation    | RefSeq GCF_027887165.1-RS_2023_05 (RefSeq link) |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/M.domestica/mMonDom1.pri/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Opossum-NCBI-build-mMonDom1.pri.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/M.domestica/mMonDom1.pri/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/M.domestica/mMonDom1.pri/cleanome/star/v2_7_10a/modified_star2.7.10a-Opossum-NCBI-build-mMonDom1.pri-2.2.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/M.domestica/mMonDom1.pri/cleanome/star/v2_7_10a/modified_v2.2.annotation.gtf` |
+
+### Rat
+
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | mRatBN7.2 (NCBI) |
+| Gene Annotation    | RefSeq GCF_015227675.2-RS_2023_06 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/R.norvegicus/mRatBN7.2/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Rat-NCBI-build-mRatBN7.2.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/R.norvegicus/mRatBN7.2/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/R.norvegicus/mRatBN7.2/cleanome/star/v2_7_10a/modified_star2.7.10a-Rat-NCBI-build-mRatBN7.2-2.2.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/R.norvegicus/mRatBN7.2/cleanome/star/v2_7_10a/modified_v2.2.annotation.gtf` |
+
+### Pig
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | Sscrofa11.1 (NCBI) |
+| Gene Annotation    | NCBI Annotation Release 106 (RefSeq GCF_000003025.6_Sscrofa11.1) |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Pig-NCBI-build-Sscrofa11.1.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/star/v2_7_10a/modified_star2.7.10a-Pig-NCBI-build-Sscrofa11.1-2.2.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/star/v2_7_10a/modified_v2.2.annotation.gtf` |
+
 
 ## Feedback
 
 Please help us make our tools better by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues) for pipeline-related suggestions or questions.
+
