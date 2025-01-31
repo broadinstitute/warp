@@ -1,4 +1,4 @@
-name: Test Illumina Genotyping Array
+name: Test Multiome
 
 # Controls when the workflow will run
 on:
