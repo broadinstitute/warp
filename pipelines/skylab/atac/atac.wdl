@@ -794,9 +794,8 @@ task PeakCalling {
           atac_data_mod.uns[key] = atac_data_mod.uns[key].to_pandas()
 
     print("Write into h5ad file")
-    atac_data_mod.write_h5ad("~{bam_base_name}.peaks.h5ad")
-    peak_matrix.write_h5ad("~{bam_base_name}.matrix.h5ad")
-    print("test")
+    atac_data_mod.write_h5ad("~{bam_base_name}.cellbybin.h5ad")
+    peak_matrix.write_h5ad("~{bam_base_name}.cellbypeak.h5ad")
      
     CODE
   >>>
@@ -809,7 +808,7 @@ task PeakCalling {
   }
 
   output {
-    File peaks_h5ad = "~{bam_base_name}.peaks.h5ad"
-    File matrix_h5ad = "~{bam_base_name}.matrix.h5ad"
+    File peaks_h5ad = "~{bam_base_name}.cellbybin.h5ad"
+    File matrix_h5ad = "~{bam_base_name}.cellbypeak.h5ad"
   }
 }
