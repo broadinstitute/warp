@@ -107,42 +107,46 @@ jobs:
             exit 1
           fi
 
-      - name: Fetch Dockstore Workflow Commit Hash
+      - name: Compare Dockstore and Github Commit Hashes with Retry
+        id: compare_hashes
         run: |
+
           # Wait 5.5 minutes for Dockstore to update
           sleep 330
-          
-          DOCKSTORE_COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
-            $DOCKSTORE_TOKEN \
-            $DOCKSTORE_PIPELINE_NAME \
-            $BRANCH_NAME)
-          
-          # Export the commit hash as an environment variable
-          echo "DOCKSTORE_COMMIT_HASH=$DOCKSTORE_COMMIT_HASH_FROM_FETCH" >> $GITHUB_ENV
-          echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH_FROM_FETCH"
 
+          MAX_WAIT_TIME=$((15 * 60)) # 15 minutes in seconds
+          WAIT_INTERVAL=60          # 1 minute in seconds
+          TOTAL_WAITED=0
+
+          echo "Starting hash comparison with retry mechanism..."
+
+          while [ $TOTAL_WAITED -lt $MAX_WAIT_TIME ]; do
+            echo "Fetching Dockstore Commit Hash..."
+            DOCKSTORE_COMMIT_HASH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
+              $DOCKSTORE_TOKEN \
+              $DOCKSTORE_PIPELINE_NAME \
+              $BRANCH_NAME)
+            echo "Fetched Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
+
+            echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
+
+            if [ "$DOCKSTORE_COMMIT_HASH" == "$GITHUB_COMMIT_HASH" ]; then
+              echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
+              exit 0
+            else
+              echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $GITHUB_COMMIT_HASH"
+              echo "Retrying in $WAIT_INTERVAL seconds..."
+              sleep $WAIT_INTERVAL
+              TOTAL_WAITED=$((TOTAL_WAITED + WAIT_INTERVAL))
+            fi
+          done
+
+          echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash after 15 minutes of retries!"
+          exit 1
         env:
-          ## TODO NEED TO ADD DOCKSTORE_TOKEN FOR SERVICE ACCOUNT ##
           DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
           DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
-
-      - name: Compare Dockstore and Commit Hashes
-        id: compare_hashes
-        run: |
-          echo "Comparing hashes..."
-          echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
-          echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
-
-          if [ "$DOCKSTORE_COMMIT_HASH" != "$GITHUB_COMMIT_HASH" ]; then
-            echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash!"
-            echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $GITHUB_COMMIT_HASH"
-            exit 1
-          else
-            echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
-          fi
-        env:
-          DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
           GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
 
       - name: Set Test Type
