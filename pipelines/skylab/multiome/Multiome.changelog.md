@@ -1,3 +1,7 @@
+# 5.9.7
+2025-01-31 (Date of Last Commit)
+* Added an optional PeakCalling task to the ATAC workflow. Added a boolean variable run_peak_calling to the Multiome pipeline; default is false. 
+
 # 5.9.6
 2025-01-21 (Date of Last Commit)
 
