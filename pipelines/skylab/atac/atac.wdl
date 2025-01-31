@@ -661,6 +661,8 @@ task PeakCalling {
     File annotations_gtf
     File metrics_h5ad  
     File chrom_sizes
+    String output_base_name
+
     # SnapATAC2 parameters
     Int min_counts = 5000
     Int min_tsse = 10
@@ -671,7 +673,6 @@ task PeakCalling {
     Int mem_size = 64
     Int nthreads = 4   
   }
-  String base_name = basename(metrics_h5ad, ".h5ad")
   
   parameter_meta {
     bam: "Aligned bam with CB in CB tag. This is the output of the BWAPairedEndAlignment task."
@@ -694,7 +695,7 @@ task PeakCalling {
     import polars as pl
     import pandas as pd
 
-    base_name = "~{base_name}"
+    base_name = "~{output_base_name}"
     atac_gtf = "~{annotations_gtf}"
     metrics_h5ad = "~{metrics_h5ad}"
     chrom_sizes = "~{chrom_sizes}"
@@ -710,7 +711,7 @@ task PeakCalling {
     snap.pl.frag_size_distr(atac_data)
     print(atac_data)
 
-    # Filter cells -- Need to parameterize 
+    # Filter cells
     print("Filtering cells")
     snap.pp.filter_cells(atac_data, min_counts=min_counts, min_tsse=min_tsse, max_counts=max_counts)
     print(atac_data)
@@ -792,8 +793,8 @@ task PeakCalling {
           atac_data_mod.uns[key] = atac_data_mod.uns[key].to_pandas()
 
     print("Write into h5ad file")
-    atac_data_mod.write_h5ad("~{base_name}.cellbybin.h5ad")
-    peak_matrix.write_h5ad("~{base_name}.cellbypeak.h5ad")
+    atac_data_mod.write_h5ad("~{output_base_name}.cellbybin.h5ad")
+    peak_matrix.write_h5ad("~{output_base_name}.cellbypeak.h5ad")
      
     CODE
   >>>
@@ -806,7 +807,7 @@ task PeakCalling {
   }
 
   output {
-    File peaks_h5ad = "~{base_name}.cellbybin.h5ad"
-    File matrix_h5ad = "~{base_name}.cellbypeak.h5ad"
+    File peaks_h5ad = "~{output_base_name}.cellbybin.h5ad"
+    File matrix_h5ad = "~{output_base_name}.cellbypeak.h5ad"
   }
 }
