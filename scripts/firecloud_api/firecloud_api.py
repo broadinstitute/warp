@@ -370,6 +370,8 @@ class FirecloudAPI:
                 else:
                     active_submissions.append(submission)
 
+        #print the active submissions
+        print(f"Active submissions: {json.dumps(active_submissions, indent=2)}
         return active_submissions
 
     def cancel_submission(self, submission_id):
