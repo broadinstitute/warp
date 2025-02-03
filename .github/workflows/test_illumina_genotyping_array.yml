@@ -151,65 +151,71 @@ jobs:
           echo "Fetching all running workflow runs..."
           
           # Get all running workflow runs for this workflow
-          RUNS=$(gh api repos/${{ github.repository }}/actions/runs | jq '.workflow_runs[] | select(.status=="in_progress" or .status=="queued") | {id: .id, event: .event, branch: .head_branch, inputs: .inputs}')
+          RUNS=$(gh api repos/${{ github.repository }}/actions/runs | jq '.workflow_runs[] | select(.status=="in_progress" or .status=="queued") | {id: .id, event: .event, branch: .head_branch, inputs: (.inputs // {})}')
           
           echo "Raw RUNS JSON: $RUNS"
-
+          
           for run in $(echo "$RUNS" | jq -c '.'); do
             RUN_ID=$(echo $run | jq -r '.id')
             echo "Processing run: $RUN_ID"
-
+          
             # Skip the current run
             if [ "$RUN_ID" = "${{ github.run_id }}" ]; then
               echo "Skipping current run: $RUN_ID"
               continue
             fi
-
+          
             # Debug: Show full JSON for the current run
             echo "Run JSON: $run"
-
-            # Check if it's a Scientific test:
-            # 1. Check workflow_dispatch inputs if they exist
-            TEST_TYPE=$(echo $run | jq -r '.inputs.testType // empty')
+          
+            # Ensure inputs exist before trying to extract testType
+            if [ "$(echo $run | jq -r '.inputs')" = "{}" ]; then
+              echo "No inputs found for run $RUN_ID"
+              TEST_TYPE=""
+            else
+              TEST_TYPE=$(echo $run | jq -r '.inputs.testType // empty')
+            fi
+          
             echo "Extracted TEST_TYPE: '$TEST_TYPE'"
-
+          
             if [ "$TEST_TYPE" = "Scientific" ]; then
               echo "Skipping cancellation of Scientific run $RUN_ID (from inputs)"
               continue
             fi
-
+          
             # 2. If no explicit test type, check if it's targeting master branch
             BRANCH=$(echo $run | jq -r '.branch')
             echo "Extracted BRANCH: '$BRANCH'"
-
+          
             if [ "$BRANCH" = "master" ]; then
               echo "Skipping cancellation of Scientific run $RUN_ID (master branch)"
               continue
             fi
-
+          
             # 3. For PRs, check the target branch
             EVENT=$(echo $run | jq -r '.event')
             echo "Extracted EVENT: '$EVENT'"
-
+          
             if [ "$EVENT" = "pull_request" ]; then
               SHA=$(echo $run | jq -r '.head_sha')
               echo "Fetching target branch for PR with SHA: $SHA"
-
+          
               TARGET_BRANCH=$(gh api repos/${{ github.repository }}/pulls --jq ".[] | select(.head.sha==\"$SHA\") | .base.ref")
               echo "Extracted TARGET_BRANCH: '$TARGET_BRANCH'"
-
+          
               if [ "$TARGET_BRANCH" = "master" ]; then
                 echo "Skipping cancellation of Scientific run $RUN_ID (PR to master)"
                 continue
               fi
             fi
-
+          
             # If we get here, it's not a Scientific test, so cancel it
             echo "Canceling run $RUN_ID"
             gh api -X POST repos/${{ github.repository }}/actions/runs/$RUN_ID/cancel
           done
         env:
           GITHUB_TOKEN: ${{ github.token }}
+
 
       - name: Cancel Previous Terra Submissions
         if: ${{ !contains(env.METHOD_CONFIG_NAME, '_Scientific_') }}
