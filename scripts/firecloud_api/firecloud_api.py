@@ -374,6 +374,8 @@ class FirecloudAPI:
         submissions = response.json()
         active_submissions = []
 
+        logging.info(f"Method config name: {method_config_name}")
+
         for submission in submissions:
             # Check if submission is active (not Done, Aborted, or Failed)
             if submission['status'] in ['Submitted', 'Running', 'Queued']:
@@ -383,6 +385,11 @@ class FirecloudAPI:
                 else:
                     active_submissions.append(submission)
 
+        # logging info for active submissions
+        if active_submissions:
+            logging.info(f"Active submissions: {json.dumps(active_submissions, indent=2)}")
+        else:
+            logging.info("No active submissions found.")
         return active_submissions
 
     def cancel_submission(self, submission_id):
