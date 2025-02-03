@@ -155,6 +155,7 @@ jobs:
           ignore_sha: true
 
       - name: Cancel Previous Terra Submissions
+        if: contains(env.METHOD_CONFIG_NAME, 'Plumbing')
         run: |
           python3 scripts/firecloud_api/firecloud_api.py \
             --workspace-namespace "${{ env.WORKSPACE_NAMESPACE }}" \
