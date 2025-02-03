@@ -35,6 +35,6 @@ BuildIndices	 4.0.0	2025-01-17
 MultiSampleSmartSeq2	 2.2.22	2024-09-11 
 Optimus	 7.9.1	2025-01-13 
 atac	 2.7.0	2025-02-03 
-PairedTag	 1.11.0	2025-02-03 
+PairedTag	 1.10.1	2025-02-03 
 SmartSeq2SingleSample	 5.1.21	2024-09-11 
 MultiSampleSmartSeq2SingleNucleus	 2.0.7	2025-01-13 
