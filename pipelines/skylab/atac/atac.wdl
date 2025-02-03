@@ -676,7 +676,6 @@ task PeakCalling {
   }
   
   parameter_meta {
-    bam: "Aligned bam with CB in CB tag. This is the output of the BWAPairedEndAlignment task."
     annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
     disk_size: "Disk size used in create fragment file step."
     mem_size: "The size of memory used in create fragment file."
