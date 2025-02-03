@@ -87,7 +87,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | [TrimAdapters](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | Cutadapt v4.4 | cutadapt | Trims adaptor sequences. |
 | [BWAPairedEndAlignment](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | bwa-mem2 | mem | Aligns reads from each set of partitioned FASTQ files to the genome and outputs a BAM with ATAC barcodes in the CB:Z tag. |
 | [CreateFragmentFile](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | make_fragment_file, import_data | SnapATAC2 | Generates a fragment file from the final aligned BAM and outputs per barcode quality metrics in h5ad. A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
-| [PeakCalling](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | macs3 | SnapATAC2 | Generates two h5ad files (`cellbybin.h5ad` and `cellbypeak.h5ad`) from the CreateFragmentFile h5ad output file (`metrics.h5ad`). The `peaks.h5ad` contains the peak called per cluster in the macs3 unstructured metadata and `matrix.h5ad` contains the merged peaks and the count matrix of peaks per fragment. A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
+| [PeakCalling](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | macs3 | SnapATAC2 | Generates two h5ad files (`cellbybin.h5ad` and `cellbypeak.h5ad`) from the CreateFragmentFile h5ad output file (`metrics.h5ad`). The `cellbybin.h5ad` contains the peak called per cluster in the macs3 unstructured metadata and `cellbypeak.h5ad` contains the merged peaks and the count matrix of peaks per fragment. A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
 
 ## Output variables
 
@@ -97,8 +97,8 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | fragment_file | `<input_id>`.fragments.sorted.tsv.gz | Bgzipped TSV containing fragment start and stop coordinates per barcode. In order, the columns are "Chromosome", "Start", "Stop", "ATAC Barcode", and "Number Reads". | 
 | snap_metrics | `<input_id`.metrics.h5ad | h5ad (Anndata) containing per barcode metrics from [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
  library_metrics | `<input_id>`_`<atac_nhash_id>_library_metrics.csv | CSV file containing library-level metrics. Read more in the [Library Metrics Overview](library-metrics.md) |
-| snap_peaks | `<input_id`.cellbybin.h5ad | h5ad (Anndata) containing peaks (called by MACS3) per cluster [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
-| snap_matrix | `<input_id`.cellbypeak.h5ad | h5ad (Anndata) containing per merged peaks (called by MACS3) per cluster and count matrix of peaks per fragment [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). 
+| snap_cellbybin | `<input_id`.cellbybin.h5ad | h5ad (Anndata) containing peaks (called by MACS3) per cluster [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
+| snap_cellbypeak | `<input_id`.cellbypeak.h5ad | h5ad (Anndata) containing per merged peaks (called by MACS3) per cluster and count matrix of peaks per fragment [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). 
 
 ## Versioning and testing
 
