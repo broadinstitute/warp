@@ -559,7 +559,7 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
-    expected_cells = "~{atac_expected_cells}"
+    expected_cells = ~{atac_expected_cells}
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
