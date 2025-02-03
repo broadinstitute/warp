@@ -380,9 +380,7 @@ class FirecloudAPI:
             # Check if submission is active (not Done, Aborted, or Failed)
             if submission['status'] in ['Submitted', 'Running', 'Queued']:
                 #if method_config_name:
-                #    if submission.get('methodConfigurationName') == method_config_name:
-                active_submissions.append(submission)
-            else:
+                #   if submission.get('methodConfigurationName') == method_config_name:
                 active_submissions.append(submission)
 
         # logging info for active submissions
