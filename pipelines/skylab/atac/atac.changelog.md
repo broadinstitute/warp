@@ -1,6 +1,8 @@
-# 2.6.1
-2025-01-31 (Date of Last Commit)
-* Added an optional PeakCalling task. Added a boolean variable run_peak_calling; default is false. 
+# 2.7.0
+2025-02-03 (Date of Last Commit)
+
+* Added an optional PeakCalling task 
+* Added a boolean variable peak_calling; default is false 
 
 # 2.6.0
 2025-01-21 (Date of Last Commit)
