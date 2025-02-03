@@ -149,7 +149,7 @@ jobs:
       - name: Cancel Previous GHA Runs
         run: |
           # Get all running workflow runs for this workflow
-          RUNS=$(gh api repos/${{ github.repository }}/actions/workflows/${{ github.workflow }}/runs --jq '.workflow_runs[] | select(.status=="in_progress" or .status=="queued") | {id: .id, event: .event, branch: .head_branch, inputs: .inputs}')
+          RUNS=$(gh api repos/${{ github.repository }}/actions/runs | jq '.workflow_runs[] | select(.status=="in_progress" or .status=="queued") | {id: .id, event: .event, branch: .head_branch, inputs: .inputs}')
           
           for run in $(echo "$RUNS" | jq -c '.'); do
             RUN_ID=$(echo $run | jq -r '.id')
