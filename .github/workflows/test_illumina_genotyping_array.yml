@@ -76,6 +76,12 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
       - name: Install dependencies
         run: |
           cd scripts/firecloud_api/
@@ -147,12 +153,6 @@ jobs:
           access_token: ${{ github.token }}
           all_but_latest: true
           ignore_sha: true
-
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
 
       - name: Cancel Previous Terra Submissions
         run: |
