@@ -147,12 +147,61 @@ jobs:
           USER: ${{ env.USER }}
 
       - name: Cancel Previous GHA Runs
+        run: |
+          # Get all running workflow runs for this workflow
+          RUNS=$(gh api repos/${{ github.repository }}/actions/workflows/${{ github.workflow }}/runs --jq '.workflow_runs[] | select(.status=="in_progress" or .status=="queued") | {id: .id, event: .event, branch: .head_branch, inputs: .inputs}')
+          
+          for run in $(echo "$RUNS" | jq -c '.'); do
+            RUN_ID=$(echo $run | jq -r '.id')
+          
+            # Skip the current run
+            if [ "$RUN_ID" = "${{ github.run_id }}" ]; then
+              continue
+            fi
+          
+            # Check if it's a Scientific test:
+            # 1. Check workflow_dispatch inputs if they exist
+            TEST_TYPE=$(echo $run | jq -r '.inputs.testType // empty')
+            if [ "$TEST_TYPE" = "Scientific" ]; then
+              echo "Skipping cancellation of Scientific run $RUN_ID (from inputs)"
+              continue
+            fi
+          
+            # 2. If no explicit test type, check if it's targeting master branch
+            BRANCH=$(echo $run | jq -r '.branch')
+            if [ "$BRANCH" = "master" ]; then
+              echo "Skipping cancellation of Scientific run $RUN_ID (master branch)"
+              continue
+            fi
+          
+            # 3. For PRs, check the target branch
+            if [ "$(echo $run | jq -r '.event')" = "pull_request" ]; then
+              TARGET_BRANCH=$(gh api repos/${{ github.repository }}/pulls --jq ".[] | select(.head.sha==\"$SHA\") | .base.ref")
+              if [ "$TARGET_BRANCH" = "master" ]; then
+                echo "Skipping cancellation of Scientific run $RUN_ID (PR to master)"
+                continue
+              fi
+            fi
+          
+            # If we get here, it's not a Scientific test, so cancel it
+            echo "Canceling run $RUN_ID"
+            gh api -X POST repos/${{ github.repository }}/actions/runs/$RUN_ID/cancel
+          done
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Cancel Previous Terra Submissions
         if: ${{ !contains(env.METHOD_CONFIG_NAME, '_Scientific_') }}
-        uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          access_token: ${{ github.token }}
-          all_but_latest: true
-          ignore_sha: true
+        run: |
+          python3 scripts/firecloud_api/firecloud_api.py \
+            --workspace-namespace "${{ env.WORKSPACE_NAMESPACE }}" \
+            --workspace-name "${{ env.TESTING_WORKSPACE }}" \
+            --pipeline_name "${{ env.PIPELINE_NAME }}" \
+            --branch_name "${{ env.BRANCH_NAME }}" \
+            --sa-json-b64 "${{ secrets.PDT_TESTER_SA_B64 }}" \
+            --user "${{ env.USER }}" \
+            --test_type "$testType" \
+            cancel_old_submissions
 
       - name: Cancel Previous Terra Submissions
         if: ${{ !contains(env.METHOD_CONFIG_NAME, '_Scientific_') }}
