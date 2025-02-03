@@ -1,4 +1,4 @@
-# 1.11.0
+# 1.10.1
 2025-02-03 (Date of Last Commit)
 
 * Added an optional PeakCalling task to the ATAC workflow; this does not affect the outputs of the pipeline

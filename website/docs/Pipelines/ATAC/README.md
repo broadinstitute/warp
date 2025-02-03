@@ -98,7 +98,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | snap_metrics | `<input_id`.metrics.h5ad | h5ad (Anndata) containing per barcode metrics from [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
  library_metrics | `<input_id>`_`<atac_nhash_id>_library_metrics.csv | CSV file containing library-level metrics. Read more in the [Library Metrics Overview](library-metrics.md) |
 | snap_cellbybin | `<input_id>`.cellbybin.h5ad | h5ad (Anndata) containing peaks (called by MACS3) per cluster [SnapATAC2](https://github.com/kaizhang/SnapATAC2). |
-| snap_cellbypeak | `<input_id>`.cellbypeak.h5ad | h5ad (Anndata) containing merged peaks (called by MACS3) per cluster and count matrix of insertion sites per peak and cell [SnapATAC2](https://github.com/kaizhang/SnapATAC2). 
+| snap_cellbypeak | `<input_id>`.cellbypeak.h5ad | h5ad (Anndata) containing merged peaks (called by MACS3) per cluster and count matrix of insertion sites per peak and cell [SnapATAC2](https://github.com/kaizhang/SnapATAC2).|
 
 ## Versioning and testing
 
