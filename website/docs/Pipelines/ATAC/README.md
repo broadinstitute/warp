@@ -97,8 +97,8 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | fragment_file | `<input_id>`.fragments.sorted.tsv.gz | Bgzipped TSV containing fragment start and stop coordinates per barcode. In order, the columns are "Chromosome", "Start", "Stop", "ATAC Barcode", and "Number Reads". | 
 | snap_metrics | `<input_id`.metrics.h5ad | h5ad (Anndata) containing per barcode metrics from [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
  library_metrics | `<input_id>`_`<atac_nhash_id>_library_metrics.csv | CSV file containing library-level metrics. Read more in the [Library Metrics Overview](library-metrics.md) |
-| snap_cellbybin | `<input_id`.cellbybin.h5ad | h5ad (Anndata) containing peaks (called by MACS3) per cluster [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
-| snap_cellbypeak | `<input_id`.cellbypeak.h5ad | h5ad (Anndata) containing per merged peaks (called by MACS3) per cluster and count matrix of peaks per fragment [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). 
+| snap_cellbybin | `<input_id>`.cellbybin.h5ad | h5ad (Anndata) containing peaks (called by MACS3) per cluster [SnapATAC2](https://github.com/kaizhang/SnapATAC2). |
+| snap_cellbypeak | `<input_id>`.cellbypeak.h5ad | h5ad (Anndata) containing merged peaks (called by MACS3) per cluster and count matrix of insertion sites per peak and cell [SnapATAC2](https://github.com/kaizhang/SnapATAC2). 
 
 ## Versioning and testing
 
