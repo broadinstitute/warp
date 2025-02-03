@@ -76,6 +76,11 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
+      - name: Install dependencies
+        run: |
+          cd scripts/firecloud_api/
+          pip install -r requirements.txt
+
       - name: Set Branch Name
         id: set_branch
         run: |
@@ -148,11 +153,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          cd scripts/firecloud_api/
-          pip install -r requirements.txt
 
       - name: Cancel Previous Terra Submissions
         run: |
