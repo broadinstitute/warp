@@ -158,12 +158,15 @@ jobs:
       - name: Cancel Previous Terra Submissions
         if: contains(env.METHOD_CONFIG_NAME, 'Plumbing')
         run: |
+          #echo the test type
+          echo "Test Type: $testType"
           python3 scripts/firecloud_api/firecloud_api.py \
             --workspace-namespace "${{ env.WORKSPACE_NAMESPACE }}" \
             --workspace-name "${{ env.TESTING_WORKSPACE }}" \
             --pipeline_name "${{ env.PIPELINE_NAME }}" \
             --branch_name "${{ env.BRANCH_NAME }}" \
             --sa-json-b64 "${{ secrets.PDT_TESTER_SA_B64 }}" \
+            --test_type "$testType" \
             --user "${{ env.USER }}" \
             cancel_old_submissions
 
