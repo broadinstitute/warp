@@ -141,7 +141,7 @@ jobs:
             --branch_name "${{ env.BRANCH_NAME }}" \
             --sa-json-b64 "${{ secrets.PDT_TESTER_SA_B64 }}" \
             --user "${{ env.USER }}" \
-            --test_type $testType \
+            --test_type "$testType" \
             cancel_old_submissions
 
       - name: Determine Github Commit Hash
@@ -292,7 +292,7 @@ jobs:
                 --test_input_file "$test_input_file" \
                 --branch_name "$BRANCH_NAME" \
                 --sa-json-b64 "$SA_JSON_B64" \
-                --test_type "$TEST_TYPE \
+                --test_type "$TEST_TYPE" \
                 --user "$USER"
 
             attempt=1
