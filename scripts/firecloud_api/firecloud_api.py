@@ -369,6 +369,11 @@ class FirecloudAPI:
             return []
 
         submissions = response.json()
+        #list out all the methodConfigurationName from submissions
+        method_config_names = [submission.get('methodConfigurationName') for submission in submissions]
+        logging.info(f" the method_config_names from submissions: {method_config_names}")
+
+
         active_submissions = []
 
         #logigng info method_config_name
