@@ -184,7 +184,8 @@ workflow ATAC {
     File fragment_file_index = fragment_file_index_atac
     File snap_metrics = snap_metrics_atac
     File library_metrics_file = library_metrics
-    File? peakcall_h5ad_file = PeakCalling.peaks_h5ad
+    File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad
+    File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad
   }
 }
 
