@@ -164,6 +164,7 @@ workflow ATAC {
     if (peak_calling) {
       call PeakCalling {
         input:
+          output_base_name = input_id,
           annotations_gtf = annotations_gtf,
           metrics_h5ad = CreateFragmentFile.Snap_metrics,
           chrom_sizes = chrom_sizes,
