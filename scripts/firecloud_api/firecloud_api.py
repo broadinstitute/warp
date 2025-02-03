@@ -318,18 +318,6 @@ class FirecloudAPI:
         else:
             logging.error(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
-
-    #def gsutil_copy(self, source, destination):
-    #    #client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
-    #    source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
-    #    destination_bucket_name, destination_blob_name = destination.replace("gs://", "").split("/", 1)
-
-    #    source_bucket = self.storage_client.bucket(source_bucket_name)
-    #    source_blob = source_bucket.blob(source_blob_name)
-    #    destination_bucket = self.storage_client.bucket(destination_bucket_name)
-
-    #    source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
-
     def delete_method_config(self, method_config_name):
         """
         Deletes a method configuration from the workspace.
@@ -408,7 +396,12 @@ class FirecloudAPI:
         Returns the number of cancelled submissions.
         """
         method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
+        #print the method config name
+        print(f"The Method config name: {method_config_name}")
         active_submissions = self.get_active_submissions(method_config_name)
+        #print the active submissions
+        print(f"Active submissions: {json.dumps(active_submissions, indent=2)}")
+
         cancelled_count = 0
 
         for submission in active_submissions:
