@@ -694,7 +694,7 @@ task PeakCalling {
     import polars as pl
     import pandas as pd
 
-    base_name = "~{output_base_name}"
+    output_base_name = "~{output_base_name}"
     atac_gtf = "~{annotations_gtf}"
     metrics_h5ad = "~{metrics_h5ad}"
     chrom_sizes = "~{chrom_sizes}"
@@ -792,8 +792,8 @@ task PeakCalling {
           atac_data_mod.uns[key] = atac_data_mod.uns[key].to_pandas()
 
     print("Write into h5ad file")
-    atac_data_mod.write_h5ad("~{base_name}.cellbybin.h5ad")
-    peak_matrix.write_h5ad("~{base_name}.cellbypeak.h5ad")
+    atac_data_mod.write_h5ad("~{output_base_name}.cellbybin.h5ad")
+    peak_matrix.write_h5ad("~{output_base_name}.cellbypeak.h5ad")
      
     CODE
   >>>
@@ -806,7 +806,7 @@ task PeakCalling {
   }
 
   output {
-    File peaks_h5ad = "~{output_base_name}.cellbybin.h5ad"
-    File matrix_h5ad = "~{output_base_name}.cellbypeak.h5ad"
+    File cellbybin_h5ad = "~{output_base_name}.cellbybin.h5ad"
+    File cellbypeak_h5ad = "~{output_base_name}.cellbypeak.h5ad"
   }
 }
