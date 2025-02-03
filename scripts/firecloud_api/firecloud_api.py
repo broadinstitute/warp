@@ -171,6 +171,8 @@ class FirecloudAPI:
         """
 
         method_config_name = self.get_method_config_name(pipeline_name, branch_name, test_type)
+        print(f" the Test type: {test_type}")
+        print(f"Method config name: {method_config_name}")
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
 
         token = self.get_user_token(self.delegated_creds)
@@ -317,6 +319,18 @@ class FirecloudAPI:
         else:
             logging.error(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
+
+    #def gsutil_copy(self, source, destination):
+    #    #client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
+    #    source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
+    #    destination_bucket_name, destination_blob_name = destination.replace("gs://", "").split("/", 1)
+
+    #    source_bucket = self.storage_client.bucket(source_bucket_name)
+    #    source_blob = source_bucket.blob(source_blob_name)
+    #    destination_bucket = self.storage_client.bucket(destination_bucket_name)
+
+    #    source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
+
     def delete_method_config(self, method_config_name):
         """
         Deletes a method configuration from the workspace.
@@ -359,7 +373,6 @@ class FirecloudAPI:
 
         submissions = response.json()
         active_submissions = []
-        logging.info(f"Full API Response: {json.dumps(submissions, indent=2)}")
 
         for submission in submissions:
             # Check if submission is active (not Done, Aborted, or Failed)
@@ -369,9 +382,6 @@ class FirecloudAPI:
                         active_submissions.append(submission)
                 else:
                     active_submissions.append(submission)
-
-        logging.info(f"Found {len(active_submissions)} active submissions")
-        logging.info(f"Active submissions: {json.dumps(active_submissions, indent=2)}")
 
         return active_submissions
 
@@ -399,12 +409,7 @@ class FirecloudAPI:
         Returns the number of cancelled submissions.
         """
         method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
-        #print the method config name
-        print(f"The Method config name: {method_config_name}")
         active_submissions = self.get_active_submissions(method_config_name)
-        #print the active submissions
-        print(f"Active submissions: {json.dumps(active_submissions, indent=2)}")
-
         cancelled_count = 0
 
         for submission in active_submissions:
@@ -576,7 +581,6 @@ if __name__ == "__main__":
             args.branch_name
         )
         print(f"Cancelled {cancelled_count} old submissions")
-
 
 
 
