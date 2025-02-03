@@ -147,7 +147,7 @@ jobs:
           USER: ${{ env.USER }}
 
       - name: Cancel Previous GHA Runs
-        if: contains(env.METHOD_CONFIG_NAME, 'Plumbing')
+        if: ${{ !contains(env.METHOD_CONFIG_NAME, '_Scientific_') }}
         uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ github.token }}
@@ -155,7 +155,7 @@ jobs:
           ignore_sha: true
 
       - name: Cancel Previous Terra Submissions
-        if: contains(env.METHOD_CONFIG_NAME, 'Plumbing')
+        if: ${{ !contains(env.METHOD_CONFIG_NAME, '_Scientific_') }}
         run: |
           python3 scripts/firecloud_api/firecloud_api.py \
             --workspace-namespace "${{ env.WORKSPACE_NAMESPACE }}" \
