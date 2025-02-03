@@ -371,6 +371,8 @@ class FirecloudAPI:
         submissions = response.json()
         active_submissions = []
 
+        #logigng info method_config_name
+        logging.info(f"method_config_name: {method_config_name}")
         for submission in submissions:
             # Check if submission is active (not Done, Aborted, or Failed)
             if submission['status'] in ['Submitted', 'Running', 'Queued']:
