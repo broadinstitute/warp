@@ -29,7 +29,7 @@ workflow ATAC {
     # Option for running files with preindex
     Boolean preindex = false
     # Option for running peak calling
-    Boolean peak_calling = true
+    Boolean peak_calling = false
     
     # BWA ref
     File tar_bwa_reference
