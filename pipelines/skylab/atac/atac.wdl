@@ -559,7 +559,7 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
-    expected_cells = ~{atac_expected_cells}
+    expected_cells = "~{atac_expected_cells}"
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -668,6 +668,7 @@ task PeakCalling {
     Int min_counts = 5000
     Int min_tsse = 10
     Int max_counts = 100000
+    Float probability_threshold = 0.5
     # Runtime attributes/docker
     String docker_path
     Int disk_size = 500
@@ -702,6 +703,7 @@ task PeakCalling {
     min_counts = "~{min_counts}"
     min_tsse = "~{min_tsse}"
     max_counts = "~{max_counts}"
+    probability_threshold = "~{probability_threshold}"
 
     print("Peak calling starting...")
     atac_data = snap.read(metrics_h5ad)
