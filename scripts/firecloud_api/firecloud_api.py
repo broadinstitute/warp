@@ -360,6 +360,7 @@ class FirecloudAPI:
 
         submissions = response.json()
         active_submissions = []
+        logging.info(f"Full API Response: {json.dumps(submissions, indent=2)}")
 
         for submission in submissions:
             # Check if submission is active (not Done, Aborted, or Failed)
