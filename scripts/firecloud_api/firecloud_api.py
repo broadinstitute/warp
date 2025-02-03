@@ -170,8 +170,6 @@ class FirecloudAPI:
         """
 
         method_config_name = self.get_method_config_name(pipeline_name, branch_name, test_type)
-        print(f" the Test type: {test_type}")
-        print(f"Method config name: {method_config_name}")
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
 
         token = self.get_user_token(self.delegated_creds)
@@ -373,20 +371,13 @@ class FirecloudAPI:
         submissions = response.json()
         active_submissions = []
 
-        logging.info(f"Method config name: {method_config_name}")
-
         for submission in submissions:
             # Check if submission is active (not Done, Aborted, or Failed)
             if submission['status'] in ['Submitted', 'Running', 'Queued']:
-                #if method_config_name:
-                #   if submission.get('methodConfigurationName') == method_config_name:
-                active_submissions.append(submission)
+                if method_config_name:
+                   if submission.get('methodConfigurationName') == method_config_name:
+                       active_submissions.append(submission)
 
-        # logging info for active submissions
-        if active_submissions:
-            logging.info(f"Active submissions: {json.dumps(active_submissions, indent=2)}")
-        else:
-            logging.info("No active submissions found.")
         return active_submissions
 
     def cancel_submission(self, submission_id):
