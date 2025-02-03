@@ -171,7 +171,6 @@ class FirecloudAPI:
         """
 
         method_config_name = self.get_method_config_name(pipeline_name, branch_name, test_type)
-        print(f"Method config name: {method_config_name}")
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
 
         token = self.get_user_token(self.delegated_creds)
