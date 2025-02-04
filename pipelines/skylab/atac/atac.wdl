@@ -675,7 +675,7 @@ task PeakCalling {
     Int disk_size = 500
     Int mem_size = 64
     Int nthreads = 4   
-  }gi
+  }
   
   parameter_meta {
     annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
