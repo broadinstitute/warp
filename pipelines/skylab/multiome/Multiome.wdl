@@ -4,6 +4,7 @@ import "../../../pipelines/skylab/atac/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/broad/Utilities.wdl" as utils
+#import "../../../pipelines/skylab/atac/atac.wdl" as PeakCalling
 
 workflow Multiome {
 
@@ -135,15 +136,16 @@ workflow Multiome {
             atac_fragment = Atac.fragment_file
     }
 
-    call atac.PeakCalling as PeakCalling {
-        input:
-            peak_calling = run_peak_calling,
-            annotations_gtf = annotations_gtf,
-            metrics_h5ad = JoinBarcodes.atac_h5ad_file,
-            chrom_sizes = chrom_sizes,
-            output_base_name = input_id
+    if (run_peak_calling) {
+        call atac.PeakCalling as PeakCalling {
+            input:
+                annotations_gtf = annotations_gtf,
+                metrics_h5ad = JoinBarcodes.atac_h5ad_file,
+                chrom_sizes = chrom_sizes,
+                output_base_name = input_id,
+                docker_path = docker_prefix + snap_atac_docker_image,
+        }
     }
-
 
     meta {
         allowNestedInputs: true
@@ -160,8 +162,8 @@ workflow Multiome {
         File fragment_file_index = JoinBarcodes.atac_fragment_tsv_index
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
         File atac_library_metrics = Atac.library_metrics_file
-        File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad_file
-        File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad_file
+        File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad
+        File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
