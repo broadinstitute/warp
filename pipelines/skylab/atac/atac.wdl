@@ -746,7 +746,7 @@ task PeakCalling {
         
     # Filter doublets based on scrublet scores 
     print("Filter doublets based on scrublet scores")
-    snap.pp.filter_doublets(atac_data_mod, probability_threshold=0.5)
+    snap.pp.filter_doublets(atac_data_mod, probability_threshold=0.01)
     print(atac_data_mod)
         
     # Perform graph-based clustering to identify cell clusters. 
