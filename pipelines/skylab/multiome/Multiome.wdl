@@ -124,7 +124,6 @@ workflow Multiome {
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
-            peak_calling = run_peak_calling
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
@@ -134,6 +133,15 @@ workflow Multiome {
             gex_whitelist = gex_whitelist,
             atac_whitelist = atac_whitelist,
             atac_fragment = Atac.fragment_file
+    }
+
+    call atac.PeakCalling as PeakCalling {
+        input:
+            peak_calling = run_peak_calling,
+            annotations_gtf = annotations_gtf,
+            metrics_h5ad = JoinBarcodes.atac_h5ad_file,
+            chrom_sizes = chrom_sizes,
+            output_base_name = input_id
     }
 
 
@@ -152,8 +160,8 @@ workflow Multiome {
         File fragment_file_index = JoinBarcodes.atac_fragment_tsv_index
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
         File atac_library_metrics = Atac.library_metrics_file
-        File? cellbybin_h5ad_file = Atac.cellbybin_h5ad_file
-        File? cellbypeak_h5ad_file = Atac.cellbypeak_h5ad_file
+        File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad_file
+        File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad_file
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
