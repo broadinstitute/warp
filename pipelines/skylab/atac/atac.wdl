@@ -668,7 +668,8 @@ task PeakCalling {
     Int min_counts = 5000
     Int min_tsse = 10
     Int max_counts = 100000
-    Float probability_threshold = 0.5
+    Float probability_threshold = 1
+
     # Runtime attributes/docker
     String docker_path
     Int disk_size = 500
@@ -705,9 +706,11 @@ task PeakCalling {
     max_counts = "~{max_counts}"
     probability_threshold = "~{probability_threshold}"
 
+    probability_threshold = float(probability_threshold)
+
     print("Peak calling starting...")
     atac_data = snap.read(metrics_h5ad)
-
+    
     # Calculate and plot the size distribution of fragments
     print("Calculating fragment size distribution")
     snap.pl.frag_size_distr(atac_data)
@@ -746,7 +749,7 @@ task PeakCalling {
         
     # Filter doublets based on scrublet scores 
     print("Filter doublets based on scrublet scores")
-    snap.pp.filter_doublets(atac_data_mod, probability_threshold=0.5)
+    snap.pp.filter_doublets(atac_data_mod, probability_threshold=probability_threshold)
     print(atac_data_mod)
         
     # Perform graph-based clustering to identify cell clusters. 
