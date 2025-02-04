@@ -704,11 +704,15 @@ task PeakCalling {
     min_counts = "~{min_counts}"
     min_tsse = "~{min_tsse}"
     max_counts = "~{max_counts}"
-    probability_threshold = ~{probability_threshold}
+    probability_threshold = "~{probability_threshold}"
+
+    print(type(probability_threshold)) 
+    probability_threshold = float(probability_threshold)
+    print(type(probability_threshold)) 
 
     print("Peak calling starting...")
     atac_data = snap.read(metrics_h5ad)
-
+    
     # Calculate and plot the size distribution of fragments
     print("Calculating fragment size distribution")
     snap.pl.frag_size_distr(atac_data)
