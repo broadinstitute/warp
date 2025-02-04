@@ -1,8 +1,8 @@
 version 1.0
 
 
-import "../../pipelines/skylab/multiome/Multiome.wdl" as Multiome
-import "../../verification/VerifyMultiome.wdl" as VerifyMultiome
+import "../../pipelines/skylab/atac/ATAC.wdl" as ATAC
+import "../../verification/VerifyATAC.wdl" as VerifyATAC
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
@@ -142,14 +142,12 @@ workflow TestATAC {
             results_path = results_path,
             truth_path = truth_path
         }
-
         call Utilities.GetValidationInputs as GetAtacLibraryMetrics {
             input:
             input_file = ATAC.library_metrics_file,
             results_path = results_path,
             truth_path = truth_path
         }
-
         call VerifyATAC.VerifyATAC as Verify {
           input:
             truth_atac_bam = GetAtacBam.truth_file,

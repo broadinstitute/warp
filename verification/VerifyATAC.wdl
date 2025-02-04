@@ -2,7 +2,7 @@ version 1.0
 
 import "../verification/VerifyTasks.wdl" as VerifyTasks
 
-workflow VerifyMultiome {
+workflow VerifyATAC {
 
     input {
         File test_atac_bam
@@ -16,9 +16,6 @@ workflow VerifyMultiome {
 
         File test_library_metrics
         File truth_library_metrics
-
-        File test_atac_library_metrics
-        File truth_atac_library_metrics
 
         Boolean? done
     }
@@ -43,10 +40,5 @@ workflow VerifyMultiome {
         input:
             test_text_file = test_library_metrics,
             truth_text_file = truth_library_metrics
-    }
-    call VerifyTasks.CompareAtacLibraryMetrics as CompareAtacLibraryMetrics {
-        input:
-            test_text_files = select_all([test_atac_library_metrics]),
-            truth_text_files = select_all([truth_atac_library_metrics])
     }
 }
