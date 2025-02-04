@@ -668,7 +668,7 @@ task PeakCalling {
     Int min_counts = 5000
     Int min_tsse = 10
     Int max_counts = 100000
-    Float probability_threshold = 0.01
+    Float probability_threshold = 1
 
     # Runtime attributes/docker
     String docker_path
@@ -706,9 +706,7 @@ task PeakCalling {
     max_counts = "~{max_counts}"
     probability_threshold = "~{probability_threshold}"
 
-    print(type(probability_threshold)) 
     probability_threshold = float(probability_threshold)
-    print(type(probability_threshold)) 
 
     print("Peak calling starting...")
     atac_data = snap.read(metrics_h5ad)
