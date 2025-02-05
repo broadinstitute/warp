@@ -102,48 +102,28 @@ jobs:
         id: set_test_type
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            branch="${{ github.base_ref }}"
+            # For PRs, set based on target branch
+            if [ "${{ github.base_ref }}" == "master" ]; then
+              echo "testType=Scientific" >> $GITHUB_ENV
+              echo "testType=Scientific"
+            else
+              echo "testType=Plumbing" >> $GITHUB_ENV
+              echo "testType=Plumbing"
+            fi
           else
-            branch="${GITHUB_REF##*/}"
+            # For workflow_dispatch, check manual input first
+            if [ ! -z "${{ github.event.inputs.testType }}" ]; then
+              echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
+              echo "testType is set to ${{ github.event.inputs.testType }} from manual input"
+            # If no manual input, default based on target branch
+            elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
+              echo "testType=Scientific" >> $GITHUB_ENV
+              echo "testType is set to Scientific as the branch is ${{ github.ref }} "
+            else
+              echo "testType=Plumbing" >> $GITHUB_ENV
+              echo "testType is set to Plumbing as the branch is ${{ github.ref }}"
+            fi
           fi
-
-          if [ -n "${{ github.event.inputs.testType }}" ]; then
-            testType="${{ github.event.inputs.testType }}"
-            echo "testType set to $testType from manual input"
-          else
-            testType=$([ "$branch" == "master" ] && echo "Scientific" || echo "Plumbing")
-            echo "testType set to $testType based on branch ($branch)"
-          fi
-
-          echo "testType=$testType" >> $GITHUB_ENV
-
-
-     #- name: Set Test Type
-     #  id: set_test_type
-     #  run: |
-     #    if [ "${{ github.event_name }}" == "pull_request" ]; then
-     #      # For PRs, set based on target branch
-     #      if [ "${{ github.base_ref }}" == "master" ]; then
-     #        echo "testType=Scientific" >> $GITHUB_ENV
-     #        echo "testType=Scientific"
-     #      else
-     #        echo "testType=Plumbing" >> $GITHUB_ENV
-     #        echo "testType=Plumbing"
-     #      fi
-     #    else
-     #      # For workflow_dispatch, check manual input first
-     #      if [ ! -z "${{ github.event.inputs.testType }}" ]; then
-     #        echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
-     #        echo "testType is set to ${{ github.event.inputs.testType }} from manual input"
-     #      # If no manual input, default based on target branch
-     #      elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
-     #        echo "testType=Scientific" >> $GITHUB_ENV
-     #        echo "testType is set to Scientific as the branch is ${{ github.ref }} "
-     #      else
-     #        echo "testType=Plumbing" >> $GITHUB_ENV
-     #        echo "testType is set to Plumbing as the branch is ${{ github.ref }}"
-     #      fi
-     #    fi
 
       - name: Create new method configuration
         run: |
