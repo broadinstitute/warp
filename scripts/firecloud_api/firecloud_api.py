@@ -115,7 +115,6 @@ class FirecloudAPI:
 
         :param branch_name: The branch name
         :param pipeline_name: The name of the pipeline
-        :param test_type: The type of test (Scientific or Plumbing)
         :return: The name of the created method configuration or None if failed
         """
 
