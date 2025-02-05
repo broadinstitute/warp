@@ -125,6 +125,7 @@ workflow Multiome {
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
+            peak_calling = false
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
