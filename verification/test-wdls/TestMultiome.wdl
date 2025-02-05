@@ -51,6 +51,7 @@ workflow TestMultiome {
       String results_path
       Boolean update_truth
       Boolean run_cellbender = false
+      Boolean run_peak_calling = false
 
     }
 
@@ -85,7 +86,8 @@ workflow TestMultiome {
         soloMultiMappers = soloMultiMappers,
         cloud_provider = cloud_provider,
         gex_nhash_id = gex_nhash_id,
-        atac_nhash_id = atac_nhash_id
+        atac_nhash_id = atac_nhash_id,
+        run_peak_calling = run_peak_calling
     }
 
     
