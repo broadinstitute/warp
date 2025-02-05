@@ -1,6 +1,5 @@
 version 1.0
 
-
 import "../../pipelines/skylab/atac/atac.wdl" as ATAC
 import "../../verification/VerifyATAC.wdl" as VerifyATAC
 import "../../tasks/broad/Utilities.wdl" as Utilities
@@ -49,8 +48,6 @@ workflow TestATAC {
       String truth_path
       String results_path
       Boolean update_truth
-      String vault_token_path
-      String google_account_vault_path
       Boolean run_cellbender = false
     }
 
@@ -106,8 +103,6 @@ workflow TestATAC {
     call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
       input:
         files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-        vault_token_path          = vault_token_path,
-        google_account_vault_path = google_account_vault_path,
         destination_cloud_path    = results_path
     }
   
@@ -116,8 +111,6 @@ workflow TestATAC {
       call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
         input: 
           files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-          vault_token_path          = vault_token_path,
-          google_account_vault_path = google_account_vault_path,
           destination_cloud_path    = truth_path
       }
     }
