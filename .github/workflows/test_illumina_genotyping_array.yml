@@ -104,10 +104,10 @@ jobs:
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             branch="${{ github.base_ref }}"
           else
-            branch="${{ github.ref#refs/heads/ }}"
+            branch="${GITHUB_REF##*/}"
           fi
 
-          if [ ! -z "${{ github.event.inputs.testType }}" ]; then
+          if [ -n "${{ github.event.inputs.testType }}" ]; then
             testType="${{ github.event.inputs.testType }}"
             echo "testType set to $testType from manual input"
           else
@@ -116,6 +116,7 @@ jobs:
           fi
 
           echo "testType=$testType" >> $GITHUB_ENV
+
 
      #- name: Set Test Type
      #  id: set_test_type
