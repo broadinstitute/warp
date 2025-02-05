@@ -1,0 +1,20 @@
+{
+	"ATAC.input_id":"10k_PBMC_downsampled",
+	"ATAC.cloud_provider":"gcp",
+	"ATAC.read1_fastq_gzipped":[
+	  "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R1_atac.fastq.gz"
+	],
+	"ATAC.read2_fastq_gzipped":[
+	  "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R2_atac.fastq.gz"
+	],
+	"ATAC.read3_fastq_gzipped":[
+	  "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R3_atac.fastq.gz"
+	],
+	"ATAC.tar_bwa_reference":"gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar",
+	"ATAC.chrom_sizes":"gs://broad-gotc-test-storage/Multiome/input/hg38.chrom.sizes",
+	"ATAC.cpu_platform_bwa":"Intel Cascade Lake",
+	"ATAC.num_threads_bwa":"16",
+	"ATAC.mem_size_bwa":"64", 
+	"ATAC.atac_nhash_id":"example_1234"
+    }
+    
