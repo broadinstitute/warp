@@ -134,3 +134,7 @@ workflows:
   - name: SlideTags
     subclass: WDL
     primaryDescriptorPath: /beta-pipelines/skylab/slidetags/SlideTags.wdl
+
+  - name: TestATAC
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestATAC.wdl
