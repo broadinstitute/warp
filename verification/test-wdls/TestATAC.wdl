@@ -1,7 +1,7 @@
 version 1.0
 
 
-import "../../pipelines/skylab/atac/ATAC.wdl" as ATAC
+import "../../pipelines/skylab/atac/atac.wdl" as ATAC
 import "../../verification/VerifyATAC.wdl" as VerifyATAC
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
