@@ -87,13 +87,6 @@ jobs:
           cd scripts/firecloud_api/
           pip install -r requirements.txt
 
-      - name: Check inputs
-        run: |
-          echo "Use call cache: ${{ github.event.inputs.useCallCache }}"
-          echo "Update truth: ${{ github.event.inputs.updateTruth }}"
-          echo "Test type: ${{ github.event.inputs.testType }}"
-          echo "Truth branch: ${{ github.event.inputs.truthBranch }}"
-
       - name: Set Branch Name
         id: set_branch
         run: |
