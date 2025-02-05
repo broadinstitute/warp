@@ -224,21 +224,23 @@ task STARsoloFastq {
     String output_bam_basename
     Boolean? count_exons
     String? soloMultiMappers
+    String soloCBmatchWLtype = "1MM_multi" #"1MM_multi_Nbase_pseudocounts"
 
     # runtime values
     String samtools_star_docker_path
-    Int machine_mem_mb = 64000
-    Int cpu = 8
-   # by default request non preemptible machine to make sure the slow star alignment step completes
-    Int preemptible = 3
 
     # if slide_tags true set disk to 1000 otherwise dynamic allocation based on input size
     # dynamic allocation multiplies input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
     Boolean is_slidetags
-    Int disk = if is_slidetags then 1000 else 
-    ceil(size(tar_star_reference, "Gi") * 3) + 
-    ceil(size(r1_fastq, "Gi") * 20) + 
-    ceil(size(r2_fastq, "Gi") * 20)
+
+    # runtime values
+    String cpu_platform = "Intel Skylake"
+    Int mem_size = 64
+    Int machine_mem_mb = 512000 # not used in runtime
+    Int cpu = 8
+    Int disk = 2000
+    # by default request non preemptible machine to make sure the slow star alignment step completes
+    Int preemptible = 1
   }
 
   meta {
@@ -314,7 +316,7 @@ task STARsoloFastq {
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
         exit 1;
     fi
-
+    # RAM limit 33195969137 --limitBAMsortRAM 33195969137 \
     STAR \
         --soloType Droplet \
         --soloStrand ~{star_strand_mode} \
@@ -327,7 +329,7 @@ task STARsoloFastq {
         --soloFeatures $COUNTING_MODE \
         --clipAdapterType CellRanger4 \
         --outFilterScoreMin 30  \
-        --soloCBmatchWLtype 1MM_multi \
+        --soloCBmatchWLtype ~{soloCBmatchWLtype} \
         --soloUMIdedup 1MM_CR \
         --outSAMtype BAM SortedByCoordinate \
         --outSAMattributes UB UR UY CR CB CY NH GX GN sF cN \
@@ -340,9 +342,7 @@ task STARsoloFastq {
     # validate the bam with samtools quickcheck
     samtools quickcheck -v Aligned.sortedByCoord.out.bam
 
-
     echo "UMI LEN " $UMILen
-
     touch barcodes_sn_rna.tsv
     touch features_sn_rna.tsv
     touch matrix_sn_rna.mtx
@@ -350,7 +350,6 @@ task STARsoloFastq {
     touch Features_sn_rna.stats
     touch Summary_sn_rna.csv
     touch UMIperCellSorted_sn_rna.txt
-
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
@@ -425,10 +424,11 @@ task STARsoloFastq {
 
   runtime {
     docker: samtools_star_docker_path
-    memory: "~{machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "~{mem_size} GiB"
+    disks: "local-disk ~{disk} SSD"
     disk: disk + " GB" # TES
     cpu: cpu
+    cpuPlatform: cpu_platform
     preemptible: preemptible
   }
 
