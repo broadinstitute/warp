@@ -4,7 +4,7 @@ version 1.0
 import "../../pipelines/skylab/atac/atac.wdl" as ATAC
 import "../../verification/VerifyATAC.wdl" as VerifyATAC
 import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestATAC {
 
@@ -103,7 +103,7 @@ workflow TestATAC {
     ])
 
     # Copy results of pipeline to test results bucket
-    call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
+    call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
       input:
         files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
         vault_token_path          = vault_token_path,
@@ -113,7 +113,7 @@ workflow TestATAC {
   
     # If updating truth then copy output to truth bucket
     if (update_truth){
-      call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
+      call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
         input: 
           files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
           vault_token_path          = vault_token_path,

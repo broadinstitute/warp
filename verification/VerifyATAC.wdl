@@ -14,8 +14,8 @@ workflow VerifyATAC {
         File test_atac_h5ad
         File truth_atac_h5ad
 
-        File test_library_metrics
-        File truth_library_metrics
+        File test_atac_library_metrics
+        File truth_atac_library_metrics
 
         Boolean? done
     }
@@ -38,7 +38,7 @@ workflow VerifyATAC {
     }
     call VerifyTasks.CompareLibraryFiles as CompareLibraryMetrics {
         input:
-            test_text_file = test_library_metrics,
-            truth_text_file = truth_library_metrics
+            test_text_file = test_atac_library_metrics,
+            truth_text_file = truth_atac_library_metrics
     }
 }
