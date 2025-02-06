@@ -1,10 +1,16 @@
+# 1.10.1
+2025-02-03 (Date of Last Commit)
+
+* Added an optional PeakCalling task to the ATAC workflow; this does not affect the outputs of the pipeline
+* Added a boolean variable run_peak_calling to the Multiome pipeline; default is false and this does not affect the outputs of the pipeline
+
 # 1.10.0
 2025-01-21 (Date of Last Commit)
 
 * Added a boolean variable is_slidetags; default is false, but set to true if Slide-Tags pipeline is calling Optimus
 * Added reference_gtf_file to the output h5ad unstructured metadata 
 * Added the fragment file CSI index as workflow output
-* Updated the default STARsolo multimapping parameter to the "EM" tehcnique
+* Updated the default STARsolo multimapping parameter to the EM tehcnique
 
 # 1.9.0
 2024-12-05 (Date of Last Commit)
