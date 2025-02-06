@@ -35,5 +35,5 @@
   "Multiome.gex_nhash_id":"example_1234",
   "Multiome.atac_nhash_id":"example_1234",
   "Multiome.run_peak_calling":true,
-  "Multiome.PeakCalling.probability_threshold":"0.01"
+  "Multiome.PeakCalling.probability_threshold":"0.5"
 }

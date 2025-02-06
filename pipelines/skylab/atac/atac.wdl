@@ -751,6 +751,10 @@ task PeakCalling {
     print("Filter doublets based on scrublet scores")
     snap.pp.filter_doublets(atac_data_mod, probability_threshold=probability_threshold)
     print(atac_data_mod)
+
+    # Check if the matrix is empty
+    if atac_data_mod.n_obs == 0:
+      raise ValueError("Matrix is empty: Try increasing the probability_threshold.")
         
     # Perform graph-based clustering to identify cell clusters. 
     # Build a k-nearest neighbour graph using snap.pp.knn
