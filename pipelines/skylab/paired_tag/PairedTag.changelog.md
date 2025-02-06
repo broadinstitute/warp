@@ -1,3 +1,8 @@
+# 1.10.2 
+2025-02-06 (Date of Last Commit)
+
+* Updated the SnapATAC2 docker image to the latest SnapATAC2, allowing for future peak calling implementation
+
 # 1.10.1
 2025-02-03 (Date of Last Commit)
 
