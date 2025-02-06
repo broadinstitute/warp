@@ -754,7 +754,7 @@ task PeakCalling {
 
     # Check if the matrix is empty
     if atac_data_mod.n_obs == 0:
-      raise ValueError("Matrix is empty: Try increasing the probability_threshold.")
+      raise ValueError("Matrix is empty after filtering doublets: Try increasing the probability_threshold.")
         
     # Perform graph-based clustering to identify cell clusters. 
     # Build a k-nearest neighbour graph using snap.pp.knn
