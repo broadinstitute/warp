@@ -42,6 +42,10 @@ on:
       testType:
         description: 'Specify the type of test (Plumbing or Scientific)'
         required: false
+        type: choice
+        options:
+          - Plumbing
+          - Scientific
       truthBranch:
         description: 'Specify the branch for truth files (default: master)'
         required: false
@@ -74,6 +78,7 @@ jobs:
     permissions:
       contents: 'read'
       id-token: 'write'
+      actions: write
 
     steps:
       # actions/checkout MUST come before auth action
@@ -103,6 +108,78 @@ jobs:
             echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
           fi
 
+      - name: Set Test Type
+        id: set_test_type
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # For PRs, set based on target branch
+            if [ "${{ github.base_ref }}" == "master" ]; then
+              echo "testType=Scientific" >> $GITHUB_ENV
+              echo "testType=Scientific"
+            else
+              echo "testType=Plumbing" >> $GITHUB_ENV
+              echo "testType=Plumbing"
+            fi
+          else
+            # For workflow_dispatch, check manual input first
+            if [ ! -z "${{ github.event.inputs.testType }}" ]; then
+              echo "testType=${{ github.event.inputs.testType }}" >> $GITHUB_ENV
+              echo "testType is set to ${{ github.event.inputs.testType }} from manual input"
+            # If no manual input, default based on target branch
+            elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
+              echo "testType=Scientific" >> $GITHUB_ENV
+              echo "testType is set to Scientific as the branch is ${{ github.ref }} "
+            else
+              echo "testType=Plumbing" >> $GITHUB_ENV
+              echo "testType is set to Plumbing as the branch is ${{ github.ref }}"
+            fi
+          fi
+
+      - name: Create new method configuration
+        run: |
+          echo "Creating new method configuration for branch: $BRANCH_NAME"
+
+          METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
+            create_new_method_config \
+            --workspace-namespace $WORKSPACE_NAMESPACE \
+            --workspace-name "$TESTING_WORKSPACE" \
+            --pipeline_name "$PIPELINE_NAME" \
+            --branch_name "$BRANCH_NAME" \
+            --test_type "$testType" \
+            --sa-json-b64 "$SA_JSON_B64" \
+            --user "$USER")
+
+            echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
+        env:
+          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
+          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
+          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
+          USER: ${{ env.USER }}
+
+      # Cancel previous GHA workflows from the same branch (regardless of plumbing or scientific test type)
+      # to avoid running multiple tests at the same time
+      - name: Cancel Previous GHA Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+          all_but_latest: true
+          ignore_sha: true
+
+      # Abort previous Terra submissions from the same branch to avoid running multiple tests at the same time
+      # Will not abort a Terra submission if it is a scientific test
+      - name: Cancel Previous Terra Submissions
+        if: ${{ !contains(env.METHOD_CONFIG_NAME, '_Scientific_') }}
+        run: |
+          python3 scripts/firecloud_api/firecloud_api.py \
+            --workspace-namespace "${{ env.WORKSPACE_NAMESPACE }}" \
+            --workspace-name "${{ env.TESTING_WORKSPACE }}" \
+            --pipeline_name "${{ env.PIPELINE_NAME }}" \
+            --branch_name "${{ env.BRANCH_NAME }}" \
+            --sa-json-b64 "${{ secrets.PDT_TESTER_SA_B64 }}" \
+            --user "${{ env.USER }}" \
+            --test_type "$testType" \
+            cancel_old_submissions
+
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
         run: |
@@ -117,86 +194,47 @@ jobs:
             exit 1
           fi
 
-      - name: Fetch Dockstore Workflow Commit Hash
+      - name: Compare Dockstore and Github Commit Hashes with Retry
+        id: compare_hashes
         run: |
+
           # Wait 5.5 minutes for Dockstore to update
           sleep 330
-          
-          DOCKSTORE_COMMIT_HASH_FROM_FETCH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
-            $DOCKSTORE_TOKEN \
-            $DOCKSTORE_PIPELINE_NAME \
-            $BRANCH_NAME)
-          
-          # Export the commit hash as an environment variable
-          echo "DOCKSTORE_COMMIT_HASH=$DOCKSTORE_COMMIT_HASH_FROM_FETCH" >> $GITHUB_ENV
-          echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH_FROM_FETCH"
+
+          MAX_WAIT_TIME=$((15 * 60)) # 15 minutes in seconds
+          WAIT_INTERVAL=60          # 1 minute in seconds
+          TOTAL_WAITED=0
+
+          echo "Starting hash comparison with retry mechanism..."
+
+          while [ $TOTAL_WAITED -lt $MAX_WAIT_TIME ]; do
+            echo "Fetching Dockstore Commit Hash..."
+            DOCKSTORE_COMMIT_HASH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
+              $DOCKSTORE_TOKEN \
+              $DOCKSTORE_PIPELINE_NAME \
+              $BRANCH_NAME)
+            echo "Fetched Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
+
+            echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
+
+            if [ "$DOCKSTORE_COMMIT_HASH" == "$GITHUB_COMMIT_HASH" ]; then
+              echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
+              exit 0
+            else
+              echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $GITHUB_COMMIT_HASH"
+              echo "Retrying in $WAIT_INTERVAL seconds..."
+              sleep $WAIT_INTERVAL
+              TOTAL_WAITED=$((TOTAL_WAITED + WAIT_INTERVAL))
+            fi
+          done
+
+          echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash after 15 minutes of retries!"
+          exit 1
         env:
-          ## TODO NEED TO ADD DOCKSTORE_TOKEN FOR SERVICE ACCOUNT ##
           DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
           DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
-
-      - name: Compare Dockstore and Commit Hashes
-        id: compare_hashes
-        run: |
-          echo "Comparing hashes..."
-          echo "Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
-          echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
-
-          if [ "$DOCKSTORE_COMMIT_HASH" != "$GITHUB_COMMIT_HASH" ]; then
-            echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash!"
-            echo "Mismatch found: $DOCKSTORE_COMMIT_HASH != $GITHUB_COMMIT_HASH"
-            exit 1
-          else
-            echo "Success: The Dockstore Commit Hash matches the GitHub Commit Hash."
-          fi
-        env:
-          DOCKSTORE_COMMIT_HASH: ${{ env.DOCKSTORE_COMMIT_HASH }}
           GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
-
-      - name: Set Test Type
-        id: set_test_type
-        run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            # For PRs, set based on target branch
-            if [ "${{ github.base_ref }}" == "master" ]; then
-              echo "testType=Scientific" >> $GITHUB_ENV
-              echo "testType=Scientific"
-            else
-              echo "testType=Plumbing" >> $GITHUB_ENV
-              echo "testType=Plumbing"
-            fi
-          else
-            # For workflow_dispatch, default based on target branch
-            if [ "${{ github.ref }}" == "refs/heads/master" ]; then
-              echo "testType=Scientific" >> $GITHUB_ENV
-              echo "testType is set to Scientific as the branch is ${{ github.ref }} "
-            else
-              echo "testType=Plumbing" >> $GITHUB_ENV
-              echo "testType is set to Plumbing as the branch is ${{ github.ref }}"
-            fi
-          fi
-
-
-      - name: Create new method configuration
-        run: |
-          echo "Creating new method configuration for branch: $BRANCH_NAME"
-
-          METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
-            create_new_method_config \
-            --workspace-namespace $WORKSPACE_NAMESPACE \
-            --workspace-name "$TESTING_WORKSPACE" \
-            --pipeline_name "$PIPELINE_NAME" \
-            --branch_name "$BRANCH_NAME" \
-            --sa-json-b64 "$SA_JSON_B64" \
-            --user "$USER")
-
-            echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
-        env:
-          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
-          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
-          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
-          USER: ${{ env.USER }}
 
       - name: Update test inputs, Upload to Terra, Submit, Monitor and Retrieve Outputs
         run: |
@@ -251,7 +289,7 @@ jobs:
             SUBMISSION_DATA_FILE="submission_data.json"
             printf '{
               "methodConfigurationNamespace": "%s",
-              "methodConfigurationName": "%s",
+              "methodConfigurationName": "%s_%s_%s",
               "useCallCache": %s,
               "deleteIntermediateOutputFiles": false,
               "useReferenceDisks": true,
@@ -259,7 +297,7 @@ jobs:
               "workflowFailureMode": "NoNewCalls",
               "userComment": "%s",
               "ignoreEmptyOutputs": false
-            }' "$WORKSPACE_NAMESPACE" "$METHOD_CONFIG_NAME" "$USE_CALL_CACHE_BOOL" "$input_file_filename" > "$SUBMISSION_DATA_FILE"
+            }' "$WORKSPACE_NAMESPACE" "$PIPELINE_NAME" "$TEST_TYPE" "$BRANCH_NAME" "$USE_CALL_CACHE_BOOL" "$input_file_filename" > "$SUBMISSION_DATA_FILE"
           
             echo "Created submission data file: $SUBMISSION_DATA_FILE"
             cat "$SUBMISSION_DATA_FILE"
@@ -272,6 +310,7 @@ jobs:
                 --test_input_file "$test_input_file" \
                 --branch_name "$BRANCH_NAME" \
                 --sa-json-b64 "$SA_JSON_B64" \
+                --test_type "$TEST_TYPE" \
                 --user "$USER"
           
             attempt=1
@@ -407,9 +446,10 @@ jobs:
             --workspace-name "$TESTING_WORKSPACE" \
             --pipeline_name "$PIPELINE_NAME" \
             --branch_name "$BRANCH_NAME" \
+            --test_type "$testType" \
             --sa-json-b64 "$SA_JSON_B64" \
             --user "$USER" \
-            --method_config_name "$METHOD_CONFIG_NAME")
+            --method_config_name "${PIPELINE_NAME}_${testType}_${BRANCH_NAME}")
             echo "Delete response: $DELETE_RESPONSE"
           if [ "$DELETE_RESPONSE" == "True" ]; then
             echo "Method configuration deleted successfully."

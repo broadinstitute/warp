@@ -10,7 +10,6 @@ import argparse
 import logging
 import time
 
-
 # Configure logging to display INFO level and above messages
 logging.basicConfig(
     level=logging.INFO,  # This will show INFO and higher levels (INFO, WARNING, ERROR, CRITICAL)
@@ -36,7 +35,17 @@ class FirecloudAPI:
             scopes=scopes
         )
         self.delegated_creds = sa_credentials.with_subject(user)
-        #self.storage_client = storage.Client(credentials=sa_credentials, project=sa_credentials.project_id)
+
+    def get_method_config_name(self, pipeline_name, branch_name, test_type):
+        """
+        Helper method to consistently generate method configuration names
+
+        :param pipeline_name: Name of the pipeline
+        :param branch_name: Name of the branch
+        :param test_type: Type of test (Scientific or Plumbing)
+        :return: Formatted method configuration name
+        """
+        return f"{pipeline_name}_{test_type}_{branch_name}"
 
     def build_auth_headers(self, token: str):
         if not self.delegated_creds.valid:
@@ -104,12 +113,14 @@ class FirecloudAPI:
         """
         Creates a new method configuration in the workspace via Firecloud API.
 
-        :param method_config_name: The name of the new method configuration
-        :param method_config_namespace: The namespace of the new method configuration
-        :param method_config: JSON data containing the new method configuration
-        :return: True if successful, False otherwise
+        :param branch_name: The branch name
+        :param pipeline_name: The name of the pipeline
+        :return: The name of the created method configuration or None if failed
         """
-        #create the method config
+
+        # Create method config name with test type
+        method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
+
         payload = {
             "deleted": False,
             "inputs": {},
@@ -120,14 +131,13 @@ class FirecloudAPI:
                 "methodPath": f"github.com/broadinstitute/warp/{pipeline_name}",
                 "methodVersion": f"{branch_name}"
             },
-            "name": f"{pipeline_name}_{branch_name}",
+            "name": method_config_name,
             "namespace": "warp-pipelines",
             "outputs": {},
             "prerequisites": {}
         }
         logging.info(f"Creating new method configuration: {json.dumps(payload, indent=2)}")
 
-        method_config_name = f"{pipeline_name}_{branch_name}"
         # Construct the API endpoint URL for creating a new method configuration
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
 
@@ -147,19 +157,18 @@ class FirecloudAPI:
             return None
 
 
-
-    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name):
+    def upload_test_inputs(self, pipeline_name, test_inputs, branch_name, test_type):
         """
         Uploads test inputs to the workspace via Firecloud API.
 
         :param test_inputs: JSON data containing test inputs
+        :param pipeline_name: The name of the pipeline
+        :param branch_name: The name of the branch
+        :param test_type: The type of test (Scientific or Plumbing)
         :return: True if successful, False otherwise
         """
-        # Construct the API endpoint URL for the method configuration
-        # properly encode the space in WARP Tests as %20 using from urllib.parse import quote
-        #url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{pipeline_name}"
-        method_config_name = f"{pipeline_name}_{branch_name}"
-        print(f"Method config name: {method_config_name}")
+
+        method_config_name = self.get_method_config_name(pipeline_name, branch_name, test_type)
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
 
         token = self.get_user_token(self.delegated_creds)
@@ -167,6 +176,17 @@ class FirecloudAPI:
 
         # get the current method configuration
         response = requests.get(url, headers=headers)
+
+        #if response.status_code == 404:
+        #    logging.info(f"Method config {method_config_name} not found. Creating new config...")
+        #    if not self.create_new_method_config(branch_name, pipeline_name):
+        #        logging.error("Failed to create new method configuration.")
+        #        return False
+        #    response = requests.get(url, headers=headers)
+        #    if response.status_code != 200:
+        #        logging.error(f"Failed to get method configuration. Status code: {response.status_code}")
+        #        return False
+
         config = response.json()
         print(f"Current method configuration: {json.dumps(config, indent=2)}")
         # update the config with the new inputs
@@ -179,7 +199,7 @@ class FirecloudAPI:
             config["inputs"] = inputs_json
 
         # Construct the methodUri with the branch name
-        base_url = "github.com/broadinstitute/warp/{pipeline_name}"
+        base_url = f"github.com/broadinstitute/warp/{pipeline_name}"
         method_uri = f"dockstore://{quote(base_url)}/{branch_name}"
         print(f"Updating methodUri with branch name: {method_uri}")
         config["methodRepoMethod"]["methodUri"] = method_uri
@@ -342,15 +362,95 @@ class FirecloudAPI:
             logging.error(f"Response body: {response.text}")
             return False
 
+    def get_active_submissions(self, method_config_name=None):
+        """
+        Get all active workflow submissions for the workspace.
+        Optionally filter by method configuration name.
+        """
+        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
+        token = self.get_user_token(self.delegated_creds)
+        headers = self.build_auth_headers(token)
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code != 200:
+            logging.error(f"Failed to get submissions. Status code: {response.status_code}")
+            logging.error(f"Response body: {response.text}")
+            return []
+
+        submissions = response.json()
+        active_submissions = []
+
+        for submission in submissions:
+            # Check if submission is active (not Done, Aborted, or Failed)
+            if submission['status'] in ['Submitted', 'Running', 'Queued']:
+                config_name = submission.get('methodConfigurationName', '')
+                if config_name.startswith(method_config_name):
+                    active_submissions.append(submission)
+
+        return active_submissions
+
+    def cancel_submission(self, submission_id):
+        """
+        Cancel a specific workflow submission.
+        """
+        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions/{submission_id}"
+        token = self.get_user_token(self.delegated_creds)
+        headers = self.build_auth_headers(token)
+
+        response = requests.delete(url, headers=headers)
+
+        if response.status_code not in [204]:
+            logging.error(f"Failed to cancel submission {submission_id}. Status code: {response.status_code}")
+            logging.error(f"Response body: {response.text}")
+            return False
+
+        logging.info(f"Successfully cancelled submission {submission_id}")
+        return True
+
+    def cancel_old_submissions(self, pipeline_name, branch_name):
+        """
+        Cancel all active submissions for a pipeline's method configuration.
+        Returns the number of cancelled submissions.
+        """
+        method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
+        active_submissions = self.get_active_submissions(method_config_name)
+        cancelled_count = 0
+
+        for submission in active_submissions:
+            if self.cancel_submission(submission['submissionId']):
+                cancelled_count += 1
+                logging.info(f"Cancelled submission {submission['submissionId']}")
+
+        return cancelled_count
 
 
     def main(self):
         logging.info("Starting process based on action.")
+
         if self.action == "submit_job":
             submission_id = self.submit_job()
             logging.info(f"Job submission complete with ID: {submission_id}")
+        elif self.action == "create_new_method_config":
+            if not args.pipeline_name or not args.branch_name:
+                parser.error("Arguments --pipeline_name and --branch_name are required for 'create_new_method_config'")
+            method_config_name = self.create_new_method_config(args.branch_name, args.pipeline_name)
+            print(method_config_name)
+            if method_config_name:
+                logging.info(f"Method configuration created with name: {method_config_name}")
+            else:
+                logging.error("Failed to create method configuration.")
+        elif self.action == "delete_method_config":
+            if not args.method_config_name:
+                if not all([args.pipeline_name, args.branch_name]):
+                    parser.error("Either --method_config_name or both --pipeline_name and --branch_name are required")
+                method_config_name = self.get_method_config_name(args.pipeline_name, args.branch_name, args.test_type)
+            else:
+                method_config_name = args.method_config_name
+            result = self.delete_method_config(method_config_name)
+            print(str(result).lower())
         elif self.action == "upload_test_inputs":
-            success = self.upload_test_inputs(self.pipeline_name, self.test_input_file, self.branch_name)
+            success = self.upload_test_inputs(self.pipeline_name, self.test_input_file, self.branch_name, self.test_type)
             if success:
                 logging.info("Test inputs uploaded successfully.")
             else:
@@ -406,7 +506,8 @@ if __name__ == "__main__":
     parser.add_argument("--source", help="Source GCS path for gsutil copy")
     parser.add_argument("--destination", help="Destination GCS path for gsutil copy")
     parser.add_argument("--method_config_name", help="Name of the method configuration to delete")
-    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "create_new_method_config", "delete_method_config"],
+    parser.add_argument("--test_type", help="Test type (Scientific or Plumbing)")
+    parser.add_argument("action", choices=["submit_job", "upload_test_inputs", "poll_job_status", "get_workflow_outputs", "create_new_method_config", "delete_method_config", "cancel_old_submissions"],
                         help="Action to perform: 'submit_job', 'upload_test_inputs', 'poll_job_status', 'get_workflow_outputs',  'create_new_method_config', or 'delete_method_config'")
 
     args = parser.parse_args()
@@ -428,7 +529,7 @@ if __name__ == "__main__":
         if not args.pipeline_name or not args.test_input_file or not args.branch_name:
             parser.error("Arguments --pipeline_name, --test_input_file, and --branch_name are required for 'upload_test_inputs'")
         # Call the function to upload test inputs
-        api.upload_test_inputs(args.pipeline_name, args.test_input_file, args.branch_name)
+        api.upload_test_inputs(args.pipeline_name, args.test_input_file, args.branch_name, args.test_type)
 
     elif args.action == "submit_job":
         # Check for required argument for submit_job action
@@ -475,8 +576,16 @@ if __name__ == "__main__":
                 logging.info("Method configuration deleted successfully.")
             else:
                 logging.error("Failed to delete method configuration.")
+    elif args.action == "cancel_old_submissions":
+        if not all([args.pipeline_name, args.branch_name]):
+            parser.error("Arguments --pipeline_name and --branch_name are required for 'cancel_old_submissions'")
 
-
+        # Cancel old submissions
+        cancelled_count = api.cancel_old_submissions(
+            args.pipeline_name,
+            args.branch_name
+        )
+        print(f"Cancelled {cancelled_count} old submissions")
 
 
 
