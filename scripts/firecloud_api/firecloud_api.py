@@ -176,6 +176,17 @@ class FirecloudAPI:
 
         # get the current method configuration
         response = requests.get(url, headers=headers)
+
+        #if response.status_code == 404:
+        #    logging.info(f"Method config {method_config_name} not found. Creating new config...")
+        #    if not self.create_new_method_config(branch_name, pipeline_name):
+        #        logging.error("Failed to create new method configuration.")
+        #        return False
+        #    response = requests.get(url, headers=headers)
+        #    if response.status_code != 200:
+        #        logging.error(f"Failed to get method configuration. Status code: {response.status_code}")
+        #        return False
+
         config = response.json()
         print(f"Current method configuration: {json.dumps(config, indent=2)}")
         # update the config with the new inputs
@@ -188,7 +199,7 @@ class FirecloudAPI:
             config["inputs"] = inputs_json
 
         # Construct the methodUri with the branch name
-        base_url = "github.com/broadinstitute/warp/{pipeline_name}"
+        base_url = f"github.com/broadinstitute/warp/{pipeline_name}"
         method_uri = f"dockstore://{quote(base_url)}/{branch_name}"
         print(f"Updating methodUri with branch name: {method_uri}")
         config["methodRepoMethod"]["methodUri"] = method_uri
