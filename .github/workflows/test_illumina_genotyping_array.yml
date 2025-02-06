@@ -125,36 +125,6 @@ jobs:
             fi
           fi
 
-      - name: Delete Method Configuration
-        if: always() # Ensures it runs regardless of success or failure
-        run: |
-          echo "Deleting method configuration for branch: $BRANCH_NAME"
-          DELETE_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
-            --workspace-namespace $WORKSPACE_NAMESPACE \
-            --workspace-name "$TESTING_WORKSPACE" \
-            --pipeline_name "$PIPELINE_NAME" \
-            --branch_name "$BRANCH_NAME" \
-            --test_type "$testType" \
-            --sa-json-b64 "$SA_JSON_B64" \
-            --user "$USER" \
-            --method_config_name "${PIPELINE_NAME}_${testType}_${BRANCH_NAME}")
-            echo "Delete response: $DELETE_RESPONSE"
-          if [ "$DELETE_RESPONSE" == "True" ]; then
-            echo "Method configuration deleted successfully."
-          else
-            echo "Error: Method configuration deletion failed."
-            exit 1
-          fi
-
-        env:
-          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
-          BRANCH_NAME: ${{ env.BRANCH_NAME }}
-          SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
-          METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
-          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
-          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
-          USER: ${{ env.USER }}
-
       - name: Create new method configuration
         run: |
           echo "Creating new method configuration for branch: $BRANCH_NAME"
@@ -459,6 +429,36 @@ jobs:
           USER: ${{ env.USER }}
           DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
           PIPELINE_DIR: ${{ env.PIPELINE_DIR }}
+
+      - name: Delete Method Configuration
+        if: always() # Ensures it runs regardless of success or failure
+        run: |
+          echo "Deleting method configuration for branch: $BRANCH_NAME"
+          DELETE_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
+            --workspace-namespace $WORKSPACE_NAMESPACE \
+            --workspace-name "$TESTING_WORKSPACE" \
+            --pipeline_name "$PIPELINE_NAME" \
+            --branch_name "$BRANCH_NAME" \
+            --test_type "$testType" \
+            --sa-json-b64 "$SA_JSON_B64" \
+            --user "$USER" \
+            --method_config_name "${PIPELINE_NAME}_${testType}_${BRANCH_NAME}")
+            echo "Delete response: $DELETE_RESPONSE"
+          if [ "$DELETE_RESPONSE" == "True" ]; then
+            echo "Method configuration deleted successfully."
+          else
+            echo "Error: Method configuration deletion failed."
+            exit 1
+          fi
+
+        env:
+          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+          SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
+          METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
+          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
+          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
+          USER: ${{ env.USER }}
 
       - name: Print Summary on Success
         if: success()
