@@ -177,15 +177,15 @@ class FirecloudAPI:
         # get the current method configuration
         response = requests.get(url, headers=headers)
 
-        #if response.status_code == 404:
-        #    logging.info(f"Method config {method_config_name} not found. Creating new config...")
-        #    if not self.create_new_method_config(branch_name, pipeline_name):
-        #        logging.error("Failed to create new method configuration.")
-        #        return False
-        #    response = requests.get(url, headers=headers)
-        #    if response.status_code != 200:
-        #        logging.error(f"Failed to get method configuration. Status code: {response.status_code}")
-        #        return False
+        if response.status_code == 404:
+            logging.info(f"Method config {method_config_name} not found. Creating new config...")
+            if not self.create_new_method_config(branch_name, pipeline_name):
+                logging.error("Failed to create new method configuration.")
+                return False
+            response = requests.get(url, headers=headers)
+            if response.status_code != 200:
+                logging.error(f"Failed to get method configuration. Status code: {response.status_code}")
+                return False
 
         config = response.json()
         print(f"Current method configuration: {json.dumps(config, indent=2)}")
