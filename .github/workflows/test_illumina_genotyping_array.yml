@@ -291,6 +291,7 @@ jobs:
           
             echo "Created submission data file: $SUBMISSION_DATA_FILE"
             cat "$SUBMISSION_DATA_FILE"
+            sleep 10  
 
             # Upload test input file
             python3 scripts/firecloud_api/firecloud_api.py \
