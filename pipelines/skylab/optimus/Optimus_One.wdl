@@ -79,10 +79,10 @@ workflow Optimus {
     Boolean is_slidetags = false
 
     # Machine specs for starsolo
-    cpu_platform_star = "Intel Ice Lake"
-    mem_size_star = 64
-    cpu_star = 16
-    disk_star = 2000
+    String cpu_platform_star = "Intel Ice Lake"
+    Int mem_size_star = 64
+    Int cpu_star = 16
+    Int disk_star = 2000
   }
 
   # version of this pipeline
