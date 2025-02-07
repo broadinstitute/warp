@@ -2,7 +2,7 @@ version 1.0
 
 import "scripts/spatial-count.wdl" as SpatialCount
 import "scripts/positioning.wdl" as Positioning
-import "../../../pipelines/skylab/optimus/Optimus_One.wdl" as optimus
+import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 
 workflow SlideTags {
 
