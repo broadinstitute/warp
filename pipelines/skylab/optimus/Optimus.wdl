@@ -77,6 +77,12 @@ workflow Optimus {
 
     # Set to true if slide-tags calls optimus, other wise set to false
     Boolean is_slidetags = false
+
+    # Machine specs for starsolo
+    String cpu_platform_star = "Intel Ice Lake"
+    Int mem_size_star = 64
+    Int cpu_star = 16
+    Int disk_star = 2000
   }
 
   # version of this pipeline
@@ -166,45 +172,29 @@ workflow Optimus {
       ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
   }
 
-  call FastqProcessing.FastqProcessing as SplitFastq {
-    input:
-      i1_fastq = i1_fastq,
-      r1_fastq = r1_fastq,
-      r2_fastq = r2_fastq,
-      whitelist = whitelist,
-      chemistry = tenx_chemistry_version,
-      sample_id = input_id,
-      read_struct = read_struct,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker
-  }
-
-  scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
-    call StarAlign.STARsoloFastq as STARsoloFastq {
+  call StarAlign.STARsoloFastq as STARsoloFastq {
       input:
-        r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
-        r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
+        r1_fastq = r1_fastq,
+        r2_fastq = r2_fastq,
         star_strand_mode = star_strand_mode,
         white_list = whitelist,
         tar_star_reference = tar_star_reference,
         chemistry = tenx_chemistry_version,
         counting_mode = counting_mode,
         count_exons = count_exons,
-        output_bam_basename = output_bam_basename + "_" + idx,
+        output_bam_basename = output_bam_basename,
         soloMultiMappers = soloMultiMappers,
         samtools_star_docker_path = docker_prefix + samtools_star,
-        is_slidetags = is_slidetags
+        is_slidetags = is_slidetags,
+        cpu_platform = cpu_platform_star,
+        mem_size = mem_size_star,
+        cpu = cpu_star, 
+        disk = disk_star
     }
-  }
-  call Merge.MergeSortBamFiles as MergeBam {
-    input:
-      bam_inputs = STARsoloFastq.bam_output,
-      output_bam_filename = output_bam_basename + ".bam",
-      sort_order = "coordinate",
-      picard_cloud_docker_path = docker_prefix + picard_cloud_docker
-  }
+  
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
-      bam_input = MergeBam.output_bam,
+      bam_input = STARsoloFastq.bam_output,
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id,
@@ -213,7 +203,7 @@ workflow Optimus {
 
   call Metrics.CalculateCellMetrics as CellMetrics {
     input:
-      bam_input = MergeBam.output_bam,
+      bam_input = STARsoloFastq.bam_output,
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id,
@@ -222,13 +212,13 @@ workflow Optimus {
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
     input:
-      barcodes = STARsoloFastq.barcodes,
-      features = STARsoloFastq.features,
-      matrix = STARsoloFastq.matrix,
-      cell_reads = STARsoloFastq.cell_reads,
-      summary = STARsoloFastq.summary,
-      align_features = STARsoloFastq.align_features,
-      umipercell = STARsoloFastq.umipercell,
+      barcodes = [STARsoloFastq.barcodes],
+      features = [STARsoloFastq.features],
+      matrix = [STARsoloFastq.matrix],
+      cell_reads = [STARsoloFastq.cell_reads],
+      summary = [STARsoloFastq.summary],
+      align_features = [STARsoloFastq.align_features],
+      umipercell = [STARsoloFastq.umipercell],
       input_id = input_id,
       counting_mode = counting_mode,
       star_merge_docker_path = docker_prefix + star_merge_docker,
@@ -272,15 +262,15 @@ workflow Optimus {
   if (count_exons  && counting_mode=="sn_rna") {
     call StarAlign.MergeStarOutput as MergeStarOutputsExons {
       input:
-        barcodes = STARsoloFastq.barcodes_sn_rna,
-        features = STARsoloFastq.features_sn_rna,
-        matrix = STARsoloFastq.matrix_sn_rna,
-        cell_reads = STARsoloFastq.cell_reads_sn_rna,
+        barcodes = [STARsoloFastq.barcodes_sn_rna],
+        features = [STARsoloFastq.features_sn_rna],
+        matrix = [STARsoloFastq.matrix_sn_rna],
+        cell_reads = [STARsoloFastq.cell_reads_sn_rna],
         input_id = input_id,
         counting_mode = "sc_rna",
-        summary = STARsoloFastq.summary_sn_rna,
-        align_features = STARsoloFastq.align_features_sn_rna,
-        umipercell = STARsoloFastq.umipercell_sn_rna,
+        summary = [STARsoloFastq.summary_sn_rna],
+        align_features = [STARsoloFastq.align_features_sn_rna],
+        umipercell = [STARsoloFastq.umipercell_sn_rna],
         star_merge_docker_path = docker_prefix + star_merge_docker,
         gex_nhash_id = gex_nhash_id     
     }
@@ -351,7 +341,7 @@ workflow Optimus {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
-    File bam = MergeBam.output_bam
+    File bam = STARsoloFastq.bam_output
     File matrix = MergeStarOutputs.sparse_counts
     File matrix_row_index = MergeStarOutputs.row_index
     File matrix_col_index = MergeStarOutputs.col_index
@@ -363,12 +353,11 @@ workflow Optimus {
     File? mtx_files = MergeStarOutputs.mtx_files
     File? filtered_mtx_files = MergeStarOutputs.filtered_mtx_files
 
-    Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
-    Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
-    Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
-    Array[File?] multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
+    File? multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
+    File? multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
+    File? multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
+    File? multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
     
-
     # h5ad
     File h5ad_output_file = final_h5ad_output
 
