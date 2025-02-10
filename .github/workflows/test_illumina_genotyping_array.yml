@@ -222,6 +222,10 @@ jobs:
           echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash after 15 minutes of retries!"
           exit 1
 
+        env:
+          GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
+          DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
+
       # Step 11: Run Tests
       # Purpose: Main testing step - runs the pipeline and collects results
       - name: Update test inputs, Upload to Terra, Submit, Monitor and Retrieve Outputs
@@ -419,6 +423,8 @@ jobs:
               echo ""
               exit 1
           fi
+          
+          
 
       # Step 12: Cleanup
       # Purpose: Ensures cleanup of Terra method configurations regardless of test outcome
