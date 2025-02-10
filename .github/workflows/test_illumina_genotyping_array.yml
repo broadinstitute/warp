@@ -140,11 +140,6 @@ jobs:
             --user "$USER")
 
             echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
-        env:
-          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
-          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
-          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
-          USER: ${{ env.USER }}
 
       # Step 7: Cancel Previous Runs
       # Purpose: Cancels previous GHA workflows from the same branch (regardless of plumbing or scientific test type)
