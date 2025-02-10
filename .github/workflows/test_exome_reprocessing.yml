@@ -59,7 +59,6 @@ on:
 
 env:
   # pipeline configuration
-  PROJECT_NAME: WARP
   PIPELINE_NAME: TestExomeReprocessing
   DOCKSTORE_PIPELINE_NAME: ExomeReprocessing
   PIPELINE_DIR: "pipelines/broad/reprocessing/exome"
@@ -67,9 +66,6 @@ env:
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
   WORKSPACE_NAMESPACE: warp-pipelines
-
-  # github repo configuration
-  REPOSITORY_NAME: ${{ github.event.repository.name }}
 
   # service account configuration
   SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}

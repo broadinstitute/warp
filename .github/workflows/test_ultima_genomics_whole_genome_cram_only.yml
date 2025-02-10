@@ -57,7 +57,6 @@ on:
 
 env:
   # pipeline configuration
-  PROJECT_NAME: WARP
   PIPELINE_NAME: TestUltimaGenomicsWholeGenomeCramOnly
   DOCKSTORE_PIPELINE_NAME: UltimaGenomicsWholeGenomeCramOnly
   PIPELINE_DIR: "pipelines/broad/dna_seq/somatic/single_sample/ugwgs/"
@@ -65,9 +64,6 @@ env:
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
   WORKSPACE_NAMESPACE: warp-pipelines
-
-  # github repo configuration
-  REPOSITORY_NAME: ${{ github.event.repository.name }}
 
   # service account configuration
   SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}

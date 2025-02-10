@@ -52,7 +52,6 @@ on:
 
 env:
   # pipeline configuration
-  PROJECT_NAME: WARP
   PIPELINE_NAME: TestOptimus
   DOCKSTORE_PIPELINE_NAME: Optimus
   PIPELINE_DIR: "pipelines/skylab/optimus"
@@ -60,9 +59,6 @@ env:
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
   WORKSPACE_NAMESPACE: warp-pipelines
-
-  # github repo configuration
-  REPOSITORY_NAME: ${{ github.event.repository.name }}
 
   # service account configuration
   SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}

@@ -56,7 +56,6 @@ on:
 
 env:
   # pipeline configuration
-  PROJECT_NAME: WARP
   PIPELINE_NAME: TestWholeGenomeGermlineSingleSample
   DOCKSTORE_PIPELINE_NAME: WholeGenomeGermlineSingleSample
   PIPELINE_DIR: "pipelines/broad/dna_seq/germline/single_sample/wgs"
@@ -65,9 +64,6 @@ env:
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
   WORKSPACE_NAMESPACE: warp-pipelines
-
-  # github repo configuration
-  REPOSITORY_NAME: ${{ github.event.repository.name }}
 
   # service account configuration
   SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
