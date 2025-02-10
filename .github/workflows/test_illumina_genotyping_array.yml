@@ -221,11 +221,6 @@ jobs:
 
           echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash after 15 minutes of retries!"
           exit 1
-        env:
-          DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
-          DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
-          BRANCH_NAME: ${{ env.BRANCH_NAME }}
-          GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
 
       # Step 11: Run Tests
       # Purpose: Main testing step - runs the pipeline and collects results
@@ -424,14 +419,6 @@ jobs:
               echo ""
               exit 1
           fi
-        env:
-          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
-          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
-          METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
-          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
-          USER: ${{ env.USER }}
-          DOCKSTORE_PIPELINE_NAME: ${{ env.DOCKSTORE_PIPELINE_NAME }}
-          PIPELINE_DIR: ${{ env.PIPELINE_DIR }}
 
       # Step 12: Cleanup
       # Purpose: Ensures cleanup of Terra method configurations regardless of test outcome
@@ -456,14 +443,6 @@ jobs:
             exit 1
           fi
 
-        env:
-          PIPELINE_NAME: ${{ env.PIPELINE_NAME }}
-          BRANCH_NAME: ${{ env.BRANCH_NAME }}
-          SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
-          METHOD_CONFIG_NAME: ${{ env.METHOD_CONFIG_NAME }}
-          WORKSPACE_NAMESPACE: ${{ env.WORKSPACE_NAMESPACE }}
-          TESTING_WORKSPACE: ${{ env.TESTING_WORKSPACE }}
-          USER: ${{ env.USER }}
 
       # Step 13: Print Summary on Success
       # Purpose: Prints the final summary of the pipeline execution in case of success
