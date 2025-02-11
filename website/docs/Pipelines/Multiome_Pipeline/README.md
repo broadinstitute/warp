@@ -136,6 +136,8 @@ The Multiome workflow calls two WARP subworkflows, one external subworkflow (opt
 | metrics_csv_array | `<metrics_array>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 | output_directory | `<output_dir>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 | summary_pdf | `<pdf>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
+| cellbybin_h5ad_file | h5ad | Cell by bin matrix produced by SnapATAC2 peak calling. This matrix contains (unmerged) peaks in the MACS3 unstructured metadata (adata.uns['MACS3']). The matrix consists of insertion counts per 500 bp genomic bin and cell barcode. |
+| cellbypeak_h5ad_file | h5ad | Cell by peak matrix produced by SnapATAC2 peak calling. This matrix contains insertion counts per (merged) peak coordinates and per cell barcode. | 
 
 
 
