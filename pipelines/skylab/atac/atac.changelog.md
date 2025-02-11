@@ -2,6 +2,7 @@
 2025-02-06 (Date of Last Commit)
 
 * Added a new warning for peak calling step if the probability_threshold is too low, resutling in a null matrix after doublet filtering
+* Updated the probability threshold default to 0.5
 
 # 2.7.0
 2025-02-03 (Date of Last Commit)

@@ -668,7 +668,7 @@ task PeakCalling {
     Int min_counts = 5000
     Int min_tsse = 10
     Int max_counts = 100000
-    Float probability_threshold = 1
+    Float probability_threshold = 0.5
 
     # Runtime attributes/docker
     String docker_path
