@@ -1,3 +1,8 @@
+# 5.11.0
+2025-02-05 (Date of Last Commit)
+
+* Refactored the Peak Calling step of Multiome to use the JoinBarcodes output h5ad as the input for peak calling, ensuring the h5ad files have both GEX and ATAC barcodes 
+
 # 5.10.0
 2025-02-03 (Date of Last Commit)
 

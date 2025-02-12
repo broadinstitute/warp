@@ -4,10 +4,11 @@ import "../../../pipelines/skylab/atac/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/broad/Utilities.wdl" as utils
+#import "../../../pipelines/skylab/atac/atac.wdl" as PeakCalling
 
 workflow Multiome {
 
-    String pipeline_version = "5.10.0"
+    String pipeline_version = "5.11.0"
 
     input {
         String cloud_provider
@@ -60,7 +61,7 @@ workflow Multiome {
     String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
     # Define docker images
-    String snap_atac_docker_image = "snapatac2:1.0.4-2.3.1-1700590229"
+    String snap_atac_docker_image = "snapatac2:2.0.0"
 
     # Define all whitelist files
     File gcp_gex_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
@@ -124,7 +125,8 @@ workflow Multiome {
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
-            peak_calling = run_peak_calling
+            peak_calling = false
+
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
@@ -136,6 +138,16 @@ workflow Multiome {
             atac_fragment = Atac.fragment_file
     }
 
+    if (run_peak_calling) {
+        call atac.PeakCalling as PeakCalling {
+            input:
+                annotations_gtf = annotations_gtf,
+                metrics_h5ad = JoinBarcodes.atac_h5ad_file,
+                chrom_sizes = chrom_sizes,
+                output_base_name = input_id,
+                docker_path = docker_prefix + snap_atac_docker_image,
+        }
+    }
 
     meta {
         allowNestedInputs: true
@@ -152,8 +164,8 @@ workflow Multiome {
         File fragment_file_index = JoinBarcodes.atac_fragment_tsv_index
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
         File atac_library_metrics = Atac.library_metrics_file
-        File? cellbybin_h5ad_file = Atac.cellbybin_h5ad_file
-        File? cellbypeak_h5ad_file = Atac.cellbypeak_h5ad_file
+        File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad
+        File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
