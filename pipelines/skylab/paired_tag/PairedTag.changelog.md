@@ -2,6 +2,7 @@
 2025-02-06 (Date of Last Commit)
 
 * Updated the SnapATAC2 docker image to the latest SnapATAC2, allowing for future peak calling implementation
+* Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
 
 # 1.10.1
 2025-02-03 (Date of Last Commit)
