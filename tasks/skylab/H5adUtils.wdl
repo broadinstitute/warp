@@ -536,7 +536,7 @@ task SingleNucleusSlideseqH5adOutput {
 task SingleNucleusSmartSeq2H5adOutput {
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np_group_qcs"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.6.1"
 
         Array[File] alignment_summary_metrics
         Array[File] dedup_metrics
@@ -631,7 +631,7 @@ task AggregateSmartSeq2H5ad {
         Array[File] h5ad_input
         String batch_id
         String pipeline_version
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np_group_qcs"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.6.1"
         Int disk = 200
         Int machine_mem_mb = 4000
         Int cpu = 1
