@@ -167,6 +167,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestImputation.wdl
 
+  - name: TestImputationBeagle
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestImputationBeagle.wdl
+
   - name: TestJointGenotyping
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestJointGenotyping.wdl
