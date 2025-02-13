@@ -13,6 +13,9 @@ MultiSampleSmartSeq2	 2.2.22	2024-09-11
 AnnotationFiltration	 1.2.7	2024-11-04 
 RNAWithUMIsPipeline	 1.0.18	2024-11-04 
 Imputation	 1.1.15	2024-11-04 
+ArrayImputationQuotaConsumed	 0.0.1	2024-11-13 
+ImputationBeagle	 0.0.1	2024-11-13 
+LiftoverVcfs	 0.0.1	2024-11-13 
 Arrays	 2.6.30	2024-11-04 
 MultiSampleArrays	 1.6.2	2024-08-02 
 ValidateChip	 1.16.7	2024-11-04 
