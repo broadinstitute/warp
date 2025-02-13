@@ -1,5 +1,6 @@
 version 1.0
 
+import "../../../../structs/imputation/ImputationBeagleStructs.wdl" as structs
 import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
 import "../../../../tasks/broad/ImputationBeagleTasks.wdl" as beagleTasks
 
@@ -228,11 +229,4 @@ workflow ImputationBeagle {
     allowNestedInputs: true
   }
 
-}
-
-struct ReferencePanelContig {
-  File bed
-  File bref3
-  String contig
-  File genetic_map
 }
