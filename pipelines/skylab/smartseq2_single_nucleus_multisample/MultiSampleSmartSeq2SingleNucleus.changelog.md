@@ -1,3 +1,8 @@
+# 2.0.8
+2025-02-12 (Date of Last Commit)
+
+* Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
+
 # 2.0.7
 2025-01-13 (Date of Last Commit)
 
