@@ -44,7 +44,7 @@ on:
 
 jobs:
   test_pipeline:
-    uses: ./.github/workflows/reusable-warp-test.yml
+    uses: ./.github/workflows/warp_test_workflow.yml
     with:
       pipeline_name: TestIlluminaGenotypingArray
       dockstore_pipeline_name: IlluminaGenotypingArray
