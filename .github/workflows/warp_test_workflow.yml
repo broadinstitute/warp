@@ -341,8 +341,36 @@ jobs:
               exit 1
           fi
 
+      # Step 12: Cleanup
+      # Purpose: Ensures cleanup of Terra method configurations regardless of test outcome
       - name: Delete Method Configuration
         if: always()
         run: |
           echo "Deleting method configuration for branch: $BRANCH_NAME"
-          DELETE_RESPONSE
+          DELETE_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
+          --workspace-namespace $WORKSPACE_NAMESPACE \
+          --workspace-name "$TESTING_WORKSPACE" \
+          --pipeline_name "${{ inputs.pipeline_name }}" \
+          --branch_name "$BRANCH_NAME" \
+          --test_type "$testType" \
+          --sa-json-b64 "$SA_JSON_B64" \
+          --user "$USER" \
+          --method_config_name "${inputs.pipeline_name}_${testType}_${BRANCH_NAME}")
+          
+          echo "Delete response: $DELETE_RESPONSE"
+          if [ "$DELETE_RESPONSE" == "True" ]; then
+            echo "Method configuration deleted successfully."
+          else
+            echo "Error: Method configuration deletion failed."
+            exit 1
+          fi
+
+      - name: Print Summary on Success
+        if: success()
+        run: |
+          echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
+
+      - name: Print Summary on Failure
+        if: failure()
+        run: |
+          echo "# :x: Pipeline Execution Summary (on Failure) :x: " >> $GITHUB_STEP_SUMMARY
