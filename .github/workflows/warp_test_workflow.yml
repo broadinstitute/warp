@@ -152,7 +152,7 @@ jobs:
         id: compare_hashes
         run: |
           # Wait 5.5 minutes for Dockstore to update
-          sleep 330
+          sleep 60
 
           MAX_WAIT_TIME=$((15 * 60)) # 15 minutes in seconds
           WAIT_INTERVAL=60          # 1 minute in seconds
@@ -355,7 +355,7 @@ jobs:
           --test_type "$testType" \
           --sa-json-b64 "$SA_JSON_B64" \
           --user "$USER" \
-          --method_config_name "${inputs.pipeline_name}_${testType}_${BRANCH_NAME}")
+          --method_config_name "$METHOD_CONFIG_NAME")
           
           echo "Delete response: $DELETE_RESPONSE"
           if [ "$DELETE_RESPONSE" == "True" ]; then
