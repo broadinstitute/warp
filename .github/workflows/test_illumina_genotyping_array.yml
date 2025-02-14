@@ -44,7 +44,7 @@ on:
         default: "master"
 
 jobs:
-  test_pipeline:
+  TestIlluminaGenotypingArray:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
       pipeline_name: TestIlluminaGenotypingArray

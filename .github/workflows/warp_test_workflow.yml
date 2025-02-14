@@ -57,20 +57,28 @@ jobs:
       actions: write
 
     steps:
+      # Step 1: Checkout code
+      # Purpose: Clones the repository code at the specified reference
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
 
+        # Step 2: Setup Python
+        # Purpose: Installs Python 3.11 for running pipeline scripts
       - name: Set up python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
+      # Step 3: Install Dependencies
+      # Purpose: Installs required Python packages for the pipeline
       - name: Install dependencies
         run: |
           cd scripts/firecloud_api/
           pip install -r requirements.txt
 
+      # Step 4: Set Branch Name
+      # Purpose: Determines and sets the correct branch name for either PR or direct commits
       - name: Set Branch Name
         id: set_branch
         run: |
@@ -82,6 +90,8 @@ jobs:
             echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
           fi
 
+      # Step 5: Set Test Type
+      # Purpose: Determines and sets the correct test type based on the branch name
       - name: Set Test Type
         id: set_test_type
         run: |
@@ -98,6 +108,8 @@ jobs:
             echo "testType=${{ inputs.test_type }}"
           fi
 
+      # Step 6: Create Method Configuration
+      # Purpose: Sets up the testing configuration in Terra workspace
       - name: Create new method configuration
         run: |
           echo "Creating new method configuration for branch: $BRANCH_NAME"
@@ -114,6 +126,9 @@ jobs:
 
           echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
 
+      # Step 7: Cancel Previous Runs
+      # Purpose: Cancels previous GHA workflows from the same branch (regardless of plumbing or scientific test type)
+      # to avoid running multiple tests at the same time
       - name: Cancel Previous GHA Runs
         uses: styfle/cancel-workflow-action@0.11.0
         with:
@@ -121,6 +136,9 @@ jobs:
           all_but_latest: true
           ignore_sha: true
 
+      # Step 8: Cancel Previous Terra Submissions
+      # Purpose: Abort previous Terra submissions from the same branch to avoid running multiple tests at the same time
+      # Will not abort a Terra submission if it is a scientific test
       - name: Cancel Previous Terra Submissions
         if: ${{ !contains(env.METHOD_CONFIG_NAME, '_Scientific_') }}
         run: |
@@ -134,6 +152,8 @@ jobs:
             --test_type "$testType" \
             cancel_old_submissions
 
+      # Step 9: Handle Git Commit Hash
+      # Purpose: Gets the correct Github commit hash for version tracking
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
         run: |
@@ -148,11 +168,13 @@ jobs:
             exit 1
           fi
 
+      # Step 10: Compare Hashes
+      # Purpose: Compares the Dockstore and Github commit hashes to ensure they match
       - name: Compare Dockstore and Github Commit Hashes with Retry
         id: compare_hashes
         run: |
           # Wait 5.5 minutes for Dockstore to update
-          sleep 60
+          sleep 330
 
           MAX_WAIT_TIME=$((15 * 60)) # 15 minutes in seconds
           WAIT_INTERVAL=60          # 1 minute in seconds
@@ -187,6 +209,8 @@ jobs:
           GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
           DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
 
+      # Step 11: Run Tests
+      # Purpose: Main testing step - runs the pipeline and collects results
       - name: Update test inputs, Upload to Terra, Submit, Monitor and Retrieve Outputs
         run: |
           UPDATE_TRUTH="${{ inputs.update_truth }}"
@@ -365,11 +389,15 @@ jobs:
             exit 1
           fi
 
+      # Step 13: Print Summary on Success
+      # Purpose: Prints the final summary of the pipeline execution in case of success
       - name: Print Summary on Success
         if: success()
         run: |
           echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
 
+      # Step 14: Print Summary on Failure
+      # Purpose: Prints the final summary of the pipeline execution in case of failure
       - name: Print Summary on Failure
         if: failure()
         run: |

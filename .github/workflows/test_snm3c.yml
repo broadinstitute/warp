@@ -15,6 +15,7 @@ on:
       - 'verification/test-wdls/Testsnm3C.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
       - '.github/workflows/test_snm3c.yml'
+      - '.github/workflows/warp_test_workflow.yml'
 
 
   # Allows you to run this workflow manually from the Actions tab

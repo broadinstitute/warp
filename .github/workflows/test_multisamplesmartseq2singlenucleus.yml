@@ -25,6 +25,7 @@ on:
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
       # this file
       - '.github/workflows/test_multisamplesmartseq2singlenucleus.yml'
+      - '.github/workflows/warp_test_workflow.yml'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
