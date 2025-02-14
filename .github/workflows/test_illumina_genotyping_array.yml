@@ -42,28 +42,13 @@ on:
         required: false
         default: "master"
 
-env:
-  # pipeline configuration
-  PIPELINE_NAME: TestIlluminaGenotypingArray
-  DOCKSTORE_PIPELINE_NAME: IlluminaGenotypingArray
-  PIPELINE_DIR: "pipelines/broad/genotyping/illumina"
-
-  # workspace configuration
-  TESTING_WORKSPACE: WARP Tests
-  WORKSPACE_NAMESPACE: warp-pipelines
-
-  # service account configuration
-  SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
-  USER: pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com
-
-
 jobs:
   test_pipeline:
-    uses: ./.github/workflows/warp_test_workflow.yml
+    uses: ./.github/workflows/reusable-warp-test.yml
     with:
-      pipeline_name: TestMultiSampleSmartSeq2SingleNucleus
-      dockstore_pipeline_name: Smartseq2_Single_Nucleus_Multisample
-      pipeline_dir: pipelines/skylab/smartseq2_single_nucleus_multisample
+      pipeline_name: TestIlluminaGenotypingArray
+      dockstore_pipeline_name: IlluminaGenotypingArray
+      pipeline_dir: pipelines/broad/genotyping/illumina
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}
