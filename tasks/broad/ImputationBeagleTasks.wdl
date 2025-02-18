@@ -10,6 +10,7 @@ task CountVariantsInChunks {
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_bed_file], "GiB")) + 10
+    Int max_retries = 0
   }
   Int command_mem = memory_mb - 1500
   Int max_heap = memory_mb - 1000
@@ -34,6 +35,7 @@ task CountVariantsInChunks {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: max_retries
   }
 }
 
@@ -45,6 +47,7 @@ task CheckChunks {
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
     Int cpu = 1
     Int memory_mb = 4000
+    Int max_retries = 0
   }
   command <<<
     set -e -o pipefail
@@ -64,6 +67,7 @@ task CheckChunks {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: max_retries
   }
 }
 
@@ -82,6 +86,7 @@ task Phase {
     Int memory_mb = 32000          # value depends on chunk size, the number of samples in ref and target panel, and whether imputation is performed
     Int xmx_mb = memory_mb - 5000             # I suggest setting this parameter to be 85-90% of the memory_mb parameter
     Int disk_size_gb = ceil(3 * size([dataset_vcf, ref_panel_bref3], "GiB")) + 10         # value may need to be adjusted
+    Int max_retries = 0
   }
 
   command <<<
@@ -109,6 +114,7 @@ task Phase {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: max_retries
   }
 }
 
@@ -127,6 +133,7 @@ task Impute {
     Int memory_mb = 32000          # value depends on chunk size, the number of samples in ref and target panel, and whether imputation is performed
     Int xmx_mb = memory_mb - 5000             # I suggest setting this parameter to be 85-90% of the memory_mb parameter
     Int disk_size_gb = ceil(3 * size([dataset_vcf, ref_panel_bref3], "GiB")) + 10         # value may need to be adjusted
+    Int max_retries = 0
   }
 
   command <<<
@@ -154,6 +161,7 @@ task Impute {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: max_retries
   }
 }
 
@@ -161,6 +169,8 @@ task ErrorWithMessageIfErrorCountNotZero {
   input {
     Int errorCount
     String message
+
+    Int max_retries = 0
   }
   command <<<
     if [[ ~{errorCount} -gt 0 ]]; then
@@ -174,6 +184,7 @@ task ErrorWithMessageIfErrorCountNotZero {
   runtime {
     docker: "ubuntu.azurecr.io/ubuntu:20.04"
     preemptible: 3
+    maxRetries: max_retries
   }
   output {
     Boolean done = true

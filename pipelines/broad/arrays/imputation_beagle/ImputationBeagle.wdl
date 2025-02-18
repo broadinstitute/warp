@@ -19,6 +19,8 @@ workflow ImputationBeagle {
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
     String output_basename # the basename for intermediate and output files
 
+    Int max_retries_for_testing = 0
+
     # file extensions used to find reference panel files
     String bed_suffix = ".bed"
     String bref3_suffix = ".bref3"
@@ -31,13 +33,15 @@ workflow ImputationBeagle {
 
   call tasks.CountSamples {
     input:
-      vcf = multi_sample_vcf
+      vcf = multi_sample_vcf,
+      max_retries = max_retries_for_testing
   }
 
   call tasks.CreateVcfIndex {
     input:
       vcf_input = multi_sample_vcf,
-      gatk_docker = gatk_docker
+      gatk_docker = gatk_docker,
+      max_retries = max_retries_for_testing
   }
 
   Float chunkLengthFloat = chunkLength
@@ -59,7 +63,8 @@ workflow ImputationBeagle {
       input:
         ref_dict = ref_dict,
         chrom = referencePanelContig.contig,
-        ubuntu_docker = ubuntu_docker
+        ubuntu_docker = ubuntu_docker,
+        max_retries = max_retries_for_testing
     }
 
     Int num_chunks = ceil(CalculateChromosomeLength.chrom_length / chunkLengthFloat)
@@ -82,7 +87,8 @@ workflow ImputationBeagle {
           end = endWithOverlaps,
           chrom = referencePanelContig.contig,
           basename = chunk_basename,
-          gatk_docker = gatk_docker
+          gatk_docker = gatk_docker,
+          max_retries = max_retries_for_testing
       }
 
       call beagleTasks.CountVariantsInChunks {
@@ -90,13 +96,15 @@ workflow ImputationBeagle {
           vcf = GenerateChunk.output_vcf,
           vcf_index = GenerateChunk.output_vcf_index,
           panel_bed_file = referencePanelContig.bed,
-          gatk_docker = gatk_docker
+          gatk_docker = gatk_docker,
+          max_retries = max_retries_for_testing
       }
 
       call beagleTasks.CheckChunks {
         input:
           var_in_original = CountVariantsInChunks.var_in_original,
-          var_also_in_reference = CountVariantsInChunks.var_also_in_reference
+          var_also_in_reference = CountVariantsInChunks.var_also_in_reference,
+          max_retries = max_retries_for_testing
       }
     }
 
@@ -110,7 +118,8 @@ workflow ImputationBeagle {
         vars_in_array = CountVariantsInChunks.var_in_original,
         vars_in_panel = CountVariantsInChunks.var_also_in_reference,
         valids = CheckChunks.valid,
-        basename = output_basename
+        basename = output_basename,
+        max_retries = max_retries_for_testing
     }
 
     # if any chunk for any chromosome fail CheckChunks, then we will not impute run any task in the next scatter,
@@ -119,7 +128,8 @@ workflow ImputationBeagle {
     call beagleTasks.ErrorWithMessageIfErrorCountNotZero as FailQCNChunks {
       input:
         errorCount = n_failed_chunks_int,
-        message = "contig " + referencePanelContig.contig + " had " + n_failed_chunks_int + " failing chunks"
+        message = "contig " + referencePanelContig.contig + " had " + n_failed_chunks_int + " failing chunks",
+        max_retries = max_retries_for_testing
     }
 
     scatter (i in range(num_chunks)) {
@@ -142,7 +152,8 @@ workflow ImputationBeagle {
           start = start[i],
           end = end[i],
           cpu = beagle_cpu,
-          memory_mb = beagle_phase_memory_in_gb * 1024
+          memory_mb = beagle_phase_memory_in_gb * 1024,
+          max_retries = max_retries_for_testing
       }
 
       call beagleTasks.Impute {
@@ -155,13 +166,15 @@ workflow ImputationBeagle {
           start = start[i],
           end = end[i],
           cpu = beagle_cpu,
-          memory_mb = beagle_impute_memory_in_gb * 1024
+          memory_mb = beagle_impute_memory_in_gb * 1024,
+          max_retries = max_retries_for_testing
       }
 
       call tasks.CreateVcfIndex as IndexImputedBeagle {
         input:
           vcf_input = Impute.vcf,
-          gatk_docker = gatk_docker
+          gatk_docker = gatk_docker,
+          max_retries = max_retries_for_testing
       }
 
       call tasks.UpdateHeader {
@@ -171,14 +184,16 @@ workflow ImputationBeagle {
           ref_dict = ref_dict,
           basename = chunk_basename_imputed,
           disable_sequence_dictionary_validation = false,
-          gatk_docker = gatk_docker
+          gatk_docker = gatk_docker,
+          max_retries = max_retries_for_testing
       }
 
       call tasks.SeparateMultiallelics {
         input:
           original_vcf = UpdateHeader.output_vcf,
           original_vcf_index = UpdateHeader.output_vcf_index,
-          output_basename = chunk_basename_imputed
+          output_basename = chunk_basename_imputed,
+          max_retries = max_retries_for_testing
       }
 
       call tasks.RemoveSymbolicAlleles {
@@ -186,7 +201,8 @@ workflow ImputationBeagle {
           original_vcf = SeparateMultiallelics.output_vcf,
           original_vcf_index = SeparateMultiallelics.output_vcf_index,
           output_basename = chunk_basename_imputed,
-          gatk_docker = gatk_docker
+          gatk_docker = gatk_docker,
+          max_retries = max_retries_for_testing
       }
     }
 
@@ -197,7 +213,8 @@ workflow ImputationBeagle {
     input:
       input_vcfs = flatten(chromosome_vcfs),
       output_vcf_basename = output_basename + ".imputed",
-      gatk_docker = gatk_docker
+      gatk_docker = gatk_docker,
+      max_retries = max_retries_for_testing
   }
 
   call tasks.StoreChunksInfo {
@@ -208,7 +225,8 @@ workflow ImputationBeagle {
       vars_in_array = flatten(CountVariantsInChunks.var_in_original),
       vars_in_panel = flatten(CountVariantsInChunks.var_also_in_reference),
       valids = flatten(CheckChunks.valid),
-      basename = output_basename
+      basename = output_basename,
+      max_retries = max_retries_for_testing
   }
   
   output {

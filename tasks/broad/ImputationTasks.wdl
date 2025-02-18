@@ -9,6 +9,8 @@ task CalculateChromosomeLength {
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
+
+    Int max_retries = 0
   }
 
   command {
@@ -22,6 +24,7 @@ task CalculateChromosomeLength {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: max_retries
   }
   output {
     Int chrom_length = read_int(stdout())
@@ -106,6 +109,7 @@ task GenerateChunk {
     Int cpu = 1
     Int memory_mb = 8000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+    Int max_retries = 0
   }
   Int command_mem = memory_mb - 1500
   Int max_heap = memory_mb - 1000
@@ -128,6 +132,7 @@ task GenerateChunk {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: max_retries
   }
   parameter_meta {
     vcf: {
@@ -310,6 +315,7 @@ task GatherVcfs {
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3*size(input_vcfs, "GiB")) + 10
+    Int max_retries = 0
   }
   Int command_mem = memory_mb - 1500
   Int max_heap = memory_mb - 1000
@@ -331,6 +337,7 @@ task GatherVcfs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: max_retries
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
@@ -384,6 +391,7 @@ task UpdateHeader {
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int cpu = 1
     Int memory_mb = 6000
+    Int max_retries = 0
   }
   Int command_mem = memory_mb - 1500
   Int max_heap = memory_mb - 1000
@@ -404,6 +412,7 @@ task UpdateHeader {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: max_retries
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -421,6 +430,7 @@ task RemoveSymbolicAlleles {
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int cpu = 1
     Int memory_mb = 4000
+    Int max_retries = 0
   }
   Int command_mem = memory_mb - 1500
   Int max_heap = memory_mb - 1000
@@ -439,6 +449,7 @@ task RemoveSymbolicAlleles {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: max_retries
   }
 }
 
@@ -452,6 +463,7 @@ task SeparateMultiallelics {
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
     Int cpu = 1
     Int memory_mb = 4000
+    Int max_retries = 0
   }
   command {
     set -e -o pipefail
@@ -469,6 +481,7 @@ task SeparateMultiallelics {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: max_retries
   }
 }
 
@@ -560,6 +573,8 @@ task CountSamples {
     Int cpu = 1
     Int memory_mb = 3000
     Int disk_size_gb = ceil(size(vcf, "GiB")) + 10
+
+    Int max_retries = 0
   }
 
   command <<<
@@ -573,6 +588,7 @@ task CountSamples {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: max_retries
   }
   output {
     Int nSamples = read_int(stdout())
@@ -637,6 +653,7 @@ task StoreChunksInfo {
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 10
+    Int max_retries = 0
   }
   command <<<
     Rscript -<< "EOF"
@@ -657,6 +674,7 @@ task StoreChunksInfo {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: max_retries
   }
   output {
     File chunks_info = "~{basename}_chunk_info.tsv"
@@ -982,6 +1000,8 @@ task CreateVcfIndex {
     Int cpu = 1
     Int memory_mb = 6000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+
+    Int max_retries = 0
   }
   Int command_mem = memory_mb - 1500
   Int max_heap = memory_mb - 1000
@@ -1001,6 +1021,7 @@ task CreateVcfIndex {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: max_retries
   }
   output {
     File vcf = "~{vcf_basename}"
