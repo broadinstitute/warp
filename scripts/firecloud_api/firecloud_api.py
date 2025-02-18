@@ -109,7 +109,7 @@ class FirecloudAPI:
             return None
 
 
-    def create_new_method_config(self, branch_name, pipeline_name, max_retries=3, retry_delay=300):
+    def create_new_method_config(self, branch_name, pipeline_name, max_retries=3, retry_delay=330):
         """
         Creates a new method configuration in the workspace via Firecloud API.
         Retries on 404 errors after waiting for the specified delay.
@@ -117,7 +117,7 @@ class FirecloudAPI:
         :param branch_name: The branch name
         :param pipeline_name: The name of the pipeline
         :param max_retries: Maximum number of retry attempts (default: 3)
-        :param retry_delay: Delay in seconds between retries (default: 300 - 5 minutes)
+        :param retry_delay: Delay in seconds between retries (default: 330 - 5.5 minutes)
         :return: The name of the created method configuration or None if failed
         """
 
@@ -160,7 +160,7 @@ class FirecloudAPI:
                 attempts += 1
                 logging.warning(f"Received 404 error when creating method configuration (attempt {attempts}/{max_retries})")
                 logging.warning(f"Response body: {response.text}")
-                logging.info(f"Waiting {retry_delay} seconds before retrying...")
+                logging.info(f"Waiting {retry_delay} seconds before retrying...Dockstore may still be syncing with GitHub.")
                 time.sleep(retry_delay)
             else:
                 if response.status_code == 404:

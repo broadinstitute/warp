@@ -177,8 +177,6 @@ jobs:
       - name: Compare Dockstore and Github Commit Hashes with Retry
         id: compare_hashes
         run: |
-          # Wait 5.5 minutes for Dockstore to update
-          sleep 330
 
           MAX_WAIT_TIME=$((15 * 60)) # 15 minutes in seconds
           WAIT_INTERVAL=60          # 1 minute in seconds
