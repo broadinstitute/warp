@@ -109,52 +109,68 @@ class FirecloudAPI:
             return None
 
 
-    def create_new_method_config(self, branch_name, pipeline_name):
+    def create_new_method_config(self, branch_name, pipeline_name, max_retries=3, retry_delay=300):
         """
         Creates a new method configuration in the workspace via Firecloud API.
+        Retries on 404 errors after waiting for the specified delay.
 
         :param branch_name: The branch name
         :param pipeline_name: The name of the pipeline
+        :param max_retries: Maximum number of retry attempts (default: 3)
+        :param retry_delay: Delay in seconds between retries (default: 300 - 5 minutes)
         :return: The name of the created method configuration or None if failed
         """
 
         # Create method config name with test type
         method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
 
-        payload = {
-            "deleted": False,
-            "inputs": {},
-            "methodConfigVersion": 0,
-            "methodRepoMethod": {
-                "methodUri": f"dockstore://github.com/broadinstitute/warp/{pipeline_name}/{branch_name}",
-                "sourceRepo": "dockstore",
-                "methodPath": f"github.com/broadinstitute/warp/{pipeline_name}",
-                "methodVersion": f"{branch_name}"
-            },
-            "name": method_config_name,
-            "namespace": "warp-pipelines",
-            "outputs": {},
-            "prerequisites": {}
-        }
-        logging.info(f"Creating new method configuration: {json.dumps(payload, indent=2)}")
+        attempts = 0
+        while attempts <= max_retries:
+            payload = {
+                "deleted": False,
+                "inputs": {},
+                "methodConfigVersion": 0,
+                "methodRepoMethod": {
+                    "methodUri": f"dockstore://github.com/broadinstitute/warp/{pipeline_name}/{branch_name}",
+                    "sourceRepo": "dockstore",
+                    "methodPath": f"github.com/broadinstitute/warp/{pipeline_name}",
+                    "methodVersion": f"{branch_name}"
+                },
+                "name": method_config_name,
+                "namespace": "warp-pipelines",
+                "outputs": {},
+                "prerequisites": {}
+            }
+            logging.info(f"Creating new method configuration: {json.dumps(payload, indent=2)}")
 
-        # Construct the API endpoint URL for creating a new method configuration
-        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
+            # Construct the API endpoint URL for creating a new method configuration
+            url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
 
-        token = self.get_user_token(self.delegated_creds)
-        headers = self.build_auth_headers(token)
+            token = self.get_user_token(self.delegated_creds)
+            headers = self.build_auth_headers(token)
 
-        # Create the new method configuration in the workspace
-        response = requests.put(url, headers=headers, json=payload)
+            # Create the new method configuration in the workspace
+            response = requests.put(url, headers=headers, json=payload)
 
-        # Check if the method configuration was created successfully
-        if response.status_code == 200:
-            logging.info(f"Method configuration {method_config_name} created successfully.")
-            return method_config_name
-        else:
-            logging.error(f"Failed to create method configuration. Status code: {response.status_code}")
-            logging.error(f"Response body: {response.text}")
-            return None
+            # Check if the method configuration was created successfully
+            if response.status_code == 200:
+                logging.info(f"Method configuration {method_config_name} created successfully.")
+                return method_config_name
+            elif response.status_code == 404 and attempts < max_retries:
+                attempts += 1
+                logging.warning(f"Received 404 error when creating method configuration (attempt {attempts}/{max_retries})")
+                logging.warning(f"Response body: {response.text}")
+                logging.info(f"Waiting {retry_delay} seconds before retrying...")
+                time.sleep(retry_delay)
+            else:
+                if response.status_code == 404:
+                    logging.error(f"Failed to create method configuration after {max_retries+1} attempts. Status code: {response.status_code}")
+                else:
+                    logging.error(f"Failed to create method configuration. Status code: {response.status_code}")
+                logging.error(f"Response body: {response.text}")
+                return None
+
+        return None  # This will only be reached if all retries fail
 
 
     def upload_test_inputs(self, pipeline_name, test_inputs, branch_name, test_type):
