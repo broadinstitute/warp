@@ -1,4 +1,4 @@
-name: Test Illumina Genotyping Array
+name: Test ExomeReprocessing
 
 # Controls when the workflow will run
 on:
@@ -9,15 +9,29 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/genotyping/illumina/**'
-      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'verification/VerifyIlluminaGenotypingArray.wdl'
-      - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_illumina_genotyping_array.yml'
-      - '.github/workflows/warp_test_workflow.yml'
+     - 'pipelines/broad/reprocessing/exome/**'
+     - 'pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl'
+     - 'pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl'
+     - 'tasks/broad/UnmappedBamToAlignedBam.wdl'
+     - 'tasks/broad/AggregatedBamQC.wdl'
+     - 'tasks/broad/Qc.wdl'
+     - 'tasks/broad/BamProcessing.wdl'
+     - 'tasks/broad/BamToCram.wdl'
+     - 'structs/dna_seq/DNASeqStructs.wdl'
+     - 'pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl'
+     - 'tasks/broad/GermlineVariantDiscovery.wdl'
+     - 'tasks/broad/Utilities.wdl'
+     - 'tasks/broad/DragenTasks.wdl'
+     - 'tasks/broad/Qc.wdl'
+     - 'tasks/broad/Utilities.wdl'
+     - 'verification/VerifyExomeReprocessing.wdl'
+     - 'verification/VerifyGermlineSingleSample.wdl'
+     - 'verification/test-wdls/TestCramToUnmappedBams.wdl'
+     - 'verification/VerifyMetrics.wdl'
+     - 'verification/VerifyTasks.wdl'
+     - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+     - '.github/workflows/test_exome_reprocessing.yml'
+     - '.github/workflows/warp_test_workflow.yml'
 
 
   # Allows you to run this workflow manually from the Actions tab
@@ -44,12 +58,12 @@ on:
         default: "master"
 
 jobs:
-  TestIlluminaGenotypingArray:
+  TestExomeReprocessing:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestIlluminaGenotypingArray
-      dockstore_pipeline_name: IlluminaGenotypingArray
-      pipeline_dir: pipelines/broad/genotyping/illumina
+      pipeline_name: TestExomeReprocessing
+      dockstore_pipeline_name: ExomeReprocessing
+      pipeline_dir: pipelines/broad/reprocessing/exome
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

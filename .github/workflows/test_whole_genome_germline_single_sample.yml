@@ -1,4 +1,4 @@
-name: Test Illumina Genotyping Array
+name: Test WholeGenomeGermlineSingleSample
 
 # Controls when the workflow will run
 on:
@@ -9,14 +9,25 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/genotyping/illumina/**'
-      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'verification/VerifyIlluminaGenotypingArray.wdl'
-      - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
+      - 'pipelines/broad/dna_seq/germline/single_sample/wgs/**'
+      - 'structs/dna_seq/DNASeqStructs.wdl'
+      - 'tasks/broad/Alignment.wdl'
+      - 'tasks/broad/DragmapAlignment.wdl'
+      - 'tasks/broad/SplitLargeReadGroup.wdl'
+      - 'tasks/broad/BamProcessing.wdl'
       - 'tasks/broad/Utilities.wdl'
+      - 'tasks/broad/Qc.wdl'
+      - 'tasks/broad/AggregatedBamQC.wdl'
+      - 'tasks/broad/BamToCram.wdl'
+      - 'pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl'
+      - 'tasks/broad/GermlineVariantDiscovery.wdl'
+      - 'tasks/broad/DragenTasks.wdl'
+      - 'verification/test-wdls/TestWholeGenomeGermlineSingleSample.wdl'
+      - 'verification/VerifyGermlineSingleSample.wdl'
+      - 'verification/VerifyMetrics.wdl'
+      - 'verification/VerifyTasks.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_illumina_genotyping_array.yml'
+      - '.github/workflows/test_whole_genome_germline_single_sample.yml'
       - '.github/workflows/warp_test_workflow.yml'
 
 
@@ -44,12 +55,12 @@ on:
         default: "master"
 
 jobs:
-  TestIlluminaGenotypingArray:
+  TestWholeGenomeGermlineSingleSample:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestIlluminaGenotypingArray
-      dockstore_pipeline_name: IlluminaGenotypingArray
-      pipeline_dir: pipelines/broad/genotyping/illumina
+      pipeline_name: TestWholeGenomeGermlineSingleSample
+      dockstore_pipeline_name: WholeGenomeGermlineSingleSample
+      pipeline_dir: pipelines/broad/dna_seq/germline/single_sample/wgs
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

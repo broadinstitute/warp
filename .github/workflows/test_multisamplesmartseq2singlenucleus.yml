@@ -1,5 +1,4 @@
-name: Test Illumina Genotyping Array
-
+name: Test Multi Sample Smart Seq 2 Single Nucleus
 # Controls when the workflow will run
 on:
   pull_request:
@@ -9,16 +8,25 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/genotyping/illumina/**'
-      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'verification/VerifyIlluminaGenotypingArray.wdl'
-      - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
+      # anything in the pipelines folder
+      - 'pipelines/skylab/smartseq2_single_nucleus_multisample/**'
+      # tasks from the pipeline WDL and their dependencies
+      - 'tasks/skylab/CheckInputs.wdl'
+      - 'tasks/skylab/TrimAdapters.wdl'
+      - 'tasks/skylab/StarAlign.wdl'
+      - 'tasks/skylab/Picard.wdl'
+      - 'tasks/skylab/FeatureCounts.wdl'
+      - 'tasks/skylab/H5adUtils.wdl'
       - 'tasks/broad/Utilities.wdl'
+      # verification WDL and its dependencies
+      - 'verification/VerifyMultiSampleSmartSeq2SingleNucleus.wdl'
+      - 'verification/VerifyTasks.wdl'
+      # test WDL and its dependencies
+      - 'verification/test-wdls/TestMultiSampleSmartSeq2SingleNucleus.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_illumina_genotyping_array.yml'
+      # this file and the subworkflow file
+      - '.github/workflows/test_multisamplesmartseq2singlenucleus.yml'
       - '.github/workflows/warp_test_workflow.yml'
-
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -44,12 +52,12 @@ on:
         default: "master"
 
 jobs:
-  TestIlluminaGenotypingArray:
+  TestMultiSampleSmartSeq2SingleNucleus:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestIlluminaGenotypingArray
-      dockstore_pipeline_name: IlluminaGenotypingArray
-      pipeline_dir: pipelines/broad/genotyping/illumina
+      pipeline_name: TestMultiSampleSmartSeq2SingleNucleus
+      dockstore_pipeline_name: Smartseq2_Single_Nucleus_Multisample
+      pipeline_dir: pipelines/skylab/smartseq2_single_nucleus_multisample
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

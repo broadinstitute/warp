@@ -1,4 +1,4 @@
-name: Test Illumina Genotyping Array
+name: Test UltimaGenomicsWholeGenomeCramOnly
 
 # Controls when the workflow will run
 on:
@@ -9,14 +9,26 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/genotyping/illumina/**'
-      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
+      - 'pipelines/broad/dna_seq/somatic/single_sample/ugwgs/**'
+      - 'pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl'
+      - 'tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl'
+      - 'tasks/broad/GermlineVariantDiscovery.wdl'
+      - 'structs/dna_seq/DNASeqStructs.wdl'
+      - 'tasks/broad/Alignment.wdl'
       - 'tasks/broad/Qc.wdl'
-      - 'verification/VerifyIlluminaGenotypingArray.wdl'
-      - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
+      - 'tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl'
+      - 'structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl'
+      - 'tasks/broad/InternalTasks.wdl'
+      - 'tasks/broad/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl'
+      - 'pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl'
+      - 'verification/VerifyUltimaGenomicsWholeGenomeCramOnly.wdl'
+      - 'verification/VerifyMetrics.wdl'
+      - 'verification/VerifyTasks.wdl'
+      - 'verification/VerifyNA12878.wdl'
+      - 'verification/test-wdls/TestUltimaGenomicsWholeGenomeCramOnly.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_illumina_genotyping_array.yml'
+      - '.github/workflows/test_ultima_genomics_whole_genome_cram_only.yml'
       - '.github/workflows/warp_test_workflow.yml'
 
 
@@ -44,12 +56,12 @@ on:
         default: "master"
 
 jobs:
-  TestIlluminaGenotypingArray:
+  TestUltimaGenomicsWholeGenomeCramOnly:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestIlluminaGenotypingArray
-      dockstore_pipeline_name: IlluminaGenotypingArray
-      pipeline_dir: pipelines/broad/genotyping/illumina
+      pipeline_name: TestUltimaGenomicsWholeGenomeCramOnly
+      dockstore_pipeline_name: UltimaGenomicsWholeGenomeCramOnly
+      pipeline_dir: pipelines/broad/dna_seq/somatic/single_sample/ugwgs
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

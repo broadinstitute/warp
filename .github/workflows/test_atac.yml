@@ -1,6 +1,6 @@
-name: Test Illumina Genotyping Array
+name: Test ATAC
 
-# Controls when the workflow will run
+# Controls when the workflow will  run
 on:
   pull_request:
     branches: [ "develop", "staging", "master" ]
@@ -9,14 +9,16 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/genotyping/illumina/**'
-      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'verification/VerifyIlluminaGenotypingArray.wdl'
-      - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
+      - 'pipelines/skylab/atac/**'
+      - 'tasks/skylab/MergeSortBam.wdl'
+      - 'tasks/skylab/FastqProcessing.wdl'
+      - 'tasks/skylab/PairedTagUtils.wdl'
       - 'tasks/broad/Utilities.wdl'
+      - 'verification/VerifyATAC.wdl'
+      - 'verification/VerifyTasks.wdl'
+      - 'verification/test-wdls/TestATAC.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_illumina_genotyping_array.yml'
+      - '.github/workflows/test_atac.yml'
       - '.github/workflows/warp_test_workflow.yml'
 
 
@@ -34,22 +36,18 @@ on:
       testType:
         description: 'Specify the type of test (Plumbing or Scientific)'
         required: false
-        type: choice
-        options:
-          - Plumbing
-          - Scientific
       truthBranch:
         description: 'Specify the branch for truth files (default: master)'
         required: false
         default: "master"
 
 jobs:
-  TestIlluminaGenotypingArray:
+  TestATAC:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestIlluminaGenotypingArray
-      dockstore_pipeline_name: IlluminaGenotypingArray
-      pipeline_dir: pipelines/broad/genotyping/illumina
+      pipeline_name: TestATAC
+      dockstore_pipeline_name: atac
+      pipeline_dir: pipelines/skylab/atac
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

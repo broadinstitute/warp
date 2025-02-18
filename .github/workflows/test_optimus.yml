@@ -1,4 +1,4 @@
-name: Test Illumina Genotyping Array
+name: Test Optimus
 
 # Controls when the workflow will run
 on:
@@ -9,14 +9,21 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/genotyping/illumina/**'
-      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'verification/VerifyIlluminaGenotypingArray.wdl'
-      - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
+      - 'pipelines/skylab/optimus/**'
+      - 'tasks/skylab/FastqProcessing.wdl'
+      - 'tasks/skylab/StarAlign.wdl'
+      - 'tasks/skylab/Metrics.wdl'
+      - 'tasks/skylab/RunEmptyDrops.wdl'
+      - 'tasks/skylab/CheckInputs.wdl'
+      - 'tasks/skylab/MergeSortBam.wdl'
+      - 'tasks/skylab/H5adUtils.wdl'
+      - 'tasks/broad/Utilities.wdl'
+      - 'verification/VerifyOptimus.wdl'
+      - 'verification/VerifyTasks.wdl'
+      - 'verification/test-wdls/TestOptimus.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_illumina_genotyping_array.yml'
+      - '.github/workflows/test_optimus.yml'
       - '.github/workflows/warp_test_workflow.yml'
 
 
@@ -43,13 +50,14 @@ on:
         required: false
         default: "master"
 
+
 jobs:
-  TestIlluminaGenotypingArray:
+  TestOptimus:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestIlluminaGenotypingArray
-      dockstore_pipeline_name: IlluminaGenotypingArray
-      pipeline_dir: pipelines/broad/genotyping/illumina
+      pipeline_name: TestOptimus
+      dockstore_pipeline_name: Optimus
+      pipeline_dir: pipelines/skylab/optimus
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}
