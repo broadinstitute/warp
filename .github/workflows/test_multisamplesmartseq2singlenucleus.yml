@@ -8,6 +8,7 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
+      # anything in the pipelines folder
       - 'pipelines/skylab/smartseq2_single_nucleus_multisample/**'
       # tasks from the pipeline WDL and their dependencies
       - 'tasks/skylab/CheckInputs.wdl'
@@ -23,7 +24,7 @@ on:
       # test WDL and its dependencies
       - 'verification/test-wdls/TestMultiSampleSmartSeq2SingleNucleus.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      # this file
+      # this file and the subworkflow file
       - '.github/workflows/test_multisamplesmartseq2singlenucleus.yml'
       - '.github/workflows/warp_test_workflow.yml'
 

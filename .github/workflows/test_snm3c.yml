@@ -9,11 +9,16 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
+      # anything in the pipelines folder
       - 'pipelines/skylab/snm3C/**'
-      - 'verification/Verifysnm3C.wdl'
+      # tasks from the pipeline WDL and their dependencies
       - 'tasks/broad/Utilities.wdl'
+      # verification WDL and its dependencies
+      - 'verification/Verifysnm3C.wdl'
+      # test WDL and its dependencies
       - 'verification/test-wdls/Testsnm3C.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      # this file and the subworkflow file
       - '.github/workflows/test_snm3c.yml'
       - '.github/workflows/warp_test_workflow.yml'
 
