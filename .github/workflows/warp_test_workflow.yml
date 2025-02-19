@@ -71,7 +71,7 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
 
-      # Step 6: Set Test Type
+      # Step 3: Set Test Type
       # Purpose: Determines and sets the correct test type based on the branch name
       - name: Set Test Type
         id: set_test_type
@@ -93,9 +93,9 @@ jobs:
             echo "testType=${{ inputs.test_type }}"
           fi
           
-             # Step 3: Create temporary testing branch
-
-      - name: Get original  branch
+      # Step 4: Get original branch name
+      # Purpose: Determines the original branch name for the test run
+      - name: Get original branch name
         id: set_branch
         run: |
           if [ -z "${{ github.head_ref }}" ]; then
@@ -106,8 +106,8 @@ jobs:
             echo "ORIGINAL_BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
           fi    
 
-       # Step 3: Create temporary testing branch
-      # Purpose: Creates a unique branch for this test run to ensure code consistency
+       # Step 5: Create temporary testing branch
+       # Purpose: Creates a temporary branch for this test run to ensure code consistency
       - name: Create temporary testing branch
         id: create_branch
         run: |
@@ -124,21 +124,31 @@ jobs:
           git checkout -b $TEMP_BRANCH
           git push origin $TEMP_BRANCH
 
-      # Step 4: Setup Python
+      # Step 6: Setup Python
       # Purpose: Installs Python 3.11 for running pipeline scripts
       - name: Set up python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # Step 5: Install Dependencies
+      # Step 7: Install Dependencies
       # Purpose: Installs required Python packages for the pipeline
       - name: Install dependencies
         run: |
           cd scripts/firecloud_api/
           pip install -r requirements.txt
 
-      # Step 7: Create Method Configuration
+      # Step 8: Cancel Previous Runs
+      # Purpose: Cancels previous GHA workflows from the same branch (regardless of plumbing or scientific test type)
+      # to avoid running multiple tests at the same time
+      - name: Cancel Previous GHA Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+          all_but_latest: true
+          ignore_sha: true
+
+      # Step 9: Create Method Configuration
       # Purpose: Sets up the testing configuration in Terra workspace
       - name: Create new method configuration
         run: |
@@ -160,17 +170,7 @@ jobs:
 
           echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
 
-      # Step 8: Cancel Previous Runs
-      # Purpose: Cancels previous GHA workflows from the same branch (regardless of plumbing or scientific test type)
-      # to avoid running multiple tests at the same time
-      - name: Cancel Previous GHA Runs
-        uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          access_token: ${{ github.token }}
-          all_but_latest: true
-          ignore_sha: true
-
-      # Step 9: Cancel Previous Terra Submissions
+      # Step 10: Cancel Previous Terra Submissions
       # Purpose: Abort previous Terra submissions from the same branch to avoid running multiple tests at the same time
       # Will not abort a Terra submission if it is a scientific test
       - name: Cancel Previous Terra Submissions
@@ -186,7 +186,7 @@ jobs:
             --test_type "$testType" \
             cancel_old_submissions
 
-      # Step 10: Handle Git Commit Hash
+      # Step 11: Handle Git Commit Hash
       # Purpose: Gets the current Github commit hash for version tracking
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
@@ -195,7 +195,7 @@ jobs:
           echo "GITHUB_COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
           echo "Using commit hash: $(git rev-parse HEAD)"
 
-      # Step 11: Compare Hashes
+      # Step 12: Compare Hashes
       # Purpose: Compares the Dockstore and Github commit hashes to ensure they match
       - name: Compare Dockstore and Github Commit Hashes with Retry
         id: compare_hashes
@@ -233,7 +233,7 @@ jobs:
           GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
           DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
 
-      # Step 12: Run Tests
+      # Step 13: Run Tests
       # Purpose: Main testing step - runs the pipeline and collects results
       - name: Update test inputs, Upload to Terra, Submit, Monitor and Retrieve Outputs
         run: |
@@ -422,7 +422,7 @@ jobs:
               exit 1
           fi
 
-      # Step 13: Cleanup
+      # Step 14: Cleanup
       # Purpose: Ensures cleanup of Terra method configurations regardless of test outcome
       - name: Delete Method Configuration
         if: always()
@@ -446,7 +446,7 @@ jobs:
             exit 1
           fi
 
-      # Step 14: Delete Temporary Branch
+      # Step 15: Delete Temporary Branch
       # Purpose: Cleans up the temporary branch created for testing
       - name: Delete Temporary Branch
         if: always()
@@ -460,7 +460,7 @@ jobs:
             # Don't exit with error as this is cleanup
           fi
 
-      # Step 15: Print Summary on Success
+      # Step 16: Print Summary on Success
       # Purpose: Prints the final summary of the pipeline execution in case of success
       - name: Print Summary on Success
         if: success()
@@ -468,7 +468,7 @@ jobs:
           echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
           echo "Temporary branch '$TEMP_BRANCH' was created, used for testing, and deleted." >> $GITHUB_STEP_SUMMARY
 
-      # Step 16: Print Summary on Failure
+      # Step 17: Print Summary on Failure
       # Purpose: Prints the final summary of the pipeline execution in case of failure
       - name: Print Summary on Failure
         if: failure()
