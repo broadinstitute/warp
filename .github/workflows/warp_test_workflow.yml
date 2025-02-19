@@ -76,9 +76,19 @@ jobs:
       - name: Create temporary testing branch
         id: create_branch
         run: |
+          if [ -z "${{ github.head_ref }}" ]; then
+            echo "Branch name is missing, using ${GITHUB_REF##*/}"
+            echo "ORIGINAL_BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          else
+            echo "Branch name from PR: ${{ github.head_ref }}"
+            echo "ORIGINAL_BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
+          fi
+          
           # Generate a unique branch name with timestamp and run ID
           TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-          TEMP_BRANCH="test-run-$TIMESTAMP-${{ github.run_id }}"
+          # use the pipeline name, test type, and original branch name to create the name of the temp branch
+          TEMP_BRANCH="${{ inputs.pipeline_name }}_${{ env.testType }}_${{ env.ORIGINAL_BRANCH_NAME }}_temp"
+          
           echo "Created temporary branch: $TEMP_BRANCH"
           echo "TEMP_BRANCH=$TEMP_BRANCH" >> $GITHUB_ENV
           
