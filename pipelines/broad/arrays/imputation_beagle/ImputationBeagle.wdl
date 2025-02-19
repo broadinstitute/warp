@@ -6,7 +6,7 @@ import "../../../../tasks/broad/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
 
-  String pipeline_version = "0.0.1"
+  String pipeline_version = "1.0.0"
 
   input {
     Int chunkLength = 25000000
