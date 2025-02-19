@@ -71,7 +71,29 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
 
-      # Step 3: Create temporary testing branch
+      # Step 6: Set Test Type
+      # Purpose: Determines and sets the correct test type based on the branch name
+      - name: Set Test Type
+        id: set_test_type
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # For PRs, set based on target branch
+            if [ "${{ github.base_ref }}" == "master" ]; then
+              # If PR is targeting master branch, run Scientific tests
+              echo "testType=Scientific" >> $GITHUB_ENV
+              echo "testType=Scientific"
+            else
+              # If PR targets any other branch (develop, staging), run Plumbing tests
+              echo "testType=Plumbing" >> $GITHUB_ENV
+              echo "testType=Plumbing"
+            fi
+          else
+            # For manual workflow runs (workflow_dispatch)
+            echo "testType=${{ inputs.test_type }}" >> $GITHUB_ENV
+            echo "testType=${{ inputs.test_type }}"
+          fi
+
+       # Step 3: Create temporary testing branch
       # Purpose: Creates a unique branch for this test run to ensure code consistency
       - name: Create temporary testing branch
         id: create_branch
@@ -109,28 +131,6 @@ jobs:
         run: |
           cd scripts/firecloud_api/
           pip install -r requirements.txt
-
-      # Step 6: Set Test Type
-      # Purpose: Determines and sets the correct test type based on the branch name
-      - name: Set Test Type
-        id: set_test_type
-        run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            # For PRs, set based on target branch
-            if [ "${{ github.base_ref }}" == "master" ]; then
-              # If PR is targeting master branch, run Scientific tests
-              echo "testType=Scientific" >> $GITHUB_ENV
-              echo "testType=Scientific"
-            else
-              # If PR targets any other branch (develop, staging), run Plumbing tests
-              echo "testType=Plumbing" >> $GITHUB_ENV
-              echo "testType=Plumbing"
-            fi
-          else
-            # For manual workflow runs (workflow_dispatch)
-            echo "testType=${{ inputs.test_type }}" >> $GITHUB_ENV
-            echo "testType=${{ inputs.test_type }}"
-          fi
 
       # Step 7: Create Method Configuration
       # Purpose: Sets up the testing configuration in Terra workspace
