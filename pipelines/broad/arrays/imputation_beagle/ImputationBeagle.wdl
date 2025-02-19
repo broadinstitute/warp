@@ -140,7 +140,7 @@ workflow ImputationBeagle {
       Int beagle_phase_memory_in_gb = if (CountSamples.nSamples <= 1000) then 22 else ceil(beagle_cpu * 1.5)
       Int beagle_impute_memory_in_gb = if (CountSamples.nSamples <= 1000) then 30 else ceil(beagle_cpu * 4.3)
 
-      call tasks.PhaseBeagle {
+      call beagleTasks.Phase {
         input:
           dataset_vcf = chunkedVcfsWithOverlapsForImputation[i],
           ref_panel_bref3 = referencePanelContig.bref3,
