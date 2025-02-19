@@ -128,7 +128,7 @@ jobs:
         run: |
           # Wait for Dockstore to update
           echo "Waiting for Dockstore to update..."
-          sleep 60  # Reduced wait time since we'll verify the hash later
+          sleep 330  # 5.5 minutes  
           
           echo "Creating new method configuration for branch: $TEMP_BRANCH"
 
