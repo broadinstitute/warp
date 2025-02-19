@@ -36,6 +36,10 @@ on:
       testType:
         description: 'Specify the type of test (Plumbing or Scientific)'
         required: false
+        type: choice
+        options:
+          - Plumbing
+          - Scientific
       truthBranch:
         description: 'Specify the branch for truth files (default: master)'
         required: false

@@ -380,14 +380,18 @@ class FirecloudAPI:
 
         submissions = response.json()
         active_submissions = []
+        logging.info(f"Found {len(submissions)} total submissions in the workspace")
+
 
         for submission in submissions:
             # Check if submission is active (not Done, Aborted, or Failed)
             if submission['status'] in ['Submitted', 'Running', 'Queued']:
                 config_name = submission.get('methodConfigurationName', '')
-                if config_name.startswith(method_config_name):
+                logging.info(f"Active submission found Config: {config_name}")
+                if method_config_name and config_name.startswith(method_config_name):
+                    logging.info(f"Matched config pattern '{method_config_name}' with '{config_name}' - adding to cancellation list")
                     active_submissions.append(submission)
-
+        logging.info(f"Found {len(active_submissions)} active submissions matching config pattern '{method_config_name}'")
         return active_submissions
 
     def cancel_submission(self, submission_id):
@@ -414,14 +418,32 @@ class FirecloudAPI:
         Returns the number of cancelled submissions.
         """
         method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
+        logging.info(f"Looking for submissions to cancel with config name pattern: {method_config_name}")
+        print(f"SEARCHING FOR CONFIG PATTERN: {method_config_name}")
+
         active_submissions = self.get_active_submissions(method_config_name)
         cancelled_count = 0
 
-        for submission in active_submissions:
-            if self.cancel_submission(submission['submissionId']):
-                cancelled_count += 1
-                logging.info(f"Cancelled submission {submission['submissionId']}")
+        if not active_submissions:
+            logging.info(f"No active submissions found for config pattern: {method_config_name}")
+            print(f"NO ACTIVE SUBMISSIONS FOUND FOR: {method_config_name}")
+            return cancelled_count
 
+        logging.info(f"Found {len(active_submissions)} active submissions to cancel:")
+        for idx, submission in enumerate(active_submissions, 1):
+            sub_id = submission['submissionId']
+            config_name = submission.get('methodConfigurationName', 'Unknown')
+            print(f"CANCELLING [{idx}/{len(active_submissions)}]: {config_name} (ID: {sub_id})")
+
+            if self.cancel_submission(sub_id):
+                cancelled_count += 1
+                logging.info(f"Successfully cancelled submission {sub_id} for config {config_name}")
+                print(f"SUCCESS: Cancelled {config_name}")
+            else:
+                logging.error(f"Failed to cancel submission {sub_id} for config {config_name}")
+                print(f"FAILED: Could not cancel {config_name}")
+
+        print(f"CANCELLATION SUMMARY: {cancelled_count}/{len(active_submissions)} submissions cancelled")
         return cancelled_count
 
 
