@@ -362,10 +362,9 @@ class FirecloudAPI:
             logging.error(f"Response body: {response.text}")
             return False
 
-    def get_active_submissions(self, method_config_name=None):
+    def get_active_submissions(self):
         """
         Get all active workflow submissions for the workspace.
-        Optionally filter by method configuration name.
         """
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
         token = self.get_user_token(self.delegated_creds)
@@ -382,16 +381,12 @@ class FirecloudAPI:
         active_submissions = []
         logging.info(f"Found {len(submissions)} total submissions in the workspace")
 
-
         for submission in submissions:
             # Check if submission is active (not Done, Aborted, or Failed)
             if submission['status'] in ['Submitted', 'Running', 'Queued']:
-                config_name = submission.get('methodConfigurationName', '')
-                logging.info(f"Active submission found Config: {config_name}")
-                if method_config_name and config_name.startswith(method_config_name):
-                    logging.info(f"Matched config pattern '{method_config_name}' with '{config_name}' - adding to cancellation list")
-                    active_submissions.append(submission)
-        logging.info(f"Found {len(active_submissions)} active submissions matching config pattern '{method_config_name}'")
+                active_submissions.append(submission)
+
+        logging.info(f"Found {len(active_submissions)} active submissions")
         return active_submissions
 
     def cancel_submission(self, submission_id):
@@ -415,25 +410,45 @@ class FirecloudAPI:
     def cancel_old_submissions(self, pipeline_name, branch_name):
         """
         Cancel all active submissions for a pipeline's method configuration.
+        Handles submissions from dynamically named branches related to the same original branch.
         Returns the number of cancelled submissions.
         """
-        method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
-        logging.info(f"Looking for submissions to cancel with config name pattern: {method_config_name}")
-        print(f"SEARCHING FOR CONFIG PATTERN: {method_config_name}")
+        # Extract the original branch name from the timestamped branch name
+        original_branch_parts = branch_name.split('_')
+        if len(original_branch_parts) >= 3:
+            # If branch format is pipeline_testtype_originalbranch_timestamp
+            # We want to match all submissions from the same original branch
+            original_branch_pattern = f"{pipeline_name}_{args.test_type}_{original_branch_parts[2]}"
+        else:
+            # Fallback to the current branch name pattern
+            original_branch_pattern = f"{pipeline_name}_{args.test_type}_{branch_name}"
 
-        active_submissions = self.get_active_submissions(method_config_name)
+        logging.info(f"Looking for submissions to cancel with original branch pattern: {original_branch_pattern}")
+        print(f"SEARCHING FOR SUBMISSIONS RELATED TO: {original_branch_pattern}")
+
+        active_submissions = self.get_active_submissions()
+        matching_submissions = []
         cancelled_count = 0
 
         if not active_submissions:
-            logging.info(f"No active submissions found for config pattern: {method_config_name}")
-            print(f"NO ACTIVE SUBMISSIONS FOUND FOR: {method_config_name}")
+            logging.info("No active submissions found.")
+            print("NO ACTIVE SUBMISSIONS FOUND")
             return cancelled_count
 
-        logging.info(f"Found {len(active_submissions)} active submissions to cancel:")
-        for idx, submission in enumerate(active_submissions, 1):
+        # Filter submissions based on pattern matching
+        for submission in active_submissions:
+            config_name = submission.get('methodConfigurationName', '')
+            # Match submissions from the same pipeline, test type, and original branch
+            # regardless of timestamp suffix
+            if config_name.startswith(original_branch_pattern) or original_branch_pattern in config_name:
+                matching_submissions.append(submission)
+
+        logging.info(f"Found {len(matching_submissions)} active submissions to cancel:")
+
+        for idx, submission in enumerate(matching_submissions, 1):
             sub_id = submission['submissionId']
             config_name = submission.get('methodConfigurationName', 'Unknown')
-            print(f"CANCELLING [{idx}/{len(active_submissions)}]: {config_name} (ID: {sub_id})")
+            print(f"CANCELLING [{idx}/{len(matching_submissions)}]: {config_name} (ID: {sub_id})")
 
             if self.cancel_submission(sub_id):
                 cancelled_count += 1
@@ -443,7 +458,7 @@ class FirecloudAPI:
                 logging.error(f"Failed to cancel submission {sub_id} for config {config_name}")
                 print(f"FAILED: Could not cancel {config_name}")
 
-        print(f"CANCELLATION SUMMARY: {cancelled_count}/{len(active_submissions)} submissions cancelled")
+        print(f"CANCELLATION SUMMARY: {cancelled_count}/{len(matching_submissions)} submissions cancelled")
         return cancelled_count
 
 
