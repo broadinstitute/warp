@@ -92,11 +92,11 @@ jobs:
             echo "testType=${{ inputs.test_type }}" >> $GITHUB_ENV
             echo "testType=${{ inputs.test_type }}"
           fi
+          
+             # Step 3: Create temporary testing branch
 
-       # Step 3: Create temporary testing branch
-      # Purpose: Creates a unique branch for this test run to ensure code consistency
-      - name: Create temporary testing branch
-        id: create_branch
+      - name: Get original  branch
+        id: set_branch
         run: |
           if [ -z "${{ github.head_ref }}" ]; then
             echo "Branch name is missing, using ${GITHUB_REF##*/}"
@@ -104,7 +104,13 @@ jobs:
           else
             echo "Branch name from PR: ${{ github.head_ref }}"
             echo "ORIGINAL_BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
-          fi
+          fi    
+
+       # Step 3: Create temporary testing branch
+      # Purpose: Creates a unique branch for this test run to ensure code consistency
+      - name: Create temporary testing branch
+        id: create_branch
+        run: |
           
           # Generate a unique branch name with timestamp and run ID
           TIMESTAMP=$(date +"%Y%m%d%H%M%S")
