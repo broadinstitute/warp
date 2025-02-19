@@ -116,6 +116,10 @@ jobs:
       # Purpose: Sets up the testing configuration in Terra workspace
       - name: Create new method configuration
         run: |
+          # Wait 5.5 minutes for Dockstore to update
+          echo "Waiting for Dockstore to update..."
+          sleep 330
+          
           echo "Creating new method configuration for branch: $BRANCH_NAME"
 
           METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
@@ -177,8 +181,6 @@ jobs:
       - name: Compare Dockstore and Github Commit Hashes with Retry
         id: compare_hashes
         run: |
-          # Wait 5.5 minutes for Dockstore to update
-          sleep 330
 
           MAX_WAIT_TIME=$((15 * 60)) # 15 minutes in seconds
           WAIT_INTERVAL=60          # 1 minute in seconds
