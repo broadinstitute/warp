@@ -88,7 +88,7 @@ class FirecloudAPI:
         logging.info(f"Response status code for submitting job: {response.status_code}")
         logging.info(f"Response body: {response.text}")
 
-        if response.status_code == 202:
+        if response.status_code == 201:
             try:
                 # Parse the response as JSON
                 response_json = response.json()
