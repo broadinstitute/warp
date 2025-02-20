@@ -52,7 +52,7 @@ jobs:
   test_pipeline:
     runs-on: ubuntu-latest
     permissions:
-      contents: 'write'  # Changed from 'read' to allow branch creation/deletion
+      contents: 'read'
       id-token: 'write'
       actions: write
 
@@ -62,16 +62,35 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
-          fetch-depth: 0  # Fetch all history for branch operations
 
-      # Step 2: Set up git config
-      # Purpose: Configure git for branch operations
-      - name: Set up git
+        # Step 2: Setup Python
+        # Purpose: Installs Python 3.11 for running pipeline scripts
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # Step 3: Install Dependencies
+      # Purpose: Installs required Python packages for the pipeline
+      - name: Install dependencies
         run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
+          cd scripts/firecloud_api/
+          pip install -r requirements.txt
 
-      # Step 3: Set Test Type
+      # Step 4: Set Branch Name
+      # Purpose: Determines and sets the correct branch name for either PR or direct commits
+      - name: Set Branch Name
+        id: set_branch
+        run: |
+          if [ -z "${{ github.head_ref }}" ]; then
+            echo "Branch name is missing, using ${GITHUB_REF##*/}"
+            echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          else
+            echo "Branch name from PR: ${{ github.head_ref }}"
+            echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
+          fi
+
+      # Step 5: Set Test Type
       # Purpose: Determines and sets the correct test type based on the branch name
       - name: Set Test Type
         id: set_test_type
@@ -92,53 +111,8 @@ jobs:
             echo "testType=${{ inputs.test_type }}" >> $GITHUB_ENV
             echo "testType=${{ inputs.test_type }}"
           fi
-          
-      # Step 4: Get original branch name
-      # Purpose: Determines the original branch name for the test run
-      - name: Get original branch name
-        id: set_branch
-        run: |
-          if [ -z "${{ github.head_ref }}" ]; then
-            echo "Branch name is missing, using ${GITHUB_REF##*/}"
-            echo "ORIGINAL_BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-          else
-            echo "Branch name from PR: ${{ github.head_ref }}"
-            echo "ORIGINAL_BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
-          fi    
 
-       # Step 5: Create temporary testing branch
-       # Purpose: Creates a temporary branch for this test run to ensure code consistency
-      - name: Create temporary testing branch
-        id: create_branch
-        run: |
-          # Generate a unique branch name with timestamp and run ID
-          TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-          # Just use the original branch name, marker word, and timestamp
-          # Don't include pipeline name or test type in the branch name
-          TEMP_BRANCH="${{ env.ORIGINAL_BRANCH_NAME }}_TIMESTAMP_${TIMESTAMP}"
-          
-          echo "Created temporary branch: $TEMP_BRANCH"
-          echo "TEMP_BRANCH=$TEMP_BRANCH" >> $GITHUB_ENV
-          
-          # Create and push the new branch
-          git checkout -b $TEMP_BRANCH
-          git push origin $TEMP_BRANCH
-
-      # Step 6: Setup Python
-      # Purpose: Installs Python 3.11 for running pipeline scripts
-      - name: Set up python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      # Step 7: Install Dependencies
-      # Purpose: Installs required Python packages for the pipeline
-      - name: Install dependencies
-        run: |
-          cd scripts/firecloud_api/
-          pip install -r requirements.txt
-
-      # Step 8: Cancel Previous Runs
+      # Step 7: Cancel Previous Runs
       # Purpose: Cancels previous GHA workflows from the same branch (regardless of plumbing or scientific test type)
       # to avoid running multiple tests at the same time
       - name: Cancel Previous GHA Runs
@@ -148,29 +122,7 @@ jobs:
           all_but_latest: true
           ignore_sha: true
 
-      # Step 9: Create Method Configuration
-      # Purpose: Sets up the testing configuration in Terra workspace
-      - name: Create new method configuration
-        run: |
-          # Wait for Dockstore to update
-          echo "Waiting for Dockstore to update..."
-          sleep 330  # 5.5 minutes  
-          
-          echo "Creating new method configuration for branch: $TEMP_BRANCH"
-
-          METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
-            create_new_method_config \
-            --workspace-namespace $WORKSPACE_NAMESPACE \
-            --workspace-name "$TESTING_WORKSPACE" \
-            --pipeline_name "${{ inputs.pipeline_name }}" \
-            --branch_name "$TEMP_BRANCH" \
-            --test_type "$testType" \
-            --sa-json-b64 "$SA_JSON_B64" \
-            --user "$USER")
-
-          echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
-
-      # Step 10: Cancel Previous Terra Submissions
+      # Step 8: Cancel Previous Terra Submissions
       # Purpose: Abort previous Terra submissions from the same branch to avoid running multiple tests at the same time
       # Will not abort a Terra submission if it is a scientific test
       - name: Cancel Previous Terra Submissions
@@ -180,26 +132,56 @@ jobs:
             --workspace-namespace "${{ env.WORKSPACE_NAMESPACE }}" \
             --workspace-name "${{ env.TESTING_WORKSPACE }}" \
             --pipeline_name "${{ inputs.pipeline_name }}" \
-            --branch_name "${{ env.TEMP_BRANCH }}" \
+            --branch_name "${{ env.BRANCH_NAME }}" \
             --sa-json-b64 "${{ secrets.PDT_TESTER_SA_B64 }}" \
             --user "${{ env.USER }}" \
             --test_type "$testType" \
             cancel_old_submissions
 
-      # Step 11: Handle Git Commit Hash
-      # Purpose: Gets the current Github commit hash for version tracking
+      # Step 6: Create Method Configuration
+      # Purpose: Sets up the testing configuration in Terra workspace
+      - name: Create new method configuration
+        run: |
+          # Wait 5.5 minutes for Dockstore to update
+          echo "Waiting for Dockstore to update..."
+          sleep 330
+          
+          echo "Creating new method configuration for branch: $BRANCH_NAME"
+
+          METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
+            create_new_method_config \
+            --workspace-namespace $WORKSPACE_NAMESPACE \
+            --workspace-name "$TESTING_WORKSPACE" \
+            --pipeline_name "${{ inputs.pipeline_name }}" \
+            --branch_name "$BRANCH_NAME" \
+            --test_type "$testType" \
+            --sa-json-b64 "$SA_JSON_B64" \
+            --user "$USER")
+
+          echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
+
+      # Step 9: Handle Git Commit Hash
+      # Purpose: Gets the correct Github commit hash for version tracking
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
         run: |
-          # Get the current commit hash (should be the same as what we just pushed)
-          echo "GITHUB_COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
-          echo "Using commit hash: $(git rev-parse HEAD)"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "Using github.sha for manually triggered workflow."
+            echo "GITHUB_COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "Using github.event.pull_request.head.sha for PR-triggered workflow."
+            echo "GITHUB_COMMIT_HASH=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+          else
+            echo "Unsupported event type: ${{ github.event_name }}"
+            exit 1
+          fi
 
-      # Step 12: Compare Hashes
+      # Step 10: Compare Hashes
       # Purpose: Compares the Dockstore and Github commit hashes to ensure they match
       - name: Compare Dockstore and Github Commit Hashes with Retry
         id: compare_hashes
         run: |
+
           MAX_WAIT_TIME=$((15 * 60)) # 15 minutes in seconds
           WAIT_INTERVAL=60          # 1 minute in seconds
           TOTAL_WAITED=0
@@ -211,7 +193,7 @@ jobs:
             DOCKSTORE_COMMIT_HASH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
               $DOCKSTORE_TOKEN \
               ${{ inputs.dockstore_pipeline_name }} \
-              $TEMP_BRANCH)
+              $BRANCH_NAME)
             echo "Fetched Dockstore Commit Hash: $DOCKSTORE_COMMIT_HASH"
 
             echo "GitHub Commit Hash: $GITHUB_COMMIT_HASH"
@@ -233,7 +215,7 @@ jobs:
           GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
           DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
 
-      # Step 13: Run Tests
+      # Step 11: Run Tests
       # Purpose: Main testing step - runs the pipeline and collects results
       - name: Update test inputs, Upload to Terra, Submit, Monitor and Retrieve Outputs
         run: |
@@ -277,7 +259,7 @@ jobs:
                 --results_path "$RESULTS_PATH" \
                 --inputs_json "$input_file" \
                 --update_truth "$UPDATE_TRUTH_BOOL" \
-                --branch_name "$TEMP_BRANCH" )
+                --branch_name "$BRANCH_NAME" )
             echo "Uploading the test input file: $test_input_file"
 
             # Create the submission_data.json file for this input_file
@@ -293,7 +275,7 @@ jobs:
               "workflowFailureMode": "NoNewCalls",
               "userComment": "%s",
               "ignoreEmptyOutputs": false
-            }' "$WORKSPACE_NAMESPACE" "${{ inputs.pipeline_name }}" "$TEST_TYPE" "$TEMP_BRANCH" "$USE_CALL_CACHE_BOOL" "$input_file_filename" > "$SUBMISSION_DATA_FILE"
+            }' "$WORKSPACE_NAMESPACE" "${{ inputs.pipeline_name }}" "$TEST_TYPE" "$BRANCH_NAME" "$USE_CALL_CACHE_BOOL" "$input_file_filename" > "$SUBMISSION_DATA_FILE"
           
             echo "Created submission data file: $SUBMISSION_DATA_FILE"
             cat "$SUBMISSION_DATA_FILE"
@@ -305,24 +287,28 @@ jobs:
                 --workspace-name "$TESTING_WORKSPACE" \
                 --pipeline_name "${{ inputs.pipeline_name }}" \
                 --test_input_file "$test_input_file" \
-                --branch_name "$TEMP_BRANCH" \
+                --branch_name "$BRANCH_NAME" \
                 --sa-json-b64 "$SA_JSON_B64" \
                 --test_type "$TEST_TYPE" \
                 --user "$USER"
 
             attempt=1
             while [ $attempt -le $MAX_RETRIES ]; do
-              SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api.py submit_job \
+              echo "Submitting job attempt: $attempt..."
+              RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py submit_job \
                --workspace-namespace "$WORKSPACE_NAMESPACE" \
                --workspace-name "$TESTING_WORKSPACE" \
                --sa-json-b64 "$SA_JSON_B64" \
                --user "$USER" \
                --submission_data_file "$SUBMISSION_DATA_FILE")
 
-              echo "Submission ID: $SUBMISSION_ID"
+              echo "Response from submission: $RESPONSE"
           
-              if [[ "$SUBMISSION_ID" == *"404"* || -z "$SUBMISSION_ID" ]]; then
-                  echo "Error in submission, retrying in $RETRY_DELAY seconds..."
+              HTTP_STATUS=$(echo "$RESPONSE" | jq -r '.status')
+              SUBMISSION_ID=$(echo "$RESPONSE" | jq -r '.submissionId')
+          
+              if [[ "$HTTP_STATUS" != "201" || -z "$SUBMISSION_ID" ]]; then
+                  echo "Error in submission (HTTP status: $HTTP_STATUS), retrying in $RETRY_DELAY seconds..."
                   ((attempt++))
                   if [ $attempt -gt $MAX_RETRIES ]; then
                       echo "Max retries reached. Exiting..."
@@ -422,17 +408,17 @@ jobs:
               exit 1
           fi
 
-      # Step 14: Cleanup
+      # Step 12: Cleanup
       # Purpose: Ensures cleanup of Terra method configurations regardless of test outcome
       - name: Delete Method Configuration
         if: always()
         run: |
-          echo "Deleting method configuration for branch: $TEMP_BRANCH"
+          echo "Deleting method configuration for branch: $BRANCH_NAME"
           DELETE_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
           --workspace-namespace $WORKSPACE_NAMESPACE \
           --workspace-name "$TESTING_WORKSPACE" \
           --pipeline_name "${{ inputs.pipeline_name }}" \
-          --branch_name "$TEMP_BRANCH" \
+          --branch_name "$BRANCH_NAME" \
           --test_type "$testType" \
           --sa-json-b64 "$SA_JSON_B64" \
           --user "$USER" \
@@ -446,32 +432,16 @@ jobs:
             exit 1
           fi
 
-      # Step 15: Delete Temporary Branch
-      # Purpose: Cleans up the temporary branch created for testing
-      - name: Delete Temporary Branch
-        if: always()
-        run: |
-          echo "Deleting temporary branch: $TEMP_BRANCH"
-          git push origin --delete $TEMP_BRANCH
-          if [ $? -eq 0 ]; then
-            echo "Successfully deleted temporary branch: $TEMP_BRANCH"
-          else
-            echo "Warning: Failed to delete temporary branch: $TEMP_BRANCH"
-            # Don't exit with error as this is cleanup
-          fi
-
-      # Step 16: Print Summary on Success
+      # Step 13: Print Summary on Success
       # Purpose: Prints the final summary of the pipeline execution in case of success
       - name: Print Summary on Success
         if: success()
         run: |
           echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
-          echo "Temporary branch '$TEMP_BRANCH' was created, used for testing, and deleted." >> $GITHUB_STEP_SUMMARY
 
-      # Step 17: Print Summary on Failure
+      # Step 14: Print Summary on Failure
       # Purpose: Prints the final summary of the pipeline execution in case of failure
       - name: Print Summary on Failure
         if: failure()
         run: |
           echo "# :x: Pipeline Execution Summary (on Failure) :x: " >> $GITHUB_STEP_SUMMARY
-          echo "Temporary branch '$TEMP_BRANCH' was created for testing." >> $GITHUB_STEP_SUMMARY
