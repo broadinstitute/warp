@@ -118,7 +118,7 @@ jobs:
         run: |
           # Wait 5.5 minutes for Dockstore to update
           echo "Waiting for Dockstore to update..."
-          sleep 3
+          sleep 330
           
           echo "Creating new method configuration for branch: $BRANCH_NAME"
 
