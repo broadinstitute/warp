@@ -1,4 +1,4 @@
-name: Test Illumina Genotyping Array
+name: Test JointGenotyping
 
 # Controls when the workflow will run
 on:
@@ -9,14 +9,17 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/genotyping/illumina/**'
-      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'verification/VerifyIlluminaGenotypingArray.wdl'
-      - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
+      - 'pipelines/broad/dna_seq/germline/joint_genotyping/**'
+      - 'tasks/broad/JointGenotypingTasks.wdl'
+      - 'verification/VerifyJointGenotyping.wdl'
+      - 'verification/VerifyTasks.wdl'
+      - 'verification/VerifyMetrics.wdl'
+      - 'verification/VerifyGermlineSingleSample.wdl'
+      - 'verification/VerifyNA12878.wdl'
+      - 'verification/test-wdls/TestJointGenotyping.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_illumina_genotyping_array.yml'
+      - '.github/workflows/test_joint_genotyping.yml'
       - '.github/workflows/warp_test_workflow.yml'
 
 
@@ -44,12 +47,12 @@ on:
         default: "master"
 
 jobs:
-  TestIlluminaGenotypingArray:
+  TestJointGenotyping:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestIlluminaGenotypingArray
-      dockstore_pipeline_name: IlluminaGenotypingArray
-      pipeline_dir: pipelines/broad/genotyping/illumina
+      pipeline_name: TestJointGenotyping
+      dockstore_pipeline_name: JointGenotyping
+      pipeline_dir: pipelines/broad/dna_seq/germline/joint_genotyping
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

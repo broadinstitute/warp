@@ -1,4 +1,4 @@
-name: Test Illumina Genotyping Array
+name: Test Imputation
 
 # Controls when the workflow will run
 on:
@@ -9,14 +9,14 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/genotyping/illumina/**'
-      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'verification/VerifyIlluminaGenotypingArray.wdl'
-      - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
+      - 'pipelines/broad/arrays/imputation/**'
+      - 'structs/imputation/ImputationStructs.wdl'
+      - 'tasks/broad/ImputationTasks.wdl'
+      - 'verification/VerifyImputation.wdl'
+      - 'verification/test-wdls/TestImputation.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_illumina_genotyping_array.yml'
+      - '.github/workflows/test_imputation.yml'
       - '.github/workflows/warp_test_workflow.yml'
 
 
@@ -44,12 +44,12 @@ on:
         default: "master"
 
 jobs:
-  TestIlluminaGenotypingArray:
+  TestImputation:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestIlluminaGenotypingArray
-      dockstore_pipeline_name: IlluminaGenotypingArray
-      pipeline_dir: pipelines/broad/genotyping/illumina
+      pipeline_name: TestImputation
+      dockstore_pipeline_name: Imputation
+      pipeline_dir: pipelines/broad/arrays/imputation
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

@@ -1,4 +1,4 @@
-name: Test Illumina Genotyping Array
+name: Test ReblockGVCF
 
 # Controls when the workflow will run
 on:
@@ -9,14 +9,15 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/genotyping/illumina/**'
-      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
+      - 'pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/**'
+      - 'tasks/broad/GermlineVariantDiscovery.wdl'
       - 'tasks/broad/Qc.wdl'
-      - 'verification/VerifyIlluminaGenotypingArray.wdl'
-      - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
       - 'tasks/broad/Utilities.wdl'
+      - 'verification/VerifyGvcf.wdl'
+      - 'verification/VerifyTasks.wdl'
+      - 'verification/test-wdls/TestReblockGVCF.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_illumina_genotyping_array.yml'
+      - '.github/workflows/test_reblockGVCF.yml'
       - '.github/workflows/warp_test_workflow.yml'
 
 
@@ -44,12 +45,12 @@ on:
         default: "master"
 
 jobs:
-  TestIlluminaGenotypingArray:
+  TestReblockGVCF:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestIlluminaGenotypingArray
-      dockstore_pipeline_name: IlluminaGenotypingArray
-      pipeline_dir: pipelines/broad/genotyping/illumina
+      pipeline_name: TestReblockGVCF
+      dockstore_pipeline_name: ReblockGVCF
+      pipeline_dir: pipelines/broad/dna_seq/germline/joint_genotyping/reblocking
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

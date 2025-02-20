@@ -1,4 +1,4 @@
-name: Test Illumina Genotyping Array
+name: Test CramToUnmappedBams
 
 # Controls when the workflow will run
 on:
@@ -9,14 +9,12 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/genotyping/illumina/**'
-      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'verification/VerifyIlluminaGenotypingArray.wdl'
-      - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
+      - 'pipelines/broad/reprocessing/cram_to_unmapped_bams/**'
+      - 'verification/VerifyCramToUnmappedBams.wdl'
+      - 'verification/test-wdls/TestCramToUnmappedBams.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_illumina_genotyping_array.yml'
+      - '.github/workflows/test_cram_to_unmapped_bams.yml'
       - '.github/workflows/warp_test_workflow.yml'
 
 
@@ -44,12 +42,12 @@ on:
         default: "master"
 
 jobs:
-  TestIlluminaGenotypingArray:
+  TestCramToUnmappedBams:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestIlluminaGenotypingArray
-      dockstore_pipeline_name: IlluminaGenotypingArray
-      pipeline_dir: pipelines/broad/genotyping/illumina
+      pipeline_name: TestCramToUnmappedBams
+      dockstore_pipeline_name: CramToUnmappedBams
+      pipeline_dir: pipelines/broad/reprocessing/cram_to_unmapped_bams
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}
