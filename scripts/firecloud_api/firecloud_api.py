@@ -535,7 +535,7 @@ if __name__ == "__main__":
               logging.info("Submission successful.")
             else:
               logging.error("Submission failed.")
-              sys.exit(1)  # Exit with error code
+              sys.exit(1)
 
     elif args.action == "poll_job_status":
         if not args.submission_id:
