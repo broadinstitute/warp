@@ -587,7 +587,12 @@ if __name__ == "__main__":
                 submission_data = json.load(file)
             # Submit the job with the loaded submission data
             submission_id = api.submit_job(submission_data)
-            print(submission_id)
+            if submission_id:
+              print(submission_id)
+              logging.info("Submission successful.")
+            else:
+              logging.error("Submission failed.")
+              sys.exit(1)  # Exit with error code
 
     elif args.action == "poll_job_status":
         if not args.submission_id:
