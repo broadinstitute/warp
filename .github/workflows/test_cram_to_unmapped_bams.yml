@@ -9,13 +9,19 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
+      # anything in the pipelines folder
       - 'pipelines/broad/reprocessing/cram_to_unmapped_bams/**'
-      - 'verification/VerifyCramToUnmappedBams.wdl'
-      - 'verification/test-wdls/TestCramToUnmappedBams.wdl'
+      # tasks from the pipeline WDL and their dependencies
       - 'tasks/broad/Utilities.wdl'
+      # verification WDL and its dependencies
+      - 'verification/VerifyCramToUnmappedBams.wdl'
+      # test WDL and its dependencies
+      - 'verification/test-wdls/TestCramToUnmappedBams.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_cram_to_unmapped_bams.yml'
       - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
 
 
   # Allows you to run this workflow manually from the Actions tab

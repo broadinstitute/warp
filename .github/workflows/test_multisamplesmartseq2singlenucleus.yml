@@ -24,9 +24,10 @@ on:
       # test WDL and its dependencies
       - 'verification/test-wdls/TestMultiSampleSmartSeq2SingleNucleus.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      # this file and the subworkflow file
+      # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_multisamplesmartseq2singlenucleus.yml'
       - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

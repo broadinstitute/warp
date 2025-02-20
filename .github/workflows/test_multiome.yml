@@ -9,7 +9,9 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
+      # anything in the pipelines folder
       - 'pipelines/skylab/multiome/**'
+      # tasks from the pipeline WDL and their dependencies
       - 'tasks/skylab/MergeSortBam.wdl'
       - 'tasks/skylab/FastqProcessing.wdl'
       - 'tasks/skylab/PairedTagUtils.wdl'
@@ -23,11 +25,15 @@ on:
       - 'tasks/skylab/H5adUtils.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_multiome.yml'
+      # verification WDL and its dependencies
       - 'verification/VerifyMultiome.wdl'
       - 'verification/VerifyTasks.wdl'
+      # test WDL and its dependencies
       - 'verification/test-wdls/TestMultiome.wdl'
+      # this file, the subworkflow file, and the firecloud_api script
+      - '.github/workflows/test_multiome.yml'
       - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
 
 
   # Allows you to run this workflow manually from the Actions tab
