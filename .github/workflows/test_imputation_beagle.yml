@@ -3,7 +3,7 @@ name: Test ImputationBeagle
 # Controls when the workflow will run
 on:
   pull_request:
-    branches: [ "develop", "staging", "master", "TSPS-183_mma_beagle_imputation_hg38" ]
+    branches: [ "develop", "staging", "master" ]
     # Only run if files in these paths changed:
     ####################################
     # SET PIPELINE SPECIFIC PATHS HERE #
