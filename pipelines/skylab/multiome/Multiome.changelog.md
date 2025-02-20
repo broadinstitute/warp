@@ -1,3 +1,8 @@
+# 5.11.1
+2025-02-20 (Date of Last Commit)
+
+* Aliased the Multiome call to PeakCalling task as MultiomePeakCalling to disambiguate the inputs for the two ways to call PeakCalling
+
 # 5.11.0
 2025-02-05 (Date of Last Commit)
 
