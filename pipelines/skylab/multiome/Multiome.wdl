@@ -139,7 +139,7 @@ workflow Multiome {
     }
 
     if (run_peak_calling) {
-        call atac.PeakCalling as PeakCalling {
+        call atac.PeakCalling as MultiomePeakCalling {
             input:
                 annotations_gtf = annotations_gtf,
                 metrics_h5ad = JoinBarcodes.atac_h5ad_file,
@@ -164,8 +164,8 @@ workflow Multiome {
         File fragment_file_index = JoinBarcodes.atac_fragment_tsv_index
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
         File atac_library_metrics = Atac.library_metrics_file
-        File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad
-        File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad
+        File? cellbybin_h5ad_file = MultiomePeakCalling.cellbybin_h5ad
+        File? cellbypeak_h5ad_file = MultiomePeakCalling.cellbypeak_h5ad
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
