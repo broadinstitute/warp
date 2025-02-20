@@ -41,10 +41,11 @@ workflow VerifyImputationBeagle {
     }
   }
 
-  call Tasks.CompareVcfsAllowingQualityDifferences as CompareOutputVcfs {
+  call Tasks.CompareVcfs as CompareOutputVcfs {
     input:
       file1 = truth_vcf,
-      file2 = test_vcf
+      file2 = test_vcf,
+      patternForLinesToExcludeFromComparison = "##" # ignore headers
   }
 
   output {

@@ -1,5 +1,5 @@
 # 1.0.0
-2025-02-19 (Date of Last Commit)
+2025-02-20 (Date of Last Commit)
 
 * * Initial public release of the ImputationBeagle pipeline.
 
