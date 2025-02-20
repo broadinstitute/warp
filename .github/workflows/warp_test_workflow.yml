@@ -294,36 +294,29 @@ jobs:
 
             attempt=1
             while [ $attempt -le $MAX_RETRIES ]; do
-              echo "Submitting job attempt: $attempt..."
-              RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py submit_job \
+              SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api.py submit_job \
                --workspace-namespace "$WORKSPACE_NAMESPACE" \
                --workspace-name "$TESTING_WORKSPACE" \
                --sa-json-b64 "$SA_JSON_B64" \
                --user "$USER" \
-               --submission_data_file "$SUBMISSION_DATA_FILE")
+               --submission_data_file "$SUBMISSION_DATA_FILE" 2>&1)
 
-              echo "Response from submission: $RESPONSE"
-          
-              HTTP_STATUS=$(echo "$RESPONSE" | jq -r '.status')
-              SUBMISSION_ID=$(echo "$RESPONSE" | jq -r '.submissionId')
-          
-              if [[ "$HTTP_STATUS" != "201" || -z "$SUBMISSION_ID" ]]; then
-                  echo "Error in submission (HTTP status: $HTTP_STATUS), retrying in $RETRY_DELAY seconds..."
-                  ((attempt++))
-                  if [ $attempt -gt $MAX_RETRIES ]; then
-                      echo "Max retries reached. Exiting..."
-                      exit 1
-                  fi
-                  sleep $RETRY_DELAY
-                  continue
+              if [ $? -eq 0 ]; then
+                echo "Submission successful. Submission ID: $SUBMISSION_ID"
+                SUBMISSION_IDS+=("$SUBMISSION_ID")
+                break  # Exit retry loop on success
+              else
+                echo "Error submitting job: $SUBMISSION_ID"
+                echo "Retrying in $RETRY_DELAY seconds..."
+                ((attempt++))
+                if [ $attempt -gt $MAX_RETRIES ]; then
+                  echo "Max retries reached. Exiting..."
+                  exit 1
+                fi
+                sleep $RETRY_DELAY
               fi
-
-              echo "Submission successful. Submission ID: $SUBMISSION_ID"
-              SUBMISSION_IDS+=("$SUBMISSION_ID")
-              break
             done
-          done
-          
+
           echo "All jobs have been submitted. Starting to poll for statuses..."
 
           # Poll for statuses of all jobs

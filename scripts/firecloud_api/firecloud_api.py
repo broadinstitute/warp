@@ -81,32 +81,32 @@ class FirecloudAPI:
         token = self.get_user_token(self.delegated_creds)
         headers = self.build_auth_headers(token)
         url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
+
         response = requests.post(url, json=submission_data_file, headers=headers)
 
-        # Print status code and response body for debugging
+        # Log response details
         logging.info(f"Response status code for submitting job: {response.status_code}")
         logging.info(f"Response body: {response.text}")
 
         if response.status_code == 201:
             try:
-                # Parse the response as JSON
                 response_json = response.json()
-
-                # Extract the submissionId
-                submission_id = response_json.get("submissionId", None)
+                submission_id = response_json.get("submissionId")
                 if submission_id:
-                    logging.info(f"Submission ID extracted: {submission_id}")
-                    return submission_id
+                    logging.info(f"Submission successful. Submission ID: {submission_id}")
+                    return submission_id  # Return only the submission ID
                 else:
                     logging.error("Error: submissionId not found in the response.")
-                    return None
+                    raise RuntimeError("Submission ID missing in response.")
             except json.JSONDecodeError:
                 logging.error("Error: Failed to parse JSON response.")
-                return None
+                raise RuntimeError("Invalid JSON response from submission request.")
+
         else:
             logging.error(f"Failed to submit job. Status code: {response.status_code}")
             logging.error(f"Response body: {response.text}")
-            return None
+            raise RuntimeError(f"Job submission failed with status code {response.status_code}: {response.text}")
+
 
 
     def create_new_method_config(self, branch_name, pipeline_name):
