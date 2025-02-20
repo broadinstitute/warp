@@ -410,21 +410,30 @@ class FirecloudAPI:
     def cancel_old_submissions(self, pipeline_name, branch_name):
         """
         Cancel all active submissions for a pipeline's method configuration.
-        Handles submissions from dynamically named branches related to the same original branch.
+        Uses a marker word 'TIMESTAMP' to easily identify and remove the timestamp portion.
         Returns the number of cancelled submissions.
         """
-        # Extract the original branch name from the timestamped branch name
-        original_branch_parts = branch_name.split('_')
-        if len(original_branch_parts) >= 3:
-            # If branch format is pipeline_testtype_originalbranch_timestamp
-            # We want to match all submissions from the same original branch
-            original_branch_pattern = f"{pipeline_name}_{args.test_type}_{original_branch_parts[2]}"
+        # Check if this is a timestamped branch (contains _TIMESTAMP_)
+        if "_TIMESTAMP_" in branch_name:
+            # Split at the marker and take the first part
+            original_branch_name = branch_name.split("_TIMESTAMP_")[0]
         else:
-            # Fallback to the current branch name pattern
-            original_branch_pattern = f"{pipeline_name}_{args.test_type}_{branch_name}"
+            # If no marker found, use the branch name as is
+            original_branch_name = branch_name
 
-        logging.info(f"Looking for submissions to cancel with original branch pattern: {original_branch_pattern}")
-        print(f"SEARCHING FOR SUBMISSIONS RELATED TO: {original_branch_pattern}")
+        # If original_branch_name still includes pipeline and test type, remove them
+        prefix = f"{pipeline_name}_{args.test_type}_"
+        if original_branch_name.startswith(prefix):
+            base_branch_name = original_branch_name[len(prefix):]
+        else:
+            base_branch_name = original_branch_name
+
+        # Build the pattern to search for
+        search_pattern = f"{pipeline_name}_{args.test_type}_{base_branch_name}"
+
+        logging.info(f"Extracted base branch name: {base_branch_name}")
+        logging.info(f"Looking for submissions to cancel with pattern: {search_pattern}")
+        print(f"SEARCHING FOR SUBMISSIONS RELATED TO: {search_pattern}")
 
         active_submissions = self.get_active_submissions()
         matching_submissions = []
@@ -439,11 +448,11 @@ class FirecloudAPI:
         for submission in active_submissions:
             config_name = submission.get('methodConfigurationName', '')
             # Match submissions from the same pipeline, test type, and original branch
-            # regardless of timestamp suffix
-            if config_name.startswith(original_branch_pattern) or original_branch_pattern in config_name:
+            if config_name.startswith(search_pattern):
                 matching_submissions.append(submission)
+                logging.info(f"Matched submission with config name: {config_name}")
 
-        logging.info(f"Found {len(matching_submissions)} active submissions to cancel:")
+        logging.info(f"Found {len(matching_submissions)} active submissions to cancel")
 
         for idx, submission in enumerate(matching_submissions, 1):
             sub_id = submission['submissionId']
