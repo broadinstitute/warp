@@ -1,3 +1,22 @@
+# 5.11.0
+2025-02-05 (Date of Last Commit)
+
+* Refactored the Peak Calling step of Multiome to use the JoinBarcodes output h5ad as the input for peak calling, ensuring the h5ad files have both GEX and ATAC barcodes
+* Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
+
+# 5.10.0
+2025-02-03 (Date of Last Commit)
+
+* Added an optional PeakCalling task to the ATAC workflow 
+* Added a boolean variable run_peak_calling to the Multiome pipeline; default is false 
+
+# 5.9.6
+2025-01-21 (Date of Last Commit)
+
+* Added a boolean variable is_slidetags; default is false but it is set to true if the Slide-Tags pipeline is calling Optimus
+* Added reference_gtf_file to the output h5ad unstructured metadata
+* Added the ATAC fragment file CSI index as high-level ATAC workflow output; this does not impact the Multiome workflow as Multiome already produces the csi index from ATAC
+
 # 5.9.4
 2024-12-05 (Date of Last Commit)
 
