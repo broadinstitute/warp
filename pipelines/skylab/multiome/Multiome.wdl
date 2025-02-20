@@ -126,8 +126,8 @@ workflow Multiome {
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
             peak_calling = false
-
     }
+
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
             docker_path = docker_prefix + snap_atac_docker_image,
