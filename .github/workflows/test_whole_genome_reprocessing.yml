@@ -1,0 +1,73 @@
+name: Test WholeGenomeReprocessing
+
+# Controls when the workflow will run
+on:
+  pull_request:
+    branches: [ "develop", "staging", "master" ]
+    # Only run if files in these paths changed:
+    ####################################
+    # SET PIPELINE SPECIFIC PATHS HERE #
+    ####################################
+    paths:
+      - 'pipelines/broad/reprocessing/wgs/**'
+      - 'pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl'
+      - 'structs/dna_seq/DNASeqStructs.wdl'
+      - 'tasks/broad/Alignment.wdl'
+      - 'tasks/broad/DragmapAlignment.wdl'
+      - 'tasks/broad/SplitLargeReadGroup.wdl'
+      - 'tasks/broad/BamProcessing.wdl'
+      - 'tasks/broad/Utilities.wdl'
+      - 'tasks/broad/Qc.wdl'
+      - 'tasks/broad/AggregatedBamQC.wdl'
+      - 'tasks/broad/BamToCram.wdl'
+      - 'pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl'
+      - 'pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl'
+      - 'tasks/broad/GermlineVariantDiscovery.wdl'
+      - 'tasks/broad/DragenTasks.wdl'
+      - 'verification/VerifyExomeReprocessing.wdl'
+      - 'verification/test-wdls/TestWholeGenomeGermlineSingleSample.wdl'
+      - 'verification/VerifyGermlineSingleSample.wdl'
+      - 'verification/VerifyMetrics.wdl'
+      - 'verification/VerifyTasks.wdl'
+      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - '.github/workflows/test_whole_genome_reprocessing.yml'
+      - '.github/workflows/warp_test_workflow.yml'
+
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      useCallCache:
+        description: 'Use call cache (default: true)'
+        required: false
+        default: "true"
+      updateTruth:
+        description: 'Update truth files (default: false)'
+        required: false
+        default: "false"
+      testType:
+        description: 'Specify the type of test (Plumbing or Scientific)'
+        required: false
+        type: choice
+        options:
+          - Plumbing
+          - Scientific
+      truthBranch:
+        description: 'Specify the branch for truth files (default: master)'
+        required: false
+        default: "master"
+
+jobs:
+  TestWholeGenomeReprocessing:
+    uses: ./.github/workflows/warp_test_workflow.yml
+    with:
+      pipeline_name: TestWholeGenomeReprocessing
+      dockstore_pipeline_name: WholeGenomeReprocessing
+      pipeline_dir: pipelines/broad/reprocessing/wgs
+      use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
+      update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
+      test_type: ${{ github.event.inputs.testType }}
+      truth_branch: ${{ github.event.inputs.truthBranch || 'master' }}
+    secrets:
+      PDT_TESTER_SA_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
+      DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}

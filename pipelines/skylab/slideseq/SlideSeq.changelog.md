@@ -1,3 +1,13 @@
+# 3.4.9
+2025-02-12 (Date of Last Commit)
+* Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
+
+# 3.4.8
+2025-01-13 (Date of Last Commit)
+
+*  Added a boolean variable is_slidetags; this does not affect the outputs of the pipeline
+* Added reference_gtf_file to the output h5ad unstructured metadata
+
 # 3.4.7
 2024-12-3 (Date of Last Commit)
 

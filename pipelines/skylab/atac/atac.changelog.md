@@ -1,3 +1,22 @@
+# 2.7.1
+2025-02-12 (Date of Last Commit)
+
+* Added a new warning for peak calling step if the probability_threshold is too low, resutling in a null matrix after doublet filtering
+* Updated the probability threshold default to 0.5
+* Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
+
+# 2.7.0
+2025-02-03 (Date of Last Commit)
+
+* Added an optional PeakCalling task 
+* Added a boolean variable peak_calling; default is false 
+
+# 2.6.0
+2025-01-21 (Date of Last Commit)
+
+* Added reference_gtf_file to the output h5ad unstructured metadata
+* Added the fragment file CSI index as a workflow output
+
 # 2.5.3
 2024-11-22 (Date of Last Commit)
 
