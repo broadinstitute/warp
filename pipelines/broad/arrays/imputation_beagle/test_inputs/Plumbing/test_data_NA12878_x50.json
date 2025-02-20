@@ -4,5 +4,5 @@
     "ImputationBeagle.reference_panel_path_prefix": "gs://broad-gotc-test-storage/imputation_beagle/scientific/1000G_HGDP_no_singletons_reference_panel/hgdp.tgp.gwaspy.AN_added.bcf.ac2",
     "ImputationBeagle.contigs": ["chr21","chr22"],
     "ImputationBeagle.genetic_maps_path": "gs://broad-gotc-test-storage/imputation_beagle/scientific/plink-genetic-maps/",
-    "ImputationBeagle.output_basename": "scientific_test"
+    "ImputationBeagle.output_basename": "plumbing_test"
 }
