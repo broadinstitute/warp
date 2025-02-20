@@ -113,8 +113,9 @@ jobs:
         run: |
           # Generate a unique branch name with timestamp and run ID
           TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-          # Use the pipeline name, test type, original branch, marker word, and timestamp 
-          TEMP_BRANCH="${{ inputs.pipeline_name }}_${{ env.testType }}_${{ env.ORIGINAL_BRANCH_NAME }}_TIMESTAMP_${TIMESTAMP}"
+          # Just use the original branch name, marker word, and timestamp
+          # Don't include pipeline name or test type in the branch name
+          TEMP_BRANCH="${{ env.ORIGINAL_BRANCH_NAME }}_TIMESTAMP_${TIMESTAMP}"
           
           echo "Created temporary branch: $TEMP_BRANCH"
           echo "TEMP_BRANCH=$TEMP_BRANCH" >> $GITHUB_ENV
