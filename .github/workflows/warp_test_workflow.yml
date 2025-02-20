@@ -112,6 +112,28 @@ jobs:
             echo "testType=${{ inputs.test_type }}"
           fi
 
+      # Step 6: Create Method Configuration
+      # Purpose: Sets up the testing configuration in Terra workspace
+      - name: Create new method configuration
+        run: |
+          # Wait 5.5 minutes for Dockstore to update
+          echo "Waiting for Dockstore to update..."
+          sleep 330
+          
+          echo "Creating new method configuration for branch: $BRANCH_NAME"
+
+          METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
+            create_new_method_config \
+            --workspace-namespace $WORKSPACE_NAMESPACE \
+            --workspace-name "$TESTING_WORKSPACE" \
+            --pipeline_name "${{ inputs.pipeline_name }}" \
+            --branch_name "$BRANCH_NAME" \
+            --test_type "$testType" \
+            --sa-json-b64 "$SA_JSON_B64" \
+            --user "$USER")
+
+          echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
+
       # Step 7: Cancel Previous Runs
       # Purpose: Cancels previous GHA workflows from the same branch (regardless of plumbing or scientific test type)
       # to avoid running multiple tests at the same time
@@ -137,28 +159,6 @@ jobs:
             --user "${{ env.USER }}" \
             --test_type "$testType" \
             cancel_old_submissions
-
-      # Step 6: Create Method Configuration
-      # Purpose: Sets up the testing configuration in Terra workspace
-      - name: Create new method configuration
-        run: |
-          # Wait 5.5 minutes for Dockstore to update
-          echo "Waiting for Dockstore to update..."
-          sleep 330
-          
-          echo "Creating new method configuration for branch: $BRANCH_NAME"
-
-          METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
-            create_new_method_config \
-            --workspace-namespace $WORKSPACE_NAMESPACE \
-            --workspace-name "$TESTING_WORKSPACE" \
-            --pipeline_name "${{ inputs.pipeline_name }}" \
-            --branch_name "$BRANCH_NAME" \
-            --test_type "$testType" \
-            --sa-json-b64 "$SA_JSON_B64" \
-            --user "$USER")
-
-          echo "METHOD_CONFIG_NAME=$METHOD_CONFIG_NAME" >> $GITHUB_ENV
 
       # Step 9: Handle Git Commit Hash
       # Purpose: Gets the correct Github commit hash for version tracking
@@ -294,21 +294,17 @@ jobs:
 
             attempt=1
             while [ $attempt -le $MAX_RETRIES ]; do
-              echo "Submitting job attempt: $attempt..."
-              RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py submit_job \
+              SUBMISSION_ID=$(python3 scripts/firecloud_api/firecloud_api.py submit_job \
                --workspace-namespace "$WORKSPACE_NAMESPACE" \
                --workspace-name "$TESTING_WORKSPACE" \
                --sa-json-b64 "$SA_JSON_B64" \
                --user "$USER" \
                --submission_data_file "$SUBMISSION_DATA_FILE")
 
-              echo "Response from submission: $RESPONSE"
-             
-              HTTP_STATUS=$(echo "$RESPONSE" | jq -r '.status')
-              SUBMISSION_ID=$(echo "$RESPONSE" | jq -r '.submissionId')
+              echo "Submission ID: $SUBMISSION_ID"
           
-              if [[ "$HTTP_STATUS" != "201" || -z "$SUBMISSION_ID" ]]; then
-                  echo "Error in submission (HTTP status: $HTTP_STATUS), retrying in $RETRY_DELAY seconds..."
+              if [[ "$SUBMISSION_ID" == *"404"* || -z "$SUBMISSION_ID" ]]; then
+                  echo "Error in submission, retrying in $RETRY_DELAY seconds..."
                   ((attempt++))
                   if [ $attempt -gt $MAX_RETRIES ]; then
                       echo "Max retries reached. Exiting..."
