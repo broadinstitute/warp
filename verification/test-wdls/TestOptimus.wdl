@@ -45,8 +45,16 @@ workflow TestOptimus {
     # Set to Forward by default to count reads in 10x stranded mode
     String star_strand_mode
 
-# Set to true to count reads aligned to exonic regions in sn_rna mode
+    # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
+
+    # Machine specs for starsolo
+    String cpu_platform_star
+    Int mem_size_star
+    Int cpu_star
+    Int disk_star
+    Int limitBAMsortRAM_star
+    Int outBAMsortingBinsN_star
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
@@ -87,7 +95,13 @@ workflow TestOptimus {
       ignore_r1_read_length      = ignore_r1_read_length,
       soloMultiMappers           = soloMultiMappers,
       cloud_provider             = cloud_provider,
-      gex_nhash_id               = gex_nhash_id
+      gex_nhash_id               = gex_nhash_id,
+      cpu_platform_star         = cpu_platform_star,
+      mem_size_star             = mem_size_star,
+      cpu_star                  = cpu_star,
+      disk_star                 = disk_star,
+      limitBAMsortRAM_star      = limitBAMsortRAM_star,
+      outBAMsortingBinsN_star   = outBAMsortingBinsN_star
   }
 
 # Collect all of the pipeline outputs into single Array[String]
