@@ -155,7 +155,7 @@ class FirecloudAPI:
         else:
             logging.error(f"Failed to create method configuration. Status code: {response.status_code}")
             logging.error(f"Response body: {response.text}")
-            raise Exception(f"Failed to create method configuration for {pipeline_name} on branch {branch_name}")
+            raise Exception(f"Failed to create method configuration for {pipeline_name} on the branch {branch_name}")
 
     def upload_test_inputs(self, pipeline_name, test_inputs, branch_name, test_type):
         """
