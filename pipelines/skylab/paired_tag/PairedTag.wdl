@@ -8,7 +8,11 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
 
+<<<<<<< HEAD
     String pipeline_version = "2.0.0"
+=======
+    String pipeline_version = "1.10.2"
+>>>>>>> 2bee9acb9cb143b8a96fd9e85181b2fca0bec984
 
 
     input {
@@ -63,7 +67,7 @@ workflow PairedTag {
 
     # All docker images that are needed for tasks in this workflow
     String upstools_docker = "upstools:2.0.0"
-    String snapatac_docker = "snapatac2:1.0.4-2.3.1-1700590229"
+    String snapatac_docker = "snapatac2:2.0.0"
 
     # Prefixes based on cloud env
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"

@@ -85,7 +85,11 @@ workflow Optimus {
   }
 
   # version of this pipeline
+<<<<<<< HEAD
   String pipeline_version = "8.0.0"
+=======
+  String pipeline_version = "7.9.2"
+>>>>>>> 2bee9acb9cb143b8a96fd9e85181b2fca0bec984
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -104,7 +108,7 @@ workflow Optimus {
   String pytools_docker = "pytools:1.0.0-1661263730"
   String empty_drops_docker = "empty-drops:1.0.1-4.2"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
-  String warp_tools_docker = "warp-tools:2.6.0"
+  String warp_tools_docker = "warp-tools:2.6.1"
   String star_merge_docker = "star-merge-npz:1.3.0"
   String samtools_star = "samtools-star:1.0.0-1.11-2.7.11a-1731516196"
 
