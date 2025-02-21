@@ -315,7 +315,11 @@ task STARsoloFastq {
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
         exit 1;
     fi
-    # RAM limit 33195969137 --limitBAMsortRAM 33195969137 \
+
+    # convert limitBAMsortRAM from GB to bytes 
+    RAM_limit_bytes=$((1073741824 * ~{limitBAMsortRAM})) 
+    echo $RAM_limit_bytes, ~{limitBAMsortRAM}
+
     STAR \
         --soloType Droplet \
         --soloStrand ~{star_strand_mode} \
@@ -333,6 +337,8 @@ task STARsoloFastq {
         --outSAMtype BAM SortedByCoordinate \
         --outSAMattributes UB UR UY CR CB CY NH GX GN sF cN \
         --soloBarcodeReadLength 0 \
+        --limitBAMsortRAM $RAM_limit_bytes \
+        --outBAMsortingBinsN ~{outBAMsortingBinsN} \
         --soloCellReadStats Standard \
         ~{"--soloMultiMappers " + soloMultiMappers} \
         --soloUMIfiltering MultiGeneUMI_CR \
