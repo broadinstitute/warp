@@ -111,10 +111,8 @@ jobs:
       - name: Create temporary testing branch
         id: create_branch
         run: |
-          # Generate a unique branch name with timestamp and run ID
+          # Generate a unique branch branch using the original branch name, marker word, and timestamp
           TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-          # Just use the original branch name, marker word, and timestamp
-          # Don't include pipeline name or test type in the branch name
           TEMP_BRANCH="${{ env.ORIGINAL_BRANCH_NAME }}_TIMESTAMP_${TIMESTAMP}"
           
           echo "Created temporary branch: $TEMP_BRANCH"
@@ -154,7 +152,7 @@ jobs:
         run: |
           # Wait for Dockstore to update
           echo "Waiting for Dockstore to update..."
-          sleep 3  # 5.5 minutes  
+          sleep 330  # 5.5 minutes  
           
           echo "Creating new method configuration for branch: $TEMP_BRANCH"
 
@@ -191,15 +189,23 @@ jobs:
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
         run: |
-          # Get the current commit hash (should be the same as what we just pushed)
-          echo "GITHUB_COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
-          echo "Using commit hash: $(git rev-parse HEAD)"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "Using github.sha for manually triggered workflow."
+            echo "GITHUB_COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "Using github.event.pull_request.head.sha for PR-triggered workflow."
+            echo "GITHUB_COMMIT_HASH=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+          else
+            echo "Unsupported event type: ${{ github.event_name }}"
+            exit 1
+          fi
 
       # Step 12: Compare Hashes
       # Purpose: Compares the Dockstore and Github commit hashes to ensure they match
       - name: Compare Dockstore and Github Commit Hashes with Retry
         id: compare_hashes
         run: |
+
           MAX_WAIT_TIME=$((15 * 60)) # 15 minutes in seconds
           WAIT_INTERVAL=60          # 1 minute in seconds
           TOTAL_WAITED=0
