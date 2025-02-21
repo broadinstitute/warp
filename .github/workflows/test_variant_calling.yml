@@ -9,18 +9,24 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
+      # anything in the pipelines folder
       - 'pipelines/broad/dna_seq/germline/variant_calling/**'
+      # tasks from the pipeline WDL and their dependencies
       - 'tasks/broad/GermlineVariantDiscovery.wdl'
       - 'tasks/broad/Qc.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/BamProcessing.wdl'
       - 'tasks/broad/DragenTasks.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
-      - 'verification/test-wdls/TestVariantCalling.wdl'
+      # verification WDL and its dependencies
       - 'verification/VerifyGvcf.wdl'
       - 'verification/VerifyTasks.wdl'
+      # test WDL and its dependencies
+      - 'verification/test-wdls/TestVariantCalling.wdl'
+      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_variant_calling.yml'
       - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
 
 
   # Allows you to run this workflow manually from the Actions tab
