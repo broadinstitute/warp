@@ -155,8 +155,7 @@ class FirecloudAPI:
         else:
             logging.error(f"Failed to create method configuration. Status code: {response.status_code}")
             logging.error(f"Response body: {response.text}")
-            return None
-
+            raise Exception(f"Failed to create method configuration for {pipeline_name} on branch {branch_name}")
 
     def upload_test_inputs(self, pipeline_name, test_inputs, branch_name, test_type):
         """
@@ -327,17 +326,6 @@ class FirecloudAPI:
         else:
             logging.error(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
-
-    #def gsutil_copy(self, source, destination):
-    #    #client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
-    #    source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
-    #    destination_bucket_name, destination_blob_name = destination.replace("gs://", "").split("/", 1)
-
-    #    source_bucket = self.storage_client.bucket(source_bucket_name)
-    #    source_blob = source_bucket.blob(source_blob_name)
-    #    destination_bucket = self.storage_client.bucket(destination_bucket_name)
-
-    #    source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
 
     def delete_method_config(self, method_config_name):
         """
@@ -600,7 +588,8 @@ if __name__ == "__main__":
               logging.info("Submission successful.")
             else:
               logging.error("Submission failed.")
-              sys.exit(1)  # Exit with error code
+              sys.exit(1)  
+
 
     elif args.action == "poll_job_status":
         if not args.submission_id:
