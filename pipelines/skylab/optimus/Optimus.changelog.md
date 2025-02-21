@@ -1,3 +1,10 @@
+# 8.0.0
+2025-02-21 (Date of Last Commit)
+
+* Removed boolean variable is_slidetags; no longer needed with new updates
+* Updated the code to eliminate sharding — now, only a single instance of alignment (Starsolo) is running. Removed tasks related to sharding and merging BAM files
+* Added parameters for STARsoloFastq task, including cpu_platform_star, mem_size_star, cpu_star, disk_star, limitBAMsortRAM_star, and outBAMsortingBinsN_star
+
 # 7.9.1
 2025-01-13 (Date of Last Commit)
 
