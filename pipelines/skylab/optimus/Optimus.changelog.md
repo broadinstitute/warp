@@ -1,16 +1,14 @@
-<<<<<<< HEAD
 # 8.0.0
 2025-02-21 (Date of Last Commit)
 
 * Removed boolean variable is_slidetags; no longer needed with new updates
 * Updated the code to eliminate sharding — now, only a single instance of alignment (Starsolo) is running. Removed tasks related to sharding and merging BAM files
 * Added parameters for STARsoloFastq task, including cpu_platform_star, mem_size_star, cpu_star, disk_star, limitBAMsortRAM_star, and outBAMsortingBinsN_star
-=======
+
 # 7.9.2
 2025-02-12 (Date of Last Commit)
 
 * Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
->>>>>>> 2bee9acb9cb143b8a96fd9e85181b2fca0bec984
 
 # 7.9.1
 2025-01-13 (Date of Last Commit)
