@@ -1,3 +1,8 @@
+# 3.0.0
+2025-02-21 (Date of Last Commit)
+
+* 
+
 # 2.0.8
 2025-02-12 (Date of Last Commit)
 
