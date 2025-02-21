@@ -111,9 +111,11 @@ jobs:
       - name: Create temporary testing branch
         id: create_branch
         run: |
-          # Generate a unique branch branch using the original branch name, marker word, and timestamp
+          # Generate a unique branch branch using the original branch name, pipeline name as an identifier, and timestamp
           TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-          TEMP_BRANCH="${{ env.ORIGINAL_BRANCH_NAME }}_TIMESTAMP_${TIMESTAMP}"
+          PIPELINE_MARKER="${{ inputs.pipeline_name }}"
+          TEMP_BRANCH="${{ env.ORIGINAL_BRANCH_NAME }}_PIPELINE_${PIPELINE_MARKER}_TIMESTAMP_${TIMESTAMP}"
+          
           
           echo "Created temporary branch: $TEMP_BRANCH"
           echo "TEMP_BRANCH=$TEMP_BRANCH" >> $GITHUB_ENV

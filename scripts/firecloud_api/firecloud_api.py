@@ -411,15 +411,22 @@ class FirecloudAPI:
     def cancel_old_submissions(self, pipeline_name, branch_name):
         """
         Cancel all active submissions for a pipeline's method configuration.
-        Uses a marker word 'TIMESTAMP' to easily identify and remove the timestamp portion.
+        Handles both _PIPELINE_ and _TIMESTAMP_ markers in branch names.
         Returns the number of cancelled submissions.
         """
         # Check if this is a timestamped branch (contains _TIMESTAMP_)
         if "_TIMESTAMP_" in branch_name:
-            # Split at the marker and take the first part
-            original_branch_name = branch_name.split("_TIMESTAMP_")[0]
+            # Split at the TIMESTAMP marker and take the first part
+            branch_parts = branch_name.split("_TIMESTAMP_")[0]
+
+            # Check for the PIPELINE marker as well
+            if "_PIPELINE_" in branch_parts:
+                # Extract the original branch name (before PIPELINE marker)
+                original_branch_name = branch_parts.split("_PIPELINE_")[0]
+            else:
+                # If no marker found, use the branch name as is
+                original_branch_name = branch_parts
         else:
-            # If no marker found, use the branch name as is
             original_branch_name = branch_name
 
         # If original_branch_name still includes pipeline and test type, remove them
