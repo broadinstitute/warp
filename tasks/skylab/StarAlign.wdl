@@ -228,17 +228,16 @@ task STARsoloFastq {
 
     # runtime values
     String samtools_star_docker_path
+    String cpu_platform = "Intel Ice Lake"
+    Int input_size = ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB"))
+    Int mem_size = ceil(input_size * 0.8)
+    Int cpu = ceil(input_size / 5)
+    Int disk = 5000
+    Int limitBAMsortRAM = 30
+    Int outBAMsortingBinsN = if input_size < 100 then 200 else 300
 
-    # if slide_tags true set disk to 1000 otherwise dynamic allocation based on input size
-    # dynamic allocation multiplies input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Boolean is_slidetags
+    Int machine_mem_mb = 100 # not used in runtime -- need to remove 
 
-    # runtime values
-    String cpu_platform = "Intel Skylake"
-    Int mem_size = 64
-    Int machine_mem_mb = 512000 # not used in runtime
-    Int cpu = 8
-    Int disk = 2000
     # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 1
   }

@@ -75,14 +75,13 @@ workflow Optimus {
     # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
     # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
 
-    # Set to true if slide-tags calls optimus, other wise set to false
-    Boolean is_slidetags = false
-
     # Machine specs for starsolo
-    String cpu_platform_star = "Intel Ice Lake"
-    Int mem_size_star = 64
-    Int cpu_star = 16
-    Int disk_star = 2000
+    String cpu_platform_star
+    Int mem_size_star
+    Int cpu_star
+    Int disk_star
+    Int limitBAMsortRAM_star
+    Int outBAMsortingBinsN_star
   }
 
   # version of this pipeline
@@ -185,11 +184,12 @@ workflow Optimus {
         output_bam_basename = output_bam_basename,
         soloMultiMappers = soloMultiMappers,
         samtools_star_docker_path = docker_prefix + samtools_star,
-        is_slidetags = is_slidetags,
         cpu_platform = cpu_platform_star,
         mem_size = mem_size_star,
         cpu = cpu_star, 
-        disk = disk_star
+        disk = disk_star,
+        limitBAMsortRAM = limitBAMsortRAM_star,
+        outBAMsortingBinsN = outBAMsortingBinsN_star
     }
   
   call Metrics.CalculateGeneMetrics as GeneMetrics {
