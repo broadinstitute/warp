@@ -134,7 +134,7 @@ task CompareTabix {
     fi
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:2.0.0"
     disks: "local-disk 100 HDD"
     memory: "50 GiB"
     preemptible: 3
