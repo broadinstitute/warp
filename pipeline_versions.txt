@@ -6,7 +6,7 @@ MultiSampleSmartSeq2SingleNucleus	 2.0.8	2025-02-12
 atac	 2.7.1	2025-02-12 
 Optimus	 7.9.2	2025-02-12 
 SmartSeq2SingleSample	 5.1.21	2024-09-11 
-Multiome	 5.11.0	2025-02-05 
+Multiome	 5.11.1	2025-02-20 
 PairedTag	 1.10.2 	2025-02-06 
 SlideSeq	 3.4.9	2025-02-12 
 MultiSampleSmartSeq2	 2.2.22	2024-09-11 
