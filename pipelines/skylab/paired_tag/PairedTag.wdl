@@ -177,10 +177,12 @@ workflow PairedTag {
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = Optimus.h5ad_output_file
         File? library_metrics = Optimus.library_metrics
-        Array[File?] multimappers_EM_matrix = Optimus.multimappers_EM_matrix
-        Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
-        Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
-        Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
+        File? multimappers_EM_matrix = Optimus.multimappers_EM_matrix
+        File? multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
+        File? multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
+        File? multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
+        
+        # cellbender outputs
         File? cell_barcodes_csv = Optimus.cell_barcodes_csv
         File? checkpoint_file = Optimus.checkpoint_file
         Array[File]? h5_array = Optimus.h5_array
