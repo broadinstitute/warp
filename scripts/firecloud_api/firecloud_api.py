@@ -182,42 +182,72 @@ class FirecloudAPI:
     def create_new_method_config(self, branch_name, pipeline_name):
         """
         Creates a new method configuration in the workspace via Firecloud API.
+        Includes a retry mechanism for 404 errors from Dockstore.
 
         :param branch_name: The branch name
         :param pipeline_name: The name of the pipeline
         :return: The name of the created method configuration or None if failed
         """
-
         # Create method config name with test type
         method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
 
-        payload = {
-            "deleted": False,
-            "inputs": {},
-            "methodConfigVersion": 0,
-            "methodRepoMethod": {
-                "methodUri": f"dockstore://github.com/broadinstitute/warp/{pipeline_name}/{branch_name}",
-                "sourceRepo": "dockstore",
-                "methodPath": f"github.com/broadinstitute/warp/{pipeline_name}",
-                "methodVersion": f"{branch_name}"
-            },
-            "name": method_config_name,
-            "namespace": "warp-pipelines",
-            "outputs": {},
-            "prerequisites": {}
-        }
-        logging.info(f"Creating new method configuration: {json.dumps(payload, indent=2)}")
+        # Flag to track if we've already retried for a 404 error
+        dockstore_404_retried = False
 
-        # Construct the API endpoint URL for creating a new method configuration
-        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
+        # Function to create the payload
+        def create_payload():
+            return {
+                "deleted": False,
+                "inputs": {},
+                "methodConfigVersion": 0,
+                "methodRepoMethod": {
+                    "methodUri": f"dockstore://github.com/broadinstitute/warp/{pipeline_name}/{branch_name}",
+                    "sourceRepo": "dockstore",
+                    "methodPath": f"github.com/broadinstitute/warp/{pipeline_name}",
+                    "methodVersion": f"{branch_name}"
+                },
+                "name": method_config_name,
+                "namespace": "warp-pipelines",
+                "outputs": {},
+                "prerequisites": {}
+            }
 
-        token = self.get_user_token(self.delegated_creds)
-        headers = self.build_auth_headers(token)
+        # Attempt to create the method configuration
+        def attempt_creation():
+            payload = create_payload()
+            logging.info(f"Creating new method configuration: {json.dumps(payload, indent=2)}")
 
-        # Create the new method configuration in the workspace
-        response = requests.put(url, headers=headers, json=payload)
+            # Construct the API endpoint URL for creating a new method configuration
+            url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
 
-        # Check if the method configuration was created successfully
+            token = self.get_user_token(self.delegated_creds)
+            headers = self.build_auth_headers(token)
+
+            # Create the new method configuration in the workspace
+            response = requests.put(url, headers=headers, json=payload)
+
+            return response
+
+        # First attempt
+        response = attempt_creation()
+
+        # Check if we got a 404 error (likely from Dockstore)
+        if response.status_code == 404 and not dockstore_404_retried:
+            error_message = response.text
+            logging.warning(f"Received 404 error, possibly from Dockstore: {error_message}")
+            logging.info(f"Waiting 5 minutes before retrying...")
+
+            # Wait for 5 minutes (300 seconds)
+            time.sleep(300)
+
+            # Mark that we've retried for this error
+            dockstore_404_retried = True
+
+            # Retry the creation
+            logging.info("Retrying method configuration creation after 5-minute wait")
+            response = attempt_creation()
+
+        # Final check if the method configuration was created successfully
         if response.status_code == 200:
             logging.info(f"Method configuration {method_config_name} created successfully.")
             return method_config_name
