@@ -188,19 +188,35 @@ jobs:
 
       # Step 11: Handle Git Commit Hash
       # Purpose: Gets the current Github commit hash for version tracking
+      #- name: Determine Github Commit Hash
+      #  id: determine_github_commit_hash
+      #  run: |
+      #    if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+      #      echo "Using github.sha for manually triggered workflow."
+      #      echo "GITHUB_COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
+      #    elif [ "${{ github.event_name }}" == "pull_request" ]; then
+      #      echo "Using github.event.pull_request.head.sha for PR-triggered workflow."
+      #      echo "GITHUB_COMMIT_HASH=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+      #    else
+      #      echo "Unsupported event type: ${{ github.event_name }}"
+      #      exit 1
+      #    fi
+
+      # Step 11: Handle Git Commit Hash
+      # Purpose: Gets the current Github commit hash for version tracking
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "Using github.sha for manually triggered workflow."
-            echo "GITHUB_COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
-          elif [ "${{ github.event_name }}" == "pull_request" ]; then
-            echo "Using github.event.pull_request.head.sha for PR-triggered workflow."
-            echo "GITHUB_COMMIT_HASH=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
-          else
-            echo "Unsupported event type: ${{ github.event_name }}"
-            exit 1
-          fi
+          # Get the commit hash of the temporary branch we just created
+          echo "Getting commit hash for temporary branch: $TEMP_BRANCH"
+          TEMP_BRANCH_COMMIT_HASH=$(git rev-parse HEAD)
+          echo "Temporary branch commit hash: $TEMP_BRANCH_COMMIT_HASH"
+
+          # Set the environment variable for later use
+          echo "GITHUB_COMMIT_HASH=$TEMP_BRANCH_COMMIT_HASH" >> $GITHUB_ENV
+
+          # For debugging - show that we're using the temp branch hash
+          echo "Using temporary branch commit hash for comparison with Dockstore."
 
       # Step 12: Compare Hashes
       # Purpose: Compares the Dockstore and Github commit hashes to ensure they match
