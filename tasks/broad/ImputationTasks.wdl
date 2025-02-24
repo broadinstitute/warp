@@ -460,7 +460,7 @@ task OptionalQCSites {
     ln -sf ~{input_vcf_index} input.vcf.gz.tbi
 
     # site missing rate < 5% ; hwe p > 1e-6
-    tools --gzvcf input.vcf.gz --max-missing ~{max_missing} --hwe ~{hwe} --recode -c | bgzip -c > ~{output_vcf_basename}.vcf.gz
+    vcftools --gzvcf input.vcf.gz --max-missing ~{max_missing} --hwe ~{hwe} --recode -c | bgzip -c > ~{output_vcf_basename}.vcf.gz
     bcftools index -t ~{output_vcf_basename}.vcf.gz # Note: this is necessary because vcftools doesn't have a way to output a zipped vcf, nor a way to index one (hence needing to use bcf).
   >>>
   runtime {
