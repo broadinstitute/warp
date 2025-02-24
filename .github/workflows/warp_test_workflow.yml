@@ -158,7 +158,6 @@ jobs:
           
           echo "Creating new method configuration for branch: $TEMP_BRANCH"
 
-
           METHOD_CONFIG_NAME=$(python3 scripts/firecloud_api/firecloud_api.py \
             create_new_method_config \
             --workspace-namespace $WORKSPACE_NAMESPACE \
