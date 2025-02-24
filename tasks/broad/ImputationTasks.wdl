@@ -233,7 +233,7 @@ task Minimac4 {
     String minimac4_docker = "us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.6-1.0.2-1663948783"
     Int cpu = 1
     Int memory_mb = 4000
-    Int disk_size_gb = ceil(size(ref_panel, "GiB") + 2*size(phased_vcf, "GiB")) + 10
+    Int disk_size_gb = ceil(size(ref_panel, "GiB") + 2*size(phased_vcf, "GiB")) + 50
   }
   command <<<
     set -e -o pipefail
