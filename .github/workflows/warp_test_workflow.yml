@@ -276,6 +276,7 @@ jobs:
           INPUTS_DIR="${{ inputs.pipeline_dir }}/test_inputs/$TEST_TYPE"
           echo "Running tests with test type: $TEST_TYPE"
 
+
           TRUTH_PATH="gs://broad-gotc-test-storage/${{ inputs.dockstore_pipeline_name }}/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           echo "Truth path: $TRUTH_PATH"
           RESULTS_PATH="gs://broad-gotc-test-storage/${{ inputs.dockstore_pipeline_name }}/results/$CURRENT_TIME"
