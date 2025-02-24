@@ -5,7 +5,7 @@ task CalculateChromosomeLength {
     File ref_dict
     String chrom
 
-    String ubuntu_docker = "ubuntu.azurecr.io/ubuntu:20.04"
+    String ubuntu_docker = "ubuntu:20.04"
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
@@ -33,7 +33,7 @@ task GetMissingContigList {
     File ref_dict
     File included_contigs
 
-    String ubuntu_docker = "ubuntu.azurecr.io/ubuntu:20.04"
+    String ubuntu_docker = "ubuntu:20.04"
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
@@ -919,7 +919,7 @@ task FindSitesUniqueToFileTwoOnly {
     File file1
     File file2
 
-    String ubuntu_docker = "ubuntu.azurecr.io/ubuntu:20.04"
+    String ubuntu_docker = "ubuntu:20.04"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(file1, "GiB") + 2*size(file2, "GiB")) + 10
@@ -971,39 +971,5 @@ task SplitMultiSampleVcf {
   output {
     Array[File] single_sample_vcfs = glob("out_dir/*.vcf.gz")
     Array[File] single_sample_vcf_indices = glob("out_dir/*.vcf.gz.tbi")
-  }
-}
-
-task CreateVcfIndex {
-  input {
-    File vcf_input
-
-    Int disk_size_gb = ceil(1.2*size(vcf_input, "GiB")) + 10
-    Int cpu = 1
-    Int memory_mb = 6000
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
-  }
-  Int command_mem = memory_mb - 1500
-  Int max_heap = memory_mb - 1000
-
-  String vcf_basename = basename(vcf_input)
-
-  command {
-    set -e -o pipefail
-
-    ln -sf ~{vcf_input} ~{vcf_basename}
-
-    bcftools index -t ~{vcf_basename}
-  }
-  runtime {
-    docker: gatk_docker
-    disks: "local-disk ${disk_size_gb} HDD"
-    memory: "${memory_mb} MiB"
-    cpu: cpu
-    preemptible: 3
-  }
-  output {
-    File vcf = "~{vcf_basename}"
-    File vcf_index = "~{vcf_basename}.tbi"
   }
 }

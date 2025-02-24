@@ -1,11 +1,12 @@
 version 1.0
 
+import "../../../../structs/imputation/ImputationBeagleStructs.wdl" as structs
 import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
 import "../../../../tasks/broad/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
 
-  String pipeline_version = "0.0.1"
+  String pipeline_version = "1.0.0"
 
   input {
     Int chunkLength = 25000000
@@ -34,7 +35,7 @@ workflow ImputationBeagle {
       vcf = multi_sample_vcf
   }
 
-  call tasks.CreateVcfIndex {
+  call beagleTasks.CreateVcfIndex {
     input:
       vcf_input = multi_sample_vcf,
       gatk_docker = gatk_docker
@@ -158,7 +159,7 @@ workflow ImputationBeagle {
           memory_mb = beagle_impute_memory_in_gb * 1024
       }
 
-      call tasks.CreateVcfIndex as IndexImputedBeagle {
+      call beagleTasks.CreateVcfIndex as IndexImputedBeagle {
         input:
           vcf_input = Impute.vcf,
           gatk_docker = gatk_docker
@@ -221,11 +222,4 @@ workflow ImputationBeagle {
     allowNestedInputs: true
   }
 
-}
-
-struct ReferencePanelContig {
-  File bed
-  File bref3
-  String contig
-  File genetic_map
 }
