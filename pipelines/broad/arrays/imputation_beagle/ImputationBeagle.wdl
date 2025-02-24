@@ -127,7 +127,7 @@ workflow ImputationBeagle {
       String chunk_basename_imputed = referencePanelContig.contig + "_chunk_" + i + "_imputed"
 
       # max amount of cpus you can ask for is 96 so at a max of 10k samples we can only ask for 9 cpu a sample.
-      # these values are based on trying to optimize for pre-emptibility using a 400k sample referene panel
+      # these values are based on trying to optimize for pre-emptibility using a 400k sample reference panel
       # and up to a 10k sample input vcf
       Int beagle_cpu = if (CountSamples.nSamples <= 1000) then 8 else floor(CountSamples.nSamples / 1000) * 9
       Int beagle_phase_memory_in_gb = if (CountSamples.nSamples <= 1000) then 22 else ceil(beagle_cpu * 1.5)

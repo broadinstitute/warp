@@ -1,4 +1,4 @@
-# 0.0.1
-2024-11-13 (Date of Last Commit)
+# 1.0.0
+2025-02-24 (Date of Last Commit)
 
-* Pipeline still in developmental state
+* Initial release of pipeline to calculate the number of samples, i.e. quota used by an imputation service that uses ImputationBeagle.wdl.

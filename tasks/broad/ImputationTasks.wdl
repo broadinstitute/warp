@@ -58,41 +58,6 @@ task GetMissingContigList {
   }
 }
 
-task CreateRefPanelIntervalLists {
-  input {
-    File ref_panel_vcf
-    File ref_panel_vcf_index
-
-    Int disk_size_gb = ceil(2*size(ref_panel_vcf, "GiB")) + 10
-    Int cpu = 1
-    Int memory_mb = 6000
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
-  }
-
-  Int command_mem = memory_mb - 1500
-  Int max_heap = memory_mb - 1000
-
-  String basename = basename(ref_panel_vcf, '.vcf.gz')
-
-  command {
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
-    VcfToIntervalList \
-    -I ~{ref_panel_vcf} \
-    -O ~{basename}.interval_list
-  }
-
-  output {
-    File interval_list = "~{basename}.interval_list"
-  }
-
-  runtime {
-    docker: gatk_docker
-    disks: "local-disk ${disk_size_gb} HDD"
-    memory: "${memory_mb} MiB"
-    cpu: cpu
-  }
-}
-
 task GenerateChunk {
   input {
     Int start
