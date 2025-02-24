@@ -228,6 +228,7 @@ class FirecloudAPI:
     def poll_job_status(self, submission_id):
         """
         Polls the status of a submission until it is complete and returns a dictionary of workflow IDs and their statuses.
+        Includes retry mechanism for handling intermittent 500 errors.
 
         :param submission_id: The ID of the submission to poll
         :return: Dictionary with workflow IDs as keys and their statuses as values
@@ -236,41 +237,78 @@ class FirecloudAPI:
         status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
         workflow_status_map = {}
 
+        # Set up retry parameters
+        max_retry_duration = 15 * 60  # 15 minutes in seconds
+        start_time = time.time()
+        retry_delay = 5  # Start with a 5-second delay between retries
+        max_retry_delay = 30  # Maximum retry delay in seconds
+
         # Continuously poll the status of the submission until completion
         while True:
-            # Get the token and headers
-            token = self.get_user_token(self.delegated_creds)
-            headers = self.build_auth_headers(token)
-            status_response = requests.get(status_url, headers=headers)
+            # Check if we've exceeded the maximum retry duration
+            current_time = time.time()
+            if current_time - start_time > max_retry_duration:
+                logging.error(f"Exceeded maximum retry duration of {max_retry_duration/60} minutes.")
+                return workflow_status_map
 
-            # Check if the response status code is successful (200)
-            if status_response.status_code != 200:
-                logging.error(f"Error: Received status code {status_response.status_code}")
-                logging.info(f"Response content: {status_response.text}")
-                return {}
             try:
-                # Parse the response as JSON
-                status_data = status_response.json()
-            except json.JSONDecodeError:
-                logging.error("Error decoding JSON response.")
-                logging.info(f"Response content: {status_response.text}")
-                return {}
+                # Get the token and headers
+                token = self.get_user_token(self.delegated_creds)
+                headers = self.build_auth_headers(token)
+                status_response = requests.get(status_url, headers=headers)
 
-            # Retrieve workflows and their statuses
-            workflows = status_data.get("workflows", [])
-            for workflow in workflows:
-                workflow_id = workflow.get("workflowId")
-                workflow_status = workflow.get("status")
-                if workflow_id and workflow_status:
-                    workflow_status_map[workflow_id] = workflow_status
+                # Check for 500 errors and retry if necessary
+                if status_response.status_code == 500:
+                    logging.warning(f"Received 500 error. Retrying in {retry_delay} seconds...")
+                    time.sleep(retry_delay)
+                    # Implement exponential backoff with a cap
+                    retry_delay = min(retry_delay * 1.5, max_retry_delay)
+                    continue
 
-            # Check if the submission is complete
-            submission_status = status_data.get("status", "")
-            if submission_status == "Done":
-                break
+                # Check if the response status code is successful (200)
+                if status_response.status_code != 200:
+                    logging.error(f"Error: Received status code {status_response.status_code}")
+                    logging.info(f"Response content: {status_response.text}")
+                    # For non-500 errors, wait and retry a few times
+                    if time.time() - start_time <= 60:  # Only retry for the first minute for non-500 errors
+                        logging.warning(f"Retrying in {retry_delay} seconds...")
+                        time.sleep(retry_delay)
+                        continue
+                    return {}
 
-            # Wait for 20 seconds before polling again
-            time.sleep(20)
+                try:
+                    # Parse the response as JSON
+                    status_data = status_response.json()
+                    # Reset retry delay after successful request
+                    retry_delay = 5
+                except json.JSONDecodeError:
+                    logging.error("Error decoding JSON response.")
+                    logging.info(f"Response content: {status_response.text}")
+                    time.sleep(retry_delay)
+                    continue
+
+                # Retrieve workflows and their statuses
+                workflows = status_data.get("workflows", [])
+                for workflow in workflows:
+                    workflow_id = workflow.get("workflowId")
+                    workflow_status = workflow.get("status")
+                    if workflow_id and workflow_status:
+                        workflow_status_map[workflow_id] = workflow_status
+
+                # Check if the submission is complete
+                submission_status = status_data.get("status", "")
+                if submission_status == "Done":
+                    break
+
+                # Wait for 20 seconds before polling again
+                time.sleep(20)
+
+            except requests.exceptions.RequestException as e:
+                # Handle network errors
+                logging.warning(f"Network error occurred: {e}. Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+                # Implement exponential backoff with a cap
+                retry_delay = min(retry_delay * 1.5, max_retry_delay)
 
         return workflow_status_map
 
