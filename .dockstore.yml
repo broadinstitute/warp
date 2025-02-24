@@ -87,10 +87,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ImputationBeagle.wdl
 
-  - name: LiftoverVcfs
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/LiftoverVcfs.wdl
-
   - name: ArrayImputationQuotaConsumed
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ArrayImputationQuotaConsumed.wdl
