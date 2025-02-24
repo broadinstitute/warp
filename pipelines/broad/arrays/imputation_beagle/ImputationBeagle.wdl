@@ -35,7 +35,7 @@ workflow ImputationBeagle {
       vcf = multi_sample_vcf
   }
 
-  call tasks.CreateVcfIndex {
+  call beagleTasks.CreateVcfIndex {
     input:
       vcf_input = multi_sample_vcf,
       gatk_docker = gatk_docker
@@ -159,7 +159,7 @@ workflow ImputationBeagle {
           memory_mb = beagle_impute_memory_in_gb * 1024
       }
 
-      call tasks.CreateVcfIndex as IndexImputedBeagle {
+      call beagleTasks.CreateVcfIndex as IndexImputedBeagle {
         input:
           vcf_input = Impute.vcf,
           gatk_docker = gatk_docker
