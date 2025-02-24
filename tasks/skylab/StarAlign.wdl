@@ -234,7 +234,7 @@ task STARsoloFastq {
     Int cpu = 16
     Int disk = 5000
     Int limitBAMsortRAM = 30
-    Int outBAMsortingBinsN = $(((input_size + 50) / 100 * 100 + 100))
+    Int outBAMsortingBinsN = ((input_size + 50) / 100 * 100 + 100))
     Int machine_mem_mb = 100 # not used in runtime -- need to remove 
 
     # by default request non preemptible machine to make sure the slow star alignment step completes
