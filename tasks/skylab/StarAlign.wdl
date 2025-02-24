@@ -230,12 +230,11 @@ task STARsoloFastq {
     String samtools_star_docker_path
     String cpu_platform = "Intel Ice Lake"
     Int input_size = ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB"))
-    Int mem_size = ceil(input_size * 0.8)
-    Int cpu = ceil(input_size / 5)
+    Int mem_size = if input_size <= 100 then 64 else 128
+    Int cpu = 16
     Int disk = 5000
     Int limitBAMsortRAM = 30
-    Int outBAMsortingBinsN = if input_size < 100 then 200 else 300
-
+    Int outBAMsortingBinsN = if input_size < 100 then 200 else if input_size <= 200 then 300 else 400
     Int machine_mem_mb = 100 # not used in runtime -- need to remove 
 
     # by default request non preemptible machine to make sure the slow star alignment step completes
@@ -255,6 +254,8 @@ task STARsoloFastq {
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
+    limitBAMsortRAM: "(optional) Specifies the maximum amount of RAM (in GiB) allocated for sorting BAM files in STAR. Default is 30."
+    outBAMsortingBinsN: "(optional) Defines the number of bins (partitions) used internally during BAM file sorting in STAR."
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
