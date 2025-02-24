@@ -13,7 +13,8 @@ source $( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/common.
 function check_if_file_changed() {
   local -r file=${1} commit=${2}
   # the result is flipped because git diff-index returns 0 if the file is not changed
-  ! git diff-index --quiet ${commit} ${file}
+  # ignore whitespace changes (-w)
+  ! git diff-index -w --quiet ${commit} ${file}
 }
 
 function get_version_from_workflow() {
