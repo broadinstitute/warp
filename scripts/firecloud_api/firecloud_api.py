@@ -79,35 +79,104 @@ class FirecloudAPI:
         return credentials.token
 
     def submit_job(self, submission_data_file):
-        token = self.get_user_token(self.delegated_creds)
-        headers = self.build_auth_headers(token)
-        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
-        response = requests.post(url, json=submission_data_file, headers=headers)
+        """
+        Submits a job to Terra/Firecloud with retry logic for intermittent 500 errors.
 
-        # Print status code and response body for debugging
-        logging.info(f"Response status code for submitting job: {response.status_code}")
-        logging.info(f"Response body: {response.text}")
+        :param submission_data_file: The JSON data for the submission
+        :return: The submission ID if successful, None otherwise
+        """
+        # Set up retry parameters
+        max_retry_duration = 15 * 60  # 15 minutes in seconds
+        start_time = time.time()
+        retry_delay = 5  # Start with a 5-second delay between retries
+        max_retry_delay = 30  # Maximum retry delay in seconds
+        max_attempts = 10  # Maximum number of retry attempts
 
-        if response.status_code == 201:
-            try:
-                # Parse the response as JSON
-                response_json = response.json()
+        attempts = 0
+        while attempts < max_attempts:
+            attempts += 1
 
-                # Extract the submissionId
-                submission_id = response_json.get("submissionId", None)
-                if submission_id:
-                    logging.info(f"Submission ID extracted: {submission_id}")
-                    return submission_id
-                else:
-                    logging.error("Error: submissionId not found in the response.")
-                    return None
-            except json.JSONDecodeError:
-                logging.error("Error: Failed to parse JSON response.")
+            # Check if we've exceeded the maximum retry duration
+            current_time = time.time()
+            if current_time - start_time > max_retry_duration:
+                logging.error(f"Exceeded maximum retry duration of {max_retry_duration/60} minutes.")
                 return None
-        else:
-            logging.error(f"Failed to submit job. Status code: {response.status_code}")
-            logging.error(f"Response body: {response.text}")
-            return None
+
+            try:
+                token = self.get_user_token(self.delegated_creds)
+                headers = self.build_auth_headers(token)
+                url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
+
+                logging.info(f"Submitting job, attempt {attempts}/{max_attempts}")
+                response = requests.post(url, json=submission_data_file, headers=headers)
+
+                # Print status code and response body for debugging
+                logging.info(f"Response status code for submitting job: {response.status_code}")
+
+                # Handle different response codes
+                if response.status_code == 201:  # Success
+                    try:
+                        # Parse the response as JSON
+                        response_json = response.json()
+                        logging.info(f"Response body: {response.text}")
+
+                        # Extract the submissionId
+                        submission_id = response_json.get("submissionId", None)
+                        if submission_id:
+                            logging.info(f"Submission ID extracted: {submission_id}")
+                            return submission_id
+                        else:
+                            logging.error("Error: submissionId not found in the response.")
+                            return None
+                    except json.JSONDecodeError:
+                        logging.error("Error: Failed to parse JSON response.")
+                        logging.error(f"Response body: {response.text}")
+                        # If we can't parse the JSON but got a 201, we might still want to retry
+                        if attempts < max_attempts:
+                            time.sleep(retry_delay)
+                            retry_delay = min(retry_delay * 1.5, max_retry_delay)
+                            continue
+                        return None
+
+                elif response.status_code == 500:  # Server error, retry
+                    logging.warning(f"Received 500 error. Retrying in {retry_delay} seconds...")
+                    logging.warning(f"Response body: {response.text}")
+                    time.sleep(retry_delay)
+                    # Implement exponential backoff with a cap
+                    retry_delay = min(retry_delay * 1.5, max_retry_delay)
+                    continue
+
+                elif response.status_code >= 400 and response.status_code < 500:  # Client error
+                    # For 4xx errors, only retry a few times as they might be temporary auth issues
+                    logging.error(f"Client error (4xx): {response.status_code}")
+                    logging.error(f"Response body: {response.text}")
+                    if response.status_code == 401 or response.status_code == 403:
+                        # Auth errors might be temporary, retry with token refresh
+                        self.delegated_creds.refresh(Request())
+                        if attempts < 3:  # Only retry auth errors a few times
+                            time.sleep(retry_delay)
+                            continue
+                    return None
+
+                else:  # Other error codes
+                    logging.error(f"Failed to submit job. Status code: {response.status_code}")
+                    logging.error(f"Response body: {response.text}")
+                    if attempts < max_attempts:
+                        time.sleep(retry_delay)
+                        retry_delay = min(retry_delay * 1.5, max_retry_delay)
+                        continue
+                    return None
+
+            except requests.exceptions.RequestException as e:
+                # Handle network errors
+                logging.warning(f"Network error occurred: {e}. Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+                # Implement exponential backoff with a cap
+                retry_delay = min(retry_delay * 1.5, max_retry_delay)
+                continue
+
+        logging.error(f"Failed to submit job after {max_attempts} attempts.")
+        return None
 
 
     def create_new_method_config(self, branch_name, pipeline_name):
