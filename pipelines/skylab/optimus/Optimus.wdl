@@ -14,6 +14,7 @@ import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/c
 workflow Optimus {
   meta {
     description: "The optimus 3' pipeline processes 10x genomics sequencing data based on the v2 chemistry. It corrects cell barcodes and UMIs, aligns reads, marks duplicates, and returns data as alignments in BAM format and as counts in sparse matrix exchange format."
+    allowNestedInputs: true
   }
 
   input {
@@ -75,13 +76,6 @@ workflow Optimus {
     # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
     # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
 
-    # Machine specs for starsolo
-    String cpu_platform_star
-    Int mem_size_star
-    Int cpu_star
-    Int disk_star
-    Int limitBAMsortRAM_star
-    Int outBAMsortingBinsN_star
   }
 
   # version of this pipeline
@@ -183,13 +177,7 @@ workflow Optimus {
         count_exons = count_exons,
         output_bam_basename = output_bam_basename,
         soloMultiMappers = soloMultiMappers,
-        samtools_star_docker_path = docker_prefix + samtools_star,
-        cpu_platform = cpu_platform_star,
-        mem_size = mem_size_star,
-        cpu = cpu_star, 
-        disk = disk_star,
-        limitBAMsortRAM = limitBAMsortRAM_star,
-        outBAMsortingBinsN = outBAMsortingBinsN_star
+        samtools_star_docker_path = docker_prefix + samtools_star
     }
   
   call Metrics.CalculateGeneMetrics as GeneMetrics {

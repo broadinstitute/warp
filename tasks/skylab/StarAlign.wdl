@@ -242,7 +242,7 @@ task STARsoloFastq {
   }
 
   meta {
-    description: "Aligns reads in bam_input to the reference genome in tar_star_reference"
+    description: "Aligns reads in bam_input to the reference genome in tar_star_reference" 
   }
 
   parameter_meta {
