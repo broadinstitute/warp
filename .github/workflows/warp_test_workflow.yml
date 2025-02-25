@@ -153,7 +153,7 @@ jobs:
         run: |
           # Wait for Dockstore to update
           echo "Waiting for Dockstore to update..."
-          sleep 900  # 15 mins  
+          sleep 900  # 15 minutes
           
           echo "Creating new method configuration for branch: $TEMP_BRANCH"
 
