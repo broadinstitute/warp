@@ -341,7 +341,7 @@ task STARsoloFastq {
     # validate the bam with samtools quickcheck
     samtools quickcheck -v Aligned.sortedByCoord.out.bam
     samtools view -H Aligned.sortedByCoord.out.bam > header.txt
-    echo -e "@CO\tReference genome used: " + ~{reference_path} >> header.txt
+    echo -e "@CO\tReference genome used: ~{reference_path}" >> header.txt
     samtools reheader header.txt Aligned.sortedByCoord.out.bam > Aligned.sortedByCoord.out.reheader.bam
 
 
