@@ -6,7 +6,7 @@ import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 
 workflow SlideTags {
 
-    String pipeline_version = "2.0.0"
+    String pipeline_version = "1.1.0"
 
     input {
         # slide-tags inputs

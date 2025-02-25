@@ -230,16 +230,17 @@ task STARsoloFastq {
     String samtools_star_docker_path
     String cpu_platform = "Intel Ice Lake"
     Int input_size = ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB"))
-    Int mem_size = if input_size <= 100 then 64 else 128
     Int cpu = 16
     Int disk = 5000
     Int limitBAMsortRAM = 30
-    Int outBAMsortingBinsN = (input_size + 50) / 100 * 100 + 100
     Int machine_mem_mb = 100 # not used in runtime -- need to remove 
 
     # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 1
   }
+
+  Int mem_size = if ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB")) <= 100 then 64 else 128
+  Int outBAMsortingBinsN = (((ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB")) + 50) / 100) * 100) + 100
 
   meta {
     description: "Aligns reads in bam_input to the reference genome in tar_star_reference" 
