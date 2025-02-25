@@ -143,7 +143,8 @@ workflow ImputationBeagle {
           start = start[i],
           end = end[i],
           cpu = beagle_cpu,
-          memory_mb = beagle_phase_memory_in_gb * 1024
+          memory_mb = beagle_phase_memory_in_gb * 1024,
+          for_dependency = FailQCNChunks.done
       }
 
       call beagleTasks.Impute {
