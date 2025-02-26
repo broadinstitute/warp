@@ -1,18 +1,4 @@
 Pipeline Name	Version	Date of Last Commit
-snm3C	 4.0.4	2024-08-06 
-BuildIndices	 4.0.0	2025-01-17 
-scATAC	 1.3.2	2023-08-03 
-MultiSampleSmartSeq2SingleNucleus	 2.0.8	2025-02-25 
-atac	 2.7.1	2025-02-25 
-Optimus	 7.9.2	2025-02-25 
-SmartSeq2SingleSample	 5.1.21	2024-09-11 
-Multiome	 5.11.0	2025-02-25 
-PairedTag	 1.10.2 	2025-02-25 
-SlideSeq	 3.4.9	2025-02-25 
-MultiSampleSmartSeq2	 2.2.22	2024-09-11 
-AnnotationFiltration	 1.2.7	2024-11-04 
-RNAWithUMIsPipeline	 1.0.18	2024-11-04 
-Imputation	 1.1.15	2024-11-04 
 Arrays	 2.6.30	2024-11-04 
 ValidateChip	 1.16.7	2024-11-04 
 ArrayImputationQuotaConsumed	 1.0.0	2025-02-24 
@@ -46,11 +32,11 @@ CheckFingerprint	 1.0.22	2024-10-28
 scATAC	 1.3.2	2023-08-03 
 MultiSampleSmartSeq2	 2.2.22	2024-09-11 
 BuildIndices	 4.0.0	2025-01-17 
-SlideSeq	 3.4.9	2025-02-12 
-PairedTag	 1.10.2 	2025-02-06 
-MultiSampleSmartSeq2SingleNucleus	 2.0.8	2025-02-12 
-atac	 2.7.1	2025-02-12 
+SlideSeq	 3.4.9	2025-02-25 
+PairedTag	 1.10.2 	2025-02-25 
+MultiSampleSmartSeq2SingleNucleus	 2.0.8	2025-02-25 
+atac	 2.7.1	2025-02-25 
 snm3C	 4.0.4	2024-08-06 
 SmartSeq2SingleSample	 5.1.21	2024-09-11 
-Optimus	 7.9.2	2025-02-12 
-Multiome	 5.11.0	2025-02-05 
+Optimus	 7.9.2	2025-02-25 
+Multiome	 5.11.0	2025-02-25 
