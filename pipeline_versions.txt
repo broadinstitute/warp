@@ -2,7 +2,7 @@ Pipeline Name	Version	Date of Last Commit
 Arrays	 2.6.30	2024-11-04 
 ValidateChip	 1.16.7	2024-11-04 
 ArrayImputationQuotaConsumed	 1.0.0	2025-02-24 
-ImputationBeagle	 1.0.0	2025-02-24 
+ImputationBeagle	 1.0.0	2025-02-26 
 Imputation	 1.1.16	2025-02-24 
 MultiSampleArrays	 1.6.2	2024-08-02 
 WholeGenomeReprocessing	 3.3.3	2024-11-04 
