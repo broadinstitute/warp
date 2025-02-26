@@ -188,7 +188,11 @@ UMIs are designed to distinguish unique transcripts present in the cell at lysis
 
 By specifying the `--soloUMIdedup 1MM_Directional_UMItools`, STARsolo applies a network-based, "directional" correction method ([Smith, et al., 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5340976/)) to account for such errors. Additionally, the UMI correction task requires the length of the UMI, which differs between v2 and v3 chemistry; v2 is 10 bp whereas v3 is 12 bp. The task will add a 'UB' tag for UMI-corrected barcodes. 
 
-Deduplicated UMIs are counted towards their assigned gene/cells, producing a raw count matrix. 
+Deduplicated UMIs are counted towards their assigned gene/cells, producing a raw count matrix.
+
+**STARsolo outputs**
+
+The task’s output includes a merged, coordinate-sorted BAM file containing the CB-corrected reads and SAM attributes UB UR UY CR CB CY NH GX GN. Additionally, after counting, the task outputs three intermediate TSV files (features, barcodes, and matrix) used for downstream empty droplet detection and h5ad matrix generation. 
 
 #### 3. Calculate gene metrics
 
