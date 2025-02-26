@@ -8,7 +8,7 @@ Optimus	 7.10.0	2025-02-25
 SmartSeq2SingleSample	 5.1.21	2024-09-11 
 Multiome	 5.12.0	2025-02-25 
 PairedTag	 1.11.0	2025-02-25 
-SlideSeq	 4.0.0	2025-02-21 
+SlideSeq	 3.5.0	2025-02-25 
 MultiSampleSmartSeq2	 2.2.22	2024-09-11 
 AnnotationFiltration	 1.2.7	2024-11-04 
 RNAWithUMIsPipeline	 1.0.18	2024-11-04 

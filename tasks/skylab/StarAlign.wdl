@@ -225,6 +225,7 @@ task STARsoloFastq {
     Boolean? count_exons
     String? soloMultiMappers
     String soloCBmatchWLtype = "1MM_multi" #"1MM_multi_Nbase_pseudocounts"
+    String reference_path = tar_star_reference
 
     # runtime values
     String samtools_star_docker_path
@@ -347,6 +348,10 @@ task STARsoloFastq {
 
     # validate the bam with samtools quickcheck
     samtools quickcheck -v Aligned.sortedByCoord.out.bam
+    # reheader the BAM
+    samtools view -H Aligned.sortedByCoord.out.bam > header.txt
+    echo -e "@CO\tReference genome used: ~{reference_path}" >> header.txt
+    samtools reheader header.txt Aligned.sortedByCoord.out.bam > Aligned.sortedByCoord.out.reheader.bam
 
     echo "UMI LEN " $UMILen
     touch barcodes_sn_rna.tsv
@@ -424,7 +429,7 @@ task STARsoloFastq {
     else
       echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
     fi
-    mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
+    mv Aligned.sortedByCoord.out.reheader.bam ~{output_bam_basename}.bam
 
   >>>
 
