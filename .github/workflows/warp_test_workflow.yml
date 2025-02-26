@@ -188,7 +188,6 @@ jobs:
 
           echo "Starting hash comparison with retry mechanism..."
 
-
           while [ $TOTAL_WAITED -lt $MAX_WAIT_TIME ]; do
             echo "Fetching Dockstore Commit Hash..."
             DOCKSTORE_COMMIT_HASH=$(python scripts/dockstore_api/fetch_dockstore_commit.py \
