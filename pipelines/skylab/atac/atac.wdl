@@ -353,6 +353,7 @@ task BWAPairedEndAlignment {
     Array[File] read1_fastq
     Array[File] read3_fastq
     File tar_bwa_reference
+    String reference_path = tar_bwa_reference
     String read_group_id = "RG1"
     String read_group_sample_name = "RGSN1"
     String suffix = "trimmed_adapters.fastq.gz"
@@ -477,7 +478,11 @@ task BWAPairedEndAlignment {
     ls
     
     # rename file to this
-    mv final.sorted.bam ~{bam_aligned_output_name}
+    echo "Reheading BAM with reference"
+    /usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools view -H final.sorted.bam > header.txt
+    echo -e "@CO\tReference genome used: ~{reference_path}" >> header.txt
+    /usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools reheader header.txt final.sorted.bam > final.sorted.reheader.bam
+    mv final.sorted.reheader.bam ~{bam_aligned_output_name}
         
     echo "the present working dir"
     pwd
