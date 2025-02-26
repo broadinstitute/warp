@@ -3,8 +3,9 @@
 * Refactored the STAR alignment step (STARsoloFastq) in Optimus and removed tasks FastqProcessing and MergeSortBamFiles; we are no longer sharding. We are now running one instance of STAR; this does not affect the outputs of the pipeline
 
 # 3.4.9
-2025-02-12 (Date of Last Commit)
+2025-02-25 (Date of Last Commit)
 * Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
+* Added reference information to the BAM header for Optimus and ATAC workflows; this does not impact Slideseq
 
 # 3.4.8
 2025-01-13 (Date of Last Commit)

@@ -3,10 +3,11 @@
 * Refactored the STAR alignment step in Optimus and removed tasks FastqProcessing and MergeSortBamFiles; we are no longer sharding. We are now running one instance of STAR
 
 # 1.10.2 
-2025-02-06 (Date of Last Commit)
+2025-02-25 (Date of Last Commit)
 
 * Updated the SnapATAC2 docker image to the latest SnapATAC2, allowing for future peak calling implementation
 * Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
+* Added reference information to the BAM headers
 
 # 1.10.1
 2025-02-03 (Date of Last Commit)

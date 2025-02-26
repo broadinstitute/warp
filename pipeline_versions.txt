@@ -33,7 +33,7 @@ BuildIndices	 4.0.0	2025-01-17
 SlideSeq	 4.0.0	2025-02-21 
 PairedTag	 1.11.0	2025-02-25 
 MultiSampleSmartSeq2SingleNucleus	 2.1.0	2025-02-25 
-atac	 2.7.1	2025-02-12 
+atac	 2.7.1	2025-02-25 
 snm3C	 4.0.4	2024-08-06 
 SmartSeq2SingleSample	 5.1.21	2024-09-11 
 Optimus	 7.10.0	2025-02-25 
