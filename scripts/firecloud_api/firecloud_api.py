@@ -338,19 +338,12 @@ class FirecloudAPI:
         workflow_status_map = {}
 
         # Set up retry parameters
-        max_retry_duration = 15 * 60  # 15 minutes in seconds
         start_time = time.time()
         retry_delay = 5  # Start with a 5-second delay between retries
         max_retry_delay = 30  # Maximum retry delay in seconds
 
         # Continuously poll the status of the submission until completion
         while True:
-            # Check if we've exceeded the maximum retry duration
-            current_time = time.time()
-            if current_time - start_time > max_retry_duration:
-                logging.error(f"Exceeded maximum retry duration of {max_retry_duration/60} minutes.")
-                return workflow_status_map
-
             try:
                 # Get the token and headers
                 token = self.get_user_token(self.delegated_creds)
