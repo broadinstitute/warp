@@ -119,7 +119,7 @@ workflow Optimus {
   # choose docker prefix based on cloud provider
   String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
-  # make sure either gcp or azr is supplied as cloud_provider input
+  # make sure either gcp or azr is supplied as cloud_provider
   if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
     call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
       input:
