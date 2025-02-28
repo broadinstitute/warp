@@ -127,6 +127,7 @@ task HaplotypeCaller_GATK4_VCF {
     # memory_size_gb because of Cromwell's retry with more memory feature.
     mem_unit=$(echo "${MEM_UNIT:-}" | cut -c 1)
 
+
     if [[ $mem_unit == "M" ]]; then
       available_memory_mb=$(awk "BEGIN {print int($MEM_SIZE)}")
     elif [[ $mem_unit == "G" ]]; then
