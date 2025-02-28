@@ -1,7 +1,8 @@
 # 7.9.2
-2025-02-12 (Date of Last Commit)
+2025-02-25 (Date of Last Commit)
 
 * Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
+* Added reference information to the BAM header
 
 # 7.9.1
 2025-01-13 (Date of Last Commit)
