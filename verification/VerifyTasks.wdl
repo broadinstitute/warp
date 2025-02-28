@@ -10,7 +10,7 @@ task CompareVcfs {
   command {
     set -eo pipefail
 
-    if [ -z ~{patternForLinesToExcludeFromComparison} ]; then
+    if [ -z '~{patternForLinesToExcludeFromComparison}' ]; then
       diff <(gunzip -c -f ~{file1}) <(gunzip -c -f ~{file2})
     else
       echo "It's defined!"
@@ -134,7 +134,7 @@ task CompareTabix {
     fi
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:2.0.0"
     disks: "local-disk 100 HDD"
     memory: "50 GiB"
     preemptible: 3
