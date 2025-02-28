@@ -1,3 +1,8 @@
+# 1.1.16
+2025-02-24 (Date of Last Commit)
+
+* Updated runtime parameters in some ImputationTasks, and added an explicit definition of a vcf_index.
+
 # 1.1.15
 2024-11-04 (Date of Last Commit)
 

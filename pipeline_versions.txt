@@ -1,7 +1,9 @@
 Pipeline Name	Version	Date of Last Commit
 Arrays	 2.6.30	2024-11-04 
 ValidateChip	 1.16.7	2024-11-04 
-Imputation	 1.1.15	2024-11-04 
+ArrayImputationQuotaConsumed	 1.0.0	2025-02-24 
+ImputationBeagle	 1.0.0	2025-02-26 
+Imputation	 1.1.16	2025-02-24 
 MultiSampleArrays	 1.6.2	2024-08-02 
 WholeGenomeReprocessing	 3.3.3	2024-11-04 
 ExomeReprocessing	 3.3.3	2024-11-04 
@@ -9,7 +11,7 @@ CramToUnmappedBams	 1.1.3	2024-08-02
 ExternalWholeGenomeReprocessing	 2.3.3	2024-11-04 
 ExternalExomeReprocessing	 3.3.3	2024-11-04 
 BroadInternalArrays	 1.1.14	2024-11-04 
-BroadInternalImputation	 1.1.14	2024-11-04 
+BroadInternalImputation	 1.1.15	2025-02-24 
 BroadInternalRNAWithUMIs	 1.0.36	2024-11-04 
 BroadInternalUltimaGenomics	 1.1.3	2024-12-05 
 RNAWithUMIsPipeline	 1.0.18	2024-11-04 
