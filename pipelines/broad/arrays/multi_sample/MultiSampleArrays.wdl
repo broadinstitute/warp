@@ -40,17 +40,17 @@ workflow MultiSampleArrays {
   Array[String] gvcf_list = select_first([sample_gvcfs, fake_gvcfs])
   Array[String] index_list = select_first([sample_indices, fake_indices])
 
-  File samples_fofn = if defined(sample_gvcfs) then write_lines(gvcf_list) else gvcf_fofn
-  File sample_indices_fofn = if defined(sample_indices) then write_lines(index_list) else index_fofn
+  #File samples_fofn = if defined(sample_gvcfs) then write_lines(gvcf_list) else gvcf_fofn
+  #File sample_indices_fofn = if defined(sample_indices) then write_lines(index_list) else index_fofn
 
   call SplitFoFnToListFoFn as SampleFofn {
     input:
-      fofn = samples_fofn
+      fofn = if defined(sample_gvcfs) then write_lines(gvcf_list) else gvcf_fofn
   }
 
   call SplitFoFnToListFoFn as IndexFofn {
     input:
-      fofn = sample_indices_fofn
+      fofn = if defined(sample_indices) then write_lines(index_list) else index_fofn
   }
 
   scatter (idx in range(length(SampleFofn.array_of_fofns))) {
