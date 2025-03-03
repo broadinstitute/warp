@@ -32,10 +32,13 @@ workflow MultiSampleArrays {
     Int preemptible_tries
   }
 
+  Array[String] fake_gvcfs = ["not", "supplied", "gvcf", "list"]
+  Array[String] fake_indices = ["not_supplied_index_list"]
+
   File gvcf_fofn = select_first([sample_gvcf_fofn, "not_supplied_gcvf_fofn"])
   File index_fofn = select_first([sample_index_fofn, "not_supplied_index_fofn"])
-  Array[String] gvcf_list = select_first([sample_gvcfs, "not_supplied_gvcf_list"])
-  Array[String] index_list = select_first([sample_indices, "not_supplied_index_list"])
+  Array[String] gvcf_list = select_first([sample_gvcfs, fake_gvcfs])
+  Array[String] index_list = select_first([sample_indices, fake_indices])
 
   File samples_fofn = if defined(sample_gvcfs) then write_lines(gvcf_list) else gvcf_fofn
   File sample_indices_fofn = if defined(sample_indices) then write_lines(index_list) else index_fofn
