@@ -32,8 +32,13 @@ workflow MultiSampleArrays {
     Int preemptible_tries
   }
 
-  File samples_fofn = if defined(sample_gvcfs) then write_lines(sample_gvcfs) else sample_gvcf_fofn
-  File sample_indices_fofn = if defined(sample_indices) then write_lines(sample_indices) else sample_index_fofn
+  File gvcf_fofn = select_first([sample_gvcf_fofn, "not_supplied_gcvf_fofn"])
+  File index_fofn = select_first([sample_index_fofn, "not_supplied_index_fofn"])
+  Array[String] gvcf_list = select_first([sample_gvcfs, "not_supplied_gvcf_list"])
+  Array[String] index_list = select_first([sample_indices, "not_supplied_index_list"])
+
+  File samples_fofn = if defined(sample_gvcfs) then write_lines(gvcf_list) else gvcf_fofn
+  File sample_indices_fofn = if defined(sample_indices) then write_lines(index_list) else index_fofn
 
   call SplitFoFnToListFoFn as SampleFofn {
     input:
