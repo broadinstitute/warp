@@ -33,7 +33,7 @@ workflow MultiSampleArrays {
   }
 
   Array[String] fake_gvcfs = ["not", "supplied", "gvcf", "list"]
-  Array[String] fake_indices = ["not_supplied_index_list"]
+  Array[String] fake_indices = ["not", "supplied", "index", "list"]
 
   File gvcf_fofn = select_first([sample_gvcf_fofn, "not_supplied_gcvf_fofn"])
   File index_fofn = select_first([sample_index_fofn, "not_supplied_index_fofn"])
