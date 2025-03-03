@@ -21,15 +21,19 @@ workflow MultiSampleArrays {
   String pipeline_version = "1.6.1"
 
   input {
-    File samples_fofn
-    File sample_indices_fofn
+    Array[String]? sample_gvcfs
+    Array[String]? sample_indices
+    File? sample_gvcf_fofn
+    File? sample_index_fofn
     File ref_fasta
     File ref_fasta_index
     File ref_dict
     String callset_name
-
     Int preemptible_tries
   }
+
+  File samples_fofn = if defined(sample_gvcfs) then write_lines(sample_gvcfs) else sample_gvcf_fofn
+  File sample_indices_fofn = if defined(sample_indices) then write_lines(sample_indices) else sample_index_fofn
 
   call SplitFoFnToListFoFn as SampleFofn {
     input:
