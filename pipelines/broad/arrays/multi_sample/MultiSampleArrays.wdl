@@ -43,6 +43,7 @@ workflow MultiSampleArrays {
   #File samples_fofn = if defined(sample_gvcfs) then write_lines(gvcf_list) else gvcf_fofn
   #File sample_indices_fofn = if defined(sample_indices) then write_lines(index_list) else index_fofn
 
+  
   call SplitFoFnToListFoFn as SampleFofn {
     input:
       fofn = if defined(sample_gvcfs) then write_lines(gvcf_list) else gvcf_fofn
