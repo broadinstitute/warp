@@ -139,6 +139,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/paired_tag/PairedTag.wdl
     
+  - name: ValidateChip
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/arrays/validate_chip/ValidateChip.wdl
+
   - name: atac
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/atac/atac.wdl
@@ -218,6 +222,10 @@ workflows:
   - name: TestVariantCalling
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestVariantCalling.wdl
+
+  - name: TestValidateChip
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestValidateChip.wdl
 
   - name: TestWholeGenomeGermlineSingleSample
     subclass: WDL
