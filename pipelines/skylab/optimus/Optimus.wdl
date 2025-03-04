@@ -200,13 +200,13 @@ workflow Optimus {
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
     input:
-      barcodes = [STARsoloFastq.barcodes],
-      features = [STARsoloFastq.features],
-      matrix = [STARsoloFastq.matrix],
-      cell_reads = [STARsoloFastq.cell_reads],
-      summary = [STARsoloFastq.summary],
-      align_features = [STARsoloFastq.align_features],
-      umipercell = [STARsoloFastq.umipercell],
+      barcodes = STARsoloFastq.barcodes,
+      features = STARsoloFastq.features,
+      matrix = STARsoloFastq.matrix,
+      cell_reads = STARsoloFastq.cell_reads,
+      summary = STARsoloFastq.summary,
+      align_features = STARsoloFastq.align_features,
+      umipercell = STARsoloFastq.umipercell,
       input_id = input_id,
       counting_mode = counting_mode,
       star_merge_docker_path = docker_prefix + star_merge_docker,

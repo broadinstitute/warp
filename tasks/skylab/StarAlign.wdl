@@ -510,14 +510,6 @@ task MergeStarOutput {
     set -euo pipefail
     set -x 
 
-    # barcodes=~{barcodes}
-    # features=~{features}
-    # matrix=~{matrix}
-    cell_reads=~{cell_reads}
-    summary=~{summary}
-    align_features=~{align_features}
-    umipercell=~{umipercell}
-
     ls 
     mkdir matrix
     cp ~{matrix} ./matrix/matrix.mtx
@@ -539,7 +531,7 @@ task MergeStarOutput {
     python3 /scripts/scripts/create-merged-npz-output.py \
         --barcodes ~{barcodes} \
         --features ~{features} \
-        --matrix ~{matrix_files} \
+        --matrix ~{matrix} \
         --input_id ~{input_id}
 
     # tar up filtered matrix outputbarcodes.tsv, outputfeatures.tsv, outputmatrix.mtx
