@@ -250,15 +250,15 @@ workflow Optimus {
   if (count_exons  && counting_mode=="sn_rna") {
     call StarAlign.MergeStarOutput as MergeStarOutputsExons {
       input:
-        barcodes = [STARsoloFastq.barcodes_sn_rna],
-        features = [STARsoloFastq.features_sn_rna],
-        matrix = [STARsoloFastq.matrix_sn_rna],
-        cell_reads = [STARsoloFastq.cell_reads_sn_rna],
+        barcodes = STARsoloFastq.barcodes_sn_rna,
+        features = STARsoloFastq.features_sn_rna,
+        matrix = STARsoloFastq.matrix_sn_rna,
+        cell_reads = STARsoloFastq.cell_reads_sn_rna,
         input_id = input_id,
         counting_mode = "sc_rna",
-        summary = [STARsoloFastq.summary_sn_rna],
-        align_features = [STARsoloFastq.align_features_sn_rna],
-        umipercell = [STARsoloFastq.umipercell_sn_rna],
+        summary = STARsoloFastq.summary_sn_rna,
+        align_features = STARsoloFastq.align_features_sn_rna,
+        umipercell = STARsoloFastq.umipercell_sn_rna,
         star_merge_docker_path = docker_prefix + star_merge_docker,
         gex_nhash_id = gex_nhash_id     
     }

@@ -321,7 +321,8 @@ task STARsoloFastq {
     # convert limitBAMsortRAM from GB to bytes 
     RAM_limit_bytes=$((1073741824 * ~{limitBAMsortRAM})) 
     echo $RAM_limit_bytes, ~{limitBAMsortRAM}
-
+    
+    # run star
     STAR \
         --soloType Droplet \
         --soloStrand ~{star_strand_mode} \
@@ -354,13 +355,7 @@ task STARsoloFastq {
     samtools reheader header.txt Aligned.sortedByCoord.out.bam > Aligned.sortedByCoord.out.reheader.bam
 
     echo "UMI LEN " $UMILen
-    touch barcodes_sn_rna.tsv
-    touch features_sn_rna.tsv
-    touch matrix_sn_rna.mtx
-    touch CellReads_sn_rna.stats
-    touch Features_sn_rna.stats
-    touch Summary_sn_rna.csv
-    touch UMIperCellSorted_sn_rna.txt
+    touch barcodes_sn_rna.tsv features_sn_rna.tsv matrix_sn_rna.mtx CellReads_sn_rna.stats Features_sn_rna.stats Summary_sn_rna.csv UMIperCellSorted_sn_rna.txt
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
@@ -411,8 +406,6 @@ task STARsoloFastq {
         find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
 
         echo "Listing the files in the current directory"
-        ls -l
-
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
