@@ -221,7 +221,7 @@ task STARsoloFastq {
     Int chemistry
     String star_strand_mode
     String counting_mode # when counting_mode = sn_rna, runs Gene and GeneFullEx50pAS in single alignments
-    String output_bam_basename
+    String input_id
     Boolean? count_exons
     String? soloMultiMappers
     String soloCBmatchWLtype = "1MM_multi" #"1MM_multi_Nbase_pseudocounts"
@@ -355,74 +355,150 @@ task STARsoloFastq {
     samtools reheader header.txt Aligned.sortedByCoord.out.bam > Aligned.sortedByCoord.out.reheader.bam
 
     echo "UMI LEN " $UMILen
+    
+    ###########################################################################
+    # SAVE OUTPUT FILES
+    ###########################################################################
     touch barcodes_sn_rna.tsv features_sn_rna.tsv matrix_sn_rna.mtx CellReads_sn_rna.stats Features_sn_rna.stats Summary_sn_rna.csv UMIperCellSorted_sn_rna.txt
+    
+    # Function to move .mtx files to /cromwell_root/
+    move_mtx_files() {
+      local directory=$1
+      echo "Processing $directory"
+      find "$directory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'echo Moving {}; mv {} /cromwell_root/'
+    }
+
+    # Function to move and rename common files
+    move_common_files() {
+      local src_dir=$1
+      local prefix=$2
+
+      declare -A files=(
+          ["barcodes.tsv"]="barcodes.tsv"
+          ["features.tsv"]="features.tsv"
+          ["CellReads.stats"]="CellReads.stats"
+          ["Features.stats"]="Features.stats"
+          ["Summary.csv"]="Summary.csv"
+          ["UMIperCellSorted.txt"]="UMIperCellSorted.txt"
+      )
+
+      for file in "${!files[@]}"; do
+          if [[ -f "$src_dir/raw/$file" ]]; then
+              new_name="${prefix}${files[$file]}"
+              echo "Renaming $src_dir/raw/$file → $new_name"
+              mv "$src_dir/raw/$file" "$new_name"
+          elif [[ -f "$src_dir/$file" ]]; then
+              new_name="${prefix}${files[$file]}"
+              echo "Renaming $src_dir/$file → $new_name"
+              mv "$src_dir/$file" "$new_name"
+          else
+              echo "Warning: Missing file in $src_dir or $src_dir/raw: $file"
+          fi
+      done
+
+    }
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
-      SoloDirectory="Solo.out/Gene/raw"
+      SoloDirectory="Solo.out/Gene"
       echo "SoloDirectory is $SoloDirectory"
-      find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
-      find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+      
+      move_mtx_files "$SoloDirectory"
+      move_common_files "$SoloDirectory" ""
 
       echo "Listing the files in the current directory:"
       ls -l
 
-      mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
-      mv "Solo.out/Gene/raw/features.tsv" features.tsv
-      mv "Solo.out/Gene/CellReads.stats" CellReads.stats
-      mv "Solo.out/Gene/Features.stats" Features.stats
-      mv "Solo.out/Gene/Summary.csv" Summary.csv
-      mv "Solo.out/Gene/UMIperCellSorted.txt" UMIperCellSorted.txt
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
-      if [[ "~{count_exons}" == "false" ]]
-      then
-        SoloDirectory="Solo.out/GeneFull_Ex50pAS/raw"
-        echo "SoloDirectory is $SoloDirectory"
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+        SoloDirectory="Solo.out/GeneFull_Ex50pAS"
+        move_mtx_files "$SoloDirectory"
+        
+        if [[ "~{count_exons}" == "true" ]]; then
+            # Additional processing for sn_rna with exon counting
+            SoloDirectory2="Solo.out/Gene"
+            find "$SoloDirectory2" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; echo Renaming {}; mv {} "/cromwell_root/$new_name"'
 
-        echo "Listing the files in the current directory"
-        ls -l
+            move_common_files "$SoloDirectory2" "sn_rna_"  # Add snRNA prefix for renaming
+        fi
 
-        mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
-        mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
-        mv "Solo.out/GeneFull_Ex50pAS/Features.stats" Features.stats
-        mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
-        mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
-      else
-        SoloDirectory="Solo.out/GeneFull_Ex50pAS/raw"
-        echo "SoloDirectory is $SoloDirectory"
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} echo mv {} /cromwell_root/
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
-
-        echo "Listing the files in the current directory"
-        ls -l
-
-        SoloDirectory="Solo.out/Gene/raw"
-        echo "SoloDirectory is $SoloDirectory"
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx";  echo mv {} "/cromwell_root/$new_name"'
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
-
-        echo "Listing the files in the current directory"
-        mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
-        mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
-        mv "Solo.out/GeneFull_Ex50pAS/Features.stats" Features.stats
-        mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
-        mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
-        mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_sn_rna.tsv
-        mv "Solo.out/Gene/raw/features.tsv"     features_sn_rna.tsv
-        mv "Solo.out/Gene/CellReads.stats" CellReads_sn_rna.stats
-        mv "Solo.out/Gene/Features.stats" Features_sn_rna.stats
-        mv "Solo.out/Gene/Summary.csv" Summary_sn_rna.csv
-        mv "Solo.out/Gene/UMIperCellSorted.txt" UMIperCellSorted_sn_rna.txt
-      fi
+        move_common_files "$SoloDirectory" ""  # Standard snRNA renaming
     else
       echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
     fi
-    mv Aligned.sortedByCoord.out.reheader.bam ~{output_bam_basename}.bam
+
+    # List the final directory contents
+    echo "Final directory listing:"
+    ls -l
+    # Rename BAM file
+    mv Aligned.sortedByCoord.out.reheader.bam ~{input_id}.bam
+    ###########################################################################
+    
+    ###########################################################################
+    # FROM MERGED BAM TASK
+    ###########################################################################
+    INPUT_ID="~{input_id}"
+
+    # Function to process a matrix (regular or snRNA)
+    process_matrix() {
+        local MATRIX_NAME=$1  # matrix or matrix_sn_rna
+        local BARCODE_FILE=$2
+        local FEATURE_FILE=$3
+        local MATRIX_FILE=$4
+        local OUTPUT_DIR=$5
+        local FILTERED_TAR="${INPUT_ID}_filtered_${MATRIX_NAME}_mtx_files.tar"
+
+        echo "Processing $MATRIX_NAME data..."
+
+        # Create and copy matrix files
+        mkdir -p ./$MATRIX_NAME
+        cp $MATRIX_FILE ./$MATRIX_NAME/matrix.mtx
+        cp $BARCODE_FILE ./$MATRIX_NAME/barcodes.tsv
+        cp $FEATURE_FILE ./$MATRIX_NAME/features.tsv
+
+        # Compress matrix files
+        tar -zcvf ${INPUT_ID}_${MATRIX_NAME}.mtx_files.tar -C ./$MATRIX_NAME .
+
+        # Run STAR soloCellFiltering
+        STAR --runMode soloCellFiltering ./$MATRIX_NAME $OUTPUT_DIR --soloCellFilter EmptyDrops_CR
+
+        # List files
+        echo "Listing files after processing $MATRIX_NAME:"
+        ls
+
+        # Create the compressed raw count matrix
+        python3 /scripts/scripts/create-merged-npz-output.py \
+            --barcodes $BARCODE_FILE \
+            --features $FEATURE_FILE \
+            --matrix $MATRIX_FILE \
+            --input_id $INPUT_ID
+
+        # Tar up filtered matrix files
+        echo "Tarring up filtered $MATRIX_NAME matrix files"
+        tar -cvf $FILTERED_TAR outputbarcodes.tsv outputfeatures.tsv outputmatrix.mtx
+        echo "Done processing $MATRIX_NAME"
+    }
+ 
+    mkdir matrix
+    cp matrix.mtx ./matrix/matrix.mtx && cp barcodes.tsv ./matrix/barcodes.tsv && cp features.tsv ./matrix/features.tsv
+    tar -zcvf ~{input_id}.mtx_files.tar ./matrix/*
+    STAR --runMode soloCellFiltering ./matrix ./output --soloCellFilter EmptyDrops_CR
+
+    #list files
+    echo "listing files"
+    ls
+ 
+   # create the  compressed raw count matrix with the counts, gene names and the barcodes
+    python3 /scripts/scripts/create-merged-npz-output.py \
+        --barcodes barcodes.tsv \
+        --features features.tsv \
+        --matrix matrix.mtx \
+        --input_id ~{input_id}
+
+    # tar up filtered matrix outputbarcodes.tsv, outputfeatures.tsv, outputmatrix.mtx
+    echo "Tarring up filtered matrix files"
+    tar -cvf ~{input_id}_filtered_mtx_files.tar outputbarcodes.tsv outputfeatures.tsv outputmatrix.mtx
+    echo "Done"
 
   >>>
 
@@ -437,7 +513,7 @@ task STARsoloFastq {
   }
 
   output {
-    File bam_output = "~{output_bam_basename}.bam"
+    File bam_output = "~{input_id}.bam"
     File alignment_log = "Log.final.out"
     File general_log = "Log.out"
     File barcodes = "barcodes.tsv"
@@ -508,9 +584,7 @@ task MergeStarOutput {
     cp ~{matrix} ./matrix/matrix.mtx
     cp ~{barcodes} ./matrix/barcodes.tsv
     cp ~{features} ./matrix/features.tsv
-
     tar -zcvf ~{input_id}.mtx_files.tar ./matrix/*
-
     # Running star for combined cell matrix
     # outputs will be called outputbarcodes.tsv. outputmatrix.mtx, and outputfeatures.tsv
     # no longer needed ? filtering?

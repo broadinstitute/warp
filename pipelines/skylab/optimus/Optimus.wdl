@@ -5,7 +5,6 @@ import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 import "../../../tasks/skylab/Metrics.wdl" as Metrics
 import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
-import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/broad/Utilities.wdl" as utils
 import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender_no_cuda
@@ -198,27 +197,12 @@ workflow Optimus {
       warp_tools_docker_path = docker_prefix + warp_tools_docker
   }
 
-  call StarAlign.MergeStarOutput as MergeStarOutputs {
-    input:
-      barcodes = STARsoloFastq.barcodes,
-      features = STARsoloFastq.features,
-      matrix = STARsoloFastq.matrix,
-      cell_reads = STARsoloFastq.cell_reads,
-      summary = STARsoloFastq.summary,
-      align_features = STARsoloFastq.align_features,
-      umipercell = STARsoloFastq.umipercell,
-      input_id = input_id,
-      counting_mode = counting_mode,
-      star_merge_docker_path = docker_prefix + star_merge_docker,
-      expected_cells = gex_expected_cells,
-      gex_nhash_id = gex_nhash_id
-  }
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {
       input:
-        sparse_count_matrix = MergeStarOutputs.sparse_counts,
-        row_index = MergeStarOutputs.row_index,
-        col_index = MergeStarOutputs.col_index,
+        sparse_count_matrix = STARsoloFastq.sparse_counts,
+        row_index = STARsoloFastq.row_index,
+        col_index = STARsoloFastq.col_index,
         emptydrops_lower = emptydrops_lower,
         empty_drops_docker_path = docker_prefix + empty_drops_docker
     }
@@ -234,13 +218,13 @@ workflow Optimus {
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
-        library_metrics = MergeStarOutputs.library_metrics,
-        cellbarcodes = MergeStarOutputs.outputbarcodes,
+        library_metrics = STARsoloFastq.library_metrics,
+        cellbarcodes = STARsoloFastq.barcodes,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
-        sparse_count_matrix = MergeStarOutputs.sparse_counts,
-        cell_id = MergeStarOutputs.row_index,
-        gene_id = MergeStarOutputs.col_index,
+        sparse_count_matrix = STARsoloFastq.sparse_counts,
+        cell_id = STARsoloFastq.row_index,
+        gene_id = STARsoloFastq.col_index,
         empty_drops_result = RunEmptyDrops.empty_drops_result,
         counting_mode = counting_mode,
         pipeline_version = "Optimus_v~{pipeline_version}",
@@ -248,20 +232,6 @@ workflow Optimus {
     }
   }
   if (count_exons  && counting_mode=="sn_rna") {
-    call StarAlign.MergeStarOutput as MergeStarOutputsExons {
-      input:
-        barcodes = STARsoloFastq.barcodes_sn_rna,
-        features = STARsoloFastq.features_sn_rna,
-        matrix = STARsoloFastq.matrix_sn_rna,
-        cell_reads = STARsoloFastq.cell_reads_sn_rna,
-        input_id = input_id,
-        counting_mode = "sc_rna",
-        summary = STARsoloFastq.summary_sn_rna,
-        align_features = STARsoloFastq.align_features_sn_rna,
-        umipercell = STARsoloFastq.umipercell_sn_rna,
-        star_merge_docker_path = docker_prefix + star_merge_docker,
-        gex_nhash_id = gex_nhash_id     
-    }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
         input_id = input_id,
@@ -272,16 +242,16 @@ workflow Optimus {
         input_id_metadata_field = input_id_metadata_field,
         input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
-        library_metrics = MergeStarOutputs.library_metrics,
-        cellbarcodes = MergeStarOutputs.outputbarcodes,
+        library_metrics = STARsoloFastq.library_metrics,
+        cellbarcodes = STARsoloFastq.barcodes,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
-        sparse_count_matrix = MergeStarOutputs.sparse_counts,
-        cell_id = MergeStarOutputs.row_index,
-        gene_id = MergeStarOutputs.col_index,
-        sparse_count_matrix_exon = MergeStarOutputsExons.sparse_counts,
-        cell_id_exon = MergeStarOutputsExons.row_index,
-        gene_id_exon = MergeStarOutputsExons.col_index,
+        sparse_count_matrix = STARsoloFastq.sparse_counts,
+        cell_id = STARsoloFastq.row_index,
+        gene_id = STARsoloFastq.col_index,
+        sparse_count_matrix_exon = STARsoloFastq.sparse_counts,
+        cell_id_exon = STARsoloFastq.row_index,
+        gene_id_exon = STARsoloFastq.col_index,
         pipeline_version = "Optimus_v~{pipeline_version}",
         warp_tools_docker_path = docker_prefix + warp_tools_docker
     }
@@ -329,18 +299,21 @@ workflow Optimus {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
-    File bam = STARsoloFastq.bam_output
-    File matrix = MergeStarOutputs.sparse_counts
-    File matrix_row_index = MergeStarOutputs.row_index
-    File matrix_col_index = MergeStarOutputs.col_index
+   
+    # Metrics outputs
     File cell_metrics = CellMetrics.cell_metrics
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
-    File? aligner_metrics = MergeStarOutputs.cell_reads_out
+   
+    # Star outputs 
     File library_metrics = final_library_metrics
-    File? mtx_files = MergeStarOutputs.mtx_files
-    File? filtered_mtx_files = MergeStarOutputs.filtered_mtx_files
-
+    File bam = STARsoloFastq.bam_output
+    File matrix = STARsoloFastq.sparse_counts
+    File matrix_row_index = STARsoloFastq.row_index
+    File matrix_col_index = STARsoloFastq.col_index
+    File? aligner_metrics = STARsoloFastq.cell_reads_out
+    File? mtx_files = STARsoloFastq.mtx_files
+    File? filtered_mtx_files = STARsoloFastq.filtered_mtx_files
     File? multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
     File? multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
     File? multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
