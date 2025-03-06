@@ -1,3 +1,9 @@
+# 1.6.3
+2025-03-06 (Date of Last Commit)
+
+* The AnnotationFiltration pipeline is now deprecated
+
+
 # 1.6.2
 2024-08-02 (Date of Last Commit)
 
