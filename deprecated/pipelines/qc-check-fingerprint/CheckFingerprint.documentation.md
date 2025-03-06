@@ -1,3 +1,5 @@
+# The CheckFingerprint Pipeline has beed deprecated 2025-03-06
+
 # CheckFingerprint Pipeline
 
 This document describes version 1.0.0 of the CheckFingerprint Pipeline. The CheckFingerprint Pipeline is used internally within the Broad Institute. It is written in WDL and designed to work on the [Cromwell execution engine](https://cromwell.readthedocs.io/en/stable/) using Google Cloud Services and Google Cloud Storage as its backend and storage.
