@@ -355,19 +355,17 @@ task STARsoloFastq {
     samtools reheader header.txt Aligned.sortedByCoord.out.bam > Aligned.sortedByCoord.out.reheader.bam
 
     echo "UMI LEN " $UMILen
+    touch barcodes_sn_rna.tsv features_sn_rna.tsv matrix_sn_rna.mtx CellReads_sn_rna.stats Features_sn_rna.stats Summary_sn_rna.csv UMIperCellSorted_sn_rna.txt
     
     ###########################################################################
     # SAVE OUTPUT FILES
     ###########################################################################
-    touch barcodes_sn_rna.tsv features_sn_rna.tsv matrix_sn_rna.mtx CellReads_sn_rna.stats Features_sn_rna.stats Summary_sn_rna.csv UMIperCellSorted_sn_rna.txt
-    
     # Function to move .mtx files to /cromwell_root/
     move_mtx_files() {
       local directory=$1
       echo "Processing $directory"
-      find "$directory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'echo Moving {}; mv {} /cromwell_root/'
+      find "${directory}/raw" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'echo Moving {}; mv {} /cromwell_root/'
     }
-
     # Function to move and rename common files
     move_common_files() {
       local src_dir=$1
@@ -395,7 +393,6 @@ task STARsoloFastq {
               echo "Warning: Missing file in $src_dir or $src_dir/raw: $file"
           fi
       done
-
     }
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
@@ -406,9 +403,6 @@ task STARsoloFastq {
       move_mtx_files "$SoloDirectory"
       move_common_files "$SoloDirectory" ""
 
-      echo "Listing the files in the current directory:"
-      ls -l
-
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
         SoloDirectory="Solo.out/GeneFull_Ex50pAS"
@@ -418,7 +412,6 @@ task STARsoloFastq {
             # Additional processing for sn_rna with exon counting
             SoloDirectory2="Solo.out/Gene"
             find "$SoloDirectory2" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; echo Renaming {}; mv {} "/cromwell_root/$new_name"'
-
             move_common_files "$SoloDirectory2" "sn_rna_"  # Add snRNA prefix for renaming
         fi
 
@@ -430,15 +423,11 @@ task STARsoloFastq {
     # List the final directory contents
     echo "Final directory listing:"
     ls -l
-    # Rename BAM file
-    mv Aligned.sortedByCoord.out.reheader.bam ~{input_id}.bam
-    ###########################################################################
+    mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
     
     ###########################################################################
-    # FROM MERGED BAM TASK
+    # FROM MERGE STAR OUTPUT TASK
     ###########################################################################
-    INPUT_ID="~{input_id}"
-
     # Function to process a matrix (regular or snRNA)
     process_matrix() {
         local MATRIX_NAME=$1  # matrix or matrix_sn_rna
@@ -446,7 +435,7 @@ task STARsoloFastq {
         local FEATURE_FILE=$3
         local MATRIX_FILE=$4
         local OUTPUT_DIR=$5
-        local FILTERED_TAR="${INPUT_ID}_filtered_${MATRIX_NAME}_mtx_files.tar"
+        local FILTERED_TAR="~{input_id}_filtered_${MATRIX_NAME}_mtx_files.tar"
 
         echo "Processing $MATRIX_NAME data..."
 
@@ -457,7 +446,7 @@ task STARsoloFastq {
         cp $FEATURE_FILE ./$MATRIX_NAME/features.tsv
 
         # Compress matrix files
-        tar -zcvf ${INPUT_ID}_${MATRIX_NAME}.mtx_files.tar -C ./$MATRIX_NAME .
+        tar -zcvf ~{input_id}_${MATRIX_NAME}.mtx_files.tar -C ./$MATRIX_NAME .
 
         # Run STAR soloCellFiltering
         STAR --runMode soloCellFiltering ./$MATRIX_NAME $OUTPUT_DIR --soloCellFilter EmptyDrops_CR
@@ -471,35 +460,23 @@ task STARsoloFastq {
             --barcodes $BARCODE_FILE \
             --features $FEATURE_FILE \
             --matrix $MATRIX_FILE \
-            --input_id $INPUT_ID
+            --input_id ~{input_id}
 
-        # Tar up filtered matrix files
+        # Tar up filtered matrix files -- may need to be changed?
         echo "Tarring up filtered $MATRIX_NAME matrix files"
         tar -cvf $FILTERED_TAR outputbarcodes.tsv outputfeatures.tsv outputmatrix.mtx
         echo "Done processing $MATRIX_NAME"
-    }
- 
-    mkdir matrix
-    cp matrix.mtx ./matrix/matrix.mtx && cp barcodes.tsv ./matrix/barcodes.tsv && cp features.tsv ./matrix/features.tsv
-    tar -zcvf ~{input_id}.mtx_files.tar ./matrix/*
-    STAR --runMode soloCellFiltering ./matrix ./output --soloCellFilter EmptyDrops_CR
+      }
 
-    #list files
-    echo "listing files"
-    ls
- 
-   # create the  compressed raw count matrix with the counts, gene names and the barcodes
-    python3 /scripts/scripts/create-merged-npz-output.py \
-        --barcodes barcodes.tsv \
-        --features features.tsv \
-        --matrix matrix.mtx \
-        --input_id ~{input_id}
+      # Process main matrix
+      process_matrix "matrix" "barcodes.tsv" "features.tsv" "matrix.mtx" "./output"
 
-    # tar up filtered matrix outputbarcodes.tsv, outputfeatures.tsv, outputmatrix.mtx
-    echo "Tarring up filtered matrix files"
-    tar -cvf ~{input_id}_filtered_mtx_files.tar outputbarcodes.tsv outputfeatures.tsv outputmatrix.mtx
-    echo "Done"
+      # Process snRNA matrix only if files exist
+      if [ -s "barcodes_sn_rna.tsv" ]; then
+          process_matrix "matrix_sn_rna" "barcodes_sn_rna.tsv" "features_sn_rna.tsv" "matrix_sn_rna.mtx" "./outputsnrna"
+      fi
 
+      ls -lR
   >>>
 
   runtime {
@@ -534,6 +511,13 @@ task STARsoloFastq {
     File? multimappers_Uniform_matrix = "UniqueAndMult-Uniform.mtx"
     File? multimappers_Rescue_matrix = "UniqueAndMult-Rescue.mtx"
     File? multimappers_PropUnique_matrix = "UniqueAndMult-PropUnique.mtx"
+    # Output files for previous merging STAR output step
+    File row_index = "~{input_id}_sparse_counts_row_index.npy"
+    File col_index = "~{input_id}_sparse_counts_col_index.npy"
+    File sparse_counts = "~{input_id}_sparse_counts.npz"
+    File? library_metrics="~{input_id}_library_metrics.csv"
+    File? mtx_files ="~{input_id}.mtx_files.tar"
+    File? filtered_mtx_files = "~{input_id}_filtered_mtx_files.tar"
   }
 }
 
