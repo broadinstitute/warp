@@ -1,4 +1,5 @@
 version 1.0
+# MultiSampleSmartSeq2 is now deprecated 2025-03-06
 
 import "../../../pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl" as single_cell_run
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
@@ -40,7 +41,7 @@ workflow MultiSampleSmartSeq2 {
       Boolean paired_end
   }
   # Version of this pipeline
-  String pipeline_version = "2.2.22"
+  String pipeline_version = "2.2.23"
 
   if (false) {
      String? none = "None"
