@@ -1,3 +1,8 @@
+# 1.1.4
+2025-03-06 (Date of Last Commit)
+
+* The BroadInternalUltimaGenomics workflow is deprecated and is no longer supported.
+
 # 1.1.3
 2024-12-05 (Date of Last Commit)
 
