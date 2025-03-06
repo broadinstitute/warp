@@ -12,11 +12,9 @@ ExternalWholeGenomeReprocessing	 2.3.3	2024-11-04
 ExternalExomeReprocessing	 3.3.3	2024-11-04 
 BroadInternalArrays	 1.1.14	2024-11-04 
 BroadInternalImputation	 1.1.15	2025-02-24 
-BroadInternalRNAWithUMIs	 1.0.36	2024-11-04 
 BroadInternalUltimaGenomics	 1.1.3	2024-12-05 
 RNAWithUMIsPipeline	 1.0.18	2024-11-04 
 IlluminaGenotypingArray	 1.12.24	2024-11-04 
-AnnotationFiltration	 1.2.7	2024-11-04 
 UltimaGenomicsWholeGenomeCramOnly	 1.0.23	2024-11-04 
 GDCWholeGenomeSomaticSingleSample	 1.3.4	2024-11-04 
 UltimaGenomicsWholeGenomeGermline	 1.1.3	2024-12-05 
@@ -29,7 +27,6 @@ JointGenotypingByChromosomePartOne	 1.5.2	2024-11-04
 JointGenotypingByChromosomePartTwo	 1.5.2	2024-11-04 
 JointGenotyping	 1.7.2	2024-11-04 
 CheckFingerprint	 1.0.22	2024-10-28 
-scATAC	 1.3.2	2023-08-03 
 MultiSampleSmartSeq2	 2.2.22	2024-09-11 
 BuildIndices	 4.0.0	2025-01-17 
 SlideSeq	 3.4.9	2025-02-25 
