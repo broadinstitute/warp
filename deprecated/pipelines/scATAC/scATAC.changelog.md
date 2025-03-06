@@ -1,7 +1,7 @@
 # 1.3.3
 2025-03-06 (Date of Last Commit)
 
-* The AnnotationFiltration pipeline is now deprecated
+* The scATAC pipeline is now deprecated
 
 # 1.3.2
 2023-08-03 (Date of Last Commit)
