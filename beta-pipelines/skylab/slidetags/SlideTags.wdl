@@ -55,7 +55,6 @@ workflow SlideTags {
             r2_fastq = gex_r2_fastq,
             i1_fastq = gex_i1_fastq,
             input_id = input_id + "_gex",
-            output_bam_basename = input_id + "_gex",
             gex_nhash_id = gex_nhash_id,
             tar_star_reference = tar_star_reference,
             annotations_gtf = annotations_gtf,
