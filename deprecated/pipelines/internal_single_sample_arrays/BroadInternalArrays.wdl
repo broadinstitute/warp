@@ -1,5 +1,5 @@
 version 1.0
-
+# BroadInternalArrays is now deprecated 2025-03-06
 import "../../../../../pipelines/broad/arrays/single_sample/Arrays.wdl" as ArraysPipeline
 import "../../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
 import "../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
@@ -9,7 +9,7 @@ workflow BroadInternalArrays {
         description: "Push outputs of Arrays.wdl to TDR dataset table ArraysOutputsTable."
     }
 
-    String pipeline_version = "1.1.14"
+    String pipeline_version = "1.1.15"
 
     input {
         # inputs to wrapper task

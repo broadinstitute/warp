@@ -1,3 +1,8 @@
+# 1.1.15
+2025-03-06 (Date of Last Commit)
+
+* BroadInternalArrays is now deprecated 
+
 # 1.1.14
 2024-11-04 (Date of Last Commit)
 
