@@ -1,7 +1,7 @@
 # 1.1.16
 2025-03-06 (Date of Last Commit)
 
-* The BroadInternalImputation is now deprecated
+* The BroadInternalImputation pipeline is now deprecated
 
 # 1.1.15
 2025-02-24 (Date of Last Commit)
