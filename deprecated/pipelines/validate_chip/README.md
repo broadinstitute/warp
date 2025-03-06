@@ -1,3 +1,4 @@
+# The ValidateChip Pipeline is now deprecated 2025-03-06
 # chip directory
 This directory is for validation of chips.  Not chip well barcodes.  The entire chip.
 
