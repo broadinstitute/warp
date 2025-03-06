@@ -1,12 +1,14 @@
 version 1.0
 
+# BroadInternalUltimaGenomics is now deprecated 2025-03-06
+
 import "../../../../../../../pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl" as UltimaGenomicsWholeGenomeGermline
 import "../../../../../../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
 import "../../../../../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
 
 workflow BroadInternalUltimaGenomics {
 
-  String pipeline_version = "1.1.3"
+  String pipeline_version = "1.1.4"
 
   input {
   
