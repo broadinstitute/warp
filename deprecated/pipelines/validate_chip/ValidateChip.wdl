@@ -1,5 +1,5 @@
 version 1.0
-
+# The ValidateChip pipeline is deprecated 2025-03-06
 import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
 import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
@@ -21,7 +21,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow ValidateChip {
 
-  String pipeline_version = "1.16.7"
+  String pipeline_version = "1.16.8"
 
   input {
     String sample_alias
