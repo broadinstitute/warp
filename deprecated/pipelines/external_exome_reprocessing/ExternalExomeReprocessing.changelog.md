@@ -1,3 +1,8 @@
+# 3.3.4
+2024-03-06 (Date of Last Commit)
+
+* The ExternalExomeReprocessing pipeline is now deprecated
+
 # 3.3.3
 2024-11-04 (Date of Last Commit)
 
