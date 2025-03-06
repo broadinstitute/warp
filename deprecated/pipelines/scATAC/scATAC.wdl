@@ -1,5 +1,7 @@
 version 1.0
 
+# scATAC is now deprecated 2025-03-06
+
 workflow scATAC {
     meta {
       description: "Processing of single-cell ATAC-seq data with the scATAC pipeline."
@@ -15,7 +17,7 @@ workflow scATAC {
         String bin_size_list = "10000"
     }
 
-    String pipeline_version = "1.3.2"
+    String pipeline_version = "1.3.3"
 
     parameter_meta {
         input_fastq1: "read 1 input fastq, the read names must be tagged with the cellular barcodes"
