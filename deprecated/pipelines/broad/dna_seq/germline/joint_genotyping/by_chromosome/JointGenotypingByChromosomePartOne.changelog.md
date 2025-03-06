@@ -1,3 +1,8 @@
+# 1.5.3
+2025-03-06 (Date of Last Commit)
+
+* The JointGenotypingByChromosomePartOne workflow is deprecated and is no longer supported.
+
 # 1.5.2
 2024-11-04 (Date of Last Commit)
 
