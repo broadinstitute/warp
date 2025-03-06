@@ -1,3 +1,8 @@
+# 1.5.3
+2025-03-06
+
+* Deprecated the JointGenotypingByChromosomePartTwo pipeline
+
 # 1.5.2
 2024-11-04 (Date of Last Commit)
 
@@ -11,33 +16,28 @@
 # 1.5.0
 2024-09-06 (Date of Last Commit)
 
-* Updated to GATK version 4.6.0.0 
+* Updated to GATK version 4.6.0.0
 * Updated how no-calls are represented in the output VCFs (0/0 -> ./.) which also changes some annotations in the VCF
 
-# 1.4.12
+# 1.4.11
 2023-12-18 (Date of Last Commit)
 
 * Updated to GATK version 4.5.0.0
 
-# 1.4.11
+# 1.4.10
 2023-09-08 (Date of Last Commit)
 
 * Added option to hard filter sites outside of provided interval list to HardFilterAndMakeSitesOnlyVcf task
 
-# 1.4.10
+# 1.4.9
 2023-06-29 (Date of Last Commit)
 
 * Added extra_args input to the SplitIntervalList task to support the JointGenotypingTasks.wdl
 
-# 1.4.9
+# 1.4.8
 2023-05-23 (Date of Last Commit)
 
 * Made disk and memory available as inputs to the JointGenotypingTasks.wdl.
-
-# 1.4.8
-2023-04-05 (Date of Last Commit)
-
-* Updated a check for an empty file produced in the GetFingerprintingIntervalIndices task
 
 # 1.4.7
 2022-11-04 (Date of Last Commit)
@@ -67,7 +67,7 @@
 # 1.4.2
 2021-11-10
 
-* Task wdls used by JointGenotypingByChromosomePartOne were updated with changes that don't affect JointGenotypingByChromosomePartOne wdl
+* Task wdls used by JointGenotypingByChromosomePartTwo were updated with changes that don't affect JointGenotypingByChromosomePartTwo wdl
 * Added Xmx flag (maximum heap size) to all tasks with java commands
 
 # 1.4.1
@@ -95,10 +95,8 @@ Fix SplitIntervals task so that it works for abutting WGS intervals. Increase by
 # 1.2
 Joint Genotyping now accepts a flag to tell VariantRecalibrator to use non-allele-specific annotations. VCFs without allele-specific annotations can now be processed by providing `"JointGenotyping.use_allele_specific_annotations"` in the inputs JSON.
 
-The `"JointGenotypingByChromosomePartOne.GenotypeGVCFs.allow_old_rms_mapping_quality_annotation_data"` input has been added to allow for GVCFs called by the GATK3 HaplotypeCaller to be joint called. GVCFs called with the GATK4 HaplotypeCaller do not need this option set to `true`.
-
 # 1.1
 Converging WGS and Exome Joint Genotyping into one all-powerful workflow!
 
 # 1.0
-Initial release of the ExomeJointGenotypingByChromosomePartOne pipeline
+Initial release of the ExomeJointGenotypingByChromosomePartTwo pipeline

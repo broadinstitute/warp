@@ -1,11 +1,13 @@
 version 1.0
 
+# JointGenotypingByChromosomePartOne is now deprecated 2025-03-06
+
 import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 
 # Joint Genotyping for hg38 Exomes and Whole Genomes (has not been tested on hg19)
 workflow JointGenotypingByChromosomePartOne {
 
-  String pipeline_version = "1.5.2"
+  String pipeline_version = "1.5.3"
 
   input {
     File unpadded_intervals_file
