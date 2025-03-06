@@ -1,5 +1,7 @@
 version 1.0
 
+# SmartSeq2SingleSample is now deprecated 2025-03-06
+
 import "../../../tasks/skylab/HISAT2.wdl" as HISAT2
 import "../../../tasks/skylab/Picard.wdl" as Picard
 import "../../../tasks/skylab/RSEM.wdl" as RSEM
@@ -36,7 +38,7 @@ workflow SmartSeq2SingleSample {
   }
   
   # version of this pipeline
-  String pipeline_version = "5.1.21"
+  String pipeline_version = "5.1.22"
 
   parameter_meta {
     genome_ref_fasta: "Genome reference in fasta format"
