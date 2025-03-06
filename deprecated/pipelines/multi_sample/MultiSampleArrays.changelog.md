@@ -1,7 +1,7 @@
 # 1.6.3
 2025-03-06 (Date of Last Commit)
 
-* The AnnotationFiltration pipeline is now deprecated
+* The MultiSampleArrays pipeline is now deprecated
 
 
 # 1.6.2
