@@ -1,3 +1,8 @@
+# 1.3.5
+2025-03-06 (Date of Last Commit)
+
+* The GDCWholeGenomeSomaticSingleSample pipeline is now deprecated
+
 # 1.3.4
 2024-11-04 (Date of Last Commit)
 
