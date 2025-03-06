@@ -1,3 +1,8 @@
+# 1.0.37
+2025-03-06 (Date of Last Commit)
+
+* The BroadInternalRNAWithUMIs is now deprecated
+
 # 1.0.36
 2024-11-04 (Date of Last Commit)
 
