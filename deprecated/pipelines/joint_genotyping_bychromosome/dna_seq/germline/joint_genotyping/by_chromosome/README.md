@@ -1,3 +1,4 @@
+# The by_chromosome Joint Genotyping pipeline is now deprecated 2025-03-06
 # Joint Genotyping By Chromosome
 
 ## Background
