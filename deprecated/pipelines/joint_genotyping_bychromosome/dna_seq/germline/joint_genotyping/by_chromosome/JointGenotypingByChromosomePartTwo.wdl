@@ -1,11 +1,11 @@
 version 1.0
-
+# The JointGenotypingByChromosomePartTwo is deprecated 2025-03-06
 import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 
 # Joint Genotyping for hg38 Exomes and Whole Genomes (has not been tested on hg19)
 workflow JointGenotypingByChromosomePartTwo {
 
-  String pipeline_version = "1.5.2"
+  String pipeline_version = "1.5.3"
 
   input {
     String callset_name
