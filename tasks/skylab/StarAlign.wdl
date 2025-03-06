@@ -328,7 +328,7 @@ task STARsoloFastq {
         --soloFeatures $COUNTING_MODE \
         --clipAdapterType CellRanger4 \
         --outFilterScoreMin 30  \
-        --soloCBmatchWLtype 1MM_multi \
+        --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
         --soloUMIdedup 1MM_CR \
         --outSAMtype BAM SortedByCoordinate \
         --outSAMattributes UB UR UY CR CB CY NH GX GN sF cN \
