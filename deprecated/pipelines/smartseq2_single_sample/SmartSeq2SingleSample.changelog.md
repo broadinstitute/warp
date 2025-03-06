@@ -1,3 +1,8 @@
+# 5.1.22
+2025-03-06 (Date of Last Commit)
+
+* The SmartSeq2SingleSample workflow is deprecated and is no longer supported.
+
 # 5.1.21
 2024-09-11 (Date of Last Commit)
 
