@@ -1,3 +1,8 @@
+# 1.0.23
+2025-03-06 (Date of Last Commit)
+
+* Deprecated the CheckFingerprint workflow
+
 # 1.0.22
 2024-10-28 (Date of Last Commit)
 
