@@ -1,5 +1,7 @@
 version 1.0
 
+# MultiSampleArrays is now deprecated 2025-03-06
+
 ## Copyright Broad Institute, 2018
 ##
 ## This WDL pipeline implements data processing for Multi-sample Illumina Genotyping Arrays
@@ -18,7 +20,7 @@ version 1.0
 
 workflow MultiSampleArrays {
 
-  String pipeline_version = "1.6.2"
+  String pipeline_version = "1.6.3"
 
   input {
     File samples_fofn
