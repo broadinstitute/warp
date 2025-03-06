@@ -1,3 +1,8 @@
+# 2.6.31
+2025-03-06 (Date of Last Commit)
+
+* Arrays is now Deprecated
+
 # 2.6.30
 2024-11-04 (Date of Last Commit)
 

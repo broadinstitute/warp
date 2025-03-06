@@ -1,5 +1,7 @@
 version 1.0
 
+# The Arrays pipeline is now deprecated 2025-03-06
+
 import "../../../../pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl" as IlluminaGenotyping
 import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
 import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
@@ -23,7 +25,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Arrays {
 
-  String pipeline_version = "2.6.30"
+  String pipeline_version = "2.6.31"
 
   input {
     String chip_well_barcode
