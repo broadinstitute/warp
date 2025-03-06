@@ -1,3 +1,8 @@
+# 2.3.4
+2025-03-06 (Date of Last Commit)
+
+* The ExternalWholeGenomeReprocessing pipeline is now deprecated
+
 # 2.3.3
 2024-11-04 (Date of Last Commit)
 
