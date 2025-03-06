@@ -1,0 +1,1 @@
+This directory is NOT test inputs.  It contains the map files used by the Arrays pipeline to lookup the extended_illumina_manifest and minor_allele_frequency files.  These files are just copies of the real versions installed in the cloud.

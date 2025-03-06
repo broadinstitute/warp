@@ -1,0 +1,2 @@
+#manifest_filename	maf_filename
+GDA-8v1-0_A5.bpm	GDA-8v1-0_A5.MAF.txt
