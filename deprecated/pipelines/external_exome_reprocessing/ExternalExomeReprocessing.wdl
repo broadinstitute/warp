@@ -1,11 +1,13 @@
 version 1.0
 
+# ExternalExomeReprocessing is now deprecated 2025-03-06
+
 import "../../../../../pipelines/broad/reprocessing/exome/ExomeReprocessing.wdl" as ExomeReprocessing
 import "../../../../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow ExternalExomeReprocessing {
 
-  String pipeline_version = "3.3.3"
+  String pipeline_version = "3.3.4"
 
 
   input {
