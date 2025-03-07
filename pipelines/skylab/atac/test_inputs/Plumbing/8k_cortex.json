@@ -21,7 +21,7 @@
 	"ATAC.vm_size":"Standard_M128s",
 	"ATAC.peak_calling":true,
     "ATAC.PeakCalling.probability_threshold":"1.0",
-	"ATAC.PeakCalling.min_tsse":"1.0",
-	"ATAC.PeakCalling.min_counts":"1.0"
+	"ATAC.PeakCalling.min_tsse": "1",
+	"ATAC.PeakCalling.min_counts":"1"
     }
     
