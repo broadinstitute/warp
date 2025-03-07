@@ -49,6 +49,9 @@ workflow TestATAC {
       String results_path
       Boolean update_truth
       Boolean run_cellbender = false
+
+      # Option for running peak calling
+      Boolean peak_calling = false
     }
 
     meta {
