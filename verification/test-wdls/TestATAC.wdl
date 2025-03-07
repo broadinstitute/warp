@@ -77,7 +77,8 @@ workflow TestATAC {
         annotations_gtf = annotations_gtf,
         whitelist = whitelist,
         adapter_seq_read1 = adapter_seq_read1,
-        adapter_seq_read3 = adapter_seq_read3
+        adapter_seq_read3 = adapter_seq_read3,
+        peak_calling = peak_calling
     }
 
 

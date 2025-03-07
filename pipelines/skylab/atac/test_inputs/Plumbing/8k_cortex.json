@@ -19,7 +19,7 @@
 	"ATAC.annotations_gtf":" gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_vM32.annotation.gtf",
 	"ATAC.whitelist":"gs://broad-gotc-test-storage/atac/input/plumbing/737K-cratac-v1.txt",
 	"ATAC.vm_size":"Standard_M128s",
-	"ATAC.run_peak_calling":true,
+	"ATAC.peak_calling":true,
     "ATAC.PeakCalling.probability_threshold":"1.0",
 	"ATAC.PeakCalling.min_tsse":"1.0",
 	"ATAC.PeakCalling.min_counts":"1.0"
