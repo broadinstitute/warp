@@ -29,7 +29,7 @@ workflow Optimus {
     String input_id
     # String for additional library aliquot ID
     String? gex_nhash_id
-    String output_bam_basename = input_id
+    String? output_bam_basename = input_id
     String? input_name
     String? input_id_metadata_field
     String? input_name_metadata_field
