@@ -1,3 +1,8 @@
+# 2.2.23
+2025-03-06 (Date of Last Commit)
+
+* The MultiSampleSmartSeq2 pipeline is now deprecated
+
 # 2.2.22
 2024-09-11 (Date of Last Commit)
 
