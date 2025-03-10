@@ -58,7 +58,7 @@ workflows:
   - name: OptimusHcaAdapter
     subclass: WDL
     primaryDescriptorPath: /projects/optimus/CreateOptimusAdapterMetadata.wdl
-    
+
   - name: Ss2HcaAdapter
     subclass: WDL
     primaryDescriptorPath: /projects/smartseq2/CreateSs2AdapterMetadata.wdl
@@ -130,15 +130,15 @@ workflows:
   - name: SlideSeq
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/slideseq/SlideSeq.wdl
-    
+
   - name: Multiome
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/multiome/Multiome.wdl
-  
+
   - name: PairedTag
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/paired_tag/PairedTag.wdl
-    
+
   - name: atac
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/atac/atac.wdl
@@ -174,7 +174,7 @@ workflows:
   - name: TestPairedTag
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestPairedTag.wdl
-    
+
   - name: TestOptimus
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestOptimus.wdl
@@ -198,7 +198,7 @@ workflows:
   - name: TestRNAWithUMIsPipeline
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestRNAWithUMIsPipeline.wdl
-  
+
   - name: Testsnm3C
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/Testsnm3C.wdl
@@ -214,7 +214,7 @@ workflows:
   - name: TestUltimaGenomicsWholeGenomeCramOnly
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestUltimaGenomicsWholeGenomeCramOnly.wdl
-  
+
   - name: TestVariantCalling
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestVariantCalling.wdl
