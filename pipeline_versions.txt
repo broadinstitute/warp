@@ -1,4 +1,5 @@
 Pipeline Name	Version	Date of Last Commit
+ValidateChip 1.16.7 2024-11-04
 ArrayImputationQuotaConsumed	 1.0.0	2025-02-24 
 ImputationBeagle	 1.0.0	2025-02-26 
 Imputation	 1.1.16	2025-02-24 
