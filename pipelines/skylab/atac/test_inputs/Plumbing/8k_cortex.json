@@ -1,0 +1,27 @@
+{
+	"ATAC.input_id":"10x_8k_cortex_downsampled",
+	"ATAC.cloud_provider":"gcp",
+	"ATAC.read1_fastq_gzipped":[
+	  "gs://broad-gotc-test-storage/atac/input/plumbing/fastq_R1_0.fastq.gz"
+	],
+	"ATAC.read2_fastq_gzipped":[
+	  "gs://broad-gotc-test-storage/atac/input/plumbing/fastq_R2_0.fastq.gz"
+	],
+	"ATAC.read3_fastq_gzipped":[
+	  "gs://broad-gotc-test-storage/atac/input/plumbing/fastq_R3_0.fastq.gz"
+	],
+	"ATAC.tar_bwa_reference":"gs://gcp-public-data--broad-references/GRCm39/bwa/v2_2_1/bwa-mem2-2.2.1-Mouse-GENCODE-build-GRCm39.tar",
+	"ATAC.chrom_sizes":"gs://gcp-public-data--broad-references/GRCm39/bwa/v2_2_1/chrom.sizes",
+	"ATAC.cpu_platform_bwa":"Intel Cascade Lake",
+	"ATAC.num_threads_bwa":"16",
+	"ATAC.mem_size_bwa":"64", 
+	"ATAC.atac_nhash_id":"example_1234",
+	"ATAC.annotations_gtf":" gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_vM32.annotation.gtf",
+	"ATAC.whitelist":"gs://broad-gotc-test-storage/atac/input/plumbing/737K-cratac-v1.txt",
+	"ATAC.vm_size":"Standard_M128s",
+	"ATAC.peak_calling":true,
+    "ATAC.PeakCalling.probability_threshold":"1.0",
+	"ATAC.PeakCalling.min_tsse": "1",
+	"ATAC.PeakCalling.min_counts":"1"
+    }
+    
