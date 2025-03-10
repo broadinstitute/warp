@@ -1,5 +1,4 @@
 Pipeline Name	Version	Date of Last Commit
-ValidateChip 1.16.7 2024-11-04
 ArrayImputationQuotaConsumed	 1.0.0	2025-02-24 
 ImputationBeagle	 1.0.0	2025-02-26 
 Imputation	 1.1.16	2025-02-24 
@@ -16,7 +15,6 @@ VariantCalling	 2.2.4	2024-11-04
 ReblockGVCF	 2.4.0	2024-12-05 
 UltimaGenomicsJointGenotyping	 1.2.2	2024-11-04 
 JointGenotyping	 1.7.2	2024-11-04 
-MultiSampleSmartSeq2	 2.2.22	2024-09-11 
 BuildIndices	 4.0.0	2025-01-17 
 SlideSeq	 3.4.9	2025-02-25 
 PairedTag	 1.10.2 	2025-02-25 
