@@ -1,0 +1,76 @@
+name: Test WholeGenomeGermlineSingleSample
+
+# Controls when the workflow will run
+on:
+  pull_request:
+    branches: [ "develop", "staging", "master" ]
+    # Only run if files in these paths changed:
+    ####################################
+    # SET PIPELINE SPECIFIC PATHS HERE #
+    ####################################
+    paths:
+      # anything in the pipelines folder
+      - 'pipelines/broad/dna_seq/germline/single_sample/wgs/**'
+      # tasks from the pipeline WDL and their dependencies
+      - 'structs/dna_seq/DNASeqStructs.wdl'
+      - 'tasks/broad/Alignment.wdl'
+      - 'tasks/broad/DragmapAlignment.wdl'
+      - 'tasks/broad/SplitLargeReadGroup.wdl'
+      - 'tasks/broad/BamProcessing.wdl'
+      - 'tasks/broad/Utilities.wdl'
+      - 'tasks/broad/Qc.wdl'
+      - 'tasks/broad/AggregatedBamQC.wdl'
+      - 'tasks/broad/BamToCram.wdl'
+      - 'pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl'
+      - 'tasks/broad/GermlineVariantDiscovery.wdl'
+      - 'tasks/broad/DragenTasks.wdl'
+      # verification WDL and its dependencies
+      - 'verification/VerifyGermlineSingleSample.wdl'
+      - 'verification/VerifyMetrics.wdl'
+      - 'verification/VerifyTasks.wdl'
+      # test WDL and its dependencies
+      - 'verification/test-wdls/TestWholeGenomeGermlineSingleSample.wdl'
+      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      # this file, the subworkflow file, and the firecloud_api script
+      - '.github/workflows/test_whole_genome_germline_single_sample.yml'
+      - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
+
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      useCallCache:
+        description: 'Use call cache (default: true)'
+        required: false
+        default: "true"
+      updateTruth:
+        description: 'Update truth files (default: false)'
+        required: false
+        default: "false"
+      testType:
+        description: 'Specify the type of test (Plumbing or Scientific)'
+        required: false
+        type: choice
+        options:
+          - Plumbing
+          - Scientific
+      truthBranch:
+        description: 'Specify the branch for truth files (default: master)'
+        required: false
+        default: "master"
+
+jobs:
+  TestWholeGenomeGermlineSingleSample:
+    uses: ./.github/workflows/warp_test_workflow.yml
+    with:
+      pipeline_name: TestWholeGenomeGermlineSingleSample
+      dockstore_pipeline_name: WholeGenomeGermlineSingleSample
+      pipeline_dir: pipelines/broad/dna_seq/germline/single_sample/wgs
+      use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
+      update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
+      test_type: ${{ github.event.inputs.testType }}
+      truth_branch: ${{ github.event.inputs.truthBranch || 'master' }}
+    secrets:
+      PDT_TESTER_SA_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
+      DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}

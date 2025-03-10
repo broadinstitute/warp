@@ -51,7 +51,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.7.0"
+  String pipeline_version = "2.7.1"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -59,7 +59,7 @@ workflow ATAC {
   String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
   # Docker image names
-  String warp_tools_docker = "warp-tools:2.6.0"
+  String warp_tools_docker = "warp-tools:2.6.1"
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
@@ -353,6 +353,7 @@ task BWAPairedEndAlignment {
     Array[File] read1_fastq
     Array[File] read3_fastq
     File tar_bwa_reference
+    String reference_path = tar_bwa_reference
     String read_group_id = "RG1"
     String read_group_sample_name = "RGSN1"
     String suffix = "trimmed_adapters.fastq.gz"
@@ -477,7 +478,11 @@ task BWAPairedEndAlignment {
     ls
     
     # rename file to this
-    mv final.sorted.bam ~{bam_aligned_output_name}
+    echo "Reheading BAM with reference"
+    /usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools view -H final.sorted.bam > header.txt
+    echo -e "@CO\tReference genome used: ~{reference_path}" >> header.txt
+    /usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools reheader header.txt final.sorted.bam > final.sorted.reheader.bam
+    mv final.sorted.reheader.bam ~{bam_aligned_output_name}
         
     echo "the present working dir"
     pwd
@@ -668,7 +673,7 @@ task PeakCalling {
     Int min_counts = 5000
     Int min_tsse = 10
     Int max_counts = 100000
-    Float probability_threshold = 1
+    Float probability_threshold = 0.5
 
     # Runtime attributes/docker
     String docker_path
@@ -751,6 +756,10 @@ task PeakCalling {
     print("Filter doublets based on scrublet scores")
     snap.pp.filter_doublets(atac_data_mod, probability_threshold=probability_threshold)
     print(atac_data_mod)
+
+    # Check if the matrix is empty
+    if atac_data_mod.n_obs == 0:
+      raise ValueError("Matrix is empty after filtering doublets: Try increasing the probability_threshold.")
         
     # Perform graph-based clustering to identify cell clusters. 
     # Build a k-nearest neighbour graph using snap.pp.knn

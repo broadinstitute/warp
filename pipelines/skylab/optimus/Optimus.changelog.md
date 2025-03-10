@@ -1,8 +1,13 @@
+# 7.9.2
+2025-02-25 (Date of Last Commit)
+
+* Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
+* Added reference information to the BAM header
+
 # 7.9.1
 2025-01-13 (Date of Last Commit)
 
 * Added a boolean variable is_slidetags; set to false by default, but set to true if the Slide-Tags pipeline is calling Optimus
-
 * Added reference_gtf_file to the output h5ad unstructured metadata
 
 # 7.9.0

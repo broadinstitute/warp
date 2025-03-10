@@ -27,5 +27,6 @@
   "Multiome.soloMultiMappers":"Uniform",
   "Multiome.gex_nhash_id":"example_1234",
   "Multiome.atac_nhash_id":"example_1234",
-  "Multiome.run_peak_calling":"true"
+  "Multiome.run_peak_calling": true,
+  "Multiome.PeakCalling.probability_threshold":"1.00"
 }
