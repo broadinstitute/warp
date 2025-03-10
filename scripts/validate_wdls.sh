@@ -7,6 +7,7 @@ declare -a -r SKIP=(            # Skip these directories.
     scripts
     unsupported
     deprecated
+    tests
     .idea
 )
 declare -r CROMWELL=https://github.com/broadinstitute/cromwell
