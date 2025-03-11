@@ -107,7 +107,7 @@ workflow SlideSeq {
                 r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
                 whitelist = bead_locations,
                 tar_star_reference = tar_star_reference,
-                input_id = output_bam_basename + "_" + idx,
+                output_bam_basename = output_bam_basename + "_" + idx,
                 read_structure = read_structure,
                 count_exons = count_exons
         }
