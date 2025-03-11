@@ -425,7 +425,7 @@ task STARsoloFastq {
     # List the final directory contents
     echo "Final directory listing:"
     ls -l
-    mv Aligned.sortedByCoord.out.bam ~{input_id}.bam
+    mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
     
     ###########################################################################
     # FROM MERGE STAR OUTPUT TASK
@@ -492,7 +492,7 @@ task STARsoloFastq {
   }
 
   output {
-    File bam_output = "~{input_id}.bam"
+    File bam_output = "~{output_bam_basename}.bam"
     File alignment_log = "Log.final.out"
     File general_log = "Log.out"
     File barcodes = "barcodes.tsv"
