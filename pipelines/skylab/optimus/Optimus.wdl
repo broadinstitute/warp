@@ -313,7 +313,7 @@ workflow Optimus {
     File matrix_row_index = STARsoloFastq.row_index
     File matrix_col_index = STARsoloFastq.col_index
     # what is this exactly?
-    # File? aligner_metrics = STARsoloFastq.cell_reads_out
+    File? aligner_metrics = STARsoloFastq.cell_reads_out
     File? mtx_files = STARsoloFastq.mtx_files
     File? filtered_mtx_files = STARsoloFastq.filtered_mtx_files
     File? multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
