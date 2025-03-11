@@ -26,9 +26,10 @@ workflow Optimus {
     Array[File] r1_fastq
     Array[File] r2_fastq
     Array[File]? i1_fastq
-    String input_id
     # String for additional library aliquot ID
     String? gex_nhash_id
+    # why do we have two?
+    String input_id
     String? output_bam_basename = input_id
     String? input_name
     String? input_id_metadata_field
@@ -174,7 +175,8 @@ workflow Optimus {
         chemistry = tenx_chemistry_version,
         counting_mode = counting_mode,
         count_exons = count_exons,
-        input_id = output_bam_basename,
+        input_id = input_id,
+        output_bam_basename = output_bam_basename,
         soloMultiMappers = soloMultiMappers,
         samtools_star_docker_path = "us.gcr.io/broad-gotc-prod/samtools-star-python:aa-add-dockerfile"
     }

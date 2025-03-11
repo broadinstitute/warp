@@ -221,7 +221,9 @@ task STARsoloFastq {
     Int chemistry
     String star_strand_mode
     String counting_mode # when counting_mode = sn_rna, runs Gene and GeneFullEx50pAS in single alignments
+    # why do we have two?
     String input_id
+    String output_bam_basename
     Boolean? count_exons
     String? soloMultiMappers
     String soloCBmatchWLtype = "1MM_multi" #"1MM_multi_Nbase_pseudocounts"
