@@ -517,7 +517,7 @@ task MergeStarOutput {
     ~{input_id}.uniform.mtx
 
     mkdir matrix
-    #Using cp because mv isn't moving
+    #Using cp b/c mv isn't moving
     pwd
     ls -lR
     cp ~{input_id}.uniform.mtx ./matrix/matrix.mtx
