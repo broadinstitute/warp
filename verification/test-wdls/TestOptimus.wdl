@@ -45,7 +45,7 @@ workflow TestOptimus {
     # Set to Forward by default to count reads in 10x stranded mode
     String star_strand_mode
 
-# Set to true to count reads aligned to exonic regions in sn_rna mode
+    # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
