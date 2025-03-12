@@ -3,11 +3,6 @@
 
 * The ExternalWholeGenomeReprocessing pipeline is now deprecated
 
-# 2.3.4
-2025-02-21 (Date of Last Commit)
-
-* Updated HaplotypeCaller_GATK4_VCF to use MEM_SIZE and MEM_UNIT; this does not affect the outputs of this pipeline
-
 # 2.3.3
 2024-11-04 (Date of Last Commit)
 
