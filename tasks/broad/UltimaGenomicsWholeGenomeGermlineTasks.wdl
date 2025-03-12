@@ -888,7 +888,7 @@ task CollectAggregationMetrics {
     String output_bam_prefix
     References references
     
-    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.3-1564508330"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                                size(references.ref_fasta, "GB") +
                                size(references.ref_fasta_index, "GB") +
@@ -903,7 +903,7 @@ task CollectAggregationMetrics {
 
 
   command {
-    java -Xms5000m -jar /usr/gitc/picard.jar \
+    java -Xms5000m -jar /usr/picard/picard.jar \
     CollectMultipleMetrics \
     INPUT=~{input_bam} \
     REFERENCE_SEQUENCE=~{references.ref_fasta} \
