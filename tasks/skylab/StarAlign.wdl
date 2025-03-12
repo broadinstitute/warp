@@ -430,6 +430,7 @@ task STARsoloFastq {
     ###########################################################################
     # FROM MERGE STAR OUTPUT TASK
     ###########################################################################
+    # look into /scripts/scripts/combine_shard_metrics.py -- len(filtered) == estimated cells in starsolo
     # Function to process a matrix (regular or snRNA)
     process_matrix() {
         local MATRIX_NAME=$1  # matrix or matrix_sn_rna
@@ -450,9 +451,9 @@ task STARsoloFastq {
         # Compress matrix files
         tar -zcvf ~{input_id}_${MATRIX_NAME}.mtx_files.tar -C ./$MATRIX_NAME .
 
-        # Run STAR soloCellFiltering
-        STAR --runMode soloCellFiltering ./$MATRIX_NAME $OUTPUT_DIR --soloCellFilter EmptyDrops_CR
-
+        # Run STAR soloCellFiltering -- not need anymore  -- we think this is being produced in the alignment files
+        # STAR --runMode soloCellFiltering ./$MATRIX_NAME $OUTPUT_DIR --soloCellFilter EmptyDrops_CR
+      
         # List files
         echo "Listing files after processing $MATRIX_NAME:"
         ls
@@ -464,7 +465,8 @@ task STARsoloFastq {
             --matrix $MATRIX_FILE \
             --input_id ~{input_id}
 
-        # Tar up filtered matrix files -- may need to be changed?
+        # tar -zcvf ~{input_id}.star_metrics.tar *.txt
+        # Tar up filtered matrix files -- may need to be changed -- we think this is being produced in the alignment files
         echo "Tarring up filtered $MATRIX_NAME matrix files"
         tar -cvf $FILTERED_TAR outputbarcodes.tsv outputfeatures.tsv outputmatrix.mtx
         echo "Done processing $MATRIX_NAME"
