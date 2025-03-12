@@ -3,7 +3,6 @@
 
 * Updated HaplotypeCaller_GATK4_VCF to use MEM_SIZE and MEM_UNIT; this does not affect the outputs of this pipeline
 
-
 # 1.1.3
 2024-12-05 (Date of Last Commit)
 
