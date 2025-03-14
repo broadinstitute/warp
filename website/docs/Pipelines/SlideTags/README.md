@@ -9,7 +9,7 @@ slug: /Pipelines/SlideTags_Pipeline/README
 | :----: | :---: | :----: | :--------------: |
 | v1.0.0 | March, 2025 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
 
-![Slide-tags_diagram](Slide-tags_diagram.png)
+![Slide-tags_diagram](./Slide-tags.png)
 
 ## Introduction to the Slide-tags Pipeline
 
@@ -52,12 +52,12 @@ The workflow is composed of several key steps, implemented in separate WDL tasks
 
 | Task | Tool | Description |
 | --- | --- | --- |
-| [Optimus](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) | STARsolo | Gene quantification subworkflow that aligns reads to a reference genome and produces a count matrix. Read more in the [Optimus Overview](../Optimus_Pipeline/README.md)| 
-| [spatial_count]() | Custom Julia script | Extracts spatial barcodes, performs barcode sequencing error correction, maps reads to spatial barcodes and stores unique (cell, UMI, barcode) triplets in a count matrix, and calculates quality control metrics. Produces an h5 output. |
-| [positioning]() | Custom R scripts | Extracts cell barcodes, calculates log-transformed UMI counts, and determines mitochondrial gene percentages. Performs data normalization, PCA, clustering, and UMAP embedding for visualization and produces quality metrics and graphs. Assigns cell barcodes to spatial barcode coordinates. |
+| [Optimus](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) | STARsolo | Gene quantification subworkflow that aligns reads to a reference genome and produces a count matrix. Read more in the Optimus Overview. | 
+| spatial_count | Custom Julia script | Extracts spatial barcodes, performs barcode sequencing error correction, maps reads to spatial barcodes and stores unique (cell, UMI, barcode) triplets in a count matrix, and calculates quality control metrics. Produces an h5 output. |
+| positioning | Custom R scripts | Extracts cell barcodes, calculates log-transformed UMI counts, and determines mitochondrial gene percentages. Performs data normalization, PCA, clustering, and UMAP embedding for visualization and produces quality metrics and graphs. Assigns cell barcodes to spatial barcode coordinates. |
 
 
-Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://github.com/MacoskoLab/Macosko-Pipelines) repository, modified for streamlined output handling and stored in [warp-tools]().
+Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://github.com/MacoskoLab/Macosko-Pipelines) repository, modified for streamlined output handling and stored in warp-tools.
 
 ## Outputs
 
