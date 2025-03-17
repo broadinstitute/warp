@@ -414,7 +414,7 @@ task STARsoloFastq {
       if [[ "~{count_exons}" == "true" ]]; then
         # Additional processing for sn_rna with exon counting
         SoloDirectory2="Solo.out/Gene"
-        find "$SoloDirectory2" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; echo Renaming {}; mv {} "/cromwell_root/$new_name"'
+        find "$SoloDirectory2/raw" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; echo Renaming {}; mv {} "/cromwell_root/$new_name"'
         move_common_files "$SoloDirectory2" "_sn_rna"  # Add snRNA suffix for renaming
       fi
       move_common_files "$SoloDirectory" ""  # Standard snRNA renaming
