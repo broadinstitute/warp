@@ -383,17 +383,21 @@ task STARsoloFastq {
       )
 
       for file in "${!files[@]}"; do
-            if [[ -f "$src_dir/raw/$file" ]]; then
-                new_name="${files[$file]}${prefix}"
+          file_path="${files[$file]}"
+          name=$(basename "$file_path")
+          base="${name%.*}"
+          extension="${name##*.}"
+          new_name="${base}${prefix}.${extension}"
+          echo $new_name
+          if [[ -f "$src_dir/raw/$file" ]]; then
                 echo "Renaming $src_dir/raw/$file → $new_name"
                 mv "$src_dir/raw/$file" "$new_name"
-            elif [[ -f "$src_dir/$file" ]]; then
-                new_name="${files[$file]}${prefix}"
+          elif [[ -f "$src_dir/$file" ]]; then
                 echo "Renaming $src_dir/$file → $new_name"
                 mv "$src_dir/$file" "$new_name"
-            else
+          else
                 echo "Warning: Missing file in $src_dir or $src_dir/raw: $file"
-            fi
+          fi
       done
     }
 
