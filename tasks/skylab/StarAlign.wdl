@@ -358,7 +358,7 @@ task STARsoloFastq {
 
     echo "UMI LEN " $UMILen
     touch barcodes_sn_rna.tsv features_sn_rna.tsv matrix_sn_rna.mtx CellReads_sn_rna.stats Features_sn_rna.stats Summary_sn_rna.csv UMIperCellSorted_sn_rna.txt
-    
+      
     ###########################################################################
     # SAVE OUTPUT FILES
     ###########################################################################
@@ -421,6 +421,12 @@ task STARsoloFastq {
     else
       echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
     fi
+    
+    # filtered outputs in Solo.out/GeneFull_Ex50pAS/filtered: barcodes.tsv features.tsv matrix.mtx
+    ls ${SoloDirectory}/filtered
+    echo "Tarring up filtered $MATRIX_NAME matrix files"
+    tar -cvf ~{input_id}_filtered_mtx_files.tar ${SoloDirectory}/filtered/barcodes.tsv ${SoloDirectory}/filtered/features.tsv ${SoloDirectory}/filtered/matrix.mtx
+    echo "Done processing $MATRIX_NAME"
 
     # List the final directory contents
     echo "Final directory listing:"
@@ -438,7 +444,6 @@ task STARsoloFastq {
         local FEATURE_FILE=$3
         local MATRIX_FILE=$4
         local OUTPUT_DIR=$5
-        local FILTERED_TAR="~{input_id}_filtered_${MATRIX_NAME}_mtx_files.tar"
 
         echo "Processing $MATRIX_NAME data..."
 
@@ -451,25 +456,31 @@ task STARsoloFastq {
         # Compress matrix files
         tar -zcvf ~{input_id}_${MATRIX_NAME}.mtx_files.tar -C ./$MATRIX_NAME .
 
-        # Run STAR soloCellFiltering -- not need anymore  -- we think this is being produced in the alignment files
-        # STAR --runMode soloCellFiltering ./$MATRIX_NAME $OUTPUT_DIR --soloCellFilter EmptyDrops_CR
-      
         # List files
         echo "Listing files after processing $MATRIX_NAME:"
         ls
 
+        # If text files are present, create a tar archive with them and run python script to combine shard metrics
+        python3 /scripts/scripts/combine_shard_metrics.py \
+          Summary.csv \
+          Features.stats \ 
+          CellReads.stats \
+          ~{counting_mode} \
+          ~{input_id} \
+          ${SoloDirectory}/filtered/barcodes.tsv \ # ? filtered
+          ${SoloDirectory}/filtered/matrix.mtx \ # ? filtered
+          ~{expected_cells}
+
+        echo "tarring STAR txt files"
+        tar -zcvf ~{input_id}.star_metrics.tar *.txt
+       
         # Create the compressed raw count matrix
         python3 /scripts/scripts/create-merged-npz-output.py \
             --barcodes $BARCODE_FILE \
             --features $FEATURE_FILE \
             --matrix $MATRIX_FILE \
             --input_id ~{input_id}
-
-        # tar -zcvf ~{input_id}.star_metrics.tar *.txt
-        # Tar up filtered matrix files -- may need to be changed -- we think this is being produced in the alignment files
-        echo "Tarring up filtered $MATRIX_NAME matrix files"
-        tar -cvf $FILTERED_TAR outputbarcodes.tsv outputfeatures.tsv outputmatrix.mtx
-        echo "Done processing $MATRIX_NAME"
+     
       }
 
       # Process main matrix
