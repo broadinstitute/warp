@@ -384,11 +384,11 @@ task STARsoloFastq {
 
       for file in "${!files[@]}"; do
             if [[ -f "$src_dir/raw/$file" ]]; then
-                new_name="${prefix}${files[$file]}"
+                new_name="${files[$file]}${prefix}"
                 echo "Renaming $src_dir/raw/$file → $new_name"
                 mv "$src_dir/raw/$file" "$new_name"
             elif [[ -f "$src_dir/$file" ]]; then
-                new_name="${prefix}${files[$file]}"
+                new_name="${files[$file]}${prefix}"
                 echo "Renaming $src_dir/$file → $new_name"
                 mv "$src_dir/$file" "$new_name"
             else
@@ -411,7 +411,7 @@ task STARsoloFastq {
         # Additional processing for sn_rna with exon counting
         SoloDirectory2="Solo.out/Gene"
         find "$SoloDirectory2" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; echo Renaming {}; mv {} "/cromwell_root/$new_name"'
-        move_common_files "$SoloDirectory2" "sn_rna_"  # Add snRNA prefix for renaming
+        move_common_files "$SoloDirectory2" "sn_rna_"  # Add snRNA suffix for renaming
       fi
       move_common_files "$SoloDirectory" ""  # Standard snRNA renaming
     else
