@@ -372,7 +372,7 @@ task STARsoloFastq {
     # Function to move and rename common files
     move_common_files() {
       local src_dir=$1
-      local prefix=$2
+      local suffix=$2
 
       declare -A files=(
             ["barcodes.tsv"]="barcodes.tsv"
@@ -388,7 +388,7 @@ task STARsoloFastq {
           name=$(basename "$file_path")
           base="${name%.*}"
           extension="${name##*.}"
-          new_name="${base}${prefix}.${extension}"
+          new_name="${base}${suffix}.${extension}"
           echo $new_name
           if [[ -f "$src_dir/raw/$file" ]]; then
                 echo "Renaming $src_dir/raw/$file → $new_name"
@@ -462,24 +462,14 @@ task STARsoloFastq {
 
         # If text files are present, create a tar archive with them and run python script to combine shard metrics
         python3 /scripts/scripts/combine_shard_metrics.py \
-          Summary.csv \
-          Features.stats \ 
-          CellReads.stats \
-          ~{counting_mode} \
-          ~{input_id} \
-          ${SoloDirectory}/filtered/barcodes.tsv \ # ? filtered
-          ${SoloDirectory}/filtered/matrix.mtx \ # ? filtered
-          ~{expected_cells}
+          Summary.csv Features.stats CellReads.stats ~{counting_mode} ~{input_id} ${SoloDirectory}/filtered/barcodes.tsv ${SoloDirectory}/filtered/matrix.mtx ~{expected_cells}
 
         echo "tarring STAR txt files"
         tar -zcvf ~{input_id}.star_metrics.tar *.txt
        
         # Create the compressed raw count matrix
         python3 /scripts/scripts/create-merged-npz-output.py \
-            --barcodes $BARCODE_FILE \
-            --features $FEATURE_FILE \
-            --matrix $MATRIX_FILE \
-            --input_id ~{input_id}
+            --barcodes $BARCODE_FILE --features $FEATURE_FILE --matrix $MATRIX_FILE --input_id ~{input_id}
      
       }
 
