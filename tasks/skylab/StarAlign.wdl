@@ -368,31 +368,36 @@ task STARsoloFastq {
       echo "Processing $directory"
       find "${directory}/raw" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'echo Moving {}; mv {} /cromwell_root/'
     }
+
     # Function to move and rename common files
     move_common_files() {
       local src_dir=$1
       local prefix=$2
 
       declare -A files=(
-          ["barcodes.tsv"]="barcodes.tsv"
-          ["features.tsv"]="features.tsv"
-          ["CellReads.stats"]="CellReads.stats"
-          ["Features.stats"]="Features.stats"
-          ["Summary.csv"]="Summary.csv"
-          ["UMIperCellSorted.txt"]="UMIperCellSorted.txt"
+            ["barcodes.tsv"]="barcodes.tsv"
+            ["features.tsv"]="features.tsv"
+            ["CellReads.stats"]="CellReads.stats"
+            ["Features.stats"]="Features.stats"
+            ["Summary.csv"]="Summary.csv"
+            ["UMIperCellSorted.txt"]="UMIperCellSorted.txt"
       )
 
       for file in "${!files[@]}"; do
+          file_path="${files[$file]}"
+          name=$(basename "$file_path")
+          base="${name%.*}"
+          extension="${name##*.}"
+          new_name="${base}${prefix}.${extension}"
+          echo $new_name
           if [[ -f "$src_dir/raw/$file" ]]; then
-              new_name="${prefix}${files[$file]}"
-              echo "Renaming $src_dir/raw/$file → $new_name"
-              mv "$src_dir/raw/$file" "$new_name"
+                echo "Renaming $src_dir/raw/$file → $new_name"
+                mv "$src_dir/raw/$file" "$new_name"
           elif [[ -f "$src_dir/$file" ]]; then
-              new_name="${prefix}${files[$file]}"
-              echo "Renaming $src_dir/$file → $new_name"
-              mv "$src_dir/$file" "$new_name"
+                echo "Renaming $src_dir/$file → $new_name"
+                mv "$src_dir/$file" "$new_name"
           else
-              echo "Warning: Missing file in $src_dir or $src_dir/raw: $file"
+                echo "Warning: Missing file in $src_dir or $src_dir/raw: $file"
           fi
       done
     }
@@ -401,27 +406,23 @@ task STARsoloFastq {
     then
       SoloDirectory="Solo.out/Gene"
       echo "SoloDirectory is $SoloDirectory"
-      
       move_mtx_files "$SoloDirectory"
       move_common_files "$SoloDirectory" ""
-
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
-        SoloDirectory="Solo.out/GeneFull_Ex50pAS"
-        move_mtx_files "$SoloDirectory"
-        
-        if [[ "~{count_exons}" == "true" ]]; then
-            # Additional processing for sn_rna with exon counting
-            SoloDirectory2="Solo.out/Gene"
-            find "$SoloDirectory2" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; echo Renaming {}; mv {} "/cromwell_root/$new_name"'
-            move_common_files "$SoloDirectory2" "sn_rna_"  # Add snRNA prefix for renaming
-        fi
-
-        move_common_files "$SoloDirectory" ""  # Standard snRNA renaming
+      SoloDirectory="Solo.out/GeneFull_Ex50pAS"
+      move_mtx_files "$SoloDirectory"     
+      if [[ "~{count_exons}" == "true" ]]; then
+        # Additional processing for sn_rna with exon counting
+        SoloDirectory2="Solo.out/Gene"
+        find "$SoloDirectory2/raw" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; echo Renaming {}; mv {} "/cromwell_root/$new_name"'
+        move_common_files "$SoloDirectory2" "_sn_rna"  # Add snRNA for renaming
+      fi
+      move_common_files "$SoloDirectory" ""  # Standard snRNA renaming
     else
       echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
     fi
-    
+
     # filtered outputs in Solo.out/GeneFull_Ex50pAS/filtered: barcodes.tsv features.tsv matrix.mtx
     ls ${SoloDirectory}/filtered
     echo "Tarring up filtered $MATRIX_NAME matrix files"
