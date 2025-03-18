@@ -221,12 +221,12 @@ task STARsoloFastq {
     Int chemistry
     String star_strand_mode
     String counting_mode # when counting_mode = sn_rna, runs Gene and GeneFullEx50pAS in single alignments
-    # why do we have two?
     String input_id
     String output_bam_basename
     Boolean? count_exons
     String? soloMultiMappers
     String soloCBmatchWLtype = "1MM_multi" #"1MM_multi_Nbase_pseudocounts"
+    Int expected_cells = 3000
     String reference_path = tar_star_reference
 
     # runtime values
@@ -437,7 +437,6 @@ task STARsoloFastq {
     ###########################################################################
     # FROM MERGE STAR OUTPUT TASK
     ###########################################################################
-    # look into /scripts/scripts/combine_shard_metrics.py -- len(filtered) == estimated cells in starsolo
     # Function to process a matrix (regular or snRNA)
     process_matrix() {
         local MATRIX_NAME=$1  # matrix or matrix_sn_rna
