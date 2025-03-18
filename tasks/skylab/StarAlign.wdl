@@ -371,7 +371,7 @@ task STARsoloFastq {
     # Function to move and rename common files
     move_common_files() {
       local src_dir=$1
-      local prefix=$2
+      local suffix=$2
 
       declare -A files=(
             ["barcodes.tsv"]="barcodes.tsv"
@@ -387,7 +387,7 @@ task STARsoloFastq {
           name=$(basename "$file_path")
           base="${name%.*}"
           extension="${name##*.}"
-          new_name="${base}${prefix}.${extension}"
+          new_name="${base}${suffix}.${extension}"
           echo $new_name
           if [[ -f "$src_dir/raw/$file" ]]; then
                 echo "Renaming $src_dir/raw/$file → $new_name"
