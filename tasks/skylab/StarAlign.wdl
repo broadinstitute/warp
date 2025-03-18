@@ -425,9 +425,9 @@ task STARsoloFastq {
 
     # filtered outputs in Solo.out/GeneFull_Ex50pAS/filtered: barcodes.tsv features.tsv matrix.mtx
     ls ${SoloDirectory}/filtered
-    echo "Tarring up filtered $MATRIX_NAME matrix files"
+    echo "Tarring up filtered matrix files"
     tar -cvf ~{input_id}_filtered_mtx_files.tar ${SoloDirectory}/filtered/barcodes.tsv ${SoloDirectory}/filtered/features.tsv ${SoloDirectory}/filtered/matrix.mtx
-    echo "Done processing $MATRIX_NAME"
+    echo "Done processing"
 
     # List the final directory contents
     echo "Final directory listing:"
