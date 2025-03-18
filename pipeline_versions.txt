@@ -7,8 +7,8 @@ ExomeReprocessing	 3.3.4	2025-02-21
 CramToUnmappedBams	 1.1.3	2024-08-02 
 RNAWithUMIsPipeline	 1.0.18	2024-11-04 
 IlluminaGenotypingArray	 1.12.24	2024-11-04 
-UltimaGenomicsWholeGenomeCramOnly	 1.0.24	2025-02-21 
-UltimaGenomicsWholeGenomeGermline	 1.1.4	2025-02-21 
+UltimaGenomicsWholeGenomeCramOnly	 1.0.25	2025-03-17 
+UltimaGenomicsWholeGenomeGermline	 1.1.5	2025-03-17 
 WholeGenomeGermlineSingleSample	 3.3.4	2025-02-12 
 ExomeGermlineSingleSample	 3.2.4	2025-02-21 
 VariantCalling	 2.2.5	2025-02-21 
