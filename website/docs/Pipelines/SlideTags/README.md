@@ -53,24 +53,24 @@ The workflow is composed of several key steps, implemented in separate WDL tasks
 | Task | Tool | Description |
 | --- | --- | --- |
 | [Optimus](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) | STARsolo | Gene quantification subworkflow that aligns reads to a reference genome and produces a count matrix. Read more in the Optimus Overview. | 
-| spatial_count | Custom Julia script | Extracts spatial barcodes, performs barcode sequencing error correction, maps reads to spatial barcodes and stores unique (cell, UMI, barcode) triplets in a count matrix, and calculates quality control metrics. Produces an h5 output. |
-| positioning | Custom R scripts | Extracts cell barcodes, calculates log-transformed UMI counts, and determines mitochondrial gene percentages. Performs data normalization, PCA, clustering, and UMAP embedding for visualization and produces quality metrics and graphs. Assigns cell barcodes to spatial barcode coordinates. |
+| spatial_count | [Custom Julia script](https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/5c74e9e6148102081827625b9ce91ec2b7ba3541/spatial-count/spatial-count.jl) developed by the Macosko lab | Extracts spatial barcodes, performs barcode sequencing error correction, maps reads to spatial barcodes and stores unique (cell, UMI, barcode) triplets in a count matrix, and calculates quality control metrics. Produces an h5 output. |
+| positioning | Custom R scripts for developed by the Macosko lab; includes [positioning.R](https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/ee005109446f58764509ee47ff51c212ce8dabe3/positioning/positioning.R), [load_matrix.R](https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/6a78716aa08a9f2506c06844f7e3fd491b03aa8b/positioning/load_matrix.R), and [run-positioning.R](https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/a7fc86abbdd3d46461c500e7d024315d88a97e9a/positioning/run-positioning.R) | Extracts cell barcodes, calculates log-transformed UMI counts, and determines mitochondrial gene percentages. Performs data normalization, PCA, clustering, and UMAP embedding for visualization and produces quality metrics and graphs. Assigns cell barcodes to spatial barcode coordinates. |
 
 
-Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://github.com/MacoskoLab/Macosko-Pipelines) repository, modified for streamlined output handling and stored in warp-tools.
+Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://github.com/MacoskoLab/Macosko-Pipelines) repository, modified for streamlined output handling. Dockers for running these scripts are maintained in the warp-tools repository under [slide-tags](https://github.com/broadinstitute/warp-tools/tree/develop/3rd-party-tools/slide-tags).
 
 ## Outputs
 
-| Output | Description | Format |
-| ------ | ------ | ------ |
-| Aligned BAM | Read alignments with spatial barcodes | BAM |
-| Gene Expression Matrix | Cell-by-gene count matrix | h5ad |
-| Spatial Barcode Map | Coordinates of detected barcodes | CSV |
-| Summary Metrics | Quality control statistics | CSV |
+| Output Variable | File Name | Description | Format |
+| ------ | --- | ------ | ------ |
+| output_file | "output.tar.gz" | TAR file containing compressed CSV of coordinates for each cell and PDFs containing quality control visualizations for clustering and density estimattion. | TAR |
+| positioning_log | "positioning.log" | Standard output of the positioning task. | txt |
+| sb_counts | "SBcounts.h5" | h5 file containing cell by gene matrix and spatial barcode information. | h5 |
+| spatial_log | "spatial-count.log" | Standard output of the spatial barcodes task | text |
 
 ## Versioning
 
-All releases of the pipeline are documented in the repository’s [changelog](https://github.com/MacoskoLab/Macosko-Pipelines/blob/main/CHANGELOG.md).
+All releases of the pipeline are documented in the repository’s changelog.
 
 ## Citing the Slide-tags Pipeline
 
