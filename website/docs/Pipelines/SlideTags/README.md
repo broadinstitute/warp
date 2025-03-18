@@ -25,13 +25,13 @@ This workflow integrates multiple processing steps, including barcode extraction
 | Overall workflow  | Barcode extraction, spatial positioning, transcript quantification | Original code available from [GitHub](https://github.com/MacoskoLab/Macosko-Pipelines); WDL workflow available in WARP. |
 | Workflow language | WDL | [openWDL](https://github.com/openwdl/wdl) |
 | Data input file format | File format in which sequencing data is provided | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
-| Data output file format | Output formats for downstream analysis | [HDF5](https://www.hdfgroup.org/) (h5ad), CSV |
+| Data output file format | Output formats for downstream analysis | [HDF5](https://www.hdfgroup.org/) |
 
 ## Set-up
 
 ### Installation
 
-To download the latest Slide-tags release, see the release tags prefixed with "Optimus" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All Optimus pipeline releases are documented in the [Slide-tags changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slidetags/SlideTags.changelog.md).
+To download the latest Slide-tags release, see the release tags prefixed with "Slide-tags" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All Slide-tags pipeline releases are documented in the [Slide-tags changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slidetags/SlideTags.changelog.md).
 
 The pipeline can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH-compliant workflow manager. Additionally, it can be run in cloud-based analysis platforms such as [Terra](https://app.terra.bio).
 
@@ -39,10 +39,38 @@ The pipeline can be deployed using [Cromwell](https://cromwell.readthedocs.io/en
 
 The pipeline requires JSON-formatted configuration files detailing input parameters. Required inputs include:
 
-- **Raw FASTQ files** from sequencing
+- **Raw paired-end FASTQ files** containing sequencing reads
 - **Reference genome** and transcript annotation files
 - **Spatial barcode whitelist**
 - **Spatial positioning reference**
+
+| Input Variable          | Description                                      | Format           |
+|-------------------------|--------------------------------------------------|------------------|
+| id                      | Unique identifier for the analysis run          | String           |
+| fastq_paths             | Array of paths to spatial FASTQ files           | Array[String]    |
+| pucks                  | Array of paths to puck files                     | Array[String]    |
+| rna_paths              | Array of paths to RNA data files                 | Array[String]    |
+| sb_path                | Path to the spatial barcode file                 | String           |
+| cloud_provider         | Cloud provider for computing resources           | String           |
+| input_id               | Unique input identifier                          | String           |
+| expected_cells         | Expected number of cells in the dataset          | Int              |
+| counting_mode          | Counting mode (e.g., snRNA)                      | String           |
+| gex_r1_fastq           | Array of FASTQ files for R1 reads                | Array[File]      |
+| gex_r2_fastq           | Array of FASTQ files for R2 reads                | Array[File]      |
+| gex_i1_fastq           | Optional FASTQ files for I1 index reads          | Array[File]?     |
+| tar_star_reference     | Reference genome in a TAR format for STAR align. | File             |
+| annotations_gtf        | Gene annotation file in GTF format               | File             |
+| mt_genes               | Optional file listing mitochondrial genes        | File?            |
+| tenx_chemistry_version | Version of 10X chemistry used                    | Int              |
+| emptydrops_lower       | Lower threshold for EmptyDrops filtering         | Int              |
+| force_no_check        | Flag to disable sanity checks                     | Boolean          |
+| ignore_r1_read_length | Ignore length check for R1 reads                 | Boolean          |
+| star_strand_mode       | Strand mode setting for STAR alignment           | String           |
+| count_exons            | Flag to enable exon counting                     | Boolean          |
+| gex_whitelist          | Whitelist file for cell barcodes                 | File             |
+| soloMultiMappers       | Optional setting for handling multi-mapped reads | String?          |
+| gex_nhash_id           | Optional NHash identifier for gene expression     | String?          |
+| docker                 | Docker image used for the workflow               | String
 
 Example input configurations can be found in the `test_inputs` folder of the GitHub repository.
 
