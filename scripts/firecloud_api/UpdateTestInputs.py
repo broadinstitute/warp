@@ -120,7 +120,7 @@ def update_test_inputs(inputs_json, results_path, update_truth, branch_name, doc
 
     # Add the truth_path and results_path to the updated inputs
     updated_inputs[f"{test_name}.results_path"] = f"{results_path}/{sample_name}/"
-    logging.info(f"results_path: {results_path}/{sample_name}/")
+    logging.info(f" the results_path: {results_path}/{sample_name}/")
     updated_inputs[f"{test_name}.truth_path"] = f"{truth_path}/{sample_name}/"
     updated_inputs[f"{test_name}.update_truth"] = update_truth
 
