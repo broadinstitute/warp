@@ -51,17 +51,15 @@ def update_test_inputs(inputs_json, truth_path_base, results_path_base, update_t
     #log the sample name
     logging.info("sample_name")
 
-    # Use the provided pipeline name
-    pipeline_name = dockstore_pipeline_name
+    # Get the pipeline name from the test inputs JSON
+    pipeline_name_from_test_inputs = next(iter(test_inputs)).split('.')[0]
+    logging.info(f"pipeline_name_from_test_inputs: {pipeline_name_from_test_inputs}")
 
     # Append "Test" in front of the pipeline name
-    test_name = f"Test{pipeline_name}"
+    test_name = f"Test{pipeline_name_from_test_inputs}"
 
     # Determine the correct bucket based on the input data
     bucket_path = determine_bucket_from_inputs(test_inputs)
-
-    # Extract the pipeline name from the input JSON for creating the bucket path
-    dockstore_pipeline_name = pipeline_name
 
     # Get the test type from the sample name or infer from the inputs
     if "plumbing" in sample_name.lower():
@@ -80,8 +78,12 @@ def update_test_inputs(inputs_json, truth_path_base, results_path_base, update_t
             test_type = "plumbing"
 
     # Create the truth and results paths based on the determined bucket
+    # Extract the pipeline name from the input JSON for creating the bucket path
+    dockstore_pipeline_name = dockstore_pipeline_name
     truth_path = f"{bucket_path}/{dockstore_pipeline_name}/truth/{test_type}/{branch_name}"
     results_path = f"{bucket_path}/{dockstore_pipeline_name}/results/{test_type}/{branch_name}"
+    logging.info(f"truth_path: {truth_path}")
+    logging.info(f"results_path: {results_path}")
 
     # Update all keys and ensure nested inputs are handled correctly
     updated_inputs = {}
@@ -94,7 +96,7 @@ def update_test_inputs(inputs_json, truth_path_base, results_path_base, update_t
 
         # For nested keys (more than two parts), append the original pipeline name with a `.`
         if len(key_parts) > 2:
-            key_parts[1] = f"{pipeline_name}.{key_parts[1]}"
+            key_parts[1] = f"{pipeline_name_from_test_inputs}.{key_parts[1]}"
 
         # Reconstruct the updated key
         new_key = '.'.join(key_parts)
