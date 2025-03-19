@@ -249,13 +249,13 @@ jobs:
           INPUTS_DIR="${{ inputs.pipeline_dir }}/test_inputs/$TEST_TYPE"
           echo "Running tests with test type: $TEST_TYPE"
 
-          TRUTH_PATH="gs://broad-gotc-test-storage/${{ inputs.dockstore_pipeline_name }}/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
+          #TRUTH_PATH="gs://broad-gotc-test-storage/${{ inputs.dockstore_pipeline_name }}/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           echo "Truth path: $TRUTH_PATH"
-          RESULTS_PATH="gs://broad-gotc-test-storage/${{ inputs.dockstore_pipeline_name }}/results/$CURRENT_TIME"
+          RESULTS_PATH="gs://pd-test-results/${{ inputs.dockstore_pipeline_name }}/results/$CURRENT_TIME"
 
           # Submit all jobs first and store their submission IDs
           for input_file in "$INPUTS_DIR"/*.json; do
-            test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path "$TRUTH_PATH" \
+            test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py \
                 --results_path "$RESULTS_PATH" \
                 --inputs_json "$input_file" \
                 --update_truth "$UPDATE_TRUTH_BOOL" \

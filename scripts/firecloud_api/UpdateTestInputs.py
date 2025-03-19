@@ -42,7 +42,7 @@ def determine_bucket_from_inputs(test_inputs):
     # Default to private bucket if no match found
     return private_bucket
 
-def update_test_inputs(inputs_json, truth_path_base, results_path_base, update_truth, branch_name, dockstore_pipeline_name):
+def update_test_inputs(inputs_json, results_path, update_truth, branch_name, dockstore_pipeline_name):
     with open(inputs_json, 'r') as file:
         test_inputs = json.load(file)
 
@@ -81,9 +81,7 @@ def update_test_inputs(inputs_json, truth_path_base, results_path_base, update_t
     # Extract the pipeline name from the input JSON for creating the bucket path
     dockstore_pipeline_name = dockstore_pipeline_name
     truth_path = f"{bucket_path}/{dockstore_pipeline_name}/truth/{test_type}/{branch_name}"
-    results_path = f"{bucket_path}/{dockstore_pipeline_name}/results/{test_type}/{branch_name}"
     logging.info(f"truth_path: {truth_path}")
-    logging.info(f"results_path: {results_path}")
 
     # Update all keys and ensure nested inputs are handled correctly
     updated_inputs = {}
@@ -122,6 +120,7 @@ def update_test_inputs(inputs_json, truth_path_base, results_path_base, update_t
 
     # Add the truth_path and results_path to the updated inputs
     updated_inputs[f"{test_name}.results_path"] = f"{results_path}/{sample_name}/"
+    logging.info(f"results_path: {results_path}/{sample_name}/")
     updated_inputs[f"{test_name}.truth_path"] = f"{truth_path}/{sample_name}/"
     updated_inputs[f"{test_name}.update_truth"] = update_truth
 
@@ -144,18 +143,10 @@ def main():
     parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument(
-        "--truth_path",
-        dest="truth_path",
-        required=False,
-        default="gs://broad-gotc-test-storage",
-        help="The base path where the truth data is stored (now determined dynamically based on input data)",
-    )
-
-    parser.add_argument(
         "--results_path",
         dest="results_path",
         required=False,
-        default="gs://broad-gotc-test-storage",
+        default="gs://pd-test-results",
         help="The base path where the test data will be stored (now determined dynamically based on input data)",
     )
 
@@ -192,7 +183,7 @@ def main():
     update_truth_bool = args.update_truth.lower() == "true"
 
     # Update the test inputs to work with the test wrapper WDL
-    update_test_inputs(args.inputs_json, args.truth_path, args.results_path, update_truth_bool, args.branch_name, args.dockstore_pipeline_name)
+    update_test_inputs(args.inputs_json, args.results_path, update_truth_bool, args.branch_name, args.dockstore_pipeline_name)
 
 if __name__ == "__main__":
     main()
