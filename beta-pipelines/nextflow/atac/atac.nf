@@ -73,8 +73,8 @@ params.cpu_platform = "x86_64"
 
 workflow {
   result = GetNumSplits(params.nthreads, params.mem_size, params.cpu_platform)
-  // Read and transform the output file into an integer
-  ranks_per_node = result.ranks_per_node.text.trim().toInteger()
-  println "Ranks per node: ${ranks_per_node}"
-
+  // Read the content of the output file
+  //ranks_per_node_file = result.ranks_per_node
+  //ranks_per_node = ranks_per_node_file.text.trim()
+  //println "Ranks per node: ${ranks_per_node}"
 }
