@@ -30,9 +30,9 @@ task TerraCopyFilesFromCloudToCloud {
     echo ~{default='no_contamination' contamination} > contamination
 
     if ! grep -q no_contamination contamination; then
-      gcloud storage cp -L cp.log contamination ~{destination_cloud_path}.contamination
+      gcloud storage cp --billing-project=warp-pipeline-dev -L cp.log contamination ~{destination_cloud_path}.contamination
     fi
-    gcloud storage cp ~{sep=' ' files_to_copy} ~{destination_cloud_path}
+    gcloud storage cp --billing-project=warp-pipeline-dev ~{sep=' ' files_to_copy} ~{destination_cloud_path}
   }
 
   output {
