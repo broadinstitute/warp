@@ -18,8 +18,8 @@ def determine_bucket_from_inputs(test_inputs):
     Returns the appropriate bucket path.
     """
     # Bucket paths to check
-    public_bucket = "gs://broad-gotc-pd-storage-public"
-    private_bucket = "gs://broad-gotc-pd-storage-private"
+    public_bucket = "gs://pd-test-storage-public"
+    private_bucket = "gs://pd-test-storage-private"
 
     # Convert inputs to a string for easier searching
     inputs_str = json.dumps(test_inputs)
