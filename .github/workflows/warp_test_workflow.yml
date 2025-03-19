@@ -259,7 +259,8 @@ jobs:
                 --results_path "$RESULTS_PATH" \
                 --inputs_json "$input_file" \
                 --update_truth "$UPDATE_TRUTH_BOOL" \
-                --branch_name "$BRANCH_NAME" )
+                --branch_name "$BRANCH_NAME" \
+                --dockstore_pipeline_name "${{ inputs.dockstore_pipeline_name }}" \)
             echo "Uploading the test input file: $test_input_file"
 
             # Create the submission_data.json file for this input_file
