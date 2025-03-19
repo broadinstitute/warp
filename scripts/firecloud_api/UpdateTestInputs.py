@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import ast
+import re
 from decimal import Decimal
 
 def format_float(value):
@@ -11,7 +12,29 @@ def format_float(value):
         return str(Decimal(str(value)))
     return value
 
-def update_test_inputs(inputs_json, truth_path, results_path, update_truth, branch_name):
+def determine_bucket_from_inputs(test_inputs):
+    """
+    Determine whether inputs are from public or private bucket by examining the values.
+    Returns the appropriate bucket path.
+    """
+    # Bucket paths to check
+    public_bucket = "gs://broad-gotc-pd-storage-public"
+    private_bucket = "gs://broad-gotc-pd-storage-private"
+
+    # Convert inputs to a string for easier searching
+    inputs_str = json.dumps(test_inputs)
+
+    # Check if any value contains reference to public bucket
+    if public_bucket in inputs_str:
+        return public_bucket
+    # Check if any value contains reference to private bucket
+    elif private_bucket in inputs_str:
+        return private_bucket
+
+    # Default to private bucket if no match found
+    return private_bucket
+
+def update_test_inputs(inputs_json, truth_path_base, results_path_base, update_truth, branch_name):
     with open(inputs_json, 'r') as file:
         test_inputs = json.load(file)
 
@@ -23,6 +46,32 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, bran
 
     # Append "Test" in front of the pipeline name
     test_name = f"Test{pipeline_name}"
+
+    # Determine the correct bucket based on the input data
+    bucket_path = determine_bucket_from_inputs(test_inputs)
+
+    # Extract the pipeline name from the input JSON for creating the bucket path
+    dockstore_pipeline_name = pipeline_name
+
+    # Get the test type from the sample name or infer from the inputs
+    if "plumbing" in sample_name.lower():
+        test_type = "plumbing"
+    elif "scientific" in sample_name.lower():
+        test_type = "scientific"
+    else:
+        # Try to infer from the inputs
+        inputs_str = json.dumps(test_inputs).lower()
+        if "plumbing" in inputs_str:
+            test_type = "plumbing"
+        elif "scientific" in inputs_str:
+            test_type = "scientific"
+        else:
+            # Default to plumbing if we can't determine
+            test_type = "plumbing"
+
+    # Create the truth and results paths based on the determined bucket
+    truth_path = f"{bucket_path}/{dockstore_pipeline_name}/truth/{test_type}/{branch_name}"
+    results_path = f"{bucket_path}/{dockstore_pipeline_name}/test_results/{test_type}/{branch_name}"
 
     # Update all keys and ensure nested inputs are handled correctly
     updated_inputs = {}
@@ -77,22 +126,25 @@ def update_test_inputs(inputs_json, truth_path, results_path, update_truth, bran
 
 def main():
     description = """This script updates the test inputs JSON to work with the test wrapper WDL,
-    which runs the pipeline and verification"""
+    which runs the pipeline and verification. It now determines the appropriate bucket (public or private)
+    based on the input data locations."""
 
     parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument(
         "--truth_path",
         dest="truth_path",
-        required=True,
-        help="The base path where the truth data is stored",
+        required=False,
+        default="gs://broad-gotc-test-storage",
+        help="The base path where the truth data is stored (now determined dynamically based on input data)",
     )
 
     parser.add_argument(
         "--results_path",
         dest="results_path",
-        required=True,
-        help="The base path where the test data will be stored",
+        required=False,
+        default="gs://broad-gotc-test-storage",
+        help="The base path where the test data will be stored (now determined dynamically based on input data)",
     )
 
     parser.add_argument(
