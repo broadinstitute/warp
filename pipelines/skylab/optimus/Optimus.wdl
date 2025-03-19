@@ -176,6 +176,7 @@ workflow Optimus {
         counting_mode = counting_mode,
         count_exons = count_exons,
         input_id = input_id,
+        output_bam_basename = output_bam_basename,
         soloMultiMappers = soloMultiMappers,
         samtools_star_docker_path = docker_prefix + samtools_star
     }

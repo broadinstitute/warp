@@ -222,6 +222,7 @@ task STARsoloFastq {
     String star_strand_mode
     String counting_mode # when counting_mode = sn_rna, runs Gene and GeneFullEx50pAS in single alignments
     String input_id
+    String output_bam_basename
     Boolean? count_exons
     String? soloMultiMappers
     String soloCBmatchWLtype = "1MM_multi" #"1MM_multi_Nbase_pseudocounts"
@@ -257,6 +258,7 @@ task STARsoloFastq {
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
     limitBAMsortRAM: "(optional) Specifies the maximum amount of RAM (in GiB) allocated for sorting BAM files in STAR. Default is 30."
+    outBAMsortingBinsN: "(optional) Defines the number of bins used when sorting BAM files in STAR."
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
@@ -425,7 +427,7 @@ task STARsoloFastq {
     # List the final directory contents
     echo "Final directory listing:"
     ls -l
-    mv Aligned.sortedByCoord.out.reheader.bam ~{input_id}.bam
+    mv Aligned.sortedByCoord.out.reheader.bam ~{output_bam_basename}.bam
       
   >>>
 
@@ -440,7 +442,7 @@ task STARsoloFastq {
   }
 
   output {
-    File bam_output = "~{input_id}.bam"
+    File bam_output = "~{output_bam_basename}.bam"
     File alignment_log = "Log.final.out"
     File general_log = "Log.out"
     File barcodes = "barcodes.tsv"
