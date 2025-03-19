@@ -4,6 +4,14 @@ import os
 import ast
 import re
 from decimal import Decimal
+import logging
+
+
+# Configure logging to display INFO level and above messages
+logging.basicConfig(
+    level=logging.INFO,  # This will show INFO and higher levels (INFO, WARNING, ERROR, CRITICAL)
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 def format_float(value):
     """Format float to avoid scientific notation for small numbers."""
@@ -34,15 +42,17 @@ def determine_bucket_from_inputs(test_inputs):
     # Default to private bucket if no match found
     return private_bucket
 
-def update_test_inputs(inputs_json, truth_path_base, results_path_base, update_truth, branch_name):
+def update_test_inputs(inputs_json, truth_path_base, results_path_base, update_truth, branch_name, dockstore_pipeline_name):
     with open(inputs_json, 'r') as file:
         test_inputs = json.load(file)
 
     # Get the sample name from the test inputs JSON
     sample_name = os.path.splitext(os.path.basename(inputs_json))[0]
+    #log the sample name
+    logging.info("sample_name")
 
-    # Get the pipeline name from the test inputs JSON
-    pipeline_name = next(iter(test_inputs)).split('.')[0]
+    # Use the provided pipeline name
+    pipeline_name = dockstore_pipeline_name
 
     # Append "Test" in front of the pipeline name
     test_name = f"Test{pipeline_name}"
@@ -71,7 +81,7 @@ def update_test_inputs(inputs_json, truth_path_base, results_path_base, update_t
 
     # Create the truth and results paths based on the determined bucket
     truth_path = f"{bucket_path}/{dockstore_pipeline_name}/truth/{test_type}/{branch_name}"
-    results_path = f"{bucket_path}/{dockstore_pipeline_name}/test_results/{test_type}/{branch_name}"
+    results_path = f"{bucket_path}/{dockstore_pipeline_name}/results/{test_type}/{branch_name}"
 
     # Update all keys and ensure nested inputs are handled correctly
     updated_inputs = {}
@@ -169,12 +179,18 @@ def main():
         required=True,
         help="Branch name of the current pipeline run")
 
+    parser.add_argument(
+        "--dockstore_pipeline_name",
+        required=True,
+        help="The pipeline name from Dockstore",
+    )
+
     args = parser.parse_args()
     # convert the update_truth flag to a boolean
     update_truth_bool = args.update_truth.lower() == "true"
 
     # Update the test inputs to work with the test wrapper WDL
-    update_test_inputs(args.inputs_json, args.truth_path, args.results_path, update_truth_bool, args.branch_name)
+    update_test_inputs(args.inputs_json, args.truth_path, args.results_path, update_truth_bool, args.branch_name, args.dockstore_pipeline_name)
 
 if __name__ == "__main__":
     main()
