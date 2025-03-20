@@ -288,7 +288,7 @@ jobs:
                 --workspace-name "$TESTING_WORKSPACE" \
                 --pipeline_name "${{ inputs.pipeline_name }}" \
                 --test_input_file "$test_input_file" \
-                --branch_name "$BRANCH_NAME" \
+                --branch_name "${{ inputs.truth_branch }}" \
                 --sa-json-b64 "$SA_JSON_B64" \
                 --test_type "$TEST_TYPE" \
                 --user "$USER"
