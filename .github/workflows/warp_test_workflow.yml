@@ -251,7 +251,8 @@ jobs:
 
           TRUTH_PATH="gs://broad-gotc-test-storage/${{ inputs.dockstore_pipeline_name }}/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
           echo "Truth path: $TRUTH_PATH"
-          RESULTS_PATH="gs://broad-gotc-test-storage/${{ inputs.dockstore_pipeline_name }}/results/$CURRENT_TIME"
+          
+          RESULTS_PATH="gs://pd-test-results/${{ inputs.dockstore_pipeline_name }}/results/$CURRENT_TIME"
 
           # Submit all jobs first and store their submission IDs
           for input_file in "$INPUTS_DIR"/*.json; do
