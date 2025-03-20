@@ -259,7 +259,7 @@ jobs:
                 --results_path "$RESULTS_PATH" \
                 --inputs_json "$input_file" \
                 --update_truth "$UPDATE_TRUTH_BOOL" \
-                --branch_name "$BRANCH_NAME" \
+                --branch_name "TRUTH_BRANCH" \
                 --dockstore_pipeline_name "${{ inputs.dockstore_pipeline_name }}" )
             echo "Uploading the test input file: $test_input_file"
 
@@ -288,7 +288,7 @@ jobs:
                 --workspace-name "$TESTING_WORKSPACE" \
                 --pipeline_name "${{ inputs.pipeline_name }}" \
                 --test_input_file "$test_input_file" \
-                --branch_name "${{ inputs.truth_branch }}" \
+                --branch_name "$BRANCH_NAME" \
                 --sa-json-b64 "$SA_JSON_B64" \
                 --test_type "$TEST_TYPE" \
                 --user "$USER"
