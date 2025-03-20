@@ -2,16 +2,7 @@ import argparse
 import json
 import os
 import ast
-import re
 from decimal import Decimal
-import logging
-
-
-# Configure logging to display INFO level and above messages
-logging.basicConfig(
-    level=logging.INFO,  # This will show INFO and higher levels (INFO, WARNING, ERROR, CRITICAL)
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 
 def format_float(value):
     """Format float to avoid scientific notation for small numbers."""
@@ -48,12 +39,9 @@ def update_test_inputs(inputs_json, results_path, update_truth, branch_name, doc
 
     # Get the sample name from the test inputs JSON
     sample_name = os.path.splitext(os.path.basename(inputs_json))[0]
-    #log the sample name
-    logging.info("sample_name")
 
     # Get the pipeline name from the test inputs JSON
     pipeline_name_from_test_inputs = next(iter(test_inputs)).split('.')[0]
-    logging.info(f"pipeline_name_from_test_inputs: {pipeline_name_from_test_inputs}")
 
     # Append "Test" in front of the pipeline name
     test_name = f"Test{pipeline_name_from_test_inputs}"
@@ -81,7 +69,6 @@ def update_test_inputs(inputs_json, results_path, update_truth, branch_name, doc
     # Extract the pipeline name from the input JSON for creating the bucket path
     dockstore_pipeline_name = dockstore_pipeline_name
     truth_path = f"{bucket_path}/{dockstore_pipeline_name}/truth/{test_type}/{branch_name}"
-    logging.info(f"truth_path: {truth_path}")
 
     # Update all keys and ensure nested inputs are handled correctly
     updated_inputs = {}
@@ -120,7 +107,6 @@ def update_test_inputs(inputs_json, results_path, update_truth, branch_name, doc
 
     # Add the truth_path and results_path to the updated inputs
     updated_inputs[f"{test_name}.results_path"] = f"{results_path}/{sample_name}/"
-    logging.info(f" the results_path: {results_path}/{sample_name}/")
     updated_inputs[f"{test_name}.truth_path"] = f"{truth_path}/{sample_name}/"
     updated_inputs[f"{test_name}.update_truth"] = update_truth
 
