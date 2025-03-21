@@ -248,7 +248,7 @@ jobs:
           TEST_TYPE="${{ env.testType }}"
           INPUTS_DIR="${{ inputs.pipeline_dir }}/test_inputs/$TEST_TYPE"
           echo "Running tests with test type: $TEST_TYPE"
-
+          
           RESULTS_PATH="gs://pd-test-results/${{ inputs.dockstore_pipeline_name }}/results/$CURRENT_TIME"
 
           # Submit all jobs first and store their submission IDs
