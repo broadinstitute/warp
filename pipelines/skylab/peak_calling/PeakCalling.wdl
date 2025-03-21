@@ -136,8 +136,8 @@ task PeakCalling {
         atac_data_mod.obsm["fragment_paired"] =  atac_data.obsm["fragment_paired"]
         print("set all uns")
         for key in atac_data.uns.keys():
-        print("set ",key)
-        atac_data_mod.uns[key] = atac_data.uns[key]
+          print("set ",key)
+          atac_data_mod.uns[key] = atac_data.uns[key]
         print(atac_data_mod)
 
         # Feature selection
@@ -162,7 +162,7 @@ task PeakCalling {
 
         # Check if the matrix is empty
         if atac_data_mod.n_obs == 0:
-        raise ValueError("Matrix is empty after filtering doublets: Try increasing the probability_threshold.")
+          raise ValueError("Matrix is empty after filtering doublets: Try increasing the probability_threshold.")
 
         # Perform graph-based clustering to identify cell clusters.
         # Build a k-nearest neighbour graph using snap.pp.knn
@@ -188,8 +188,8 @@ task PeakCalling {
         sc.tl.rank_genes_groups(gene_mat, groupby="leiden", method="wilcoxon")
 
         for i in np.unique(gene_mat.obs['leiden']):
-        markers = sc.get.rank_genes_groups_df(gene_mat, group=i).head(7)['names']
-        print(f"Cluster {i}: {', '.join(markers)}")
+            markers = sc.get.rank_genes_groups_df(gene_mat, group=i).head(7)['names']
+            print(f"Cluster {i}: {', '.join(markers)}")
 
         print("Peak calling using MACS3")
         snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=1)
@@ -205,9 +205,9 @@ task PeakCalling {
         print("Convert pl.DataFrame to pandas DataFrame")
         # Convert pl.DataFrame to pandas DataFrame
         for key in atac_data_mod.uns.keys():
-        if isinstance(atac_data_mod.uns[key], pl.DataFrame):
-        print(key)
-        atac_data_mod.uns[key] = atac_data_mod.uns[key].to_pandas()
+          if isinstance(atac_data_mod.uns[key], pl.DataFrame):
+              print(key)
+              atac_data_mod.uns[key] = atac_data_mod.uns[key].to_pandas()
 
         print("Write into h5ad file")
         atac_data_mod.write_h5ad("~{output_base_name}.cellbybin.h5ad")
