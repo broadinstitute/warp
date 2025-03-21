@@ -60,6 +60,7 @@ workflow PeakCalling {
     output {
         File cellbybin_h5ad = PeakCalling.cellbybin_h5ad
         File cellbypeak_h5ad = PeakCalling.cellbypeak_h5ad
+        String pipeline_version_out = pipeline_version
 
     }
 }
