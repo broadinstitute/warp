@@ -22,7 +22,6 @@ workflow PeakCalling {
       Float probability_threshold = 0.5
 
       # Runtime attributes/docker
-      String docker_path
       Int disk_size = 500
       Int mem_size = 64
       Int nthreads = 4
