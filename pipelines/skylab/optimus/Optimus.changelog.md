@@ -1,3 +1,10 @@
+# 8.0.0
+2025-03-19 (Date of Last Commit)
+
+* Removed boolean variable is_slidetags; no longer needed with new updates
+* Refactored the STAR alignment step and removed tasks FastqProcessing and MergeSortBamFiles; we are no longer sharding. We are now running one instance of STAR
+* Added parameters for STARsoloFastq task, including cpu_platform_star, mem_size_star, cpu_star, disk_star, limitBAMsortRAM_star, and outBAMsortingBinsN_star, for dynamic allocation of resources depending on input size
+
 # 7.9.2
 2025-02-25 (Date of Last Commit)
 

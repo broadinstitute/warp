@@ -1,3 +1,7 @@
+# 6.0.0
+2025-03-19 (Date of Last Commit)
+* Refactored the STAR alignment step (STARsoloFastq) in Optimus and removed tasks FastqProcessing and MergeSortBamFiles; we are no longer sharding. We are now running one instance of STAR
+
 # 5.11.0
 2025-02-25 (Date of Last Commit)
 
