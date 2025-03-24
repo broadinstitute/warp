@@ -226,6 +226,7 @@ task STARsoloFastq {
     Boolean? count_exons
     String? soloMultiMappers
     String soloCBmatchWLtype = "1MM_multi" #"1MM_multi_Nbase_pseudocounts"
+    Int expected_cells = 3000
     String reference_path = tar_star_reference
 
     # runtime values
@@ -323,7 +324,7 @@ task STARsoloFastq {
     RAM_limit_bytes=$((1073741824 * ~{limitBAMsortRAM})) 
     echo $RAM_limit_bytes, ~{limitBAMsortRAM}
     
-    # run STAR
+    # run star
     STAR \
         --soloType Droplet \
         --soloStrand ~{star_strand_mode} \
@@ -357,8 +358,7 @@ task STARsoloFastq {
 
     echo "UMI LEN " $UMILen
     touch barcodes_sn_rna.tsv features_sn_rna.tsv matrix_sn_rna.mtx CellReads_sn_rna.stats Features_sn_rna.stats Summary_sn_rna.csv UMIperCellSorted_sn_rna.txt
-    ls -R
-
+      
     ###########################################################################
     # SAVE OUTPUT FILES
     ###########################################################################
@@ -423,11 +423,65 @@ task STARsoloFastq {
       echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
     fi
 
+    # filtered outputs in Solo.out/GeneFull_Ex50pAS/filtered: barcodes.tsv features.tsv matrix.mtx
+    ls ${SoloDirectory}/filtered
+    echo "Tarring up filtered matrix files"
+    tar -cvf ~{input_id}_filtered_mtx_files.tar ${SoloDirectory}/filtered/barcodes.tsv ${SoloDirectory}/filtered/features.tsv ${SoloDirectory}/filtered/matrix.mtx
+    echo "Done processing"
+
     # List the final directory contents
     echo "Final directory listing:"
     ls -l
     mv Aligned.sortedByCoord.out.reheader.bam ~{output_bam_basename}.bam
-      
+    
+    ###########################################################################
+    # FROM MERGE STAR OUTPUT TASK
+    ###########################################################################
+    # Function to process a matrix (regular or snRNA)
+    process_matrix() {
+        local MATRIX_NAME=$1  # matrix or matrix_sn_rna
+        local BARCODE_FILE=$2
+        local FEATURE_FILE=$3
+        local MATRIX_FILE=$4
+        local OUTPUT_DIR=$5
+
+        echo "Processing $MATRIX_NAME data..."
+
+        # Create and copy matrix files
+        mkdir -p ./$MATRIX_NAME
+        cp $MATRIX_FILE ./$MATRIX_NAME/matrix.mtx
+        cp $BARCODE_FILE ./$MATRIX_NAME/barcodes.tsv
+        cp $FEATURE_FILE ./$MATRIX_NAME/features.tsv
+
+        # Compress matrix files
+        tar -zcvf ~{input_id}_${MATRIX_NAME}.mtx_files.tar -C ./$MATRIX_NAME .
+
+        # List files
+        echo "Listing files after processing $MATRIX_NAME:"
+        ls
+
+        # If text files are present, create a tar archive with them and run python script to combine shard metrics
+        python3 /scripts/scripts/combine_shard_metrics.py \
+          Summary.csv Features.stats CellReads.stats ~{counting_mode} ~{input_id} ${SoloDirectory}/filtered/barcodes.tsv ${SoloDirectory}/filtered/matrix.mtx ~{expected_cells}
+
+        echo "tarring STAR txt files"
+        tar -zcvf ~{input_id}.star_metrics.tar *.txt
+       
+        # Create the compressed raw count matrix
+        python3 /scripts/scripts/create-merged-npz-output.py \
+            --barcodes $BARCODE_FILE --features $FEATURE_FILE --matrix $MATRIX_FILE --input_id ~{input_id}
+     
+      }
+
+      # Process main matrix
+      process_matrix "matrix" "barcodes.tsv" "features.tsv" "matrix.mtx" "./output"
+
+      # Process snRNA matrix only if files exist
+      if [ -s "barcodes_sn_rna.tsv" ]; then
+          process_matrix "matrix_sn_rna" "barcodes_sn_rna.tsv" "features_sn_rna.tsv" "matrix_sn_rna.mtx" "./outputsnrna"
+      fi
+
+      ls -lR
   >>>
 
   runtime {
@@ -462,6 +516,14 @@ task STARsoloFastq {
     File? multimappers_Uniform_matrix = "UniqueAndMult-Uniform.mtx"
     File? multimappers_Rescue_matrix = "UniqueAndMult-Rescue.mtx"
     File? multimappers_PropUnique_matrix = "UniqueAndMult-PropUnique.mtx"
+    # Output files for previous merging STAR output step
+    File row_index = "~{input_id}_sparse_counts_row_index.npy"
+    File col_index = "~{input_id}_sparse_counts_col_index.npy"
+    File sparse_counts = "~{input_id}_sparse_counts.npz"
+    File? library_metrics="~{input_id}_library_metrics.csv"
+    File? mtx_files ="~{input_id}.mtx_files.tar"
+    File? filtered_mtx_files = "~{input_id}_filtered_mtx_files.tar"
+    File? cell_reads_out = "~{input_id}.star_metrics.tar"
   }
 }
 
@@ -522,7 +584,7 @@ task MergeStarOutput {
     ~{input_id}.uniform.mtx
 
     mkdir matrix
-    #Using cp b/c mv isn't moving
+    #Using cp because mv isn't moving
     pwd
     ls -lR
     cp ~{input_id}.uniform.mtx ./matrix/matrix.mtx
@@ -587,7 +649,7 @@ task MergeStarOutput {
       fi
     done
 
-    # note that the counter might not correspond to the shard number, its just the order of files in bash (e.g. 10 before 2)
+    # note that the counter might not correspond to the shard number, it is just the order of files in bash (e.g. 10 before 2)
     counter=0
     for umipercell in "${umipercell_files[@]}"; do
       if [ -f "$umipercell" ]; then
