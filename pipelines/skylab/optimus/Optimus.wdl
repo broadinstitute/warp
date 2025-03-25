@@ -177,7 +177,7 @@ workflow Optimus {
         input_id = input_id,
         output_bam_basename = output_bam_basename,
         soloMultiMappers = soloMultiMappers,
-        samtools_star_docker_path = "us.gcr.io/broad-gotc-prod/samtools-star-python:aa-add-dockerfile"
+        samtools_star_docker_path = "us.gcr.io/broad-gotc-prod/samtools-star-python:1.0.0"
     }
   
   call Metrics.CalculateGeneMetrics as GeneMetrics {
