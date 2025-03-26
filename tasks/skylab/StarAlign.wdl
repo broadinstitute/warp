@@ -301,12 +301,12 @@ task STARsoloFastq {
     COUNTING_MODE=""
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
-        ## single cell or whole cell
+        # single cell or whole cell
         COUNTING_MODE="Gene"
         echo "Running in ~{counting_mode} mode. The Star parameter --soloFeatures will be set to $COUNTING_MODE"
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
-        ## single nuclei
+        # single nuclei
         if [[ ~{count_exons} == false ]]
         then
             COUNTING_MODE="GeneFull_Ex50pAS"
