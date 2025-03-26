@@ -100,6 +100,7 @@ workflow Optimus {
   String warp_tools_docker = "warp-tools:2.6.1"
   String star_merge_docker = "star-merge-npz:1.3.0"
   String samtools_star = "samtools-star:1.0.0-1.11-2.7.11a-1731516196"
+  String samtools_star_python = "samtools-star-python:1.0.0"
 
   #TODO how do we handle these?
   String alpine_docker = "alpine-bash@sha256:965a718a07c700a5204c77e391961edee37477634ce2f9cf652a8e4c2db858ff"
@@ -177,7 +178,7 @@ workflow Optimus {
         input_id = input_id,
         output_bam_basename = output_bam_basename,
         soloMultiMappers = soloMultiMappers,
-        samtools_star_docker_path = "us.gcr.io/broad-gotc-prod/samtools-star-python:1.0.0"
+        samtools_star_docker_path = gcr_docker_prefix + samtools_star_python
     }
   
   call Metrics.CalculateGeneMetrics as GeneMetrics {
@@ -312,7 +313,6 @@ workflow Optimus {
     File matrix = STARsoloFastq.sparse_counts
     File matrix_row_index = STARsoloFastq.row_index
     File matrix_col_index = STARsoloFastq.col_index
-    # what is this exactly?
     File? aligner_metrics = STARsoloFastq.cell_reads_out
     File? mtx_files = STARsoloFastq.mtx_files
     File? filtered_mtx_files = STARsoloFastq.filtered_mtx_files
