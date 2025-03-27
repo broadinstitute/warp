@@ -1,3 +1,9 @@
+# 1.0.1
+2025-03-28 (Date of Last Commit)
+
+* Have ImputationBeagle use gatk docker in GAR rather than pull it from dockerhub
+* Update Imputation Tasks to use dockers (ubuntu and tidyverse) that have been moved to GAR.
+
 # 1.0.0
 2025-02-26 (Date of Last Commit)
 

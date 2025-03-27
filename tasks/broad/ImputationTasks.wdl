@@ -5,7 +5,7 @@ task CalculateChromosomeLength {
     File ref_dict
     String chrom
 
-    String ubuntu_docker = "ubuntu:20.04"
+    String ubuntu_docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
@@ -33,7 +33,7 @@ task GetMissingContigList {
     File ref_dict
     File included_contigs
 
-    String ubuntu_docker = "ubuntu:20.04"
+    String ubuntu_docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
@@ -550,7 +550,7 @@ task AggregateImputationQCMetrics {
     Int nSamples
     String basename
 
-    String rtidyverse_docker = "rocker/tidyverse:4.1.0"
+    String rtidyverse_docker = "us.gcr.io/broad-dsde-methods/rocker/tidyverse:4.1.0"
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = ceil(size(infoFile, "GiB")) + 10
@@ -598,7 +598,7 @@ task StoreChunksInfo {
     Array[Boolean] valids
     String basename
 
-    String rtidyverse_docker = "rocker/tidyverse:4.1.0"
+    String rtidyverse_docker = "us.gcr.io/broad-dsde-methods/rocker/tidyverse:4.1.0"
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 10
@@ -635,7 +635,7 @@ task MergeImputationQCMetrics {
     Array[File] metrics
     String basename
 
-    String rtidyverse_docker = "rocker/tidyverse:4.1.0"
+    String rtidyverse_docker = "us.gcr.io/broad-dsde-methods/rocker/tidyverse:4.1.0"
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = ceil(size(metrics, "GiB")) + 10
@@ -883,7 +883,7 @@ task FindSitesUniqueToFileTwoOnly {
     File file1
     File file2
 
-    String ubuntu_docker = "ubuntu:20.04"
+    String ubuntu_docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(file1, "GiB") + 2*size(file2, "GiB")) + 10

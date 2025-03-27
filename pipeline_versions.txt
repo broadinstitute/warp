@@ -1,6 +1,6 @@
 Pipeline Name	Version	Date of Last Commit
 ArrayImputationQuotaConsumed	 1.0.0	2025-02-24 
-ImputationBeagle	 1.0.0	2025-02-26 
+ImputationBeagle	 1.0.1	2025-03-27 
 Imputation	 1.1.16	2025-02-24 
 WholeGenomeReprocessing	 3.3.4	2025-02-21 
 ExomeReprocessing	 3.3.4	2025-02-21 
