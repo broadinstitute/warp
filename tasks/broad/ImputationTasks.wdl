@@ -43,6 +43,7 @@ task GetMissingContigList {
     set -e -o pipefail
 
     grep "@SQ" ~{ref_dict} | sed 's/.*SN://' | sed 's/\t.*//' > contigs.txt
+
     awk 'NR==FNR{arr[$0];next} !($0 in arr)' ~{included_contigs} contigs.txt > missing_contigs.txt
   >>>
 
