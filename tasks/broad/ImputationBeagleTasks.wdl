@@ -174,7 +174,7 @@ task ErrorWithMessageIfErrorCountNotZero {
   >>>
 
   runtime {
-    docker: "ubuntu:20.04"
+    docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
     preemptible: 3
   }
   output {
