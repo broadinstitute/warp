@@ -6,7 +6,7 @@ import "../../../../tasks/broad/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
 
-  String pipeline_version = "1.0.0"
+  String pipeline_version = "1.0.1"
 
   input {
     Int chunkLength = 25000000
@@ -24,8 +24,8 @@ workflow ImputationBeagle {
     String bed_suffix = ".bed"
     String bref3_suffix = ".bref3"
 
-    String gatk_docker = "broadinstitute/gatk:4.6.0.0"
-    String ubuntu_docker = "ubuntu:20.04"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
+    String ubuntu_docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
 
     Int? error_count_override
   }
