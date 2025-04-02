@@ -221,7 +221,7 @@ workflow Optimus {
         input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
         library_metrics = STARsoloFastq.library_metrics,
-        cellbarcodes = STARsoloFastq.barcodes,
+        cellbarcodes = STARsoloFastq.outputbarcodes,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
         sparse_count_matrix = STARsoloFastq.sparse_counts,
