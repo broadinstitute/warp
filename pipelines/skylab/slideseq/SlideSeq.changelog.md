@@ -1,5 +1,5 @@
 # 3.6.0
-2025-02-25 (Date of Last Commit)
+2025-04-02 (Date of Last Commit)
 * Removed MergeStarOutput task and updated docker image in alignemnt step (STARsoloFastq) in Optimus; this does not affect the outputs of the pipeline
 
 # 3.5.0
