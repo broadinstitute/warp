@@ -433,7 +433,7 @@ task STARsoloFastq {
     echo "Final directory listing:"
     ls -l
     mv Aligned.sortedByCoord.out.reheader.bam ~{output_bam_basename}.bam
-    cp ${SoloDirectory}/filtered/barcodes.tsv ~/filtered_barcodes.tsv
+
     ###########################################################################
     # FROM MERGE STAR OUTPUT TASK
     ###########################################################################
@@ -473,15 +473,18 @@ task STARsoloFastq {
      
       }
 
-      # Process main matrix
-      process_matrix "matrix" "barcodes.tsv" "features.tsv" "matrix.mtx" "./output"
+    # Process main matrix
+    process_matrix "matrix" "barcodes.tsv" "features.tsv" "matrix.mtx" "./output"
 
-      # Process snRNA matrix only if files exist
-      if [ -s "barcodes_sn_rna.tsv" ]; then
-          process_matrix "matrix_sn_rna" "barcodes_sn_rna.tsv" "features_sn_rna.tsv" "matrix_sn_rna.mtx" "./outputsnrna"
-      fi
+    # Process snRNA matrix only if files exist
+    if [ -s "barcodes_sn_rna.tsv" ]; then
+        process_matrix "matrix_sn_rna" "barcodes_sn_rna.tsv" "features_sn_rna.tsv" "matrix_sn_rna.mtx" "./outputsnrna"
+    fi
 
-      ls -lR
+    ls -lR
+
+    mv ${SoloDirectory}/filtered/barcodes.tsv filtered_barcodes.tsv
+    cat filtered_barcodes.tsv
   >>>
 
   runtime {
@@ -524,7 +527,7 @@ task STARsoloFastq {
     File? mtx_files ="~{input_id}.mtx_files.tar"
     File? filtered_mtx_files = "~{input_id}_filtered_mtx_files.tar"
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
-    File? outputbarcodes = "filtered_barcodes.tsv"
+    File outputbarcodes = "filtered_barcodes.tsv"
   }
 }
 
