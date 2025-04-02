@@ -17,6 +17,7 @@ UltimaGenomicsJointGenotyping	 1.2.2	2024-11-04
 JointGenotyping	 1.7.2	2024-11-04 
 BuildIndices	 4.0.0	2025-01-17 
 SlideSeq	 3.5.0	2025-02-25 
+PeakCalling	 1.0.0	
 PairedTag	 2.0.0	2025-03-19 
 MultiSampleSmartSeq2SingleNucleus	 2.1.0	2025-03-19 
 atac	 2.7.1	2025-02-25 
