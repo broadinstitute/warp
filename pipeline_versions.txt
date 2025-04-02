@@ -16,11 +16,11 @@ ReblockGVCF	 2.4.1	2025-02-21
 UltimaGenomicsJointGenotyping	 1.2.2	2024-11-04 
 JointGenotyping	 1.7.2	2024-11-04 
 BuildIndices	 4.0.0	2025-01-17 
-SlideSeq	 3.6.0	2025-02-25 
-PairedTag	 2.1.0	2025-03-25 
-MultiSampleSmartSeq2SingleNucleus	 2.2.0	2025-03-25 
+SlideSeq	 3.6.0	2025-04-02 
 PeakCalling	 1.0.0	
+PairedTag	 2.1.0	2025-04-02 
+MultiSampleSmartSeq2SingleNucleus	 2.2.0	2025-04-02 
 atac	 2.7.1	2025-02-25 
 snm3C	 4.0.4	2024-08-06 
-Optimus	 8.1.0	2025-03-25 
-Multiome	 6.1.0	2025-03-25 
+Optimus	 8.1.0	2025-04-02 
+Multiome	 6.1.0	2025-04-02 
