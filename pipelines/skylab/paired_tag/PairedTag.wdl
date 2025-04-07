@@ -1,3 +1,4 @@
+
 version 1.0
 
 import "../../../pipelines/skylab/atac/atac.wdl" as atac
@@ -8,7 +9,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "2.0.0"
+    String pipeline_version = "2.1.0"
 
     input {
         String input_id

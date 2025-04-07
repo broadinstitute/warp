@@ -8,7 +8,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "6.0.0"
+    String pipeline_version = "6.1.0"
 
     input {
         String cloud_provider
@@ -18,7 +18,7 @@ workflow Multiome {
         String? atac_nhash_id
         Int expected_cells = 3000
 
-        # Optimus Inputs
+        # Optimus inputs
         String counting_mode = "sn_rna"
         Array[File] gex_r1_fastq
         Array[File] gex_r2_fastq
