@@ -22,6 +22,7 @@ task CalculateChromosomeLength {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     Int chrom_length = read_int(stdout())
@@ -52,6 +53,7 @@ task GetMissingContigList {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
 
   output {
@@ -94,6 +96,7 @@ task GenerateChunk {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
   parameter_meta {
     vcf: {
@@ -141,6 +144,7 @@ task CountVariantsInChunks {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
 }
 
@@ -180,6 +184,7 @@ task CheckChunks {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
 }
 
@@ -218,6 +223,7 @@ task PhaseVariantsEagle {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
 }
 
@@ -264,6 +270,7 @@ task Minimac4 {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
 }
 
@@ -297,6 +304,7 @@ task GatherVcfs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
@@ -331,6 +339,7 @@ task ReplaceHeader {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
 
   output {
@@ -370,6 +379,7 @@ task UpdateHeader {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -405,6 +415,7 @@ task RemoveSymbolicAlleles {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
 }
 
@@ -435,6 +446,7 @@ task SeparateMultiallelics {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
 }
 
@@ -469,6 +481,7 @@ task OptionalQCSites {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
@@ -511,6 +524,7 @@ task MergeSingleSampleVcfs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
@@ -539,6 +553,7 @@ task CountSamples {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     Int nSamples = read_int(stdout())
@@ -583,6 +598,7 @@ task AggregateImputationQCMetrics {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File aggregated_metrics = "~{basename}_aggregated_imputation_metrics.tsv"
@@ -623,6 +639,7 @@ task StoreChunksInfo {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File chunks_info = "~{basename}_chunk_info.tsv"
@@ -661,6 +678,7 @@ task MergeImputationQCMetrics {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File aggregated_metrics = "~{basename}_aggregated_imputation_metrics.tsv"
@@ -700,6 +718,7 @@ task SubsetVcfToRegion {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
 
   parameter_meta {
@@ -741,6 +760,7 @@ task SetIDs {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File output_vcf = "~{output_basename}.vcf.gz"
@@ -770,6 +790,7 @@ task ExtractIDs {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
 }
 
@@ -811,6 +832,7 @@ task SelectVariantsByIds {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -840,6 +862,7 @@ task RemoveAnnotations {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -872,6 +895,7 @@ task InterleaveVariants {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -900,6 +924,7 @@ task FindSitesUniqueToFileTwoOnly {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File missing_sites = "missing_sites.ids"
@@ -932,6 +957,7 @@ task SplitMultiSampleVcf {
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
   output {
     Array[File] single_sample_vcfs = glob("out_dir/*.vcf.gz")
