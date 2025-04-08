@@ -1,3 +1,8 @@
+# 1.0.2
+2025-04-07 (Date of Last Commit)
+
+* Update Imputation Tasks to not request external IP addresses (use runtime attribute 'noAddress: true').
+
 # 1.0.1
 2025-04-01 (Date of Last Commit)
 

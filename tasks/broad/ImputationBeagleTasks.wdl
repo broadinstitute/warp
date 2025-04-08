@@ -34,6 +34,7 @@ task CountVariantsInChunks {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
 }
 
@@ -64,6 +65,7 @@ task CheckChunks {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
 }
 
@@ -111,6 +113,7 @@ task Phase {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
 }
 
@@ -156,6 +159,7 @@ task Impute {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
 }
 
@@ -176,6 +180,7 @@ task ErrorWithMessageIfErrorCountNotZero {
   runtime {
     docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
     preemptible: 3
+    noAddress: true
   }
   output {
     Boolean done = true
@@ -209,6 +214,7 @@ task CreateVcfIndex {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File vcf = "~{vcf_basename}"
