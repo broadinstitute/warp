@@ -1,43 +1,22 @@
 version: 1.2
 workflows:
 
-  - name: Optimus
+  - name: ArrayImputationQuotaConsumed
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/optimus/Optimus.wdl
-    testParameterFiles:
-          -  /warp/pipelines/skylab/optimus/example_inputs/human_v3_example.json
+    primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ArrayImputationQuotaConsumed.wdl
 
-  - name: snm3C-seq
+  - name: atac
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/snm3C/snm3C.wdl
+    primaryDescriptorPath:
+      /pipelines/skylab/atac/atac.wdl
 
-  - name: Smartseq2_Multisample
+  - name: BuildIndices
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/smartseq2_multisample/MultiSampleSmartSeq2.wdl
+    primaryDescriptorPath: /pipelines/skylab/build_indices/BuildIndices.wdl
 
-  - name: Smartseq2_Single_Sample
+  - name: CramToUnmappedBams
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl
-
-  - name: Smartseq2_Single_Nucleus
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl
-
-  - name: Smartseq2_Single_Nucleus_Multisample
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl
-
-  - name: IlluminaGenotypingArray
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl
-
-  - name: scATAC
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/scATAC/scATAC.wdl
-
-  - name: JointGenotyping
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
+    primaryDescriptorPath: /pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
 
   - name: ExomeGermlineSingleSample
     subclass: WDL
@@ -47,37 +26,9 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/reprocessing/exome/ExomeReprocessing.wdl
 
-  - name: WholeGenomeGermlineSingleSample
+  - name: IlluminaGenotypingArray
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl
-
-  - name: WholeGenomeReprocessing
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/reprocessing/wgs/WholeGenomeReprocessing.wdl
-
-  - name: OptimusHcaAdapter
-    subclass: WDL
-    primaryDescriptorPath: /projects/optimus/CreateOptimusAdapterMetadata.wdl
-    
-  - name: Ss2HcaAdapter
-    subclass: WDL
-    primaryDescriptorPath: /projects/smartseq2/CreateSs2AdapterMetadata.wdl
-
-  - name: CEMBA
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/cemba/cemba_methylcseq/CEMBA.wdl
-
-  - name: CramToUnmappedBams
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
-
-  - name: ReblockGVCF
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl
-
-  - name: Arrays
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/arrays/single_sample/Arrays.wdl
+    primaryDescriptorPath: /pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl
 
   - name: Imputation
     subclass: WDL
@@ -87,61 +38,59 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ImputationBeagle.wdl
 
-  - name: ArrayImputationQuotaConsumed
+  - name: JointGenotyping
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ArrayImputationQuotaConsumed.wdl
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
+
+  - name: Multiome
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/multiome/Multiome.wdl
+
+  - name: Optimus
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/optimus/Optimus.wdl
+    testParameterFiles:
+          -  /warp/pipelines/skylab/optimus/example_inputs/human_v3_example.json
+
+  - name: PairedTag
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/paired_tag/PairedTag.wdl
+
+  - name: PeakCalling
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/peak_calling/PeakCalling.wdl
+
+  - name: ReblockGVCF
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl
 
   - name: RNAWithUMIsPipeline
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl
 
-  - name: BroadInternalRNAWithUMIs
+  - name: Smartseq2_Single_Nucleus
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/internal/rna_seq/BroadInternalRNAWithUMIs.wdl
+    primaryDescriptorPath: /pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl
 
-  - name: Arrays_TDR
+  - name: Smartseq2_Single_Nucleus_Multisample
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/internal/arrays/single_sample/BroadInternalArrays.wdl
-
-  - name: Imputation_TDR
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/internal/arrays/imputation/BroadInternalImputation.wdl
-
-  - name: UltimaGenomicsWholeGenomeGermline
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl
-
-  - name: BroadInternalUltimaGenomics
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/internal/dna_seq/germline/single_sample/UltimaGenomics/BroadInternalUltimaGenomics.wdl
-
-  - name: UltimaGenomicsJointGenotyping
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl
-
-  - name: UltimaGenomicsWholeGenomeCramOnly
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl
-
-  - name: BuildIndices
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/build_indices/BuildIndices.wdl
+    primaryDescriptorPath: /pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl
 
   - name: SlideSeq
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/slideseq/SlideSeq.wdl
-    
-  - name: Multiome
+
+  - name: SlideTags
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/multiome/Multiome.wdl
-  
-  - name: PairedTag
+    primaryDescriptorPath: /beta-pipelines/skylab/slidetags/SlideTags.wdl
+
+  - name: snm3C-seq
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/paired_tag/PairedTag.wdl
-    
-  - name: atac
+    primaryDescriptorPath: /pipelines/skylab/snm3C/snm3C.wdl
+
+  - name: TestATAC
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/atac/atac.wdl
+    primaryDescriptorPath: /verification/test-wdls/TestATAC.wdl
 
   - name: TestCramToUnmappedBams
     subclass: WDL
@@ -171,25 +120,21 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestJointGenotyping.wdl
 
-  - name: TestPairedTag
+  - name: TestMultiome
     subclass: WDL
-    primaryDescriptorPath: /verification/test-wdls/TestPairedTag.wdl
-    
-  - name: TestOptimus
-    subclass: WDL
-    primaryDescriptorPath: /verification/test-wdls/TestOptimus.wdl
+    primaryDescriptorPath: /verification/test-wdls/TestMultiome.wdl
 
   - name: TestMultiSampleSmartSeq2SingleNucleus
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestMultiSampleSmartSeq2SingleNucleus.wdl
 
-  - name: TestMultiome
+  - name: TestOptimus
     subclass: WDL
-    primaryDescriptorPath: /verification/test-wdls/TestMultiome.wdl
+    primaryDescriptorPath: /verification/test-wdls/TestOptimus.wdl
 
-  - name: TestSlideSeq
+  - name: TestPairedTag
     subclass: WDL
-    primaryDescriptorPath: /verification/test-wdls/TestSlideSeq.wdl
+    primaryDescriptorPath: /verification/test-wdls/TestPairedTag.wdl
 
   - name: TestReblockGVCF
     subclass: WDL
@@ -198,7 +143,11 @@ workflows:
   - name: TestRNAWithUMIsPipeline
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestRNAWithUMIsPipeline.wdl
-  
+
+  - name: TestSlideSeq
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestSlideSeq.wdl
+
   - name: Testsnm3C
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/Testsnm3C.wdl
@@ -207,14 +156,14 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestUltimaGenomicsJointGenotyping.wdl
 
+  - name: TestUltimaGenomicsWholeGenomeCramOnly
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestUltimaGenomicsWholeGenomeCramOnly.wdl
+
   - name: TestUltimaGenomicsWholeGenomeGermline
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestUltimaGenomicsWholeGenomeGermline.wdl
 
-  - name: TestUltimaGenomicsWholeGenomeCramOnly
-    subclass: WDL
-    primaryDescriptorPath: /verification/test-wdls/TestUltimaGenomicsWholeGenomeCramOnly.wdl
-  
   - name: TestVariantCalling
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestVariantCalling.wdl
@@ -227,14 +176,26 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestWholeGenomeReprocessing.wdl
 
+  - name: UltimaGenomicsWholeGenomeGermline
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl
+
+  - name: UltimaGenomicsJointGenotyping
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl
+
+  - name: UltimaGenomicsWholeGenomeCramOnly
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl
+
   - name: VariantCalling
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
 
-  - name: SlideTags
+  - name: WholeGenomeGermlineSingleSample
     subclass: WDL
-    primaryDescriptorPath: /beta-pipelines/skylab/slidetags/SlideTags.wdl
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl
 
-  - name: TestATAC
+  - name: WholeGenomeReprocessing
     subclass: WDL
-    primaryDescriptorPath: /verification/test-wdls/TestATAC.wdl
+    primaryDescriptorPath: /pipelines/broad/reprocessing/wgs/WholeGenomeReprocessing.wdl

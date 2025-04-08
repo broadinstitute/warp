@@ -1,3 +1,14 @@
+# 6.1.0
+2025-04-02 (Date of Last Commit)
+
+* Removed MergeStarOutput tasks from Optimus pipeline; added necessary parts of MergeStarOutput task to the STAR alignment step (STARsoloFastq). Additional outputs added to STARsoloFastq task as a result; this includes row_index, col_index, sparse_counts, library_metrics, mtx_files, filtered_mtx_files and cell_reads_out
+* Updated the STAR docker image to include Samtools and Python
+
+# 6.0.0
+2025-03-19 (Date of Last Commit)
+
+* Refactored the STAR alignment step (STARsoloFastq) in Optimus and removed tasks FastqProcessing and MergeSortBamFiles; we are no longer sharding. We are now running one instance of STAR
+
 # 5.11.0
 2025-02-25 (Date of Last Commit)
 

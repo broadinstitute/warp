@@ -8,7 +8,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "5.11.0"
+    String pipeline_version = "6.1.0"
 
     input {
         String cloud_provider
@@ -18,7 +18,7 @@ workflow Multiome {
         String? atac_nhash_id
         Int expected_cells = 3000
 
-        # Optimus Inputs
+        # Optimus inputs
         String counting_mode = "sn_rna"
         Array[File] gex_r1_fastq
         Array[File] gex_r2_fastq
@@ -177,13 +177,15 @@ workflow Multiome {
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
-        Array[File?] multimappers_EM_matrix = Optimus.multimappers_EM_matrix
-        Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
-        Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
-        Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
+        File? multimappers_EM_matrix = Optimus.multimappers_EM_matrix
+        File? multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
+        File? multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
+        File? multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
         File? gex_aligner_metrics = Optimus.aligner_metrics
         File? library_metrics = Optimus.library_metrics
         File? mtx_files = Optimus.mtx_files
+
+         # cellbender outputs
         File? cell_barcodes_csv = Optimus.cell_barcodes_csv
         File? checkpoint_file = Optimus.checkpoint_file
         Array[File]? h5_array = Optimus.h5_array
