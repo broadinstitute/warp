@@ -72,10 +72,12 @@ workflow SlideTags {
             gex_expected_cells = expected_cells
     } 
     
+    optional_optimus_files = select_all([Optimus.cell_calls, Optimus.multimappers_EM_matrix, Optimus.multimappers_Uniform_matrix, Optimus.multimappers_Rescue_matrix, Optimus.multimappers_PropUnique_matrix, Optimus.aligner_metrics, Optimus.library_metrics, Optimus.mtx_files, Optimus.cell_barcodes_csv, Optimus.checkpoint_file, Optimus.h5_array, Optimus.html_report_array, Optimus.log, Optimus.metrics_csv_array, Optimus.output_directory, Optimus.summary_pdf])
+
     call TarFiles.tar_files as tar_files {
         input:
             required_files = [Optimus.genomic_reference_version, Optimus.bam, Optimus.matrix, Optimus.matrix_row_index, Optimus.matrix_col_index, Optimus.cell_metrics, Optimus.gene_metrics]
-            optional_files = select_all([Optimus.cell_calls, Optimus.multimappers_EM_matrix, Optimus.multimappers_Uniform_matrix, Optimus.multimappers_Rescue_matrix, Optimus.multimappers_PropUnique_matrix, Optimus.aligner_metrics, Optimus.library_metrics, Optimus.mtx_files, Optimus.cell_barcodes_csv, Optimus.checkpoint_file, Optimus.h5_array, Optimus.html_report_array, Optimus.log, Optimus.metrics_csv_array, Optimus.output_directory, Optimus.summary_pdf])
+            optional_files = optional_optimus_files
             input_id = "optimus"
     }
 
