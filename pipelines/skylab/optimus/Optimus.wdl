@@ -298,7 +298,7 @@ workflow Optimus {
 
 
   output {
-    # version of this pipeline
+    # Version of this pipeline
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
    
@@ -321,10 +321,10 @@ workflow Optimus {
     File? multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
     File? multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
     
-    # h5ad
+    # H5ad
     File h5ad_output_file = final_h5ad_output
 
-    # cellbender outputs
+    # Cellbender outputs
     File? cell_barcodes_csv = CellBender.cell_csv
     File? checkpoint_file = CellBender.ckpt_file
     Array[File]? h5_array = CellBender.h5_array

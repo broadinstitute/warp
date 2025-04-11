@@ -4,6 +4,7 @@ task count {
   input {
     Array[String] fastq_paths
     Array[String] pucks
+    String input_id
     Int mem_GiB = 64
     Int disk_GiB = 128
     Int nthreads = 1
@@ -18,8 +19,9 @@ task count {
     gcloud config set storage/process_count 16
     gcloud config set storage/thread_count  2
 
-    # Download the script -- put this script into a docker
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/5c74e9e6148102081827625b9ce91ec2b7ba3541/spatial-count/spatial-count.jl
+    # Download the script -- put this script into a docker 
+    # This needs to be changed when Matthew finalizes changes to these scripts
+    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/refs/heads/main/slide-tags/spatial-count.jl
 
     echo "FASTQs: ~{length(fastq_paths)} paths provided"
     echo "Pucks: ~{length(pucks)} puck(s) provided"
@@ -69,16 +71,18 @@ task count {
     echo; echo "pucks size:"; du -sh pucks
     echo; echo "output size:"; du -sh SBcounts.h5
     echo; echo "FREE SPACE:"; df -h
-     
-    cat stdout stderr > spatial-count.log
+
+    mv SBcounts.h5 ~{input_id}_SBcounts.h5 
+    cat stdout stderr > ~{input_id}_spatial-count.log
     echo "<< completed spatial-count >>"
+
   >>>
   
   output {
-    File sb_counts = "SBcounts.h5"
-    File spatial_log = "spatial-count.log"
-
+    File sb_counts = "~{input_id}_SBcounts.h5"
+    File spatial_log = "~{input_id}_spatial-count.log"
   }
+  
   runtime {
     docker: docker
     memory: "~{mem_GiB} GB"

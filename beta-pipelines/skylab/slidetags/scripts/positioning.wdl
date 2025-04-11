@@ -4,6 +4,7 @@ task generate_positioning {
   input {
     Array[String] rna_paths
     String sb_path
+    String input_id
     Int mem_GiB  = 128
     Int disk_GiB = 128
     Int nthreads = 16
@@ -17,10 +18,10 @@ task generate_positioning {
     gcloud config set storage/process_count 16 # is this set by user?
     gcloud config set storage/thread_count  2 # is this set by user?
 
-    # Download the scripts -- these need to be changed -- also need to add to docker   
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/ee005109446f58764509ee47ff51c212ce8dabe3/positioning/positioning.R
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/6a78716aa08a9f2506c06844f7e3fd491b03aa8b/positioning/load_matrix.R
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/a7fc86abbdd3d46461c500e7d024315d88a97e9a/positioning/run-positioning.R
+    # Download the scripts -- these need to be changed -- also need to add to docker
+    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/refs/heads/main/slide-tags/run-positioning.R
+    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/refs/heads/main/slide-tags/positioning.R
+    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/refs/heads/main/slide-tags/helpers.R   
   
     echo "RNA: ~{sep=' ' rna_paths}"
     echo "SB: ~{sb_path}"
@@ -71,13 +72,25 @@ task generate_positioning {
     
     echo "tar files/logs"
     cat stdout stderr > positioning.log
-    tar -zcvf output.tar.gz output
+    
+    # Rename and move files
+    mv output/* .
+    mv summary.pdf ~{input_id}_summary.pdf
+    mv seurat.qs ~{input_id}_seurat.qs
+    mv coords.csv ~{input_id}_coords.csv
+
+    tar -zcvf output.tar.gz output/matrix.csv.gz output/cb_whitelist.txt output/spatial_metadata.json
+    mv output.tar.gz ~{input_id}_output.tar.gz
+    mv positioning.log ~{input_id}_positioning.log
     echo "<< completed positioning >>"
   >>>
  
   output {
-    File output_file = "output.tar.gz"
-    File positioning_log = "positioning.log"
+    File seurat_qs = "~{input_id}_seurat.qs"
+    File coords_csv = "~{input_id}_coords.csv"
+    File summary_pdf = "~{input_id}_summary.pdf"
+    File output_file = "~{input_id}_output.tar.gz"
+    File positioning_log = "~{input_id}_positioning.log"
   }
   
   runtime {
