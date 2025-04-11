@@ -4,7 +4,7 @@ import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/PairedTagUtils.wdl" as AddBB
 import "../../../tasks/broad/Utilities.wdl" as utils
-import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling
+import "../../../tasks/skylab/peak_calling/PeakCalling.wdl" as peakcalling
 
 workflow ATAC {
   meta {
@@ -169,7 +169,7 @@ workflow ATAC {
           annotations_gtf = annotations_gtf,
           metrics_h5ad = CreateFragmentFile.Snap_metrics,
           chrom_sizes = chrom_sizes,
-          # docker_path = docker_prefix + snap_atac_docker
+          docker_path = docker_prefix + snap_atac_docker
       }
     }
   }
@@ -659,5 +659,19 @@ task CreateFragmentFile {
     File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
     File Snap_metrics = "~{input_id}.metrics.h5ad"
     File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
+  }
+}
+
+  
+  runtime {
+    docker: docker_path
+    disks: "local-disk ${disk_size} SSD"
+    memory: "${mem_size} GiB"
+    cpu: nthreads
+  }
+
+  output {
+    File cellbybin_h5ad = "~{output_base_name}.cellbybin.h5ad"
+    File cellbypeak_h5ad = "~{output_base_name}.cellbypeak.h5ad"
   }
 }
