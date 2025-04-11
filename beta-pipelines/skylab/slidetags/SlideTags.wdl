@@ -3,6 +3,7 @@ version 1.0
 import "scripts/spatial-count.wdl" as SpatialCount
 import "scripts/positioning.wdl" as Positioning
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
+import "../../../tasks/skylab/TarFiles.wdl" as TarFiles
 
 workflow SlideTags {
 
@@ -71,6 +72,11 @@ workflow SlideTags {
             gex_expected_cells = expected_cells
     } 
     
+    call TarFiles.tar_files as tar_files {
+        input:
+            task_outputs = [Optimus.genomic_reference_version, Optimus.bam, Optimus.matrix, Optimus.matrix_row_index, Optimus.matrix_col_index, Optimus.cell_metrics, Optimus.gene_metrics]
+            optional_outputs = [Optimus.cell_calls, Optimus.multimappers_EM_matrix, Optimus.multimappers_Uniform_matrix, Optimus.multimappers_Rescue_matrix, Optimus.multimappers_PropUnique_matrix, Optimus.aligner_metrics, Optimus.library_metrics, Optimus.mtx_files, Optimus.cell_barcodes_csv, Optimus.checkpoint_file, Optimus.h5_array, Optimus.html_report_array, Optimus.log, Optimus.metrics_csv_array, Optimus.output_directory, Optimus.summary_pdf]
+    }
 
     call SpatialCount.count as spatial_count {
         input:
@@ -90,33 +96,8 @@ workflow SlideTags {
 
     output {
         # Optimus outputs
-        File genomic_reference_version_gex = Optimus.genomic_reference_version
-        File bam_gex = Optimus.bam
-        File matrix_gex = Optimus.matrix
-        File matrix_row_index_gex = Optimus.matrix_row_index
-        File matrix_col_index_gex = Optimus.matrix_col_index
-        File cell_metrics_gex = Optimus.cell_metrics
-        File gene_metrics_gex = Optimus.gene_metrics
-        File? cell_calls_gex = Optimus.cell_calls
-        File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
-        File? multimappers_EM_matrix = Optimus.multimappers_EM_matrix
-        File? multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
-        File? multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
-        File? multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
-        File? gex_aligner_metrics = Optimus.aligner_metrics
-        File? library_metrics = Optimus.library_metrics
-        File? mtx_files = Optimus.mtx_files
-
-         # Cellbender outputs
-        File? cell_barcodes_csv = Optimus.cell_barcodes_csv
-        File? checkpoint_file = Optimus.checkpoint_file
-        Array[File]? h5_array = Optimus.h5_array
-        Array[File]? html_report_array = Optimus.html_report_array
-        File? log = Optimus.log
-        Array[File]? metrics_csv_array = Optimus.metrics_csv_array
-        String? output_directory = Optimus.output_directory
-        File? summary_pdf = Optimus.summary_pdf
-
+        File Optimus_output = tar_files.tarred_output
+      
         # Spatial/Positioning outputs
         File spatial_output_h5 = spatial_count.sb_counts
         File spatial_output_log = spatial_count.spatial_log
