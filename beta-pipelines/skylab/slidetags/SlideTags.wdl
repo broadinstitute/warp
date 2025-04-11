@@ -76,6 +76,7 @@ workflow SlideTags {
         input:
             task_outputs = [Optimus.genomic_reference_version, Optimus.bam, Optimus.matrix, Optimus.matrix_row_index, Optimus.matrix_col_index, Optimus.cell_metrics, Optimus.gene_metrics]
             optional_outputs = [Optimus.cell_calls, Optimus.multimappers_EM_matrix, Optimus.multimappers_Uniform_matrix, Optimus.multimappers_Rescue_matrix, Optimus.multimappers_PropUnique_matrix, Optimus.aligner_metrics, Optimus.library_metrics, Optimus.mtx_files, Optimus.cell_barcodes_csv, Optimus.checkpoint_file, Optimus.h5_array, Optimus.html_report_array, Optimus.log, Optimus.metrics_csv_array, Optimus.output_directory, Optimus.summary_pdf]
+            input_id = "optimus"
     }
 
     call SpatialCount.count as spatial_count {
@@ -96,13 +97,14 @@ workflow SlideTags {
 
     output {
         # Optimus outputs
-        File Optimus_output = tar_files.tarred_output
+        File optimus_output = tar_files.tarred_output
       
         # Spatial/Positioning outputs
         File spatial_output_h5 = spatial_count.sb_counts
         File spatial_output_log = spatial_count.spatial_log
         File positioning_seurat_qs = positioning.seurat_qs
-        File positioning_coords_csv = positioning.coords_csv
+        File positioning_coords_global_csv = positioning.coords_global_csv
+        File positioning_coords_dynamic_csv = positioning.coords_dynamic_csv
         File positioning_summary_pdf = positioning.summary_pdf
         File positioning_output_file = positioning.output_file
         File positioning_positioning_log = positioning.positioning_log

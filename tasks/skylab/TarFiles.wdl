@@ -23,7 +23,7 @@ task tar_files {
     input {
         Array[File] required_files
         Array[File]? optional_files
-        String output_name = "outputs.tar.gz"
+        String output_name = output_name
     }
 
     command <<<
