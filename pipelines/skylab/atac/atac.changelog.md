@@ -1,3 +1,8 @@
+# 2.8.0
+2025-04-14 (Date of Last Commit)
+
+* Refactored peak calling task to be called from PeakCalling.wdl
+
 # 2.7.1
 2025-02-25 (Date of Last Commit)
 
