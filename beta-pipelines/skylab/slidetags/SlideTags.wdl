@@ -13,29 +13,27 @@ workflow SlideTags {
         String id
         Array[String] fastq_paths
         Array[String] pucks
-        Array[String] rna_paths
-        String sb_path
 
         # Optimus Inputs
-        String cloud_provider = "gcp"
-        String input_id
-        Int expected_cells = 3000 ## copied from Multiome ?
-        String counting_mode = "sn_rna"
         Array[File] gex_r1_fastq
         Array[File] gex_r2_fastq
         Array[File]? gex_i1_fastq        
         File tar_star_reference
         File annotations_gtf
-        File? mt_genes
+        File gex_whitelist
+        String cloud_provider = "gcp"
+        String input_id
+        Int expected_cells = 3000 
+        String counting_mode = "sn_rna"
         Int tenx_chemistry_version = 3
         Int emptydrops_lower = 100
         Boolean force_no_check = false
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Reverse"
         Boolean count_exons = false
-        File gex_whitelist
         String? soloMultiMappers
         String? gex_nhash_id
+        File? mt_genes
 
         String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.1.0"
      }
@@ -129,8 +127,9 @@ workflow SlideTags {
         File spatial_output_log = spatial_count.spatial_log
         File positioning_seurat_qs = positioning.seurat_qs
         File positioning_coords_csv = positioning.coords_csv
+        File positioning_coords2_csv = positioning.coords2_csv
         File positioning_summary_pdf = positioning.summary_pdf
-        File positioning_output_file = positioning.output_file
+        File positioning_intermediates = positioning.intermediates_file
         File positioning_positioning_log = positioning.positioning_log
      }
     
