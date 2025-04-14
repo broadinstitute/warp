@@ -8,7 +8,7 @@ import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling
 
 workflow Multiome {
 
-    String pipeline_version = "6.1.0"
+    String pipeline_version = "6.2.0"
 
     input {
         String cloud_provider
