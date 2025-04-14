@@ -77,21 +77,21 @@ task generate_positioning {
     mv output/* .
     mv summary.pdf ~{input_id}_summary.pdf
     mv seurat.qs ~{input_id}_seurat.qs
-    mv coords_global.csv ~{input_id}_coords_global.csv
-    mv coords_dynamic.csv ~{input_id}_coords_dynamic.csv
+    mv coords.csv ~{input_id}_coords.csv
+    mv coords2.csv ~{input_id}_coords2.csv
 
     tar -zcvf output.tar.gz output/matrix.csv.gz output/cb_whitelist.txt output/spatial_metadata.json
-    mv output.tar.gz ~{input_id}_output.tar.gz
+    mv output.tar.gz ~{input_id}_intermediates.tar.gz
     mv positioning.log ~{input_id}_positioning.log
     echo "<< completed positioning >>"
   >>>
  
   output {
     File seurat_qs = "~{input_id}_seurat.qs"
-    File coords_global_csv = "~{input_id}_coords_global.csv"
-    File coords_dynamic_csv = "~{input_id}_coords_dynamic.csv"
+    File coords_csv = "~{input_id}_coords.csv"
+    File coords2_csv = "~{input_id}_coords2.csv"
     File summary_pdf = "~{input_id}_summary.pdf"
-    File output_file = "~{input_id}_output.tar.gz"
+    File intermediates_file = "~{input_id}_intermediates.tar.gz"
     File positioning_log = "~{input_id}_positioning.log"
   }
   

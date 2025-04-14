@@ -3,7 +3,6 @@ version 1.0
 import "scripts/spatial-count.wdl" as SpatialCount
 import "scripts/positioning.wdl" as Positioning
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
-import "../../../tasks/skylab/TarFiles.wdl" as TarFiles
 
 workflow SlideTags {
 
@@ -72,15 +71,6 @@ workflow SlideTags {
             gex_expected_cells = expected_cells
     } 
     
-    optional_optimus_files = select_all([Optimus.cell_calls, Optimus.multimappers_EM_matrix, Optimus.multimappers_Uniform_matrix, Optimus.multimappers_Rescue_matrix, Optimus.multimappers_PropUnique_matrix, Optimus.aligner_metrics, Optimus.library_metrics, Optimus.mtx_files, Optimus.cell_barcodes_csv, Optimus.checkpoint_file, Optimus.h5_array, Optimus.html_report_array, Optimus.log, Optimus.metrics_csv_array, Optimus.output_directory, Optimus.summary_pdf])
-
-    call TarFiles.tar_files as tar_files {
-        input:
-            required_files = [Optimus.genomic_reference_version, Optimus.bam, Optimus.matrix, Optimus.matrix_row_index, Optimus.matrix_col_index, Optimus.cell_metrics, Optimus.gene_metrics]
-            optional_files = optional_optimus_files
-            input_id = "optimus"
-    }
-
     call SpatialCount.count as spatial_count {
         input:
             fastq_paths = fastq_paths,
@@ -91,26 +81,57 @@ workflow SlideTags {
 
     call Positioning.generate_positioning as positioning {
         input:
-            rna_paths = rna_paths,
+            rna_paths = [Optimus.h5ad_output_file, Optimus.library_metrics],
             sb_path = spatial_count.sb_counts,
             docker = docker,
             input_id = input_id
      }
 
     output {
-        # Optimus outputs
-        File optimus_output = tar_files.tarred_output
-      
+        # Version of Optimus pipeline
+        String optimus_pipeline_version_out = Optimus.pipeline_version_out
+        File optimus_genomic_reference_version = Optimus.genomic_reference_version
+   
+        # Optimus Metrics outputs
+        File optimus_cell_metrics = Optimus.cell_metrics
+        File optimus_gene_metrics = Optimus.gene_metrics
+        File? optimus_cell_calls = Optimus.cell_calls
+   
+        # Optimus Star outputs 
+        File optimus_library_metrics = Optimus.library_metrics
+        File optimus_bam = Optimus.bam
+        File optimus_matrix = Optimus.matrix
+        File optimus_matrix_row_index = Optimus.matrix_row_index
+        File optimus_matrix_col_index = Optimus.matrix_col_index
+        File? optimus_aligner_metrics = Optimus.aligner_metrics
+        File? optimus_mtx_files = Optimus.mtx_files
+        File? optimus_filtered_mtx_files = Optimus.filtered_mtx_files
+        File? optimus_multimappers_EM_matrix = Optimus.multimappers_EM_matrix
+        File? optimus_multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
+        File? optimus_multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
+        File? optimus_multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
+    
+        # Optimus H5ad
+        File optimus_h5ad_output_file = Optimus.h5ad_output_file
+        
+        # Optimus Cellbender outputs
+        File? cb_cell_barcodes_csv = Optimus.cell_barcodes_csv
+        File? cb_checkpoint_file = Optimus.checkpoint_file
+        Array[File]? cb_h5_array = Optimus.h5_array
+        Array[File]? cb_html_report_array = Optimus.html_report_array
+        File? cb_log = Optimus.log
+        Array[File]? cb_metrics_csv_array = Optimus.metrics_csv_array
+        String? cb_output_directory = Optimus.output_directory
+        File? cb_summary_pdf = Optimus.summary_pdf
+
         # Spatial/Positioning outputs
         File spatial_output_h5 = spatial_count.sb_counts
         File spatial_output_log = spatial_count.spatial_log
         File positioning_seurat_qs = positioning.seurat_qs
-        File positioning_coords_global_csv = positioning.coords_global_csv
-        File positioning_coords_dynamic_csv = positioning.coords_dynamic_csv
+        File positioning_coords_csv = positioning.coords_csv
         File positioning_summary_pdf = positioning.summary_pdf
         File positioning_output_file = positioning.output_file
         File positioning_positioning_log = positioning.positioning_log
-
      }
     
 }
