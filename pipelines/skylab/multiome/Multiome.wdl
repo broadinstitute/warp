@@ -145,7 +145,6 @@ workflow Multiome {
                 metrics_h5ad = JoinBarcodes.atac_h5ad_file,
                 chrom_sizes = chrom_sizes,
                 output_base_name = input_id,
-                docker_path = docker_prefix + snap_atac_docker_image,
         }
     }
 
