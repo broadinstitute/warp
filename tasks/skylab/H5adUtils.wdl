@@ -11,7 +11,7 @@ task OptimusH5adGeneration {
     String input_id
     String? gex_nhash_id
     # user provided id
-    String? counting_mode
+    String counting_mode = "sc_rna"
     Int expected_cells = 3000
     String? input_name
     String? input_id_metadata_field
@@ -32,7 +32,7 @@ task OptimusH5adGeneration {
     File gene_id
     # emptydrops output metadata
     File? empty_drops_result
-    String counting_mode = "sc_rna"
+    #String counting_mode = "sc_rna"
     String add_emptydrops_data = "yes"
     String gtf_path = annotation_file
 
