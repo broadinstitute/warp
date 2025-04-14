@@ -11,7 +11,7 @@ workflow SlideTags {
     input {
         # slide-tags inputs
         String id
-        Array[String] fastq_paths
+        Array[String] spatial_fastq
         Array[String] pucks
 
         # Optimus Inputs
@@ -39,7 +39,7 @@ workflow SlideTags {
      }
     
     parameter_meta {
-        fastq_paths: "Array of paths to spatial fastq files"
+        spatial_fastq: "Array of paths to spatial fastq files"
         pucks: "Array of paths to puck files"
         docker: "Docker image to use"
     }
@@ -71,7 +71,7 @@ workflow SlideTags {
     
     call SpatialCount.count as spatial_count {
         input:
-            fastq_paths = fastq_paths,
+            fastq_paths = spatial_fastq,
             pucks = pucks,
             docker = docker,
             input_id = input_id
