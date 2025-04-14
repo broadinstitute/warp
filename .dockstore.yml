@@ -56,6 +56,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/paired_tag/PairedTag.wdl
 
+  - name: PeakCalling
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/peak_calling/PeakCalling.wdl
+
   - name: ReblockGVCF
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl

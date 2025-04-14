@@ -5,7 +5,7 @@ task CalculateChromosomeLength {
     File ref_dict
     String chrom
 
-    String ubuntu_docker = "ubuntu:20.04"
+    String ubuntu_docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
@@ -22,6 +22,7 @@ task CalculateChromosomeLength {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     Int chrom_length = read_int(stdout())
@@ -33,7 +34,7 @@ task GetMissingContigList {
     File ref_dict
     File included_contigs
 
-    String ubuntu_docker = "ubuntu:20.04"
+    String ubuntu_docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
@@ -43,6 +44,7 @@ task GetMissingContigList {
     set -e -o pipefail
 
     grep "@SQ" ~{ref_dict} | sed 's/.*SN://' | sed 's/\t.*//' > contigs.txt
+
     awk 'NR==FNR{arr[$0];next} !($0 in arr)' ~{included_contigs} contigs.txt > missing_contigs.txt
   >>>
 
@@ -51,6 +53,7 @@ task GetMissingContigList {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
 
   output {
@@ -93,6 +96,7 @@ task GenerateChunk {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
   parameter_meta {
     vcf: {
@@ -140,6 +144,7 @@ task CountVariantsInChunks {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
 }
 
@@ -179,6 +184,7 @@ task CheckChunks {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
 }
 
@@ -217,6 +223,7 @@ task PhaseVariantsEagle {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
 }
 
@@ -263,6 +270,7 @@ task Minimac4 {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
 }
 
@@ -296,6 +304,7 @@ task GatherVcfs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
@@ -330,6 +339,7 @@ task ReplaceHeader {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
 
   output {
@@ -369,6 +379,7 @@ task UpdateHeader {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -404,6 +415,7 @@ task RemoveSymbolicAlleles {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
 }
 
@@ -434,6 +446,7 @@ task SeparateMultiallelics {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
 }
 
@@ -468,6 +481,7 @@ task OptionalQCSites {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
@@ -510,6 +524,7 @@ task MergeSingleSampleVcfs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
@@ -538,6 +553,7 @@ task CountSamples {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     Int nSamples = read_int(stdout())
@@ -550,7 +566,7 @@ task AggregateImputationQCMetrics {
     Int nSamples
     String basename
 
-    String rtidyverse_docker = "rocker/tidyverse:4.1.0"
+    String rtidyverse_docker = "us.gcr.io/broad-dsde-methods/rocker/tidyverse:4.1.0"
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = ceil(size(infoFile, "GiB")) + 10
@@ -582,6 +598,7 @@ task AggregateImputationQCMetrics {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File aggregated_metrics = "~{basename}_aggregated_imputation_metrics.tsv"
@@ -598,7 +615,7 @@ task StoreChunksInfo {
     Array[Boolean] valids
     String basename
 
-    String rtidyverse_docker = "rocker/tidyverse:4.1.0"
+    String rtidyverse_docker = "us.gcr.io/broad-dsde-methods/rocker/tidyverse:4.1.0"
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 10
@@ -622,6 +639,7 @@ task StoreChunksInfo {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File chunks_info = "~{basename}_chunk_info.tsv"
@@ -635,7 +653,7 @@ task MergeImputationQCMetrics {
     Array[File] metrics
     String basename
 
-    String rtidyverse_docker = "rocker/tidyverse:4.1.0"
+    String rtidyverse_docker = "us.gcr.io/broad-dsde-methods/rocker/tidyverse:4.1.0"
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = ceil(size(metrics, "GiB")) + 10
@@ -660,6 +678,7 @@ task MergeImputationQCMetrics {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File aggregated_metrics = "~{basename}_aggregated_imputation_metrics.tsv"
@@ -699,6 +718,7 @@ task SubsetVcfToRegion {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
 
   parameter_meta {
@@ -740,6 +760,7 @@ task SetIDs {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File output_vcf = "~{output_basename}.vcf.gz"
@@ -769,6 +790,7 @@ task ExtractIDs {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
 }
 
@@ -810,6 +832,7 @@ task SelectVariantsByIds {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -839,6 +862,7 @@ task RemoveAnnotations {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -871,6 +895,7 @@ task InterleaveVariants {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File output_vcf = "~{basename}.vcf.gz"
@@ -883,7 +908,7 @@ task FindSitesUniqueToFileTwoOnly {
     File file1
     File file2
 
-    String ubuntu_docker = "ubuntu:20.04"
+    String ubuntu_docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(file1, "GiB") + 2*size(file2, "GiB")) + 10
@@ -899,6 +924,7 @@ task FindSitesUniqueToFileTwoOnly {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    noAddress: true
   }
   output {
     File missing_sites = "missing_sites.ids"
@@ -931,6 +957,7 @@ task SplitMultiSampleVcf {
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    noAddress: true
   }
   output {
     Array[File] single_sample_vcfs = glob("out_dir/*.vcf.gz")
