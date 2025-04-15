@@ -1,5 +1,5 @@
 # 2.7.2
-2025-04-15 (Date of Last Commit)
+2025-04-15 (Date of Last Commit) 
 
 * Refactored peak calling task to be called from PeakCalling.wdl
 
