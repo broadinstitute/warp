@@ -4,11 +4,11 @@ import "../../../pipelines/skylab/atac/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/broad/Utilities.wdl" as utils
-#import "../../../pipelines/skylab/atac/atac.wdl" as PeakCalling
+import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling
 
 workflow Multiome {
 
-    String pipeline_version = "6.0.0"
+    String pipeline_version = "6.1.1"
 
     input {
         String cloud_provider
@@ -139,13 +139,12 @@ workflow Multiome {
     }
 
     if (run_peak_calling) {
-        call atac.PeakCalling as PeakCalling {
+        call peakcalling.PeakCalling as PeakCalling {
             input:
                 annotations_gtf = annotations_gtf,
                 metrics_h5ad = JoinBarcodes.atac_h5ad_file,
                 chrom_sizes = chrom_sizes,
                 output_base_name = input_id,
-                docker_path = docker_prefix + snap_atac_docker_image,
         }
     }
 
