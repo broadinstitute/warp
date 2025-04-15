@@ -1,15 +1,12 @@
-# 8.1.0
+# 8.0.0
 2025-04-02 (Date of Last Commit)
 
+* Implemented a unified STARsolo execution strategy to ensure consistent and accurate cell barcode correction across the entire dataset. This update resolves discrepancies that previously arose from sharded (partitioned) processing, where each shard independently corrected barcodes using incomplete local priors. By consolidating barcode frequency calculations and applying correction globally, the pipeline now mirrors the behavior of DropSeq and Cell Ranger
+* Removed boolean variable is_slidetags; no longer needed with new updates
+* Refactored the STAR alignment step and removed tasks FastqProcessing and MergeSortBamFiles
+* Added parameters for STARsoloFastq task, including cpu_platform_star, mem_size_star, cpu_star, disk_star, limitBAMsortRAM_star, and outBAMsortingBinsN_star, for dynamic allocation of resources depending on input size
 * Removed MergeStarOutput tasks; added necessary parts of MergeStarOutput task to the STAR alignment step (STARsoloFastq). Additional outputs added to STARsoloFastq task as a result; this includes row_index, col_index, sparse_counts, library_metrics, mtx_files, filtered_mtx_files and cell_reads_out
 * Updated the STAR docker image to include Samtools and Python
-
-# 8.0.0
-2025-03-19 (Date of Last Commit)
-
-* Removed boolean variable is_slidetags; no longer needed with new updates
-* Refactored the STAR alignment step and removed tasks FastqProcessing and MergeSortBamFiles; we are no longer sharding. We are now running one instance of STAR
-* Added parameters for STARsoloFastq task, including cpu_platform_star, mem_size_star, cpu_star, disk_star, limitBAMsortRAM_star, and outBAMsortingBinsN_star, for dynamic allocation of resources depending on input size
 
 # 7.9.2
 2025-02-25 (Date of Last Commit)
