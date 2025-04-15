@@ -4,7 +4,7 @@ import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/PairedTagUtils.wdl" as AddBB
 import "../../../tasks/broad/Utilities.wdl" as utils
-import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling
+import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling # import peakcalling as subworkflow
 
 workflow ATAC {
   meta {
