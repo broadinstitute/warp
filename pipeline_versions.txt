@@ -20,7 +20,7 @@ SlideSeq	 3.6.0	2025-04-02
 PeakCalling	 1.0.0	
 PairedTag	 2.1.1	
 MultiSampleSmartSeq2SingleNucleus	 2.2.0	2025-04-02 
-atac	 2.7.2	2025-04-15 
+atac	 2.7.2	2025-04-15  
 snm3C	 4.0.4	2024-08-06 
 Optimus	 8.0.0	2025-04-02 
 Multiome	 6.1.1	025-04-15 
