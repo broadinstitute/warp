@@ -165,7 +165,6 @@ jobs:
       - name: Determine Github Commit Hash
         id: determine_github_commit_hash
         run: |
-          
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "Using github.sha for manually triggered workflow."
             echo "GITHUB_COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
