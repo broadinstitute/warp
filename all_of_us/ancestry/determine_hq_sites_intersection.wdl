@@ -1,6 +1,6 @@
 version 1.0
 # Determine the high-quality sites as an intersection of the training high quality sites (from determine hq_sites.wdl) and
-#  the input data (ordered_vcf_shards).  As a reminder, HQ sites can only be biallelic SNPs.
+#  the input data (ordered_vcf_shards).
 workflow determine_hq_sites_intersection {
     input {
 
@@ -34,6 +34,7 @@ workflow determine_hq_sites_intersection {
 
     Array[File] ordered_vcf_shards = if (defined(ordered_vcf_shards_list)) then read_lines(select_first([ordered_vcf_shards_list, ""])) else ordered_vcf_shards_in
     Array[File] ordered_vcf_shards_idx = if (defined(ordered_vcf_shards_idx_list)) then read_lines(select_first([ordered_vcf_shards_idx_list, ""])) else ordered_vcf_shards_idx_in
+    String pipeline_version = "aou-8.0.0"
 
     # Get the high quality sites that are called in the test data (intersection file).
     #  Return as a full VCF of the training data ("hq full").  And return the count as well.
@@ -242,10 +243,10 @@ task merge_vcf_bgzs {
 
     runtime {
         docker: "mgibio/bcftools-cwl:1.12"
-        memory: "31 GB"
-        cpu: "4"
-        disks: "local-disk 700 HDD"
-        bootDiskSizeGb: 750
+        memory: "100 GB"
+        cpu: "16"
+        disks: "local-disk 1500 HDD"
+        bootDiskSizeGb: 1500
     }
 
     output {
@@ -289,7 +290,7 @@ task filter_by_sites_only {
         gsutil cp ~{vcf_idx} .
         fi
 
-        gatk SelectVariants -V ~{updated_input_vcf} -L ~{sites_only_vcf}  --select-type-to-include SNP  -O ~{output_filename}
+        gatk SelectVariants -V ~{updated_input_vcf} -L ~{sites_only_vcf}  -O ~{output_filename}
         gatk IndexFeatureFile -I ~{output_filename}
     >>>
 

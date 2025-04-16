@@ -36,6 +36,7 @@ workflow run_ancestry {
 
     File hgdp_metadata_file = select_first([hgdp_metadata_file_in, "gs://gcp-public-data--gnomad/release/3.1/vcf/genomes/gnomad.genomes.v3.1.hgdp_1kg_subset.sample_meta.tsv.gz"])
     Float other_cutoff = select_first([other_cutoff_in, 0.75])
+    String pipeline_version = "aou_8.0.0"
 
     # Train the model on the intersection sites (full version that includes the samples)
     call create_hw_pca_training {
