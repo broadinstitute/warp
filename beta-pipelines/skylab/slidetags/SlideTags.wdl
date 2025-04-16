@@ -9,7 +9,7 @@ workflow SlideTags {
     String pipeline_version = "1.0.0"
 
     input {
-        # Slide-tags inputs
+        # slide-tags inputs
         String id
         Array[String] spatial_fastq
         Array[String] pucks
