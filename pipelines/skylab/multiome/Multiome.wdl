@@ -2,9 +2,9 @@ version 1.0
 
 import "../../../pipelines/skylab/atac/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
+import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/broad/Utilities.wdl" as utils
-import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling
 
 workflow Multiome {
 
