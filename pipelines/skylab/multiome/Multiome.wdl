@@ -145,6 +145,8 @@ workflow Multiome {
                 metrics_h5ad = JoinBarcodes.atac_h5ad_file,
                 chrom_sizes = chrom_sizes,
                 output_base_name = input_id,
+                cloud_provider = cloud_provider,
+                peak_calling = true,
         }
     }
 

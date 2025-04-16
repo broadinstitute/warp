@@ -1,5 +1,10 @@
-# 6.1.1
-025-04-15 (Date of Last Commit)
+# 6.0.2
+25-04-16 (Date of Last Commit)
+
+* pass cloud_provider to peakcalling in Multiome.wdl and fix commit history
+
+# 6.0.1
+25-04-15 (Date of Last Commit)
 
 * Refactored peak calling task to be called from PeakCalling.wdl
 
