@@ -1,7 +1,7 @@
 # 6.0.2
 25-04-16 (Date of Last Commit)
 
-* pass cloud_provider to peakcalling in Multiome.wdl and fix commit history
+* Added cloud_provider to peakcalling task in Multiome.wdl and fix commit history
 
 # 6.0.1
 25-04-15 (Date of Last Commit)
