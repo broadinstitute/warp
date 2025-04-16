@@ -15,7 +15,7 @@
   "snm3C.plate_id": "AD3C_BA17_2027_P1-1-B11",
   "snm3C.tarred_index_files":"gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/index_files/hg38_index_files.tar.gz",
   "snm3C.chromosome_sizes": "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/index_files/hg38.chrom.sizes",
-  "snm3C.genome_fa": "gs://pd-test-storage-public/snm3C-seq/plumbing/miseq_M16_G13/index_files/hg38.fa",
+  "snm3C.genome_fa": "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/index_files/hg38.fa",
   "snm3C.Hisat_paired_end.cpu_platform" : "Intel Cascade Lake",
   "snm3C.Hisat_single_end.cpu_platform" : "Intel Cascade Lake",
   "snm3C.Merge_sort_analyze.cpu_platform" : "Intel Cascade Lake",
