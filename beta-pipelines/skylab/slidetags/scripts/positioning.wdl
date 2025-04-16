@@ -14,6 +14,8 @@ task generate_positioning {
     set -euo pipefail
     set -x
     echo "<< starting spatial-count >>"
+    
+    Rscript -e "install.packages(c('optparse', 'BiocManager'), repos='https://cloud.r-project.org'); BiocManager::install('IRanges')"
 
     gcloud config set storage/process_count 16 # is this set by user?
     gcloud config set storage/thread_count  2 # is this set by user?
@@ -48,12 +50,12 @@ task generate_positioning {
 
     # Download the SB
     echo "Downloading SB:"
-    mkdir SB
-    gcloud storage cp ~{sb_path} SB
+    gcloud storage cp ~{sb_path} .
+    baseSB=`basename ~{sb_path}`
 
     # Run the script
     echo ; echo "Running run-positioning.R"
-    Rscript run-positioning.R RNA SB output
+    Rscript run-positioning.R RNA $baseSB output
 
     # Upload the results
     ls output/* 
@@ -66,7 +68,7 @@ task generate_positioning {
 
     echo; echo "Writing logs:"
     echo; echo "RNA size:"; du -sh RNA
-    echo; echo "SB size:"; du -sh SB
+    echo; echo "SB size:"; du -sh $baseSB
     echo; echo "output size:"; du -sh output
     echo; echo "FREE SPACE:"; df -h
     
@@ -79,8 +81,9 @@ task generate_positioning {
     mv seurat.qs ~{input_id}_seurat.qs
     mv coords.csv ~{input_id}_coords.csv
     mv coords2.csv ~{input_id}_coords2.csv
-
-    tar -zcvf output.tar.gz output/matrix.csv.gz output/cb_whitelist.txt output/spatial_metadata.json
+    
+    ls 
+    tar -zcvf output.tar.gz matrix.csv.gz cb_whitelist.txt spatial_metadata.json
     mv output.tar.gz ~{input_id}_intermediates.tar.gz
     mv positioning.log ~{input_id}_positioning.log
     echo "<< completed positioning >>"
