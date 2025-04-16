@@ -1,6 +1,53 @@
 # Ancestry Pipelines
 The following pipelines are used to calculate ancestry:
 
+## vds_to_vcf
+#### **Background**
+
+This WDL workflow processes a Variant Dataset (VDS) and converts it into per-chromosome VCF and sites-only VCF files. It is intended for large-scale whole genome callsets and assumes data is aligned to GRCh38. The input VDS is filtered by a user-provided BED file and exported as both full and sites-only VCFs. 
+
+Key characteristics:
+- Each chromosome is processed independently.
+- Output VCFs are not merged.
+- Designed for scalability (e.g., 245k AoU WGS VDS).
+- Not compatible with requester-pays buckets in Cromwell.
+
+---
+
+#### **Steps**
+
+1. **Scatter by Chromosome**  
+   The workflow splits processing across chromosomes using a user-specified list of contigs.
+
+2. **Filter and Convert Each Chromosome (task: `process_vds`)**
+   - Repartition the input VDS to the desired number of partitions.
+   - Filter the VDS to the specified chromosome.
+   - Filter the data by a BED file.
+   - Densify the VDS and prepare a matrix table for export.
+   - Clean and annotate fields (e.g., convert GT, drop problematic fields).
+   - Export the result as a full VCF and a sites-only VCF.
+
+3. **Generate Index Files**
+   - Tabix index files (`.tbi`) are created alongside each VCF output.
+
+4. **Create Lists of Outputs (task: `create_fofn`)**
+   - Two flat text files (`.fofn1.txt`, `.fofn2.txt`) are generated listing all full VCFs and index files.
+
+5. **Output Final Files**
+   - Arrays of VCFs, sites-only VCFs, and their respective index files.
+   - File-of-filenames (FOFNs) for downstream use.
+
+---
+
+#### **Outputs**
+
+- `Array[File] vcfs` – Full VCFs per chromosome  
+- `Array[File] vcfs_tbis` – Tabix index files for full VCFs  
+- `Array[File] vcfs_so` – Sites-only VCFs  
+- `Array[File] vcfs_so_tbis` – Tabix index files for sites-only VCFs  
+- `File vcfs_list` – List of all VCF files  
+- `File vcfs_idx_list` – List of all VCF index files  
+
 ## determine_hq_sites_intersection.wdl
 
 ### Background
