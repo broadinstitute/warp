@@ -8,7 +8,7 @@
     "gs://pd-test-storage-public/PairedTag/input/plumbing/10k_PBMC_downsampled/fastq_R2_gex.fastq.gz"
   ],
   "PairedTag.atac_r1_fastq":[
-    "gs://pd-test-storage-public/PairedTag/input/plumbing/10k_PBMC_downsampled/10k_PBMC_downsampled/fastq_R1_atac.fastq.gz"
+    "gs://pd-test-storage-public/PairedTag/input/plumbing/10k_PBMC_downsampled/fastq_R1_atac.fastq.gz"
   ],
   "PairedTag.atac_r2_fastq":[
     "gs://pd-test-storage-public/PairedTag/input/plumbing/10k_PBMC_downsampled/fastq_R2_atac.fastq.gz"
