@@ -2,13 +2,13 @@
 	"ATAC.input_id":"10x_8k_cortex_downsampled",
 	"ATAC.cloud_provider":"gcp",
 	"ATAC.read1_fastq_gzipped":[
-	  "gs://pd-test-storage-public/atac/input/plumbing/fastq_R1_0.fastq.gz"
+	  "gs://pd-test-storage-public/atac/input/plumbing/8k_cortex/fastq_R1_0.fastq.gz"
 	],
 	"ATAC.read2_fastq_gzipped":[
-	  "gs://pd-test-storage-public/atac/input/plumbing/fastq_R2_0.fastq.gz"
+	  "gs://pd-test-storage-public/atac/input/plumbing/8k_cortex/fastq_R2_0.fastq.gz"
 	],
 	"ATAC.read3_fastq_gzipped":[
-	  "gs://pd-test-storage-public/atac/input/plumbing/fastq_R3_0.fastq.gz"
+	  "gs://pd-test-storage-public/atac/input/plumbing/8k_cortex/fastq_R3_0.fastq.gz"
 	],
 	"ATAC.tar_bwa_reference":"gs://gcp-public-data--broad-references/GRCm39/bwa/v2_2_1/bwa-mem2-2.2.1-Mouse-GENCODE-build-GRCm39.tar",
 	"ATAC.chrom_sizes":"gs://gcp-public-data--broad-references/GRCm39/bwa/v2_2_1/chrom.sizes",
