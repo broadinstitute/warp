@@ -8,4 +8,4 @@
 # beta release
 2025-04-15 (Date of Last Commit)
 
-* First iteration of the pipeline through Dockstore. 
+* This is the first version of this pipeline pushed to Dockstore
