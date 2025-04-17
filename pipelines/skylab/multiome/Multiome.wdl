@@ -2,13 +2,14 @@ version 1.0
 
 import "../../../pipelines/skylab/atac/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
+import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling
+
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/broad/Utilities.wdl" as utils
-import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling
 
 workflow Multiome {
 
-    String pipeline_version = "6.1.1"
+    String pipeline_version = "6.0.2"
 
     input {
         String cloud_provider
@@ -145,6 +146,7 @@ workflow Multiome {
                 metrics_h5ad = JoinBarcodes.atac_h5ad_file,
                 chrom_sizes = chrom_sizes,
                 output_base_name = input_id,
+                cloud_provider = cloud_provider,
         }
     }
 
