@@ -1,9 +1,9 @@
 {
   "snm3C.fastq_input_read1": [
-    "gs://pd-test-storage-private/snM3C/input/scientific/novaseq_M16_G13/230419-iN-hs-snm3C_seq-NovaSeq-pe-150-BW-iN230412_Entorhinal_Cortex_Adult_2115_R1_1-1-I3_S1_L001_R1_001_fastq_R1_0.fastq.gz",
-    "gs://pd-test-storage-private/snM3C/input/scientific/novaseq_M16_G13/230419-iN-hs-snm3C_seq-NovaSeq-pe-150-BW-iN230412_Entorhinal_Cortex_Adult_2115_R1_1-1-I3_S1_L002_R1_001_fastq_R1_0.fastq.gz",
-    "gs://pd-test-storage-private/snM3C/input/scientific/novaseq_M16_G13/230419-iN-hs-snm3C_seq-NovaSeq-pe-150-BW-iN230412_Entorhinal_Cortex_Adult_2115_R1_1-1-I3_S1_L003_R1_001_fastq_R1_0.fastq.gz",
-    "gs://pd-test-storage-private/snM3C/input/scientific/novaseq_M16_G13/230419-iN-hs-snm3C_seq-NovaSeq-pe-150-BW-iN230412_Entorhinal_Cortex_Adult_2115_R1_1-1-I3_S1_L004_R1_001_fastq_R1_0.fastq.gz"
+    "gs://pd-test-storage-private/snm3C-seq/input/scientific/novaseq_M16_G13/230419-iN-hs-snm3C_seq-NovaSeq-pe-150-BW-iN230412_Entorhinal_Cortex_Adult_2115_R1_1-1-I3_S1_L001_R1_001_fastq_R1_0.fastq.gz",
+    "gs://pd-test-storage-private/snm3C-seq/input/scientific/novaseq_M16_G13/230419-iN-hs-snm3C_seq-NovaSeq-pe-150-BW-iN230412_Entorhinal_Cortex_Adult_2115_R1_1-1-I3_S1_L002_R1_001_fastq_R1_0.fastq.gz",
+    "gs://pd-test-storage-private/snm3C-seq/input/scientific/novaseq_M16_G13/230419-iN-hs-snm3C_seq-NovaSeq-pe-150-BW-iN230412_Entorhinal_Cortex_Adult_2115_R1_1-1-I3_S1_L003_R1_001_fastq_R1_0.fastq.gz",
+    "gs://pd-test-storage-private/snm3C-seq/input/scientific/novaseq_M16_G13/230419-iN-hs-snm3C_seq-NovaSeq-pe-150-BW-iN230412_Entorhinal_Cortex_Adult_2115_R1_1-1-I3_S1_L004_R1_001_fastq_R1_0.fastq.gz"
   ],
   "snm3C.fastq_input_read2": [
     "gs://pd-test-storage-private/snm3C-seq/input/scientific/novaseq_M16_G13/230419-iN-hs-snm3C_seq-NovaSeq-pe-150-BW-iN230412_Entorhinal_Cortex_Adult_2115_R1_1-1-I3_S1_L001_R1_001_fastq_R2_0.fastq.gz",
