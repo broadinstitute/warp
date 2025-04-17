@@ -24,7 +24,7 @@ workflow vds_to_vcf {
         # This should be ordered
         Array[String] contigs
     }
-    string pipeline_version = "aou-8.0.0"
+    String pipeline_version = "aou-8.0.0"
 
     scatter (contig in contigs) {
         call process_vds {
