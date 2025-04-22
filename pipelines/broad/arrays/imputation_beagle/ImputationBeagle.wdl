@@ -176,17 +176,17 @@ workflow ImputationBeagle {
           gatk_docker = gatk_docker
       }
 
-      call tasks.SeparateMultiallelics {
-        input:
-          original_vcf = UpdateHeader.output_vcf,
-          original_vcf_index = UpdateHeader.output_vcf_index,
-          output_basename = chunk_basename_imputed
-      }
+#      call tasks.SeparateMultiallelics {
+#        input:
+#          original_vcf = UpdateHeader.output_vcf,
+#          original_vcf_index = UpdateHeader.output_vcf_index,
+#          output_basename = chunk_basename_imputed
+#      }
 
       call tasks.RemoveSymbolicAlleles {
         input:
-          original_vcf = SeparateMultiallelics.output_vcf,
-          original_vcf_index = SeparateMultiallelics.output_vcf_index,
+          original_vcf = UpdateHeader.output_vcf,
+          original_vcf_index = UpdateHeader.output_vcf_index,
           output_basename = chunk_basename_imputed,
           gatk_docker = gatk_docker
       }
