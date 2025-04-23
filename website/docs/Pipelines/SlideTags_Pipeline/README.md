@@ -12,3 +12,7 @@ slug: /Pipelines/SlideTags_Pipeline/README
 ## Introduction to the Slide-Tags workflow
 
 ## Quickstart table
+The following table provides a quick glance at the ATAC pipeline features:
+
+| Pipeline features | Description | Source |
+|--- | --- | --- |
