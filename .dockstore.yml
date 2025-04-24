@@ -144,6 +144,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestPairedTag.wdl
 
+  - name: TestPeakCalling
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestPeakCalling.wdl
+
   - name: TestReblockGVCF
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestReblockGVCF.wdl
