@@ -31,7 +31,7 @@ on:
       useCallCache:
         description: 'Use call cache (default: true)'
         required: false
-        default: "true"
+        default: "false"
       updateTruth:
         description: 'Update truth files (default: false)'
         required: false
