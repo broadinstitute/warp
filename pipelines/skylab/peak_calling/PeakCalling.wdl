@@ -8,6 +8,7 @@ workflow PeakCalling {
     allowNestedInputs: true
   }
 
+
   input {
 
       File annotations_gtf
