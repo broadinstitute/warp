@@ -26,8 +26,6 @@ workflow TestPeakCalling {
       String truth_path
       String results_path
       Boolean update_truth
-      String vault_token_path
-      String google_account_vault_path
     }
 
     meta {
@@ -67,8 +65,6 @@ workflow TestPeakCalling {
     call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
       input:
         files_to_copy             = flatten([pipeline_outputs]),
-        vault_token_path          = vault_token_path,
-        google_account_vault_path = google_account_vault_path,
         destination_cloud_path    = results_path
     }
   
@@ -77,8 +73,6 @@ workflow TestPeakCalling {
       call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
         input: 
           files_to_copy             = flatten([pipeline_outputs]),
-          vault_token_path          = vault_token_path,
-          google_account_vault_path = google_account_vault_path,
           destination_cloud_path    = truth_path
       }
     }
