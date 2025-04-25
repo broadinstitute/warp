@@ -59,7 +59,6 @@ workflow TestPeakCalling {
                                     
     ])
 
-    
 
     # Copy results of pipeline to test results bucket
     call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
