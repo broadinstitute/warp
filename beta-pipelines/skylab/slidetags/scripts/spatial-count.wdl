@@ -21,7 +21,11 @@ task count {
 
     # Download the script -- put this script into a docker 
     # This needs to be changed when Matthew finalizes changes to these scripts
+<<<<<<< HEAD
     wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/refs/heads/main/slide-tags/spatial-count.jl
+=======
+    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/d89176cf21e072fe8b5aad3a1454ad194fca7c9a/slide-tags/spatial-count.jl
+>>>>>>> ff3e3e0fbebf9d7c65ee0f7242007ec4cb7ae89e
 
     echo "FASTQs: ~{length(fastq_paths)} paths provided"
     echo "Pucks: ~{length(pucks)} puck(s) provided"
