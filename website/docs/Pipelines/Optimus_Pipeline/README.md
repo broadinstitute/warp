@@ -7,7 +7,7 @@ slug: /Pipelines/Optimus_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v7.9.1](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | January, 2025 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
+| [optimus_v8.0.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2025 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
 
 
 ![Optimus_diagram](Optimus_diagram.png)
@@ -125,9 +125,7 @@ The [Optimus workflow](https://github.com/broadinstitute/warp/blob/master/pipeli
 
 Overall, the Optimus workflow:
 1. Checks inputs.
-1. Partitions FASTQs by CB.
 1. Corrects CBs, aligns reads, corrects UMIs, and counts genes with STAR.
-1. Merges the Star outputs into NPY and NPZ arrays.
 1. Calculates gene metrics.
 1. Calculates cell metrics.
 1. Runs emptyDrops.
@@ -140,15 +138,12 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | ------------------------------------ | 
-| [OptimusInputChecks.checkOptimusInput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CheckInputs.wdl) | Custom script | Bash | Validates the tenx_chemistry_version and counting_mode inputs. For the tenx_chemistry_version, the script verifies that the length of the CBs and UMIs in the first read1 FASTQ file matches the length expected by 10x Genomics v2 and v3 chemistry. It then selects and outputs the appropriate whitelist to use for analysis in the rest of the workflow. |
-| [FastqProcessing.FastqProcessing (alias = SplitFastq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastqprocess | [warp-tools](https://github.com/broadinstitute/warp-tools) | Partitions the input FASTQ files by CB to create an array of FASTQ files that are each ~ 30 GB. This task is skipped if the input files are smaller than 30 GB. | 
-| [StarAlign.STARsoloFastq (alias = STARsoloFastq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | STAR | [Star](https://github.com/alexdobin/STAR) | Uses the partitioned FASTQ files to perform CB correction, adaptor trimming, alignment, gene annotation, UMI correction, and gene counting. |
-| [Merge.MergeSortBamFiles (alias= MergeBam)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/MergeSortBam.wdl) | MergeSamFiles | Picard | Merges the array of BAM files into a single BAM and sorts in coordinate order. |
-| [StarAlign.MergeStarOutput (alias = MergeStarOutputs)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | create-npz-output.py | Python3 | Creates a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ). | 
+| [OptimusInputChecks.checkOptimusInput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CheckInputs.wdl) | Custom script | Bash | Validates the tenx_chemistry_version and counting_mode inputs. For the tenx_chemistry_version, the script verifies that the length of the CBs and UMIs in the first read1 FASTQ file matches the length expected by 10x Genomics v2 and v3 chemistry. It then selects and outputs the appropriate whitelist to use for analysis in the rest of the workflow. | 
+| [StarAlign.STARsoloFastq (alias = STARsoloFastq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | STAR | [Star](https://github.com/alexdobin/STAR) | Uses the FASTQ files to perform CB correction, adaptor trimming, alignment, gene annotation, UMI correction, and gene counting. Creates a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ) |
 | [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by gene using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes gene metrics. | 
 | [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by cell using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes cell metrics. |
-| [RunEmptyDrops.RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) | npz2rds.sh, emptyDropsWrapper.R, emptyDrops | [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Runs custom scripts to convert the NPY and NPZ files to RDS and then uses emptyDrops to identify empty lipid droplets. This step only runs when `counting_mode` = "sc_rna".|
-|  [H5adUtils.OptimusH5adGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/H5adUtils.wdl) | create_h5ad_optimus.py | Python3 | Merges the gene counts, cell metrics, gene metrics, and emptyDrops data into a h5ad formatted cell-by-gene matrix. The h5ad contains exon counts when using sc_rna mode, and whole-gene counts when running in sn_rna mode. It optionally contains an additional layer for exon counts when running sn_rna mode with `exon_counts` set to true. |
+| [RunEmptyDrops.RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) | npz2rds.sh, emptyDropsWrapper.R, emptyDrops | [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Runs custom scripts to convert the NPY and NPZ files to RDS and then uses emptyDrops to identify empty lipid droplets. This step only runs when `counting_mode` = "sc_rna". This task is nondeterministic.|
+|  [H5adUtils.OptimusH5adGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/H5adUtils.wdl) | create_h5ad_optimus.py | Python3 | Merges the gene counts, cell metrics, gene metrics, and emptyDrops data into a h5ad formatted cell-by-gene matrix. The h5ad contains exon counts when using sc_rna mode, and whole-gene counts when running in sn_rna mode. It optionally contains an additional layer for exon counts when running sn_rna mode with `exon_counts` set to true. This task is nondeterministic.|
 | CellBender.run_cellbender_remove_background_gpu as CellBender ([WDL](https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl))| CellBender | Optional task that runs the `cellbender_remove_background.wdl` WDL script directly from the [CellBender GitHub repository](https://github.com/broadinstitute/CellBender/tree/master), depending on whether the input `run_cellbender` is "true" or "false". |
 
 
@@ -157,11 +152,8 @@ More information about the different tags used to flag the data can be found in 
 #### 1. Checks inputs
 The [checkOptimusInput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CheckInputs.wdl) task validates the `tenx_chemistry_version` and `counting_mode` inputs to ensure that the attributes are selected. For the `tenx_chemistry_version`, the script verifies that the length of the CBs and UMIs in the first read1 FASTQ file matches the length expected by 10x Genomics v2 and v3 chemistry. It then selects and outputs the appropriate whitelist to use for analysis in the rest of the workflow. For the `counting_mode` input, the task verifies that the input is set to either the string "sc_rna" or "sn_rna". If these checks fail, the workflow will fail. 
 
-#### 2. Partition CBs
-To optimally scale for large files, the workflow first uses the [FastqProcessing task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) to partition the input array of forward and reverse read FASTQ files by uncorrected CBs. The resulting array contains FASTQ files that are \~30 GB in size. If the input files are smaller than 30 GB, this task is omitted.
-
-#### 3. Correct CBs, trims reads, align, annotate genes, correct UMIs, and count genes
-The [STARsoloFastq task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) uses the partitioned FASTQ files to perform CB correction, alignment, gene annotation, and counting. 
+#### 2. Correct CBs, trims reads, align, annotate genes, correct UMIs, and count genes
+The [STARsoloFastq task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) uses the FASTQ files to perform CB correction, alignment, gene annotation, and counting. 
 
 **CB correction**
 
@@ -187,35 +179,28 @@ Genes that overlap an alignment are stored with the GX BAM tag; for sc_rna mode,
 
 All tags are detailed in the pipeline's [BAM_tag documentation](./Bam_tags.md).
 
-The resulting BAM files are merged together into a single BAM using the [MergeSortBamFiles (alias= MergeBam)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/MergeSortBam.wdl).
-
 **UMI correction and gene counting**
 
 UMIs are designed to distinguish unique transcripts present in the cell at lysis from those arising from PCR amplification of these same transcripts. But, like CBs, UMIs can also be incorrectly sequenced or amplified. 
 
 By specifying the `--soloUMIdedup 1MM_Directional_UMItools`, STARsolo applies a network-based, "directional" correction method ([Smith, et al., 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5340976/)) to account for such errors. Additionally, the UMI correction task requires the length of the UMI, which differs between v2 and v3 chemistry; v2 is 10 bp whereas v3 is 12 bp. The task will add a 'UB' tag for UMI-corrected barcodes. 
 
-Deduplicated UMIs are counted towards their assigned gene/cells, producing a raw count matrix. 
-
-#### 4. Merge STARsolo count matrices
-
-The STARsolo output will include a features, barcodes, and matrix TSV for each of the partitioned FASTQ input. The [MergeStarOutput task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) merges each respective TSV. It uses a custom python script to convert the merged matrix, features, and barcodes output from STARsolo into an NPY (features and barcodes)- and NPZ (the matrix)-formatted file for downstream empty drops detection and h5ad matrix generation. 
+Deduplicated UMIs are counted towards their assigned gene/cells, producing a raw count matrix.
 
 **STARsolo outputs**
 
-The task’s output includes a merged, coordinate-sorted BAM file containing the CB-corrected reads and SAM attributes UB UR UY CR CB CY NH GX GN. Additionally, after counting, the task outputs three intermediate TSV files (features, barcodes, and matrix) used for downstream empty droplet detection and h5ad matrix generation. 
+The task’s output includes a coordinate-sorted BAM file containing the CB-corrected reads and SAM attributes UB UR UY CR CB CY NH GX GN. Additionally, after counting, the task outputs three intermediate TSV files (features, barcodes, and matrix) used for downstream empty droplet detection and h5ad matrix generation. The task also outputs a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ).
 
-
-#### 5. Calculate gene metrics
+#### 3. Calculate gene metrics
 
 The [CalculateGeneMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [warp-tools](https://github.com/broadinstitute/warp-tools) to calculate summary metrics that help assess the quality of the data output each time this pipeline is run. These metrics are included in the output h5ad matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
-#### 6. Calculate cell metrics
+#### 4. Calculate cell metrics
 
 The [CalculateCellMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [warp-tools](https://github.com/broadinstitute/warp-tools) to calculate summary metrics that help assess the per-cell quality of the data output each time this pipeline is run. These metrics are included in the output h5ad matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
 
-#### 7. Run emptyDrops
+#### 5. Run emptyDrops
 
 Empty droplets are lipid droplets that did not encapsulate a cell during 10x sequencing, but instead acquired cell-free RNA (secreted RNA or RNA released during cell lysis) from the solution in which the cells resided ([Lun, et al., 2018](https://www.ncbi.nlm.nih.gov/pubmed/?term=30902100). This ambient RNA can serve as a substrate for reverse transcription, leading to a small number of background reads. The Optimus pipeline calls the [RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) task which uses the [DropletUtils](http://bioconductor.org/packages/release/bioc/html/DropletUtils.html) R package to flag CBs that represent empty droplets rather than cells. A cell will be flagged if it contains fewer than 100 molecules.
 emptyDrops metrics for single-cell data (not single-nucleus; see note below) are stored in the columns of the output h5ad matrix.  Read full details for all the metrics in the [Optimus Matrix Overview](./Loom_schema.md).
@@ -226,7 +211,7 @@ EmptyDrops relies on a visual knee point inflection (described in [Lun et al. (2
 Often snRNAseq data does not produce a visual knee point inflection when running emptyDrops and the tool can not accurately distinguish ambient-like cells from empty droplets. For this reason, emptyDrops is not used if Optimus counting_mode is set to `sn_rna`, and the output h5ad matrix will not contain emptyDrops metrics.
 :::
 
-#### 8.  Matrix construction
+#### 6.  Matrix construction
 
 The [OptimusH5adGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/H5adUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix, the emptyDrops results, and the cell and gene metrics into an h5ad-formatted cell-by-gene matrix. **These counts are raw and unfiltered.**
 
@@ -240,10 +225,10 @@ You can determine which type of counts are in the h5ad by looking at the global 
 
 For sn_rna mode, you can also access whole transcript and exonic counts using AnnData alyers `layers()` method. For example, adata.layers[“exon_counts”]` will return the exonic counts from the output h5ad. 
 
-#### 9. Optional: Run CellBender
+#### 7. Optional: Run CellBender
 This task runs when the `run_cellbender` input is set to true. CellBender is a tool for removing background UMIs and thereby helps to flag empty drops. Learn more in the [CellBender documentation](https://cellbender.readthedocs.io/en/latest/).
 
-#### 10. Outputs
+#### 8. Outputs
 
 Output files of the pipeline include:
 
@@ -259,7 +244,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | pipeline_version_out | N/A | Version of the processing pipeline run on this data. | String |
 | genomic_reference_version | reference_version.txt | Genomic reference version | TXT |
 | bam | `<input_id>.bam` | Aligned BAM | BAM |
-| matrix | `<input_id>_sparse_counts.npz` | Converted sparse matrix file from the MergeStarOutputs task. | NPZ |
+| matrix | `<input_id>_sparse_counts.npz` | Converted sparse matrix file from the Starsolo task. | NPZ |
 | matrix_row_index | `<input_id>_sparse_counts_row_index.npy` | Index of cells in count matrix. | NPY |
 | matrix_col_index | `<input_id>_sparse_counts_col_index.npy` | Index of genes in count matrix. | NPY |
 | cell_metrics | `<input_id>.cell-metrics.csv.gz` | Matrix of metrics by cells. | Compressed CSV |

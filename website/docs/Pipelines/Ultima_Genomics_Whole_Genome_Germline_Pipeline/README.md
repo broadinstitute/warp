@@ -7,7 +7,7 @@ slug: /Pipelines/Ultima_Genomics_Whole_Genome_Germline_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [UltimaGenomicsWholeGenomeGermline_v1.0.16](https://github.com/broadinstitute/warp/releases) | March, 2024 | Elizabeth Kiernan & Kaylee Mathews| Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
+| [UltimaGenomicsWholeGenomeGermline_v1.1.5](https://github.com/broadinstitute/warp/releases) | March, 2025 | Elizabeth Kiernan & Kaylee Mathews| Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
 ![UG_diagram](ug_diagram.png)
 

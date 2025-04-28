@@ -2,13 +2,14 @@ version 1.0
 
 import "../../../pipelines/skylab/atac/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
+import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling
+
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/broad/Utilities.wdl" as utils
-#import "../../../pipelines/skylab/atac/atac.wdl" as PeakCalling
 
 workflow Multiome {
 
-    String pipeline_version = "5.11.0"
+    String pipeline_version = "6.0.2"
 
     input {
         String cloud_provider
@@ -18,7 +19,7 @@ workflow Multiome {
         String? atac_nhash_id
         Int expected_cells = 3000
 
-        # Optimus Inputs
+        # Optimus inputs
         String counting_mode = "sn_rna"
         Array[File] gex_r1_fastq
         Array[File] gex_r2_fastq
@@ -139,13 +140,13 @@ workflow Multiome {
     }
 
     if (run_peak_calling) {
-        call atac.PeakCalling as PeakCalling {
+        call peakcalling.PeakCalling as PeakCalling {
             input:
                 annotations_gtf = annotations_gtf,
                 metrics_h5ad = JoinBarcodes.atac_h5ad_file,
                 chrom_sizes = chrom_sizes,
                 output_base_name = input_id,
-                docker_path = docker_prefix + snap_atac_docker_image,
+                cloud_provider = cloud_provider,
         }
     }
 
@@ -177,13 +178,15 @@ workflow Multiome {
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
-        Array[File?] multimappers_EM_matrix = Optimus.multimappers_EM_matrix
-        Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
-        Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
-        Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
+        File? multimappers_EM_matrix = Optimus.multimappers_EM_matrix
+        File? multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
+        File? multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
+        File? multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
         File? gex_aligner_metrics = Optimus.aligner_metrics
         File? library_metrics = Optimus.library_metrics
         File? mtx_files = Optimus.mtx_files
+
+         # cellbender outputs
         File? cell_barcodes_csv = Optimus.cell_barcodes_csv
         File? checkpoint_file = Optimus.checkpoint_file
         Array[File]? h5_array = Optimus.h5_array
