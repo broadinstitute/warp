@@ -86,25 +86,25 @@ Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://gi
 
 ## Outputs
 
-| Output Variable | File Name | Description | Format |
+| Output Variable | File Name | Description |
 | ------ | --- | ------ | ------ |
-| optimus_genomic_reference_version | `<reference_version>.txt` | File containing the Genome build, source and GTF annotation version. |
-| optimus_bam | `<input_id>.bam` | BAM file containing aligned reads from Optimus workflow. |
-| optimus_matrix | `<input_id>_gex_sparse_counts.npz` | NPZ file containing raw gene by cell counts. |
-| optimus_matrix_row_index | `<input_id>_gex_sparse_counts_row_index.npy` | NPY file containing the row indices. |
-| optimus_matrix_col_index | `<input_id>_gex_sparse_counts_col_index.npy` | NPY file containing the column indices. |
-| optimus_cell_metrics | `<input_id>_gex.cell_metrics.csv.gz` | CSV file containing the per-cell (barcode) metrics. |
-| optimus_gene_metrics | `<input_id>.gene_metrics.csv.gz` | CSV file containing the per-gene metrics. |
-| optimus_cell_calls | `<input_id>.emptyDrops` | TSV file containing the EmptyDrops results when the Optimus workflow is run in sc_rna mode. |
-| optimus_h5ad_output_file | `<input_id>.h5ad` | h5ad (Anndata) file containing the raw cell-by-gene count matrix, gene metrics, cell metrics, and global attributes. See the [Optimus Count Matrix Overview](../Optimus_Pipeline/Loom_schema.md) for more details. |
-| optimus_multimappers_EM_matrix | `UniqueAndMult-EM.mtx` | Optional output produced when `soloMultiMappers` is "EM"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.|
-| optimus_multimappers_Uniform_matrix | `UniqueAndMult-Uniform.mtx` | Optional output produced when `soloMultiMappers` is "Uniform"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.|
-| optimus_multimappers_Rescue_matrix | `UniqueAndMult-Rescue.mtx` | Optional output produced when `soloMultiMappers` is "Rescue"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. |
-| optimus_multimappers_PropUnique_matrix | `UniqueAndMult-PropUnique.mtx` | Optional output produced when `soloMultiMappers` is "PropUnique"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.|
-| optimus_aligner_metrics | `<input_id>.star_metrics.tar` | Text file containing per barcode metrics (`CellReads.stats`) produced by the GEX pipeline STARsolo aligner. |
-| optimus_library_metrics | `<input_id>_gex_<gex_nhash_id>_library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. |
+| optimus_genomic_reference_version | `<reference_version>.txt` | File containing the Genome build, source and GTF annotation version. | TXT | 
+| optimus_bam | `<input_id>.bam` | BAM file containing aligned reads from Optimus workflow. | BAM | 
+| optimus_matrix | `<input_id>_gex_sparse_counts.npz` | NPZ file containing raw gene by cell counts. | NPZ |
+| optimus_matrix_row_index | `<input_id>_gex_sparse_counts_row_index.npy` | NPY file containing the row indices. | NPY | 
+| optimus_matrix_col_index | `<input_id>_gex_sparse_counts_col_index.npy` | NPY file containing the column indices. | NPY | 
+| optimus_cell_metrics | `<input_id>_gex.cell_metrics.csv.gz` | CSV file containing the per-cell (barcode) metrics. | Compressed CSV | 
+| optimus_gene_metrics | `<input_id>.gene_metrics.csv.gz` | CSV file containing the per-gene metrics. | Compressed CSV | 
+| optimus_cell_calls | `<input_id>.emptyDrops.csv` | TSV file containing the EmptyDrops results when the Optimus workflow is run in sc_rna mode. | CSV | 
+| optimus_h5ad_output_file | `<input_id>.h5ad` | h5ad (Anndata) file containing the raw cell-by-gene count matrix, gene metrics, cell metrics, and global attributes. See the [Optimus Count Matrix Overview](../Optimus_Pipeline/Loom_schema.md) for more details. | H5AD |
+| optimus_multimappers_EM_matrix | `UniqueAndMult-EM.mtx` | Optional output produced when `soloMultiMappers` is "EM"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.| MTX |
+| optimus_multimappers_Uniform_matrix | `UniqueAndMult-Uniform.mtx` | Optional output produced when `soloMultiMappers` is "Uniform"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.| MTX |
+| optimus_multimappers_Rescue_matrix | `UniqueAndMult-Rescue.mtx` | Optional output produced when `soloMultiMappers` is "Rescue"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. | MTX |
+| optimus_multimappers_PropUnique_matrix | `UniqueAndMult-PropUnique.mtx` | Optional output produced when `soloMultiMappers` is "PropUnique"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.| MTX |
+| optimus_aligner_metrics | `<input_id>.star_metrics.tar` | Text file containing per barcode metrics (`CellReads.stats`) produced by the GEX pipeline STARsolo aligner. | TAR | 
+| optimus_library_metrics | `<input_id>__library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. | CSV | 
 | optimus_mtx_files | `<input_id>_gex.mtx_files.tar` | TAR file with STARsolo matrix market files (barcodes.tsv, features.tsv, and matrix.mtx) | TAR |
-| cb_cell_barcodes_csv | `<cell_csv>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information.|
+| cb_cell_barcodes_csv | `<cell_csv>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information.| CSV | 
 | cb_checkpoint_file | `<ckpt_file>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 | cb_h5_array | `<h5_array>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 | cb_html_report_array | `<report_array>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
@@ -112,14 +112,14 @@ Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://gi
 | cb_metrics_csv_array | `<metrics_array>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 | cb_output_directory | `<output_dir>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 | cb_summary_pdf | `<pdf>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
-| spatial_output_h5 | `<input_id>_SBcounts.h5` | h5 file containing cell by gene matrix and spatial barcode information. | h5 |
-| spatial_output_log | `<input_id>_spatial-count.log` | Standard output of the spatial barcodes task. | text |
-| positioning_seurat_qs | `<input_id>_seurat.qs` | Seurat object with processed spatial transcriptomics data. | Seurat |
-| positioning_coords_csv | `<input_id>_coords.csv` | Spatial coordinates for detected barcodes. | csv |
-| positioning_coords2_csv | `<input_id>_coords2.csv` | Alternate or refined spatial coordinates. | csv |
-| positioning_summary_pdf | `<input_id>_summary.pdf` | QC summary report with plots and metrics. | pdf |
+| spatial_output_h5 | `<input_id>_SBcounts.h5` | h5 file containing cell by gene matrix and spatial barcode information. | H5 |
+| spatial_output_log | `<input_id>_spatial-count.log` | Standard output of the spatial barcodes task. | TXT |
+| positioning_seurat_qs | `<input_id>_seurat.qs` | Seurat object with processed spatial transcriptomics data. | SEURAT |
+| positioning_coords_csv | `<input_id>_coords.csv` | Spatial coordinates for detected barcodes. | CSV |
+| positioning_coords2_csv | `<input_id>_coords2.csv` | Alternate or refined spatial coordinates. | CSV |
+| positioning_summary_pdf | `<input_id>_summary.pdf` | QC summary report with plots and metrics. | PDF |
 | positioning_intermediates | `<input_id>_intermediates.tar.gz` | Contains matrix, barcode whitelist, and spatial metadata  | TAR |
-| positioning_log | `<input_id>_positioning.log` | Standard output of the positioning task. | text |
+| positioning_log | `<input_id>_positioning.log` | Standard output of the positioning task. | TXT |
 
 ## Versioning
 
