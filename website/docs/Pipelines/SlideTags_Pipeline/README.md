@@ -99,7 +99,7 @@ Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://gi
 **Optimus output variables can be found below.**
 
 | Output Variable | File Name | Description | Format |
-| ------ | -- | ---- | ----- |
+| ----- | --- | ----- | --- |
 | optimus_genomic_reference_version | `<reference_version>.txt` | File containing the Genome build, source and GTF annotation version. | TXT |
 | optimus_bam | `<input_id>.bam` | BAM file containing aligned reads from Optimus workflow. | BAM |
 | optimus_matrix | `<input_id>_gex_sparse_counts.npz` | NPZ file containing raw gene by cell counts. | NPZ |
