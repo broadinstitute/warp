@@ -50,14 +50,14 @@ The pipeline requires JSON-formatted configuration files detailing input paramet
 | input_id               | Unique input identifier                          | String           |
 | docker                 | Docker image used for the workflow               | String           |
 
-Input variables for the spatial and positioning components of the Slide-Tags pipeline can be found below. 
+***Input variables for the spatial and positioning components of the Slide-Tags pipeline can be found below.*** 
 
 | Input Variables         | Description                                      | Format           |
 |-------------------------|--------------------------------------------------|------------------|
-| spatial_fastq          | Array of paths to spatial FASTQ files. Requires at least one complete R1 and R2 pair. Each filename must include "_R1_" or "_R2_" to distinguish read pairs. The full directory is scanned, matching R1 and R2 files; an error is raised if any pair is incomplete | Array[String]    |
+| spatial_fastq          | Array of paths to spatial FASTQ files. Requires at least one complete R1 and R2 pair. Each filename must include "__R1__" or "__R2__" to distinguish read pairs. The full directory is scanned, matching R1 and R2 files; an error is raised if any pair is incomplete | Array[String]    |
 | pucks                  | Array of paths to puck files                     | Array[String]    |
 
-Optimus input variables can be found below. 
+***Optimus input variables can be found below. ***
 
 | Input Variables | Description                                      | Format           |
 |-------------------------|--------------------------------------------------|------------------|
