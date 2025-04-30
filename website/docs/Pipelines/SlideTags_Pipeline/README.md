@@ -125,7 +125,7 @@ Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://gi
 | cb_output_directory | `<output_dir>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 | cb_summary_pdf | `<pdf>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 
-**Output variables for the spatial and positioning components of the Slide-Tags pipeline can be found below.. For more details regarding the output variables, please refer to the [README](https://github.com/MacoskoLab/Macosko-Pipelines/tree/main/slide-tags) in the Slide-Tags directoty in the Macosko Lab repository.**
+**Output variables for the spatial and positioning components of the Slide-Tags pipeline can be found below. For more details regarding the output variables, please refer to the [README](https://github.com/MacoskoLab/Macosko-Pipelines/tree/main/slide-tags) in the Slide-Tags directoty in the Macosko Lab repository.**
 
 | Output Variable | File Name | Description | Format |
 | ------ | --- | ------ | ------ |
@@ -146,7 +146,7 @@ All releases of the pipeline are documented in the repository’s changelog.
 
 If you use the Slide-tags Pipeline in your research, please cite the original sources:
 
-- **Macosko Lab Pipelines:** https://github.com/MacoskoLab/Macosko-Pipelines
+- **Macosko Lab Pipelines:** https://github.com/MacoskoLab/Macosko-Pipelines/tree/main/slide-tags
 
 Please also consider citing our preprint:
 
