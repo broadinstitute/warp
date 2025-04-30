@@ -43,13 +43,24 @@ The pipeline requires JSON-formatted configuration files detailing input paramet
 - **Raw paired-end Spatial FASTQ files** containing spatial reads
 - **Pucks files** contains spatial coordinates of bead centroids
 
-| Input Variables for Spatial         | Description                                      | Format           |
+General input variables used by both the Optimus and spatial/positioning components of the pipeline. 
+
+| Input Variables         | Description                                      | Format           |
 |-------------------------|--------------------------------------------------|------------------|
-| id                      | Unique identifier for the analysis run          | String           |
+| input_id               | Unique input identifier                          | String           |
+| docker                 | Docker image used for the workflow               | String           |
+
+
+Input variables for the spatial and positioning components of the Slide-Tags pipeline can be found below. 
+
+| Input Variables         | Description                                      | Format           |
+|-------------------------|--------------------------------------------------|------------------|
 | spatial_fastq          | Array of paths to spatial FASTQ files. Requires at least one complete R1 and R2 pair. Each filename must include R1 or R2 to distinguish read pairs. The full directory is scanned, matching R1 and R2 files; an error is raised if any pair is incomplete | Array[String]    |
 | pucks                  | Array of paths to puck files                     | Array[String]    |
 
-| Input Variables for Optimus| Description                                      | Format           |
+Optimus input variables can be found below. 
+
+| Input Variables | Description                                      | Format           |
 |-------------------------|--------------------------------------------------|------------------|
 | gex_r1_fastq           | Array of FASTQ files for R1 reads                | Array[File]      |
 | gex_r2_fastq           | Array of FASTQ files for R2 reads                | Array[File]      |
@@ -58,7 +69,6 @@ The pipeline requires JSON-formatted configuration files detailing input paramet
 | annotations_gtf        | Gene annotation file in GTF format               | File             |
 | gex_whitelist          | Whitelist file for cell barcodes                 | File             |
 | cloud_provider         | Cloud provider for computing resources           | String           |
-| input_id               | Unique input identifier                          | String           |
 | expected_cells         | Expected number of cells in the dataset          | Int              |
 | counting_mode          | Counting mode (e.g., snRNA)                      | String           |
 | tenx_chemistry_version | Version of 10X chemistry used                    | Int              |
@@ -70,7 +80,6 @@ The pipeline requires JSON-formatted configuration files detailing input paramet
 | soloMultiMappers       | Optional setting for handling multi-mapped reads | String?          |
 | gex_nhash_id           | Optional NHash identifier for gene expression     | String?          |
 | mt_genes               | Optional file listing mitochondrial genes        | File?            |
-| docker                 | Docker image used for the workflow               | String           |
 
 Example input configurations can be found in the `test_inputs` folder of the GitHub repository.
 
