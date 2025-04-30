@@ -96,7 +96,7 @@ Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://gi
 
 ## Outputs
 
-**Optimus output variables can be found below.**
+### Optimus outputs
 
 | Output Variable | File Name | Description | Format |
 | ---- | --- | ------ | -- |
@@ -125,7 +125,10 @@ Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://gi
 | cb_output_directory | `<output_dir>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 | cb_summary_pdf | `<pdf>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 
-**Output variables for the spatial and positioning components of the Slide-Tags pipeline can be found below. For more details regarding the output variables, please refer to the [README](https://github.com/MacoskoLab/Macosko-Pipelines/tree/main/slide-tags) in the Slide-Tags directoty in the Macosko Lab repository.**
+
+### Output variables for the spatial and positioning components of the Slide-Tags pipeline 
+
+For more details regarding the output variables, please refer to the [README](https://github.com/MacoskoLab/Macosko-Pipelines/tree/main/slide-tags) in the Slide-Tags directoty in the Macosko Lab repository.
 
 | Output Variable | File Name | Description | Format |
 | ------ | --- | ------ | ------ |
@@ -135,7 +138,7 @@ Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://gi
 | positioning_coords_csv | `<input_id>_coords.csv` | Spatial coordinates for called cells. | CSV |
 | positioning_coords2_csv | `<input_id>_coords2.csv` | Alternate or refined spatial coordinates. | CSV |
 | positioning_summary_pdf | `<input_id>_summary.pdf` | QC summary report with plots and metrics. | PDF |
-| positioning_intermediates | `<input_id>_intermediates.tar.gz` | Contains spatial barcodes matrix, cell barcode whitelist, and spatial metadata  | TAR |
+| positioning_intermediates | `<input_id>_intermediates.tar.gz` | Contains spatial barcodes matrix, cell barcode whitelist, and spatial metadata.  | TAR |
 | positioning_log | `<input_id>_positioning.log` | Standard output of the positioning task. | TXT |
 
 ## Versioning
