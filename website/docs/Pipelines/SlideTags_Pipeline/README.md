@@ -43,19 +43,18 @@ The pipeline requires JSON-formatted configuration files detailing input paramet
 - **Raw paired-end Spatial FASTQ files** containing spatial reads
 - **Pucks files** contains spatial coordinates of bead centroids
 
-General input variables used by both the Optimus and spatial/positioning components of the pipeline. 
+***General input variables used by both the Optimus and spatial/positioning components of the pipeline.***
 
 | Input Variables         | Description                                      | Format           |
 |-------------------------|--------------------------------------------------|------------------|
 | input_id               | Unique input identifier                          | String           |
 | docker                 | Docker image used for the workflow               | String           |
 
-
 Input variables for the spatial and positioning components of the Slide-Tags pipeline can be found below. 
 
 | Input Variables         | Description                                      | Format           |
 |-------------------------|--------------------------------------------------|------------------|
-| spatial_fastq          | Array of paths to spatial FASTQ files. Requires at least one complete R1 and R2 pair. Each filename must include R1 or R2 to distinguish read pairs. The full directory is scanned, matching R1 and R2 files; an error is raised if any pair is incomplete | Array[String]    |
+| spatial_fastq          | Array of paths to spatial FASTQ files. Requires at least one complete R1 and R2 pair. Each filename must include "_R1_" or "_R2_" to distinguish read pairs. The full directory is scanned, matching R1 and R2 files; an error is raised if any pair is incomplete | Array[String]    |
 | pucks                  | Array of paths to puck files                     | Array[String]    |
 
 Optimus input variables can be found below. 
@@ -65,7 +64,7 @@ Optimus input variables can be found below.
 | gex_r1_fastq           | Array of FASTQ files for R1 reads                | Array[File]      |
 | gex_r2_fastq           | Array of FASTQ files for R2 reads                | Array[File]      |
 | gex_i1_fastq           | Optional FASTQ files for I1 index reads          | Array[File]?     |
-| tar_star_reference     | Reference genome in a TAR format for STAR align. | File             |
+| tar_star_reference     | Reference genome in a TAR format for STAR align | File             |
 | annotations_gtf        | Gene annotation file in GTF format               | File             |
 | gex_whitelist          | Whitelist file for cell barcodes                 | File             |
 | cloud_provider         | Cloud provider for computing resources           | String           |
