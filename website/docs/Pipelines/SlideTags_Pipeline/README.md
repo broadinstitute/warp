@@ -7,7 +7,7 @@ slug: /Pipelines/SlideTags_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| v1.0.0 | March, 2025 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
+| v1.0.0 | May, 2025 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
 
 ![Slide-tags_diagram](./Slide-tags.png)
 
@@ -39,16 +39,17 @@ The pipeline can be deployed using [Cromwell](https://cromwell.readthedocs.io/en
 
 The pipeline requires JSON-formatted configuration files detailing input parameters. Required inputs include:
 
-- **Raw paired-end GEX FASTQ files** containing sequencing reads
-- **Reference genome** and transcript annotation files
-- **Spatial fastqs**
-- **Spatial positioning reference**
+- **Raw paired-end GEX FASTQ files** containing sequencing GEX reads
+- **Raw paired-end Spatial FASTQ files** containing spatial reads
+- **Pucks files** contains spatial coordinates of bead centroids
 
-| Input Variable          | Description                                      | Format           |
+| Input Variables for Spatial         | Description                                      | Format           |
 |-------------------------|--------------------------------------------------|------------------|
 | id                      | Unique identifier for the analysis run          | String           |
-| spatial_fastq          | Array of paths to spatial FASTQ files           | Array[String]    |
+| spatial_fastq          | Array of paths to spatial FASTQ files. Requires at least one complete R1 and R2 pair. Each filename must include R1 or R2 to distinguish read pairs. The full directory is scanned, matching R1 and R2 files; an error is raised if any pair is incomplete | Array[String]    |
 | pucks                  | Array of paths to puck files                     | Array[String]    |
+
+| Input Variables for Optimus| Description                                      | Format           |
 | gex_r1_fastq           | Array of FASTQ files for R1 reads                | Array[File]      |
 | gex_r2_fastq           | Array of FASTQ files for R2 reads                | Array[File]      |
 | gex_i1_fastq           | Optional FASTQ files for I1 index reads          | Array[File]?     |
