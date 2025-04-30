@@ -50,6 +50,7 @@ The pipeline requires JSON-formatted configuration files detailing input paramet
 | pucks                  | Array of paths to puck files                     | Array[String]    |
 
 | Input Variables for Optimus| Description                                      | Format           |
+|-------------------------|--------------------------------------------------|------------------|
 | gex_r1_fastq           | Array of FASTQ files for R1 reads                | Array[File]      |
 | gex_r2_fastq           | Array of FASTQ files for R2 reads                | Array[File]      |
 | gex_i1_fastq           | Optional FASTQ files for I1 index reads          | Array[File]?     |
@@ -69,7 +70,7 @@ The pipeline requires JSON-formatted configuration files detailing input paramet
 | soloMultiMappers       | Optional setting for handling multi-mapped reads | String?          |
 | gex_nhash_id           | Optional NHash identifier for gene expression     | String?          |
 | mt_genes               | Optional file listing mitochondrial genes        | File?            |
-| docker                 | Docker image used for the workflow               | String
+| docker                 | Docker image used for the workflow               | String           |
 
 Example input configurations can be found in the `test_inputs` folder of the GitHub repository.
 
