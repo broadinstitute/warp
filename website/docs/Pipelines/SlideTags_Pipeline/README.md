@@ -54,10 +54,10 @@ The pipeline requires JSON-formatted configuration files detailing input paramet
 
 | Input Variables         | Description                                      | Format           |
 |-------------------------|--------------------------------------------------|------------------|
-| spatial_fastq          | Array of paths to spatial FASTQ files. Requires at least one complete R1 and R2 pair. Each filename must include "__R1__" or "__R2__" to distinguish read pairs. The full directory is scanned, matching R1 and R2 files; an error is raised if any pair is incomplete | Array[String]    |
+| spatial_fastq          | Array of paths to spatial FASTQ files. Requires at least one complete R1 and R2 pair. Each filename must include _R1_ or _R2_ to distinguish read pairs. The full directory is scanned, matching R1 and R2 files; an error is raised if any pair is incomplete | Array[String]    |
 | pucks                  | Array of paths to puck files                     | Array[String]    |
 
-***Optimus input variables can be found below. ***
+***Optimus input variables can be found below.***
 
 | Input Variables | Description                                      | Format           |
 |-------------------------|--------------------------------------------------|------------------|
@@ -92,9 +92,11 @@ The workflow is composed of several key steps, implemented in separate WDL tasks
 | spatial_count | [Custom Julia script](https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/d89176cf21e072fe8b5aad3a1454ad194fca7c9a/slide-tags/spatial-count.jl) developed by the Macosko lab | Extracts spatial barcodes, performs barcode sequencing error correction, maps reads to spatial barcodes and stores unique (cell, UMI, barcode) triplets in a count matrix, and calculates quality control metrics. Produces an h5 output. |
 | positioning | Custom R scripts for developed by the Macosko lab; includes [positioning.R](https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/d89176cf21e072fe8b5aad3a1454ad194fca7c9a/slide-tags/positioning.R), [helpers.R](https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/d89176cf21e072fe8b5aad3a1454ad194fca7c9a/slide-tags/helpers.R), and [run-positioning.R](https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/d89176cf21e072fe8b5aad3a1454ad194fca7c9a/slide-tags/run-positioning.R) | Takes in the rna_paths (path to the filtered cell by gene count matrix, UMI counts, and the intronic metrics) to extract cell barcodes, calculates log-transformed UMI counts, and determines mitochondrial gene percentages. Performs data normalization, PCA, clustering, and UMAP embedding for visualization and produces quality metrics and graphs. Assigns cell barcodes to spatial barcode coordinates. |
 
-Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://github.com/MacoskoLab/Macosko-Pipelines) repository, modified for streamlined output handling. Dockers for running these scripts are maintained in the warp-tools repository under [slide-tags](https://github.com/broadinstitute/warp-tools/tree/develop/3rd-party-tools/slide-tags).
+Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://github.com/MacoskoLab/Macosko-Pipelines/tree/main/slide-tags) repository, modified for streamlined output handling. Dockers for running these scripts are maintained in the warp-tools repository under [slide-tags](https://github.com/broadinstitute/warp-tools/tree/develop/3rd-party-tools/slide-tags).
 
 ## Outputs
+
+***Optimus output variables can be found below.***
 
 | Output Variable | File Name | Description | Format |
 | ------ | --- | ------ | ------ |
@@ -122,14 +124,20 @@ Each of these tasks utilizes scripts from the [Macosko Lab Pipelines](https://gi
 | cb_metrics_csv_array | `<metrics_array>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 | cb_output_directory | `<output_dir>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 | cb_summary_pdf | `<pdf>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
-| spatial_output_h5 | `<input_id>_SBcounts.h5` | h5 file containing cell by gene matrix and spatial barcode information. | h5 |
-| spatial_output_log | `<input_id>_spatial-count.log` | Standard output of the spatial barcodes task. | text |
-| positioning_seurat_qs | `<input_id>_seurat.qs` | Seurat object with processed spatial transcriptomics data. | Seurat |
-| positioning_coords_csv | `<input_id>_coords.csv` | Spatial coordinates for detected barcodes. | csv |
-| positioning_coords2_csv | `<input_id>_coords2.csv` | Alternate or refined spatial coordinates. | csv |
-| positioning_summary_pdf | `<input_id>_summary.pdf` | QC summary report with plots and metrics. | pdf |
+
+
+***Output variables for the spatial and positioning components of the Slide-Tags pipeline can be found below.. For more details regarding the output variables, please refer to the [README](https://github.com/MacoskoLab/Macosko-Pipelines/tree/main/slide-tags) in the Slide-Tags directoty in the Macosko Lab repository.***
+
+| Output Variable | File Name | Description | Format |
+| ------ | --- | ------ | ------ |
+| spatial_output_h5 | `<input_id>_SBcounts.h5` | h5 file containing cell by bead matrix and spatial barcode information. | H5 |
+| spatial_output_log | `<input_id>_spatial-count.log` | Standard output of the spatial barcodes task. | TXT |
+| positioning_seurat_qs | `<input_id>_seurat.qs` | Seurat object with processed spatial transcriptomics data. | SEURAT |
+| positioning_coords_csv | `<input_id>_coords.csv` | Spatial coordinates for called cells. | CSV |
+| positioning_coords2_csv | `<input_id>_coords2.csv` | Alternate or refined spatial coordinates. | CSV |
+| positioning_summary_pdf | `<input_id>_summary.pdf` | QC summary report with plots and metrics. | PDF |
 | positioning_intermediates | `<input_id>_intermediates.tar.gz` | Contains matrix, barcode whitelist, and spatial metadata  | TAR |
-| positioning_log | `<input_id>_positioning.log` | Standard output of the positioning task. | text |
+| positioning_log | `<input_id>_positioning.log` | Standard output of the positioning task. | TXT |
 
 ## Versioning
 
