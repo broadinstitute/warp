@@ -3,7 +3,7 @@ sidebar_position: 1
 slug: /Pipelines/SlideTags_Pipeline/README
 ---
 
-# Slide-tags Pipeline Overview
+# Slide-tags Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
