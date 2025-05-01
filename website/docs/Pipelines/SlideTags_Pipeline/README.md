@@ -22,7 +22,7 @@ This workflow integrates multiple processing steps, including barcode extraction
 | Pipeline Features | Description | Source |
 |--- | --- | --- |
 | Assay type | Spatial transcriptomics using Slide-tags | [Macosko Lab](https://macoskolab.com/) |
-| Overall workflow  | Barcode extraction, spatial positioning, transcript quantification | Original code available from [GitHub](https://github.com/MacoskoLab/Macosko-Pipelines); WDL workflow available in WARP. |
+| Overall workflow  | Barcode extraction, spatial positioning, transcript quantification | Original code available from [GitHub](https://github.com/MacoskoLab/Macosko-Pipelines/tree/main/slide-tags); WDL workflow available in WARP. |
 | Workflow language | WDL | [openWDL](https://github.com/openwdl/wdl) |
 | Data input file format | File format in which sequencing data is provided | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) and [CSV](https://www.loc.gov/preservation/digital/formats/fdd/fdd000323.shtml)|
 | Data output file format | Output formats for downstream analysis | [HDF5](https://www.hdfgroup.org/), [Seurat](https://satijalab.org/seurat/) and [CSV](https://www.loc.gov/preservation/digital/formats/fdd/fdd000323.shtml)|
