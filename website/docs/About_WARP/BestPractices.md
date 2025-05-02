@@ -128,6 +128,21 @@ We recommend using standard file formats and interfaces. In computational biolog
 - _Do_: When using containerization technologies, follow best practices to assure associated images do not update without explicit updates.
 - _Do_: Make both the images and the build files (Dockerfile) available to document the environment. [More on Dockerfiles](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/).
 
+## Cross-Platform Compatibility 
+This section offers resources to help you adapt WDLs for use across various environments. The links below point to key tools and platforms that support WDL execution and provide guidance for modifying workflows to fit specific contexts.
+
+1. Cromwell Documentation
+Cromwell is a popular WDL execution engine that supports running workflows in various environments. Refer to the official [Cromwell documentation](https://cromwell.readthedocs.io/en/stable/) for guidance on adapting WDLs for use in local, cloud, or hybrid environments.
+
+2. MiniWDL 
+MiniWDL is a lightweight version of WDL designed for local or smaller-scale workflows. It can help in environments where a full Cromwell installation may not be necessary. Refer to the official [MiniWDL documentation](https://miniwdl.readthedocs.io/en/latest/) for more details. 
+
+3. Seven Bridges Genomics (Velsera)
+[Seven Bridges Genomics](https://www.sevenbridges.com/), now known as Velsera, provides a cloud platform for bioinformatics workflows. The platform supports WDL and provides tools for modifying workflows to run on their infrastructure. 
+
+4. Manifold
+[Manifold](https://www.manifold.ai/) is a cloud-native platform that supports WDL, CWL, and Nextflow, enabling scalable and reproducible bioinformatics workflows. It offers tools and documentation to help adapt WDLs for efficient execution across cloud and hybrid environments.
+
 ## Versioning
 
 Versioning pipelines and associated Docker images allows you to determine when and how data is created (provenance). As you make improvements and changes to your pipeline, it is important to know which version of the pipeline and software you used to create a given dataset so that it can be easily reproduced. This not only facilitates scientific reproducibility for the greater community, it also allows you to verify that new pipeline changes produce consistent results. We recommend choosing a consistent versioning system (for example, the [semantic system](https://semver.org/)) and tracking pipeline changes in a [changelog](https://keepachangelog.com/en/1.0.0/).
