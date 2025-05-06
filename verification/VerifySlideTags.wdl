@@ -1,0 +1,93 @@
+version 1.0
+
+import "../verification/VerifyTasks.wdl" as VerifyTasks
+
+workflow VerifySlideTags {
+
+  input {
+   	  File test_optimus_h5ad
+        File truth_optimus_h5ad
+
+        File test_optimus_bam
+        File truth_optimus_bam
+
+        File test_gene_metrics
+        File truth_gene_metrics
+
+        File test_cell_metrics
+        File truth_cell_metrics
+
+        File test_library_metrics
+        File truth_library_metrics
+
+	  # spatial and positioning outputs 
+	  File test_spatial_output_h5
+	  File truth_spatial_output_h5
+
+	  File test_seurat_qs 
+	  File truth_seurat_qs 
+
+ 	  File test_coords_csv
+	  File truth_coords_csv
+
+ 	  File test_coords2_csv
+	  File truth_coords2_csv
+
+ 	  File test_intermediates_file
+	  File truth_intermediates_file
+
+        Boolean? done
+  }
+    
+    call VerifyTasks.CompareBams as CompareOptimusBams {
+        input:
+            test_bam       = test_optimus_bam,
+            truth_bam      = truth_optimus_bam,
+            lenient_header = true
+    }
+
+    call VerifyTasks.CompareCompressedTextFiles as CompareGeneMetrics {
+        input:
+            test_zip  = test_gene_metrics,
+            truth_zip = truth_gene_metrics
+    }
+
+    call VerifyTasks.CompareCompressedTextFiles as CompareCellMetrics {
+        input:
+            test_zip  = test_cell_metrics,
+            truth_zip = truth_cell_metrics
+    }
+
+    call VerifyTasks.CompareH5adFilesGEX as CompareH5adFilesOptimus {
+        input:
+            test_h5ad  = test_optimus_h5ad,
+            truth_h5ad = truth_optimus_h5ad
+    }
+
+    call VerifyTasks.CompareLibraryFiles as CompareLibraryMetrics {
+        input:
+            test_text_file = test_library_metrics,
+            truth_text_file = truth_library_metrics
+    }
+    
+    call VerifyTasks.CompareH5Files as CompareSpatialOutputH5 {
+	  input:
+		test_h5  = test_spatial_output_h5,
+		truth_h5 = truth_spatial_output_h5
+    }
+
+    call VerifyTasks.CompareCSVFiles as CompareCSV {
+	  input:
+		test_csv  = test_coords_csv,
+		truth_csv = truth_coords_csv
+    }
+    
+    call VerifyTasks.CompareCSVFiles as CompareCSV2 {
+	  input:
+		test_csv  = test_coords2_csv,
+		truth_csv = truth_coords2_csv
+    }
+
+ 
+
+}

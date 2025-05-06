@@ -811,3 +811,80 @@ task CompareLibraryFiles {
     preemptible: 3
   }
 }
+
+task CompareCSVFiles {
+  input {
+    File test_csv
+    File truth_csv
+  }
+
+  command {
+    set -eo pipefail
+    exit_code=0
+
+    a=~{test_csv}
+    b=~{truth_csv}
+
+    echo "Sorting files $a and $b"
+    sort "$a" > "a.sorted"
+    sort "$b" > "b.sorted"
+
+    echo "Calculating md5sums for $a and $b"
+    md5_a=$(md5sum "a.sorted" | cut -d ' ' -f1)
+    md5_b=$(md5sum "b.sorted" | cut -d ' ' -f1)
+
+    if [ $md5_a = $md5_b ]; then
+      echo "Files $a.sorted and $b.sorted have matching md5sums and are the same."
+    else
+      echo "Files $a.sorted and $b.sorted have different md5sums."
+      diff_output=$(diff a.sorted b.sorted)
+      echo "$diff_output"
+      exit_code=2
+    fi
+    echo "Exiting with code $exit_code"
+    exit $exit_code
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    disks: "local-disk 100 HDD"
+    memory: "50 GiB"
+    preemptible: 3
+  }
+
+}
+
+task CompareH5Files {
+  input {
+    File test_h5
+    File truth_h5
+  }
+
+  command {
+    set -eo pipefail
+    exit_code=0
+    
+    sudo apt install hdf5-tools
+    h5diff ~{test_h5} ~{truth_h5} -o diff_output.txt
+    
+    echo "H5diff output:"
+    # Print the diff output to the console
+    cat diff_output.txt
+    
+    if [ $? -ne 0 ]; then
+      echo "H5 files differ."
+      exit_code=2
+    else
+      echo "H5 files are identical."
+    fi
+    echo "Exiting with code $exit_code"
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    disks: "local-disk 100 HDD"
+    memory: "50 GiB"
+    preemptible: 3
+  }
+
+}
