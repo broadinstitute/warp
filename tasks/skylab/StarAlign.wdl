@@ -424,10 +424,14 @@ task STARsoloFastq {
     fi
 
     # filtered outputs in Solo.out/GeneFull_Ex50pAS/filtered: barcodes.tsv features.tsv matrix.mtx
-    ls ${SoloDirectory}/filtered
-    echo "Tarring up filtered matrix files"
-    tar -cvf ~{input_id}_filtered_mtx_files.tar ${SoloDirectory}/filtered/barcodes.tsv ${SoloDirectory}/filtered/features.tsv ${SoloDirectory}/filtered/matrix.mtx
-    echo "Done processing"
+    if [ -d "${SoloDirectory}/filtered" ]; then
+      echo "Tarring up filtered matrix files"
+      tar -cvf ~{input_id}_filtered_mtx_files.tar ${SoloDirectory}/filtered/barcodes.tsv ${SoloDirectory}/filtered/features.tsv ${SoloDirectory}/filtered/matrix.mtx
+      echo "Done processing"
+    else
+      echo "Warning: Filtered directory ${SoloDirectory}/filtered does not exist. Skipping tar."
+      touch ~{input_id}_filtered_mtx_files.tar
+    fi
 
     # List the final directory contents
     echo "Final directory listing:"
@@ -467,9 +471,18 @@ task STARsoloFastq {
         echo "tarring STAR txt files"
         tar -zcvf ~{input_id}.star_metrics.tar *.txt
        
-        # Create the compressed raw count matrix
-        python3 /scripts/scripts/create-merged-npz-output.py \
-            --barcodes $BARCODE_FILE --features $FEATURE_FILE --matrix $MATRIX_FILE --input_id ~{input_id}
+        if [ -s "$BARCODE_FILE" ] && [ -s "$FEATURE_FILE" ] && [ -s "$MATRIX_FILE" ]; then
+         echo "Creating sparse npz file from $MATRIX_FILE"
+         python3 /scripts/scripts/create-merged-npz-output.py \
+           --barcodes $BARCODE_FILE \
+           --features $FEATURE_FILE \
+           --matrix $MATRIX_FILE \
+           --input_id ~{input_id} || { echo "Failed to create sparse npz"; exit 1; }
+       else
+         echo "One or more matrix inputs missing or empty. Skipping npz creation."
+         touch ~{input_id}_sparse_counts.npz  # create placeholder to avoid Cromwell failure
+       fi
+
      
       }
 
