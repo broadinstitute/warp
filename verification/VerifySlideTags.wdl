@@ -36,7 +36,7 @@ workflow VerifySlideTags {
  	  File test_intermediates_file
 	  File truth_intermediates_file
 
-        Boolean? done
+    Boolean? done
   }
     
     call VerifyTasks.CompareBams as CompareOptimusBams {
@@ -76,18 +76,24 @@ workflow VerifySlideTags {
 		truth_h5 = truth_spatial_output_h5
     }
 
-    call VerifyTasks.CompareCSVFiles as CompareCSV {
+
+    call VerifyTasks.CompareTextFiles as CompareCSV {
 	  input:
 		test_csv  = test_coords_csv,
 		truth_csv = truth_coords_csv
     }
     
-    call VerifyTasks.CompareCSVFiles as CompareCSV2 {
+    call VerifyTasks.CompareTextFiles as CompareCSV2 {
 	  input:
 		test_csv  = test_coords2_csv,
 		truth_csv = truth_coords2_csv
     }
 
- 
+    call VerifyTasks.CompareCompressedTextFiles as CompareTAR {
+	  input:
+		test_tar  = test_intermediates_file,
+		truth_tar = truth_intermediates_file
+    }
+
 
 }

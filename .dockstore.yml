@@ -160,6 +160,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestSlideSeq.wdl
 
+  - name: TestSlideTags
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestSlideTags.wdl
+
   - name: Testsnm3C
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/Testsnm3C.wdl
