@@ -20,23 +20,23 @@ workflow VerifySlideTags {
         File test_library_metrics
         File truth_library_metrics
 
-	  # spatial and positioning outputs 
-	  File test_spatial_output_h5
-	  File truth_spatial_output_h5
+        # spatial and positioning outputs 
+        File test_spatial_output_h5
+        File truth_spatial_output_h5
 
-	  File test_seurat_qs 
-	  File truth_seurat_qs 
+        File test_seurat_qs 
+        File truth_seurat_qs 
 
- 	  File test_coords_csv
-	  File truth_coords_csv
+        File test_coords_csv
+        File truth_coords_csv
 
- 	  File test_coords2_csv
-	  File truth_coords2_csv
+        File test_coords2_csv
+        File truth_coords2_csv
 
- 	  File test_intermediates_file
-	  File truth_intermediates_file
+        File test_intermediates_file
+        File truth_intermediates_file
 
-    Boolean? done
+        Boolean? done
   }
     
     call VerifyTasks.CompareBams as CompareOptimusBams {
@@ -79,20 +79,20 @@ workflow VerifySlideTags {
 
     call VerifyTasks.CompareTextFiles as CompareCSV {
 	      input:
-		        test_csv  = test_coords_csv,
-		        truth_csv = truth_coords_csv
+		        test_text_files  = [test_coords_csv],
+		        truth_text_files = [truth_coords_csv]
     }
     
     call VerifyTasks.CompareTextFiles as CompareCSV2 {
 	      input:
-		        test_csv  = test_coords2_csv,
-		        truth_csv = truth_coords2_csv
+		        test_text_files  = [test_coords2_csv],
+		        truth_text_files = [truth_coords2_csv]
     }
 
     call VerifyTasks.CompareCompressedTextFiles as CompareTAR {
 	      input:
-		        test_tar  = test_intermediates_file,
-		        truth_tar = truth_intermediates_file
+		        test_zip  = test_intermediates_file,
+		        truth_zip = truth_intermediates_file
     }
 
 
