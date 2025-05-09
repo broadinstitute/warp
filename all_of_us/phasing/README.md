@@ -6,7 +6,7 @@ The following pipelines are used to phase WGS data.
 
 This WDL workflow processes genomic data by filtering and performing quality control (QC) on variants. 
 It uses Hail and Google Cloud Dataproc to handle large-scale genomic datasets efficiently. The workflow is tailored 
-for the hg38 reference genome and processes data in a sharded manner, with each contig handled separately.  
+for the hg38 reference genome. Each contig handled separately and requires a separate run of the workflow 
 
 Key characteristics:
 - Each chromosome is processed independently.
