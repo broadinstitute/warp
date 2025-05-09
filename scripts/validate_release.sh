@@ -73,7 +73,9 @@ function validate_changelog_changes() {
 
 function validate_versions_and_changelogs() {
   local commitToCompare=${1}
+  echo "Finding modified pipelines"
   local -r -a modifiedPipelines=($(get_modified_pipelines ${commitToCompare}))
+  echo "Found modified pipelines"
   local allPipelinesValid=true
 
   stderr "Comparing versions and changelogs for pipelines that differ from the versions on '${commitToCompare}':"
