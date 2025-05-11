@@ -15,17 +15,28 @@ slug: /Pipelines/SlideTags_Pipeline/README
 
 The **Slide-tags Pipeline** is an open-source, cloud-optimized workflow for processing spatial transcriptomics data. It supports data derived from spatially barcoded sequencing technologies, including Slide-tags-based single-molecule profiling. The pipeline processes raw sequencing data into spatially resolved gene expression matrices, ensuring accurate alignment, spatial positioning, and quantification.
 
-This workflow integrates multiple processing steps, including barcode extraction, spatial alignment, transcript counting, and output generation in formats compatible with community tools.
+This pipeline integrates multiple processing steps, including barcode extraction, spatial alignment, transcript counting, and output generation in formats compatible with community tools. The pipeline calls three subworkflows: the Optimus workflow for gene expression data, the SpatialCount workflow for spatial barcode processing, and the Positioning workflow for integrating both data types.
+
+The Optimus workflow (GEX) corrects cell barcodes and Unique Molecular Identifiers (UMIs), aligns reads to the genome, calculates per-barcode and per-gene quality metrics, and produces a cell-by-gene count matrix.
+
+The SpatialCount workflow processes spatial barcoding data from FASTQ files to generate spatial barcode counts that represent transcript locations within the tissue.
+
+The Positioning workflow integrates the gene expression data with spatial information to generate coordinate files and visualizations, producing a Seurat object for downstream spatial analysis.
+
 
 ## Quickstart Table
-
 | Pipeline Features | Description | Source |
 |--- | --- | --- |
 | Assay type | Spatial transcriptomics using Slide-tags | [Macosko Lab](https://macoskolab.com/) |
 | Overall workflow  | Barcode extraction, spatial positioning, transcript quantification | Original code available from [GitHub](https://github.com/MacoskoLab/Macosko-Pipelines/tree/main/slide-tags); WDL workflow available in WARP. |
 | Workflow language | WDL | [openWDL](https://github.com/openwdl/wdl) |
+| Sub-workflows | Optimus (gene expression), SpatialCount (spatial barcoding), Positioning (integration) | Imported from separate WDL scripts |
+| Genomic Reference Sequence | STAR reference genome provided as tar file | Referenced as input parameter |
+| Gene annotation reference | GTF file containing gene annotations | Referenced as input parameter |
+| Aligners | STARsolo | [STAR aligner](https://github.com/alexdobin/STAR) |
 | Data input file format | File format in which sequencing data is provided | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) and [CSV](https://www.loc.gov/preservation/digital/formats/fdd/fdd000323.shtml)|
 | Data output file format | Output formats for downstream analysis | [HDF5](https://www.hdfgroup.org/), [Seurat](https://satijalab.org/seurat/) and [CSV](https://www.loc.gov/preservation/digital/formats/fdd/fdd000323.shtml)|
+
 
 ## Set-up
 
