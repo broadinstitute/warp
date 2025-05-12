@@ -4,10 +4,15 @@ sidebar_position: 1
 
 # Welcome to WARP 
 
-WARP (WDL Analysis Research Pipelines) repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators.
+WARP (Warp Analysis Research Pipelines) repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators.
 
 The contents of this repository are open source and released under the [BSD 3-Clause license](https://github.com/broadinstitute/warp/blob/master/LICENSE).
 
+## WARP Philosophy
+
+Our mission is to develop production-grade, cloud-optimized pipelines that serve the needs of large-scale research consortia and the broader scientific community. Since many of these consortia have adopted Terra as their primary computing environment, most WARP pipelines are written in WDL and tuned for optimal performance on Terra. As community needs evolve or shift to other platforms, WARP will adapt accordingly to support those environments.
+
+We do not position WDL as inherently superior to workflow languages like Nextflow or Snakemake. Rather, we focus on addressing the specific needs of scientific consortia and research communities that prioritize reproducibility, scalability, and seamless integration with the Terra platform. 
 
 ## WARP Overview
 
