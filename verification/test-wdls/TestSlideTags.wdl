@@ -149,7 +149,7 @@ Array[String] pipeline_outputs = flatten([
         truth_path   = truth_path
     }
 
-  if(defined(Optimus.library_metrics)){
+  if(defined(SlideTags.optimus_library_metrics)){
     call Utilities.GetValidationInputs as GetLibraryMetrics {
       input:
         input_file = SlideTags.optimus_library_metrics,
