@@ -10,7 +10,7 @@ The contents of this repository are open source and released under the [BSD 3-Cl
 
 ## WARP Philosophy
 
-Our mission is to develop production-grade, cloud-optimized pipelines that serve the needs of large-scale research consortia and the broader scientific community. Since many of these consortia have adopted Terra as their primary computing environment, most WARP pipelines are written in WDL and tuned for optimal performance on Terra. As community needs evolve or shift to other platforms, WARP will adapt accordingly to support those environments.
+Our mission is to develop production-grade, cloud-optimized pipelines that serve the needs of large-scale research consortia and the broader scientific community. Since many of these consortia have adopted Terra as their primary computing environment, most WARP pipelines are written in WDL and tuned for optimal performance on Terra. As community needs evolve, WARP will adapt accordingly to support those environments.
 
 We do not position WDL as inherently superior to workflow languages like Nextflow or Snakemake. Rather, we focus on addressing the specific needs of scientific consortia and research communities that prioritize reproducibility, scalability, and seamless integration with the Terra platform. 
 
