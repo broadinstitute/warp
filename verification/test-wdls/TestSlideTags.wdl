@@ -158,7 +158,7 @@ Array[String] pipeline_outputs = flatten([
     }
 }
 
-    call VerifyOptimus.VerifyOptimus as Verify {
+    call VerifySlideTags.VerifySlideTags as Verify {
       input:
         test_h5ad          = GetH5adInputs.results_file,
         test_bam           = GetBamInputs.results_file,
