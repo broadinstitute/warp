@@ -1,0 +1,69 @@
+name: Test Slide Seq
+
+# Controls when the workflow will run
+on:
+  pull_request:
+    branches: [ "develop", "staging", "master" ]
+    # Only run if files in these paths changed:
+    ####################################
+    # SET PIPELINE SPECIFIC PATHS HERE #
+    ####################################
+    paths:
+      # anything in the pipelines folder
+      - 'beta-pipelines/skylab/slidetags/**'
+      # tasks from the pipeline WDL and their dependencies
+      - 'tasks/skylab/StarAlign.wdl'
+      - 'tasks/skylab/Metrics.wdl'
+      - 'tasks/skylab/H5adUtils.wdl'
+      - 'tasks/skylab/CheckInputs.wdl'
+      - 'tasks/skylab/MergeSortBam.wdl'
+      - 'tasks/broad/Utilities.wdl'
+      # verification WDL and its dependencies
+      - 'verification/VerifySlideTags.wdl'
+      - 'verification/VerifyTasks.wdl'
+      # test WDL and its dependencies
+      - 'verification/test-wdls/TestSlideTags.wdl'
+      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      # this file, the subworkflow file, and the firecloud_api script
+      - '.github/workflows/test_slidetags.yml'
+      - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
+
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      useCallCache:
+        description: 'Use call cache (default: true)'
+        required: false
+        default: "true"
+      updateTruth:
+        description: 'Update truth files (default: false)'
+        required: false
+        default: "false"
+      testType:
+        description: 'Specify the type of test (Plumbing or Scientific)'
+        required: false
+        type: choice
+        options:
+          - Plumbing
+          - Scientific
+      truthBranch:
+        description: 'Specify the branch for truth files (default: master)'
+        required: false
+        default: "master"
+
+jobs:
+  TestSlideSeq:
+    uses: ./.github/workflows/warp_test_workflow.yml
+    with:
+      pipeline_name: TestSlideTags
+      dockstore_pipeline_name: SlideTags
+      pipeline_dir: beta-pipelines/skylab/slidetags
+      use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
+      update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
+      test_type: ${{ github.event.inputs.testType }}
+      truth_branch: ${{ github.event.inputs.truthBranch || 'master' }}
+    secrets:
+      PDT_TESTER_SA_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
+      DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
