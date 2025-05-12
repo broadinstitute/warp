@@ -54,7 +54,7 @@ on:
         default: "master"
 
 jobs:
-  TestSlideSeq:
+  TestSlideTags:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
       pipeline_name: TestSlideTags
