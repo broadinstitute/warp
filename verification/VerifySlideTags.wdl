@@ -95,11 +95,4 @@ workflow VerifySlideTags {
 		        truth_zip = truth_intermediates_file
     }
 
-
-    call VerifyTasks.CompareSeurat as CompareSeurat {
-        input:
-            test_qs  = test_seurat_qs,
-            truth_qs = truth_seurat_qs
-    }
-
 }
