@@ -1,8 +1,8 @@
 version 1.0
 
 import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../pipelines/skylab/optimus/Optimus.wdl" as Optimus
-import "../../verification/VerifyOptimus.wdl" as VerifyOptimus
+import "../../beta-pipelines/skylab/slidetags/SlideTags.wdl" as SlideTags
+import "../../verification/VerifySlideTags.wdl" as VerifySlideTags
 import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestSlideTags {
