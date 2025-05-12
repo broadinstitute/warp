@@ -72,7 +72,7 @@ workflow TestSlideTags {
 	docker                  = docker
   }
 
-# Collect all of the pipeline outputs into single Array[String]
+# collect all of the pipeline outputs into single Array[String]
 Array[String] pipeline_outputs = flatten([
                               [ # File outputs
                               SlideTags.optimus_h5ad_output_file,
