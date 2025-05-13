@@ -44,7 +44,7 @@ workflow SlideTags {
         docker: "Docker image to use"
     }
     
-    # Call the Optimus workflow
+    # Call the optimus workflow
     call optimus.Optimus as Optimus {
         input:
             cloud_provider = cloud_provider,
