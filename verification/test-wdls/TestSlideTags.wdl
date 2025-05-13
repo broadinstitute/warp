@@ -32,12 +32,12 @@ workflow TestSlideTags {
       Boolean count_exons = false
       String? soloMultiMappers
       String? gex_nhash_id
-	File? mt_genes
-	String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.1.0"
+	    File? mt_genes
+	    String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.1.0"
 	
-	String truth_path
-	String results_path
-	Boolean update_truth
+	    String truth_path
+	    String results_path
+	    Boolean update_truth
 
   }
 
@@ -47,18 +47,18 @@ workflow TestSlideTags {
 
   call SlideTags.SlideTags {
     input:
-      id              		= id,
+      id              		    = id,
       spatial_fastq           = spatial_fastq,
       pucks                   = pucks,
       gex_r1_fastq            = gex_r1_fastq,
       gex_r2_fastq           	= gex_r2_fastq,
-      gex_i1_fastq        	= gex_i1_fastq,
+      gex_i1_fastq        	  = gex_i1_fastq,
       tar_star_reference      = tar_star_reference,
-      annotations_gtf    	= annotations_gtf,
-      gex_whitelist  		= gex_whitelist,
+      annotations_gtf    	    = annotations_gtf,
+      gex_whitelist  		      = gex_whitelist,
       cloud_provider         	= cloud_provider,
-      input_id            	= input_id,
-      expected_cells     	= expected_cells,
+      input_id            	  = input_id,
+      expected_cells     	    = expected_cells,
       counting_mode           = counting_mode,
       tenx_chemistry_version  = tenx_chemistry_version,
       emptydrops_lower        = emptydrops_lower,
@@ -67,9 +67,9 @@ workflow TestSlideTags {
       star_strand_mode        = star_strand_mode,
       count_exons             = count_exons,
       soloMultiMappers        = soloMultiMappers,
-	gex_nhash_id		= gex_nhash_id,
-	mt_genes                = mt_genes,
-	docker                  = docker
+	    gex_nhash_id		        = gex_nhash_id,
+	    mt_genes                = mt_genes,
+	    docker                  = docker
   }
 
 # collect all of the pipeline outputs into single Array[String]

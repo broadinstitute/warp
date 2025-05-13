@@ -5,11 +5,11 @@ import "../verification/VerifyTasks.wdl" as VerifyTasks
 workflow VerifySlideTags {
 
   input {
-   	  File test_optimus_h5ad
-        File truth_optimus_h5ad
+   	    File test_h5ad
+        File truth_h5ad
 
-        File test_optimus_bam
-        File truth_optimus_bam
+        File test_bam
+        File truth_bam
 
         File test_gene_metrics
         File truth_gene_metrics
@@ -41,8 +41,8 @@ workflow VerifySlideTags {
     
     call VerifyTasks.CompareBams as CompareOptimusBams {
         input:
-            test_bam       = test_optimus_bam,
-            truth_bam      = truth_optimus_bam,
+            test_bam       = test_bam,
+            truth_bam      = truth_bam,
             lenient_header = true
     }
 
@@ -60,8 +60,8 @@ workflow VerifySlideTags {
 
     call VerifyTasks.CompareH5adFilesGEX as CompareH5adFilesOptimus {
         input:
-            test_h5ad  = test_optimus_h5ad,
-            truth_h5ad = truth_optimus_h5ad
+            test_h5ad  = test_h5ad,
+            truth_h5ad = truth_h5ad
     }
 
     call VerifyTasks.CompareLibraryFiles as CompareLibraryMetrics {
@@ -75,7 +75,6 @@ workflow VerifySlideTags {
             test_h5  = test_spatial_output_h5,
             truth_h5 = truth_spatial_output_h5
     }
-
 
     call VerifyTasks.CompareTextFiles as CompareCSV {
 	      input:
