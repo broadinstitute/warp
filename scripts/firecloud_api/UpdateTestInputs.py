@@ -28,6 +28,10 @@ def determine_bucket_from_inputs(test_inputs):
     inputs_str = json.dumps(test_inputs)
     # 🔍 DEBUG PRINT
     logging.info(f" here is the input string {inputs_str} ")
+    chunk_size = 1000
+    for i in range(0, len(inputs_str), chunk_size):
+        logging.info(f"inputs_str chunk {i // chunk_size}: {inputs_str[i:i + chunk_size]}")
+
 
     # Check if any value contains reference to public bucket
     if public_bucket in inputs_str:
