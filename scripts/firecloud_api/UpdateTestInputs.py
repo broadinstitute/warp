@@ -3,6 +3,10 @@ import json
 import os
 import ast
 from decimal import Decimal
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
 
 def format_float(value):
     """Format float to avoid scientific notation for small numbers."""
@@ -23,7 +27,7 @@ def determine_bucket_from_inputs(test_inputs):
     # Convert inputs to a string for easier searching
     inputs_str = json.dumps(test_inputs)
     # 🔍 DEBUG PRINT
-    print("inputs_str =", inputs_str)
+    logging.info(f" here is the input string {inputs_str} ")
 
     # Check if any value contains reference to public bucket
     if public_bucket in inputs_str:
