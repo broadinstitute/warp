@@ -1,5 +1,4 @@
 {
-  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_file": "gs://pd-test-storage-public/WholeGenomeGermlineSingleSample/input/scientific/G96830.NA12878/G96830.NA12878.FunctionalEqTest.reference.fingerprint.vcf",
   "WholeGenomeGermlineSingleSample.sample_and_unmapped_bams": {
     "sample_name": "NA12878",
     "base_file_name": "NA12878",
@@ -67,6 +66,8 @@
     "haplotype_scatter_count": 50,
     "break_bands_at_multiples_of": 1000000
   },
+
+  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_file": "gs://pd-test-storage-public/WholeGenomeGermlineSingleSample/input/scientific/G96830.NA12878/G96830.NA12878.FunctionalEqTest.reference.fingerprint.vcf",
   "WholeGenomeGermlineSingleSample.wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
 
   "WholeGenomeGermlineSingleSample.papi_settings": {
