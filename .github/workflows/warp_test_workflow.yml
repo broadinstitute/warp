@@ -137,28 +137,28 @@ jobs:
       # Step 7: Cancel Previous Runs
       # Purpose: Cancels previous GHA workflows from the same branch (regardless of plumbing or scientific test type)
       # to avoid running multiple tests at the same time
-      - name: Cancel Previous GHA Runs
-        uses: styfle/cancel-workflow-action@0.11.0
-        with:
-          access_token: ${{ github.token }}
-          all_but_latest: true
-          ignore_sha: true
+      #- name: Cancel Previous GHA Runs
+      #  uses: styfle/cancel-workflow-action@0.11.0
+      #  with:
+      #    access_token: ${{ github.token }}
+      #    all_but_latest: true
+      #    ignore_sha: true
 
       # Step 8: Cancel Previous Terra Submissions
       # Purpose: Abort previous Terra submissions from the same branch to avoid running multiple tests at the same time
       # Will not abort a Terra submission if it is a scientific test
-      - name: Cancel Previous Terra Submissions
-        if: ${{ !contains(env.METHOD_CONFIG_NAME, '_Scientific_') }}
-        run: |
-          python3 scripts/firecloud_api/firecloud_api.py \
-            --workspace-namespace "${{ env.WORKSPACE_NAMESPACE }}" \
-            --workspace-name "${{ env.TESTING_WORKSPACE }}" \
-            --pipeline_name "${{ inputs.pipeline_name }}" \
-            --branch_name "${{ env.BRANCH_NAME }}" \
-            --sa-json-b64 "${{ secrets.PDT_TESTER_SA_B64 }}" \
-            --user "${{ env.USER }}" \
-            --test_type "$testType" \
-            cancel_old_submissions
+      #- name: Cancel Previous Terra Submissions
+      #  if: ${{ !contains(env.METHOD_CONFIG_NAME, '_Scientific_') }}
+      #  run: |
+      #    python3 scripts/firecloud_api/firecloud_api.py \
+      #      --workspace-namespace "${{ env.WORKSPACE_NAMESPACE }}" \
+      #      --workspace-name "${{ env.TESTING_WORKSPACE }}" \
+      #      --pipeline_name "${{ inputs.pipeline_name }}" \
+      #      --branch_name "${{ env.BRANCH_NAME }}" \
+      #      --sa-json-b64 "${{ secrets.PDT_TESTER_SA_B64 }}" \
+      #      --user "${{ env.USER }}" \
+      #      --test_type "$testType" \
+      #      cancel_old_submissions
 
       # Step 9: Handle Git Commit Hash
       # Purpose: Gets the correct Github commit hash for version tracking
