@@ -10,7 +10,6 @@ workflow SlideTags {
 
     input {
         # slide-tags inputs
-        String id
         Array[String] spatial_fastq
         Array[String] pucks
 

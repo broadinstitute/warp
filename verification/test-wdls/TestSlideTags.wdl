@@ -9,7 +9,7 @@ workflow TestSlideTags {
 
   input {
 
- 	String id
+ 	  #String id
       Array[String] spatial_fastq
       Array[String] pucks
 
@@ -47,7 +47,7 @@ workflow TestSlideTags {
 
   call SlideTags.SlideTags {
     input:
-      id              		    = id,
+     # id              		    = id,
       spatial_fastq           = spatial_fastq,
       pucks                   = pucks,
       gex_r1_fastq            = gex_r1_fastq,
