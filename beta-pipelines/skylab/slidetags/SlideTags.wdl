@@ -14,7 +14,7 @@ workflow SlideTags {
         Array[String] spatial_fastq
         Array[String] pucks
 
-        # Optimus Inputs
+        # Optimus inputs
         Array[File] gex_r1_fastq
         Array[File] gex_r2_fastq
         Array[File]? gex_i1_fastq        
