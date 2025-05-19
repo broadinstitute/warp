@@ -1,11 +1,11 @@
 {
-	"SlideTags.spatial_fastq": ["gs://fc-a58ac9cc-fa1f-4c82-99d5-53f6efeb073b/sample_data/SI-TT-B10_S2_L001_R1_001.fastq.gz", "gs://fc-a58ac9cc-fa1f-4c82-99d5-53f6efeb073b/sample_data/SI-TT-B10_S2_L001_R2_001.fastq.gz"],
-	"SlideTags.pucks": ["gs://fc-a58ac9cc-fa1f-4c82-99d5-53f6efeb073b/sample_data/Puck_240314_04.csv"],
+	"SlideTags.spatial_fastq": ["gs://pd-test-storage-private/SlideTags/input/plumbing/example/SI-TT-B10_S2_L001_R1_001.fastq.gz", "gs://pd-test-storage-private/SlideTags/input/plumbing/example/SI-TT-B10_S2_L001_R2_001.fastq.gz"],
+	"SlideTags.pucks": ["gs://pd-test-storage-private/SlideTags/input/plumbing/example/Puck_240314_04.csv"],
 	"SlideTags.gex_r1_fastq": ["gs://warp-testing-public/slide-tag/5p_dataset/fastqs/SI-TT-B9_S1_L001_R1_001.fastq.gz", "gs://warp-testing-public/slide-tag/5p_dataset/fastqs/SI-TT-B9_S1_L002_R1_001.fastq.gz"],
 	"SlideTags.gex_r2_fastq": ["gs://warp-testing-public/slide-tag/5p_dataset/fastqs/SI-TT-B9_S1_L001_R2_001.fastq.gz", "gs://warp-testing-public/slide-tag/5p_dataset/fastqs/SI-TT-B9_S1_L002_R2_001.fastq.gz"],
-	"SlideTags.gex_whitelist": "gs://fc-dd55e131-ef49-4d02-aa2a-20640daaae1e/slidetag/3M-5pgex-jan-2023.txt",
-	"SlideTags.tar_star_reference": "gs://fc-e7f669fe-5a5c-4a8c-ad02-3b69105d0378/submissions/49bf6445-ec66-47e5-9b64-2a31e6dc51d4/BuildIndices/0d94bdd6-c22f-4e93-89f5-e5605dee36ea/call-BuildStarSingleNucleus/modified_star2.7.10a-Human-GENCODE-build-GRCh38-44.tar",
+	"SlideTags.gex_whitelist": "gs://pd-test-storage-private/SlideTags/input/plumbing/example/3M-5pgex-jan-2023.txt",
+	"SlideTags.tar_star_reference": "gs://pd-test-storage-private/SlideTags/input/plumbing/example/modified_star2.7.10a-Human-GENCODE-build-GRCh38-44.tar",
 	"SlideTags.input_id": "plumbing",
-	"SlideTags.annotations_gtf": "gs://fc-e7f669fe-5a5c-4a8c-ad02-3b69105d0378/gencode.v44.primary_assembly.annotation.gtf.filtered"    
+	"SlideTags.annotations_gtf": "gs://pd-test-storage-private/SlideTags/input/plumbing/example/gencode.v44.primary_assembly.annotation.gtf.filtered"
 }
     
