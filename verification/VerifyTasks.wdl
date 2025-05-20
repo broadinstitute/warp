@@ -847,3 +847,55 @@ task CompareH5Files {
 
 }
 
+task CompareTarballContents {
+
+  input {
+    File test_tar
+    File truth_tar
+  }
+
+  Float file_size = size(test_tar, "GiB") + size(truth_tar, "GiB")
+  Int disk_size = ceil(file_size * 4) + 20
+
+  command <<<
+    mkdir test_dir truth_dir
+
+    # Extract tarballs
+    tar -xzf ~{test_tar} -C test_dir
+    tar -xzf ~{truth_tar} -C truth_dir
+
+    # Compare matrix.csv.gz
+    echo "Comparing matrix.csv.gz..."
+    gunzip -c test_dir/matrix.csv.gz | sort > sorted_test_matrix.txt
+    gunzip -c truth_dir/matrix.csv.gz | sort > sorted_truth_matrix.txt
+    diff sorted_test_matrix.txt sorted_truth_matrix.txt
+    if [ $? -ne 0 ]; then
+        echo "Comparison failed: matrix.csv.gz files differ."
+        exit 1
+    else
+        echo "matrix.csv.gz files are identical."
+    fi
+
+    # Compare cb_whitelist.txt
+    echo "Comparing cb_whitelist.txt..."
+    sort test_dir/cb_whitelist.txt > sorted_test_cb.txt
+    sort truth_dir/cb_whitelist.txt > sorted_truth_cb.txt
+    diff sorted_test_cb.txt sorted_truth_cb.txt
+    if [ $? -ne 0 ]; then
+        echo "Comparison failed: cb_whitelist.txt files differ."
+        exit 1
+    else
+        echo "cb_whitelist.txt files are identical."
+    fi
+
+    echo "All comparisons succeeded."
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
+    disks: "local-disk ~{disk_size} HDD"
+    memory: "20 GiB"
+    preemptible: 3
+  }
+}
+
