@@ -532,6 +532,7 @@ task CreateFragmentFile {
     File annotations_gtf
     File chrom_sizes
     Boolean preindex
+    Array[String] mito_list = ['chrM', 'M']
     Int disk_size = 500
     Int mem_size = 64
     Int nthreads = 4
@@ -565,6 +566,7 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
+    mito_list = "~{mito_list}"
     expected_cells = ~{atac_expected_cells}
 
     # calculate chrom size dictionary based on text file
@@ -584,11 +586,16 @@ task CreateFragmentFile {
     from collections import OrderedDict
     import csv
 
+    custom_chrom_sizes = snap.genome.Genome.from_chromsizes(chrom_size_dict)
+    custom_gene_anno = snap.genome.Genome.from_gtf(atac_gtf, chrom_sizes=custom_chrom_sizes)
+    
+    print(mito_list)
+
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=custom_chrom_sizes, gene_anno=custom_gene_anno, peaks=None, chrM=mito_list)
     elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=custom_chrom_sizes, gene_anno=custom_gene_anno, peaks=None, chrM=mito_list)
 
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
