@@ -559,6 +559,16 @@ task CreateFragmentFile {
 
     python3 <<CODE
 
+    # import libraries
+    import snapatac2.preprocessing as pp
+    import snapatac2 as snap
+    import scanpy as sc
+    import numpy as np
+    import polars as pl
+    import anndata as ad
+    from collections import OrderedDict
+    import csv
+
     # set parameters
     bam = "~{bam}"
     input_id = "~{input_id}"
@@ -569,6 +579,8 @@ task CreateFragmentFile {
     mito_list = "~{mito_list}"
     expected_cells = ~{atac_expected_cells}
 
+    print(mito_list)
+
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
     with open('~{chrom_sizes}', 'r') as f:
@@ -576,26 +588,11 @@ task CreateFragmentFile {
         key, value = line.strip().split()
         chrom_size_dict[str(key)] = int(value)
 
-    # use snap atac2
-    import snapatac2.preprocessing as pp
-    import snapatac2 as snap
-    import scanpy as sc
-    import numpy as np
-    import polars as pl
-    import anndata as ad
-    from collections import OrderedDict
-    import csv
-
-    custom_chrom_sizes = snap.genome.Genome.from_chromsizes(chrom_size_dict)
-    custom_gene_anno = snap.genome.Genome.from_gtf(atac_gtf, chrom_sizes=custom_chrom_sizes)
-    
-    print(mito_list)
-
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=custom_chrom_sizes, gene_anno=custom_gene_anno, peaks=None, chrM=mito_list)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
     elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=custom_chrom_sizes, gene_anno=custom_gene_anno, peaks=None, chrM=mito_list)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
 
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
