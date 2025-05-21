@@ -76,16 +76,16 @@ workflow VerifySlideTags {
             truth_h5 = truth_spatial_output_h5
     }
 
-    call VerifyTasks.CompareTextFiles as CompareCSV {
+    call VerifyTasks.compare_slidetags_csv as CompareCSV {
 	      input:
-		        test_text_files  = [test_coords_csv],
-		        truth_text_files = [truth_coords_csv]
+              test_csv  = test_coords_csv,
+              truth_csv = truth_coords_csv
     }
     
-    call VerifyTasks.CompareTextFiles as CompareCSV2 {
+    call VerifyTasks.compare_slidetags_csv as CompareCSV2 {
 	      input:
-		        test_text_files  = [test_coords2_csv],
-		        truth_text_files = [truth_coords2_csv]
+              test_csv  = test_coords2_csv,
+              truth_csv = truth_coords2_csv
     }
 
     call VerifyTasks.CompareTarballContents as CompareTarballContents {
