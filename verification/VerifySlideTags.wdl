@@ -88,7 +88,7 @@ workflow VerifySlideTags {
 		        truth_text_files = [truth_coords2_csv]
     }
 
-    call VerifyTasks.CompareTarballContents as CompareTAR {
+    call VerifyTasks.CompareTarballContents as CompareTarballContents {
 	      input:
 		        test_tar  = test_intermediates_file,
 		        truth_tar = truth_intermediates_file
