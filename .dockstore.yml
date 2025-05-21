@@ -70,7 +70,7 @@ workflows:
 
   - name: rnaseq_aou
     subclass: WDL
-    primaryDescriptorPath: /all_of_us/rnaseq/rnaseq_aou.wdl
+    primaryDescriptorPath: /all_of_us/rna_seq/rnaseq_aou.wdl
 
   - name: RNAWithUMIsPipeline
     subclass: WDL
