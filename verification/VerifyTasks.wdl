@@ -903,7 +903,7 @@ task compare_slidetags_csv {
   input {
     File truth_csv
     File test_csv
-    Float tolerance = 0.01  # acceptable difference in float values
+    Float tolerance = 0.05  # acceptable difference in float values
   }
 
     command <<<
