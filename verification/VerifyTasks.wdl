@@ -916,6 +916,7 @@ truth_file = "~{truth_csv}"
 test_file = "~{test_csv}"
 tolerance = "~{tolerance}"
 
+
 with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
     reader1 = csv.reader(f1)
     reader2 = csv.reader(f2)
