@@ -211,6 +211,7 @@ jobs:
           done
 
           echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash after 15 minutes of retries!"
+          
           exit 1
         env:
           GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
