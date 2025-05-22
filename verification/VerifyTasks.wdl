@@ -914,7 +914,7 @@ import math
 
 truth_file = "~{truth_csv}"
 test_file = "~{test_csv}"
-tolerance = "~{tolerance}"
+tolerance = ~{tolerance}
 
 
 with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
