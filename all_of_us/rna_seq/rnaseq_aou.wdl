@@ -1,14 +1,17 @@
-# import "https://api.firecloud.org/ga4gh/v1/tools/broadinstitute_gtex:samtofastq_v1-0_BETA/versions/8/plain-WDL/descriptor" as samtofastq_wdl
-# import "https://api.firecloud.org/ga4gh/v1/tools/broadinstitute_gtex:star_v1-0_BETA/versions/8/plain-WDL/descriptor" as star_wdl
-# import "https://api.firecloud.org/ga4gh/v1/tools/broadinstitute_gtex:markduplicates_v1-0_BETA/versions/6/plain-WDL/descriptor" as markduplicates_wdl
+# import "https://api.firecloud.org/ga4gh/v1/tools/broad_drc_aou_aux:samToFastq/versions/1/plain-WDL/descriptor" as samtofastq_wdl
+# import "https://api.firecloud.org/ga4gh/v1/tools/gtex_v10_pg:star_align_v10pg/versions/12/plain-WDL/descriptor" as star_align_wdl
+# import "https://api.firecloud.org/ga4gh/v1/tools/gtex_v10_pg:pre_RSEM_processing_v10pg/versions/6/plain-WDL/descriptor" as prersem_wdl
 # import "https://api.firecloud.org/ga4gh/v1/tools/broadinstitute_gtex:rsem_v1-0_BETA/versions/6/plain-WDL/descriptor" as rsem_wdl
+# #import "https://api.firecloud.org/ga4gh/v1/tools/broad_drc_aou_aux:bamsync_v1-0_BETA_041824_WB/versions/5/plain-WDL/descriptor" as bamsync_wdl
+# import "https://api.firecloud.org/ga4gh/v1/tools/broadinstitute_gtex:markduplicates_v1-0_BETA/versions/6/plain-WDL/descriptor" as markduplicates_wdl
 # import "https://api.firecloud.org/ga4gh/v1/tools/broadinstitute_gtex:rnaseqc2_v1-0_BETA/versions/4/plain-WDL/descriptor" as rnaseqc_wdl
 
 import "./samtofastq.wdl" as samtofastq_wdl
-import "./star.wdl" as star_wdl
+import "./star.wdl" as star_align_wdl
 import "./markduplicates.wdl" as markduplicates_wdl
 import "./rsem.wdl" as rsem_wdl
 import "./rnaseqc2.wdl" as rnaseqc_wdl
+import "./remove_IDS_reads.wdl" as prersem_wdl
 
 
 workflow rnaseq_pipeline_bam_workflow {
