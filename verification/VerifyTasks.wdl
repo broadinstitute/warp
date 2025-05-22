@@ -906,15 +906,15 @@ task compare_slidetags_csv {
     Float tolerance = 0.01  # acceptable difference in float values
   }
 
-  command <<<
+    command <<<
 
 python3 <<CODE
 import csv
 import math
 
-truth_file = "${truth_csv}"
-test_file = "${test_csv}"
-tolerance = ${tolerance}
+truth_file = "~{truth_csv}"
+test_file = "~{test_csv}"
+tolerance = "~{tolerance}"
 
 with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
     reader1 = csv.reader(f1)
