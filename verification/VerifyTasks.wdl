@@ -899,7 +899,6 @@ task CompareTarballContents {
   }
 }
 
-
 task compare_slidetags_csv {
   input {
     File truth_csv
@@ -908,59 +907,60 @@ task compare_slidetags_csv {
   }
 
   command <<<
-    python3 <<CODE
-    import csv
-    import math
 
-    truth_file = "${truth_csv}"
-    test_file = "${test_csv}"
-    tolerance = ${tolerance}
+python3 <<CODE
+import csv
+import math
 
-    with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
-        reader1 = csv.reader(f1)
-        reader2 = csv.reader(f2)
-        header1 = next(reader1)
-        header2 = next(reader2)
+truth_file = "${truth_csv}"
+test_file = "${test_csv}"
+tolerance = ${tolerance}
 
-        assert header1 == header2, "CSV headers do not match"
+with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
+    reader1 = csv.reader(f1)
+    reader2 = csv.reader(f2)
+    header1 = next(reader1)
+    header2 = next(reader2)
 
-        row_num = 1
-        mismatch_found = False
-        for row1, row2 in zip(reader1, reader2):
-            row_num += 1
-            if row1[0] != row2[0]:
-                print(f"Row {row_num} - Key mismatch: {row1[0]} != {row2[0]}")
-                mismatch_found = True
-                continue
+    assert header1 == header2, "CSV headers do not match"
 
-            for i in range(1, len(row1)):
-                val1, val2 = row1[i], row2[i]
-                try:
-                    f1 = float(val1) if val1 else None
-                    f2 = float(val2) if val2 else None
-                    if f1 is not None and f2 is not None:
-                        if not math.isclose(f1, f2, abs_tol=tolerance):
-                            print(f"Row {row_num} - Column {header1[i]} mismatch: {f1} != {f2} (tolerance {tolerance})")
-                            mismatch_found = True
-                    elif f1 != f2:
-                        print(f"Row {row_num} - Column {header1[i]} mismatch: {val1} != {val2}")
+    row_num = 1
+    mismatch_found = False
+    for row1, row2 in zip(reader1, reader2):
+        row_num += 1
+        if row1[0] != row2[0]:
+            print(f"Row {row_num} - Key mismatch: {row1[0]} != {row2[0]}")
+            mismatch_found = True
+            continue
+
+        for i in range(1, len(row1)):
+            val1, val2 = row1[i], row2[i]
+            try:
+                f1 = float(val1) if val1 else None
+                f2 = float(val2) if val2 else None
+                if f1 is not None and f2 is not None:
+                    if not math.isclose(f1, f2, abs_tol=tolerance):
+                        print(f"Row {row_num} - Column {header1[i]} mismatch: {f1} != {f2} (tolerance {tolerance})")
                         mismatch_found = True
-                except ValueError:
-                    if val1 != val2:
-                        print(f"Row {row_num} - Column {header1[i]} mismatch: {val1} != {val2}")
-                        mismatch_found = True
+                elif f1 != f2:
+                    print(f"Row {row_num} - Column {header1[i]} mismatch: {val1} != {val2}")
+                    mismatch_found = True
+            except ValueError:
+                if val1 != val2:
+                    print(f"Row {row_num} - Column {header1[i]} mismatch: {val1} != {val2}")
+                    mismatch_found = True
 
-        if mismatch_found:
-            print("Comparison failed.")
-            exit(1)
-        else:
-            print("Files match within tolerance.")
-      CODE
-      >>>
-
+    if mismatch_found:
+        print("Comparison failed.")
+        exit(1)
+    else:
+        print("Files match within tolerance.")
+CODE
+    >>>
 
   runtime {
     docker: "python:3.9"
   }
 }
+
 
