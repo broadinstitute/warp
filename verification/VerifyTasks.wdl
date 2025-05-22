@@ -955,7 +955,7 @@ task compare_slidetags_csv {
             exit(1)
         else:
             print("Files match within tolerance.")
-        CODE
+      CODE
       >>>
 
 
