@@ -109,9 +109,9 @@ task CreateFragmentFile {
 
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "/dev/null", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "/dev/null", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
 
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
@@ -161,12 +161,12 @@ task CreateFragmentFile {
     CODE
     
     # sorting the file
-    echo "Sorting file"
-    sort -k1,1V -k2,2n "~{input_id}.fragments.tsv" > "~{input_id}.fragments.sorted.tsv"
-    echo "Starting bgzip"
-    bgzip "~{input_id}.fragments.sorted.tsv"
-    echo "Starting tabix"
-    tabix -s 1 -b 2 -e 3 -C "~{input_id}.fragments.sorted.tsv.gz"
+    #echo "Sorting file"
+    #sort -k1,1V -k2,2n "~{input_id}.fragments.tsv" > "~{input_id}.fragments.sorted.tsv"
+    #echo "Starting bgzip"
+    #bgzip "~{input_id}.fragments.sorted.tsv"
+    #echo "Starting tabix"
+    #tabix -s 1 -b 2 -e 3 -C "~{input_id}.fragments.sorted.tsv.gz"
   >>>
 
   runtime {
@@ -178,8 +178,8 @@ task CreateFragmentFile {
   }
 
   output {
-    File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
-    File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
+    #File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
+    #File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
     File Snap_metrics = "~{input_id}.metrics.h5ad"
     File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
   }
