@@ -34,9 +34,9 @@ workflow run_ancestry {
         Int num_pcs=16
     }
 
-    File hgdp_metadata_file = select_first([hgdp_metadata_file_in, "gs://gcp-public-data--gnomad/release/3.1/vcf/genomes/gnomad.genomes.v3.1.hgdp_1kg_subset.sample_meta.tsv.gz"])
+    File hgdp_metadata_file = select_first([hgdp_metadata_file_in, "gs://gcp-public-data--gnomad/release/3.1/secondary_analyses/hgdp_1kg_v2/metadata_and_qc/gnomad_meta_updated.tsv"])
     Float other_cutoff = select_first([other_cutoff_in, 0.75])
-    String pipeline_version = "aou_8.0.0"
+    String pipeline_version = "aou_9.0.0"
 
     # Train the model on the intersection sites (full version that includes the samples)
     call create_hw_pca_training {
@@ -119,8 +119,8 @@ task create_hw_pca_training {
         eigenvalues_training, scores_training, loadings_training = get_PCA_scores("~{full_bgz}")
 
         # Apply any custom processing to the population labels from the training data
-        pop_label_pd = metadata_pd[['s', 'population_inference.pop']]
-        pop_label_pd['pop_label'] = metadata_pd['population_inference.pop'].apply(collapse_fin_to_eur)
+        pop_label_pd = metadata_pd[['s', 'project_meta.project_pop']]
+        pop_label_pd['pop_label'] = metadata_pd['project_meta.project_pop'].apply(collapse_fin_to_eur)
 
         # Join the labels to the training PCA feature set.
         pop_label_ht = hl.Table.from_pandas(pop_label_pd).key_by('s')
