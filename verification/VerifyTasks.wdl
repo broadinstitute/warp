@@ -993,7 +993,7 @@ CODE
   }
 }
 
-    task compare_slidetags_csv2 {
+task compare_slidetags_csv2 {
   input {
     File truth_csv
     File test_csv
@@ -1083,9 +1083,6 @@ CODE
     docker: "python:3.9"
   }
 
-  output {
-    String dummy_output = "Comparison complete"
-  }
 }
 
 
