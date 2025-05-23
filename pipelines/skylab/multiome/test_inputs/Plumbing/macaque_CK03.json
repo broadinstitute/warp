@@ -1,0 +1,30 @@
+{
+  "Multiome.annotations_gtf":"gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/10x_filtered/mt_v103_modified.annotation.gtf",
+  "Multiome.input_id":"macaque_CK03",
+  "Multiome.cloud_provider":"gcp",
+  "Multiome.gex_r1_fastq":[
+    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_GEX_S3_L001_R1_001.fastq"
+  ],
+  "Multiome.gex_r2_fastq":[
+    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_GEX_S3_L001_R2_001.fastq"
+  ],
+  "Multiome.atac_r1_fastq":[
+    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_ATAC_S3_L001_R1_001.fastq"
+  ],
+  "Multiome.atac_r2_fastq":[
+    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_ATAC_S3_L001_R2_001.fastq"
+  ],
+  "Multiome.atac_r3_fastq":[
+    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_ATAC_S3_L001_R3_001.fastq"
+  ],
+  "Multiome.tar_bwa_reference":"gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/bwa-mem2-2.2.1-Macaque-NCBI-build-GCF_003339765.1.tar",
+  "Multiome.tar_star_reference":"gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/10x_filtered/modified_star2.7.10a-Macaque-NCBI-build-GCF_003339765.1-103.tar",
+  "Multiome.chrom_sizes":"gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/chrom.sizes",
+  "Multiome.run_cellbender":"false",
+  "Multiome.Atac.cpu_platform_bwa":"Intel Cascade Lake",
+  "Multiome.Atac.num_threads_bwa":"16",
+  "Multiome.Atac.mem_size_bwa":"64",
+  "Multiome.soloMultiMappers":"Uniform",
+  "Multiome.gex_nhash_id":"example_1234",
+  "Multiome.atac_nhash_id":"example_1234"
+}
