@@ -41,8 +41,8 @@ workflow ATAC {
     
   output {
     File bam_aligned_output = aligned_bam
-    File fragment_file = CreateFragmentFile.fragment_file
-    File fragment_file_index = CreateFragmentFile.fragment_file_index
+    #File fragment_file = CreateFragmentFile.fragment_file
+    #File fragment_file_index = CreateFragmentFile.fragment_file_index
     File snap_metrics = CreateFragmentFile.Snap_metrics
     File library_metrics_file = CreateFragmentFile.atac_library_metrics
   }
