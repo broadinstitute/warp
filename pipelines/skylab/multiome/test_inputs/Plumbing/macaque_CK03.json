@@ -3,19 +3,19 @@
   "Multiome.input_id":"macaque_CK03",
   "Multiome.cloud_provider":"gcp",
   "Multiome.gex_r1_fastq":[
-    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_GEX_S3_L001_R1_001.fastq"
+    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_GEX_S3_L001_R1_001.fastq.gz"
   ],
   "Multiome.gex_r2_fastq":[
-    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_GEX_S3_L001_R2_001.fastq"
+    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_GEX_S3_L001_R2_001.fastq.gz"
   ],
   "Multiome.atac_r1_fastq":[
-    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_ATAC_S3_L001_R1_001.fastq"
+    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_ATAC_S3_L001_R1_001.fastq.gz"
   ],
   "Multiome.atac_r2_fastq":[
-    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_ATAC_S3_L001_R2_001.fastq"
+    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_ATAC_S3_L001_R2_001.fastq.gz"
   ],
   "Multiome.atac_r3_fastq":[
-    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_ATAC_S3_L001_R3_001.fastq"
+    "gs://pd-test-storage-private/Multiome/input/plumbing/macaque_CK03/subsampled_CK03_ATAC_S3_L001_R3_001.fastq.gz"
   ],
   "Multiome.tar_bwa_reference":"gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/bwa-mem2-2.2.1-Macaque-NCBI-build-GCF_003339765.1.tar",
   "Multiome.tar_star_reference":"gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/10x_filtered/modified_star2.7.10a-Macaque-NCBI-build-GCF_003339765.1-103.tar",
