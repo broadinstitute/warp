@@ -154,7 +154,13 @@ task CreateFragmentFile {
     
     atac_data.uns["reference_gtf_file"] = gtf_path
     # calculate tsse metrics
-    snap.metrics.tsse(atac_data, atac_gtf)
+    #snap.metrics.tsse(atac_data, atac_gtf)
+    # calculate tsse metrics only if fragment data is available
+    if "fragment_paired" in atac_data.obsm or "fragment_single" in atac_data.obsm:
+        snap.metrics.tsse(atac_data, atac_gtf)
+    else:
+        print("Skipping TSSE calculation: fragment data not present in obsm.")
+
     # Write new atac file
     atac_data.write_h5ad("~{input_id}.metrics.h5ad")
 
