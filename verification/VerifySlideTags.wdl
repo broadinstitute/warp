@@ -82,7 +82,7 @@ workflow VerifySlideTags {
               truth_csv = truth_coords_csv
     }
     
-    call VerifyTasks.compare_slidetags_csv as CompareCSV2 {
+    call VerifyTasks.compare_slidetags_csv2 as CompareCSV2 {
 	      input:
               test_csv  = test_coords2_csv,
               truth_csv = truth_coords2_csv
