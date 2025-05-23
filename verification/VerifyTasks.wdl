@@ -903,19 +903,45 @@ task compare_slidetags_csv {
   input {
     File truth_csv
     File test_csv
-    Float tolerance = 0.05  # acceptable difference in float values
   }
 
-    command <<<
-
+  command <<<
 python3 <<CODE
 import csv
 import math
 
 truth_file = "~{truth_csv}"
 test_file = "~{test_csv}"
-tolerance = ~{tolerance}
 
+# Column-specific tolerances
+tolerances = {
+    "cb": 0.0,
+    "umi": 1,
+    "beads": 1,
+    "max": 1,
+    "clusters": 1,
+    "umi0": 1,
+    "beads0": 1,
+    "max0": 1,
+    "x1": 0.1,
+    "y1": 0.1,
+    "rmsd1": 0.1,
+    "umi1": 1,
+    "beads1": 1,
+    "max1": 1,
+    "h1": 1,
+    "x2": 0.1,
+    "y2": 0.1,
+    "rmsd2": 0.1,
+    "umi2": 1,
+    "beads2": 1,
+    "max2": 1,
+    "h2": 1,
+    "eps": 0.1,
+    "minPts": 0.1,
+    "x": 0.1,
+    "y": 0.1
+}
 
 with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
     reader1 = csv.reader(f1)
@@ -936,27 +962,30 @@ with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
 
         for i in range(1, len(row1)):
             val1, val2 = row1[i], row2[i]
+            colname = header1[i]
             try:
                 f1 = float(val1) if val1 else None
                 f2 = float(val2) if val2 else None
                 if f1 is not None and f2 is not None:
-                    if not math.isclose(f1, f2, abs_tol=tolerance):
-                        print(f"Row {row_num} - Column {header1[i]} mismatch: {f1} != {f2} (tolerance {tolerance})")
+                    tol = tolerances.get(colname, 0.0)
+                    if not math.isclose(f1, f2, abs_tol=tol):
+                        print(f"Row {row_num} - Column {colname} mismatch: {f1} != {f2} (tolerance {tol})")
                         mismatch_found = True
                 elif f1 != f2:
-                    print(f"Row {row_num} - Column {header1[i]} mismatch: {val1} != {val2}")
+                    print(f"Row {row_num} - Column {colname} mismatch: {val1} != {val2}")
                     mismatch_found = True
             except ValueError:
                 if val1 != val2:
-                    print(f"Row {row_num} - Column {header1[i]} mismatch: {val1} != {val2}")
+                    print(f"Row {row_num} - Column {colname} mismatch: {val1} != {val2}")
                     mismatch_found = True
 
     if mismatch_found:
         print("Comparison failed.")
         exit(1)
     else:
-        print("Files match within tolerance.")
+        print("Files match within tolerances.")
 CODE
+
     >>>
 
   runtime {
