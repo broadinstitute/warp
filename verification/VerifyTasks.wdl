@@ -905,7 +905,7 @@ task compare_slidetags_csv {
     File test_csv
   }
 
-  command <<<
+   command <<<
 python3 <<CODE
 import csv
 import math
@@ -937,7 +937,7 @@ tolerances = {
     "beads2": 1,
     "max2": 1,
     "h2": 1,
-    "eps": 0.1,
+    "eps": 0,
     "minPts": 0.1,
     "x": 0.1,
     "y": 0.1
@@ -956,27 +956,31 @@ with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
     for row1, row2 in zip(reader1, reader2):
         row_num += 1
         if row1[0] != row2[0]:
-            print(f"Row {row_num} - Key mismatch: {row1[0]} != {row2[0]}")
+            print(f"Row {row_num} - Key mismatch in 'cb': {row1[0]} != {row2[0]}")
             mismatch_found = True
             continue
 
         for i in range(1, len(row1)):
             val1, val2 = row1[i], row2[i]
             colname = header1[i]
+            print(f"Checking {colname}:")
+            print(f"  Truth Row {row_num}: {val1}")
+            print(f"  Test Row {row_num}: {val2}")
+
             try:
                 f1 = float(val1) if val1 else None
                 f2 = float(val2) if val2 else None
                 if f1 is not None and f2 is not None:
                     tol = tolerances.get(colname, 0.0)
                     if not math.isclose(f1, f2, abs_tol=tol):
-                        print(f"Row {row_num} - Column {colname} mismatch: {f1} != {f2} (tolerance {tol})")
+                        print(f"  --> {f1} does not equal {f2} and is outside of tolerance: {tol}")
                         mismatch_found = True
                 elif f1 != f2:
-                    print(f"Row {row_num} - Column {colname} mismatch: {val1} != {val2}")
+                    print(f"  --> Mismatch: {val1} != {val2}")
                     mismatch_found = True
             except ValueError:
                 if val1 != val2:
-                    print(f"Row {row_num} - Column {colname} mismatch: {val1} != {val2}")
+                    print(f"  --> Mismatch: {val1} != {val2}")
                     mismatch_found = True
 
     if mismatch_found:
@@ -985,8 +989,7 @@ with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
     else:
         print("Files match within tolerances.")
 CODE
-
-    >>>
+  >>>
 
   runtime {
     docker: "python:3.9"
