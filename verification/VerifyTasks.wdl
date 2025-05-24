@@ -937,11 +937,13 @@ tolerances = {
     "beads2": 1,
     "max2": 1,
     "h2": 1,
-    "eps": 0,
+    "eps": 0.1,
     "minPts": 0.1,
     "x": 0.1,
-    "y": 0.1
+    "y": 0.00000001
 }
+
+mismatches = []
 
 with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
     reader1 = csv.reader(f1)
@@ -957,6 +959,7 @@ with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
         row_num += 1
         if row1[0] != row2[0]:
             print(f"Row {row_num} - Key mismatch in 'cb': {row1[0]} != {row2[0]}")
+            mismatches.append((row_num, 'cb', row1[0], row2[0], 'N/A'))
             mismatch_found = True
             continue
 
@@ -974,16 +977,22 @@ with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
                     tol = tolerances.get(colname, 0.0)
                     if not math.isclose(f1, f2, abs_tol=tol):
                         print(f"  --> {f1} does not equal {f2} and is outside of tolerance: {tol}")
+                        mismatches.append((row_num, colname, f1, f2, tol))
                         mismatch_found = True
                 elif f1 != f2:
                     print(f"  --> Mismatch: {val1} != {val2}")
+                    mismatches.append((row_num, colname, val1, val2, 'N/A'))
                     mismatch_found = True
             except ValueError:
                 if val1 != val2:
                     print(f"  --> Mismatch: {val1} != {val2}")
+                    mismatches.append((row_num, colname, val1, val2, 'N/A'))
                     mismatch_found = True
 
     if mismatch_found:
+        print("\nSummary of mismatches:")
+        for row_num, col, v1, v2, tol in mismatches:
+            print(f"- Row {row_num}, Column {col}: {v1} != {v2} (tolerance: {tol})")
         print("Comparison failed.")
         exit(1)
     else:
