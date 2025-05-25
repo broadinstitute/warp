@@ -221,3 +221,47 @@ task CreateVcfIndex {
     File vcf_index = "~{vcf_basename}.tbi"
   }
 }
+
+task LocalizeAndSubsetVcfToRegion {
+  input {
+    File vcf
+    String output_basename
+    String contig
+    Int start
+    Int end
+    Boolean exclude_filtered = false
+
+    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 6000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+  }
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
+
+  command {
+    set -e -o pipefail
+
+    tabix ~{vcf}
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants \
+    -V ~{vcf} \
+    -L ~{contig}:~{start}-~{end} \
+    -select 'POS >= ~{start}' ~{if exclude_filtered then "--exclude-filtered" else ""} \
+    -O ~{output_basename}.vcf.gz
+  }
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    noAddress: true
+  }
+
+  output {
+    File output_vcf = "~{output_basename}.vcf.gz"
+    File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
+  }
+}
