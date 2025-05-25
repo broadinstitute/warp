@@ -130,8 +130,8 @@ workflow ImputationBeagle {
       # these values are based on trying to optimize for pre-emptibility using a 400k sample reference panel
       # and up to a 10k sample input vcf
       Int beagle_cpu = if (CountSamples.nSamples <= 1000) then 8 else floor(CountSamples.nSamples / 1000) * 9
-      Int beagle_phase_memory_in_gb = if (CountSamples.nSamples <= 1000) then 32 else ceil(beagle_cpu * 1.9)
-      Int beagle_impute_memory_in_gb = if (CountSamples.nSamples <= 1000) then 40 else ceil(beagle_cpu * 5.3)
+      Int beagle_phase_memory_in_gb = if (CountSamples.nSamples <= 1000) then 45 else ceil(beagle_cpu * 1.9)
+      Int beagle_impute_memory_in_gb = if (CountSamples.nSamples <= 1000) then 45 else ceil(beagle_cpu * 5.3)
 
       call beagleTasks.Phase {
         input:
