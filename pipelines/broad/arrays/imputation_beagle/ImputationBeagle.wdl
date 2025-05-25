@@ -72,7 +72,7 @@ workflow ImputationBeagle {
       Int startWithOverlaps = if (start - chunkOverlaps < 1) then 1 else start - chunkOverlaps
       Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
       Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < end + chunkOverlaps) then CalculateChromosomeLength.chrom_length else end + chunkOverlaps
-      String chunk_basename = referencePanelContig.contig + "_chunk_" + i
+      String first_scatter_chunk_basename = referencePanelContig.contig + "_chunk_" + i
 
       # generate the chunked vcf file that will be used for imputation, including overlaps
       call tasks.GenerateChunk {
@@ -82,7 +82,7 @@ workflow ImputationBeagle {
           start = startWithOverlaps,
           end = endWithOverlaps,
           chrom = referencePanelContig.contig,
-          basename = chunk_basename,
+          basename = first_scatter_chunk_basename,
           gatk_docker = gatk_docker
       }
 
@@ -124,7 +124,7 @@ workflow ImputationBeagle {
     }
 
     scatter (i in range(num_chunks)) {
-      String chunk_basename_imputed = referencePanelContig.contig + "_chunk_" + i + "_imputed"
+      String second_scatter_chunk_basename = referencePanelContig.contig + "_chunk_" + i
 
       # max amount of cpus you can ask for is 96 so at a max of 10k samples we can only ask for 9 cpu a sample.
       # these values are based on trying to optimize for pre-emptibility using a 400k sample reference panel
@@ -138,10 +138,10 @@ workflow ImputationBeagle {
           dataset_vcf = chunkedVcfsWithOverlapsForImputation[i],
           ref_panel_bref3 = referencePanelContig.bref3,
           chrom = referencePanelContig.contig,
-          basename = chunk_basename_imputed,
+          basename = second_scatter_chunk_basename + ".phased",
           genetic_map_file = referencePanelContig.genetic_map,
-          start = start[i],
-          end = end[i],
+          start = startWithOverlaps[i],
+          end = endWithOverlaps[i],
           cpu = beagle_cpu,
           memory_mb = beagle_phase_memory_in_gb * 1024,
           for_dependency = FailQCNChunks.done
@@ -152,47 +152,36 @@ workflow ImputationBeagle {
           dataset_vcf = Phase.vcf,
           ref_panel_bref3 = referencePanelContig.bref3,
           chrom = referencePanelContig.contig,
-          basename = chunk_basename_imputed,
+          basename = second_scatter_chunk_basename + ".imputed",
           genetic_map_file = referencePanelContig.genetic_map,
-          start = start[i],
-          end = end[i],
+          start = startWithOverlaps[i],
+          end = endWithOverlaps[i],
           cpu = beagle_cpu,
           memory_mb = beagle_impute_memory_in_gb * 1024
       }
 
-      call beagleTasks.CreateVcfIndex as IndexImputedBeagle {
+      call beagleTasks.LocalizeAndSubsetVcfToRegion {
         input:
-          vcf_input = Impute.vcf,
+          vcf = Impute.vcf,
+          start = start[i],
+          end = end[i],
+          contig = referencePanelContig.contig,
+          output_basename = second_scatter_chunk_basename + ".imputed.no_overlaps",
           gatk_docker = gatk_docker
       }
 
       call tasks.UpdateHeader {
         input:
-          vcf = IndexImputedBeagle.vcf,
-          vcf_index = IndexImputedBeagle.vcf_index,
+          vcf = LocalizeAndSubsetVcfToRegion.output_vcf,
+          vcf_index = LocalizeAndSubsetVcfToRegion.output_vcf_index,
           ref_dict = ref_dict,
-          basename = chunk_basename_imputed,
+          basename = second_scatter_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,
-          gatk_docker = gatk_docker
-      }
-
-#      call tasks.SeparateMultiallelics {
-#        input:
-#          original_vcf = UpdateHeader.output_vcf,
-#          original_vcf_index = UpdateHeader.output_vcf_index,
-#          output_basename = chunk_basename_imputed
-#      }
-
-      call tasks.RemoveSymbolicAlleles {
-        input:
-          original_vcf = UpdateHeader.output_vcf,
-          original_vcf_index = UpdateHeader.output_vcf_index,
-          output_basename = chunk_basename_imputed,
           gatk_docker = gatk_docker
       }
     }
 
-    Array[File] chromosome_vcfs = select_all(RemoveSymbolicAlleles.output_vcf)
+    Array[File] chromosome_vcfs = select_all(UpdateHeader.output_vcf)
   }
 
   call tasks.GatherVcfs {
