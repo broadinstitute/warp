@@ -937,7 +937,7 @@ tolerances = {
     "beads2": 0,
     "max2": 0,
     "h2": 0,
-    "eps": 0,
+    "eps": 0.03,
     "minPts": 0,
     "x": 0,
     "y": 0
