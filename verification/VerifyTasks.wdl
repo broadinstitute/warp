@@ -1023,29 +1023,32 @@ test_file = "~{test_csv}"
 # Column-specific tolerances
 tolerances = {
     "cb": 0.0,
-    "umi": 1,
-    "beads": 1,
-    "x": 0.1,
-    "y": 0.1,
-    "umi1s": 1,
-    "beads1s": 1,
-    "h1s": 1,
-    "x1": 0.1,
-    "y1": 0.1,
-    "umi1": 1,
-    "beads1": 1,
-    "h1": 1,
-    "cluster1": 1,
-    "x2": 0.1,
-    "y2": 0.1,
-    "umi2": 1,
-    "beads2": 1,
-    "h2": 1,
-    "cluster2": 1,
-    "eps": 0.1,
-    "minPts2": 0.1,
-    "minPts1": 0.1
+    "umi": 0,
+    "beads": 0,
+    "x": 0,
+    "y": 0,
+    "umi1s": 0,
+    "beads1s": 0,
+    "h1s": 0,
+    "x1": 0,
+    "y1": 0,
+    "umi1": 0,
+    "beads1": 0,
+    "h1": 0,
+    "cluster1": 0,
+    "x2": 0,
+    "y2": 0,
+    "umi2": 0,
+    "beads2": 0,
+    "h2": 0,
+    "cluster2": 0,
+    "eps": 0,
+    "minPts2": 0,
+    "minPts1": 0
 }
+
+
+mismatches = []
 
 with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
     reader1 = csv.reader(f1)
@@ -1060,30 +1063,41 @@ with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
     for row1, row2 in zip(reader1, reader2):
         row_num += 1
         if row1[0] != row2[0]:
-            print(f"Row {row_num} - Key mismatch: {row1[0]} != {row2[0]}")
+            print(f"Row {row_num} - Key mismatch in 'cb': {row1[0]} != {row2[0]}")
+            mismatches.append((row_num, 'cb', row1[0], row2[0], 'N/A'))
             mismatch_found = True
             continue
 
         for i in range(1, len(row1)):
             val1, val2 = row1[i], row2[i]
             colname = header1[i]
+            print(f"Checking {colname}:")
+            print(f"  Truth Row {row_num}: {val1}")
+            print(f"  Test Row {row_num}: {val2}")
+
             try:
                 f1 = float(val1) if val1 else None
                 f2 = float(val2) if val2 else None
                 if f1 is not None and f2 is not None:
                     tol = tolerances.get(colname, 0.0)
                     if not math.isclose(f1, f2, abs_tol=tol):
-                        print(f"Row {row_num} - Column {colname} mismatch: {f1} != {f2} (tolerance {tol})")
+                        print(f"  --> {f1} does not equal {f2} and is outside of tolerance: {tol}")
+                        mismatches.append((row_num, colname, f1, f2, tol))
                         mismatch_found = True
                 elif f1 != f2:
-                    print(f"Row {row_num} - Column {colname} mismatch: {val1} != {val2}")
+                    print(f"  --> Mismatch: {val1} != {val2}")
+                    mismatches.append((row_num, colname, val1, val2, 'N/A'))
                     mismatch_found = True
             except ValueError:
                 if val1 != val2:
-                    print(f"Row {row_num} - Column {colname} mismatch: {val1} != {val2}")
+                    print(f"  --> Mismatch: {val1} != {val2}")
+                    mismatches.append((row_num, colname, val1, val2, 'N/A'))
                     mismatch_found = True
 
     if mismatch_found:
+        print("\nSummary of mismatches:")
+        for row_num, col, v1, v2, tol in mismatches:
+            print(f"- Row {row_num}, Column {col}: {v1} != {v2} (tolerance: {tol})")
         print("Comparison failed.")
         exit(1)
     else:
