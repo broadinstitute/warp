@@ -9,7 +9,7 @@ workflow TestSlideTags {
 
   input {
 
- 	String id
+ 	  #String id
       Array[String] spatial_fastq
       Array[String] pucks
 
@@ -47,7 +47,7 @@ workflow TestSlideTags {
 
   call SlideTags.SlideTags {
     input:
-      id              		    = id,
+     # id              		    = id,
       spatial_fastq           = spatial_fastq,
       pucks                   = pucks,
       gex_r1_fastq            = gex_r1_fastq,
@@ -81,10 +81,11 @@ Array[String] pipeline_outputs = flatten([
                               SlideTags.optimus_matrix,
                               SlideTags.optimus_bam,
                               SlideTags.optimus_genomic_reference_version,
-					                    SlideTags.spatial_output_h5,
-					                    SlideTags.positioning_seurat_qs,
-					                    SlideTags.positioning_coords_csv,
-					                    SlideTags.positioning_coords2_csv,
+					          SlideTags.spatial_output_h5,
+					          SlideTags.positioning_seurat_qs,
+					          SlideTags.positioning_coords_csv,
+					          SlideTags.positioning_coords2_csv,
+                              SlideTags.positioning_intermediates,
                               ],
                               # File? outputs
                               select_all([SlideTags.optimus_mtx_files]),
@@ -149,6 +150,40 @@ Array[String] pipeline_outputs = flatten([
         truth_path   = truth_path
     }
 
+    call Utilities.GetValidationInputs as GetSpatialOutput {
+      input:
+        input_file   = SlideTags.spatial_output_h5,
+        results_path = results_path,
+        truth_path   = truth_path
+    }
+
+    call Utilities.GetValidationInputs as GetSeuratQs {
+      input:
+        input_file   = SlideTags.positioning_seurat_qs,
+        results_path = results_path,
+        truth_path   = truth_path
+    }
+
+    call Utilities.GetValidationInputs as GetCoordsCsv {
+      input:
+        input_file   = SlideTags.positioning_coords_csv,
+        results_path = results_path,
+        truth_path   = truth_path
+    }
+
+    call Utilities.GetValidationInputs as GetCoords2Csv {
+      input:
+        input_file   = SlideTags.positioning_coords2_csv,
+        results_path = results_path,
+        truth_path   = truth_path
+    }
+    call Utilities.GetValidationInputs as GetIntermediates {
+      input:
+        input_file   = SlideTags.positioning_intermediates,
+        results_path = results_path,
+        truth_path   = truth_path
+    }
+
   if(defined(SlideTags.optimus_library_metrics)){
     call Utilities.GetValidationInputs as GetLibraryMetrics {
       input:
@@ -170,6 +205,16 @@ Array[String] pipeline_outputs = flatten([
         truth_cell_metrics = GetCellMetrics.truth_file,
         test_library_metrics =  select_first([GetLibraryMetrics.results_file, ""]),
         truth_library_metrics = select_first([GetLibraryMetrics.truth_file, ""]),
+        test_spatial_output_h5 = GetSpatialOutput.results_file,
+        truth_spatial_output_h5 = GetSpatialOutput.truth_file,
+        test_seurat_qs = GetSeuratQs.results_file,
+        truth_seurat_qs = GetSeuratQs.truth_file,
+        test_coords_csv = GetCoordsCsv.results_file,
+        truth_coords_csv = GetCoordsCsv.truth_file,
+        test_coords2_csv = GetCoords2Csv.results_file,
+        truth_coords2_csv = GetCoords2Csv.truth_file,
+        test_intermediates_file = GetIntermediates.results_file,
+        truth_intermediates_file = GetIntermediates.truth_file,
         done               = CopyToTestResults.done
     }
   }

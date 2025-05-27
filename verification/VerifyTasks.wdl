@@ -849,3 +849,269 @@ task CompareH5Files {
 
 }
 
+task CompareTarballContents {
+
+  input {
+    File test_tar
+    File truth_tar
+  }
+
+  Float file_size = size(test_tar, "GiB") + size(truth_tar, "GiB")
+  Int disk_size = ceil(file_size * 4) + 20
+
+  command <<<
+    mkdir test_dir truth_dir
+
+    # Extract tarballs
+    tar -xzf ~{test_tar} -C test_dir
+    tar -xzf ~{truth_tar} -C truth_dir
+
+    # Compare matrix.csv.gz
+    echo "Comparing matrix.csv.gz..."
+    gunzip -c test_dir/matrix.csv.gz | sort > sorted_test_matrix.txt
+    gunzip -c truth_dir/matrix.csv.gz | sort > sorted_truth_matrix.txt
+    diff sorted_test_matrix.txt sorted_truth_matrix.txt
+    if [ $? -ne 0 ]; then
+        echo "Comparison failed: matrix.csv.gz files differ."
+        exit 1
+    else
+        echo "matrix.csv.gz files are identical."
+    fi
+
+    # Compare cb_whitelist.txt
+    echo "Comparing cb_whitelist.txt..."
+    sort test_dir/cb_whitelist.txt > sorted_test_cb.txt
+    sort truth_dir/cb_whitelist.txt > sorted_truth_cb.txt
+    diff sorted_test_cb.txt sorted_truth_cb.txt
+    if [ $? -ne 0 ]; then
+        echo "Comparison failed: cb_whitelist.txt files differ."
+        exit 1
+    else
+        echo "cb_whitelist.txt files are identical."
+    fi
+
+    echo "All comparisons succeeded."
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
+    disks: "local-disk ~{disk_size} HDD"
+    memory: "20 GiB"
+    preemptible: 3
+  }
+}
+
+task compare_slidetags_csv {
+  input {
+    File truth_csv
+    File test_csv
+  }
+
+   command <<<
+python3 <<CODE
+import csv
+import math
+
+truth_file = "~{truth_csv}"
+test_file = "~{test_csv}"
+
+# Column-specific tolerances
+tolerances = {
+    "cb": 0.0,
+    "umi": 0,
+    "beads": 0,
+    "max": 0,
+    "clusters": 1,
+    "umi0": 0,
+    "beads0": 0,
+    "max0": 0,
+    "x1": 0,
+    "y1": 0,
+    "rmsd1": 0.5,
+    "umi1": 0,
+    "beads1": 0,
+    "max1": 0,
+    "h1": 0,
+    "x2": 0.5,
+    "y2": 0.1,
+    "rmsd2": 0.5,
+    "umi2": 1,
+    "beads2": 1,
+    "max2": 0,
+    "h2": 0,
+    "eps": 0.05,
+    "minPts": 0,
+    "x": 0,
+    "y": 0
+}
+
+mismatches = []
+
+with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
+    reader1 = csv.reader(f1)
+    reader2 = csv.reader(f2)
+    header1 = next(reader1)
+    header2 = next(reader2)
+
+    assert header1 == header2, "CSV headers do not match"
+
+    row_num = 1
+    mismatch_found = False
+    for row1, row2 in zip(reader1, reader2):
+        row_num += 1
+        if row1[0] != row2[0]:
+            print(f"Row {row_num} - Key mismatch in 'cb': {row1[0]} != {row2[0]}")
+            mismatches.append((row_num, 'cb', row1[0], row2[0], 'N/A'))
+            mismatch_found = True
+            continue
+
+        for i in range(1, len(row1)):
+            val1, val2 = row1[i], row2[i]
+            colname = header1[i]
+            print(f"Checking {colname}:")
+            print(f"  Truth Row {row_num}: {val1}")
+            print(f"  Test Row {row_num}: {val2}")
+
+            try:
+                f1 = float(val1) if val1 else None
+                f2 = float(val2) if val2 else None
+                if f1 is not None and f2 is not None:
+                    tol = tolerances.get(colname, 0.0)
+                    if not math.isclose(f1, f2, abs_tol=tol):
+                        print(f"  --> {f1} does not equal {f2} and is outside of tolerance: {tol}")
+                        mismatches.append((row_num, colname, f1, f2, tol))
+                        mismatch_found = True
+                elif f1 != f2:
+                    print(f"  --> Mismatch: {val1} != {val2}")
+                    mismatches.append((row_num, colname, val1, val2, 'N/A'))
+                    mismatch_found = True
+            except ValueError:
+                if val1 != val2:
+                    print(f"  --> Mismatch: {val1} != {val2}")
+                    mismatches.append((row_num, colname, val1, val2, 'N/A'))
+                    mismatch_found = True
+
+    if mismatch_found:
+        print("\nSummary of mismatches:")
+        for row_num, col, v1, v2, tol in mismatches:
+            print(f"- Row {row_num}, Column {col}: {v1} != {v2} (tolerance: {tol})")
+        print("Comparison failed.")
+        exit(1)
+    else:
+        print("Files match within tolerances.")
+CODE
+  >>>
+
+  runtime {
+    docker: "python:3.9"
+  }
+}
+
+task compare_slidetags_csv2 {
+  input {
+    File truth_csv
+    File test_csv
+  }
+
+  command <<<
+
+python3 <<CODE
+import csv
+import math
+
+truth_file = "~{truth_csv}"
+test_file = "~{test_csv}"
+
+# Column-specific tolerances
+tolerances = {
+    "cb": 0.0,
+    "umi": 0,
+    "beads": 0,
+    "x": 0,
+    "y": 0,
+    "umi1s": 0,
+    "beads1s": 0,
+    "h1s": 0,
+    "x1": 0,
+    "y1": 0,
+    "umi1": 0,
+    "beads1": 0,
+    "h1": 0,
+    "cluster1": 0,
+    "x2": 535,
+    "y2": 1971,
+    "umi2": 0,
+    "beads2": 0,
+    "h2": 0,
+    "cluster2": 0,
+    "eps": 0.05,
+    "minPts2": 0,
+    "minPts1": 0
+}
+
+
+mismatches = []
+
+with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
+    reader1 = csv.reader(f1)
+    reader2 = csv.reader(f2)
+    header1 = next(reader1)
+    header2 = next(reader2)
+
+    assert header1 == header2, "CSV headers do not match"
+
+    row_num = 1
+    mismatch_found = False
+    for row1, row2 in zip(reader1, reader2):
+        row_num += 1
+        if row1[0] != row2[0]:
+            print(f"Row {row_num} - Key mismatch in 'cb': {row1[0]} != {row2[0]}")
+            mismatches.append((row_num, 'cb', row1[0], row2[0], 'N/A'))
+            mismatch_found = True
+            continue
+
+        for i in range(1, len(row1)):
+            val1, val2 = row1[i], row2[i]
+            colname = header1[i]
+            print(f"Checking {colname}:")
+            print(f"  Truth Row {row_num}: {val1}")
+            print(f"  Test Row {row_num}: {val2}")
+
+            try:
+                f1 = float(val1) if val1 else None
+                f2 = float(val2) if val2 else None
+                if f1 is not None and f2 is not None:
+                    tol = tolerances.get(colname, 0.0)
+                    if not math.isclose(f1, f2, abs_tol=tol):
+                        print(f"  --> {f1} does not equal {f2} and is outside of tolerance: {tol}")
+                        mismatches.append((row_num, colname, f1, f2, tol))
+                        mismatch_found = True
+                elif f1 != f2:
+                    print(f"  --> Mismatch: {val1} != {val2}")
+                    mismatches.append((row_num, colname, val1, val2, 'N/A'))
+                    mismatch_found = True
+            except ValueError:
+                if val1 != val2:
+                    print(f"  --> Mismatch: {val1} != {val2}")
+                    mismatches.append((row_num, colname, val1, val2, 'N/A'))
+                    mismatch_found = True
+
+    if mismatch_found:
+        print("\nSummary of mismatches:")
+        for row_num, col, v1, v2, tol in mismatches:
+            print(f"- Row {row_num}, Column {col}: {v1} != {v2} (tolerance: {tol})")
+        print("Comparison failed.")
+        exit(1)
+    else:
+        print("Files match within tolerances.")
+CODE
+    >>>
+
+  runtime {
+    docker: "python:3.9"
+  }
+
+}
+
+
+
