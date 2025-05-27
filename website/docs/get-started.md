@@ -4,10 +4,15 @@ sidebar_position: 1
 
 # Welcome to WARP 
 
-WARP (WDL Analysis Research Pipelines) repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators.
+The Warp Analysis Research Pipelines repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators.
 
 The contents of this repository are open source and released under the [BSD 3-Clause license](https://github.com/broadinstitute/warp/blob/master/LICENSE).
 
+## WARP Philosophy
+
+Our mission is to develop production-grade, cloud-optimized pipelines that serve the needs of large-scale research consortia and the broader scientific community. Since many of these consortia have adopted Terra as their primary computing environment, most WARP pipelines are written in WDL and tuned for optimal performance on Terra. As community needs evolve, WARP will adapt accordingly to support those environments.
+
+We do not position WDL as inherently superior to workflow languages like Nextflow or Snakemake. Rather, we focus on addressing the specific needs of scientific consortia and research communities that prioritize reproducibility, scalability, and seamless integration with the Terra platform. 
 
 ## WARP Overview
 
@@ -33,7 +38,7 @@ Try our pipelines in [Terra](https://app.terra.bio/#workspaces?tagsFilter%5B0%5D
 
 All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad Institute’s Genomics Platform), cemba (pipelines for the BRAIN Initiative) or skylab (pipelines for the BRAIN Initiative and Human Cell Atlas Project).
 
-Each pipeline directory hosts a main workflow WDL that includes a pipeline version number and a corresponding changelog file.
+Each pipeline directory hosts a main workflow (WDL) that includes a pipeline version number and a corresponding changelog file.
 
 Workflows may call additional WDLs, referred to as tasks, that are located in the [tasks](https://github.com/broadinstitute/warp/tree/master/tasks) directory.
 
