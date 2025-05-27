@@ -350,7 +350,6 @@ task STARsoloFastq {
         --soloUMIfiltering MultiGeneUMI_CR \
         --soloCellFilter EmptyDrops_CR
 
-
     # validate the bam with samtools quickcheck
     samtools quickcheck -v Aligned.sortedByCoord.out.bam
     # reheader the BAM
