@@ -179,7 +179,7 @@ task CollectAggregationMetrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
-    memory: "7000 MiB"
+    memory: "18000 MiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
   }

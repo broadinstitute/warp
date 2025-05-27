@@ -1,21 +1,21 @@
 {
   "snm3C.fastq_input_read1": [
-    "gs://broad-gotc-test-storage/snM3C/inputs/plumbing/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L001_R1_001_fastq_R1_0.fastq.gz",
-    "gs://broad-gotc-test-storage/snM3C/inputs/plumbing/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L002_R1_001_fastq_R1_0.fastq.gz",
-    "gs://broad-gotc-test-storage/snM3C/inputs/plumbing/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L003_R1_001_fastq_R1_0.fastq.gz",
-    "gs://broad-gotc-test-storage/snM3C/inputs/plumbing/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L004_R1_001_fastq_R1_0.fastq.gz"
+    "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L001_R1_001_fastq_R1_0.fastq.gz",
+    "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L002_R1_001_fastq_R1_0.fastq.gz",
+    "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L003_R1_001_fastq_R1_0.fastq.gz",
+    "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L004_R1_001_fastq_R1_0.fastq.gz"
   ],
   "snm3C.fastq_input_read2": [
-    "gs://broad-gotc-test-storage/snM3C/inputs/plumbing/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L001_R1_001_fastq_R2_0.fastq.gz",
-    "gs://broad-gotc-test-storage/snM3C/inputs/plumbing/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L002_R1_001_fastq_R2_0.fastq.gz",
-    "gs://broad-gotc-test-storage/snM3C/inputs/plumbing/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L003_R1_001_fastq_R2_0.fastq.gz",
-    "gs://broad-gotc-test-storage/snM3C/inputs/plumbing/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L004_R1_001_fastq_R2_0.fastq.gz"
+    "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L001_R1_001_fastq_R2_0.fastq.gz",
+    "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L002_R1_001_fastq_R2_0.fastq.gz",
+    "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L003_R1_001_fastq_R2_0.fastq.gz",
+    "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L004_R1_001_fastq_R2_0.fastq.gz"
   ],
-  "snm3C.random_primer_indexes": "gs://broad-gotc-test-storage/snM3C/inputs/plumbing/random_index_M16_G13.fa",
+  "snm3C.random_primer_indexes": "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/random_index_M16_G13.fa",
   "snm3C.plate_id": "AD3C_BA17_2027_P1-1-B11",
-  "snm3C.tarred_index_files":"gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38_index_files.tar.gz",
-  "snm3C.chromosome_sizes": "gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38.chrom.sizes",
-  "snm3C.genome_fa": "gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38.fa",
+  "snm3C.tarred_index_files":"gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/index_files/hg38_index_files.tar.gz",
+  "snm3C.chromosome_sizes": "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/index_files/hg38.chrom.sizes",
+  "snm3C.genome_fa": "gs://pd-test-storage-public/snm3C-seq/input/plumbing/miseq_M16_G13/index_files/hg38.fa",
   "snm3C.Hisat_paired_end.cpu_platform" : "Intel Cascade Lake",
   "snm3C.Hisat_single_end.cpu_platform" : "Intel Cascade Lake",
   "snm3C.Merge_sort_analyze.cpu_platform" : "Intel Cascade Lake",

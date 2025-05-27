@@ -1,15 +1,15 @@
 {
   "Optimus.r1_fastq": [
-"gs://broad-gotc-test-storage/Optimus/input/scientific/chemistry_X10_V2/8k_pbmc/fastqs/pbmc8k_S1_L007_R1_001.fastq.gz",
-"gs://broad-gotc-test-storage/Optimus/input/scientific/chemistry_X10_V2/8k_pbmc/fastqs/pbmc8k_S1_L008_R1_001.fastq.gz"
+"gs://pd-test-storage-private/Optimus/input/scientific/chemistry_X10_V2/8k_pbmc/fastqs/pbmc8k_S1_L007_R1_001.fastq.gz",
+"gs://pd-test-storage-private/Optimus/input/scientific/chemistry_X10_V2/8k_pbmc/fastqs/pbmc8k_S1_L008_R1_001.fastq.gz"
   ],
   "Optimus.r2_fastq": [
-"gs://broad-gotc-test-storage/Optimus/input/scientific/chemistry_X10_V2/8k_pbmc/fastqs/pbmc8k_S1_L007_R2_001.fastq.gz",
-"gs://broad-gotc-test-storage/Optimus/input/scientific/chemistry_X10_V2/8k_pbmc/fastqs/pbmc8k_S1_L008_R2_001.fastq.gz"
+"gs://pd-test-storage-private/Optimus/input/scientific/chemistry_X10_V2/8k_pbmc/fastqs/pbmc8k_S1_L007_R2_001.fastq.gz",
+"gs://pd-test-storage-private/Optimus/input/scientific/chemistry_X10_V2/8k_pbmc/fastqs/pbmc8k_S1_L008_R2_001.fastq.gz"
   ],
   "Optimus.i1_fastq": [
-"gs://broad-gotc-test-storage/Optimus/input/scientific/chemistry_X10_V2/8k_pbmc/fastqs/pbmc8k_S1_L007_I1_001.fastq.gz",
-"gs://broad-gotc-test-storage/Optimus/input/scientific/chemistry_X10_V2/8k_pbmc/fastqs/pbmc8k_S1_L008_I1_001.fastq.gz"
+"gs://pd-test-storage-private/Optimus/input/scientific/chemistry_X10_V2/8k_pbmc/fastqs/pbmc8k_S1_L007_I1_001.fastq.gz",
+"gs://pd-test-storage-private/Optimus/input/scientific/chemistry_X10_V2/8k_pbmc/fastqs/pbmc8k_S1_L008_I1_001.fastq.gz"
   ],
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/hg38/v0/star/star_2.7.9a_primary_gencode_human_v27.tar",
   "Optimus.input_id": "8k_pbmc",

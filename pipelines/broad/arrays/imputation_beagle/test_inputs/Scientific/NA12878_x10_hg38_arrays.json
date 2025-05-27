@@ -1,8 +1,8 @@
 {
-    "ImputationBeagle.multi_sample_vcf": "gs://broad-gotc-test-storage/imputation_beagle/scientific/vcfs/NA12878_10_duplicate.merged.cleaned.vcf.gz",
+    "ImputationBeagle.multi_sample_vcf": "gs://pd-test-storage-public/ImputationBeagle/input/scientific/NA12878_x10_hg38_arrays/NA12878_10_duplicate.merged.cleaned.vcf.gz",
     "ImputationBeagle.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
-    "ImputationBeagle.reference_panel_path_prefix": "gs://broad-gotc-test-storage/imputation_beagle/scientific/1000G_HGDP_no_singletons_reference_panel/hgdp.tgp.gwaspy.AN_added.bcf.ac2",
+    "ImputationBeagle.reference_panel_path_prefix": "gs://pd-test-storage-public/ImputationBeagle/input/scientific/NA12878_x10_hg38_arrays/1000G_HGDP_no_singletons_reference_panel/hgdp.tgp.gwaspy.AN_added.bcf.ac2",
     "ImputationBeagle.contigs": ["chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21","chr22"],
-    "ImputationBeagle.genetic_maps_path": "gs://broad-gotc-test-storage/imputation_beagle/scientific/plink-genetic-maps/",
+    "ImputationBeagle.genetic_maps_path": "gs://pd-test-storage-public/ImputationBeagle/input/scientific/NA12878_x10_hg38_arrays/plink-genetic-maps/",
     "ImputationBeagle.output_basename": "scientific_test"
 }
