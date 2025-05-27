@@ -822,7 +822,9 @@ task CompareH5Files {
     set -eo pipefail
     exit_code=0
     
-    sudo apt install hdf5-tools
+    apt update
+    apt install -y hdf5-tools
+
     h5diff ~{test_h5} ~{truth_h5} -o diff_output.txt
 
     echo "H5diff output:"
