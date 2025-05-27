@@ -154,10 +154,6 @@ task CompareSlideTagsTarballContents {
     memory: "20 GiB"
     preemptible: 3
   }
-
-  output {
-    File? comparison_log = "comparison_errors.log"
-  }
 }
 
 
