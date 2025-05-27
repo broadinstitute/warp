@@ -265,6 +265,7 @@ task STARsoloFastq {
   command <<<
     set -euo pipefail
     set -x
+    ulimit -n 10000
 
     UMILen=10
     CBLen=16
@@ -348,6 +349,7 @@ task STARsoloFastq {
         ~{"--soloMultiMappers " + soloMultiMappers} \
         --soloUMIfiltering MultiGeneUMI_CR \
         --soloCellFilter EmptyDrops_CR
+
 
     # validate the bam with samtools quickcheck
     samtools quickcheck -v Aligned.sortedByCoord.out.bam
