@@ -265,6 +265,7 @@ task STARsoloFastq {
   command <<<
     set -euo pipefail
     set -x
+
     ulimit -n 10000
 
     UMILen=10
