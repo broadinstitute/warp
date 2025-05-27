@@ -347,7 +347,8 @@ task STARsoloFastq {
         --soloCellReadStats Standard \
         ~{"--soloMultiMappers " + soloMultiMappers} \
         --soloUMIfiltering MultiGeneUMI_CR \
-        --soloCellFilter EmptyDrops_CR
+        --soloCellFilter EmptyDrops_CR \
+        --ulimit -n 10000
 
     # validate the bam with samtools quickcheck
     samtools quickcheck -v Aligned.sortedByCoord.out.bam
