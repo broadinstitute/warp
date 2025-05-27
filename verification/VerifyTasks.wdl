@@ -825,7 +825,7 @@ task CompareH5Files {
     apt update
     apt install -y hdf5-tools
 
-    h5diff ~{test_h5} ~{truth_h5} -o diff_output.txt
+    h5diff ~{test_h5} ~{truth_h5} > diff_output.txt
 
     echo "H5diff output:"
     # Print the diff output to the console
