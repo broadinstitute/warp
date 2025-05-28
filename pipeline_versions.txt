@@ -7,6 +7,7 @@ Multiome	 6.0.3	25-05-27
 Optimus	 8.0.1	2025-05-27 
 snm3C	 4.0.4	2024-08-06 
 PairedTag	 2.1.2	2025-05-27 
+SlideTags		
 BuildIndices	 4.0.0	2025-01-17 
 IlluminaGenotypingArray	 1.12.24	2024-11-04 
 RNAWithUMIsPipeline	 1.0.18	2024-11-04 
