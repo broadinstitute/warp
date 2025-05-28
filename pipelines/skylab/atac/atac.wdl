@@ -109,9 +109,9 @@ task CreateFragmentFile {
 
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "/dev/null", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
     elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "/dev/null", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
 
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
@@ -154,13 +154,7 @@ task CreateFragmentFile {
     
     atac_data.uns["reference_gtf_file"] = gtf_path
     # calculate tsse metrics
-    #snap.metrics.tsse(atac_data, atac_gtf)
-    # calculate tsse metrics only if fragment data is available
-    if "fragment_paired" in atac_data.obsm or "fragment_single" in atac_data.obsm:
-        snap.metrics.tsse(atac_data, atac_gtf)
-    else:
-        print("Skipping TSSE calculation: fragment data not present in obsm.")
-
+    snap.metrics.tsse(atac_data, atac_gtf)
     # Write new atac file
     atac_data.write_h5ad("~{input_id}.metrics.h5ad")
 
