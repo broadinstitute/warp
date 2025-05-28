@@ -1,3 +1,8 @@
+# 8.0.1
+2025-05-27 (Date of Last Commit)
+
+* Increased the ulimit in the STARsoloFastq task in the StarAlign.wdl to 10000; this does not affect the outputs of the pipeline
+
 # 8.0.0
 2025-04-02 (Date of Last Commit)
 
