@@ -163,71 +163,56 @@ task compare_slidetags_csv {
     File test_csv
   }
 
-   command <<<
+  command <<<
 python3 <<CODE
 import csv
-import math
+import sys
 
 truth_file = "~{truth_csv}"
 test_file = "~{test_csv}"
 
-# Column-specific tolerances
-tolerances = {
-    "cb": 0.0,
-    "umi": 0,
-    "beads": 0,
-    "max": 0
-}
-
+columns_to_compare = ["cb", "umi", "beads", "max"]
 mismatches = []
 
 with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
     reader1 = csv.reader(f1)
     reader2 = csv.reader(f2)
+
     header1 = next(reader1)
     header2 = next(reader2)
 
-    assert header1 == header2, "CSV headers do not match"
+    if header1 != header2:
+        print("ERROR: CSV headers do not match.")
+        print("Truth header:", header1)
+        print("Test header:", header2)
+        sys.exit(1)
 
-    col_indices = {name: idx for idx, name in enumerate(header1) if name in tolerances}
+    col_indices = {name: header1.index(name) for name in columns_to_compare}
 
     row_num = 1
-    mismatch_found = False
     for row1, row2 in zip(reader1, reader2):
         row_num += 1
-        for colname, idx in col_indices.items():
-            val1, val2 = row1[idx], row2[idx]
+        for colname in columns_to_compare:
+            idx = col_indices[colname]
+            val1 = row1[idx]
+            val2 = row2[idx]
+
             print(f"Checking {colname}:")
             print(f"  Truth Row {row_num}: {val1}")
             print(f"  Test Row {row_num}: {val2}")
 
-            try:
-                f1 = float(val1) if val1 else None
-                f2 = float(val2) if val2 else None
-                tol = tolerances[colname]
-                if f1 is not None and f2 is not None:
-                    if not math.isclose(f1, f2, abs_tol=tol):
-                        print(f"  --> {f1} does not equal {f2} and is outside of tolerance: {tol}")
-                        mismatches.append((row_num, colname, f1, f2, tol))
-                        mismatch_found = True
-                elif f1 != f2:
-                    print(f"  --> Mismatch: {val1} != {val2}")
-                    mismatches.append((row_num, colname, val1, val2, 'N/A'))
-                    mismatch_found = True
-            except ValueError:
-                if val1 != val2:
-                    print(f"  --> Mismatch: {val1} != {val2}")
-                    mismatches.append((row_num, colname, val1, val2, 'N/A'))
-                    mismatch_found = True
+            if val1 != val2:
+                print(f"  --> Mismatch: {val1} != {val2}")
+                mismatches.append((row_num, colname, val1, val2))
 
-    if mismatch_found:
-        print("\nSummary of mismatches:")
-        for row_num, col, v1, v2, tol in mismatches:
-            print(f"- Row {row_num}, Column {col}: {v1} != {v2} (tolerance: {tol})")
-        print("Comparison failed.")
-        exit(1)
-    else:
-        print("Files match within tolerances.")
+if mismatches:
+    print("\nSummary of mismatches (exact match expected):")
+    for row_num, col, v1, v2 in mismatches:
+        print(f"- Row {row_num}, Column {col}: {v1} != {v2}")
+    print("Comparison failed.")
+    sys.exit(1)
+else:
+    print("Files match exactly for cb, umi, beads, and max columns.")
 CODE
   >>>
 
@@ -243,78 +228,61 @@ task compare_slidetags_csv2 {
   }
 
   command <<<
-
 python3 <<CODE
 import csv
-import math
+import sys
 
 truth_file = "~{truth_csv}"
 test_file = "~{test_csv}"
 
-# Column-specific tolerances
-tolerances = {
-    "cb": 0.0,
-    "umi": 0,
-    "beads": 0
-}
-
-
+columns_to_compare = ["cb", "umi", "beads"]
 mismatches = []
 
 with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
     reader1 = csv.reader(f1)
     reader2 = csv.reader(f2)
+
     header1 = next(reader1)
     header2 = next(reader2)
 
-    assert header1 == header2, "CSV headers do not match"
+    if header1 != header2:
+        print("ERROR: CSV headers do not match.")
+        print("Truth header:", header1)
+        print("Test header:", header2)
+        sys.exit(1)
 
-    col_indices = {name: idx for idx, name in enumerate(header1) if name in tolerances}
+    col_indices = {name: header1.index(name) for name in columns_to_compare}
 
     row_num = 1
-    mismatch_found = False
     for row1, row2 in zip(reader1, reader2):
         row_num += 1
-        for colname, idx in col_indices.items():
-            val1, val2 = row1[idx], row2[idx]
+        for colname in columns_to_compare:
+            idx = col_indices[colname]
+            val1 = row1[idx]
+            val2 = row2[idx]
+
             print(f"Checking {colname}:")
             print(f"  Truth Row {row_num}: {val1}")
             print(f"  Test Row {row_num}: {val2}")
 
-            try:
-                f1 = float(val1) if val1 else None
-                f2 = float(val2) if val2 else None
-                tol = tolerances[colname]
-                if f1 is not None and f2 is not None:
-                    if not math.isclose(f1, f2, abs_tol=tol):
-                        print(f"  --> {f1} does not equal {f2} and is outside of tolerance: {tol}")
-                        mismatches.append((row_num, colname, f1, f2, tol))
-                        mismatch_found = True
-                elif f1 != f2:
-                    print(f"  --> Mismatch: {val1} != {val2}")
-                    mismatches.append((row_num, colname, val1, val2, 'N/A'))
-                    mismatch_found = True
-            except ValueError:
-                if val1 != val2:
-                    print(f"  --> Mismatch: {val1} != {val2}")
-                    mismatches.append((row_num, colname, val1, val2, 'N/A'))
-                    mismatch_found = True
+            if val1 != val2:
+                print(f"  --> Mismatch: {val1} != {val2}")
+                mismatches.append((row_num, colname, val1, val2))
 
-    if mismatch_found:
-        print("\nSummary of mismatches:")
-        for row_num, col, v1, v2, tol in mismatches:
-            print(f"- Row {row_num}, Column {col}: {v1} != {v2} (tolerance: {tol})")
-        print("Comparison failed.")
-        exit(1)
-    else:
-        print("Files match within tolerances.")
+if mismatches:
+    print("\nSummary of mismatches (exact match expected):")
+    for row_num, col, v1, v2 in mismatches:
+        print(f"- Row {row_num}, Column {col}: {v1} != {v2}")
+    print("Comparison failed.")
+    sys.exit(1)
+else:
+    print("Files match exactly for cb, umi, and beads columns.")
 CODE
-    >>>
+  >>>
 
   runtime {
     docker: "python:3.9"
   }
-
 }
 
 
