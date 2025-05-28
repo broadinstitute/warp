@@ -4,6 +4,7 @@ task generate_positioning {
   input {
     Array[String] rna_paths
     String sb_path
+    String input_id
     Int mem_GiB  = 128
     Int disk_GiB = 128
     Int nthreads = 16
@@ -13,15 +14,17 @@ task generate_positioning {
     set -euo pipefail
     set -x
     echo "<< starting spatial-count >>"
+    
+    Rscript -e "install.packages(c('optparse', 'BiocManager'), repos='https://cloud.r-project.org'); BiocManager::install('IRanges')"
 
     gcloud config set storage/process_count 16 # is this set by user?
     gcloud config set storage/thread_count  2 # is this set by user?
 
-    # Download the scripts -- these need to be changed -- also need to add to docker   
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/ee005109446f58764509ee47ff51c212ce8dabe3/positioning/positioning.R
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/6a78716aa08a9f2506c06844f7e3fd491b03aa8b/positioning/load_matrix.R
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/a7fc86abbdd3d46461c500e7d024315d88a97e9a/positioning/run-positioning.R
-  
+    # Download the scripts -- these need to be changed -- also need to add to docker
+    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/d89176cf21e072fe8b5aad3a1454ad194fca7c9a/slide-tags/run-positioning.R
+    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/d89176cf21e072fe8b5aad3a1454ad194fca7c9a/slide-tags/positioning.R
+    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/d89176cf21e072fe8b5aad3a1454ad194fca7c9a/slide-tags/helpers.R
+
     echo "RNA: ~{sep=' ' rna_paths}"
     echo "SB: ~{sb_path}"
 
@@ -47,12 +50,12 @@ task generate_positioning {
 
     # Download the SB
     echo "Downloading SB:"
-    mkdir SB
-    gcloud storage cp ~{sb_path} SB
+    gcloud storage cp ~{sb_path} .
+    baseSB=`basename ~{sb_path}`
 
     # Run the script
     echo ; echo "Running run-positioning.R"
-    Rscript run-positioning.R RNA SB output
+    Rscript run-positioning.R RNA $baseSB output
 
     # Upload the results
     ls output/* 
@@ -65,19 +68,34 @@ task generate_positioning {
 
     echo; echo "Writing logs:"
     echo; echo "RNA size:"; du -sh RNA
-    echo; echo "SB size:"; du -sh SB
+    echo; echo "SB size:"; du -sh $baseSB
     echo; echo "output size:"; du -sh output
     echo; echo "FREE SPACE:"; df -h
     
     echo "tar files/logs"
     cat stdout stderr > positioning.log
-    tar -zcvf output.tar.gz output
+    
+    # Rename and move files
+    mv output/* .
+    mv summary.pdf ~{input_id}_summary.pdf
+    mv seurat.qs ~{input_id}_seurat.qs
+    mv coords.csv ~{input_id}_coords.csv
+    mv coords2.csv ~{input_id}_coords2.csv
+    
+    ls 
+    tar -zcvf output.tar.gz matrix.csv.gz cb_whitelist.txt spatial_metadata.json
+    mv output.tar.gz ~{input_id}_intermediates.tar.gz
+    mv positioning.log ~{input_id}_positioning.log
     echo "<< completed positioning >>"
   >>>
  
   output {
-    File output_file = "output.tar.gz"
-    File positioning_log = "positioning.log"
+    File seurat_qs = "~{input_id}_seurat.qs"
+    File coords_csv = "~{input_id}_coords.csv"
+    File coords2_csv = "~{input_id}_coords2.csv"
+    File summary_pdf = "~{input_id}_summary.pdf"
+    File intermediates_file = "~{input_id}_intermediates.tar.gz"
+    File positioning_log = "~{input_id}_positioning.log"
   }
   
   runtime {
