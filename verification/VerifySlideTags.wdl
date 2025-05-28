@@ -82,7 +82,7 @@ workflow VerifySlideTags {
               truth_csv = truth_coords_csv
     }
     
-    call compare_slidetags_csv2 as CompareCSV2 {
+    call compare_slidetags_csv as CompareCSV2 {
 	      input:
               test_csv  = test_coords2_csv,
               truth_csv = truth_coords2_csv
@@ -171,7 +171,8 @@ import sys
 truth_file = "~{truth_csv}"
 test_file = "~{test_csv}"
 
-columns_to_compare = ["cb", "umi", "beads", "max"]
+# All possible columns we care about
+desired_columns = ["cb", "umi", "beads", "max"]
 mismatches = []
 
 with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
@@ -187,6 +188,8 @@ with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
         print("Test header:", header2)
         sys.exit(1)
 
+    # Only compare columns that actually exist
+    columns_to_compare = [col for col in desired_columns if col in header1]
     col_indices = {name: header1.index(name) for name in columns_to_compare}
 
     row_num = 1
@@ -206,77 +209,13 @@ with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
                 mismatches.append((row_num, colname, val1, val2))
 
 if mismatches:
-    print("\nSummary of mismatches (exact match expected):")
+    print("\\nSummary of mismatches (exact match expected):")
     for row_num, col, v1, v2 in mismatches:
         print(f"- Row {row_num}, Column {col}: {v1} != {v2}")
     print("Comparison failed.")
     sys.exit(1)
 else:
-    print("Files match exactly for cb, umi, beads, and max columns.")
-CODE
-  >>>
-
-  runtime {
-    docker: "python:3.9"
-  }
-}
-
-task compare_slidetags_csv2 {
-  input {
-    File truth_csv
-    File test_csv
-  }
-
-  command <<<
-python3 <<CODE
-import csv
-import sys
-
-truth_file = "~{truth_csv}"
-test_file = "~{test_csv}"
-
-columns_to_compare = ["cb", "umi", "beads"]
-mismatches = []
-
-with open(truth_file, newline='') as f1, open(test_file, newline='') as f2:
-    reader1 = csv.reader(f1)
-    reader2 = csv.reader(f2)
-
-    header1 = next(reader1)
-    header2 = next(reader2)
-
-    if header1 != header2:
-        print("ERROR: CSV headers do not match.")
-        print("Truth header:", header1)
-        print("Test header:", header2)
-        sys.exit(1)
-
-    col_indices = {name: header1.index(name) for name in columns_to_compare}
-
-    row_num = 1
-    for row1, row2 in zip(reader1, reader2):
-        row_num += 1
-        for colname in columns_to_compare:
-            idx = col_indices[colname]
-            val1 = row1[idx]
-            val2 = row2[idx]
-
-            print(f"Checking {colname}:")
-            print(f"  Truth Row {row_num}: {val1}")
-            print(f"  Test Row {row_num}: {val2}")
-
-            if val1 != val2:
-                print(f"  --> Mismatch: {val1} != {val2}")
-                mismatches.append((row_num, colname, val1, val2))
-
-if mismatches:
-    print("\nSummary of mismatches (exact match expected):")
-    for row_num, col, v1, v2 in mismatches:
-        print(f"- Row {row_num}, Column {col}: {v1} != {v2}")
-    print("Comparison failed.")
-    sys.exit(1)
-else:
-    print("Files match exactly for cb, umi, and beads columns.")
+    print("Files match exactly for columns:", ", ".join(columns_to_compare))
 CODE
   >>>
 
