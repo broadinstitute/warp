@@ -68,6 +68,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl
 
+  - name: rnaseq_aou
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/rnaseq_aou.wdl
+
   - name: RNAWithUMIsPipeline
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl
@@ -143,6 +147,10 @@ workflows:
   - name: TestPairedTag
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestPairedTag.wdl
+
+  - name: TestPeakCalling
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestPeakCalling.wdl
 
   - name: TestReblockGVCF
     subclass: WDL
