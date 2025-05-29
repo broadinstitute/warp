@@ -1,54 +1,109 @@
 version 1.0
 
-# This version of ATAC is creating a fragment file from the aligned bam file. This is NOT intended to be merged into WARP.
-
 workflow ATAC {
-  meta {
-    description: "Processing for single-cell ATAC-seq data from the level of raw fastq reads. This is the first step of the multiome pipeline. ATAC-seq (Assay for Transposase-Accessible Chromatin using sequencing) is a technique used in molecular biology to assess genome-wide chromatin accessibility. This pipeline processes 10x Genomics Multiome ATAC FASTQ files."
-    allowNestedInputs: true
-  }
-
   input {
-    # Bam file to create fragment file from
-    File aligned_bam
-    # Text file containing chrom_sizes for genome build (i.e. hg38)
+    File fragment_file
     File chrom_sizes
-    #File for annotations for calculating ATAC TSSE
     File annotations_gtf
-    # Option for running files with preindex
-    Boolean preindex = false
-    # Additional library aliquot ID
     String? atac_nhash_id
-    #Expected cells from library preparation
     Int atac_expected_cells = 3000
-    # Output prefix/base name for all intermediate files and pipeline outputs
     String input_id
   }
 
   String pipeline_version = "n/a"
 
-  call CreateFragmentFile {
+  # Call GenerateAtacMetrics with the correct fragment file
+  call GenerateAtacMetrics {
     input:
-      bam = aligned_bam,
+      fragment_file = fragment_file,
       chrom_sizes = chrom_sizes,
       annotations_gtf = annotations_gtf,
-      preindex = preindex,
       docker_path = "us.gcr.io/broad-gotc-prod/snapatac2:2.0.0",
       atac_nhash_id = atac_nhash_id,
       atac_expected_cells = atac_expected_cells,
       input_id = input_id
   }
-    
+
   output {
-    File bam_aligned_output = aligned_bam
-    #File fragment_file = CreateFragmentFile.fragment_file
-    #File fragment_file_index = CreateFragmentFile.fragment_file_index
-    File snap_metrics = CreateFragmentFile.Snap_metrics
-    File library_metrics_file = CreateFragmentFile.atac_library_metrics
+    File Snap_metrics = GenerateAtacMetrics.Snap_metrics
+    File library_metrics_file = GenerateAtacMetrics.atac_library_metrics
+  }
+}
+task GenerateAtacMetrics {
+  input {
+    File fragment_file
+    File annotations_gtf
+    File chrom_sizes
+    Int disk_size = 500
+    Int mem_size = 64
+    Int nthreads = 4
+    String cpuPlatform = "Intel Cascade Lake"
+    String docker_path
+    String atac_nhash_id = ""
+    String input_id
+    Int atac_expected_cells = 3000
+    String gtf_path = annotations_gtf
+  }
+
+  command <<<
+    set -euo pipefail
+    set -x
+
+    python3 <<CODE
+    import snapatac2 as snap
+    import scanpy as sc
+    import numpy as np
+    import anndata as ad
+    from collections import OrderedDict
+    import csv
+
+    # Load existing fragment file
+    atac_data = snap.read_fragments("~{fragment_file}", is_paired=True)
+
+    # Add metadata
+    atac_data.uns['NHashID'] = "~{atac_nhash_id}"
+    atac_data.uns["reference_gtf_file"] = "~{gtf_path}"
+
+    # Calculate TSSE
+    snap.metrics.tsse(atac_data, "~{annotations_gtf}")
+
+    # Count cells
+    number_of_cells = atac_data.obs.shape[0]
+    atac_percent_target = number_of_cells / ~{atac_expected_cells} * 100
+
+    # Prepare metrics dictionary
+    data = OrderedDict({
+        "NHashID": "~{atac_nhash_id}",
+        "number_of_cells": number_of_cells,
+        "atac_percent_target": atac_percent_target
+    })
+
+    # Write CSV
+    csv_file_path = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
+    with open(csv_file_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(data.items())
+
+    # Write .h5ad
+    atac_data.write_h5ad("~{input_id}.metrics.h5ad")
+    CODE
+  >>>
+
+  runtime {
+    docker: docker_path
+    disks: "local-disk ${disk_size} SSD"
+    memory: "${mem_size} GiB"
+    cpu: nthreads
+    cpuPlatform: cpuPlatform
+  }
+
+  output {
+    File Snap_metrics = "~{input_id}.metrics.h5ad"
+    File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
   }
 }
 
-# This task creates a fragment file from the aligned bam file. It also calculates the TSSE metrics and library metrics for the fragment file.
+  # This task creates a fragment file from the aligned bam file. It also calculates the TSSE metrics and library metrics for the fragment file.
 task CreateFragmentFile {
   input {
     File bam
@@ -77,7 +132,7 @@ task CreateFragmentFile {
 
   command <<<
     set -euo pipefail
-    set -x 
+    set -x
 
     python3 <<CODE
 
@@ -113,9 +168,9 @@ task CreateFragmentFile {
     elif preindex == "false":
       data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
 
-    # Add NHashID to metrics 
+    # Add NHashID to metrics
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
-    
+
     # Calculate atac percent target
     print("Calculating percent target")
     number_of_cells = data['Cells']['Number_of_cells']
@@ -135,7 +190,7 @@ task CreateFragmentFile {
 
     # Convert the flattened keys to lowercase (except for 'NHashID')
     flattened_data = [(metric if metric == 'NHashID' else str(metric).lower(), value) for metric, value in flattened_data]
-    
+
     # Write to CSV
     csv_file_path = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
     with open(csv_file_path, mode='w', newline='') as file:
@@ -151,7 +206,7 @@ task CreateFragmentFile {
     # Add GTF to uns field
     # Original path from args.annotation_file
     gtf_path = "~{gtf_path}"  # e.g., 'gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf'
-    
+
     atac_data.uns["reference_gtf_file"] = gtf_path
     # calculate tsse metrics
     snap.metrics.tsse(atac_data, atac_gtf)
@@ -159,14 +214,14 @@ task CreateFragmentFile {
     atac_data.write_h5ad("~{input_id}.metrics.h5ad")
 
     CODE
-    
+
     # sorting the file
-    #echo "Sorting file"
-    #sort -k1,1V -k2,2n "~{input_id}.fragments.tsv" > "~{input_id}.fragments.sorted.tsv"
-    #echo "Starting bgzip"
-    #bgzip "~{input_id}.fragments.sorted.tsv"
-    #echo "Starting tabix"
-    #tabix -s 1 -b 2 -e 3 -C "~{input_id}.fragments.sorted.tsv.gz"
+    echo "Sorting file"
+    sort -k1,1V -k2,2n "~{input_id}.fragments.tsv" > "~{input_id}.fragments.sorted.tsv"
+    echo "Starting bgzip"
+    bgzip "~{input_id}.fragments.sorted.tsv"
+    echo "Starting tabix"
+    tabix -s 1 -b 2 -e 3 -C "~{input_id}.fragments.sorted.tsv.gz"
   >>>
 
   runtime {
@@ -178,10 +233,9 @@ task CreateFragmentFile {
   }
 
   output {
-    #File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
-    #File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
+    File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
+    File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
     File Snap_metrics = "~{input_id}.metrics.h5ad"
     File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
   }
 }
-
