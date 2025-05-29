@@ -55,7 +55,7 @@ workflow BuildIndices {
       input_files = [annotations_gtf, genome_fa, biotypes],
       output_files = [
       BuildStarSingleNucleus.star_index,
-      BuildStarSingleNucleus.modified_annotation_gtf,
+      #BuildStarSingleNucleus.modified_annotation_gtf,
       CalculateChromosomeSizes.chrom_sizes,
       BuildBWAreference.reference_bundle
       ]
@@ -143,7 +143,7 @@ task BuildStarSingleNucleus {
         fi
         set -eo pipefail
     fi
-
+'''
     if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
     then
         echo "marmoset detected, running marmoset GTF modification"
@@ -162,6 +162,7 @@ task BuildStarSingleNucleus {
             --output-gtf ~{annotation_gtf_modified} \
             --biotypes ~{biotypes}
     fi
+  '''
     # python3 /script/modify_gtf.py  \
     # --input-gtf ~{annotation_gtf} \
     # --output-gtf ~{annotation_gtf_modified} \
@@ -171,7 +172,7 @@ task BuildStarSingleNucleus {
     STAR --runMode genomeGenerate \
     --genomeDir star \
     --genomeFastaFiles ~{genome_fa} \
-    --sjdbGTFfile ~{annotation_gtf_modified} \
+    --sjdbGTFfile ~{annotation_gtf} \
     --sjdbOverhang 100 \
     --runThreadN 16
 
@@ -181,7 +182,7 @@ task BuildStarSingleNucleus {
 
   output {
     File star_index = star_index_name
-    File modified_annotation_gtf = annotation_gtf_modified
+    #File modified_annotation_gtf = annotation_gtf_modified
   }
 
   runtime {
