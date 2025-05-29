@@ -50,50 +50,50 @@ workflow ATAC {
     set -x
 
 python3 <<CODE
+import snapatac2.preprocessing as pp
 import snapatac2 as snap
-import scanpy as sc
 import anndata as ad
-import csv
+import numpy as np
 from collections import OrderedDict
+import csv
 
+# Read chrom sizes into dict
 chrom_size_dict = {}
-with open("~{chrom_sizes}", 'r') as f:
+with open("~{chrom_sizes}", "r") as f:
     for line in f:
         chrom, size = line.strip().split()
         chrom_size_dict[chrom] = int(size)
 
-    # Import fragment file into AnnData
-adata = snap.pp.import_data(
+# Run metrics pipeline
+data = pp.recipe_10x_metrics(
     fragment_file="~{fragment_file}",
+    output_file="~{input_id}.metrics.h5ad",
+    is_paired=True,
+    barcode_tag="CB",
     chrom_sizes=chrom_size_dict,
-    sorted_by_barcode=False
+    gene_anno="~{annotations_gtf}",
+    peaks=None  # or provide peaks if available
 )
 
+# Add NHashID and percent target
+data["NHashID"] = "~{atac_nhash_id}"
+number_of_cells = data["Cells"]["Number_of_cells"]
+data["Cells"]["atac_percent_target"] = number_of_cells / ~{atac_expected_cells} * 100
 
-# Calculate TSSE
-snap.metrics.tsse(adata, "~{annotations_gtf}")
+# Flatten dictionary
+flattened_data = []
+for category, metrics in data.items():
+    if isinstance(metrics, dict):
+        for metric, value in metrics.items():
+            flattened_data.append((metric, value))
+    else:
+        flattened_data.append((category, metrics))
 
-# Add metadata
-adata.uns["NHashID"] = "~{atac_nhash_id}"
-adata.uns["reference_gtf_file"] = "~{annotations_gtf}"
-
-# Write H5AD
-adata.write_h5ad("~{input_id}.metrics.h5ad")
-
-# Generate metrics
-number_of_cells = adata.n_obs
-atac_percent_target = number_of_cells / ~{atac_expected_cells} * 100
-
-# Write metrics CSV
-metrics = OrderedDict({
-    "NHashID": "~{atac_nhash_id}",
-    "number_of_cells": number_of_cells,
-    "atac_percent_target": atac_percent_target
-})
-
-with open("~{input_id}_~{atac_nhash_id}_library_metrics.csv", "w", newline="") as f:
-    writer = csv.writer(f)
-    writer.writerows(metrics.items())
+# Write CSV
+csv_file_path = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
+with open(csv_file_path, mode="w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerows(flattened_data)
 CODE
   >>>
 
