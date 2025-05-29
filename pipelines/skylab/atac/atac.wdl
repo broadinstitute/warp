@@ -29,7 +29,8 @@ workflow ATAC {
     File library_metrics_file = GenerateAtacMetrics.atac_library_metrics
   }
 }
-task GenerateAtacMetrics {
+
+  task GenerateAtacMetrics {
   input {
     File fragment_file
     File annotations_gtf
@@ -42,51 +43,51 @@ task GenerateAtacMetrics {
     String atac_nhash_id = ""
     String input_id
     Int atac_expected_cells = 3000
-    String gtf_path = annotations_gtf
   }
 
   command <<<
     set -euo pipefail
     set -x
 
-    python3 <<CODE
-    import snapatac2 as snap
-    import scanpy as sc
-    import numpy as np
-    import anndata as ad
-    from collections import OrderedDict
-    import csv
+python3 <<CODE
+import snapatac2 as snap
+import scanpy as sc
+import anndata as ad
+import csv
+from collections import OrderedDict
 
-    # Load existing fragment file
-    atac_data = snap.read_fragments("~{fragment_file}", is_paired=True)
+# Load existing fragment file
+adata = snap.read_fragment(
+    path="~{fragment_file}",
+    chrom_sizes="~{chrom_sizes}",
+    barcode_tag="CB"
+)
 
-    # Add metadata
-    atac_data.uns['NHashID'] = "~{atac_nhash_id}"
-    atac_data.uns["reference_gtf_file"] = "~{gtf_path}"
+# Calculate TSSE
+snap.metrics.tsse(adata, "~{annotations_gtf}")
 
-    # Calculate TSSE
-    snap.metrics.tsse(atac_data, "~{annotations_gtf}")
+# Add metadata
+adata.uns["NHashID"] = "~{atac_nhash_id}"
+adata.uns["reference_gtf_file"] = "~{annotations_gtf}"
 
-    # Count cells
-    number_of_cells = atac_data.obs.shape[0]
-    atac_percent_target = number_of_cells / ~{atac_expected_cells} * 100
+# Save metrics h5ad
+adata.write_h5ad("~{input_id}.metrics.h5ad")
 
-    # Prepare metrics dictionary
-    data = OrderedDict({
-        "NHashID": "~{atac_nhash_id}",
-        "number_of_cells": number_of_cells,
-        "atac_percent_target": atac_percent_target
-    })
+# Collect simple summary metrics
+number_of_cells = adata.n_obs
+atac_percent_target = number_of_cells / ~{atac_expected_cells} * 100
 
-    # Write CSV
-    csv_file_path = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
-    with open(csv_file_path, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(data.items())
+metrics = OrderedDict({
+    "NHashID": "~{atac_nhash_id}",
+    "number_of_cells": number_of_cells,
+    "atac_percent_target": atac_percent_target
+})
 
-    # Write .h5ad
-    atac_data.write_h5ad("~{input_id}.metrics.h5ad")
-    CODE
+# Write CSV
+with open("~{input_id}_~{atac_nhash_id}_library_metrics.csv", "w", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerows(metrics.items())
+CODE
   >>>
 
   runtime {
@@ -102,6 +103,7 @@ task GenerateAtacMetrics {
     File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
   }
 }
+
 
   # This task creates a fragment file from the aligned bam file. It also calculates the TSSE metrics and library metrics for the fragment file.
 task CreateFragmentFile {
