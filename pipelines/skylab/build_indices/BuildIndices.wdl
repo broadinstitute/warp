@@ -55,7 +55,6 @@ workflow BuildIndices {
       input_files = [annotations_gtf, genome_fa, biotypes],
       output_files = [
       BuildStarSingleNucleus.star_index,
-      #BuildStarSingleNucleus.modified_annotation_gtf,
       CalculateChromosomeSizes.chrom_sizes,
       BuildBWAreference.reference_bundle
       ]
