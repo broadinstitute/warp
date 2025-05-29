@@ -58,9 +58,10 @@ from collections import OrderedDict
 
 # Import fragment file into AnnData
 adata = snap.pp.import_data(
-    "~{fragment_file}",
+    fragment_file="~{fragment_file}",
     chrom_sizes="~{chrom_sizes}",
-    sorted_by_barcode=False
+    is_paired=True,
+    barcode_tag="CB"  # TODO or "BB" if your barcodes are indexed
 )
 
 # Calculate TSSE
