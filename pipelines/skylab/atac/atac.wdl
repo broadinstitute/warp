@@ -56,13 +56,20 @@ import anndata as ad
 import csv
 from collections import OrderedDict
 
-# Import fragment file into AnnData
+chrom_size_dict = {}
+with open("~{chrom_sizes}", 'r') as f:
+    for line in f:
+        chrom, size = line.strip().split()
+        chrom_size_dict[chrom] = int(size)
+
+    # Import fragment file into AnnData
 adata = snap.pp.import_data(
     fragment_file="~{fragment_file}",
-    chrom_sizes="~{chrom_sizes}",
+    chrom_sizes=chrom_size_dict,
     is_paired=True,
-    barcode_tag="CB"  # TODO or "BB" if your barcodes are indexed
+    barcode_tag="CB"
 )
+
 
 # Calculate TSSE
 snap.metrics.tsse(adata, "~{annotations_gtf}")
