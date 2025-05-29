@@ -51,33 +51,33 @@ workflow ATAC {
 
 python3 <<CODE
 import snapatac2 as snap
-import snapatac2.preprocessing as pp
 import scanpy as sc
 import anndata as ad
 import csv
 from collections import OrderedDict
 
-# Load fragment file
-adata = pp.import_fragments(
-    path="~{fragment_file}",
+# Import fragment file into AnnData
+adata = snap.pp.import_data(
+    "~{fragment_file}",
     chrom_sizes="~{chrom_sizes}",
-    is_paired=True
+    sorted_by_barcode=False
 )
 
-# Compute TSSE
+# Calculate TSSE
 snap.metrics.tsse(adata, "~{annotations_gtf}")
 
 # Add metadata
 adata.uns["NHashID"] = "~{atac_nhash_id}"
 adata.uns["reference_gtf_file"] = "~{annotations_gtf}"
 
-# Save metrics H5AD file
+# Write H5AD
 adata.write_h5ad("~{input_id}.metrics.h5ad")
 
-# Compute and export library metrics
+# Generate metrics
 number_of_cells = adata.n_obs
 atac_percent_target = number_of_cells / ~{atac_expected_cells} * 100
 
+# Write metrics CSV
 metrics = OrderedDict({
     "NHashID": "~{atac_nhash_id}",
     "number_of_cells": number_of_cells,
