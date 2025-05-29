@@ -66,8 +66,7 @@ with open("~{chrom_sizes}", 'r') as f:
 adata = snap.pp.import_data(
     fragment_file="~{fragment_file}",
     chrom_sizes=chrom_size_dict,
-    is_paired=True,
-    barcode_tag="CB"
+    sorted_by_barcode=False
 )
 
 
