@@ -238,12 +238,16 @@ task JoinMultiomeBarcodes {
     File gex_whitelist
     File atac_whitelist
 
+    String input_gtf
+    String input_bwa_reference
+
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
     Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 8) + 10000
     Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 8) + 100
     String docker_path
   }
+
   String gex_base_name = basename(gex_h5ad, ".h5ad")
   String atac_base_name = basename(atac_h5ad, ".h5ad")
   String atac_fragment_base = basename(atac_fragment, ".sorted.tsv.gz")
@@ -257,7 +261,7 @@ task JoinMultiomeBarcodes {
   }
 
   command <<<
-    set -e pipefail
+    set -euo pipefail
 
     # decompress the bgzipped fragment file
     echo "Moving fragment file for bgzipping"
@@ -266,75 +270,62 @@ task JoinMultiomeBarcodes {
     bgzip -d "~{atac_fragment_base}.sorted.tsv.gz"
     echo "Done decompressing"
 
-
     python3 <<CODE
+    import anndata as ad
+    import pandas as pd
 
-    # set parameters
+    # Input paths
     atac_h5ad = "~{atac_h5ad}"
     atac_fragment = "~{atac_fragment_base}.sorted.tsv"
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
 
-    # import anndata to manipulate h5ad files
-    import anndata as ad
-    import pandas as pd
-    import snapatac2 as snap
-    print("Reading ATAC h5ad:")
-    print("~{atac_h5ad}")
-    print("Read ATAC fragment file:")
-    print(atac_fragment)
-    print("Reading Optimus h5ad:")
-    print("~{gex_h5ad}")
-    atac_data = ad.read_h5ad("~{atac_h5ad}")
-    gex_data = ad.read_h5ad("~{gex_h5ad}")
-    atac_tsv = pd.read_csv(atac_fragment, sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
-    print("Printing ATAC fragment tsv")
-    print(atac_tsv)
-    whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
-    whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
+    # Read files
+    print("Reading ATAC h5ad")
+    atac_data = ad.read_h5ad(atac_h5ad)
+    print("Reading GEX h5ad")
+    gex_data = ad.read_h5ad(gex_h5ad)
+    print("Reading ATAC fragment file")
+    atac_tsv = pd.read_csv(atac_fragment, sep="\\t", names=["chr", "start", "stop", "barcode", "n_reads"])
+    whitelist_gex = pd.read_csv(gex_whitelist, header=None, names=["gex_barcodes"])
+    whitelist_atac = pd.read_csv(atac_whitelist, header=None, names=["atac_barcodes"])
 
-    # get dataframes
-    df_atac = atac_data.obs
-    df_gex = gex_data.obs
-    print(df_atac)
-    print(df_gex)
+    # Combine whitelist into mapping
+    df_map = pd.concat([whitelist_gex, whitelist_atac], axis=1)
+    df_map_gex = df_map.set_index("gex_barcodes")
+    df_map_atac = df_map.set_index("atac_barcodes")
 
-    # Idenitfy the barcodes in the whitelist that match barcodes in datasets
-    print("Printing whitelist_gex")
-    print(whitelist_gex[1:10])
+    # Join to h5ads
+    atac_data.obs = atac_data.obs.join(df_map_atac)
+    atac_data.obs.index.name = "atac_barcodes"
+    gex_data.obs = gex_data.obs.join(df_map_gex)
+    gex_data.obs.index.name = "gex_barcodes"
 
-    df_all = pd.concat([whitelist_gex,whitelist_atac], axis=1)
-    df_both_gex = df_all.copy()
-    df_both_atac = df_all.copy()
-    df_both_atac.set_index("atac_barcodes", inplace=True)
-    df_both_gex.set_index("gex_barcodes", inplace=True)
-    df_atac = atac_data.obs.join(df_both_atac)
-    df_gex = gex_data.obs.join(df_both_gex)
-    df_fragment = pd.merge(atac_tsv, df_both_atac, left_on='barcode', right_index=True, how='left')
-    # set atac_data.obs to new dataframe
-    print("Setting ATAC obs to new dataframe")
-    atac_data.obs = df_atac
-    #rename ATAC matrix 'index' to atac_barcodes
-    atac_data.obs.index.name = 'atac_barcodes'
-    # set gene_data.obs to new dataframe
-    print("Setting Optimus obs to new dataframe")
-    gex_data.obs = df_gex
+    # Modify fragment file to use gex barcode
+    atac_tsv["atac_barcodes"] = atac_tsv["barcode"]
+    atac_tsv.drop(columns=["barcode"], inplace=True)
+    df_fragment = pd.merge(atac_tsv, df_map_atac, left_on="atac_barcodes", right_index=True, how="left")
+    df_fragment.rename(columns={"gex_barcodes": "barcode"}, inplace=True)
+    df_fragment = df_fragment[["chr", "start", "stop", "barcode", "n_reads", "atac_barcodes"]]
 
-    # write out the files
+    # Write outputs
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
-    df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
+    df_fragment.to_csv("~{atac_fragment_base}.body.tsv", sep="\\t", index=False, header=False)
     CODE
-    
-    # sorting the file
+
+    # Add header with reference info to fragment file
+    echo -e "# Reference genome is ~{input_bwa_reference}\\n# Reference GTF is ~{input_gtf}" > header.txt
+    cat header.txt ~{atac_fragment_base}.body.tsv > ~{atac_fragment_base}.tsv
+
+    # Sort and compress the fragment file
     echo "Sorting file"
     sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
-    echo "Starting bgzip"
+    echo "Compressing with bgzip"
     bgzip "~{atac_fragment_base}.sorted.tsv"
-    echo "Starting tabix"
+    echo "Indexing with tabix"
     tabix -s 1 -b 2 -e 3 -C "~{atac_fragment_base}.sorted.tsv.gz"
-
   >>>
 
   runtime {
@@ -351,6 +342,7 @@ task JoinMultiomeBarcodes {
     File atac_fragment_tsv_index = "~{atac_fragment_base}.sorted.tsv.gz.csi"
   }
 }
+
 
 task SlideseqH5adGeneration {
 

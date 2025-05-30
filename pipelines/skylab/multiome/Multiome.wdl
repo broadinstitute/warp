@@ -136,7 +136,9 @@ workflow Multiome {
             gex_h5ad = Optimus.h5ad_output_file,
             gex_whitelist = gex_whitelist,
             atac_whitelist = atac_whitelist,
-            atac_fragment = Atac.fragment_file
+            atac_fragment = Atac.fragment_file,
+            input_gtf = annotations_gtf,
+            input_bwa_reference = tar_bwa_reference
     }
 
     if (run_peak_calling) {
