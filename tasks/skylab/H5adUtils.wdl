@@ -315,13 +315,14 @@ task JoinMultiomeBarcodes {
     df_fragment.to_csv("~{atac_fragment_base}.body.tsv", sep="\\t", index=False, header=False)
     CODE
 
-    # Add header with reference info to fragment file
-    echo -e "# Reference genome is ~{input_bwa_reference}\\n# Reference GTF is ~{input_gtf}" > header.txt
-    cat header.txt ~{atac_fragment_base}.body.tsv > ~{atac_fragment_base}.tsv
+    # Sort fragment body
+    echo "Sorting fragment body"
+    sort -k1,1V -k2,2n "~{atac_fragment_base}.body.tsv" > "~{atac_fragment_base}.sorted_body.tsv"
 
-    # Sort and compress the fragment file
-    echo "Sorting file"
-    sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
+    # Prepend header AFTER sorting
+    echo -e "# Reference genome is ~{input_bwa_reference}\\n# Reference GTF is ~{input_gtf}" > header.txt
+    cat header.txt ~{atac_fragment_base}.sorted_body.tsv > "~{atac_fragment_base}.sorted.tsv"
+
     echo "Compressing with bgzip"
     bgzip "~{atac_fragment_base}.sorted.tsv"
     echo "Indexing with tabix"
