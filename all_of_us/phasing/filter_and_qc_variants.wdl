@@ -202,16 +202,16 @@ task FilterAndQCVariants {
 
         #### TEST:  Make sure that this docker image is configured for python3
         if which python3 > /dev/null 2>&1; then
-        pt3="$(which python3)"
-        echo "** python3 located at $pt3"
-        echo "** magic: $(file $pt3)"
-        echo "** Version info:"
-        echo "$(python3 -V)"
-        echo "** -c test"
-        python3 -c "print('hello world')"
+            pt3="$(which python3)"
+            echo "** python3 located at $pt3"
+            echo "** magic: $(file $pt3)"
+            echo "** Version info:"
+            echo "$(python3 -V)"
+            echo "** -c test"
+            python3 -c "print('hello world')"
         else
-        echo "!! No 'python3' in path."
-        exit 1
+            echo "!! No 'python3' in path."
+            exit 1
         fi
         #### END TEST
 
@@ -229,51 +229,51 @@ task FilterAndQCVariants {
         script_path = "~{submission_script}"
 
         with open("account.txt", "r") as account_file:
-        account = account_file.readline().strip()
+            account = account_file.readline().strip()
         print("account: " + account)
 
         try:
-        cluster_start_cmd = "hailctl dataproc start --master-machine-type {} --master-memory-fraction ~{master_memory_fraction} --worker-machine-type {} --num-workers ~{num_workers} --num-preemptible-workers ~{num_preemptible_workers} --region {} --project {} --service-account {} --num-master-local-ssds 1 --num-worker-local-ssds 1 --max-idle=60m --max-age=~{time_to_live_minutes}m --subnet={} {}".format("~{master_machine_type}", "~{worker_machine_type}", "~{region}", "~{gcs_project}", account, "projects/~{gcs_project}/regions/~{region}/subnetworks/~{gcs_subnetwork_name}", cluster_name)
-        print("Starting cluster...")
-        print(cluster_start_cmd)
-        f = os.popen(cluster_start_cmd)
-        f.read()
-        if (f.close() != None):
-        raise Exception("Failed to start cluster sucessfully")
+            cluster_start_cmd = "hailctl dataproc start --master-machine-type {} --master-memory-fraction ~{master_memory_fraction} --worker-machine-type {} --num-workers ~{num_workers} --num-preemptible-workers ~{num_preemptible_workers} --region {} --project {} --service-account {} --num-master-local-ssds 1 --num-worker-local-ssds 1 --max-idle=60m --max-age=~{time_to_live_minutes}m --subnet={} {}".format("~{master_machine_type}", "~{worker_machine_type}", "~{region}", "~{gcs_project}", account, "projects/~{gcs_project}/regions/~{region}/subnetworks/~{gcs_subnetwork_name}", cluster_name)
+            print("Starting cluster...")
+            print(cluster_start_cmd)
+            f = os.popen(cluster_start_cmd)
+            f.read()
+            if (f.close() != None):
+                raise Exception("Failed to start cluster sucessfully")
 
-        cluster_client = dataproc.ClusterControllerClient(
-        client_options={"api_endpoint": f"~{region}-dataproc.googleapis.com:443"}
-        )
+            cluster_client = dataproc.ClusterControllerClient(
+                client_options={"api_endpoint": f"~{region}-dataproc.googleapis.com:443"}
+            )
 
-        for cluster in cluster_client.list_clusters(request={"project_id": "~{gcs_project}", "region": "~{region}"}):
-        if cluster.cluster_name == cluster_name:
-        cluster_temp_bucket = cluster.config.temp_bucket
+            for cluster in cluster_client.list_clusters(request={"project_id": "~{gcs_project}", "region": "~{region}"}):
+                if cluster.cluster_name == cluster_name:
+                    cluster_temp_bucket = cluster.config.temp_bucket
 
-        #### THIS IS WHERE YOU CALL YOUR SCRIPT AND COPY THE OUTPUT LOCALLY (so that it can get back into WDL-space)
-        submit_cmd = f'''gcloud dataproc jobs submit pyspark {script_path} \
-        --cluster={cluster_name} --project ~{gcs_project} --region=~{region} --account {account} --driver-log-levels root=WARN -- \
-        --input_aou_vds_url ~{input_aou_vds_url} \
-        --output_aou_vcf_url ~{output_aou_vcf_url} \
-        --output_aou_vcf_header_url ~{output_aou_vcf_header_url} \
-        --output_report_url ~{output_report_url} \
-        --contig ~{contig} \
-        --temp_bucket gs://{cluster_temp_bucket}/{cluster_name}'''
+                    #### THIS IS WHERE YOU CALL YOUR SCRIPT AND COPY THE OUTPUT LOCALLY (so that it can get back into WDL-space)
+                    submit_cmd = f'''gcloud dataproc jobs submit pyspark {script_path} \
+                    --cluster={cluster_name} --project ~{gcs_project} --region=~{region} --account {account} --driver-log-levels root=WARN -- \
+                    --input_aou_vds_url ~{input_aou_vds_url} \
+                    --output_aou_vcf_url ~{output_aou_vcf_url} \
+                    --output_aou_vcf_header_url ~{output_aou_vcf_header_url} \
+                    --output_report_url ~{output_report_url} \
+                    --contig ~{contig} \
+                    --temp_bucket gs://{cluster_temp_bucket}/{cluster_name}'''
 
-        print("Running: " + submit_cmd)
-        f = os.popen(submit_cmd)
-        f.read()
-        if (f.close() != None):
-        raise Exception("Failed to submit cluster job sucessfully")
-        ###########
+                    print("Running: " + submit_cmd)
+                    f = os.popen(submit_cmd)
+                    f.read()
+                    if (f.close() != None):
+                        raise Exception("Failed to submit cluster job sucessfully")
+                    ###########
 
-        break
+                    break
 
         except Exception as e:
-        print(e)
-        raise
+            print(e)
+            raise
         finally:
-        print(f'Stopping cluster: {cluster_name}')
-        os.popen("gcloud dataproc clusters delete --project {} --region {} --account {} {}".format("~{gcs_project}", "~{region}", account, cluster_name)).read()
+            print(f'Stopping cluster: {cluster_name}')
+            os.popen("gcloud dataproc clusters delete --project {} --region {} --account {} {}".format("~{gcs_project}", "~{region}", account, cluster_name)).read()
 
         EOF
 
