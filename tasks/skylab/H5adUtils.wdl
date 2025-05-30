@@ -326,6 +326,7 @@ task JoinMultiomeBarcodes {
     bgzip "~{atac_fragment_base}.sorted.tsv"
     echo "Indexing with tabix"
     tabix -s 1 -b 2 -e 3 -C "~{atac_fragment_base}.sorted.tsv.gz"
+
   >>>
 
   runtime {
