@@ -208,7 +208,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
 
-  - name: vds_to_vcf.wdl
+  - name: vds_to_vcf
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/vds_to_vcf.wdl
   
