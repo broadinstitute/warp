@@ -3,14 +3,14 @@
     "sample_name": "CHMI_CHMI3_Nex1",
     "base_file_name": "CHMI_CHMI3_Nex1",
     "flowcell_unmapped_bams": [
-      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.1.unmapped.bam",
-      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.2.unmapped.bam",
-      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.3.unmapped.bam",
-      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.4.unmapped.bam",
-      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.5.unmapped.bam",
-      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.6.unmapped.bam",
-      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.7.unmapped.bam",
-      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.8.unmapped.bam"
+      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.1.unmapped.bam",
+      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.2.unmapped.bam",
+      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.3.unmapped.bam",
+      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.4.unmapped.bam",
+      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.5.unmapped.bam",
+      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.6.unmapped.bam",
+      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.7.unmapped.bam",
+      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C1963.CHMI_CHMI3_Nex1/HHM2CCCXX.8.unmapped.bam"
     ],
     "final_gvcf_base_name": "CHMI_CHMI3_Nex1",
     "unmapped_bam_suffix": ".unmapped.bam"
