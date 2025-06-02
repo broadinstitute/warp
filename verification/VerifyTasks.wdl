@@ -130,6 +130,7 @@ task CompareTabix {
         if [[ $abs_diff_lines -gt 100 ]]; then
           echo "Line count difference greater than 100 lines. The line count difference is $abs_diff_lines lines. Task failed."
           exit_code=1
+          exit $exit_code
         fi
     fi
   >>>
