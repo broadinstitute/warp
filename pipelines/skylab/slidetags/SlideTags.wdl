@@ -1,7 +1,7 @@
 version 1.0
 
-import "scripts/spatial-count.wdl" as SpatialCount
-import "scripts/positioning.wdl" as Positioning
+import "../../../tasks/skylab/slidetags_utils/spatial-count.wdl" as SpatialCount
+import "../../../tasks/skylab/slidetags_utils/positioning.wdl" as Positioning
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 
 workflow SlideTags {
@@ -10,11 +10,10 @@ workflow SlideTags {
 
     input {
         # slide-tags inputs
-        String id
         Array[String] spatial_fastq
         Array[String] pucks
 
-        # Optimus Inputs
+        # Optimus inputs
         Array[File] gex_r1_fastq
         Array[File] gex_r2_fastq
         Array[File]? gex_i1_fastq        
