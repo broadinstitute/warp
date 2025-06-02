@@ -557,6 +557,9 @@ task CreateFragmentFile {
     set -euo pipefail
     set -x 
 
+    declare -a mito_list_=(~{sep=' ' mito_list})
+    echo "Mitochondrial list: ${mito_list_[@]}"
+
     python3 <<CODE
 
     # import libraries
@@ -576,7 +579,7 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
-    mito_list = "~{mito_list}"
+    mito_list = ${mito_list_[@]}
     expected_cells = ~{atac_expected_cells}
 
     print(mito_list)
