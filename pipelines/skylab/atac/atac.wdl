@@ -584,7 +584,7 @@ task CreateFragmentFile {
 
     print(mito_list)
 
-    # calculate chrom  size dictionary based on text file
+    # calculate chrom size dictionary based on text file
     chrom_size_dict={}
     with open('~{chrom_sizes}', 'r') as f:
       for line in f:
