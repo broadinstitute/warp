@@ -26,7 +26,7 @@ Key characteristics:
 #### Step 3. Generate Index Files**
    - Tabix index files (`.tbi`) are created alongside each VCF output.
 
-### Step 4. Create Lists of Outputs (task: `create_fofn`)
+#### Step 4. Create Lists of Outputs (task: `create_fofn`)
    - Two flat text files (`.fofn1.txt`, `.fofn2.txt`) are generated listing all full VCFs and index files.
 
 #### Step 5. Output Final Files
