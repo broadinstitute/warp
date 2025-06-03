@@ -287,6 +287,7 @@ task JoinMultiomeBarcodes {
     print("Reading GEX h5ad")
     gex_data = ad.read_h5ad(gex_h5ad)
     print("Reading ATAC fragment file")
+    print(f"ATAC TSV original row count: {len(atac_tsv)}")
     atac_tsv = pd.read_csv(atac_fragment, sep="\\t", names=["chr", "start", "stop", "barcode", "n_reads"])
     whitelist_gex = pd.read_csv(gex_whitelist, header=None, names=["gex_barcodes"])
     whitelist_atac = pd.read_csv(atac_whitelist, header=None, names=["atac_barcodes"])
@@ -308,6 +309,7 @@ task JoinMultiomeBarcodes {
     df_fragment = pd.merge(atac_tsv, df_map_atac, left_on="atac_barcodes", right_index=True, how="left")
     df_fragment.rename(columns={"gex_barcodes": "barcode"}, inplace=True)
     df_fragment = df_fragment[["chr", "start", "stop", "barcode", "n_reads", "atac_barcodes"]]
+    print(f"Merged fragment row count: {len(df_fragment)}")
 
     # Write outputs
     gex_data.write("~{gex_base_name}.h5ad")
@@ -315,6 +317,7 @@ task JoinMultiomeBarcodes {
     df_fragment.to_csv("~{atac_fragment_base}.body.tsv", sep="\\t", index=False, header=False)
 
     missing = df_fragment[df_fragment["barcode"].isna()]
+    print(f"Final fragment rows: {len(df_fragment)}")
     print(f"Number of fragment rows with missing barcode after join: {len(missing)}")
 
     CODE
