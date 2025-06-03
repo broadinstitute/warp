@@ -557,9 +557,6 @@ task CreateFragmentFile {
     set -euo pipefail
     set -x 
 
-    declare -a mito_list_=(~{sep=' ' mito_list})
-    echo "Mitochondrial list: ${mito_list_[@]}"
-
     python3 <<CODE
 
     # import libraries
@@ -579,11 +576,13 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
-    mito_list = ${mito_list_[@]}
+    mito_list = "~{sep=' ' mito_list}"
     expected_cells = ~{atac_expected_cells}
 
     print(mito_list)
-
+    mito_list = mito_list.split(" ")
+    print("Mitochondrial chromosomes:", mito_list) 
+    
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
     with open('~{chrom_sizes}', 'r') as f:
