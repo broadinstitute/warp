@@ -64,6 +64,7 @@ task CreateFragmentFile {
     String input_id
     Int atac_expected_cells = 3000
     String gtf_path = annotations_gtf
+    Array[String] mito_list = ['chrM', 'M']
   }
 
   parameter_meta {
@@ -79,7 +80,19 @@ task CreateFragmentFile {
     set -euo pipefail
     set -x
 
+    declare -a mito_list_=(~{sep=' ' mito_list})
+    echo "Mitochondrial list: ${mito_list_[@]}"
+
     python3 <<CODE
+
+    import snapatac2.preprocessing as pp
+    import snapatac2 as snap
+    import scanpy as sc
+    import numpy as np
+    import polars as pl
+    import anndata as ad
+    from collections import OrderedDict
+    import csv
 
     # set parameters
     bam = "~{bam}"
@@ -88,7 +101,8 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
-    expected_cells = ~{atac_expected_cells}
+    expected_cells = "~{atac_expected_cells}"
+    mito_list = "${mito_list_[@]}"
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -109,9 +123,9 @@ task CreateFragmentFile {
 
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
     elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
 
     # Add NHashID to metrics
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
