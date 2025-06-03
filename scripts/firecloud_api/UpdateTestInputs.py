@@ -3,6 +3,10 @@ import json
 import os
 import ast
 from decimal import Decimal
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
 
 def format_float(value):
     """Format float to avoid scientific notation for small numbers."""
@@ -14,24 +18,45 @@ def format_float(value):
 def determine_bucket_from_inputs(test_inputs):
     """
     Determine whether inputs are from public or private bucket by examining the values.
-    Returns the appropriate bucket path.
+    If private is explicitly found, return private.
+    If known public buckets are found AND no unrecognized gs:// buckets exist, return public.
+    Otherwise, default to private.
     """
-    # Bucket paths to check
-    public_bucket = "gs://pd-test-storage-public"
     private_bucket = "gs://pd-test-storage-private"
+    public_bucket = "gs://pd-test-storage-public"
+    public_identifiers = [
+        "gs://pd-test-storage-public",
+        "gs://broad-public-datasets",
+        "gs://gcp-public-data--broad-references"
+    ]
 
-    # Convert inputs to a string for easier searching
-    inputs_str = json.dumps(test_inputs)
+    inputs_str = json.dumps(test_inputs).lower()
+    logging.info(f"Here is the input string: {inputs_str}")
 
-    # Check if any value contains reference to public bucket
-    if public_bucket in inputs_str:
-        return public_bucket
-    # Check if any value contains reference to private bucket
-    elif private_bucket in inputs_str:
+    if private_bucket in inputs_str:
+        logging.info("Detected private bucket reference.")
         return private_bucket
 
-    # Default to private bucket if no match found
+    # Detect any gs://... that is NOT known to be public
+    import re
+    found_gs_paths = re.findall(r"gs://[a-zA-Z0-9\-_./]+", inputs_str)
+
+    unknown_buckets = [
+        path for path in found_gs_paths
+        if not any(pub in path for pub in public_identifiers)
+    ]
+
+    if unknown_buckets:
+        logging.info(f"Detected unknown gs:// buckets (possibly private): {unknown_buckets}")
+        return private_bucket
+
+    if any(pub in inputs_str for pub in public_identifiers):
+        logging.info("Detected public bucket reference only.")
+        return public_bucket
+
+    logging.info("No known bucket found, defaulting to private.")
     return private_bucket
+
 
 def update_test_inputs(inputs_json, results_path, update_truth, branch_name, dockstore_pipeline_name):
     with open(inputs_json, 'r') as file:
