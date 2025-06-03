@@ -317,7 +317,7 @@ task JoinMultiomeBarcodes {
     missing = df_fragment[df_fragment["barcode"].isna()]
     print(f"Number of fragment rows with missing barcode after join: {len(missing)}")
 
-      CODE
+    CODE
 
     # Sort fragment body
     echo "Sorting fragment body"
