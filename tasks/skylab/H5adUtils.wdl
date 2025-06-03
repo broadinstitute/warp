@@ -313,7 +313,11 @@ task JoinMultiomeBarcodes {
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
     df_fragment.to_csv("~{atac_fragment_base}.body.tsv", sep="\\t", index=False, header=False)
-    CODE
+
+    missing = df_fragment[df_fragment["barcode"].isna()]
+    print(f"Number of fragment rows with missing barcode after join: {len(missing)}")
+
+      CODE
 
     # Sort fragment body
     echo "Sorting fragment body"
