@@ -23,4 +23,5 @@ MultiSampleSmartSeq2SingleNucleus	 2.2.1	2025-05-27
 SlideSeq	 3.6.1	2025-05-27 
 snm3C	 4.0.4	2024-08-06 
 PeakCalling	 1.0.0	
+SlideTags	 1.0.0	
 PairedTag	 2.1.2	2025-05-27 
