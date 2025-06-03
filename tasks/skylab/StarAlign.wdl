@@ -266,6 +266,8 @@ task STARsoloFastq {
     set -euo pipefail
     set -x
 
+    ulimit -n 10000
+
     UMILen=10
     CBLen=16
     if [ "~{chemistry}" == 2 ]

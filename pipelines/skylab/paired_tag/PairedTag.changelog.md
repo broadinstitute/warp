@@ -1,4 +1,17 @@
-# 2.0.0
+# 2.1.2
+2025-05-27 (Date of Last Commit)
+
+* Increased the ulimit in the STARsoloFastq task in the StarAlign.wdl to 10000; this does not affect the outputs of the pipeline
+
+
+# 2.1.1
+
+2025-04-15 (Date of Last Commit)
+
+* Refactored peak calling task to be called from PeakCalling.wdl
+
+# 2.1.0
+
 2025-04-02 (Date of Last Commit)
 * Refactored the STAR alignment step in Optimus and removed tasks FastqProcessing and MergeSortBamFiles; we are no longer sharding. We are now running one instance of STAR
 * Removed MergeStarOutput tasks from Optimus pipeline; added necessary parts of MergeStarOutput task to the STAR alignment step (STARsoloFastq). Additional outputs added to STARsoloFastq task as a result; this includes row_index, col_index, sparse_counts, library_metrics, mtx_files, filtered_mtx_files and cell_reads_out
