@@ -102,7 +102,7 @@ task CreateFragmentFile {
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
     expected_cells = "~{atac_expected_cells}"
-    mito_list = "${mito_list_[@]}"
+    mito_list = ["~{sep=' ' mito_list}"]
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
