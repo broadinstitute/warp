@@ -59,7 +59,7 @@
     "break_bands_at_multiples_of": 0
   },
 
-  "ExomeGermlineSingleSample.fingerprint_genotypes_file": "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C862.NA19238/C862.NA19238/C862.NA19238.reference.fingerprint.vcf.gz",
+  "ExomeGermlineSingleSample.fingerprint_genotypes_file": "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C862.NA19238/C862.NA19238.reference.fingerprint.vcf.gz",
   "ExomeGermlineSingleSample.fingerprint_genotypes_index": "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/C862.NA19238/C862.NA19238.reference.fingerprint.vcf.gz.tbi",
   "ExomeGermlineSingleSample.target_interval_list": "gs://broad-references-private/HybSelOligos/whole_exome_agilent_1.1_refseq_plus_3_boosters/whole_exome_agilent_1.1_refseq_plus_3_boosters.Homo_sapiens_assembly38.targets.interval_list",
   "ExomeGermlineSingleSample.bait_interval_list": "gs://broad-references-private/HybSelOligos/whole_exome_agilent_1.1_refseq_plus_3_boosters/whole_exome_agilent_1.1_refseq_plus_3_boosters.Homo_sapiens_assembly38.baits.interval_list",
