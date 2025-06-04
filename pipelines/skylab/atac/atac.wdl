@@ -80,9 +80,6 @@ task CreateFragmentFile {
     set -euo pipefail
     set -x
 
-    declare -a mito_list_=(~{sep=' ' mito_list})
-    echo "Mitochondrial list: ${mito_list_[@]}"
-
     python3 <<CODE
 
     import snapatac2.preprocessing as pp
