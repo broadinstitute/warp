@@ -287,8 +287,8 @@ task JoinMultiomeBarcodes {
     print("Reading GEX h5ad")
     gex_data = ad.read_h5ad(gex_h5ad)
     print("Reading ATAC fragment file")
-    print(f"ATAC TSV original row count: {len(atac_tsv)}")
     atac_tsv = pd.read_csv(atac_fragment, sep="\\t", names=["chr", "start", "stop", "barcode", "n_reads"])
+    print(f"ATAC TSV original row count: {len(atac_tsv)}")
     whitelist_gex = pd.read_csv(gex_whitelist, header=None, names=["gex_barcodes"])
     whitelist_atac = pd.read_csv(atac_whitelist, header=None, names=["atac_barcodes"])
 
