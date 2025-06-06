@@ -54,7 +54,7 @@ task RunEmptyDrops {
         disk: disk_size + " GB" # TES
         cpu: cpu
         preemptible: preemptible
-        bootDiskSizeGb: "20"
+        bootDiskSizeGb: 20
     }
 
     output {
