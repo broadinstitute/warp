@@ -16,6 +16,7 @@ import "./rnaseqc2.wdl" as rnaseqc_wdl
 workflow rnaseq_pipeline_bam_workflow {
 
     String prefix
+    String pipeline_version = "aou_9.0.1"
 
     call samtofastq_wdl.samtofastq {
         input: prefix=prefix
