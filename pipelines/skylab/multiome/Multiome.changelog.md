@@ -1,3 +1,8 @@
+# 6.0.4
+25-06-06 (Date of Last Commit)
+
+* Added mito_list (a list of strings) as an input parameter to CreateFragmentFile task of the ATAC pipeline. This specifies the chromosome names considered mitochondrial DNA. The default value is ["chrM", "M"]
+
 # 6.0.3
 25-05-27 (Date of Last Commit)
 
