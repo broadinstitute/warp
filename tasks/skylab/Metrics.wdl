@@ -190,6 +190,7 @@ task CalculateUMIsMetrics {
   command {
     set -e
     mkdir temp
+    ulimit -n 10000
 
     # if GTF file in compressed then uncompress
     if [[ ~{original_gtf} =~ \.gz$ ]]
