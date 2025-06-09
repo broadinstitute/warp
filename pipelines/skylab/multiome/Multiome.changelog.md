@@ -1,3 +1,8 @@
+# 6.0.4
+25-06-09 (Date of Last Commit)
+
+* Removed quotes from bootDiskSizeGb in RunEmptyDrops task to be compatible with Google Batch; this does not affect the outputs of the pipeline
+
 # 6.0.3
 25-05-27 (Date of Last Commit)
 
