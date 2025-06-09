@@ -348,7 +348,7 @@ task TrimAdapters {
   }
 }
 
-# align the two trimmed fastq as paired end data using BWA
+# align the two trimmed fastq as paired end data using bwa
 task BWAPairedEndAlignment {
   input {
     Array[File] read1_fastq
