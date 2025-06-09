@@ -337,6 +337,9 @@ task Hisat_paired_end {
         elapsed=$((end - start))
         echo "Elapsed time to untar: $elapsed seconds"
 
+        echo "Contents for /mnt/disks/cromwell_root/"
+        ls /mnt/disks/cromwell_root/
+
         if [ ~{cloud_provider} = "gcp" ]; then
             batch_dir="~{cromwell_root_dir}~{cromwell_root_dir}/batch*/"
         else
