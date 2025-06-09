@@ -52,7 +52,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.7.2"
+  String pipeline_version = "2.8.0"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -532,6 +532,7 @@ task CreateFragmentFile {
     File annotations_gtf
     File chrom_sizes
     Boolean preindex
+    Array[String] mito_list = ['chrM', 'M']
     Int disk_size = 500
     Int mem_size = 64
     Int nthreads = 4
@@ -558,23 +559,7 @@ task CreateFragmentFile {
 
     python3 <<CODE
 
-    # set parameters
-    bam = "~{bam}"
-    input_id = "~{input_id}"
-    chrom_sizes = "~{chrom_sizes}"
-    atac_gtf = "~{annotations_gtf}"
-    preindex = "~{preindex}"
-    atac_nhash_id = "~{atac_nhash_id}"
-    expected_cells = ~{atac_expected_cells}
-
-    # calculate chrom size dictionary based on text file
-    chrom_size_dict={}
-    with open('~{chrom_sizes}', 'r') as f:
-      for line in f:
-        key, value = line.strip().split()
-        chrom_size_dict[str(key)] = int(value)
-
-    # use snap atac2
+    # import libraries
     import snapatac2.preprocessing as pp
     import snapatac2 as snap
     import scanpy as sc
@@ -584,11 +569,32 @@ task CreateFragmentFile {
     from collections import OrderedDict
     import csv
 
+    # set parameters
+    bam = "~{bam}"
+    input_id = "~{input_id}"
+    chrom_sizes = "~{chrom_sizes}"
+    atac_gtf = "~{annotations_gtf}"
+    preindex = "~{preindex}"
+    atac_nhash_id = "~{atac_nhash_id}"
+    mito_list = "~{sep=' ' mito_list}"
+    expected_cells = ~{atac_expected_cells}
+
+    print(mito_list)
+    mito_list = mito_list.split(" ")
+    print("Mitochondrial chromosomes:", mito_list) 
+    
+    # calculate chrom size dictionary based on text file
+    chrom_size_dict={}
+    with open('~{chrom_sizes}', 'r') as f:
+      for line in f:
+        key, value = line.strip().split()
+        chrom_size_dict[str(key)] = int(value)
+
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
     elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
 
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
