@@ -1,13 +1,13 @@
 # 2.1.3
-2025-06-09 (Date of Last Commit)
+2025-06-06 (Date of Last Commit)
 
+* Added mito_list (a list of strings) as an input parameter to CreateFragmentFile task of the ATAC pipeline. This specifies the chromosome names considered mitochondrial DNA. The default value is ["chrM", "M"]
 * Removed quotes from bootDiskSizeGb in RunEmptyDrops task to be compatible with Google Batch; this does not affect the outputs of the pipeline
 
 # 2.1.2
 2025-05-27 (Date of Last Commit)
 
 * Increased the ulimit in the STARsoloFastq task in the StarAlign.wdl to 10000; this does not affect the outputs of the pipeline
-
 
 # 2.1.1
 
