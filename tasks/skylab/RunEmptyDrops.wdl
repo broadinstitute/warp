@@ -42,7 +42,6 @@ task RunEmptyDrops {
         npz2rds.sh -c ${col_index} -r ${row_index} -d ${sparse_count_matrix} -o temp_matrix.rds
         echo "RDS file created"
 
-
         echo "Running emptydrops"
         emptyDropsWrapper.R --transpose --verbose --input-rds temp_matrix.rds --output-csv empty_drops_result.csv --fdr-cutoff ${fdr_cutoff} --emptydrops-niters ${niters} --min-molecules ${min_molecules} --emptydrops-lower ${emptydrops_lower}
         echo "Completed running emptydrops"
