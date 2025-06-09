@@ -30,7 +30,6 @@ task CalculateCellMetrics {
   
   command {
     set -e
-    ulimit
     ulimit -n 30000
     
     # create the tmp folder for disk sorting
@@ -109,7 +108,6 @@ task CalculateGeneMetrics {
 
   command {
     set -e
-    ulimit
     ulimit -n 30000
 
      # create the tmp folder
@@ -194,7 +192,6 @@ task CalculateUMIsMetrics {
   command {
     set -e
     mkdir temp
-    ulimit
     ulimit -n 30000
 
     # if GTF file in compressed then uncompress
