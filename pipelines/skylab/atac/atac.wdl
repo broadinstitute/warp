@@ -57,7 +57,7 @@ task CreateFragmentFile {
     Boolean preindex
     Int disk_size = 500
     Int mem_size = 64
-    Int nthreads = 4
+    Int nthreads = 8
     String cpuPlatform = "Intel Cascade Lake"
     String docker_path
     String atac_nhash_id = ""
@@ -124,9 +124,9 @@ task CreateFragmentFile {
 
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list, n_jobs=8)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
     elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list, n_jobs=8)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
 
     # Add NHashID to metrics
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
