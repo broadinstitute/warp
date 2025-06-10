@@ -212,7 +212,6 @@ workflow SlideSeq {
         File fastq_reads_per_cell = FastqMetrics.numReads_perCell
         File fastq_reads_per_umi = FastqMetrics.numReads_perUMI
 
-
         # h5ad
         File? h5ad_output_file = final_h5ad_output
     }
