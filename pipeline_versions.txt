@@ -16,7 +16,7 @@ WholeGenomeGermlineSingleSample	 3.3.4	2025-02-12
 ExomeGermlineSingleSample	 3.2.4	2025-02-21 
 VariantCalling	 2.2.5	2025-02-21 
 atac	 2.8.0	2025-06-06  
-Multiome	 6.0.4	25-06-06 
+Multiome	 6.1.0	25-06-11 
 BuildIndices	 4.0.0	2025-01-17 
 Optimus	 8.0.2	2025-06-09 
 MultiSampleSmartSeq2SingleNucleus	 2.2.1	2025-05-27 
