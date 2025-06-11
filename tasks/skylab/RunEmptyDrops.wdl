@@ -1,6 +1,7 @@
 version 1.0
 
 task RunEmptyDrops {
+
     input {
         # Input data
         File sparse_count_matrix
