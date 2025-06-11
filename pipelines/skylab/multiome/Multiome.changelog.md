@@ -1,3 +1,9 @@
+# 6.1.0
+25-06-11 (Date of Last Commit)
+
+* Swapped the location of ATAC barcodes with GEX barcodes in ATAC fragment files and h5ad files
+* Added header to fragment file
+
 # 6.0.4
 25-06-06 (Date of Last Commit)
 
