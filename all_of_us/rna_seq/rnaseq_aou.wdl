@@ -11,12 +11,12 @@ import "./star.wdl" as star_align_wdl
 import "./markduplicates.wdl" as markduplicates_wdl
 import "./rsem.wdl" as rsem_wdl
 import "./rnaseqc2.wdl" as rnaseqc_wdl
-import "./remove_IDS_reads.wdl" as prersem_wdl
 
 
 workflow rnaseq_pipeline_bam_workflow {
 
     String prefix
+    String pipeline_version = "aou_9.0.1"
 
     call samtofastq_wdl.samtofastq {
         input: prefix=prefix
@@ -26,17 +26,9 @@ workflow rnaseq_pipeline_bam_workflow {
         input: fastq1=samtofastq.fastq1, fastq2=samtofastq.fastq2, prefix=prefix
     }
 
-    call prersem_wdl.remove_IDS_reads {
+    call rsem_wdl.rsem {
         input: transcriptome_bam=star.transcriptome_bam, prefix=prefix
     }
-
-    call rsem_wdl.rsem {
-        input: transcriptome_bam=remove_IDS_reads.transcriptome_noIDS_bam, prefix=prefix
-    }
-
-#    call bamsync_wdl.bamsync {
-#        input: target_bam=star.bam_file, target_bam_index=star.bam_index, prefix=prefix
-#    }
 
     call markduplicates_wdl.markduplicates {
         #input: input_bam=bamsync.patched_bam_file, prefix=prefix
