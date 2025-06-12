@@ -2,7 +2,7 @@
 2025-06-09 (Date of Last Commit)
 
 * Removed quotes from bootDiskSizeGb in RunEmptyDrops task to be compatible with Google Batch; this does not affect the outputs of the pipeline
-* Increased the ulimit in the following tasks: CalculateCellMetrics, CalculateGeneMetrics, and CalculateUMIsMetrics; this does not affect the outputs of the pipeline
+* Increased the ulimit in the following tasks: CalculateCellMetrics, CalculateGeneMetrics, CalculateUMIsMetrics; this does not affect the outputs of the pipeline
 
 # 8.0.1
 2025-05-27 (Date of Last Commit)

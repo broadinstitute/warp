@@ -3,6 +3,7 @@
 
 * Added mito_list (a list of strings) as an input parameter to CreateFragmentFile task. This specifies the chromosome names considered mitochondrial DNA. The default value is [chrM, M]
 
+
 # 2.7.2
 2025-04-15 (Date of Last Commit) 
 
