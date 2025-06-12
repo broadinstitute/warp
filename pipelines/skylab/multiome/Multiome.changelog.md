@@ -1,3 +1,25 @@
+# 6.0.4
+25-06-06 (Date of Last Commit)
+
+* Added mito_list (a list of strings) as an input parameter to CreateFragmentFile task of the ATAC pipeline. This specifies the chromosome names considered mitochondrial DNA. The default value is ["chrM", "M"]
+* Removed quotes from bootDiskSizeGb in RunEmptyDrops task to be compatible with Google Batch; this does not affect the outputs of the pipeline
+* Increased the ulimit in the following tasks: CalculateCellMetrics, CalculateGeneMetrics, and CalculateUMIsMetrics; this does not affect the outputs of the pipeline
+
+# 6.0.3
+25-05-27 (Date of Last Commit)
+
+* Increased the ulimit in the STARsoloFastq task in the StarAlign.wdl to 10000; this does not affect the outputs of the pipeline
+
+# 6.0.2
+25-04-16 (Date of Last Commit)
+
+* Added cloud_provider to peakcalling task in Multiome.wdl and fix commit history
+
+# 6.0.1
+25-04-15 (Date of Last Commit)
+
+* Refactored peak calling task to be called from PeakCalling.wdl
+
 # 6.0.0
 2025-04-02 (Date of Last Commit)
 

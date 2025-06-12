@@ -1,3 +1,13 @@
+# 2.8.0
+2025-06-06 (Date of Last Commit) 
+
+* Added mito_list (a list of strings) as an input parameter to CreateFragmentFile task. This specifies the chromosome names considered mitochondrial DNA. The default value is ["chrM", "M"]
+
+# 2.7.2
+2025-04-15 (Date of Last Commit) 
+
+* Refactored peak calling task to be called from PeakCalling.wdl
+
 # 2.7.1
 2025-02-25 (Date of Last Commit)
 

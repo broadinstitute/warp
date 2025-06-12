@@ -30,6 +30,7 @@ task CalculateCellMetrics {
   
   command {
     set -e
+    ulimit -n 30000
     
     # create the tmp folder for disk sorting
     mkdir temp
@@ -107,6 +108,7 @@ task CalculateGeneMetrics {
 
   command {
     set -e
+    ulimit -n 30000
 
      # create the tmp folder
     mkdir temp
@@ -166,9 +168,9 @@ task CalculateUMIsMetrics {
     # runtime values
     # Did not update docker image as this task uses loom which does not play nice with the changes
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.3.0"
-    Int machine_mem_mb = 16000
+    Int machine_mem_mb = 24000
     Int cpu = 8
-    Int disk = ceil(size(bam_input, "Gi") * 4)
+    Int disk = ceil(size(bam_input, "Gi") * 4.2)
     Int preemptible = 3
   }
 
@@ -190,6 +192,7 @@ task CalculateUMIsMetrics {
   command {
     set -e
     mkdir temp
+    ulimit -n 30000
 
     # if GTF file in compressed then uncompress
     if [[ ~{original_gtf} =~ \.gz$ ]]
