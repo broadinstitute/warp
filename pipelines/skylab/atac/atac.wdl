@@ -160,7 +160,6 @@ workflow ATAC {
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
         input_id = input_id
-
     }
     if (peak_calling) {
       call peakcalling.PeakCalling as PeakCalling{
