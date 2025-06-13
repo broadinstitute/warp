@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
+import "JointGenotypingTasks.wdl" as Tasks
 
 # Given a joint callset with a "score_key" INFO level annotation, this pipeline chooses a threshold that maximizes
 # the F1 score on a single sample in the callset using known truth data for that one sample.
