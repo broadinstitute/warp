@@ -33,7 +33,7 @@ workflow snm3C {
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
     String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
     String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
-    String cromwell_root_dir = if cloud_provider == "gcp" then "/cromwell_root" else "/cromwell-executions"
+    String cromwell_root_dir = if cloud_provider == "gcp" then "/mnt/disks/cromwell_root" else "/cromwell-executions"
 
     # make sure either gcp or azr is supplied as cloud_provider input
     if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
@@ -342,9 +342,6 @@ task Hisat_paired_end {
         else
             batch_dir="~{cromwell_root_dir}/*/*/*/*/*~{cromwell_root_dir}/*/*/*/*/batch*/"
         fi
-
-        echo "Contents for /mnt/disks/cromwell_root/"
-        ls -r /mnt/disks/cromwell_root/fc-*
 
         task() {
           local file=$1
