@@ -132,6 +132,7 @@ workflow SlideSeq {
             original_gtf = annotations_gtf,
             input_id = input_id
     }
+
     call Metrics.CalculateCellMetrics as CellMetrics {
         input:
             bam_input = MergeBam.output_bam,
