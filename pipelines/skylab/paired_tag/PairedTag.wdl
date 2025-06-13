@@ -192,5 +192,6 @@ workflow PairedTag {
         Array[File]? metrics_csv_array = Optimus.metrics_csv_array
         String? output_directory = Optimus.output_directory
         File? summary_pdf = Optimus.summary_pdf
+
     }
 }
