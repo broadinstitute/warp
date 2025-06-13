@@ -233,7 +233,6 @@ workflow Optimus {
         warp_tools_docker_path = docker_prefix + warp_tools_docker
     }
   }
-
   if (count_exons  && counting_mode=="sn_rna") {
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:

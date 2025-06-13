@@ -129,6 +129,7 @@ workflow Multiome {
             peak_calling = false
 
     }
+
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
             docker_path = docker_prefix + snap_atac_docker_image,
