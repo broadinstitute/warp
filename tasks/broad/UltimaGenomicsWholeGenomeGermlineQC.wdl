@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl" as Tasks
-import "../../tasks/broad/Qc.wdl" as QC
+import "UltimaGenomicsWholeGenomeGermlineTasks.wdl" as Tasks
+import "Qc.wdl" as QC
 
 workflow UltimaGenomicsWholeGenomeGermlineQC {
   input {
