@@ -302,12 +302,11 @@ task JoinMultiomeBarcodes {
     gex_data.obs = gex_data.obs.join(df_map_gex)
     gex_data.obs.index.name = "gex_barcodes"
 
-    # Modify fragment file to use gex barcode
+    # Preserve original ATAC barcodes in the barcode column
     atac_tsv["atac_barcodes"] = atac_tsv["barcode"]
-    atac_tsv.drop(columns=["barcode"], inplace=True)
-    df_fragment = pd.merge(atac_tsv, df_map_atac, left_on="atac_barcodes", right_index=True, how="left")
-    df_fragment.rename(columns={"gex_barcodes": "barcode"}, inplace=True)
-    df_fragment = df_fragment[["chr", "start", "stop", "barcode", "n_reads", "atac_barcodes"]]
+    df_fragment = pd.merge(atac_tsv, df_map_atac, left_on="barcode", right_index=True, how="left")
+    df_fragment.rename(columns={"gex_barcodes": "gex_barcode"}, inplace=True)
+    df_fragment = df_fragment[["chr", "start", "stop", "barcode", "n_reads", "gex_barcode"]]
 
     # Write outputs
     gex_data.write("~{gex_base_name}.h5ad")
