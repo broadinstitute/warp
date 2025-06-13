@@ -260,8 +260,8 @@ task JoinMultiomeBarcodes {
     atac_whitelist: "Whitelist used for ATAC barcodes."
   }
 
-  command <<<
-    set -euo pipefail
+ command <<<
+    set -e pipefail
 
     # decompress the bgzipped fragment file
     echo "Moving fragment file for bgzipping"
@@ -271,64 +271,89 @@ task JoinMultiomeBarcodes {
     echo "Done decompressing"
 
     python3 <<CODE
-    import anndata as ad
-    import pandas as pd
-
-    # Input paths
+    # set parameters
     atac_h5ad = "~{atac_h5ad}"
     atac_fragment = "~{atac_fragment_base}.sorted.tsv"
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
 
-    # Read files
-    print("Reading ATAC h5ad")
-    atac_data = ad.read_h5ad(atac_h5ad)
-    print("Reading GEX h5ad")
-    gex_data = ad.read_h5ad(gex_h5ad)
-    print("Reading ATAC fragment file")
-    atac_tsv = pd.read_csv(atac_fragment, sep="\\t", names=["chr", "start", "stop", "barcode", "n_reads"])
-    whitelist_gex = pd.read_csv(gex_whitelist, header=None, names=["gex_barcodes"])
-    whitelist_atac = pd.read_csv(atac_whitelist, header=None, names=["atac_barcodes"])
+    # import anndata to manipulate h5ad files
+    import anndata as ad
+    import pandas as pd
+    import snapatac2 as snap
 
-    # Combine whitelist into mapping
-    df_map = pd.concat([whitelist_gex, whitelist_atac], axis=1)
-    df_map_gex = df_map.set_index("gex_barcodes")
-    df_map_atac = df_map.set_index("atac_barcodes")
+    print("Reading ATAC h5ad:")
+    print("~{atac_h5ad}")
+    print("Read ATAC fragment file:")
+    print(atac_fragment)
+    print("Reading Optimus h5ad:")
+    print("~{gex_h5ad}")
 
-    # Join to h5ads
-    atac_data.obs = atac_data.obs.join(df_map_atac)
-    atac_data.obs.index.name = "atac_barcodes"
-    gex_data.obs = gex_data.obs.join(df_map_gex)
-    gex_data.obs.index.name = "gex_barcodes"
+    atac_data = ad.read_h5ad("~{atac_h5ad}")
+    gex_data = ad.read_h5ad("~{gex_h5ad}")
+    atac_tsv = pd.read_csv(atac_fragment, sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
+    print("Printing ATAC fragment tsv")
+    print(atac_tsv)
+    whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
+    whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
 
-    # Preserve original ATAC barcodes in the barcode column
-    atac_tsv["atac_barcodes"] = atac_tsv["barcode"]
-    df_fragment = pd.merge(atac_tsv, df_map_atac, left_on="barcode", right_index=True, how="left")
-    df_fragment.rename(columns={"gex_barcodes": "gex_barcode"}, inplace=True)
-    df_fragment = df_fragment[["chr", "start", "stop", "barcode", "n_reads", "gex_barcode"]]
+    # get dataframes
+    df_atac = atac_data.obs
+    df_gex = gex_data.obs
+    print(df_atac)
+    print(df_gex)
 
-    # Write outputs
+    # Identify the barcodes in the whitelist that match barcodes in datasets
+    print("Printing whitelist_gex")
+    print(whitelist_gex[1:10])
+
+    df_all = pd.concat([whitelist_gex,whitelist_atac], axis=1)
+    df_both_gex = df_all.copy()
+    df_both_atac = df_all.copy()
+    df_both_atac.set_index("atac_barcodes", inplace=True)
+    df_both_gex.set_index("gex_barcodes", inplace=True)
+
+    # Join the dataframes and add atac_barcodes as a column
+    df_atac_joined = atac_data.obs.join(df_both_atac)
+    df_gex_joined = gex_data.obs.join(df_both_gex)
+
+    # For ATAC data: move current index (atac_barcodes) to a column, then set index to gex_barcodes
+    df_atac_joined['atac_barcodes'] = df_atac_joined.index
+    df_atac_joined.set_index('gex_barcodes', inplace=True)
+
+    # For GEX data: index is already on gex_barcodes, add atac_barcodes as column
+    # (atac_barcodes column already added via the join operation)
+
+    df_fragment = pd.merge(atac_tsv, df_both_atac, left_on='barcode', right_index=True, how='left')
+
+    # set atac_data.obs to new dataframe with gex_barcodes as index
+    print("Setting ATAC obs to new dataframe with gex_barcodes as index")
+    atac_data.obs = df_atac_joined
+
+    # set gex_data.obs to new dataframe (already indexed on gex_barcodes)
+    print("Setting Optimus obs to new dataframe")
+    gex_data.obs = df_gex_joined
+
+    # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
-    df_fragment.to_csv("~{atac_fragment_base}.body.tsv", sep="\\t", index=False, header=False)
-
-    missing = df_fragment[df_fragment["barcode"].isna()]
-    print(f"Final fragment rows: {len(df_fragment)}")
-
+    df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
     CODE
 
-    # Sort fragment body
-    echo "Sorting fragment body"
-    sort -k1,1V -k2,2n "~{atac_fragment_base}.body.tsv" > "~{atac_fragment_base}.sorted_body.tsv"
+    # sorting the file
+    echo "Sorting file"
+    sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
 
-    # Prepend header AFTER sorting
-    echo -e "# Reference genome is ~{input_bwa_reference}\\n# Reference GTF is ~{input_gtf}" > header.txt
-    cat header.txt ~{atac_fragment_base}.sorted_body.tsv > "~{atac_fragment_base}.sorted.tsv"
-
-    echo "Compressing with bgzip"
+    # Add header to the sorted fragment file
+    echo "Adding header to sorted fragment file"
+    echo "# Reference genome is ~{input_bwa_reference}" > "~{atac_fragment_base}.with_header.sorted.tsv"
+    echo "# Reference GTF is ~{input_gtf}" >> "~{atac_fragment_base}.with_header.sorted.tsv"
+    cat "~{atac_fragment_base}.sorted.tsv" >> "~{atac_fragment_base}.with_header.sorted.tsv"
+    mv "~{atac_fragment_base}.with_header.sorted.tsv" "~{atac_fragment_base}.sorted.tsv"
+    echo "Starting bgzip"
     bgzip "~{atac_fragment_base}.sorted.tsv"
-    echo "Indexing with tabix"
+    echo "Starting tabix"
     tabix -s 1 -b 2 -e 3 -C "~{atac_fragment_base}.sorted.tsv.gz"
 
   >>>
