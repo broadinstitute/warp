@@ -86,7 +86,6 @@ workflow snm3C {
                 cromwell_root_dir = cromwell_root_dir,
                 cloud_provider = cloud_provider
         }
-
         call Merge_sort_analyze as Merge_sort_analyze {
             input:
                paired_end_unique_tar = Hisat_paired_end.unique_bam_tar,
