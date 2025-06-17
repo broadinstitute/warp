@@ -22,6 +22,6 @@ Multiome	 6.0.4	25-06-06
 PairedTag	 2.1.3	2025-06-06 
 SlideSeq	 3.6.2	2025-06-09 
 Optimus	 8.0.2	2025-06-09 
-snm3C	 4.0.4	2024-08-06 
+snm3C	 4.0.5	2025-06-16 
 MultiSampleSmartSeq2SingleNucleus	 2.2.1	2025-05-27 
 BuildIndices	 4.0.0	2025-01-17 
