@@ -636,7 +636,7 @@ task CreateFragmentFile {
     
     atac_data.uns["reference_gtf_file"] = gtf_path
     # calculate tsse metrics
-    snap.metrics.tsse(atac_data, atac_gtf)
+    snap.metrics.tsse(atac_data, atac_gtf, exclude_chroms=mito_list)
     # Write new atac file
     atac_data.write_h5ad("~{input_id}.metrics.h5ad")
 
