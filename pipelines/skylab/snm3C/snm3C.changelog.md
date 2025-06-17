@@ -1,3 +1,8 @@
+# 4.0.5
+2025-06-16 (Date of Last Commit)
+
+* Switched the cromwell_root_dir variable to be compatabile with Google Batch
+
 # 4.0.4
 2024-08-06 (Date of Last Commit)
 
