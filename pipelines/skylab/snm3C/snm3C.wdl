@@ -33,7 +33,7 @@ workflow snm3C {
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
     String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
     String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
-    String cromwell_root_dir = if cloud_provider == "gcp" then "/cromwell_root" else "/cromwell-executions"
+    String cromwell_root_dir = if cloud_provider == "gcp" then "/mnt/disks/cromwell_root" else "/cromwell-executions"
 
     # make sure either gcp or azr is supplied as cloud_provider input
     if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
@@ -44,7 +44,7 @@ workflow snm3C {
     }
 
     # version of the pipeline
-    String pipeline_version = "4.0.4"
+    String pipeline_version = "4.0.5"
 
     call Demultiplexing {
         input:
@@ -86,7 +86,6 @@ workflow snm3C {
                 cromwell_root_dir = cromwell_root_dir,
                 cloud_provider = cloud_provider
         }
-
         call Merge_sort_analyze as Merge_sort_analyze {
             input:
                paired_end_unique_tar = Hisat_paired_end.unique_bam_tar,
@@ -112,7 +111,8 @@ workflow snm3C {
             unique_reads_cgn_extraction_allc_extract = Merge_sort_analyze.extract_allc_output_allc_tar,
             unique_reads_cgn_extraction_tbi_extract = Merge_sort_analyze.extract_allc_output_tbi_tar,
             plate_id = plate_id,
-            docker = docker_prefix + m3c_yap_hisat_docker
+            docker = docker_prefix + m3c_yap_hisat_docker,
+            cromwell_root_dir = cromwell_root_dir
     }
 
     call Summary {
@@ -1011,6 +1011,7 @@ task Summary_PerCellOutput {
         Array[File] all_reads_3C_contacts
         Array[File] unique_reads_cgn_extraction_allc_extract
         Array[File] unique_reads_cgn_extraction_tbi_extract
+        String cromwell_root_dir
 
         String docker
         String plate_id
@@ -1066,8 +1067,8 @@ task Summary_PerCellOutput {
         Array[File] unique_reads_cgn_extraction_allc_array = glob("~{plate_id}.allc.tsv/*")
         Array[File] unique_reads_cgn_extraction_tbi_array = glob("~{plate_id}.allc.tbi/*")
         Array[File] all_reads_3C_contacts_array = glob("~{plate_id}.hisat3n_dna.all_reads.3C.contact/*")
-        Array[File] unique_reads_cgn_extraction_allc_extract_array = glob("~{plate_id}.extract-allc/cromwell_root/allc-CGN/*")
-        Array[File] unique_reads_cgn_extraction_tbi_extract_array = glob("~{plate_id}.extract-allc_tbi/cromwell_root/allc-CGN/*")
+        Array[File] unique_reads_cgn_extraction_allc_extract_array = glob("~{plate_id}.extract-allc/~{cromwell_root_dir}/allc-CGN/*")
+        Array[File] unique_reads_cgn_extraction_tbi_extract_array = glob("~{plate_id}.extract-allc_tbi/~{cromwell_root_dir}/allc-CGN/*")
     }
 }
 
