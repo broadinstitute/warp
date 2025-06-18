@@ -325,8 +325,6 @@ task JoinMultiomeBarcodes {
     # For GEX data: index is already on gex_barcodes, add atac_barcodes as column
     # (atac_barcodes column already added via the join operation)
 
-    df_fragment = pd.merge(atac_tsv, df_both_atac, left_on='barcode', right_index=True, how='left')
-
     # set atac_data.obs to new dataframe with gex_barcodes as index
     print("Setting ATAC obs to new dataframe with gex_barcodes as index")
     atac_data.obs = df_atac_joined
@@ -338,7 +336,6 @@ task JoinMultiomeBarcodes {
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
-    df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
     CODE
 
     # sorting the file
