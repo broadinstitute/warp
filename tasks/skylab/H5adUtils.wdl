@@ -237,7 +237,6 @@ task JoinMultiomeBarcodes {
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
-
     String input_gtf
     String input_bwa_reference
 
@@ -247,7 +246,6 @@ task JoinMultiomeBarcodes {
     Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 8) + 100
     String docker_path
   }
-
   String gex_base_name = basename(gex_h5ad, ".h5ad")
   String atac_base_name = basename(atac_h5ad, ".h5ad")
   String atac_fragment_base = basename(atac_fragment, ".sorted.tsv.gz")
@@ -258,9 +256,11 @@ task JoinMultiomeBarcodes {
     gex_h5ad: "The resulting h5ad from the Optimus workflow."
     gex_whitelist: "Whitelist used for gene expression barcodes."
     atac_whitelist: "Whitelist used for ATAC barcodes."
+    input_gtf: "Reference GTF file used in the analysis."
+    input_bwa_reference: "Reference genome used in the analysis."
   }
 
- command <<<
+  command <<<
     set -e pipefail
 
     # decompress the bgzipped fragment file
@@ -270,26 +270,28 @@ task JoinMultiomeBarcodes {
     bgzip -d "~{atac_fragment_base}.sorted.tsv.gz"
     echo "Done decompressing"
 
+
     python3 <<CODE
+
     # set parameters
     atac_h5ad = "~{atac_h5ad}"
     atac_fragment = "~{atac_fragment_base}.sorted.tsv"
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
+    input_gtf = "~{input_gtf}"
+    input_bwa_reference = "~{input_bwa_reference}"
 
     # import anndata to manipulate h5ad files
     import anndata as ad
     import pandas as pd
     import snapatac2 as snap
-
     print("Reading ATAC h5ad:")
     print("~{atac_h5ad}")
     print("Read ATAC fragment file:")
     print(atac_fragment)
     print("Reading Optimus h5ad:")
     print("~{gex_h5ad}")
-
     atac_data = ad.read_h5ad("~{atac_h5ad}")
     gex_data = ad.read_h5ad("~{gex_h5ad}")
     atac_tsv = pd.read_csv(atac_fragment, sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
@@ -304,7 +306,7 @@ task JoinMultiomeBarcodes {
     print(df_atac)
     print(df_gex)
 
-    # Identify the barcodes in the whitelist that match barcodes in datasets
+    # Idenitfy the barcodes in the whitelist that match barcodes in datasets
     print("Printing whitelist_gex")
     print(whitelist_gex[1:10])
 
@@ -313,41 +315,40 @@ task JoinMultiomeBarcodes {
     df_both_atac = df_all.copy()
     df_both_atac.set_index("atac_barcodes", inplace=True)
     df_both_gex.set_index("gex_barcodes", inplace=True)
+    df_atac = atac_data.obs.join(df_both_atac)
+    df_gex = gex_data.obs.join(df_both_gex)
+    df_fragment = pd.merge(atac_tsv, df_both_atac, left_on='barcode', right_index=True, how='left')
 
-    # Join the dataframes and add atac_barcodes as a column
-    df_atac_joined = atac_data.obs.join(df_both_atac)
-    df_gex_joined = gex_data.obs.join(df_both_gex)
+    # Index both ATAC and GEX data on GEX barcodes
+    # For ATAC data: use the GEX barcode as the index
+    print("Setting ATAC obs to new dataframe and indexing on GEX barcodes")
+    atac_data.obs = df_atac
+    # Set index to gex_barcodes column (remove any existing index name)
+    atac_data.obs.index = atac_data.obs['gex_barcodes']
+    atac_data.obs.index.name = 'gex_barcodes'
 
-    # For ATAC data: move current index (atac_barcodes) to a column, then set index to gex_barcodes
-    df_atac_joined['atac_barcodes'] = df_atac_joined.index
-    df_atac_joined.set_index('gex_barcodes', inplace=True)
-
-    # For GEX data: index is already on gex_barcodes, add atac_barcodes as column
-    # (atac_barcodes column already added via the join operation)
-
-    # set atac_data.obs to new dataframe with gex_barcodes as index
-    print("Setting ATAC obs to new dataframe with gex_barcodes as index")
-    atac_data.obs = df_atac_joined
-
-    # set gex_data.obs to new dataframe (already indexed on gex_barcodes)
+    # For GEX data: already indexed on GEX barcodes
     print("Setting Optimus obs to new dataframe")
-    gex_data.obs = df_gex_joined
+    gex_data.obs = df_gex
+    # Ensure GEX data index name is set correctly
+    gex_data.obs.index.name = 'gex_barcodes'
 
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
+    df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
     CODE
 
-    # sorting the file
-    echo "Sorting file"
-    sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
+    # Add reference information to fragment file header
+    echo "Adding reference information to fragment file"
+    echo "# Reference genome is ~{input_bwa_reference}" > "~{atac_fragment_base}.with_header.tsv"
+    echo "# Reference GTF is ~{input_gtf}" >> "~{atac_fragment_base}.with_header.tsv"
+    cat "~{atac_fragment_base}.tsv" >> "~{atac_fragment_base}.with_header.tsv"
+    mv "~{atac_fragment_base}.with_header.tsv" "~{atac_fragment_base}.tsv"
 
-    # Add header to the sorted fragment file
-    echo "Adding header to sorted fragment file"
-    echo "# Reference genome is ~{input_bwa_reference}" > "~{atac_fragment_base}.with_header.sorted.tsv"
-    echo "# Reference GTF is ~{input_gtf}" >> "~{atac_fragment_base}.with_header.sorted.tsv"
-    cat "~{atac_fragment_base}.sorted.tsv" >> "~{atac_fragment_base}.with_header.sorted.tsv"
-    mv "~{atac_fragment_base}.with_header.sorted.tsv" "~{atac_fragment_base}.sorted.tsv"
+    # sorting the file (skip header lines that start with #)
+    echo "Sorting file"
+    (head -n 2 "~{atac_fragment_base}.tsv"; tail -n +3 "~{atac_fragment_base}.tsv" | sort -k1,1V -k2,2n) > "~{atac_fragment_base}.sorted.tsv"
     echo "Starting bgzip"
     bgzip "~{atac_fragment_base}.sorted.tsv"
     echo "Starting tabix"
