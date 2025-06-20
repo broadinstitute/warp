@@ -1,3 +1,8 @@
+# 2.1.4
+2025-06-18 (Date of Last Commit) 
+
+* Added the exclude_chroms input parameter to the snap.metrics.tsse function in the CreateFragmentFile task of the ATAC pipeline; which is a list of chromosomes to exclude in per cell metric computation. The default value is [chrM, M]
+
 # 2.1.3
 2025-06-06 (Date of Last Commit)
 

@@ -52,7 +52,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.8.0"
+  String pipeline_version = "2.9.0"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -636,7 +636,7 @@ task CreateFragmentFile {
     
     atac_data.uns["reference_gtf_file"] = gtf_path
     # calculate tsse metrics
-    snap.metrics.tsse(atac_data, atac_gtf)
+    snap.metrics.tsse(atac_data, atac_gtf, exclude_chroms=mito_list)
     # Write new atac file
     atac_data.write_h5ad("~{input_id}.metrics.h5ad")
 
