@@ -324,14 +324,13 @@ task JoinMultiomeBarcodes {
     # For ATAC data: use the GEX barcode as the index
     print("Setting ATAC obs to new dataframe and indexing on GEX barcodes")
     atac_data.obs = df_atac
-    # Set index to gex_barcodes column (remove any existing index name)
+    # Set index to gex_barcodes column
     atac_data.obs.index = atac_data.obs['gex_barcodes']
     atac_data.obs.index.name = 'gex_barcodes'
 
-    # For GEX data: already indexed on GEX barcodes
+    # For GEX data: use the GEX barcode as the index
     print("Setting Optimus obs to new dataframe")
     gex_data.obs = df_gex
-    # Ensure GEX data index name is set correctly
     gex_data.obs.index.name = 'gex_barcodes'
 
     # write out the files
