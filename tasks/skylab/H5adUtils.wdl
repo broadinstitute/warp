@@ -237,6 +237,8 @@ task JoinMultiomeBarcodes {
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
+    String input_gtf
+    String input_bwa_reference
 
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
@@ -244,6 +246,7 @@ task JoinMultiomeBarcodes {
     Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 8) + 100
     String docker_path
   }
+
   String gex_base_name = basename(gex_h5ad, ".h5ad")
   String atac_base_name = basename(atac_h5ad, ".h5ad")
   String atac_fragment_base = basename(atac_fragment, ".sorted.tsv.gz")
@@ -254,6 +257,8 @@ task JoinMultiomeBarcodes {
     gex_h5ad: "The resulting h5ad from the Optimus workflow."
     gex_whitelist: "Whitelist used for gene expression barcodes."
     atac_whitelist: "Whitelist used for ATAC barcodes."
+    input_gtf: "Reference GTF file used in the analysis."
+    input_bwa_reference: "Reference genome used in the analysis."
   }
 
   command <<<
@@ -275,6 +280,8 @@ task JoinMultiomeBarcodes {
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
+    input_gtf = "~{input_gtf}"
+    input_bwa_reference = "~{input_bwa_reference}"
 
     # import anndata to manipulate h5ad files
     import anndata as ad
@@ -312,29 +319,40 @@ task JoinMultiomeBarcodes {
     df_atac = atac_data.obs.join(df_both_atac)
     df_gex = gex_data.obs.join(df_both_gex)
     df_fragment = pd.merge(atac_tsv, df_both_atac, left_on='barcode', right_index=True, how='left')
-    # set atac_data.obs to new dataframe
-    print("Setting ATAC obs to new dataframe")
+
+    # Index both ATAC and GEX data on GEX barcodes
+    # For ATAC data: use the GEX barcode as the index
+    print("Setting ATAC obs to new dataframe and indexing on GEX barcodes")
     atac_data.obs = df_atac
-    #rename ATAC matrix 'index' to atac_barcodes
-    atac_data.obs.index.name = 'atac_barcodes'
-    # set gene_data.obs to new dataframe
+    # Set index to gex_barcodes column
+    atac_data.obs.index = atac_data.obs['gex_barcodes']
+    atac_data.obs.index.name = 'gex_barcodes'
+
+    # For GEX data: use the GEX barcode as the index
     print("Setting Optimus obs to new dataframe")
     gex_data.obs = df_gex
+    gex_data.obs.index.name = 'gex_barcodes'
 
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
     df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
     CODE
-    
-    # sorting the file
+
+    # Add reference information to fragment file header
+    echo "Adding reference information to fragment file"
+    echo "# Reference genome is ~{input_bwa_reference}" > "~{atac_fragment_base}.with_header.tsv"
+    echo "# Reference GTF is ~{input_gtf}" >> "~{atac_fragment_base}.with_header.tsv"
+    cat "~{atac_fragment_base}.tsv" >> "~{atac_fragment_base}.with_header.tsv"
+    mv "~{atac_fragment_base}.with_header.tsv" "~{atac_fragment_base}.tsv"
+
+    # sorting the file (skip header lines that start with #)
     echo "Sorting file"
-    sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
+    (head -n 2 "~{atac_fragment_base}.tsv"; tail -n +3 "~{atac_fragment_base}.tsv" | sort -k1,1V -k2,2n) > "~{atac_fragment_base}.sorted.tsv"
     echo "Starting bgzip"
     bgzip "~{atac_fragment_base}.sorted.tsv"
     echo "Starting tabix"
     tabix -s 1 -b 2 -e 3 -C "~{atac_fragment_base}.sorted.tsv.gz"
-
   >>>
 
   runtime {
@@ -351,6 +369,7 @@ task JoinMultiomeBarcodes {
     File atac_fragment_tsv_index = "~{atac_fragment_base}.sorted.tsv.gz.csi"
   }
 }
+
 
 task SlideseqH5adGeneration {
 
