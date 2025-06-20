@@ -1,8 +1,8 @@
 # 6.1.0
-25-06-11 (Date of Last Commit)
+25-06-20 (Date of Last Commit)
 
-* Swapped the location of ATAC barcodes with GEX barcodes in ATAC fragment files and h5ad files
-* Added header to fragment file
+* Indexed both atac and gex h5ad files on GEX barcodes for easier multiome cross-referencing
+* Added reference genome/GTF headers to fragment file via new string inputs
 
 # 6.0.4
 25-06-06 (Date of Last Commit)

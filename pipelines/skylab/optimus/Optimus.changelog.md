@@ -1,3 +1,8 @@
+# 8.0.3
+2025-06-20 (Date of Last Commit)
+
+* Indexed both atac and gex h5ad files on GEX barcodes for easier multiome cross-referencing; this change does not affect this pipeline
+
 # 8.0.2
 2025-06-09 (Date of Last Commit)
 
