@@ -96,6 +96,7 @@ task PeakCalling {
         set -euo pipefail
         set -x
 
+
         echo "starting up python environment"
 
         python3 <<CODE
