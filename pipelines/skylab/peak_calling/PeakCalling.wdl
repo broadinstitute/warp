@@ -96,14 +96,21 @@ task PeakCalling {
         set -euo pipefail
         set -x
 
+        echo "starting up python environment"
+
         python3 <<CODE
 
         # use snap atac2
         import snapatac2 as snap
+        print("Importing SnapATAC2")
         import scanpy as sc
+        print("Importing Scanpy")
         import numpy as np
+        print("Importing numpy")
         import polars as pl
+        print("Importing polars")
         import pandas as pd
+        print("Importing pandas")
 
         output_base_name = "~{output_base_name}"
         atac_gtf = "~{annotations_gtf}"
