@@ -101,6 +101,8 @@ task PeakCalling {
 
         python3 <<CODE
 
+        print("Starting up Python environment for SnapATAC2 peak calling...")
+
         # use snap atac2
         import snapatac2 as snap
         print("Importing SnapATAC2")
