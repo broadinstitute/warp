@@ -11,6 +11,7 @@ workflow ImputationBeagle {
   input {
     Int chunkLength = 25000000
     Int chunkOverlaps = 2000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
+    Int sample_chunk_size = 1000 # this is the number of samples that will be processed in parallel in each chunked scatter
 
     File multi_sample_vcf
 
@@ -34,6 +35,9 @@ workflow ImputationBeagle {
     input:
       vcf = multi_sample_vcf
   }
+
+  Float sample_chunk_size_float = sample_chunk_size
+  Int num_sample_chunks = ceil(CountSamples.nSamples / sample_chunk_size_float)
 
   call beagleTasks.CreateVcfIndex {
     input:
@@ -126,54 +130,72 @@ workflow ImputationBeagle {
     scatter (i in range(num_chunks)) {
       String second_scatter_chunk_basename = referencePanelContig.contig + "_chunk_" + i
 
-      # max amount of cpus you can ask for is 96 so at a max of 10k samples we can only ask for 9 cpu a sample.
-      # these values are based on trying to optimize for pre-emptibility using a 400k sample reference panel
-      # and up to a 10k sample input vcf
-      Int beagle_cpu = if (CountSamples.nSamples <= 1000) then 8 else floor(CountSamples.nSamples / 1000) * 9
-      Int beagle_phase_memory_in_gb = if (CountSamples.nSamples <= 1000) then 45 else ceil(beagle_cpu * 1.9)
-      Int beagle_impute_memory_in_gb = if (CountSamples.nSamples <= 1000) then 45 else ceil(beagle_cpu * 5.3)
+      Int beagle_cpu = 8
+      Int beagle_phase_memory_in_gb = 45
+      Int beagle_impute_memory_in_gb = 45
 
-      call beagleTasks.Phase {
-        input:
-          dataset_vcf = chunkedVcfsWithOverlapsForImputation[i],
-          ref_panel_bref3 = referencePanelContig.bref3,
-          chrom = referencePanelContig.contig,
-          basename = second_scatter_chunk_basename + ".phased",
-          genetic_map_file = referencePanelContig.genetic_map,
-          start = startWithOverlaps[i],
-          end = endWithOverlaps[i],
-          cpu = beagle_cpu,
-          memory_mb = beagle_phase_memory_in_gb * 1024,
-          for_dependency = FailQCNChunks.done
+      scatter (j in range(num_sample_chunks)) {
+        Int start_sample = (j * sample_chunk_size) + 10
+        Int end_sample = if (CountSamples.nSamples <= ((j + 1) * sample_chunk_size)) then CountSamples.nSamples + 9 else ((j + 1) * sample_chunk_size ) + 9
+        String second_scatter_sample_chunk_basename = second_scatter_chunk_basename + ".sample_chunk_" + j
+
+        call beagleTasks.SelectSamplesWithCut {
+          input:
+            vcf = chunkedVcfsWithOverlapsForImputation[i],
+            cut_start_field = start_sample,
+            cut_end_field = end_sample,
+            basename = second_scatter_sample_chunk_basename
+        }
+
+        call beagleTasks.Phase {
+          input:
+            dataset_vcf = SelectSamplesWithCut.output_vcf,
+            ref_panel_bref3 = referencePanelContig.bref3,
+            chrom = referencePanelContig.contig,
+            basename = second_scatter_sample_chunk_basename + ".phased",
+            genetic_map_file = referencePanelContig.genetic_map,
+            start = startWithOverlaps[i],
+            end = endWithOverlaps[i],
+            cpu = beagle_cpu,
+            memory_mb = beagle_phase_memory_in_gb * 1024,
+            for_dependency = FailQCNChunks.done
+        }
+
+        call beagleTasks.Impute {
+          input:
+            dataset_vcf = Phase.vcf,
+            ref_panel_bref3 = referencePanelContig.bref3,
+            chrom = referencePanelContig.contig,
+            basename = second_scatter_sample_chunk_basename + ".imputed",
+            genetic_map_file = referencePanelContig.genetic_map,
+            start = startWithOverlaps[i],
+            end = endWithOverlaps[i],
+            cpu = beagle_cpu,
+            memory_mb = beagle_impute_memory_in_gb * 1024
+        }
+
+        call beagleTasks.LocalizeAndSubsetVcfToRegion {
+          input:
+            vcf = Impute.vcf,
+            start = start[i],
+            end = end[i],
+            contig = referencePanelContig.contig,
+            output_basename = second_scatter_sample_chunk_basename + ".imputed.no_overlaps",
+            gatk_docker = gatk_docker
+        }
       }
 
-      call beagleTasks.Impute {
+      call beagleTasks.MergeSampleChunkedVcfs {
         input:
-          dataset_vcf = Phase.vcf,
-          ref_panel_bref3 = referencePanelContig.bref3,
-          chrom = referencePanelContig.contig,
-          basename = second_scatter_chunk_basename + ".imputed",
-          genetic_map_file = referencePanelContig.genetic_map,
-          start = startWithOverlaps[i],
-          end = endWithOverlaps[i],
-          cpu = beagle_cpu,
-          memory_mb = beagle_impute_memory_in_gb * 1024
-      }
-
-      call beagleTasks.LocalizeAndSubsetVcfToRegion {
-        input:
-          vcf = Impute.vcf,
-          start = start[i],
-          end = end[i],
-          contig = referencePanelContig.contig,
-          output_basename = second_scatter_chunk_basename + ".imputed.no_overlaps",
-          gatk_docker = gatk_docker
+          input_vcfs = LocalizeAndSubsetVcfToRegion.output_vcf,
+          input_vcf_indices = LocalizeAndSubsetVcfToRegion.output_vcf_index,
+          output_vcf_basename = second_scatter_chunk_basename + ".imputed.no_overlaps.samples_merged",
       }
 
       call tasks.UpdateHeader {
         input:
-          vcf = LocalizeAndSubsetVcfToRegion.output_vcf,
-          vcf_index = LocalizeAndSubsetVcfToRegion.output_vcf_index,
+          vcf = MergeSampleChunkedVcfs.output_vcf,
+          vcf_index = MergeSampleChunkedVcfs.output_vcf_index,
           ref_dict = ref_dict,
           basename = second_scatter_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,

@@ -22,6 +22,7 @@ task CalculateChromosomeLength {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 2
     noAddress: true
   }
   output {
@@ -89,13 +90,16 @@ task GenerateChunk {
     --restrict-alleles-to BIALLELIC \
     -L ~{chrom}:~{start}-~{end} \
     -O ~{basename}.vcf.gz \
-    --exclude-filtered true
+    --exclude-filtered true \
+    -select 'POS >= ~{start}'
   }
   runtime {
     docker: gatk_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    preemptible: 3
+    maxRetries: 2
     noAddress: true
   }
   parameter_meta {
@@ -304,6 +308,7 @@ task GatherVcfs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
     noAddress: true
   }
   output {
@@ -379,6 +384,7 @@ task UpdateHeader {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 2
     noAddress: true
   }
   output {
@@ -553,6 +559,7 @@ task CountSamples {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 2
     noAddress: true
   }
   output {
@@ -639,6 +646,7 @@ task StoreChunksInfo {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 2
     noAddress: true
   }
   output {

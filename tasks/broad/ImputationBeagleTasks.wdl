@@ -34,6 +34,7 @@ task CountVariantsInChunks {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 2
     noAddress: true
   }
 }
@@ -65,6 +66,7 @@ task CheckChunks {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 2
     noAddress: true
   }
 }
@@ -113,6 +115,7 @@ task Phase {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 2
     noAddress: true
   }
 }
@@ -159,6 +162,7 @@ task Impute {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 2
     noAddress: true
   }
 }
@@ -180,6 +184,7 @@ task ErrorWithMessageIfErrorCountNotZero {
   runtime {
     docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
     preemptible: 3
+    maxRetries: 2
     noAddress: true
   }
   output {
@@ -214,6 +219,7 @@ task CreateVcfIndex {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 2
     noAddress: true
   }
   output {
@@ -257,11 +263,101 @@ task LocalizeAndSubsetVcfToRegion {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 2
     noAddress: true
   }
 
   output {
     File output_vcf = "~{output_basename}.vcf.gz"
     File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
+  }
+}
+
+task SelectSamplesWithCut {
+  input {
+    File vcf
+
+    Int cut_start_field
+    Int cut_end_field
+    String basename
+
+    Int disk_size_gb = ceil(1.5 * size(vcf, "GiB")) + 10
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
+    Int cpu = 2
+    Int memory_mb = 6000
+  }
+
+  command <<<
+    set -euo pipefail
+
+    mkfifo fifo_bgzip
+    mkfifo fifo_cut
+
+    bcftools view -h --no-version ~{vcf} | awk '!/^#CHROM/' > header.vcf
+    n_lines=$(wc -l header.vcf | cut -d' ' -f1)
+
+    cat header.vcf
+    echo $n_lines
+
+    bgzip -d ~{vcf} -o fifo_bgzip &
+    tail +$((n_lines)) fifo_bgzip | cut -f 1-9,~{cut_start_field}-~{cut_end_field} > fifo_cut &
+
+    cat header.vcf fifo_cut | bgzip -o ~{basename}.vcf.gz
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/ckachulis/bcftools_bgzip"
+    disks: "local-disk " + disk_size_gb + " HDD"
+    memory: memory_mb + " MiB"
+    preemptible: 3
+    maxRetries: 2
+    cpu: cpu
+  }
+
+  output {
+    File output_vcf = "~{basename}.vcf.gz"
+  }
+}
+
+task MergeSampleChunkedVcfs {
+  input {
+    Array[File] input_vcfs
+    Array[File] input_vcf_indices
+    String output_vcf_basename
+
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
+    Int memory_mb = 11000
+    Int cpu = 2
+    Int disk_size_gb = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
+  }
+  command <<<
+    set -e -o pipefail
+
+    # Move the index file next to the vcf with the corresponding name
+
+    declare -a VCFS=(~{sep=' ' input_vcfs})
+    declare -a VCF_INDICES=(~{sep=' ' input_vcf_indices})
+
+    for i in ${VCF_INDICES[@]}; do
+    for v in ${VCFS[@]}; do
+    if [[ $(basename $i .vcf.gz.tbi) == $(basename $v .vcf.gz) ]]; then
+    mv $i $(dirname $v)
+    fi
+    done
+    done
+
+    bcftools merge ~{sep=' ' input_vcfs} -O z -o ~{output_vcf_basename}.vcf.gz
+    bcftools index -t ~{output_vcf_basename}.vcf.gz
+  >>>
+  runtime {
+    docker: bcftools_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    noAddress: true
+  }
+  output {
+    File output_vcf = "~{output_vcf_basename}.vcf.gz"
+    File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
   }
 }
