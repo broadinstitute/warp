@@ -245,6 +245,7 @@ Marmoset scripts expect a custom-modified input Marmoset GTF file. These inputs 
 ### Viral references
 
 | Species | Species reference | Species annotation | Viral reference | Viral annotation | 
+|---------|-------------------|------------------|-----------------------|--------------------|
 | Human | Human-GENCODE-build-GRCh38-43 | Gencode release 43 GRCh38 | Modified HXB2 K03455.1 `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/hiv.fa` | `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/HIV.gtf` |
 | Mouse | mm39/genecode.vM32 | Gencode release M32 GRCm39 | Modified https://www.ncbi.nlm.nih.gov/nuccore/MG470653.1 (excluding 3’LTR)
 `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/EcoHIV.fa` |`gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/EcoHIV.gtf`|
