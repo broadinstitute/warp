@@ -162,11 +162,10 @@ Inputs for the Macaque reference below were modified using a custom tool to hand
 |---------------------|--------------|
 | Genomics Reference     | mmul10 |
 | Gene annotation  | RefSeq annotation version 103 |
-| STAR Index TAR     | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/numty_dumpty/numt_modified_star2.7.10a-Macaque-NCBI-build-GCF_003339765.1-103.tar` |
-| BWA Index TAR      | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/numty_dumpty/numt_bwa-mem2-2.2.1-Macaque-NCBI-build-GCF_003339765.1.tar` |
-| GTF Annotation     | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/numty_dumpty/numt_modified_v103.annotation.gtf` |
-| Chromosome Sizes   | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/numty_dumpty/numt_chrom.sizes` |
-
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/10x_filtered/modified_star2.7.10a-Macaque-NCBI-build-GCF_003339765.1-103.tar` |
+| BWA Index TAR      | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/bwa-mem2-2.2.1-Macaque-NCBI-build-GCF_003339765.1.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/10x_filtered/mt_v103_modified.annotation.gtf` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/chrom.sizes` |
 
 This macaque reference works with the Optimus, Multiome, and Paired-tag workflows. However, mitochondrial genes are not demarcated with an "mt-" tag. A separate text file with MT genes is required. An example is the list below:
 
