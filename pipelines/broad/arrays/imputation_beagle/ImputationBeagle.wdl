@@ -31,6 +31,11 @@ workflow ImputationBeagle {
     Int? error_count_override
   }
 
+  # the following are used to define the resources for Beagle tasks
+  Int beagle_cpu = 8
+  Int beagle_phase_memory_in_gb = 45
+  Int beagle_impute_memory_in_gb = 45
+
   call tasks.CountSamples {
     input:
       vcf = multi_sample_vcf
@@ -129,10 +134,6 @@ workflow ImputationBeagle {
 
     scatter (i in range(num_chunks)) {
       String second_scatter_chunk_basename = referencePanelContig.contig + "_chunk_" + i
-
-      Int beagle_cpu = 8
-      Int beagle_phase_memory_in_gb = 45
-      Int beagle_impute_memory_in_gb = 45
 
       scatter (j in range(num_sample_chunks)) {
         Int start_sample = (j * sample_chunk_size) + 10
