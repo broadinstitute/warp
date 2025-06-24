@@ -139,17 +139,20 @@ workflow ImputationBeagle {
         Int end_sample = if (CountSamples.nSamples <= ((j + 1) * sample_chunk_size)) then CountSamples.nSamples + 9 else ((j + 1) * sample_chunk_size ) + 9
         String second_scatter_sample_chunk_basename = second_scatter_chunk_basename + ".sample_chunk_" + j
 
-        call beagleTasks.SelectSamplesWithCut {
-          input:
-            vcf = chunkedVcfsWithOverlapsForImputation[i],
-            cut_start_field = start_sample,
-            cut_end_field = end_sample,
-            basename = second_scatter_sample_chunk_basename
+        # only cut sample chunks if there is more than one
+        if (num_sample_chunks > 1) {
+          call beagleTasks.SelectSamplesWithCut {
+            input:
+              vcf = chunkedVcfsWithOverlapsForImputation[i],
+              cut_start_field = start_sample,
+              cut_end_field = end_sample,
+              basename = second_scatter_sample_chunk_basename
+          }
         }
 
         call beagleTasks.Phase {
           input:
-            dataset_vcf = SelectSamplesWithCut.output_vcf,
+            dataset_vcf = select_first([SelectSamplesWithCut.output_vcf, chunkedVcfsWithOverlapsForImputation[i]]),
             ref_panel_bref3 = referencePanelContig.bref3,
             chrom = referencePanelContig.contig,
             basename = second_scatter_sample_chunk_basename + ".phased",
@@ -185,17 +188,20 @@ workflow ImputationBeagle {
         }
       }
 
-      call beagleTasks.MergeSampleChunkedVcfs {
-        input:
-          input_vcfs = LocalizeAndSubsetVcfToRegion.output_vcf,
-          input_vcf_indices = LocalizeAndSubsetVcfToRegion.output_vcf_index,
-          output_vcf_basename = second_scatter_chunk_basename + ".imputed.no_overlaps.samples_merged",
+      # only merge sample chunks if there is more than one
+      if (num_sample_chunks > 1) {
+        call beagleTasks.MergeSampleChunkedVcfs {
+          input:
+            input_vcfs = LocalizeAndSubsetVcfToRegion.output_vcf,
+            input_vcf_indices = LocalizeAndSubsetVcfToRegion.output_vcf_index,
+            output_vcf_basename = second_scatter_chunk_basename + ".imputed.no_overlaps.samples_merged",
+        }
       }
 
       call tasks.UpdateHeader {
         input:
-          vcf = MergeSampleChunkedVcfs.output_vcf,
-          vcf_index = MergeSampleChunkedVcfs.output_vcf_index,
+          vcf = select_first([MergeSampleChunkedVcfs.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
+          vcf_index = select_first([MergeSampleChunkedVcfs.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
           ref_dict = ref_dict,
           basename = second_scatter_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,
