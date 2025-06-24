@@ -243,6 +243,31 @@ Marmoset scripts expect a custom-modified input Marmoset GTF file. These inputs 
 | STAR Index TAR     | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/star/v2_7_10a/modified_star2.7.10a-Pig-NCBI-build-Sscrofa11.1-2.2.tar` |
 | GTF Annotation     | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/star/v2_7_10a/modified_v2.2.annotation.gtf` |
 
+### Viral references
+
+#### HIV 
+| File Type           | File Location |
+|---------------------|--------------|
+| Fasta  | `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/hiv.fa` |
+| GTF  | `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/HIV.gtf` |
+
+#### EcoHIV 
+| File Type           | File Location |
+|---------------------|--------------|
+| Fasta | `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/EcoHIV.fa` |
+| GTF  | `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/EcoHIV.gtf` |
+
+#### SIV 
+| File Type           | File Location |
+|---------------------|--------------|
+| Fasta | `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/siv.fa` |
+| GTF  |` gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/SIV.gtf` |
+
+#### Rat HIV
+| File Type           | File Location |
+|---------------------|--------------|
+| Fasta | `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/RAT-HIVTransgene.fa` |
+| GTF  | `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/RAT-HIVFullTranscript.gtf` |
 
 ## Feedback
 
