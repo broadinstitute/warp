@@ -191,18 +191,17 @@ workflow ImputationBeagle {
 
       # only merge sample chunks if there is more than one
       if (num_sample_chunks > 1) {
-        call beagleTasks.MergeSampleChunkedVcfs {
+        call beagleTasks.MergeSampleChunksVcfsWithPaste {
           input:
             input_vcfs = LocalizeAndSubsetVcfToRegion.output_vcf,
-            input_vcf_indices = LocalizeAndSubsetVcfToRegion.output_vcf_index,
             output_vcf_basename = second_scatter_chunk_basename + ".imputed.no_overlaps.samples_merged",
         }
       }
 
       call tasks.UpdateHeader {
         input:
-          vcf = select_first([MergeSampleChunkedVcfs.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
-          vcf_index = select_first([MergeSampleChunkedVcfs.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
+          vcf = select_first([MergeSampleChunksVcfsWithPaste.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
+          vcf_index = select_first([MergeSampleChunksVcfsWithPaste.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
           ref_dict = ref_dict,
           basename = second_scatter_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,
