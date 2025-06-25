@@ -9,8 +9,8 @@ import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--contig',                     help='contig to run, in hg38 format (e.g. chr20)')
-parser.add_argument('--start_pos',                  help='start position for region (1-based, inclusive)', type=int)
-parser.add_argument('--end_pos',                    help='end position for region (1-based, inclusive)', type=int)
+parser.add_argument('--start_pos',                  help='start position for region (1-based, inclusive)', type=int, default=None)
+parser.add_argument('--end_pos',                    help='end position for region (1-based, inclusive)', type=int, default=None)
 parser.add_argument('--temp_bucket',                help='GCS bucket used for spark.local.dir, likely the cluster temp bucket')
 # INPUTS
 parser.add_argument('--input_aou_vds_url',          help='GCS url to the AoU-only VDS file to process (e.g. gs://bucket/path/to/file.vds)')
@@ -74,8 +74,11 @@ hl.default_reference('GRCh38')
 
 # DEFINE ALL PATHS
 CHR_VAR = args.contig # 'chr20' # VARIABLE!!!
-START_POS = args.start_pos  # NEW: start position
-END_POS = args.end_pos      # NEW: end position
+START_POS = args.start_pos  # NEW: start position (optional)
+END_POS = args.end_pos      # NEW: end position (optional)
+
+# Check if both start and end positions are provided
+USE_REGION_FILTER = START_POS is not None and END_POS is not None
 
 # INPUTS
 AOU_VDS_PATH = args.input_aou_vds_url # 'gs://prod-drc-broad/v8/wgs/vds/aou_srwgs_short_variants_v8r1.vds/merged'
@@ -94,10 +97,11 @@ VDS_FIL = hl.vds.filter_chromosomes(VDS, keep=CHR_VAR)
 ## DENSIFY THE VDS FILE TO MT
 mt = hl.vds.to_dense_mt(VDS_FIL)
 
-## NEW: FILTER BY GENOMIC REGION
-# Create interval for the specific region
-interval = hl.parse_locus_interval(f"{CHR_VAR}:{START_POS}-{END_POS}", reference_genome='GRCh38')
-mt = hl.filter_intervals(mt, [interval])
+## NEW: FILTER BY GENOMIC REGION (OPTIONAL)
+if USE_REGION_FILTER:
+    # Create interval for the specific region
+    interval = hl.parse_locus_interval(f"{CHR_VAR}:{START_POS}-{END_POS}", reference_genome='GRCh38')
+    mt = hl.filter_intervals(mt, [interval])
 
 ## FILTER BY THE NUMBER OF ALT ALLELES
 ALT_MAX = 31 # VARIABLE!!!
@@ -191,8 +195,14 @@ end = datetime.now()
 time_est = (end - start).total_seconds() / 3600
 cost_est = rig_cost * time_est
 
+# Format the region description for the report
+if USE_REGION_FILTER:
+    region_desc = f"{CHR_VAR}:{START_POS}-{END_POS}"
+else:
+    region_desc = CHR_VAR
+
 export_report = (
-    f"Chro:\t{CHR_VAR}:{START_POS}-{END_POS}\n"
+    f"Chro:\t{region_desc}\n"
     f"Path:\t{vcf_url}\n" # @Franjo - in other scripts you use NAME_BASE instead of the path - does it matter?
     f"Time:\t{time_est}\n"
     f"Rigs:\t{rig_cost}\n"
