@@ -129,13 +129,13 @@ mt = mt.drop(*fields_to_drop)
 ## APPLY ROW FILTERS
 # Filter the matrixtable
 mt_fil = mt.filter_rows(
-    ((mt.defined_AD >= 1) & (mt.average_variant_sum_AD < 12.0)) | # VARIABLE!!!
+    ((mt.defined_AD >= 1) & (mt.average_variant_sum_AD < 12.0)) | # VARIABLE!!! # Back off from 12.0 to 4.0
     (mt.maximum_variant_AC < 2) | # VARIABLE!!!
     ((mt.filters.contains('LowQual')) | # VARIABLE!!! Probably a checkbox?
      (mt.filters.contains('NO_HQ_GENOTYPES')) | # VARIABLE!!! Probably a checkbox?
      (mt.filters.contains('ExcessHet'))) | # VARIABLE!!! Probably a checkbox?
     (mt.variant_qc.call_rate < 0.9) |  # VARIABLE!!!
-    (mt.variant_qc.gq_stats.mean < 30.0),  # VARIABLE!!!
+    (mt.variant_qc.gq_stats.mean < 30.0),  # VARIABLE!!! # back off to 1 for testing
     keep=False)
 
 ## ANNOTATE INFO FIELDS, REMOVE OTHER ETRANEOUS FIELDS
