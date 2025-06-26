@@ -266,8 +266,8 @@ task FilterAndQCVariants {
                     --output_aou_vcf_header_url ~{output_aou_vcf_header_url} \
                     --output_report_url ~{output_report_url} \
                     --contig ~{contig} \
-                    ~{"--start_pos" + start_position} \
-                    ~{"--end_pos" + end_position} \
+                    ~{"--start_pos " + start_position} \
+                    ~{"--end_pos " + end_position} \
                     --temp_bucket gs://{cluster_temp_bucket}/{cluster_name}'''
 
                     print("Running: " + submit_cmd)
