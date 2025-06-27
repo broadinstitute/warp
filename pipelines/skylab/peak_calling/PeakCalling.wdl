@@ -99,6 +99,7 @@ task PeakCalling {
         python3 <<CODE
 
         # use snap atac2
+
         import snapatac2 as snap
         import scanpy as sc
         import numpy as np
