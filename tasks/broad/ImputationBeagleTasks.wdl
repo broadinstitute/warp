@@ -393,7 +393,7 @@ task MergeSampleChunksVcfsWithPaste {
 
     bgzip -d ${vcfs[0]} -o fifo_0 &
 
-    tail +$((n_lines+1)) fifo_0 | tee fifo_to_paste_0 | cut -f1-5,9 | md5sum > md5sum_0 &
+    tail +$((n_lines)) fifo_0 | tee fifo_to_paste_0 | cut -f1-5,9 | md5sum > md5sum_0 &
 
     for vcf in "${vcfs[@]:1}"; do
       fifo_name="fifo_$i"
@@ -408,10 +408,10 @@ task MergeSampleChunksVcfsWithPaste {
 
       file_name_md5sum="md5sum_$i"
       md5sums+=("$file_name_md5sum")
-      n_lines=$(bcftools view -h --no-version $vcf | wc -l | cut -d' ' -f1)
+      n_lines=$(bcftools view -h --no-version $vcf | awk '!/^#CHROM/' | wc -l | cut -d' ' -f1)
 
       bgzip -d ${vcf} -o "$fifo_name" &
-      tail +$((n_lines+1)) "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
+      tail +$((n_lines)) "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
       cut -f1-5,9 "$fifo_name_to_md5" | md5sum > "$file_name_md5sum" &
 
       ((i++))
