@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl" as Tasks
-import "../../tasks/broad/Alignment.wdl" as AlignmentTasks
+import "UltimaGenomicsWholeGenomeGermlineTasks.wdl" as Tasks
+import "Alignment.wdl" as AlignmentTasks
 import "../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
 
 workflow AlignmentAndMarkDuplicates {
