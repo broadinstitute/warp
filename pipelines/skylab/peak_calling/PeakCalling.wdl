@@ -227,7 +227,7 @@ task PeakCalling {
     >>>
 
     runtime {
-        docker: docker_path
+        docker: "us.gcr.io/broad-gotc-prod/snapatac2:np_snapatac2_docker"
         disks: "local-disk ${disk_size} SSD"
         memory: "${mem_size} GiB"
         cpu: nthreads
