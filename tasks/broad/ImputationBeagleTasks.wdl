@@ -437,7 +437,7 @@ task RecalculateDR2AndAF {
     for chunk in pd.read_csv("dosage_tbl.csv.gz", names=csv_names, dtype=dtypes_dict, na_values=".", chunksize = ~{chunksize}, lineterminator="\n"):
       chunk.dropna(inplace=True)
 
-      # get sample level annotaions needed for AF and DR2 calculations
+      # get sample level annotaions necessary for AF and DR2 calculations
       dosages = chunk[[f'sample_{i}_DS' for i in range(~{n_samples})]].to_numpy()
       ap1 = chunk[[f'sample_{i}_AP1' for i in range(~{n_samples})]].to_numpy()
       ap2 = chunk[[f'sample_{i}_AP2' for i in range(~{n_samples})]].to_numpy()
