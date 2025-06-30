@@ -24,7 +24,7 @@ workflow vds_to_vcf {
         # This should be ordered
         Array[String] contigs
     }
-    String pipeline_version = "aou-8.0.0"
+    String pipeline_version = "aou_8.0.0"
 
     scatter (contig in contigs) {
         call process_vds {
@@ -61,6 +61,11 @@ task process_vds {
         String chromosome
         Int n_parts
         String output_prefix
+        String docker = "hailgenetics/hail:0.2.127-py3.11"
+        Int? memory
+        Int memory_gb = select_first([memory, 128])
+        Int? optional_cpu
+        Int cpu = select_first([optional_cpu, 96])
     }
     command <<<
         set -e
@@ -246,9 +251,9 @@ task process_vds {
         File vcf_so_idx = "~{output_prefix}.~{chromosome}.so.vcf.bgz.tbi"
     }
     runtime {
-        docker: "hailgenetics/hail:0.2.127-py3.11"
-        memory: "624 GB"
-        cpu: "96"
+        docker: docker
+        memory: "${memory_gb} GiB"
+        cpu: cpu
         disks: "local-disk 1000 HDD"
         bootDiskSizeGb: 500
     }
@@ -272,7 +277,7 @@ task create_fofn {
         File fofn2 = "~{output_prefix}.fofn2.txt"
     }
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+        docker: docker
         memory: "3 GB"
         cpu: "1"
         disks: "local-disk 100 HDD"
