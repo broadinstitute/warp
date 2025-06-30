@@ -142,13 +142,13 @@ mt = mt.drop(*fields_to_drop)
 ## APPLY ROW FILTERS
 # Filter the matrixtable
 mt_fil = mt.filter_rows(
-    ((mt.defined_AD >= 1) & (mt.average_variant_sum_AD < 4.0)) | # VARIABLE!!! #### Changed from 12.0 to 4.0 ####
-    (mt.maximum_variant_AC < 2) | # VARIABLE!!!
+    ((mt.defined_AD < 10) & (mt.average_variant_sum_AD < 4.0)) | # VARIABLE!!! #### Changed from 12.0 to 4.0 ####
+    (mt.maximum_variant_AC < 10) | # VARIABLE!!!
     ((mt.filters.contains('LowQual')) | # VARIABLE!!! Probably a checkbox?
      (mt.filters.contains('NO_HQ_GENOTYPES')) | # VARIABLE!!! Probably a checkbox?
      (mt.filters.contains('ExcessHet'))) | # VARIABLE!!! Probably a checkbox?
-    (mt.variant_qc.call_rate < 0.9) |  # VARIABLE!!!
-    (mt.variant_qc.gq_stats.mean < 1.0),  # VARIABLE!!!  #### Changed from 30.0 to 1.0 ####
+    (mt.variant_qc.call_rate < 0.99) |  # VARIABLE!!!
+    (mt.variant_qc.gq_stats.mean < 60.0),  # VARIABLE!!!  #### Changed from 30.0 to 1.0 ####
     keep=False)
 
 ## ANNOTATE INFO FIELDS, REMOVE OTHER ETRANEOUS FIELDS
@@ -163,6 +163,12 @@ mt_fil = mt_fil.annotate_rows(
 fields_to_drop = ['filters', 'variant_qc', 'infor', 'maximum_variant_AC', 'defined_AD', 'average_variant_sum_AD']
 
 mt_fil = mt_fil.drop(*fields_to_drop)
+
+n_rows_pre = mt.count_rows()
+n_rows_post = mt_fil.count_rows()
+print(f"Rows before filtering: {n_rows_pre}")
+print(f"Rows after filtering: {n_rows_post}")
+print(f"Variants removed: {n_rows_pre - n_rows_post}")
 
 ## CREATE AND STORE VCF HEADER
 vcf_metadata = """##fileformat=VCFv4.2
