@@ -198,10 +198,18 @@ workflow ImputationBeagle {
         }
       }
 
+      if (num_sample_chunks > 1) {
+        call beagleTasks.RecalculateDR2AndAF {
+          input:
+            vcf = select_first([MergeSampleChunksVcfsWithPaste.output_vcf]),
+            n_samples = CountSamples.nSamples
+        }
+      }
+
       call tasks.UpdateHeader {
         input:
-          vcf = select_first([MergeSampleChunksVcfsWithPaste.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
-          vcf_index = select_first([MergeSampleChunksVcfsWithPaste.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
+          vcf = select_first([RecalculateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
+          vcf_index = select_first([RecalculateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
           ref_dict = ref_dict,
           basename = second_scatter_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,

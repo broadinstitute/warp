@@ -321,50 +321,6 @@ task SelectSamplesWithCut {
   }
 }
 
-task MergeSampleChunkedVcfs {
-  input {
-    Array[File] input_vcfs
-    Array[File] input_vcf_indices
-    String output_vcf_basename
-
-    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
-    Int memory_mb = 11000
-    Int cpu = 2
-    Int disk_size_gb = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
-  }
-  command <<<
-    set -e -o pipefail
-
-    # Move the index file next to the vcf with the corresponding name
-
-    declare -a VCFS=(~{sep=' ' input_vcfs})
-    declare -a VCF_INDICES=(~{sep=' ' input_vcf_indices})
-
-    for i in ${VCF_INDICES[@]}; do
-    for v in ${VCFS[@]}; do
-    if [[ $(basename $i .vcf.gz.tbi) == $(basename $v .vcf.gz) ]]; then
-    mv $i $(dirname $v)
-    fi
-    done
-    done
-
-    bcftools merge ~{sep=' ' input_vcfs} -O z -o ~{output_vcf_basename}.vcf.gz
-    bcftools index -t ~{output_vcf_basename}.vcf.gz
-  >>>
-  runtime {
-    docker: bcftools_docker
-    disks: "local-disk ${disk_size_gb} HDD"
-    memory: "${memory_mb} MiB"
-    cpu: cpu
-    maxRetries: 2
-    noAddress: true
-  }
-  output {
-    File output_vcf = "~{output_vcf_basename}.vcf.gz"
-    File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
-  }
-}
-
 task MergeSampleChunksVcfsWithPaste {
   input {
     Array[File] input_vcfs
@@ -431,9 +387,6 @@ task MergeSampleChunksVcfsWithPaste {
     for fifo in fifo_*; do
     rm $fifo
     done
-
-    tabix ~{output_vcf_basename}.vcf.gz
-
   >>>
 
   runtime {
@@ -446,7 +399,90 @@ task MergeSampleChunksVcfsWithPaste {
 
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
-    File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
+  }
+}
+
+task RecalculateDR2AndAF {
+  input {
+    File vcf
+    Int n_samples
+    Int disk_size_gb = ceil(3.3 * size(vcf, "GiB")) + 50
+    Int mem_gb = 4
+    Int cpu = 1
+    Int chunksize = 1000000
+    Int preemptible = 3
+  }
+
+  String output_base = basename(vcf, ".vcf.gz")
+
+  command <<<
+    set -euo pipefail
+
+    bcftools query -f '%CHROM,%POS,%REF,%ALT[,%DS,%AP1,%AP2]\n' ~{vcf} | gzip -c > dosage_tbl.csv.gz
+
+    echo "dosages extracted"
+
+    python3 << EOF
+
+
+    ds_dict = {f'sample_{i}_DS': 'float' for i in range(~{n_samples})}
+    ap1_dict = (f'sample_{i}_AP1': 'float' for i in range(~{n_samples}))
+    ap2_dict = (f'sample_{i}_AP2': 'float' for i in range(~{n_samples}))
+    dtypes_dict = {**ds_dict, **ap1_dict, **ap2_dict}
+
+    csv_names = ["CHROM","POS","REF","ALT"]+[f'sample_{i}_DS' for i in range(n_samples)] + \
+    [f'sample_{i}_AP1' for i in range(n_samples)] + [f'sample_{i}_AP2' for i in range(n_samples)]
+
+    out_annotation_dfs = []
+    for chunk in pd.read_csv("dosage_tbl.csv.gz", names=csv_names, dtype=dtypes_dict, na_values=".", chunksize = ~{chunksize}, lineterminator="\n"):
+      chunk.dropna(inplace=True)
+
+      # get sample level annotaions needed for AF and DR2 calculations
+      dosages = chunk[[f'sample_{i}_DS' for i in range(~{n_samples})]].to_numpy()
+      ap1 = chunk[[f'sample_{i}_AP1' for i in range(~{n_samples})]].to_numpy()
+      ap2 = chunk[[f'sample_{i}_AP2' for i in range(~{n_samples})]].to_numpy()
+
+      # AF calc
+      af = dosages.mean(axis=1)/2
+
+      # DR2 calc
+      sum_squared_ap1_ap2 = np.sum(ap1**2 + ap2**2, axis=1)
+      sum_ap1_ap2 = np.sum(ap1 + ap2, axis=1)
+      dr2 = ((2*~{n_samples} * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / ((2*~{n_samples} * sum_ap1_ap2) - (sum_ap1_ap2**2))
+
+      # values to annotate the vcf with
+      chunk_annotations = chunk[["CHROM","POS","REF","ALT"]]
+      chunk_annotations["AF"] = af
+      chunk_annotations["DR2"] = np.where((chunk_annotations["AF"]==0) | (chunk_annotations["AF"]==1), 0, dr2)
+      out_annotation_dfs.append(chunk_annotations)
+
+    annotations_df = pd.concat(out_annotation_dfs)
+    annotations_df.to_csv("annotations.tsv", sep="\t", index=False, header=False)
+    EOF
+
+    echo "annotations recomputed"
+
+    bgzip annotations.tsv
+    tabix -s1 -b2 -e2 annotations.tsv.gz
+
+    echo "annotating vcf with new annotations"
+
+    bcftools annotate --no-version -a annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,DR2 -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
+    bcftoosl index -t ~{output_base}.vcf.gz
+  >>>
+
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+    disks: "local-disk " + disk_size_gb + " HDD"
+    memory: mem_gb + " GiB"
+    cpu: cpu
+    preemptible: preemptible
+  }
+
+  output {
+    File output_vcf = "~{output_base}.vcf.gz"
+    File output_vcf_index = "~{output_base}.vcf.gz.tbi"
   }
 
 }
