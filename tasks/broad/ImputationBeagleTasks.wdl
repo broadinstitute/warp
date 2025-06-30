@@ -407,8 +407,8 @@ task RecalculateDR2AndAF {
     File vcf
     Int n_samples
     Int disk_size_gb = ceil(3.3 * size(vcf, "GiB")) + 50
-    Int mem_gb = 4
-    Int cpu = 1
+    Int mem_gb = 11
+    Int cpu = 2
     Int chunksize = 1000000
     Int preemptible = 3
   }
@@ -423,7 +423,8 @@ task RecalculateDR2AndAF {
     echo "dosages extracted"
 
     python3 << EOF
-
+    import pandas as pd
+    import numpy as np
 
     ds_dict = {f'sample_{i}_DS': 'float' for i in range(~{n_samples})}
     ap1_dict = (f'sample_{i}_AP1': 'float' for i in range(~{n_samples}))
