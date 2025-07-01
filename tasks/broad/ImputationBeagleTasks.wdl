@@ -431,8 +431,8 @@ task RecalculateDR2AndAF {
     ap2_dict = {f'sample_{i}_AP2': 'float' for i in range(~{n_samples})}
     dtypes_dict = {**ds_dict, **ap1_dict, **ap2_dict}
 
-    csv_names = ["CHROM","POS","REF","ALT"]+[f'sample_{i}_DS' for i in range(n_samples)] + \
-    [f'sample_{i}_AP1' for i in range(n_samples)] + [f'sample_{i}_AP2' for i in range(n_samples)]
+    csv_names = ["CHROM","POS","REF","ALT"]+[f'sample_{i}_DS' for i in range(~{n_samples})] + \
+    [f'sample_{i}_AP1' for i in range(~{n_samples})] + [f'sample_{i}_AP2' for i in range(~{n_samples})]
 
     out_annotation_dfs = []
     for chunk in pd.read_csv("dosage_tbl.csv.gz", names=csv_names, dtype=dtypes_dict, na_values=".", chunksize = ~{chunksize}, lineterminator="\n"):
