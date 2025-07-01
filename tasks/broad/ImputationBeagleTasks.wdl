@@ -387,6 +387,8 @@ task MergeSampleChunksVcfsWithPaste {
     for fifo in fifo_*; do
     rm $fifo
     done
+
+    bcftools index -t ~{output_vcf_basename}.vcf.gz
   >>>
 
   runtime {
@@ -399,6 +401,7 @@ task MergeSampleChunksVcfsWithPaste {
 
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
+    File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
   }
 }
 
@@ -410,7 +413,7 @@ task RecalculateDR2AndAF {
     Int mem_gb = 11
     Int cpu = 2
     Int chunksize = 10000
-    Int preemptible = 0
+    Int preemptible = 3
   }
 
   String output_base = basename(vcf, ".vcf.gz")
@@ -434,11 +437,8 @@ task RecalculateDR2AndAF {
     csv_names = ["CHROM","POS","REF","ALT"]+[f'sample_{i}_DS' for i in range(~{n_samples})] + \
     [f'sample_{i}_AP1' for i in range(~{n_samples})] + [f'sample_{i}_AP2' for i in range(~{n_samples})]
 
-    print("before read")
     out_annotation_dfs = []
     for chunk in pd.read_csv("dosage_tbl.csv.gz", names=csv_names, dtype=dtypes_dict, na_values=".", chunksize = ~{chunksize}, lineterminator="\n"):
-      chunk.dropna(inplace=True)
-      print("getting here at all?")
       # get sample level annotaions necessary for AF and DR2 calculations
       dosages = chunk[[f'sample_{i}_DS' for i in range(~{n_samples})]].to_numpy()
       ap1 = chunk[[f'sample_{i}_AP1' for i in range(~{n_samples})]].to_numpy()
