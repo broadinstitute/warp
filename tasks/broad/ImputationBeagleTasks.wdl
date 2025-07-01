@@ -409,7 +409,7 @@ task RecalculateDR2AndAF {
     Int disk_size_gb = ceil(3.3 * size(vcf, "GiB")) + 50
     Int mem_gb = 11
     Int cpu = 2
-    Int chunksize = 100000
+    Int chunksize = 10000
     Int preemptible = 0
   }
 
@@ -455,9 +455,7 @@ task RecalculateDR2AndAF {
       chunk_annotations["AF"] = af
       chunk_annotations["DR2"] = np.where((chunk_annotations["AF"]==0) | (chunk_annotations["AF"]==1), 0, dr2)
       out_annotation_dfs.append(chunk_annotations)
-      print(f"chunk annotations: \n {chunk_annotations.head(10)}")
-
-    print("Concatenating annotation dataframes")
+    
     annotations_df = pd.concat(out_annotation_dfs)
     annotations_df.to_csv("annotations.tsv", sep="\t", index=False, header=False)
     EOF
@@ -470,7 +468,7 @@ task RecalculateDR2AndAF {
     echo "annotating vcf with new annotations"
 
     bcftools annotate --no-version -a annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,DR2 -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
-    bcftoosl index -t ~{output_base}.vcf.gz
+    bcftools index -t ~{output_base}.vcf.gz
   >>>
 
 
