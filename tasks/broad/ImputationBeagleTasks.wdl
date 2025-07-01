@@ -409,8 +409,8 @@ task RecalculateDR2AndAF {
     Int disk_size_gb = ceil(3.3 * size(vcf, "GiB")) + 50
     Int mem_gb = 11
     Int cpu = 2
-    Int chunksize = 1000000
-    Int preemptible = 3
+    Int chunksize = 100000
+    Int preemptible = 0
   }
 
   String output_base = basename(vcf, ".vcf.gz")
