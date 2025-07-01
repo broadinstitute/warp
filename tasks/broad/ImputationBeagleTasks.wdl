@@ -435,25 +435,26 @@ task RecalculateDR2AndAF {
     [f'sample_{i}_AP1' for i in range(n_samples)] + [f'sample_{i}_AP2' for i in range(n_samples)]
 
     out_annotation_dfs = []
-        for chunk in pd.read_csv("dosage_tbl.csv.gz", names=csv_names, dtype=dtypes_dict, na_values=".", chunksize = ~{chunksize}, lineterminator="\n"):
-            chunk.dropna(inplace=True)
+    for chunk in pd.read_csv("dosage_tbl.csv.gz", names=csv_names, dtype=dtypes_dict, na_values=".", chunksize = ~{chunksize}, lineterminator="\n"):
+      chunk.dropna(inplace=True)
+      # get sample level annotaions necessary for AF and DR2 calculations
+      dosages = chunk[[f'sample_{i}_DS' for i in range(~{n_samples})]].to_numpy()
+      ap1 = chunk[[f'sample_{i}_AP1' for i in range(~{n_samples})]].to_numpy()
+      ap2 = chunk[[f'sample_{i}_AP2' for i in range(~{n_samples})]].to_numpy()
 
-            # get sample level annotaions necessary for AF and DR2 calculations
-            dosages = chunk[[f'sample_{i}_DS' for i in range(~{n_samples})]].to_numpy()
-            ap1 = chunk[[f'sample_{i}_AP1' for i in range(~{n_samples})]].to_numpy()
-            ap2 = chunk[[f'sample_{i}_AP2' for i in range(~{n_samples})]].to_numpy()
-            # AF calc
-            af = dosages.mean(axis=1)/2
+      # AF calc
+      af = dosages.mean(axis=1)/2
 
-            # DR2 calc
-            sum_squared_ap1_ap2 = np.sum(ap1**2 + ap2**2, axis=1)
-            sum_ap1_ap2 = np.sum(ap1 + ap2, axis=1)
-            dr2 = ((2*~{n_samples} * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / ((2*~{n_samples} * sum_ap1_ap2) - (sum_ap1_ap2**2))
-            # values to annotate the vcf with
-            chunk_annotations = chunk[["CHROM","POS","REF","ALT"]]
-            chunk_annotations["AF"] = af
-            chunk_annotations["DR2"] = np.where((chunk_annotations["AF"]==0) | (chunk_annotations["AF"]==1), 0, dr2)
-            out_annotation_dfs.append(chunk_annotations)
+      # DR2 calc
+      sum_squared_ap1_ap2 = np.sum(ap1**2 + ap2**2, axis=1)
+      sum_ap1_ap2 = np.sum(ap1 + ap2, axis=1)
+      dr2 = ((2*~{n_samples} * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / ((2*~{n_samples} * sum_ap1_ap2) - (sum_ap1_ap2**2))
+
+      # values to annotate the vcf with
+      chunk_annotations = chunk[["CHROM","POS","REF","ALT"]]
+      chunk_annotations["AF"] = af
+      chunk_annotations["DR2"] = np.where((chunk_annotations["AF"]==0) | (chunk_annotations["AF"]==1), 0, dr2)
+      out_annotation_dfs.append(chunk_annotations)
 
     annotations_df = pd.concat(out_annotation_dfs)
     annotations_df.to_csv("annotations.tsv", sep="\t", index=False, header=False)
