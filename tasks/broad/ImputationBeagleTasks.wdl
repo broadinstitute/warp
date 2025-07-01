@@ -434,9 +434,11 @@ task RecalculateDR2AndAF {
     csv_names = ["CHROM","POS","REF","ALT"]+[f'sample_{i}_DS' for i in range(~{n_samples})] + \
     [f'sample_{i}_AP1' for i in range(~{n_samples})] + [f'sample_{i}_AP2' for i in range(~{n_samples})]
 
+    print("before read")
     out_annotation_dfs = []
     for chunk in pd.read_csv("dosage_tbl.csv.gz", names=csv_names, dtype=dtypes_dict, na_values=".", chunksize = ~{chunksize}, lineterminator="\n"):
       chunk.dropna(inplace=True)
+      print("getting here at all?")
       # get sample level annotaions necessary for AF and DR2 calculations
       dosages = chunk[[f'sample_{i}_DS' for i in range(~{n_samples})]].to_numpy()
       ap1 = chunk[[f'sample_{i}_AP1' for i in range(~{n_samples})]].to_numpy()
@@ -455,7 +457,7 @@ task RecalculateDR2AndAF {
       chunk_annotations["AF"] = af
       chunk_annotations["DR2"] = np.where((chunk_annotations["AF"]==0) | (chunk_annotations["AF"]==1), 0, dr2)
       out_annotation_dfs.append(chunk_annotations)
-    
+
     annotations_df = pd.concat(out_annotation_dfs)
     annotations_df.to_csv("annotations.tsv", sep="\t", index=False, header=False)
     EOF
