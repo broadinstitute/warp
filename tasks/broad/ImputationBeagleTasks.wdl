@@ -455,7 +455,9 @@ task RecalculateDR2AndAF {
       chunk_annotations["AF"] = af
       chunk_annotations["DR2"] = np.where((chunk_annotations["AF"]==0) | (chunk_annotations["AF"]==1), 0, dr2)
       out_annotation_dfs.append(chunk_annotations)
+      print(f"chunk annotations: \n {chunk_annotations.head(10)}")
 
+    print("Concatenating annotation dataframes")
     annotations_df = pd.concat(out_annotation_dfs)
     annotations_df.to_csv("annotations.tsv", sep="\t", index=False, header=False)
     EOF
