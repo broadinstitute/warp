@@ -450,12 +450,11 @@ task RecalculateDR2AndAF {
       # DR2 calc
       sum_squared_ap1_ap2 = np.sum(ap1**2 + ap2**2, axis=1)
       sum_ap1_ap2 = np.sum(ap1 + ap2, axis=1)
-      dr2 = ((2*~{n_samples} * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / ((2*~{n_samples} * sum_ap1_ap2) - (sum_ap1_ap2**2))
 
       # values to annotate the vcf with
       chunk_annotations = chunk[["CHROM","POS","REF","ALT"]]
       chunk_annotations["AF"] = af
-      chunk_annotations["DR2"] = np.where((chunk_annotations["AF"]==0) | (chunk_annotations["AF"]==1), 0, dr2)
+      chunk_annotations["DR2"] = np.where((chunk_annotations["AF"]==0) | (chunk_annotations["AF"]==1), 0, ((2*~{n_samples} * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / ((2*~{n_samples} * sum_ap1_ap2) - (sum_ap1_ap2**2)))
       out_annotation_dfs.append(chunk_annotations)
 
     annotations_df = pd.concat(out_annotation_dfs)
