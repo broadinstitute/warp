@@ -81,7 +81,7 @@ task PeakCalling {
         # Runtime attributes/docker
         String docker_path
         Int disk_size = 500
-        Int mem_size = 64
+        Int mem_size = 120
         Int nthreads = 4
     }
 
