@@ -387,6 +387,7 @@ task MergeSampleChunksVcfsWithPaste {
     for fifo in fifo_*; do
     rm $fifo
     done
+
   >>>
 
   runtime {
