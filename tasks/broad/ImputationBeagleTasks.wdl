@@ -387,8 +387,6 @@ task MergeSampleChunksVcfsWithPaste {
     for fifo in fifo_*; do
     rm $fifo
     done
-
-    bcftools index -t ~{output_vcf_basename}.vcf.gz
   >>>
 
   runtime {
@@ -401,7 +399,6 @@ task MergeSampleChunksVcfsWithPaste {
 
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
-    File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
   }
 }
 
@@ -420,6 +417,8 @@ task RecalculateDR2AndAF {
 
   command <<<
     set -euo pipefail
+
+    tabix ~{vcf}
 
     bcftools query -f '%CHROM,%POS,%REF,%ALT[,%DS,%AP1,%AP2]\n' ~{vcf} | gzip -c > dosage_tbl.csv.gz
 
