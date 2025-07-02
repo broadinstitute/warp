@@ -1,5 +1,5 @@
 {
-  "JointGenotyping.sample_name_map": "gs://broad-gotc-test-storage/JointGenotyping/inputs/scientific/bge/BGE_JG_test_sample_map.txt",
+  "JointGenotyping.sample_name_map": "gs://pd-test-storage-private/JointGenotyping/input/scientific/sample_name_maps/bge/BGE_JG_test_sample_map/BGE_JG_test_sample_map.txt",
   "JointGenotyping.callset_name": "bge_joint_genotyping",
   "JointGenotyping.run_vets": true,
 
