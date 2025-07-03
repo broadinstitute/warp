@@ -424,7 +424,7 @@ task RecalculateDR2AndAF {
 
     bcftools query -f '%CHROM,%POS,%REF,%ALT[,%DS,%AP1,%AP2]\n' ~{vcf} | gzip -c > dosage_tbl.csv.gz
 
-    echo "dosages extracted"
+    echo "$(date) - dosages extracted"
 
     python3 << EOF
     import pandas as pd
@@ -462,21 +462,22 @@ task RecalculateDR2AndAF {
     annotations_df.to_csv("annotations.tsv", sep="\t", index=False, header=False)
     EOF
 
-    echo "annotations recomputed"
+    echo "$(date) - annotations recomputed"
 
     bgzip annotations.tsv
     tabix -s1 -b2 -e2 annotations.tsv.gz
 
-    echo "annotating vcf with new annotations"
-
+    echo "$(date) - annotating vcf with new annotations"
     bcftools annotate --no-version -a annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,DR2 -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
+
+    echo "$(date) - indexing annotated vcf"
     bcftools index -t ~{output_base}.vcf.gz
   >>>
 
 
   runtime {
     docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
-    disks: "local-disk " + disk_size_gb + " HDD"
+    disks: "local-disk " + disk_size_gb + " SSD"
     memory: mem_gb + " GiB"
     cpu: cpu
     preemptible: preemptible
