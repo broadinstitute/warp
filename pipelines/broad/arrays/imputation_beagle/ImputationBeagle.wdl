@@ -175,6 +175,7 @@ workflow ImputationBeagle {
             genetic_map_file = referencePanelContig.genetic_map,
             start = startWithOverlaps[i],
             end = endWithOverlaps[i],
+            impute_with_allele_probabilities = impute_with_allele_probablities,
             cpu = beagle_cpu,
             memory_mb = beagle_impute_memory_in_gb * 1024
         }
@@ -185,7 +186,6 @@ workflow ImputationBeagle {
             start = start[i],
             end = end[i],
             contig = referencePanelContig.contig,
-            impute_with_allele_probabilities = impute_with_allele_probablities,
             output_basename = second_scatter_sample_chunk_basename + ".imputed.no_overlaps",
             gatk_docker = gatk_docker
         }
