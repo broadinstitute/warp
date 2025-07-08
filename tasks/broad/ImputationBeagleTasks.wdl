@@ -408,7 +408,7 @@ task RecalculateDR2AndAF {
   input {
     File vcf
     Int n_samples
-    Int disk_size_gb = ceil(3.3 * size(vcf, "GiB")) + 50
+    Int disk_size_gb = ceil(3.3 * size(vcf, "GiB")) + 10
     Int mem_gb = 11
     Int cpu = 2
     Int chunksize = 10000
@@ -477,7 +477,7 @@ task RecalculateDR2AndAF {
 
   runtime {
     docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
-    disks: "local-disk " + disk_size_gb + " SSD"
+    disks: "local-disk " + disk_size_gb + " HDD"
     memory: mem_gb + " GiB"
     cpu: cpu
     preemptible: preemptible
