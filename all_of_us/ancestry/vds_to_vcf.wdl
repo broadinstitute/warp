@@ -246,11 +246,11 @@ task process_vds {
         File vcf_so_idx = "~{output_prefix}.~{chromosome}.so.vcf.bgz.tbi"
     }
     runtime {
-        docker: "hailgenetics/hail:0.2.127-py3.11"
-        memory: "624 GB"
-        cpu: "96"
-        disks: "local-disk 1000 HDD"
-        bootDiskSizeGb: 500
+        docker: "hailgenetics/hail:0.2.134-py3.11"
+        memory: "64 GB" # previously "624 GB"
+        cpu: "8" # previously "96"
+        disks: "local-disk 200 HDD"  # previously "local-disk 100 HDD"
+        bootDiskSizeGb: 16 # previously 500
     }
 }
 
