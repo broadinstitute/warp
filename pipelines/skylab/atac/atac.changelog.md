@@ -1,3 +1,14 @@
+# 2.9.0
+2025-06-18 (Date of Last Commit) 
+
+* Added the exclude_chroms input parameter to the snap.metrics.tsse function in the CreateFragmentFile task; which is a list of chromosomes to exclude in per cell metric computation. The default value is [chrM, M]
+
+# 2.8.0
+2025-06-06 (Date of Last Commit) 
+
+* Added mito_list (a list of strings) as an input parameter to CreateFragmentFile task. This specifies the chromosome names considered mitochondrial DNA. The default value is [chrM, M]
+
+
 # 2.7.2
 2025-04-15 (Date of Last Commit) 
 

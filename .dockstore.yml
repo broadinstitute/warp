@@ -68,6 +68,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl
 
+  - name: rnaseq_aou
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/rnaseq_aou.wdl
+
   - name: RNAWithUMIsPipeline
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl
@@ -90,7 +94,7 @@ workflows:
 
   - name: SlideTags
     subclass: WDL
-    primaryDescriptorPath: /beta-pipelines/skylab/slidetags/SlideTags.wdl
+    primaryDescriptorPath: /pipelines/skylab/slidetags/SlideTags.wdl
 
   - name: snm3C-seq
     subclass: WDL
@@ -160,6 +164,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestSlideSeq.wdl
 
+  - name: TestSlideTags
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestSlideTags.wdl
+
   - name: Testsnm3C
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/Testsnm3C.wdl
@@ -204,7 +212,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
 
-  - name: vds_to_vcf.wdl
+  - name: vds_to_vcf
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/vds_to_vcf.wdl
   

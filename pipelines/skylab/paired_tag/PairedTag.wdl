@@ -9,7 +9,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "2.1.1"
+    String pipeline_version = "2.1.4"
 
     input {
         String input_id
@@ -152,7 +152,6 @@ workflow PairedTag {
         allowNestedInputs: true
     }
 
-
     File atac_fragment_out = select_first([ParseBarcodes.atac_fragment_tsv,Atac_preindex.fragment_file])
     File atac_fragment_index_out = select_first([ParseBarcodes.atac_fragment_tsv_tbi,Atac_preindex.fragment_file_index])
     File atac_h5ad_out = select_first([ParseBarcodes.atac_h5ad_file, Atac_preindex.snap_metrics])
@@ -193,5 +192,6 @@ workflow PairedTag {
         Array[File]? metrics_csv_array = Optimus.metrics_csv_array
         String? output_directory = Optimus.output_directory
         File? summary_pdf = Optimus.summary_pdf
+
     }
 }

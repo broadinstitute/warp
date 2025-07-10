@@ -9,7 +9,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "6.0.2"
+    String pipeline_version = "6.0.5"
 
     input {
         String cloud_provider
@@ -129,6 +129,7 @@ workflow Multiome {
             peak_calling = false
 
     }
+
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
             docker_path = docker_prefix + snap_atac_docker_image,

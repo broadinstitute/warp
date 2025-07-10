@@ -1,6 +1,7 @@
 version 1.0
 
 task RunEmptyDrops {
+
     input {
         # Input data
         File sparse_count_matrix
@@ -54,7 +55,7 @@ task RunEmptyDrops {
         disk: disk_size + " GB" # TES
         cpu: cpu
         preemptible: preemptible
-        bootDiskSizeGb: "20"
+        bootDiskSizeGb: 20
     }
 
     output {
