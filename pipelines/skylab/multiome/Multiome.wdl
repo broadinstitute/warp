@@ -54,6 +54,7 @@ workflow Multiome {
         Boolean run_cellbender = false
         # Peak Calling
         Boolean run_peak_calling = false
+
     }
 
     # Determine docker prefix based on cloud provider
