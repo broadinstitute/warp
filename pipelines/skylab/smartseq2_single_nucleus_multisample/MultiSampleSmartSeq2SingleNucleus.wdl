@@ -9,9 +9,11 @@ import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow MultiSampleSmartSeq2SingleNucleus {
+
   meta {
     description: "The MultiSampleSmartSeq2SingleNucleus pipeline runs multiple snSS2 samples in a single pipeline invocation"
     allowNestedInputs: true
+    
   }
 
   input {
@@ -57,7 +59,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "2.0.8"
+  String pipeline_version = "2.2.1"
 
   if (false) {
      String? none = "None"

@@ -9,17 +9,23 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
+      # anything in the pipelines folder
       - 'pipelines/skylab/atac/**'
+      # tasks from the pipeline WDL and their dependencies
       - 'tasks/skylab/MergeSortBam.wdl'
       - 'tasks/skylab/FastqProcessing.wdl'
       - 'tasks/skylab/PairedTagUtils.wdl'
       - 'tasks/broad/Utilities.wdl'
+      # verification WDL and its dependencies
       - 'verification/VerifyATAC.wdl'
       - 'verification/VerifyTasks.wdl'
+      # test WDL and its dependencies
       - 'verification/test-wdls/TestATAC.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_atac.yml'
       - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
 
 
   # Allows you to run this workflow manually from the Actions tab

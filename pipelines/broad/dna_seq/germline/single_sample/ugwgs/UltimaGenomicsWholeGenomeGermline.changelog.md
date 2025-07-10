@@ -1,3 +1,13 @@
+# 1.2.0
+2025-03-17 (Date of Last Commit)
+
+* Updated Picard docker for CompareMetrics from 2.20.4-SNAPSHOT to 2.26.10-SNAPSHOT to fix security vulnerability. The outputs of the CollectAggregationMetrics task have changed slightly: .alignment_summary_metrics now have additional columns SD_READ_LENGTH, MEDIAN_READ_LENGTH, MAD_READ_LENGTH, MIN_READ_LENGTH, MAX_READ_LENGTREADS_ALIGNED_IN_PAIRS, PCT_SOFTCLIP, PCT_HARDCLIP, AVG_POS_3PRIME_SOFTCLIP_LENGTH. Additionally, a histogram is now included in the .alignment_summary_metrics file
+
+# 1.1.4
+2025-02-21 (Date of Last Commit)
+
+* Updated HaplotypeCaller_GATK4_VCF to use MEM_SIZE and MEM_UNIT; this does not affect the outputs of this pipeline
+
 # 1.1.3
 2024-12-05 (Date of Last Commit)
 

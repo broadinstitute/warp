@@ -10,7 +10,7 @@ task CompareVcfs {
   command {
     set -eo pipefail
 
-    if [ -z ~{patternForLinesToExcludeFromComparison} ]; then
+    if [ -z '~{patternForLinesToExcludeFromComparison}' ]; then
       diff <(gunzip -c -f ~{file1}) <(gunzip -c -f ~{file2})
     else
       echo "It's defined!"
@@ -811,3 +811,42 @@ task CompareLibraryFiles {
     preemptible: 3
   }
 }
+
+task CompareH5Files {
+  input {
+    File test_h5
+    File truth_h5
+  }
+
+  command {
+    set -eo pipefail
+    exit_code=0
+    
+    apt update
+    apt install -y hdf5-tools
+
+    h5diff ~{test_h5} ~{truth_h5} > diff_output.txt
+
+    echo "H5diff output:"
+    # Print the diff output to the console
+    cat diff_output.txt
+    
+    if [ $? -ne 0 ]; then
+      echo "H5 files differ."
+      exit_code=2
+    else
+      echo "H5 files are identical."
+    fi
+    echo "Exiting with code $exit_code"
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    disks: "local-disk 100 HDD"
+    memory: "50 GiB"
+    preemptible: 3
+  }
+}
+
+
+

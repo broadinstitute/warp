@@ -1,13 +1,49 @@
-# 5.11.1
-2025-02-20 (Date of Last Commit)
+# 6.0.6
+2025-07-20 (Date of Last Commit)
 
 * Aliased the Multiome call to PeakCalling task as MultiomePeakCalling to disambiguate the inputs for the two ways to call PeakCalling
 
+# 6.0.5
+2025-06-18 (Date of Last Commit) 
+
+* Added the exclude_chroms input parameter to the snap.metrics.tsse function in the CreateFragmentFile task of the ATAC pipeline; which is a list of chromosomes to exclude in per cell metric computation. The default value is [chrM, M]
+
+# 6.0.4
+25-06-06 (Date of Last Commit)
+
+* Added mito_list (a list of strings) as an input parameter to CreateFragmentFile task of the ATAC pipeline. This specifies the chromosome names considered mitochondrial DNA. The default value is [chrM, M]
+* Removed quotes from bootDiskSizeGb in RunEmptyDrops task to be compatible with Google Batch; this does not affect the outputs of the pipeline
+* Increased the ulimit in the following tasks: CalculateCellMetrics, CalculateGeneMetrics, CalculateUMIsMetrics; this does not affect the outputs of the pipeline
+
+# 6.0.3
+25-05-27 (Date of Last Commit)
+
+* Increased the ulimit in the STARsoloFastq task in the StarAlign.wdl to 10000; this does not affect the outputs of the pipeline
+
+# 6.0.2
+25-04-16 (Date of Last Commit)
+
+* Added cloud_provider to peakcalling task in Multiome.wdl and fix commit history
+
+# 6.0.1
+25-04-15 (Date of Last Commit)
+
+* Refactored peak calling task to be called from PeakCalling.wdl
+
+# 6.0.0
+2025-04-02 (Date of Last Commit)
+
+* Implemented a unified STARsolo execution strategy to ensure consistent and accurate cell barcode correction across the entire dataset. This update resolves discrepancies that previously arose from sharded (partitioned) processing, where each shard independently corrected barcodes using incomplete local priors. By consolidating barcode frequency calculations and applying correction globally, the pipeline now mirrors the behavior of DropSeq and Cell Ranger pipelines
+* Refactored the STAR alignment step (STARsoloFastq) in Optimus and removed tasks FastqProcessing and MergeSortBamFiles
+* Removed MergeStarOutput tasks from Optimus pipeline; added necessary parts of MergeStarOutput task to the STAR alignment step (STARsoloFastq). Additional outputs added to STARsoloFastq task as a result; this includes row_index, col_index, sparse_counts, library_metrics, mtx_files, filtered_mtx_files and cell_reads_out
+* Updated the STAR docker image to include Samtools and Python
+
 # 5.11.0
-2025-02-05 (Date of Last Commit)
+2025-02-25 (Date of Last Commit)
 
 * Refactored the Peak Calling step of Multiome to use the JoinBarcodes output h5ad as the input for peak calling, ensuring the h5ad files have both GEX and ATAC barcodes
 * Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
+* Added reference information to the BAM headers
 
 # 5.10.0
 2025-02-03 (Date of Last Commit)

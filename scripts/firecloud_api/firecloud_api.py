@@ -9,6 +9,7 @@ from google.auth import credentials
 import argparse
 import logging
 import time
+import sys
 
 # Configure logging to display INFO level and above messages
 logging.basicConfig(
@@ -78,83 +79,182 @@ class FirecloudAPI:
         return credentials.token
 
     def submit_job(self, submission_data_file):
-        token = self.get_user_token(self.delegated_creds)
-        headers = self.build_auth_headers(token)
-        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
-        response = requests.post(url, json=submission_data_file, headers=headers)
+        """
+        Submits a job to Terra/Firecloud with retry logic for intermittent 500 errors.
 
-        # Print status code and response body for debugging
-        logging.info(f"Response status code for submitting job: {response.status_code}")
-        logging.info(f"Response body: {response.text}")
+        :param submission_data_file: The JSON data for the submission
+        :return: The submission ID if successful, None otherwise
+        """
+        # Set up retry parameters
+        max_retry_duration = 15 * 60  # 15 minutes in seconds
+        start_time = time.time()
+        retry_delay = 5  # Start with a 5-second delay between retries
+        max_retry_delay = 30  # Maximum retry delay in seconds
+        max_attempts = 10  # Maximum number of retry attempts
 
-        if response.status_code == 201:
-            try:
-                # Parse the response as JSON
-                response_json = response.json()
+        attempts = 0
+        while attempts < max_attempts:
+            attempts += 1
 
-                # Extract the submissionId
-                submission_id = response_json.get("submissionId", None)
-                if submission_id:
-                    logging.info(f"Submission ID extracted: {submission_id}")
-                    return submission_id
-                else:
-                    logging.error("Error: submissionId not found in the response.")
-                    return None
-            except json.JSONDecodeError:
-                logging.error("Error: Failed to parse JSON response.")
+            # Check if we've exceeded the maximum retry duration
+            current_time = time.time()
+            if current_time - start_time > max_retry_duration:
+                logging.error(f"Exceeded maximum retry duration of {max_retry_duration/60} minutes.")
                 return None
-        else:
-            logging.error(f"Failed to submit job. Status code: {response.status_code}")
-            logging.error(f"Response body: {response.text}")
-            return None
+
+            try:
+                token = self.get_user_token(self.delegated_creds)
+                headers = self.build_auth_headers(token)
+                url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
+
+                logging.info(f"Submitting job, attempt {attempts}/{max_attempts}")
+                response = requests.post(url, json=submission_data_file, headers=headers)
+
+                # Print status code and response body for debugging
+                logging.info(f"Response status code for submitting job: {response.status_code}")
+
+                # Handle different response codes
+                if response.status_code == 201:  # Success
+                    try:
+                        # Parse the response as JSON
+                        response_json = response.json()
+                        logging.info(f"Response body: {response.text}")
+
+                        # Extract the submissionId
+                        submission_id = response_json.get("submissionId", None)
+                        if submission_id:
+                            logging.info(f"Submission ID extracted: {submission_id}")
+                            return submission_id
+                        else:
+                            logging.error("Error: submissionId not found in the response.")
+                            return None
+                    except json.JSONDecodeError:
+                        logging.error("Error: Failed to parse JSON response.")
+                        logging.error(f"Response body: {response.text}")
+                        # If we can't parse the JSON but got a 201, we might still want to retry
+                        if attempts < max_attempts:
+                            time.sleep(retry_delay)
+                            retry_delay = min(retry_delay * 1.5, max_retry_delay)
+                            continue
+                        return None
+
+                elif response.status_code == 500:  # Server error, retry
+                    logging.warning(f"Received 500 error. Retrying in {retry_delay} seconds...")
+                    logging.warning(f"Response body: {response.text}")
+                    time.sleep(retry_delay)
+                    # Implement exponential backoff with a cap
+                    retry_delay = min(retry_delay * 1.5, max_retry_delay)
+                    continue
+
+                elif response.status_code >= 400 and response.status_code < 500:  # Client error
+                    # For 4xx errors, only retry a few times as they might be temporary auth issues
+                    logging.error(f"Client error (4xx): {response.status_code}")
+                    logging.error(f"Response body: {response.text}")
+                    if response.status_code == 401 or response.status_code == 403:
+                        # Auth errors might be temporary, retry with token refresh
+                        self.delegated_creds.refresh(Request())
+                        if attempts < 3:  # Only retry auth errors a few times
+                            time.sleep(retry_delay)
+                            continue
+                    return None
+
+                else:  # Other error codes
+                    logging.error(f"Failed to submit job. Status code: {response.status_code}")
+                    logging.error(f"Response body: {response.text}")
+                    if attempts < max_attempts:
+                        time.sleep(retry_delay)
+                        retry_delay = min(retry_delay * 1.5, max_retry_delay)
+                        continue
+                    return None
+
+            except requests.exceptions.RequestException as e:
+                # Handle network errors
+                logging.warning(f"Network error occurred: {e}. Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+                # Implement exponential backoff with a cap
+                retry_delay = min(retry_delay * 1.5, max_retry_delay)
+                continue
+
+        logging.error(f"Failed to submit job after {max_attempts} attempts.")
+        return None
 
 
     def create_new_method_config(self, branch_name, pipeline_name):
         """
         Creates a new method configuration in the workspace via Firecloud API.
+        Includes a retry mechanism for 404 errors from Dockstore.
 
         :param branch_name: The branch name
         :param pipeline_name: The name of the pipeline
         :return: The name of the created method configuration or None if failed
         """
-
         # Create method config name with test type
         method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
 
-        payload = {
-            "deleted": False,
-            "inputs": {},
-            "methodConfigVersion": 0,
-            "methodRepoMethod": {
-                "methodUri": f"dockstore://github.com/broadinstitute/warp/{pipeline_name}/{branch_name}",
-                "sourceRepo": "dockstore",
-                "methodPath": f"github.com/broadinstitute/warp/{pipeline_name}",
-                "methodVersion": f"{branch_name}"
-            },
-            "name": method_config_name,
-            "namespace": "warp-pipelines",
-            "outputs": {},
-            "prerequisites": {}
-        }
-        logging.info(f"Creating new method configuration: {json.dumps(payload, indent=2)}")
+        # Flag to track if we've already retried for a 404 error
+        dockstore_404_retried = False
 
-        # Construct the API endpoint URL for creating a new method configuration
-        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
+        # Function to create the payload
+        def create_payload():
+            return {
+                "deleted": False,
+                "inputs": {},
+                "methodConfigVersion": 0,
+                "methodRepoMethod": {
+                    "methodUri": f"dockstore://github.com/broadinstitute/warp/{pipeline_name}/{branch_name}",
+                    "sourceRepo": "dockstore",
+                    "methodPath": f"github.com/broadinstitute/warp/{pipeline_name}",
+                    "methodVersion": f"{branch_name}"
+                },
+                "name": method_config_name,
+                "namespace": "warp-pipelines",
+                "outputs": {},
+                "prerequisites": {}
+            }
 
-        token = self.get_user_token(self.delegated_creds)
-        headers = self.build_auth_headers(token)
+        # Attempt to create the method configuration
+        def attempt_creation():
+            payload = create_payload()
+            logging.info(f"Creating new method configuration: {json.dumps(payload, indent=2)}")
 
-        # Create the new method configuration in the workspace
-        response = requests.put(url, headers=headers, json=payload)
+            # Construct the API endpoint URL for creating a new method configuration
+            url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/method_configs/{self.namespace}/{method_config_name}"
 
-        # Check if the method configuration was created successfully
+            token = self.get_user_token(self.delegated_creds)
+            headers = self.build_auth_headers(token)
+
+            # Create the new method configuration in the workspace
+            response = requests.put(url, headers=headers, json=payload)
+
+            return response
+
+        # First attempt
+        response = attempt_creation()
+
+        # Check if we got a 404 error (likely from Dockstore)
+        if response.status_code == 404 and not dockstore_404_retried:
+            error_message = response.text
+            logging.warning(f"Received 404 error, possibly from Dockstore: {error_message}")
+            logging.info(f"Waiting 5 minutes before retrying...")
+
+            # Wait for 5 minutes (300 seconds)
+            time.sleep(300)
+
+            # Mark that we've retried for this error
+            dockstore_404_retried = True
+
+            # Retry the creation
+            logging.info("Retrying method configuration creation after 5-minute wait")
+            response = attempt_creation()
+
+        # Final check if the method configuration was created successfully
         if response.status_code == 200:
             logging.info(f"Method configuration {method_config_name} created successfully.")
             return method_config_name
         else:
             logging.error(f"Failed to create method configuration. Status code: {response.status_code}")
             logging.error(f"Response body: {response.text}")
-            return None
+            raise Exception(f"Failed to create method configuration for {pipeline_name} on the branch {branch_name}")
 
 
     def upload_test_inputs(self, pipeline_name, test_inputs, branch_name, test_type):
@@ -228,6 +328,7 @@ class FirecloudAPI:
     def poll_job_status(self, submission_id):
         """
         Polls the status of a submission until it is complete and returns a dictionary of workflow IDs and their statuses.
+        Includes retry mechanism for handling intermittent 500 errors.
 
         :param submission_id: The ID of the submission to poll
         :return: Dictionary with workflow IDs as keys and their statuses as values
@@ -236,41 +337,72 @@ class FirecloudAPI:
         status_url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}"
         workflow_status_map = {}
 
+        # Set up retry parameters
+        start_time = time.time()
+        retry_delay = 5  # Start with a 5-second delay between retries
+        max_retry_delay = 30  # Maximum retry delay in seconds
+
         # Continuously poll the status of the submission until completion
         while True:
-            # Get the token and headers
-            token = self.get_user_token(self.delegated_creds)
-            headers = self.build_auth_headers(token)
-            status_response = requests.get(status_url, headers=headers)
-
-            # Check if the response status code is successful (200)
-            if status_response.status_code != 200:
-                logging.error(f"Error: Received status code {status_response.status_code}")
-                logging.info(f"Response content: {status_response.text}")
-                return {}
             try:
-                # Parse the response as JSON
-                status_data = status_response.json()
-            except json.JSONDecodeError:
-                logging.error("Error decoding JSON response.")
-                logging.info(f"Response content: {status_response.text}")
-                return {}
+                # Get the token and headers
+                token = self.get_user_token(self.delegated_creds)
+                headers = self.build_auth_headers(token)
+                status_response = requests.get(status_url, headers=headers)
 
-            # Retrieve workflows and their statuses
-            workflows = status_data.get("workflows", [])
-            for workflow in workflows:
-                workflow_id = workflow.get("workflowId")
-                workflow_status = workflow.get("status")
-                if workflow_id and workflow_status:
-                    workflow_status_map[workflow_id] = workflow_status
+                # Check for 500 errors and retry if necessary
+                if status_response.status_code == 500:
+                    logging.warning(f"Received 500 error. Retrying in {retry_delay} seconds...")
+                    time.sleep(retry_delay)
+                    # Implement exponential backoff with a cap
+                    retry_delay = min(retry_delay * 1.5, max_retry_delay)
+                    continue
 
-            # Check if the submission is complete
-            submission_status = status_data.get("status", "")
-            if submission_status == "Done":
-                break
+                # Check if the response status code is successful (200)
+                if status_response.status_code != 200:
+                    logging.error(f"Error: Received status code {status_response.status_code}")
+                    logging.info(f"Response content: {status_response.text}")
+                    # For non-500 errors, wait and retry a few times
+                    if time.time() - start_time <= 60:  # Only retry for the first minute for non-500 errors
+                        logging.warning(f"Retrying in {retry_delay} seconds...")
+                        time.sleep(retry_delay)
+                        continue
+                    return {}
 
-            # Wait for 20 seconds before polling again
-            time.sleep(20)
+                try:
+                    # Parse the response as JSON
+                    status_data = status_response.json()
+                    # Reset retry delay after successful request
+                    retry_delay = 5
+                except json.JSONDecodeError:
+                    logging.error("Error decoding JSON response.")
+                    logging.info(f"Response content: {status_response.text}")
+                    time.sleep(retry_delay)
+                    continue
+
+                # Retrieve workflows and their statuses
+                workflows = status_data.get("workflows", [])
+                for workflow in workflows:
+                    workflow_id = workflow.get("workflowId")
+                    workflow_status = workflow.get("status")
+                    if workflow_id and workflow_status:
+                        workflow_status_map[workflow_id] = workflow_status
+
+                # Check if the submission is complete
+                submission_status = status_data.get("status", "")
+                if submission_status == "Done":
+                    logging.info("Submission is done.")
+                    break
+
+                # Wait for 20 seconds before polling again
+                time.sleep(20)
+
+            except requests.exceptions.RequestException as e:
+                # Handle network errors
+                logging.warning(f"Network error occurred: {e}. Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+                # Implement exponential backoff with a cap
+                retry_delay = min(retry_delay * 1.5, max_retry_delay)
 
         return workflow_status_map
 
@@ -326,17 +458,6 @@ class FirecloudAPI:
         else:
             logging.error(f"Failed to retrieve workflow outputs. Status code: {response.status_code}")
             return None, None
-
-    #def gsutil_copy(self, source, destination):
-    #    #client = storage.Client()  # Uses GOOGLE_APPLICATION_CREDENTIALS implicitly
-    #    source_bucket_name, source_blob_name = source.replace("gs://", "").split("/", 1)
-    #    destination_bucket_name, destination_blob_name = destination.replace("gs://", "").split("/", 1)
-
-    #    source_bucket = self.storage_client.bucket(source_bucket_name)
-    #    source_blob = source_bucket.blob(source_blob_name)
-    #    destination_bucket = self.storage_client.bucket(destination_bucket_name)
-
-    #    source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
 
     def delete_method_config(self, method_config_name):
         """
@@ -541,7 +662,12 @@ if __name__ == "__main__":
                 submission_data = json.load(file)
             # Submit the job with the loaded submission data
             submission_id = api.submit_job(submission_data)
-            print(submission_id)
+            if submission_id:
+              print(submission_id)
+              logging.info("Submission successful.")
+            else:
+              logging.error("Submission failed.")
+              sys.exit(1)
 
     elif args.action == "poll_job_status":
         if not args.submission_id:
@@ -555,6 +681,7 @@ if __name__ == "__main__":
                 print(json.dumps(workflow_status_map))  # Output the dictionary as a JSON string for bash parsing
             else:
                 print("No workflows found or an error occurred.")
+ 
     elif args.action == "create_new_method_config":
         # Check for required arguments for create_new_method_config action
         if not args.pipeline_name or not args.branch_name:

@@ -9,8 +9,10 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
+      # anything in the pipelines folder
       - 'pipelines/broad/reprocessing/wgs/**'
       - 'pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl'
+      # tasks from the pipeline WDL and their dependencies
       - 'structs/dna_seq/DNASeqStructs.wdl'
       - 'tasks/broad/Alignment.wdl'
       - 'tasks/broad/DragmapAlignment.wdl'
@@ -24,14 +26,18 @@ on:
       - 'pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl'
       - 'tasks/broad/GermlineVariantDiscovery.wdl'
       - 'tasks/broad/DragenTasks.wdl'
+      # verification WDL and its dependencies
       - 'verification/VerifyExomeReprocessing.wdl'
-      - 'verification/test-wdls/TestWholeGenomeGermlineSingleSample.wdl'
       - 'verification/VerifyGermlineSingleSample.wdl'
       - 'verification/VerifyMetrics.wdl'
       - 'verification/VerifyTasks.wdl'
+      # test WDL and its dependencies
+      - 'verification/test-wdls/TestWholeGenomeGermlineSingleSample.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_whole_genome_reprocessing.yml'
       - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
 
 
   # Allows you to run this workflow manually from the Actions tab

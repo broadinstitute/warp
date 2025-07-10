@@ -4,6 +4,7 @@ import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/PairedTagUtils.wdl" as AddBB
 import "../../../tasks/broad/Utilities.wdl" as utils
+import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling # import peakcalling as subworkflow
 
 workflow ATAC {
   meta {
@@ -51,7 +52,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.7.1"
+  String pipeline_version = "2.9.0"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -159,16 +160,15 @@ workflow ATAC {
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
         input_id = input_id
-
     }
     if (peak_calling) {
-      call PeakCalling {
+      call peakcalling.PeakCalling as PeakCalling{
         input:
           output_base_name = input_id,
           annotations_gtf = annotations_gtf,
           metrics_h5ad = CreateFragmentFile.Snap_metrics,
           chrom_sizes = chrom_sizes,
-          docker_path = docker_prefix + snap_atac_docker
+          cloud_provider = cloud_provider,
       }
     }
   }
@@ -353,6 +353,7 @@ task BWAPairedEndAlignment {
     Array[File] read1_fastq
     Array[File] read3_fastq
     File tar_bwa_reference
+    String reference_path = tar_bwa_reference
     String read_group_id = "RG1"
     String read_group_sample_name = "RGSN1"
     String suffix = "trimmed_adapters.fastq.gz"
@@ -477,7 +478,11 @@ task BWAPairedEndAlignment {
     ls
     
     # rename file to this
-    mv final.sorted.bam ~{bam_aligned_output_name}
+    echo "Reheading BAM with reference"
+    /usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools view -H final.sorted.bam > header.txt
+    echo -e "@CO\tReference genome used: ~{reference_path}" >> header.txt
+    /usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools reheader header.txt final.sorted.bam > final.sorted.reheader.bam
+    mv final.sorted.reheader.bam ~{bam_aligned_output_name}
         
     echo "the present working dir"
     pwd
@@ -526,6 +531,7 @@ task CreateFragmentFile {
     File annotations_gtf
     File chrom_sizes
     Boolean preindex
+    Array[String] mito_list = ['chrM', 'M']
     Int disk_size = 500
     Int mem_size = 64
     Int nthreads = 4
@@ -552,23 +558,7 @@ task CreateFragmentFile {
 
     python3 <<CODE
 
-    # set parameters
-    bam = "~{bam}"
-    input_id = "~{input_id}"
-    chrom_sizes = "~{chrom_sizes}"
-    atac_gtf = "~{annotations_gtf}"
-    preindex = "~{preindex}"
-    atac_nhash_id = "~{atac_nhash_id}"
-    expected_cells = ~{atac_expected_cells}
-
-    # calculate chrom size dictionary based on text file
-    chrom_size_dict={}
-    with open('~{chrom_sizes}', 'r') as f:
-      for line in f:
-        key, value = line.strip().split()
-        chrom_size_dict[str(key)] = int(value)
-
-    # use snap atac2
+    # import libraries
     import snapatac2.preprocessing as pp
     import snapatac2 as snap
     import scanpy as sc
@@ -578,11 +568,32 @@ task CreateFragmentFile {
     from collections import OrderedDict
     import csv
 
+    # set parameters
+    bam = "~{bam}"
+    input_id = "~{input_id}"
+    chrom_sizes = "~{chrom_sizes}"
+    atac_gtf = "~{annotations_gtf}"
+    preindex = "~{preindex}"
+    atac_nhash_id = "~{atac_nhash_id}"
+    mito_list = "~{sep=' ' mito_list}"
+    expected_cells = ~{atac_expected_cells}
+
+    print(mito_list)
+    mito_list = mito_list.split(" ")
+    print("Mitochondrial chromosomes:", mito_list) 
+    
+    # calculate chrom size dictionary based on text file
+    chrom_size_dict={}
+    with open('~{chrom_sizes}', 'r') as f:
+      for line in f:
+        key, value = line.strip().split()
+        chrom_size_dict[str(key)] = int(value)
+
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
     elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
 
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
@@ -625,7 +636,7 @@ task CreateFragmentFile {
     
     atac_data.uns["reference_gtf_file"] = gtf_path
     # calculate tsse metrics
-    snap.metrics.tsse(atac_data, atac_gtf)
+    snap.metrics.tsse(atac_data, atac_gtf, exclude_chroms=mito_list)
     # Write new atac file
     atac_data.write_h5ad("~{input_id}.metrics.h5ad")
 
@@ -653,170 +664,5 @@ task CreateFragmentFile {
     File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
     File Snap_metrics = "~{input_id}.metrics.h5ad"
     File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
-  }
-}
-
-# peak calling using SnapATAC2
-task PeakCalling {
-  input {
-    File annotations_gtf
-    File metrics_h5ad  
-    File chrom_sizes
-    String output_base_name
-
-    # SnapATAC2 parameters
-    Int min_counts = 5000
-    Int min_tsse = 10
-    Int max_counts = 100000
-    Float probability_threshold = 0.5
-
-    # Runtime attributes/docker
-    String docker_path
-    Int disk_size = 500
-    Int mem_size = 64
-    Int nthreads = 4   
-  }
-  
-  parameter_meta {
-    annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
-    disk_size: "Disk size used in create fragment file step."
-    mem_size: "The size of memory used in create fragment file."
-    docker_path: "The docker image path containing the runtime environment for this task"
-  }
-
-  command <<<
-    set -euo pipefail
-    set -x 
-    
-    python3 <<CODE
-
-    # use snap atac2
-    import snapatac2 as snap
-    import scanpy as sc
-    import numpy as np
-    import polars as pl
-    import pandas as pd
-
-    output_base_name = "~{output_base_name}"
-    atac_gtf = "~{annotations_gtf}"
-    metrics_h5ad = "~{metrics_h5ad}"
-    chrom_sizes = "~{chrom_sizes}"
-    min_counts = "~{min_counts}"
-    min_tsse = "~{min_tsse}"
-    max_counts = "~{max_counts}"
-    probability_threshold = "~{probability_threshold}"
-
-    probability_threshold = float(probability_threshold)
-
-    print("Peak calling starting...")
-    atac_data = snap.read(metrics_h5ad)
-    
-    # Calculate and plot the size distribution of fragments
-    print("Calculating fragment size distribution")
-    snap.pl.frag_size_distr(atac_data)
-    print(atac_data)
-
-    # Filter cells
-    print("Filtering cells")
-    snap.pp.filter_cells(atac_data, min_counts=min_counts, min_tsse=min_tsse, max_counts=max_counts)
-    print(atac_data)
-       
-    # Create a cell by bin matrix containing insertion counts across genome-wide 500-bp bins.
-    print("Creating cell by bin matrix")
-    atac_data_mod = snap.pp.add_tile_matrix(atac_data, inplace=False)
-    print("set obsm")
-    atac_data_mod.obsm["fragment_paired"] =  atac_data.obsm["fragment_paired"]
-    print("set all uns")
-    for key in atac_data.uns.keys():
-      print("set ",key)
-      atac_data_mod.uns[key] = atac_data.uns[key]
-    print(atac_data_mod)
-       
-    # Feature selection
-    print("Feature selection")
-    snap.pp.select_features(atac_data_mod)
-    print(atac_data_mod)
-        
-    # Run customized scrublet algorithm to identify potential doublets
-    print("Run scrublet to identify potential doublets")
-    snap.pp.scrublet(atac_data_mod)
-    print(atac_data_mod)
-        
-    # Employ spectral embedding for dimensionality reduction
-    print("Employ spectral embedding for dimensionality reduction")
-    snap.tl.spectral(atac_data_mod)
-    print(atac_data_mod)
-        
-    # Filter doublets based on scrublet scores 
-    print("Filter doublets based on scrublet scores")
-    snap.pp.filter_doublets(atac_data_mod, probability_threshold=probability_threshold)
-    print(atac_data_mod)
-
-    # Check if the matrix is empty
-    if atac_data_mod.n_obs == 0:
-      raise ValueError("Matrix is empty after filtering doublets: Try increasing the probability_threshold.")
-        
-    # Perform graph-based clustering to identify cell clusters. 
-    # Build a k-nearest neighbour graph using snap.pp.knn
-    print("Perform knn graph-based clustering to identify cell clusters")
-    snap.pp.knn(atac_data_mod)
-    print(atac_data_mod)
-        
-    # Use the Leiden community detection algorithm to identify densely-connected subgraphs/clusters in the graph
-    print("Use the Leiden community detection algorithm to identify densely-connected subgraphs/clusters in the graph")
-    snap.tl.leiden(atac_data_mod)
-    print(atac_data_mod)
-        
-    # Create the cell by gene activity matrix
-    print("Create the cell by gene activity matrix")
-    gene_mat = snap.pp.make_gene_matrix(atac_data_mod, gene_anno=atac_gtf)
-    print(atac_data_mod)
-
-    # Normalize the gene matrix
-    print("Normalize the gene matrix")
-    gene_mat.obs['leiden'] = atac_data_mod.obs['leiden']
-    sc.pp.normalize_total(gene_mat)
-    sc.pp.log1p(gene_mat)
-    sc.tl.rank_genes_groups(gene_mat, groupby="leiden", method="wilcoxon")
-        
-    for i in np.unique(gene_mat.obs['leiden']):
-        markers = sc.get.rank_genes_groups_df(gene_mat, group=i).head(7)['names']
-        print(f"Cluster {i}: {', '.join(markers)}")
-
-    print("Peak calling using MACS3")
-    snap.tl.macs3(atac_data_mod, groupby='leiden', n_jobs=1)
-    
-    print("Merge peaks and create peak matrix")
-    # read chrom sizes
-    chromsize_dict = pd.read_csv(chrom_sizes, sep='\t', header=None)
-    chromsize_dict = pd.Series(chromsize_dict[1].values, index=chromsize_dict[0]).to_dict()
-    # merge peaks and create peak matrix
-    peaks = snap.tl.merge_peaks(atac_data_mod.uns['macs3'], chromsize_dict)
-    peak_matrix = snap.pp.make_peak_matrix(atac_data_mod, use_rep=peaks['Peaks'])
-
-    print("Convert pl.DataFrame to pandas DataFrame")
-    # Convert pl.DataFrame to pandas DataFrame
-    for key in atac_data_mod.uns.keys():
-      if isinstance(atac_data_mod.uns[key], pl.DataFrame):
-          print(key)
-          atac_data_mod.uns[key] = atac_data_mod.uns[key].to_pandas()
-
-    print("Write into h5ad file")
-    atac_data_mod.write_h5ad("~{output_base_name}.cellbybin.h5ad")
-    peak_matrix.write_h5ad("~{output_base_name}.cellbypeak.h5ad")
-     
-    CODE
-  >>>
-  
-  runtime {
-    docker: docker_path
-    disks: "local-disk ${disk_size} SSD"
-    memory: "${mem_size} GiB"
-    cpu: nthreads
-  }
-
-  output {
-    File cellbybin_h5ad = "~{output_base_name}.cellbybin.h5ad"
-    File cellbypeak_h5ad = "~{output_base_name}.cellbypeak.h5ad"
   }
 }

@@ -1,7 +1,29 @@
+# 8.0.2
+2025-06-09 (Date of Last Commit)
+
+* Removed quotes from bootDiskSizeGb in RunEmptyDrops task to be compatible with Google Batch; this does not affect the outputs of the pipeline
+* Increased the ulimit in the following tasks: CalculateCellMetrics, CalculateGeneMetrics, CalculateUMIsMetrics; this does not affect the outputs of the pipeline
+
+# 8.0.1
+2025-05-27 (Date of Last Commit)
+
+* Increased the ulimit in the STARsoloFastq task in the StarAlign.wdl to 10000; this does not affect the outputs of the pipeline
+
+# 8.0.0
+2025-04-02 (Date of Last Commit)
+
+* Implemented a unified STARsolo execution strategy to ensure consistent and accurate cell barcode correction across the entire dataset. This update resolves discrepancies that previously arose from sharded (partitioned) processing, where each shard independently corrected barcodes using incomplete local priors. By consolidating barcode frequency calculations and applying correction globally, the pipeline now mirrors the behavior of DropSeq and Cell Ranger
+* Removed boolean variable is_slidetags; no longer needed with new updates
+* Refactored the STAR alignment step and removed tasks FastqProcessing and MergeSortBamFiles
+* Added parameters for STARsoloFastq task, including cpu_platform_star, mem_size_star, cpu_star, disk_star, limitBAMsortRAM_star, and outBAMsortingBinsN_star, for dynamic allocation of resources depending on input size
+* Removed MergeStarOutput tasks; added necessary parts of MergeStarOutput task to the STAR alignment step (STARsoloFastq). Additional outputs added to STARsoloFastq task as a result; this includes row_index, col_index, sparse_counts, library_metrics, mtx_files, filtered_mtx_files and cell_reads_out
+* Updated the STAR docker image to include Samtools and Python
+
 # 7.9.2
-2025-02-12 (Date of Last Commit)
+2025-02-25 (Date of Last Commit)
 
 * Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
+* Added reference information to the BAM header
 
 # 7.9.1
 2025-01-13 (Date of Last Commit)

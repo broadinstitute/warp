@@ -25,7 +25,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow SlideSeq {
 
-    String pipeline_version = "3.4.9"
+    String pipeline_version = "3.6.2"
 
     input {
         Array[File] r1_fastq
@@ -211,7 +211,6 @@ workflow SlideSeq {
         File fastq_umi_distribution = FastqMetrics.umi_distribution
         File fastq_reads_per_cell = FastqMetrics.numReads_perCell
         File fastq_reads_per_umi = FastqMetrics.numReads_perUMI
-
 
         # h5ad
         File? h5ad_output_file = final_h5ad_output

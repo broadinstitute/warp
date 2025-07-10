@@ -9,8 +9,10 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
+      # anything in the pipelines folder
       - 'pipelines/skylab/paired_tag/**'
       - 'pipelines/skylab/optimus/Optimus.wdl'
+      # tasks from the pipeline WDL and their dependencies
       - 'tasks/skylab/H5adUtils.wdl'
       - 'tasks/skylab/PairedTagUtils.wdl'
       - 'tasks/broad/Utilities.wdl'
@@ -20,13 +22,17 @@ on:
       - 'tasks/skylab/RunEmptyDrops.wdl'
       - 'tasks/skylab/CheckInputs.wdl'
       - 'tasks/skylab/MergeSortBam.wdl'
+      # verification WDL and its dependencies
       - 'verification/VerifyPairedTag.wdl'
       - 'verification/VerifyTasks.wdl'
+      # test WDL and its dependencies
       - 'verification/test-wdls/TestPairedTag.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_pairedtag.yml'
       - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
 
 
   # Allows you to run this workflow manually from the Actions tab

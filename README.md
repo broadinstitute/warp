@@ -1,7 +1,7 @@
 
-### WDL Analysis Research Pipelines
+### Warp Analysis Research Pipelines
 
-The WDL Analysis Research Pipelines (WARP) repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators.
+The Warp Analysis Research Pipelines (WARP) repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators.
 
 WARP provides robust, standardized data analysis for the Broad Institute Genomics Platform and large consortia like the Human Cell Atlas and the BRAIN Initiative. WARP pipelines are rigorously scientifically validated, high scale, reproducible and open source, released under the [BSD 3-Clause license](https://github.com/broadinstitute/warp/blob/master/LICENSE).
 

@@ -221,28 +221,32 @@ task STARsoloFastq {
     Int chemistry
     String star_strand_mode
     String counting_mode # when counting_mode = sn_rna, runs Gene and GeneFullEx50pAS in single alignments
+    String input_id
     String output_bam_basename
     Boolean? count_exons
     String? soloMultiMappers
+    String soloCBmatchWLtype = "1MM_multi" #"1MM_multi_Nbase_pseudocounts"
+    Int expected_cells = 3000
+    String reference_path = tar_star_reference
 
     # runtime values
     String samtools_star_docker_path
-    Int machine_mem_mb = 64000
-    Int cpu = 8
-   # by default request non preemptible machine to make sure the slow star alignment step completes
-    Int preemptible = 3
+    String cpu_platform = "Intel Ice Lake"
+    Int input_size = ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB"))
+    Int cpu = 16
+    Int disk = 5000
+    Int limitBAMsortRAM = 30
+    Int machine_mem_mb = 100 # not used in runtime -- need to remove 
 
-    # if slide_tags true set disk to 1000 otherwise dynamic allocation based on input size
-    # dynamic allocation multiplies input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Boolean is_slidetags
-    Int disk = if is_slidetags then 1000 else 
-    ceil(size(tar_star_reference, "Gi") * 3) + 
-    ceil(size(r1_fastq, "Gi") * 20) + 
-    ceil(size(r2_fastq, "Gi") * 20)
+    # by default request non preemptible machine to make sure the slow star alignment step completes
+    Int preemptible = 1
   }
 
+  Int mem_size = if ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB")) <= 100 then 64 else 128
+  Int outBAMsortingBinsN = (((ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB")) + 50) / 100) * 100) + 100
+
   meta {
-    description: "Aligns reads in bam_input to the reference genome in tar_star_reference"
+    description: "Aligns reads in bam_input to the reference genome in tar_star_reference" 
   }
 
   parameter_meta {
@@ -254,12 +258,15 @@ task STARsoloFastq {
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
+    limitBAMsortRAM: "(optional) Specifies the maximum amount of RAM (in GiB) allocated for sorting BAM files in STAR. Default is 30."
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
   command <<<
     set -euo pipefail
     set -x
+
+    ulimit -n 10000
 
     UMILen=10
     CBLen=16
@@ -296,12 +303,12 @@ task STARsoloFastq {
     COUNTING_MODE=""
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
-        ## single cell or whole cell
+        # single cell or whole cell
         COUNTING_MODE="Gene"
         echo "Running in ~{counting_mode} mode. The Star parameter --soloFeatures will be set to $COUNTING_MODE"
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
-        ## single nuclei
+        # single nuclei
         if [[ ~{count_exons} == false ]]
         then
             COUNTING_MODE="GeneFull_Ex50pAS"
@@ -315,6 +322,11 @@ task STARsoloFastq {
         exit 1;
     fi
 
+    # convert limitBAMsortRAM from GB to bytes 
+    RAM_limit_bytes=$((1073741824 * ~{limitBAMsortRAM})) 
+    echo $RAM_limit_bytes, ~{limitBAMsortRAM}
+    
+    # run star
     STAR \
         --soloType Droplet \
         --soloStrand ~{star_strand_mode} \
@@ -327,11 +339,13 @@ task STARsoloFastq {
         --soloFeatures $COUNTING_MODE \
         --clipAdapterType CellRanger4 \
         --outFilterScoreMin 30  \
-        --soloCBmatchWLtype 1MM_multi \
+        --soloCBmatchWLtype ~{soloCBmatchWLtype} \
         --soloUMIdedup 1MM_CR \
         --outSAMtype BAM SortedByCoordinate \
         --outSAMattributes UB UR UY CR CB CY NH GX GN sF cN \
         --soloBarcodeReadLength 0 \
+        --limitBAMsortRAM $RAM_limit_bytes \
+        --outBAMsortingBinsN ~{outBAMsortingBinsN} \
         --soloCellReadStats Standard \
         ~{"--soloMultiMappers " + soloMultiMappers} \
         --soloUMIfiltering MultiGeneUMI_CR \
@@ -339,96 +353,149 @@ task STARsoloFastq {
 
     # validate the bam with samtools quickcheck
     samtools quickcheck -v Aligned.sortedByCoord.out.bam
-
+    # reheader the BAM
+    samtools view -H Aligned.sortedByCoord.out.bam > header.txt
+    echo -e "@CO\tReference genome used: ~{reference_path}" >> header.txt
+    samtools reheader header.txt Aligned.sortedByCoord.out.bam > Aligned.sortedByCoord.out.reheader.bam
 
     echo "UMI LEN " $UMILen
+    touch barcodes_sn_rna.tsv features_sn_rna.tsv matrix_sn_rna.mtx CellReads_sn_rna.stats Features_sn_rna.stats Summary_sn_rna.csv UMIperCellSorted_sn_rna.txt
+      
+    ###########################################################################
+    # SAVE OUTPUT FILES
+    ###########################################################################
+    # Function to move .mtx files to /cromwell_root/
+    move_mtx_files() {
+      local directory=$1
+      echo "Processing $directory"
+      find "${directory}/raw" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'echo Moving {}; mv {} /cromwell_root/'
+    }
 
-    touch barcodes_sn_rna.tsv
-    touch features_sn_rna.tsv
-    touch matrix_sn_rna.mtx
-    touch CellReads_sn_rna.stats
-    touch Features_sn_rna.stats
-    touch Summary_sn_rna.csv
-    touch UMIperCellSorted_sn_rna.txt
+    # Function to move and rename common files
+    move_common_files() {
+      local src_dir=$1
+      local suffix=$2
 
+      declare -A files=(
+            ["barcodes.tsv"]="barcodes.tsv"
+            ["features.tsv"]="features.tsv"
+            ["CellReads.stats"]="CellReads.stats"
+            ["Features.stats"]="Features.stats"
+            ["Summary.csv"]="Summary.csv"
+            ["UMIperCellSorted.txt"]="UMIperCellSorted.txt"
+      )
+
+      for file in "${!files[@]}"; do
+          file_path="${files[$file]}"
+          name=$(basename "$file_path")
+          base="${name%.*}"
+          extension="${name##*.}"
+          new_name="${base}${suffix}.${extension}"
+          echo $new_name
+          if [[ -f "$src_dir/raw/$file" ]]; then
+                echo "Renaming $src_dir/raw/$file → $new_name"
+                mv "$src_dir/raw/$file" "$new_name"
+          elif [[ -f "$src_dir/$file" ]]; then
+                echo "Renaming $src_dir/$file → $new_name"
+                mv "$src_dir/$file" "$new_name"
+          else
+                echo "Warning: Missing file in $src_dir or $src_dir/raw: $file"
+          fi
+      done
+    }
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
-      SoloDirectory="Solo.out/Gene/raw"
+      SoloDirectory="Solo.out/Gene"
       echo "SoloDirectory is $SoloDirectory"
-      find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
-      find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
-
-      echo "Listing the files in the current directory:"
-      ls -l
-
-      mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
-      mv "Solo.out/Gene/raw/features.tsv" features.tsv
-      mv "Solo.out/Gene/CellReads.stats" CellReads.stats
-      mv "Solo.out/Gene/Features.stats" Features.stats
-      mv "Solo.out/Gene/Summary.csv" Summary.csv
-      mv "Solo.out/Gene/UMIperCellSorted.txt" UMIperCellSorted.txt
+      move_mtx_files "$SoloDirectory"
+      move_common_files "$SoloDirectory" ""
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
-      if [[ "~{count_exons}" == "false" ]]
-      then
-        SoloDirectory="Solo.out/GeneFull_Ex50pAS/raw"
-        echo "SoloDirectory is $SoloDirectory"
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
-
-        echo "Listing the files in the current directory"
-        ls -l
-
-        mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
-        mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
-        mv "Solo.out/GeneFull_Ex50pAS/Features.stats" Features.stats
-        mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
-        mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
-      else
-        SoloDirectory="Solo.out/GeneFull_Ex50pAS/raw"
-        echo "SoloDirectory is $SoloDirectory"
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} echo mv {} /cromwell_root/
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
-
-        echo "Listing the files in the current directory"
-        ls -l
-
-        SoloDirectory="Solo.out/Gene/raw"
-        echo "SoloDirectory is $SoloDirectory"
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx";  echo mv {} "/cromwell_root/$new_name"'
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
-
-        echo "Listing the files in the current directory"
-        ls -l
-
-        mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
-        mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
-        mv "Solo.out/GeneFull_Ex50pAS/Features.stats" Features.stats
-        mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
-        mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
-        mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_sn_rna.tsv
-        mv "Solo.out/Gene/raw/features.tsv"     features_sn_rna.tsv
-        mv "Solo.out/Gene/CellReads.stats" CellReads_sn_rna.stats
-        mv "Solo.out/Gene/Features.stats" Features_sn_rna.stats
-        mv "Solo.out/Gene/Summary.csv" Summary_sn_rna.csv
-        mv "Solo.out/Gene/UMIperCellSorted.txt" UMIperCellSorted_sn_rna.txt
+      SoloDirectory="Solo.out/GeneFull_Ex50pAS"
+      move_mtx_files "$SoloDirectory"     
+      if [[ "~{count_exons}" == "true" ]]; then
+        # Additional processing for sn_rna with exon counting
+        SoloDirectory2="Solo.out/Gene"
+        find "$SoloDirectory2/raw" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; echo Renaming {}; mv {} "/cromwell_root/$new_name"'
+        move_common_files "$SoloDirectory2" "_sn_rna"  # Add snRNA for renaming
       fi
+      move_common_files "$SoloDirectory" ""  # Standard snRNA renaming
     else
       echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
     fi
-    mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
 
+    # filtered outputs in Solo.out/GeneFull_Ex50pAS/filtered: barcodes.tsv features.tsv matrix.mtx
+    ls ${SoloDirectory}/filtered
+    echo "Tarring up filtered matrix files"
+    tar -cvf ~{input_id}_filtered_mtx_files.tar ${SoloDirectory}/filtered/barcodes.tsv ${SoloDirectory}/filtered/features.tsv ${SoloDirectory}/filtered/matrix.mtx
+    echo "Done processing"
+
+    # List the final directory contents
+    echo "Final directory listing:"
+    ls -l
+    mv Aligned.sortedByCoord.out.reheader.bam ~{output_bam_basename}.bam
+
+    ###########################################################################
+    # FROM MERGE STAR OUTPUT TASK
+    ###########################################################################
+    # Function to process a matrix (regular or snRNA)
+    process_matrix() {
+        local MATRIX_NAME=$1  # matrix or matrix_sn_rna
+        local BARCODE_FILE=$2
+        local FEATURE_FILE=$3
+        local MATRIX_FILE=$4
+        local OUTPUT_DIR=$5
+
+        echo "Processing $MATRIX_NAME data..."
+
+        # Create and copy matrix files
+        mkdir -p ./$MATRIX_NAME
+        cp $MATRIX_FILE ./$MATRIX_NAME/matrix.mtx
+        cp $BARCODE_FILE ./$MATRIX_NAME/barcodes.tsv
+        cp $FEATURE_FILE ./$MATRIX_NAME/features.tsv
+
+        # Compress matrix files
+        tar -zcvf ~{input_id}_${MATRIX_NAME}.mtx_files.tar -C ./$MATRIX_NAME .
+
+        # List files
+        echo "Listing files after processing $MATRIX_NAME:"
+        ls
+
+        # If text files are present, create a tar archive with them and run python script to combine shard metrics
+        python3 /scripts/scripts/combine_shard_metrics.py \
+          Summary.csv Features.stats CellReads.stats ~{counting_mode} ~{input_id} ${SoloDirectory}/filtered/barcodes.tsv ${SoloDirectory}/filtered/matrix.mtx ~{expected_cells}
+
+        echo "tarring STAR txt files"
+        tar -zcvf ~{input_id}.star_metrics.tar *.txt
+       
+        # Create the compressed raw count matrix
+        python3 /scripts/scripts/create-merged-npz-output.py \
+            --barcodes $BARCODE_FILE --features $FEATURE_FILE --matrix $MATRIX_FILE --input_id ~{input_id}
+     
+      }
+
+    # Process main matrix
+    process_matrix "matrix" "barcodes.tsv" "features.tsv" "matrix.mtx" "./output"
+
+    # Process snRNA matrix only if files exist
+    if [ -s "barcodes_sn_rna.tsv" ]; then
+        process_matrix "matrix_sn_rna" "barcodes_sn_rna.tsv" "features_sn_rna.tsv" "matrix_sn_rna.mtx" "./outputsnrna"
+    fi
+
+    ls -lR
+
+    mv ${SoloDirectory}/filtered/barcodes.tsv filtered_barcodes.tsv
+    cat filtered_barcodes.tsv
   >>>
 
   runtime {
     docker: samtools_star_docker_path
-    memory: "~{machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "~{mem_size} GiB"
+    disks: "local-disk ~{disk} SSD"
     disk: disk + " GB" # TES
     cpu: cpu
+    cpuPlatform: cpu_platform
     preemptible: preemptible
   }
 
@@ -454,6 +521,15 @@ task STARsoloFastq {
     File? multimappers_Uniform_matrix = "UniqueAndMult-Uniform.mtx"
     File? multimappers_Rescue_matrix = "UniqueAndMult-Rescue.mtx"
     File? multimappers_PropUnique_matrix = "UniqueAndMult-PropUnique.mtx"
+    # Output files for previous merging STAR output step
+    File row_index = "~{input_id}_sparse_counts_row_index.npy"
+    File col_index = "~{input_id}_sparse_counts_col_index.npy"
+    File sparse_counts = "~{input_id}_sparse_counts.npz"
+    File? library_metrics="~{input_id}_library_metrics.csv"
+    File? mtx_files ="~{input_id}.mtx_files.tar"
+    File? filtered_mtx_files = "~{input_id}_filtered_mtx_files.tar"
+    File? cell_reads_out = "~{input_id}.star_metrics.tar"
+    File outputbarcodes = "filtered_barcodes.tsv"
   }
 }
 

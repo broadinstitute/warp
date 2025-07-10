@@ -6,7 +6,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Imputation {
 
-  String pipeline_version = "1.1.15"
+  String pipeline_version = "1.1.18"
 
   input {
     Int chunkLength = 25000000
@@ -242,6 +242,7 @@ workflow Imputation {
       call tasks.SelectVariantsByIds {
         input:
           vcf = SetIdsVcfToImpute.output_vcf,
+          vcf_index = SetIdsVcfToImpute.output_vcf_index,
           ids = FindSitesUniqueToFileTwoOnly.missing_sites,
           basename = "imputed_sites_to_recover"
       }

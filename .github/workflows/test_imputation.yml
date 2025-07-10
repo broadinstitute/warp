@@ -9,15 +9,21 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
+      # anything in the pipelines folder
       - 'pipelines/broad/arrays/imputation/**'
       - 'structs/imputation/ImputationStructs.wdl'
+      # tasks from the pipeline WDL and their dependencies
       - 'tasks/broad/ImputationTasks.wdl'
+      # verification WDL and its dependencies
       - 'verification/VerifyImputation.wdl'
+      # test WDL and its dependencies
       - 'verification/test-wdls/TestImputation.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_imputation.yml'
       - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
 
 
   # Allows you to run this workflow manually from the Actions tab

@@ -9,18 +9,24 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
+      # anything in the pipelines folder
       - 'pipelines/broad/dna_seq/germline/joint_genotyping/**'
+      # tasks from the pipeline WDL and their dependencies
       - 'tasks/broad/JointGenotypingTasks.wdl'
+      # verification WDL and its dependencies
       - 'verification/VerifyJointGenotyping.wdl'
       - 'verification/VerifyTasks.wdl'
       - 'verification/VerifyMetrics.wdl'
       - 'verification/VerifyGermlineSingleSample.wdl'
       - 'verification/VerifyNA12878.wdl'
+      # test WDL and its dependencies
       - 'verification/test-wdls/TestJointGenotyping.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_joint_genotyping.yml'
       - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
 
 
   # Allows you to run this workflow manually from the Actions tab

@@ -9,15 +9,21 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
+      # anything in the pipelines folder
       - 'pipelines/broad/genotyping/illumina/**'
+      # tasks from the pipeline WDL and their dependencies
       - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
       - 'tasks/broad/Qc.wdl'
+      # verification WDL and its dependencies
       - 'verification/VerifyIlluminaGenotypingArray.wdl'
+      # test WDL and its dependencies
       - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
       - 'tasks/broad/Utilities.wdl'
       - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_illumina_genotyping_array.yml'
       - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
 
 
   # Allows you to run this workflow manually from the Actions tab
