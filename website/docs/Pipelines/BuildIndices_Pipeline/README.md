@@ -162,11 +162,10 @@ Inputs for the Macaque reference below were modified using a custom tool to hand
 |---------------------|--------------|
 | Genomics Reference     | mmul10 |
 | Gene annotation  | RefSeq annotation version 103 |
-| STAR Index TAR     | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/numty_dumpty/numt_modified_star2.7.10a-Macaque-NCBI-build-GCF_003339765.1-103.tar` |
-| BWA Index TAR      | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/numty_dumpty/numt_bwa-mem2-2.2.1-Macaque-NCBI-build-GCF_003339765.1.tar` |
-| GTF Annotation     | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/numty_dumpty/numt_modified_v103.annotation.gtf` |
-| Chromosome Sizes   | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/numty_dumpty/numt_chrom.sizes` |
-
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/10x_filtered/modified_star2.7.10a-Macaque-NCBI-build-GCF_003339765.1-103.tar` |
+| BWA Index TAR      | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/bwa-mem2-2.2.1-Macaque-NCBI-build-GCF_003339765.1.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/10x_filtered/mt_v103_modified.annotation.gtf` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/chrom.sizes` |
 
 This macaque reference works with the Optimus, Multiome, and Paired-tag workflows. However, mitochondrial genes are not demarcated with an "mt-" tag. A separate text file with MT genes is required. An example is the list below:
 
@@ -242,6 +241,15 @@ Marmoset scripts expect a custom-modified input Marmoset GTF file. These inputs 
 | Chromosome Sizes   | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/bwa/v2_2_1/chrom.sizes` |
 | STAR Index TAR     | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/star/v2_7_10a/modified_star2.7.10a-Pig-NCBI-build-Sscrofa11.1-2.2.tar` |
 | GTF Annotation     | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/star/v2_7_10a/modified_v2.2.annotation.gtf` |
+
+### Viral references
+
+| Species | Species reference | Species annotation | Viral reference | Viral annotation | 
+|----|-----|----|--------------------------|--------------------------|
+| Human | Human-GENCODE-build-GRCh38-43 | Gencode release 43 GRCh38 | Modified HXB2 K03455.1 <br /> `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/hiv.fa` | `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/HIV.gtf` |
+| Mouse | mm39/genecode.vM32 | Gencode release M32 GRCm39 | Modified https://www.ncbi.nlm.nih.gov/nuccore/MG470653.1 (excluding 3’LTR) <br /> `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/EcoHIV.fa` |`gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/EcoHIV.gtf`|
+| Macaque | mmul10 | Refseq annotation v 103 | NCBI GenBank, accession number PP236443 <br /> `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/siv.fa` | ` gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/SIV.gtf` |
+| Rat | mRatBN7.2 | RefSeq GCF_015227675.2-RS_2023_06 | AF324493.2 <br /> `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/RAT-HIVTransgene.fa` | `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/RAT-HIVFullTranscript.gtf` |
 
 
 ## Feedback
