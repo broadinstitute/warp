@@ -27,7 +27,8 @@ def determine_bucket_from_inputs(test_inputs):
     public_identifiers = [
         "gs://pd-test-storage-public",
         "gs://broad-public-datasets",
-        "gs://gcp-public-data--broad-references"
+        "gs://gcp-public-data--broad-references",
+        "gs://gatk-best-practices"
     ]
 
     inputs_str = json.dumps(test_inputs).lower()
