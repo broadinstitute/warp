@@ -173,7 +173,7 @@ task create_fofn {
         Array[String] file_urls1
         Array[String] file_urls2
         String output_prefix
-        String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.11"
+        String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
     }
     File fofn1_in = write_lines(file_urls1)
     File fofn2_in = write_lines(file_urls2)
