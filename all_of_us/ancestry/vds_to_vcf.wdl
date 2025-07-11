@@ -62,10 +62,12 @@ task process_vds {
         Int n_parts
         String output_prefix
         String docker = "hailgenetics/hail:0.2.134-py3.11"
-        Int? memory
-        Int memory_gb = select_first([memory, 128])
-        Int? optional_cpu
-        Int cpu = select_first([optional_cpu, 96])
+        Int memory_gb = 624
+        #Int memory_gb = select_first([memory, 128])
+        Int cpu = 96
+        Int bootDiskSize_gb = 500
+        Int disk_gb = 1000
+        #Int cpu = select_first([optional_cpu, 96])
     }
     command <<<
         set -e
@@ -161,10 +163,10 @@ task process_vds {
     }
     runtime {
         docker: docker
-        memory: "${memory_gb} GiB"
+        memory: "~{memory_gb} GiB"
         cpu: cpu
-        disks: "local-disk 1000 HDD"
-        bootDiskSizeGb: 500
+        disks: "local-disk ~{disk_gb} HDD"
+        bootDiskSizeGb: bootDiskSize_gb
     }
 }
 
@@ -174,6 +176,9 @@ task create_fofn {
         Array[String] file_urls2
         String output_prefix
         String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+        Int memory_gb = 3
+        Int cpu = 1
+        Int disk_gb = 100
     }
     File fofn1_in = write_lines(file_urls1)
     File fofn2_in = write_lines(file_urls2)
@@ -188,8 +193,8 @@ task create_fofn {
     }
     runtime {
         docker: docker
-        memory: "3 GB"
-        cpu: "1"
-        disks: "local-disk 100 HDD"
+        memory: "~{memory_gb} GiB"
+        cpu: cpu
+        disks: "local-disk ~{disk_gb} HDD"
     }
 }
