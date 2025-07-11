@@ -173,6 +173,7 @@ task create_fofn {
         Array[String] file_urls1
         Array[String] file_urls2
         String output_prefix
+        String docker = "hailgenetics/hail:0.2.130.post1-py3.11"
     }
     File fofn1_in = write_lines(file_urls1)
     File fofn2_in = write_lines(file_urls2)
