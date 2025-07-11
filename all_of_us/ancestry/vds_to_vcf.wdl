@@ -61,7 +61,7 @@ task process_vds {
         String chromosome
         Int n_parts
         String output_prefix
-        String docker = "hailgenetics/hail:0.2.130.post1-py3.11"
+        String docker = "hailgenetics/hail:0.2.134-py3.11"
         Int? memory
         Int memory_gb = select_first([memory, 128])
         Int? optional_cpu
