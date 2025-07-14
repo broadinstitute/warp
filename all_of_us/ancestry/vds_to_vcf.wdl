@@ -63,11 +63,9 @@ task process_vds {
         String output_prefix
         String docker = "hailgenetics/hail:0.2.134-py3.11"
         Int memory_gb = 624
-        #Int memory_gb = select_first([memory, 128])
         Int cpu = 96
         Int bootDiskSize_gb = 500
         Int disk_gb = 1000
-        #Int cpu = select_first([optional_cpu, 96])
     }
     command <<<
         set -e
