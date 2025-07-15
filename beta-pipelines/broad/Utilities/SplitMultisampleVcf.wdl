@@ -35,7 +35,7 @@ workflow SplitMultiSampleVcfWorkflow {
     # Workflow outputs
     output {
         Array[File] single_sample_vcfs = SplitMultiSampleVcf.single_sample_vcfs
-        Array[File] single_sample_vcf_indices = SplitMultiSampleVcf.single_sample_vcf_indices
+        #Array[File] single_sample_vcf_indices = SplitMultiSampleVcf.single_sample_vcf_indices
     }
 }
 
@@ -67,9 +67,9 @@ task SplitMultiSampleVcf {
 
         mkdir out_dir
         bcftools +split ~{multiSampleVcf} -Oz -o out_dir
-        for vcf in out_dir/*.vcf.gz; do
-        bcftools index -t $vcf
-        done
+        #for vcf in out_dir/*.vcf.gz; do
+        #  bcftools index -t $vcf
+        #done
     >>>
 
     runtime {
@@ -82,6 +82,6 @@ task SplitMultiSampleVcf {
 
     output {
         Array[File] single_sample_vcfs = glob("out_dir/*.vcf.gz")
-        Array[File] single_sample_vcf_indices = glob("out_dir/*.vcf.gz.tbi")
+        #Array[File] single_sample_vcf_indices = glob("out_dir/*.vcf.gz.tbi")
     }
 }
