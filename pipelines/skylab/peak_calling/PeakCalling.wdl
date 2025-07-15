@@ -98,6 +98,9 @@ task PeakCalling {
 
 
         echo "starting up python environment"
+        echo "Metrics H5AD: ~{metrics_h5ad}"
+        ls -l ~{metrics_h5ad}
+
 
         python3 <<CODE
 
@@ -115,6 +118,9 @@ task PeakCalling {
         import pandas as pd
         print("Importing pandas")
 
+        import os
+
+
         output_base_name = "~{output_base_name}"
         atac_gtf = "~{annotations_gtf}"
         metrics_h5ad = "~{metrics_h5ad}"
@@ -124,10 +130,24 @@ task PeakCalling {
         max_counts = "~{max_counts}"
         probability_threshold = "~{probability_threshold}"
 
+        if not os.path.exists(metrics_h5ad):
+          raise FileNotFoundError(f"File not found: {metrics_h5ad}")
+
         probability_threshold = float(probability_threshold)
 
         print("Peak calling starting...")
+        print("Reading h5ad...")
         atac_data = snap.read(metrics_h5ad)
+        print("Read complete")
+
+        print("atac_data keys:")
+        print("  obs:", atac_data.obs.columns if hasattr(atac_data, "obs") else "Missing")
+        print("  obsm:", atac_data.obsm.keys() if hasattr(atac_data, "obsm") else "Missing")
+        print("  uns:", atac_data.uns.keys() if hasattr(atac_data, "uns") else "Missing")
+
+        print("Attempting to compute fragment size distribution...")
+        snap.pl.frag_size_distr(atac_data)
+        print("Plot created successfully")
 
         # Calculate and plot the size distribution of fragments
         print("Calculating fragment size distribution")
