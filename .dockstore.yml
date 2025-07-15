@@ -30,6 +30,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/reprocessing/exome/ExomeReprocessing.wdl
 
+  - name: FilterandQCVariants
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
+
   - name: IlluminaGenotypingArray
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl
