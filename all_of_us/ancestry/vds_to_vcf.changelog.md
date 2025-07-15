@@ -1,8 +1,8 @@
 # aou_9.0.0
-2025-07-11
+2025-07-15
 
 * Parameterized runtime values
-* Updated code to work with hail docker
+* Updated default hail docker
 
 # aou_8.0.0
 2025-04-16
