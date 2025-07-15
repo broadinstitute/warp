@@ -110,8 +110,8 @@ task PeakCalling {
         print("Importing Scanpy")
         import numpy as np
         print("Importing numpy")
-        import polars as pl
-        print("Importing polars")
+        #import polars as pl
+        #print("Importing polars")
         import pandas as pd
         print("Importing pandas")
 
