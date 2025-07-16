@@ -409,8 +409,8 @@ task RecalculateDR2AndAF {
     File vcf
     Int n_samples
     Int disk_size_gb = ceil(3.3 * size(vcf, "GiB")) + 10
-    Int mem_gb = 11
-    Int cpu = 2
+    Int mem_gb = 4
+    Int cpu = 1
     Int chunksize = 10000
     Int preemptible = 3
   }
@@ -435,8 +435,7 @@ task RecalculateDR2AndAF {
     ap2_dict = {f'sample_{i}_AP2': 'float' for i in range(~{n_samples})}
     dtypes_dict = {**ds_dict, **ap1_dict, **ap2_dict}
 
-    csv_names = ["CHROM","POS","REF","ALT"]+[f'sample_{i}_DS' for i in range(~{n_samples})] + \
-    [f'sample_{i}_AP1' for i in range(~{n_samples})] + [f'sample_{i}_AP2' for i in range(~{n_samples})]
+    csv_names = ["CHROM","POS","REF","ALT"] + [f'sample_{i}_{col}' for i in range(n_samples) for col in ("DS", "AP1", "AP2")]
 
     out_annotation_dfs = []
     for chunk in pd.read_csv("dosage_tbl.csv.gz", names=csv_names, dtype=dtypes_dict, na_values=".", chunksize = ~{chunksize}, lineterminator="\n"):
@@ -447,15 +446,17 @@ task RecalculateDR2AndAF {
 
       # AF calc
       af = dosages.mean(axis=1)/2
+      af_rounded = = np.round(af, 4)
 
       # DR2 calc
       sum_squared_ap1_ap2 = np.sum(ap1**2 + ap2**2, axis=1)
       sum_ap1_ap2 = np.sum(ap1 + ap2, axis=1)
+      denominator = (2*n_samples * sum_ap1_ap2) - (sum_ap1_ap2**2)
 
       # values to annotate the vcf with
       chunk_annotations = chunk[["CHROM","POS","REF","ALT"]]
-      chunk_annotations["AF"] = af
-      chunk_annotations["DR2"] = np.where((chunk_annotations["AF"]==0) | (chunk_annotations["AF"]==1), 0, ((2*~{n_samples} * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / ((2*~{n_samples} * sum_ap1_ap2) - (sum_ap1_ap2**2)))
+      chunk_annotations["AF"] = af_rounded
+      chunk_annotations["DR2"] = np.where((af==0) | (af==1) | (denominator==0), 0.00, np.round(((2*n_samples * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / denominator, 2))
       out_annotation_dfs.append(chunk_annotations)
 
     annotations_df = pd.concat(out_annotation_dfs)
