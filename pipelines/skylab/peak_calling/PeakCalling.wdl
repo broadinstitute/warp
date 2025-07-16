@@ -81,7 +81,7 @@ task PeakCalling {
         # Runtime attributes/docker
         String docker_path
         Int disk_size = 500
-        Int mem_size = 120
+        Int mem_size = 64
         Int nthreads = 4
     }
 
@@ -96,30 +96,14 @@ task PeakCalling {
         set -euo pipefail
         set -x
 
-
-        echo "starting up python environment"
-        echo "Metrics H5AD: ~{metrics_h5ad}"
-        ls -l ~{metrics_h5ad}
-
-
         python3 <<CODE
-
-        print("Starting up Python environment for SnapATAC2 peak calling...")
 
         # use snap atac2
         import snapatac2 as snap
-        print("Importing SnapATAC2")
         import scanpy as sc
-        print("Importing Scanpy")
         import numpy as np
-        print("Importing numpy")
-        #import polars as pl
-        #print("Importing polars")
+        import polars as pl
         import pandas as pd
-        print("Importing pandas")
-
-        import os
-
 
         output_base_name = "~{output_base_name}"
         atac_gtf = "~{annotations_gtf}"
@@ -130,24 +114,10 @@ task PeakCalling {
         max_counts = "~{max_counts}"
         probability_threshold = "~{probability_threshold}"
 
-        if not os.path.exists(metrics_h5ad):
-          raise FileNotFoundError(f"File not found: {metrics_h5ad}")
-
         probability_threshold = float(probability_threshold)
 
         print("Peak calling starting...")
-        print("Reading h5ad...")
         atac_data = snap.read(metrics_h5ad)
-        print("Read complete")
-
-        print("atac_data keys:")
-        print("  obs:", atac_data.obs.columns if hasattr(atac_data, "obs") else "Missing")
-        print("  obsm:", atac_data.obsm.keys() if hasattr(atac_data, "obsm") else "Missing")
-        print("  uns:", atac_data.uns.keys() if hasattr(atac_data, "uns") else "Missing")
-
-        print("Attempting to compute fragment size distribution...")
-        snap.pl.frag_size_distr(atac_data)
-        print("Plot created successfully")
 
         # Calculate and plot the size distribution of fragments
         print("Calculating fragment size distribution")
@@ -247,7 +217,7 @@ task PeakCalling {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/snapatac2:np_snapatac2_docker"
+        docker: docker_path
         disks: "local-disk ${disk_size} SSD"
         memory: "${mem_size} GiB"
         cpu: nthreads
