@@ -1,6 +1,10 @@
 version: 1.2
 workflows:
 
+  - name: aggregate_rsem_results
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/rsem_aggregate_results.wdl
+  
   - name: ArrayImputationQuotaConsumed
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ArrayImputationQuotaConsumed.wdl
