@@ -10,6 +10,7 @@ task rsem_aggregate_results {
         Int disk_space
         Int num_threads
         Int num_preempt
+        # Captures version used for AoU processing
         String pipeline_version = "aou_9.0.0"
 
     }
@@ -43,7 +44,7 @@ task rsem_aggregate_results {
         File transcripts_expected_count="${prefix}.rsem_transcripts_expected_count.txt.gz"
         File genes_tpm="${prefix}.rsem_genes_tpm.txt.gz"
         File genes_expected_count="${prefix}.rsem_genes_expected_count.txt.gz"
-        String pipeline_version = "~{pipeline_version}"
+        String pipeline_version_out = "~{pipeline_version}"
     }
 
     runtime {
