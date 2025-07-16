@@ -161,7 +161,7 @@ task create_hw_pca_training {
     runtime {
         docker: "hailgenetics/hail:0.2.67"
         memory: "123 GB"
-        cpu: "4"
+        cpu: 4
         disks: "local-disk 500 HDD"
     }
 }
@@ -280,7 +280,7 @@ task call_ancestry {
     runtime {
         docker: "hailgenetics/hail:0.2.67"
         memory: "240 GB"
-        cpu: "4"
+        cpu: 4
         disks: "local-disk 700 HDD"
     }
 }
@@ -377,7 +377,7 @@ task plot_ancestry {
     runtime {
         docker: "hailgenetics/hail:0.2.67"
         memory: "7 GB"
-        cpu: "4"
+        cpu: 4
         disks: "local-disk 100 HDD"
     }
 }

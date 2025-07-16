@@ -68,7 +68,7 @@ task CopyFilesFromCloudToCloud {
   # We don't have to use an external IP.
   runtime {
     memory: "2 GiB"
-    cpu: "1"
+    cpu: 1
     disks: "local-disk 20 HDD"
     docker: "us.gcr.io/broad-gotc-prod/dsde-toolbox:stable_04-18-2022"
     preemptible: 3

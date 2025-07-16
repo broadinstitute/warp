@@ -538,7 +538,7 @@ task MergePedIntoVcf {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     memory: "3500 MiB"
-    cpu: "1"
+    cpu: 1
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
   }

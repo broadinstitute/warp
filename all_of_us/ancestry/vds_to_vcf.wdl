@@ -248,7 +248,7 @@ task process_vds {
     runtime {
         docker: "hailgenetics/hail:0.2.127-py3.11"
         memory: "624 GB"
-        cpu: "96"
+        cpu: 96
         disks: "local-disk 1000 HDD"
         bootDiskSizeGb: 500
     }
@@ -274,7 +274,7 @@ task create_fofn {
     runtime {
         docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
         memory: "3 GB"
-        cpu: "1"
+        cpu: 1
         disks: "local-disk 100 HDD"
     }
 }

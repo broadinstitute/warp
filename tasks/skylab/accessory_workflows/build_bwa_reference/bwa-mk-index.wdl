@@ -45,7 +45,7 @@ task BuildBWAreference {
 	 memory: "96GB"
 	 disks: "local-disk 100 HDD"
      disk: "100 GB" # TES
-	 cpu: "4"
+	 cpu: 4
      }
 
      output {
