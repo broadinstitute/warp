@@ -320,13 +320,44 @@ task JoinMultiomeBarcodes {
     df_gex = gex_data.obs.join(df_both_gex)
     df_fragment = pd.merge(atac_tsv, df_both_atac, left_on='barcode', right_index=True, how='left')
 
+    ###DEBUGGING
+    print("Before modifying atac_data.obs:")
+    print("  atac_data.obs.columns:", atac_data.obs.columns)
+    print("  atac_data.obs.index.name:", atac_data.obs.index.name)
+    print("  atac_data.obs.index.is_unique:", atac_data.obs.index.is_unique)
+    print("  atac_data.obs.index.hasnans:", atac_data.obs.index.hasnans)
+    print("Type of atac_data.X:", type(atac_data.X))
+    print("Value of atac_data.X:", atac_data.X)
+
+    print("df_atac columns:", df_atac.columns)
+    print("df_atac['gex_barcodes'] sample:", df_atac['gex_barcodes'].head(10))
+    print("df_atac['gex_barcodes'] is_unique:", df_atac['gex_barcodes'].is_unique)
+    print("df_atac['gex_barcodes'] has nulls:", df_atac['gex_barcodes'].isnull().sum())
+
     # Index both ATAC and GEX data on GEX barcodes
     # For ATAC data: use the GEX barcode as the index
     print("Setting ATAC obs to new dataframe and indexing on GEX barcodes")
     atac_data.obs = df_atac
-    # Set index to gex_barcodes column
+
+    ###DEBUGGING
+    print("After assigning df_atac to atac_data.obs:")
+    print("  atac_data.obs.index.name:", atac_data.obs.index.name)
+    print("  atac_data.obs.index.is_unique:", atac_data.obs.index.is_unique)
+    print("  atac_data.obs.index.hasnans:", atac_data.obs.index.hasnans)
+    print("Type of atac_data.X:", type(atac_data.X))
+    print("Value of atac_data.X:", atac_data.X)
+
+      # Set index to gex_barcodes column
     atac_data.obs.index = atac_data.obs['gex_barcodes']
     atac_data.obs.index.name = 'gex_barcodes'
+
+    ###DEBUGGING
+   print("After setting index:")
+   print("  atac_data.obs.index.name:", atac_data.obs.index.name)
+   print("  atac_data.obs.index.is_unique:", atac_data.obs.index.is_unique)
+   print("  atac_data.obs.index.hasnans:", atac_data.obs.index.hasnans)
+   print("Type of atac_data.X:", type(atac_data.X))
+   print("Value of atac_data.X:", atac_data.X)
 
     # For GEX data: use the GEX barcode as the index
     print("Setting Optimus obs to new dataframe")
