@@ -1,8 +1,12 @@
+# 2.1.5
+2025-07-16 (Date of Last Commit)
+
+* Added reference genome/GTF headers to fragment file via new string inputs; this change does not affect this pipeline
+
 # 2.1.4
-2025-06-20 (Date of Last Commit)
+2025-06-18 (Date of Last Commit) 
 
-* Indexed both atac and gex h5ad files on GEX barcodes for easier multiome cross-referencing; this change does not affect this pipeline
-
+* Added the exclude_chroms input parameter to the snap.metrics.tsse function in the CreateFragmentFile task of the ATAC pipeline; which is a list of chromosomes to exclude in per cell metric computation. The default value is [chrM, M]
 
 # 2.1.3
 2025-06-06 (Date of Last Commit)
