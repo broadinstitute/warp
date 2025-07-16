@@ -1,4 +1,4 @@
-# aou-8.0.0
+# aou_8.0.0
 2025-04-16 (Date of Last Commit)
 
 * Workflow version used for All Of Us Echo V4 R2 (V8 releaes)
