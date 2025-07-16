@@ -1,6 +1,6 @@
 # 3.6.3
 2025-06-20 (Date of Last Commit)
-* Indexed both atac and gex h5ad files on GEX barcodes for easier multiome cross-referencing; this change does not affect this pipeline
+* Added reference genome/GTF headers to fragment file via new string inputs; this change does not affect this pipeline
 
 # 3.6.2
 2025-06-09 (Date of Last Commit)
