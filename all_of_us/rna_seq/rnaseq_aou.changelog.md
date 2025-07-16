@@ -1,4 +1,4 @@
-# aou-_9.0.1
+# aou_9.0.1
 2025-06-06 (Date of Last Commit)
 
 * Removed the remove_IDs task from rnaseq_aou WDL; it does not change the input BAM from STAR and this change does not impact the results
