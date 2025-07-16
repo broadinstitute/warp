@@ -113,7 +113,6 @@ workflow VariantCalling {
           ref_dict = ref_dict,
           ref_fasta = ref_fasta,
           ref_fasta_index = ref_fasta_index,
-          contamination = contamination,
           preemptible_tries = agg_preemptible_tries,
           hc_scatter = hc_divisor,
           docker = gatk_1_3_docker
@@ -210,8 +209,6 @@ workflow VariantCalling {
     input:
       input_vcf = select_first([Reblock.output_vcf, MergeVCFs.output_vcf]),
       input_vcf_index = select_first([Reblock.output_vcf_index, MergeVCFs.output_vcf_index]),
-      dbsnp_vcf = dbsnp_vcf,
-      dbsnp_vcf_index = dbsnp_vcf_index,
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,
       ref_dict = ref_dict,

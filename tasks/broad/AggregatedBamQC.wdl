@@ -24,13 +24,9 @@ input {
     File base_recalibrated_bam
     File base_recalibrated_bam_index
     String base_name
-    String sample_name
     String recalibrated_bam_base_name
-    File haplotype_database_file
-    DNASeqSingleSampleReferences references
+    ReferenceFasta reference_fasta
     PapiSettings papi_settings
-    File? fingerprint_genotypes_file
-    File? fingerprint_genotypes_index
   }
 
   # QC the final BAM (consolidated after scattered BQSR)
@@ -39,9 +35,9 @@ input {
       input_bam = base_recalibrated_bam,
       input_bam_index = base_recalibrated_bam_index,
       output_bam_prefix = base_name + ".readgroup",
-      ref_dict = references.reference_fasta.ref_dict,
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
+      ref_dict = reference_fasta.ref_dict,
+      ref_fasta = reference_fasta.ref_fasta,
+      ref_fasta_index = reference_fasta.ref_fasta_index,
       preemptible_tries = papi_settings.agg_preemptible_tries
   }
 
@@ -51,25 +47,10 @@ input {
       input_bam = base_recalibrated_bam,
       input_bam_index = base_recalibrated_bam_index,
       output_bam_prefix = base_name,
-      ref_dict = references.reference_fasta.ref_dict,
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
+      ref_dict = reference_fasta.ref_dict,
+      ref_fasta = reference_fasta.ref_fasta,
+      ref_fasta_index = reference_fasta.ref_fasta_index,
       preemptible_tries = papi_settings.agg_preemptible_tries
-  }
-
-  if (defined(haplotype_database_file) && defined(fingerprint_genotypes_file)) {
-    # Check the sample BAM fingerprint against the sample array
-    call QC.CheckFingerprintTask as CheckFingerprintTask {
-      input:
-        input_bam = base_recalibrated_bam,
-        input_bam_index = base_recalibrated_bam_index,
-        genotypes = select_first([fingerprint_genotypes_file]),
-        genotypes_index = fingerprint_genotypes_index,
-        expected_sample_alias = sample_name,
-        output_basename = base_name,
-        haplotype_database_file = haplotype_database_file,
-        preemptible_tries = papi_settings.agg_preemptible_tries
-    }
   }
 
   # Generate a checksum per readgroup in the final BAM
@@ -102,9 +83,6 @@ input {
     File agg_quality_distribution_pdf = CollectAggregationMetrics.quality_distribution_pdf
     File agg_quality_distribution_metrics = CollectAggregationMetrics.quality_distribution_metrics
     File agg_error_summary_metrics = CollectAggregationMetrics.error_summary_metrics
-
-    File? fingerprint_summary_metrics = CheckFingerprintTask.summary_metrics
-    File? fingerprint_detail_metrics = CheckFingerprintTask.detail_metrics
   }
   meta {
     allowNestedInputs: true
