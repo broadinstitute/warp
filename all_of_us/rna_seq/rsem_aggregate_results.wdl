@@ -61,6 +61,6 @@ task rsem_aggregate_results {
 }
 
 
-workflow rsem_aggregate_results_workflow {
+workflow aggregate_rsem_results {
     call rsem_aggregate_results
 }
