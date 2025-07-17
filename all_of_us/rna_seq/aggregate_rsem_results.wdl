@@ -19,7 +19,7 @@ task rsem_aggregate_results {
 
         mkdir isoform_inputs
         while read path; do
-            gsutil cp "${path}" isoform_inputs/
+            gsutil cp -m "${path}" isoform_inputs/
         done < ~{rsem_isoforms_list}
 
         isoform_files=(isoform_inputs/*)
@@ -30,7 +30,7 @@ task rsem_aggregate_results {
 
         mkdir gene_inputs
         while read path; do
-            gsutil cp "${path}" gene_inputs/
+            gsutil cp -m "${path}" gene_inputs/
         done < ~{rsem_genes_list}
 
         gene_files=(gene_inputs/*)
