@@ -446,7 +446,7 @@ task RecalculateDR2AndAF {
 
       # AF calc
       af = dosages.mean(axis=1)/2
-      af_rounded = = np.round(af, 4)
+      af_rounded = np.round(af, 4)
 
       # DR2 calc
       sum_squared_ap1_ap2 = np.sum(ap1**2 + ap2**2, axis=1)
