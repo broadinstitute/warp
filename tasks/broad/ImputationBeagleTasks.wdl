@@ -443,7 +443,7 @@ task RecalculateDR2AndAF {
   input {
     File query_file
     Int n_samples
-    Int disk_size_gb = ceil(3 * size(query_file, "GiB")) + 20
+    Int disk_size_gb = ceil(2 * size(query_file, "GiB")) + 10
     Int mem_gb = 4
     Int cpu = 1
     Int chunksize = 10000
@@ -506,8 +506,8 @@ task RecalculateDR2AndAF {
   }
 
   output {
-    File annotations_file = "annotations.tsv.gz"
-    File annotation_file_index = "annotations.tsv.gz.tbi"
+    File output_annotations_file = "annotations.tsv.gz"
+    File output_annotations_file_index = "annotations.tsv.gz.tbi"
   }
 }
 
@@ -516,7 +516,9 @@ task ReannotateDR2AndAF {
   input {
     File vcf
     File vcf_index
-    Int disk_size_gb = ceil(3 * size(vcf, "GiB")) + 10
+    File annotations_tsv
+    File annotations_tsv_index
+    Int disk_size_gb = ceil(2 * size(vcf, "GiB") + size(annotations_tsv, "GiB")) + 10
     Int mem_gb = 4
     Int cpu = 1
     Int preemptible = 3
@@ -528,7 +530,7 @@ task ReannotateDR2AndAF {
     set -euo pipefail
 
     echo "$(date) - annotating vcf with new annotations"
-    bcftools annotate --no-version -a annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,DR2 -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
+    bcftools annotate --no-version -a ~{annotations_tsv} -c CHROM,POS,REF,ALT,AF,DR2 -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
 
     echo "$(date) - indexing annotated vcf"
     bcftools index -t ~{output_base}.vcf.gz

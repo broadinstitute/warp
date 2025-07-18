@@ -215,7 +215,9 @@ workflow ImputationBeagle {
         call beagleTasks.ReannotateDR2AndAF {
           input:
             vcf = QueryMergedVcfForReannotation.output_vcf,
-            vcf_index = QueryMergedVcfForReannotation.output_vcf_index
+            vcf_index = QueryMergedVcfForReannotation.output_vcf_index,
+            annotations_tsv = RecalculateDR2AndAF.output_annotations_file,
+            annotations_tsv_index = RecalculateDR2AndAF.output_annotations_file_index
         }
       }
 
