@@ -519,7 +519,6 @@ task ReannotateDR2AndAF {
     Int disk_size_gb = ceil(3 * size(vcf, "GiB")) + 10
     Int mem_gb = 4
     Int cpu = 1
-    Int chunksize = 10000
     Int preemptible = 3
   }
 
