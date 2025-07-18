@@ -466,25 +466,25 @@ task RecalculateDR2AndAF {
 
     out_annotation_dfs = []
     for chunk in pd.read_csv("dosage_tbl.csv.gz", names=csv_names, dtype=dtypes_dict, na_values=".", chunksize = ~{chunksize}, lineterminator="\n"):
-    # get sample level annotaions necessary for AF and DR2 calculations
-    dosages = chunk[[f'sample_{i}_DS' for i in range(~{n_samples})]].to_numpy()
-    ap1 = chunk[[f'sample_{i}_AP1' for i in range(~{n_samples})]].to_numpy()
-    ap2 = chunk[[f'sample_{i}_AP2' for i in range(~{n_samples})]].to_numpy()
+      # get sample level annotaions necessary for AF and DR2 calculations
+      dosages = chunk[[f'sample_{i}_DS' for i in range(~{n_samples})]].to_numpy()
+      ap1 = chunk[[f'sample_{i}_AP1' for i in range(~{n_samples})]].to_numpy()
+      ap2 = chunk[[f'sample_{i}_AP2' for i in range(~{n_samples})]].to_numpy()
 
-    # AF calc
-    af = dosages.mean(axis=1)/2
-    af_rounded = np.round(af, 4)
+      # AF calc
+      af = dosages.mean(axis=1)/2
+      af_rounded = np.round(af, 4)
 
-    # DR2 calc
-    sum_squared_ap1_ap2 = np.sum(ap1**2 + ap2**2, axis=1)
-    sum_ap1_ap2 = np.sum(ap1 + ap2, axis=1)
-    denominator = (2*~{n_samples} * sum_ap1_ap2) - (sum_ap1_ap2**2)
+      # DR2 calc
+      sum_squared_ap1_ap2 = np.sum(ap1**2 + ap2**2, axis=1)
+      sum_ap1_ap2 = np.sum(ap1 + ap2, axis=1)
+      denominator = (2*~{n_samples} * sum_ap1_ap2) - (sum_ap1_ap2**2)
 
-    # values to annotate the vcf with
-    chunk_annotations = chunk[["CHROM","POS","REF","ALT"]]
-    chunk_annotations["AF"] = af_rounded
-    chunk_annotations["DR2"] = np.where((af==0) | (af==1) | (denominator==0), 0.00, np.round(((2*~{n_samples} * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / denominator, 2))
-    out_annotation_dfs.append(chunk_annotations)
+      # values to annotate the vcf with
+      chunk_annotations = chunk[["CHROM","POS","REF","ALT"]]
+      chunk_annotations["AF"] = af_rounded
+      chunk_annotations["DR2"] = np.where((af==0) | (af==1) | (denominator==0), 0.00, np.round(((2*~{n_samples} * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / denominator, 2))
+      out_annotation_dfs.append(chunk_annotations)
 
     annotations_df = pd.concat(out_annotation_dfs)
     annotations_df.to_csv("annotations.tsv", sep="\t", index=False, header=False)
