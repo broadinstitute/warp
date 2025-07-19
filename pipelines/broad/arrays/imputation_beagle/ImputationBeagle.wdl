@@ -32,9 +32,9 @@ workflow ImputationBeagle {
   }
 
   # the following are used to define the resources for Beagle tasks
-  Int beagle_cpu = 8
-  Int beagle_phase_memory_in_gb = 40
-  Int beagle_impute_memory_in_gb = 40
+  Int beagle_cpu = 18
+  Int beagle_phase_memory_in_gb = 90
+  Int beagle_impute_memory_in_gb = 90
 
   call tasks.CountSamples {
     input:
