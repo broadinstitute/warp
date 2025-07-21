@@ -314,6 +314,7 @@ task SelectSamplesWithCut {
     memory: memory_mb + " MiB"
     preemptible: 3
     maxRetries: 2
+    noAddress: true
     cpu: cpu
   }
 
@@ -397,6 +398,8 @@ task MergeSampleChunksVcfsWithPaste {
     memory: mem_gb + " GiB"
     cpu: cpu
     preemptible: preemptible
+    maxRetries: 2
+    noAddress: true
   }
 
   output {
@@ -430,6 +433,8 @@ task QueryMergedVcfForReannotation {
     memory: mem_gb + " GiB"
     cpu: cpu
     preemptible: preemptible
+    maxRetries: 2
+    noAddress: true
   }
 
   output {
@@ -503,6 +508,8 @@ task RecalculateDR2AndAF {
     memory: mem_gb + " GiB"
     cpu: cpu
     preemptible: preemptible
+    maxRetries: 2
+    noAddress: true
   }
 
   output {
@@ -543,6 +550,8 @@ task ReannotateDR2AndAF {
     memory: mem_gb + " GiB"
     cpu: cpu
     preemptible: preemptible
+    maxRetries: 2
+    noAddress: true
   }
 
   output {
