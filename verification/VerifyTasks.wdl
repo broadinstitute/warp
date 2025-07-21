@@ -832,7 +832,7 @@ task CompareH5Files {
     apt update
     apt install -y hdf5-tools
 
-    h5diff ~{test_h5} ~{truth_h5} > diff_output.txt
+    h5diff -v ~{test_h5} ~{truth_h5} > diff_output.txt
     diff_exit_code=$?
 
     echo "H5diff output:"
@@ -854,8 +854,8 @@ task CompareH5Files {
 
   runtime {
     docker: "ubuntu:20.04"
-    disks: "local-disk 100 HDD"
-    memory: "50 GiB"
+    disks: "local-disk 150 HDD"
+    memory: "80 GiB"
     preemptible: 3
   }
 }
