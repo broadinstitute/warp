@@ -9,7 +9,7 @@ task CountVariantsInChunks {
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int cpu = 1
     Int memory_mb = 16000
-    Int disk_size_gb = 2 * ceil(size([vcf, vcf_index], "GiB")) + size(panel_bed_file, "GiB") + 10
+    Int disk_size_gb = ceil((2 * size([vcf, vcf_index], "GiB")) + size(panel_bed_file, "GiB")) + 10
   }
   Int command_mem = memory_mb - 1500
   Int max_heap = memory_mb - 1000
