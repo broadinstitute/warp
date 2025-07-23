@@ -29,12 +29,11 @@ workflow ImputationBeagle {
     String ubuntu_docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
 
     Int? error_count_override
+    # the following are used to define the resources for Beagle tasks
+    Int beagle_cpu = 8
+    Int beagle_phase_memory_in_gb = 40
+    Int beagle_impute_memory_in_gb = 45
   }
-
-  # the following are used to define the resources for Beagle tasks
-  Int beagle_cpu = 8
-  Int beagle_phase_memory_in_gb = 40
-  Int beagle_impute_memory_in_gb = 45
 
   call tasks.CountSamples {
     input:
