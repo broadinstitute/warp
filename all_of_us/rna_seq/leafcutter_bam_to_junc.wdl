@@ -14,7 +14,7 @@ task leafcutter_bam_to_junc {
 
     command <<<
         set -euo pipefail
-        echo $(date +"[%b %d %H:%M:%S] Extracting junctions for sample ${sample_id}")
+        echo $(date +"[%b %d %H:%M:%S] Extracting junctions for sample ~{sample_id}")
         # select uniquely mapped reads that pass WASP filters
         filtered_bam=~{bam_file}.filtered.bam
         samtools view -h -q 255 ~{bam_file} | grep -v "vW:i:[2-7]" | samtools view -b > $filtered_bam
