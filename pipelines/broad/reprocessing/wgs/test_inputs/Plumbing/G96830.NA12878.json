@@ -1,6 +1,6 @@
 {
-  "WholeGenomeReprocessing.input_cram": "gs://broad-gotc-test-storage/single_sample/plumbing/truth/master/20k/NA12878_PLUMBING.cram",
-  "WholeGenomeReprocessing.output_map": "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/bams/G96830.NA12878/readgroupid_to_bamfilename_map.txt",
+  "WholeGenomeReprocessing.input_cram": "gs://pd-test-storage-public/WholeGenomeReprocessing/input/plumbing/G96830.NA12878/NA12878_PLUMBING.cram",
+  "WholeGenomeReprocessing.output_map": "gs://pd-test-storage-public/WholeGenomeReprocessing/input/plumbing/G96830.NA12878/readgroupid_to_bamfilename_map.txt",
 
   "WholeGenomeReprocessing.sample_name": "NA12878 PLUMBING",
   "WholeGenomeReprocessing.base_file_name": "G96830.NA12878",
@@ -43,8 +43,8 @@
     "break_bands_at_multiples_of": 100000
   },
 
-  "WholeGenomeReprocessing.fingerprint_genotypes_file": "gs://broad-gotc-test-storage/single_sample/plumbing/bams/G96830.NA12878/G96830.NA12878.hg38.reference.fingerprint.vcf.gz",
-  "WholeGenomeReprocessing.fingerprint_genotypes_index": "gs://broad-gotc-test-storage/single_sample/plumbing/bams/G96830.NA12878/G96830.NA12878.hg38.reference.fingerprint.vcf.gz.tbi",
+  "WholeGenomeReprocessing.fingerprint_genotypes_file": "gs://pd-test-storage-public/WholeGenomeReprocessing/input/plumbing/G96830.NA12878/G96830.NA12878.hg38.reference.fingerprint.vcf.gz",
+  "WholeGenomeReprocessing.fingerprint_genotypes_index": "gs://pd-test-storage-public/WholeGenomeReprocessing/input/plumbing/G96830.NA12878/G96830.NA12878.hg38.reference.fingerprint.vcf.gz.tbi",
 
   "WholeGenomeReprocessing.wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
   "WholeGenomeReprocessing.WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true,
