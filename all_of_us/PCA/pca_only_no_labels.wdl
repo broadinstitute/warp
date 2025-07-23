@@ -3,18 +3,25 @@ version 1.0
 workflow pca_only_no_labels {
 
     input {
-        File full_bgz
-        File full_bgz_index
+        Array[File] hq_sites_vcf_files
+        Array[File] hq_sites_vcf_indices
         String final_output_prefix
         Int num_pcs
         Int? min_vcf_partitions_in
     }
 
+    call ConcatenateChromosomalVcfs {
+        input:
+            vcf_files=hq_sites_vcf_files,
+            vcf_indices=hq_sites_vcf_indices,
+            output_vcf_basename=final_output_prefix + "_autosomes.vcf.gz"
+    }
+
     # Train the model on the intersection sites (full version that includes the samples)
     call create_hw_pca_training {
         input:
-            full_bgz=full_bgz,
-            full_bgz_index=full_bgz,
+            full_bgz=ConcatenateChromosomalVcfs.concatenated_vcf,
+            full_bgz_index=ConcatenateChromosomalVcfs.concatenated_vcf_idx,
             final_output_prefix=final_output_prefix,
             num_pcs=num_pcs,
             min_vcf_partitions_in=min_vcf_partitions_in
@@ -31,6 +38,43 @@ workflow pca_only_no_labels {
     output {
         File training_pca_labels_ht_tsv = create_hw_pca_training.pca_tsv
         File training_pca_labels_tsv_plots = plot_pca.training_pca_labels_tsv_plot
+    }
+}
+
+task ConcatenateChromosomalVcfs {
+    input {
+        # Array of gzipped VCF files, assumed to be in chromosomal order.
+        Array[File] vcf_files
+
+        # Array of corresponding gzipped VCF index files (.tbi).
+        Array[File] vcf_indices
+
+        # Desired basename for the output concatenated VCF file.
+        String output_vcf_basename = "combined_autosomes.vcf.gz"
+
+        # Runtime parameters
+        String bcftools_docker = "mgibio/bcftools-cwl:1.12"
+        Int memory_gb = 128
+        Int disk_gb = 1000 # 1 TB
+        Int num_preemptible_attempts = 1
+    }
+
+    command <<<
+        # Concatenate the VCF files.
+        bcftools concat -Oz -o ~{output_vcf_basename} ~{sep=' ' vcf_files}
+        bcftools index ${output_vcf_basename}
+    >>>
+
+    output {
+        File concatenated_vcf = "${output_vcf_basename}"
+        File concatenated_vcf_idx = "${output_vcf_basename}.tbi"
+    }
+
+    runtime {
+        docker: bcftools_docker
+        memory: "${memory_gb} GB"
+        disk: "${disk_gb} GB"
+        preemptible: num_preemptible_attempts
     }
 }
 

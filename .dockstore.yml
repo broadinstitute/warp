@@ -64,6 +64,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/paired_tag/PairedTag.wdl
 
+  - name: pca_only_no_labels
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/PCA/pca_only_no_labels.wdl
+
   - name: PeakCalling
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/peak_calling/PeakCalling.wdl
