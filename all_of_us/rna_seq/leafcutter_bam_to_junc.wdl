@@ -45,13 +45,19 @@ workflow leafcutter_bam_to_junc_workflow {
 		File bam_file
 		String sample_id
 		Int? strand_specificity
-
-		Int memory 
-		Int disk_space 
-		Int num_threads 
-		Int num_preempt 
+        Int? user_defined_threads = 1  # optional override
+        Int? user_defined_preempt = 1  # optional override
 	}
 	String pipeline_version = "aou_9.0.0"
+	   # Get size of BAM file in GiB (1 GiB = 1024^3 bytes)
+    Float bam_file_size_gb = size(bam_file, "GB")
+
+    # Compute runtime settings based on file size
+    Int memory = ceil(bam_file_size_gb * 2.0) + 1
+    Int disk_space = ceil(bam_file_size_gb * 3.0) + 5
+    Int num_threads = select_first([user_defined_threads, 1])
+    Int num_preempt = select_first([user_defined_preempt, 1])
+	
 	call leafcutter_bam_to_junc {
 		input:
 			bam_file = bam_file,
