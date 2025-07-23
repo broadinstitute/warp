@@ -138,7 +138,7 @@ workflow ImputationBeagle {
         Int start_sample = (j * sample_chunk_size) + 10
         Int end_sample = if (CountSamples.nSamples <= ((j + 1) * sample_chunk_size)) then CountSamples.nSamples + 9 else ((j + 1) * sample_chunk_size ) + 9
         String second_scatter_sample_chunk_basename = second_scatter_chunk_basename + ".sample_chunk_" + j
-        Boolean impute_with_allele_probablities = num_sample_chunks > 1
+        Boolean impute_with_allele_probablities = true #num_sample_chunks > 1
 
         # only cut sample chunks if there is more than one
         if (num_sample_chunks > 1) {
