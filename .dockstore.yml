@@ -54,6 +54,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
 
+  - name: leafcutter_bam_to_junc
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_bam_to_junc.wdl
+  
   - name: Multiome
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/multiome/Multiome.wdl
