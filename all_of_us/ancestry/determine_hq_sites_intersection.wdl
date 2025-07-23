@@ -34,7 +34,7 @@ workflow determine_hq_sites_intersection {
 
     Array[File] ordered_vcf_shards = if (defined(ordered_vcf_shards_list)) then read_lines(select_first([ordered_vcf_shards_list, ""])) else ordered_vcf_shards_in
     Array[File] ordered_vcf_shards_idx = if (defined(ordered_vcf_shards_idx_list)) then read_lines(select_first([ordered_vcf_shards_idx_list, ""])) else ordered_vcf_shards_idx_in
-    String pipeline_version = "aou-8.0.0"
+    String pipeline_version = "aou_8.0.0"
 
     # Get the high quality sites that are called in the test data (intersection file).
     #  Return as a full VCF of the training data ("hq full").  And return the count as well.
