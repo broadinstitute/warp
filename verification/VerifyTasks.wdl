@@ -827,7 +827,6 @@ task CompareH5Files {
   }
 
   command {
-    set -eo pipefail
 
     apt update
     apt install -y hdf5-tools
