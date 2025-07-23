@@ -19,7 +19,7 @@ task leafcutter_bam_to_junc {
         filtered_bam=~{bam_file}.filtered.bam
         samtools view -h -q 255 ~{bam_file} | grep -v "vW:i:[2-7]" | samtools view -b > $filtered_bam
         samtools index $filtered_bam
-        regtools junctions extract -a 8 -m 50 -M 500000 ~{"-s " + strand_specificity} $filtered_bam | gzip -c > ~{sample_id}.regtools_junc.txt.gz
+        regtools junctions extract -a 8 -m 50 -M 500000 -s ~{strand_specificity} $filtered_bam | gzip -c > ~{sample_id}.regtools_junc.txt.gz
         echo $(date +"[%b %d %H:%M:%S] Done")
     >>>
 
