@@ -111,7 +111,7 @@ task Phase {
   }
   runtime {
     docker: beagle_docker
-    disks: "local-disk ${disk_size_gb} SSD"
+    disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
@@ -160,7 +160,7 @@ task Impute {
   }
   runtime {
     docker: beagle_docker
-    disks: "local-disk ${disk_size_gb} SSD"
+    disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
