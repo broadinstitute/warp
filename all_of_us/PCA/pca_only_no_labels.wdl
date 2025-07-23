@@ -62,7 +62,7 @@ task ConcatenateChromosomalVcfs {
     command <<<
         # Concatenate the VCF files.
         bcftools concat -Oz -o ~{output_vcf_basename} ~{sep=' ' vcf_files}
-        bcftools index ${output_vcf_basename}
+        bcftools index ~{output_vcf_basename}
     >>>
 
     output {
