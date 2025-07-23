@@ -231,6 +231,8 @@ jobs:
           ALL_OUTPUTS=""
           declare -a SUBMISSION_IDS
           declare -A WORKFLOW_STATUSES
+          declare -A SUBMISSION_ID_TO_FILENAME
+
           OVERALL_SUCCESS=true  
 
           # Convert UPDATE_TRUTH and USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
@@ -317,6 +319,7 @@ jobs:
               fi
 
               echo "Submission successful. Submission ID: $SUBMISSION_ID"
+              SUBMISSION_ID_TO_FILENAME["$SUBMISSION_ID"]="$input_file_filename"          
               SUBMISSION_IDS+=("$SUBMISSION_ID")
               break
             done
@@ -382,10 +385,13 @@ jobs:
           
            # Add all workflow statuses to the summary
           for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
+            # Generate the submission URL and append to the summary
             SUBMISSION_URL="https://app.terra.bio/#workspaces/$WORKSPACE_NAMESPACE/WARP%20Tests/job_history/$SUBMISSION_ID"
-            # Add the Submission ID as a hyperlink
-            FINAL_SUMMARY+="[Submission ID: $SUBMISSION_ID]($SUBMISSION_URL)\n"
-            # Add the workflows and statuses for this submission
+            # Get the input file name from the mapping
+            INPUT_FILE_NAME="${SUBMISSION_ID_TO_FILENAME[$SUBMISSION_ID]}"
+            # Append the submission details to the final summary
+            FINAL_SUMMARY+="[${INPUT_FILE_NAME}]($SUBMISSION_URL)\n"
+            # Append the workflow statuses for this submission
             FINAL_SUMMARY+="${WORKFLOW_STATUSES[$SUBMISSION_ID]}\n\n"
           done
           
