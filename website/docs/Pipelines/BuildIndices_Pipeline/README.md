@@ -142,6 +142,7 @@ Example references are available in the Broad Public Reference bucket, a Google 
 | BWA-MEM2 Index TAR     | `gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar` |
 | Chromosome Sizes       | `gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/chrom.sizes` |
 
+
 ### Mouse
 
 | File Type               | File Location |
@@ -251,6 +252,15 @@ Marmoset scripts expect a custom-modified input Marmoset GTF file. These inputs 
 | Macaque | mmul10 | Refseq annotation v 103 | NCBI GenBank, accession number PP236443 <br /> `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/siv.fa` | ` gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/SIV.gtf` |
 | Rat | mRatBN7.2 | RefSeq GCF_015227675.2-RS_2023_06 | AF324493.2 <br /> `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/RAT-HIVTransgene.fa` | `gs://fc-36d6b972-99f2-4ca2-a076-9c4c0e7567e1/viral-references/RAT-HIVFullTranscript.gtf` |
 
+### Human + HIV
+| File Type               | File Location |
+|-------------------------|--------------|
+| Genomics Reference     | GRCh38 + Modified HXB2 K03455.1 |
+| Gene annotation        | GENCODE Release 43 GRCh38.p13 + HIV annotation |
+| Human Reference        | `gs://gcp-public-data--broad-references/scorch/hg38/modified_star2.7.10a-Human-GENCODE-build-GRCh38-43.tar` |
+| Human Annotation GTF   | `gs://gcp-public-data--broad-references/scorch/hg38/modified_v43.annotation.gtf` |
+| BWA-MEM2 Index TAR     | `gs://gcp-public-data--broad-references/scorch/hg38/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar` |
+| Chromosome Sizes       | `gs://gcp-public-data--broad-references/scorch/hg38/chrom.sizes` |
 
 ## Feedback
 
