@@ -46,7 +46,6 @@ task SamToFastqAndBwaMemAndMba {
 
   command <<<
 
-
     # This is done before "set -o pipefail" because "bwa" will have a rc=1 and we don't want to allow rc=1 to succeed
     # because the sed may also fail with that error and that is something we actually want to fail on.
     BWA_VERSION=$(/usr/gitc/bwa 2>&1 | \
@@ -60,13 +59,34 @@ task SamToFastqAndBwaMemAndMba {
         exit 1;
     fi
 
+    # "natually" sorted reads are not queryname sorted according to picard/htsjdk
+    # for the old version of picard that's here, BMA chokes with strange error messages
+    # this pre-emptiv sort should fix the problem.
+
+    java \
+      -Dsamjdk.use_async_io_read_samtools=true \
+      -Dsamjdk.use_async_io_write_samtools=true \
+      -Xmx13g \
+      -jar /usr/gitc/picard.jar \
+      SortSam \
+      --COMPRESSION_LEVEL 0 \
+      --VALIDATION_STRINGENCY SILENT \
+      -I ~{input_bam} \
+      -O  /dev/stdout \
+      --MAX_RECORDS_IN_RAM 5000000 \
+      -SO queryname | \
+     samtools view -b -1 --threads 8 - > ~{output_bam_basename}.qname_sorted.bam
+
+    # no need to keep this around, and will reduce the disk-space usage.
+    rm -f ~{input_bam}
+
     # set the bash variable needed for the command-line
     bash_ref_fasta=~{reference_fasta.ref_fasta}
     # if reference_fasta.ref_alt has data in it or allow_empty_ref_alt is set
     if [ -s ~{reference_fasta.ref_alt} ] || ~{allow_empty_ref_alt}; then
       java -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
         SamToFastq \
-        INPUT=~{input_bam} \
+        INPUT=~{output_bam_basename}.qname_sorted.bam \
         FASTQ=/dev/stdout \
         INTERLEAVE=true \
         NON_PF=true | \
@@ -79,7 +99,7 @@ task SamToFastqAndBwaMemAndMba {
         ATTRIBUTES_TO_REMOVE=NM \
         ATTRIBUTES_TO_REMOVE=MD \
         ALIGNED_BAM=/dev/stdin \
-        UNMAPPED_BAM=~{input_bam} \
+        UNMAPPED_BAM=~{output_bam_basename}.qname_sorted.bam\
         OUTPUT=~{output_bam_basename}.bam \
         REFERENCE_SEQUENCE=~{reference_fasta.ref_fasta} \
         SORT_ORDER="unsorted" \
