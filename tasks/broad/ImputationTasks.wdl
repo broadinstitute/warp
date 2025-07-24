@@ -305,7 +305,7 @@ task GatherVcfs {
   >>>
   runtime {
     docker: gatk_docker
-    disks: "local-disk ${disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 2
