@@ -1,5 +1,5 @@
 {
-  "CramToUnmappedBams.input_cram": "gs://pd-test-storage-public/CramToUnmappedBams/input/plumbing/exome/RP-929.NA12878.Exome/RP-929.NA12878/NA12878_PLUMBING.cram",
+  "CramToUnmappedBams.input_cram": "gs://pd-test-storage-public/CramToUnmappedBams/input/plumbing/exome/RP-929.NA12878.Exome/NA12878_PLUMBING.cram",
   "CramToUnmappedBams.output_map": "gs://pd-test-storage-public/CramToUnmappedBams/input/plumbing/exome/RP-929.NA12878.Exome/readgroupid_to_bamfilename_map.txt",
   "CramToUnmappedBams.base_file_name": "RP-929.NA12878.Exome",
   "CramToUnmappedBams.unmapped_bam_suffix": ".unmapped.bam",
