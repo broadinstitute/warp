@@ -237,6 +237,8 @@ task JoinMultiomeBarcodes {
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
+    String input_gtf
+    String input_bwa_reference
 
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
@@ -254,6 +256,8 @@ task JoinMultiomeBarcodes {
     gex_h5ad: "The resulting h5ad from the Optimus workflow."
     gex_whitelist: "Whitelist used for gene expression barcodes."
     atac_whitelist: "Whitelist used for ATAC barcodes."
+    input_gtf: "Reference GTF file used in the analysis."
+    input_bwa_reference: "Reference genome used in the analysis."
   }
 
   command <<<
@@ -275,6 +279,8 @@ task JoinMultiomeBarcodes {
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
+    input_gtf = "~{input_gtf}"
+    input_bwa_reference = "~{input_bwa_reference}"
 
     # import anndata to manipulate h5ad files
     import anndata as ad
@@ -326,15 +332,21 @@ task JoinMultiomeBarcodes {
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
     df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
     CODE
-    
-    # sorting the file
+
+    # Add reference information to fragment file header
+    echo "Adding reference information to fragment file"
+    echo "# Reference genome is ~{input_bwa_reference}" > "~{atac_fragment_base}.with_header.tsv"
+    echo "# Reference GTF is ~{input_gtf}" >> "~{atac_fragment_base}.with_header.tsv"
+    cat "~{atac_fragment_base}.tsv" >> "~{atac_fragment_base}.with_header.tsv"
+    mv "~{atac_fragment_base}.with_header.tsv" "~{atac_fragment_base}.tsv"
+
+    # sorting the file (skip header lines that start with #)
     echo "Sorting file"
-    sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
+    (head -n 2 "~{atac_fragment_base}.tsv"; tail -n +3 "~{atac_fragment_base}.tsv" | sort -k1,1V -k2,2n) > "~{atac_fragment_base}.sorted.tsv"
     echo "Starting bgzip"
     bgzip "~{atac_fragment_base}.sorted.tsv"
     echo "Starting tabix"
     tabix -s 1 -b 2 -e 3 -C "~{atac_fragment_base}.sorted.tsv.gz"
-
   >>>
 
   runtime {
