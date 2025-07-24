@@ -112,7 +112,6 @@ task CompareTabix {
     File truth_fragment_file
   }
   command <<<
-  set -euo pipefail
   exit_code=0
 
   a=$(gunzip -c ~{test_fragment_file} | md5sum | awk '{ print $1 }')
