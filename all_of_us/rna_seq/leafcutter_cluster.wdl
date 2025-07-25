@@ -28,6 +28,7 @@ task leafcutter_cluster {
         # trying to ls 
 		echo trying to ls with gsutil
 		gsutil ls -l gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/v43_README.txt
+		
 		while read path; do
             gsutil -m cp "${path}" junc_inputs/
         done < ~{junc_files_list}
