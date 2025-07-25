@@ -25,7 +25,7 @@ task leafcutter_cluster {
         echo $(date +"[%b %d %H:%M:%S]") Starting leafcutter
 
         mkdir junc_inputs
-		while read path; do
+        while read path; do
             gsutil -m cp "${path}" junc_inputs/
         done < ~{junc_files_list}
 
