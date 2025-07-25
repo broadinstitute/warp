@@ -107,9 +107,9 @@ task create_hw_pca_training {
         hl.init(default_reference='GRCh38', idempotent=True)
 
         def get_PCA_scores(vcf_bgz:str, min_vcf_partitions=200):
-        v = hl.import_vcf(vcf_bgz, force_bgz=True,  min_partitions=min_vcf_partitions)
-        eigenvalues, scores, _ = hl.hwe_normalized_pca(v.GT, k=num_pcs, compute_loadings=False)
-        return eigenvalues, scores
+            v = hl.import_vcf(vcf_bgz, force_bgz=True,  min_partitions=min_vcf_partitions)
+            eigenvalues, scores, _ = hl.hwe_normalized_pca(v.GT, k=num_pcs, compute_loadings=False)
+            return eigenvalues, scores
 
         eigenvalues_training, scores_training, loadings_training = get_PCA_scores("~{full_bgz}", ~{min_vcf_partitions})
 
@@ -149,32 +149,32 @@ task plot_pca {
         import matplotlib.pyplot as plt
 
         def check_pc(pc:Int) -> None:
-        if pc < 1:
-        raise ValueError(f'Specified pc was negative or zero: {pc}.  Inputs are 1-indexed.')
+            if pc < 1:
+                raise ValueError(f'Specified pc was negative or zero: {pc}.  Inputs are 1-indexed.')
 
         def plot_categorical_points(df, score_col, pc1, pc2, col_category, output_figure_fname):
-        pc_x = pc1-1
-        pc_y = pc2-1
+            pc_x = pc1-1
+            pc_y = pc2-1
 
-        # Unique labels and colors
-        labels = df[col_category].unique()
-        colors = plt.cm.rainbow(np.linspace(0, 1, len(labels)))
+            # Unique labels and colors
+            labels = df[col_category].unique()
+            colors = plt.cm.rainbow(np.linspace(0, 1, len(labels)))
 
-        display_labels = {label:f'1k-{label}' for label in labels}
+            display_labels = {label:f'1k-{label}' for label in labels}
 
-        # Plot each group with a different color
-        for label, color in zip(labels, colors):
-        subset = df[df[col_category] == label]
-        x = [d[pc_x] for d in subset['scores']]
-        y = [d[pc_y] for d in subset['scores']]
-        plt.scatter(x, y, label=display_labels[label], color=color, s=2)
+            # Plot each group with a different color
+            for label, color in zip(labels, colors):
+                subset = df[df[col_category] == label]
+                x = [d[pc_x] for d in subset['scores']]
+                y = [d[pc_y] for d in subset['scores']]
+                plt.scatter(x, y, label=display_labels[label], color=color, s=2)
 
-        plt.title('Categorical Computed PCA')
-        plt.xlabel(f'PC{pc1}')
-        plt.ylabel(f'PC{pc2}')
-        plt.legend()
+            plt.title('Categorical Computed PCA')
+            plt.xlabel(f'PC{pc1}')
+            plt.ylabel(f'PC{pc2}')
+            plt.legend()
 
-        plt.savefig(output_figure_fname)
+            plt.savefig(output_figure_fname)
 
         pc1 = ~{pc1}
         pc2 = ~{pc2}
