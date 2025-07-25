@@ -200,7 +200,7 @@ workflow ImputationBeagle {
 
         call beagleTasks.QueryMergedVcfForReannotation {
           input:
-            vcf = LocalizeAndSubsetVcfToRegion.output_vcf,
+            vcf = LocalizeAndSubsetVcfToRegion.output_vcf[0],
         }
 
         call beagleTasks.RecalculateDR2AndAF {
