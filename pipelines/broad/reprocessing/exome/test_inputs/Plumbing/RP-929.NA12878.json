@@ -1,6 +1,6 @@
 {
-  "ExomeReprocessing.input_cram": "gs://broad-gotc-test-storage/ExomeGermlineSingleSample/truth/plumbing/master/RP-929.NA12878/NA12878_PLUMBING.cram",
-  "ExomeReprocessing.output_map": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/bams/RP-929.NA12878/readgroupid_to_bamfilename_map.txt",
+  "ExomeReprocessing.input_cram": "gs://pd-test-storage-public/ExomeReprocessing/input/plumbing/RP-929.NA12878/NA12878_PLUMBING.cram",
+  "ExomeReprocessing.output_map": "gs://pd-test-storage-public/ExomeReprocessing/input/plumbing/RP-929.NA12878/readgroupid_to_bamfilename_map.txt",
 
   "ExomeReprocessing.sample_name": "NA12878 PLUMBING",
   "ExomeReprocessing.base_file_name": "RP-929.NA12878",
@@ -42,8 +42,8 @@
     "break_bands_at_multiples_of": 0
   },
 
-  "ExomeReprocessing.fingerprint_genotypes_file": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/bams/RP-929.NA12878/RP-929.NA12878.reference.fingerprint.vcf.gz",
-  "ExomeReprocessing.fingerprint_genotypes_index": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/bams/RP-929.NA12878/RP-929.NA12878.reference.fingerprint.vcf.gz.tbi",
+  "ExomeReprocessing.fingerprint_genotypes_file": "gs://pd-test-storage-public/ExomeReprocessing/input/plumbing/RP-929.NA12878/RP-929.NA12878.reference.fingerprint.vcf.gz",
+  "ExomeReprocessing.fingerprint_genotypes_index": "gs://pd-test-storage-public/ExomeReprocessing/input/plumbing/RP-929.NA12878/RP-929.NA12878.reference.fingerprint.vcf.gz.tbi",
 
   "ExomeReprocessing.target_interval_list": "gs://broad-references-private/HybSelOligos/whole_exome_illumina_coding_v1/whole_exome_illumina_coding_v1.Homo_sapiens_assembly38.targets.interval_list",
   "ExomeReprocessing.bait_interval_list": "gs://broad-references-private/HybSelOligos/whole_exome_illumina_coding_v1/whole_exome_illumina_coding_v1.Homo_sapiens_assembly38.baits.interval_list",
