@@ -21,6 +21,7 @@ task leafcutter_cluster {
 
 
     command <<<
+        export PATH=$PATH:/root/google-cloud-sdk/bin
         set -euo pipefail
         echo $(date +"[%b %d %H:%M:%S]") Starting leafcutter
 
