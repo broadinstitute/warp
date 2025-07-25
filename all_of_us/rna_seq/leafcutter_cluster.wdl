@@ -44,7 +44,7 @@ task leafcutter_cluster {
     >>>
 
     runtime {
-        docker: " us.gcr.io/broad-gotc-prod/leafcutter:1.0.0"
+        docker: "us.gcr.io/broad-gotc-prod/leafcutter:1.0.0"
         memory: "~{memory}GB"
         disks: "local-disk ~{disk_space} HDD"
         cpu: "~{num_threads}"
