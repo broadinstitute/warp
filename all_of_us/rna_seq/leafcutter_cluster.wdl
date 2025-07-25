@@ -22,10 +22,13 @@ task leafcutter_cluster {
 
     command <<<
         set -euo pipefail
-        echo $(date +"[%b %d %H:%M:%S]") Starting transcript-level aggregation
+        echo $(date +"[%b %d %H:%M:%S]") Starting leafcutter
 
         mkdir junc_inputs
-        while read path; do
+        # trying to ls 
+		echo trying to ls with gsutil
+		gsutil ls -l gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/v43_README.txt
+		while read path; do
             gsutil -m cp "${path}" junc_inputs/
         done < ~{junc_files_list}
 
