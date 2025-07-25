@@ -1,5 +1,5 @@
 # aou_9.0.0
-2025-07-25
+2025-07-25 (Date of Last Commit)
 * Added the leafcutter_cluster pipeline to WARP repository
 * Updated the input paramters to include the pipeline version
 * Updated the WDL to 1.0 spec
