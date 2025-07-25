@@ -58,6 +58,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_bam_to_junc.wdl
   
+  - name: leafcutter_cluster
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_cluster.wdl
+    
   - name: Multiome
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/multiome/Multiome.wdl

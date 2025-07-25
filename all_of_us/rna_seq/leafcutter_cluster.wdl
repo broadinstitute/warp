@@ -2,7 +2,7 @@ version 1.0
 task leafcutter_cluster {
 	input {
 
-		Array[File] junc_files
+		File junc_files_list
 		File exon_list
 		File genes_gtf
 		String prefix
@@ -22,8 +22,17 @@ task leafcutter_cluster {
 
     command <<<
         set -euo pipefail
+        echo $(date +"[%b %d %H:%M:%S]") Starting transcript-level aggregation
+
+        mkdir junc_inputs
+        while read path; do
+            gsutil -m cp "${path}" junc_inputs/
+        done < ~{junc_files_list}
+
+        junc_files=(junc_inputs/*)
+        printf "%s\n" ${junc_files[@]} > junc_file_list.txt		
         python3 /src/cluster_prepare_fastqtl.py \
-            ~{write_lines(junc_files)} \
+            junc_file_list.txt \
             ~{exon_list} \
             ~{genes_gtf} \
             ~{prefix} \
@@ -43,15 +52,15 @@ task leafcutter_cluster {
     }
 
     output {
-        File counts="${prefix}_perind.counts.gz"
-        File counts_numers="${prefix}_perind_numers.counts.gz"
-        File clusters_pooled="${prefix}_pooled.gz"
-        File clusters_refined="${prefix}_refined.gz"
-        File phenotype_groups="${prefix}.leafcutter.phenotype_groups.txt"
-        File leafcutter_bed_parquet="${prefix}.leafcutter.bed.parquet"
-        File leafcutter_bed="${prefix}.leafcutter.bed.gz"
-        File leafcutter_bed_index="${prefix}.leafcutter.bed.gz.tbi"
-        File leafcutter_pcs="${prefix}.leafcutter.PCs.txt"
+        File counts="~{prefix}_perind.counts.gz"
+        File counts_numers="~{prefix}_perind_numers.counts.gz"
+        File clusters_pooled="~{prefix}_pooled.gz"
+        File clusters_refined="~{prefix}_refined.gz"
+        File phenotype_groups="~{prefix}.leafcutter.phenotype_groups.txt"
+        File leafcutter_bed_parquet="~{prefix}.leafcutter.bed.parquet"
+        File leafcutter_bed="~{prefix}.leafcutter.bed.gz"
+        File leafcutter_bed_index="~{prefix}.leafcutter.bed.gz.tbi"
+        File leafcutter_pcs="~{prefix}.leafcutter.PCs.txt"
     }
 
     meta {
@@ -61,7 +70,7 @@ task leafcutter_cluster {
 
 workflow leafcutter_cluster_workflow {
 	input {
-		Array[File] junc_files
+		File junc_files_list
 		File exon_list
 		File genes_gtf
 		String prefix
@@ -80,7 +89,7 @@ workflow leafcutter_cluster_workflow {
 	String pipeline_version = "aou_9.0.0"
     call leafcutter_cluster {
 		input:
-			junc_files = junc_files,
+			junc_files_list = junc_files_list,
 			exon_list = exon_list,
 			genes_gtf = genes_gtf,
 			prefix = prefix,
@@ -104,6 +113,6 @@ workflow leafcutter_cluster_workflow {
 		File bed_out = leafcutter_cluster.leafcutter_bed
 		File bed_index_out = leafcutter_cluster.leafcutter_bed_index
 		File pcs_out = leafcutter_cluster.leafcutter_pcs
-		String pipeline_version_out = pipeline_version
+		String leafcutter_pipeline_version = pipeline_version
 	}
 }
