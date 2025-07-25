@@ -24,6 +24,8 @@ task leafcutter_cluster {
         set -euo pipefail
         echo $(date +"[%b %d %H:%M:%S]") Starting leafcutter
 
+        echo trying to ls with gsutil
+        gsutil ls -l gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/v43_README.txt
         mkdir junc_inputs
         while read path; do
             gsutil -m cp "${path}" junc_inputs/
