@@ -106,7 +106,7 @@ task create_hw_pca_training {
 
         hl.init(default_reference='GRCh38', idempotent=True)
 
-        def get_PCA_scores(vcf_bgz:str, min_vcf_partitions=200, num_pcs: int):
+        def get_PCA_scores(vcf_bgz:str, min_vcf_partitions=200, num_pcs:int):
             v = hl.import_vcf(vcf_bgz, force_bgz=True,  min_partitions=min_vcf_partitions)
             eigenvalues, scores, _ = hl.hwe_normalized_pca(v.GT, k=num_pcs, compute_loadings=False)
             return eigenvalues, scores
