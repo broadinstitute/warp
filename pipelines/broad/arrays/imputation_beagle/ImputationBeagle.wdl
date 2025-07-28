@@ -80,7 +80,7 @@ workflow ImputationBeagle {
       Int startWithOverlaps = if (start - chunkOverlaps < 1) then 1 else start - chunkOverlaps
       Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
       Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < end + chunkOverlaps) then CalculateChromosomeLength.chrom_length else end + chunkOverlaps
-      String first_scatter_chunk_basename = referencePanelContig.contig + "_chunk_" + i
+      String qc_scatter_position_chunk_basename = referencePanelContig.contig + "_chunk_" + i
 
       # generate the chunked vcf file that will be used for imputation, including overlaps
       call tasks.GenerateChunk {
@@ -90,7 +90,7 @@ workflow ImputationBeagle {
           start = startWithOverlaps,
           end = endWithOverlaps,
           chrom = referencePanelContig.contig,
-          basename = first_scatter_chunk_basename,
+          basename = qc_scatter_position_chunk_basename,
           gatk_docker = gatk_docker
       }
 
@@ -132,12 +132,14 @@ workflow ImputationBeagle {
     }
 
     scatter (i in range(num_chunks)) {
-      String second_scatter_chunk_basename = referencePanelContig.contig + "_chunk_" + i
+      String impute_scatter_position_chunk_basename = referencePanelContig.contig + "_chunk_" + i
 
       scatter (j in range(num_sample_chunks)) {
+        # sample FORMAT fields in vcfs start after the 8 mandatory fields plus FORMAT (FORMAT isnt mandatory
+        # but if you have samples in your vcf they are).  `cut` is 1 indexed, so we start at the 10th column.
         Int start_sample = (j * sample_chunk_size) + 10
         Int end_sample = if (CountSamples.nSamples <= ((j + 1) * sample_chunk_size)) then CountSamples.nSamples + 9 else ((j + 1) * sample_chunk_size ) + 9
-        String second_scatter_sample_chunk_basename = second_scatter_chunk_basename + ".sample_chunk_" + j
+        String impute_scatter_sample_chunk_basename = impute_scatter_position_chunk_basename + ".sample_chunk_" + j
         Boolean impute_with_allele_probablities = num_sample_chunks > 1
 
         # only cut sample chunks if there is more than one
@@ -147,7 +149,7 @@ workflow ImputationBeagle {
               vcf = chunkedVcfsWithOverlapsForImputation[i],
               cut_start_field = start_sample,
               cut_end_field = end_sample,
-              basename = second_scatter_sample_chunk_basename
+              basename = impute_scatter_sample_chunk_basename
           }
         }
 
@@ -156,7 +158,7 @@ workflow ImputationBeagle {
             dataset_vcf = select_first([SelectSamplesWithCut.output_vcf, chunkedVcfsWithOverlapsForImputation[i]]),
             ref_panel_bref3 = referencePanelContig.bref3,
             chrom = referencePanelContig.contig,
-            basename = second_scatter_sample_chunk_basename + ".phased",
+            basename = impute_scatter_sample_chunk_basename + ".phased",
             genetic_map_file = referencePanelContig.genetic_map,
             start = startWithOverlaps[i],
             end = endWithOverlaps[i],
@@ -170,7 +172,7 @@ workflow ImputationBeagle {
             dataset_vcf = Phase.vcf,
             ref_panel_bref3 = referencePanelContig.bref3,
             chrom = referencePanelContig.contig,
-            basename = second_scatter_sample_chunk_basename + ".imputed",
+            basename = impute_scatter_sample_chunk_basename + ".imputed",
             genetic_map_file = referencePanelContig.genetic_map,
             start = startWithOverlaps[i],
             end = endWithOverlaps[i],
@@ -185,7 +187,7 @@ workflow ImputationBeagle {
             start = start[i],
             end = end[i],
             contig = referencePanelContig.contig,
-            output_basename = second_scatter_sample_chunk_basename + ".imputed.no_overlaps",
+            output_basename = impute_scatter_sample_chunk_basename + ".imputed.no_overlaps",
             gatk_docker = gatk_docker
         }
       }
@@ -195,7 +197,7 @@ workflow ImputationBeagle {
         call beagleTasks.MergeSampleChunksVcfsWithPaste {
           input:
             input_vcfs = LocalizeAndSubsetVcfToRegion.output_vcf,
-            output_vcf_basename = second_scatter_chunk_basename + ".imputed.no_overlaps.samples_merged",
+            output_vcf_basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.samples_merged",
         }
 
         call beagleTasks.QueryMergedVcfForReannotation {
@@ -223,7 +225,7 @@ workflow ImputationBeagle {
           vcf = select_first([ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
           vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
           ref_dict = ref_dict,
-          basename = second_scatter_chunk_basename + ".imputed.no_overlaps.update_header",
+          basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,
           gatk_docker = gatk_docker
       }
