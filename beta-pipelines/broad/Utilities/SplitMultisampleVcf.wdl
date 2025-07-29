@@ -117,24 +117,30 @@ task ProcessSampleList {
     }
 
     command <<<
-    python3 <<CODE
-            print("Processing sample list file:", "${sampleListFile}")
-            with open("${sampleListFile}", "r") as f:
-                samples = [line.strip() for line in f if line.strip()]
+        set -e
+        python3 <<CODE
 
-            chunks = [samples[i:i+${chunkSize}] for i in range(0, len(samples), ${chunkSize})]
-            print(f"Total samples: {len(samples)}, Chunk size: {${chunkSize}}, Total chunks: {len(chunks)}")
+        import os
+        output_location = "output_chunks"
+        os.mkdir(output_location, exist_ok=True)
 
-            # Write each chunk to a file
-            for i, chunk in enumerate(chunks):
-                with open(f"chunk_{i}.txt", "w") as out:
-                    out.write("\n".join(chunk))
-                    print(f"Wrote chunk {i} with {len(chunk)} samples to chunk_{i}.txt")
+        print("Processing sample list file:", "${sampleListFile}")
+        with open("${sampleListFile}", "r") as f:
+            samples = [line.strip() for line in f if line.strip()]
+
+        chunks = [samples[i:i+${chunkSize}] for i in range(0, len(samples), ${chunkSize})]
+        print(f"Total samples: {len(samples)}, Chunk size: {${chunkSize}}, Total chunks: {len(chunks)}")
+
+        # Write each chunk to a file
+        for i, chunk in enumerate(chunks):
+            with open(os.path.join(output_location, f"chunk_{i}.txt", "w") as out:
+                out.write("\n".join(chunk))
+                print(f"Wrote chunk {i} with {len(chunk)} samples to chunk_{i}.txt")
     CODE
     >>>
 
     output {
-        Array[File] sampleChunks = glob("chunk_*.txt")
+        Array[File] sampleChunks = glob("output_chunks/chunk_*.txt")
     }
 
     runtime {
