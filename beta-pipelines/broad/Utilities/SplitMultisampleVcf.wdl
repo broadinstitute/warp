@@ -123,12 +123,12 @@ task ProcessSampleList {
     output_location = "output_chunks"
     os.mkdir(output_location)
 
-    print("Processing sample list file:", "${sampleListFile}")
-    with open("${sampleListFile}", "r") as f:
+    print("Processing sample list file:", ~{sampleListFile}")
+    with open(~{sampleListFile}, "r") as f:
         samples = [line.strip() for line in f if line.strip()]
+        print(f"samples: {samples}")
 
     chunks = [samples[i:i+~{chunkSize}] for i in range(0, len(samples), ~{chunkSize})]
-    print(f"Total samples: {len(samples)}, Chunk size: {${chunkSize}}, Total chunks: {len(chunks)}")
 
     # Write each chunk to a file
     for i, chunk in enumerate(chunks):
