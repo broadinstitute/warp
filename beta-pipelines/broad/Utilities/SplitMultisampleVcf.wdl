@@ -123,7 +123,7 @@ task ProcessSampleList {
     output_location = "output_chunks"
     os.mkdir(output_location)
 
-    with open(~{sampleListFile}, "r") as f:
+    with open("~{sampleListFile}", "r") as f:
         samples = [line.strip() for line in f if line.strip()]
         print(f"samples: {samples}")
 
