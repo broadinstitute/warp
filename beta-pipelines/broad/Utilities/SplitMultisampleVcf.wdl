@@ -132,7 +132,7 @@ task ProcessSampleList {
 
     # Write each chunk to a file
     for i, chunk in enumerate(chunks):
-        with open(os.path.join(output_location, f"chunk_{i}.txt", "w") as out:
+        with open(os.path.join(output_location, f"chunk_{i}.txt"), "w") as out:
             out.write("\n".join(chunk))
             print(f"Wrote chunk {i} with {len(chunk)} samples to chunk_{i}.txt")
     CODE
