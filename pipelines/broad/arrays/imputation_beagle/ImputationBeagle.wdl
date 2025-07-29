@@ -193,16 +193,16 @@ workflow ImputationBeagle {
       }
 
       # only merge sample chunks if there is more than one
-      if (num_sample_chunks > 1) {
-        call beagleTasks.MergeSampleChunksVcfsWithPaste {
-          input:
-            input_vcfs = LocalizeAndSubsetVcfToRegion.output_vcf,
-            output_vcf_basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.samples_merged",
-        }
+      if (num_sample_chunks > 0) {
+#        call beagleTasks.MergeSampleChunksVcfsWithPaste {
+#          input:
+#            input_vcfs = LocalizeAndSubsetVcfToRegion.output_vcf,
+#            output_vcf_basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.samples_merged",
+#        }
 
         call beagleTasks.QueryMergedVcfForReannotation {
           input:
-            vcf = MergeSampleChunksVcfsWithPaste.output_vcf,
+            vcf = LocalizeAndSubsetVcfToRegion.output_vcf[0],
         }
 
         call beagleTasks.RecalculateDR2AndAF {
