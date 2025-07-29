@@ -154,11 +154,10 @@ task ProcessSampleChunkAndCopyFiles {
         String docker
         Int cpu
         Int memoryMb
+
+        # This calculation is explained in https://github.com/broadinstitute/warp/pull/937
+        Int diskSizeGb = ceil(21*chunkSize*size(multiSampleVcf, "GiB")/(chunkSize+20)) + 10
     }
-
-    # This calculation is explained in https://github.com/broadinstitute/warp/pull/937
-    Int diskSizeGb = ceil(21*chunkSize*size(multiSampleVcf, "GiB")/(chunkSize+20)) + 10
-
 
     parameter_meta {
         chunkSize: "Number of samples to process in each chunk (default: 1000)"
