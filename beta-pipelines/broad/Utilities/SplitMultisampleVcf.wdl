@@ -118,8 +118,6 @@ task ProcessSampleList {
 
     command <<<
     python3 <<CODE
-            import math
-
             print("Processing sample list file:", "${sampleListFile}")
             with open("${sampleListFile}", "r") as f:
                 samples = [line.strip() for line in f if line.strip()]
