@@ -24,15 +24,27 @@ task leafcutter_cluster {
         export PATH=$PATH:/root/google-cloud-sdk/bin
         set -euo pipefail
         echo $(date +"[%b %d %H:%M:%S]") Starting leafcutter
+        # Tune gsutil parallelism (adjust to your VM)
+        export GSUTIL_PARALLEL_PROCESS_COUNT=32
+        export GSUTIL_PARALLEL_THREAD_COUNT=8
 
-        echo trying to ls with gsutil
-        gsutil ls -l gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/v43_README.txt
-        mkdir junc_inputs
-        while read path; do
-            gsutil -m cp "${path}" junc_inputs/
-        done < ~{junc_files_list}
+        mkdir -p junc_inputs
 
+        echo $(date +"[%b %d %H:%M:%S]") "[leafcutter] parallel copy begin"
+        # Single invocation, reads entire list from STDIN
+        gsutil -m cp -I junc_inputs/ < ~{junc_files_list}
+        echo $(date +"[%b %d %H:%M:%S]") "[leafcutter] parallel copy done"
+
+        # Build the list for the python script
         junc_files=(junc_inputs/*)
+        printf "%s\n" "${junc_files[@]}" > junc_file_list.txt
+
+        # mkdir junc_inputs
+        # while read path; do
+        #     gsutil -m cp "${path}" junc_inputs/
+        # done < ~{junc_files_list}
+
+        # junc_files=(junc_inputs/*)
         printf "%s\n" ${junc_files[@]} > junc_file_list.txt		
         python3 /src/cluster_prepare_fastqtl.py \
             junc_file_list.txt \
