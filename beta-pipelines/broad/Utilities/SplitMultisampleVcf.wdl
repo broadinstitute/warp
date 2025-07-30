@@ -264,8 +264,8 @@ task CopyFilesToDestination {
     }
 
     parameter_meta {
-        vcfsToCopy: "Array of VCF files to copy to the output location"
-        indexFilesToCopy: "Array of index files to copy to the output location (if requested)"
+        vcfFofn: "File of VCF file paths to be copied to output destinatino"
+        indexFofn: "File of VCF index file paths to be copied to output destinatino"
         outputLocation: "GCP location where output vcfs (and indices, if requested) are written to"
         createIndexFiles: "Whether index files should be created for each individual VCF"
         docker: "Docker image containing gsutil"
