@@ -19,6 +19,8 @@ workflow SplitMultiSampleVcfWorkflow {
         String bcftoolsDocker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
     }
 
+    String gsutil_docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:486.0.0"
+
     parameter_meta {
         multiSampleVcf: "Input multi-sample VCF file to be split"
         createIndexFiles: "Whether index files should be created for each individual VCF"
@@ -29,7 +31,7 @@ workflow SplitMultiSampleVcfWorkflow {
         bcftoolsDocker: "Docker image containing bcftools (default: us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889)"
     }
 
-    # Extract samples from the provided multi-sample VCF
+    # ONE: Extract samples from the provided multi-sample VCF
     call ExtractSamplesFromMultiSampleVcf {
         input:
             multiSampleVcf = multiSampleVcf,
@@ -38,7 +40,7 @@ workflow SplitMultiSampleVcfWorkflow {
             memoryMb = memoryMb
     }
 
-    # Break up the extracted samples by the chunk size (and create an output with samples included in the chunk)
+    # TWO: Break up the extracted samples by the chunk size (and create an output with samples included in the chunk)
     call ProcessSampleList {
         input:
             sampleListFile = ExtractSamplesFromMultiSampleVcf.sampleIdFile,
@@ -48,18 +50,29 @@ workflow SplitMultiSampleVcfWorkflow {
             memoryMb = memoryMb
     }
 
-    # Extact single-sample VCFs (using the "chunked" sample list generated in the ProcessSampleList task)
-    # This is scattered by the number of "chunks" generated (i.e. if 100 samples in chunks of 20,
-    # this will scatter 5 wide). Optionally generates index files, and copies outputs to the specified output location.
+
     scatter (chunkedSampleFile in ProcessSampleList.sampleChunks) {
+        # THREE: Extact single-sample VCFs (using the "chunked" sample list generated in the ProcessSampleList task)
+        # This is scattered by the number of "chunks" generated (i.e. if 100 samples in chunks of 20,
+        # this will scatter 5 wide). Optionally generates index files
         call ProcessSampleChunkAndCopyFiles {
             input:
                 chunkSize = chunkSize,
                 chunkedSampleFile = chunkedSampleFile,
                 multiSampleVcf = multiSampleVcf,
                 createIndexFiles = createIndexFiles,
-                outputLocation = outputLocation,
                 docker = bcftoolsDocker,
+                cpu = cpu,
+                memoryMb = memoryMb
+        }
+
+        # FOUR: Copy each chunk's output files to the destination
+        call CopyFilesToDestination {
+            input:
+                vcfsToCopy = ProcessSampleChunkAndCopyFiles.vcfsToCopy,
+                indexFilesToCopy = ProcessSampleChunkAndCopyFiles.indexFilesToCopy,
+                outputLocation = outputLocation,
+                docker = gsutil_docker,
                 cpu = cpu,
                 memoryMb = memoryMb
         }
@@ -125,7 +138,6 @@ task ProcessSampleList {
 
     with open("~{sampleListFile}", "r") as f:
         samples = [line.strip() for line in f if line.strip()]
-        print(f"samples: {samples}")
 
     chunks = [samples[i:i+~{chunkSize}] for i in range(0, len(samples), ~{chunkSize})]
 
@@ -154,7 +166,6 @@ task ProcessSampleChunkAndCopyFiles {
     File chunkedSampleFile
     File multiSampleVcf
     Boolean createIndexFiles
-    String outputLocation
     String docker
     Int cpu
     Int memoryMb
@@ -168,7 +179,6 @@ task ProcessSampleChunkAndCopyFiles {
     chunkedSampleFile: "File containing a chunk of sample IDs to extract from the multi-sample VCF"
     multiSampleVcf: "Input multi-sample VCF file to be split"
     createIndexFiles: "Whether index files should be created for each individual VCF"
-    outputLocation: "GCP location where output vcfs (and indices, if requested) are written to"
     docker: "Docker image containing bcftools (default: us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889)"
     cpu: "Number of CPU cores to allocate (default: 1)"
     memoryMb: "Memory allocation in megabytes (default: 6000)"
@@ -200,28 +210,21 @@ task ProcessSampleChunkAndCopyFiles {
 
     # ------------------------------------------------------------------------------------------------------
 
-    # Ensure output location ends with a single "/"
-    CLEANED_OUTPUT_LOCATION="~{outputLocation}"
-    [[ "${CLEANED_OUTPUT_LOCATION}" != */ ]] && CLEANED_OUTPUT_LOCATION="${CLEANED_OUTPUT_LOCATION}/"
-    echo "Using cleaned output location: ${CLEANED_OUTPUT_LOCATION}"
+    # Generate index files if requested
 
-    # ------------------------------------------------------------------------------------------------------
+    if [ "${createIndexFiles}" = "true" ]; then
+      echo "Index files were requested. Generating index files for each VCF now"
+      for vcf in $OUTPUT_DIR/*.vcf.gz; do
+        bcftools index -t $vcf
+      done
+    fi
 
-    # Copy all VCFs to the final output location (optionally generate index files and copy them as well if
-    # requested)
+    >>>
 
-    echo "Copying VCF (and generating indices if requested) now"
-    for vcf in $OUTPUT_DIR/*.vcf.gz; do
-        gsutil cp $vcf ${CLEANED_OUTPUT_LOCATION}
-        if [ "${createIndexFiles}" = "true" ]; then
-            bcftools index -t $vcf
-            gsutil cp $vcf.csi ${CLEANED_OUTPUT_LOCATION}
-        fi
-    done
-    echo "Finished copying all files to ${CLEANED_OUTPUT_LOCATION}"
-
-    # ------------------------------------------------------------------------------------------------------
->>>
+  output {
+    Array[File] vcfsToCopy = glob("output_vcfs/*.vcf.gz")
+    Array[File] indexFilesToCopy = if createIndexFiles then glob("output_vcfs/*.csi") else []
+  }
 
   runtime {
     cpu: cpu
@@ -230,4 +233,58 @@ task ProcessSampleChunkAndCopyFiles {
     disks: "local-disk ${diskSizeGb} SSD"
     noAddress: true
   }
+}
+
+task CopyFilesToDestination {
+
+    input {
+        Array[File] vcfsToCopy
+        Array[File] indexFilesToCopy
+        String outputLocation
+        String docker
+        Int cpu
+        Int memoryMb
+    }
+
+    parameter_meta {
+        vcfsToCopy: "Array of VCF files to copy to the output location"
+        indexFilesToCopy: "Array of index files to copy to the output location (if requested)"
+        outputLocation: "GCP location where output vcfs (and indices, if requested) are written to"
+        docker: "Docker image containing gsutil"
+        cpu: "Number of CPU cores to allocate (default: 1)"
+        memoryMb: "Memory allocation in megabytes (default: 6000)"
+    }
+
+    command <<<
+
+    # ------------------------------------------------------------------------------------------------------
+
+    # Ensure output location ends with a single "/"
+    CLEANED_OUTPUT_LOCATION="~{outputLocation}"
+    [[ "${CLEANED_OUTPUT_LOCATION}" != */ ]] && CLEANED_OUTPUT_LOCATION="${CLEANED_OUTPUT_LOCATION}/"
+    echo "Using cleaned output location: ${CLEANED_OUTPUT_LOCATION}"
+
+    # ------------------------------------------------------------------------------------------------------
+
+    # Copy all VCFs to the final output location
+
+    echo "Copying VCF files to the output location"
+    for vcf in ~{sep=' ' vcfsToCopy}; do
+        gsutil cp $vcf ${CLEANED_OUTPUT_LOCATION}
+    done
+
+    # ------------------------------------------------------------------------------------------------------
+
+    # Conditionally copy index files if they exist
+    if [ ~{length(indexFilesToCopy)} -gt 0 ]; then
+        echo "Copying index files to the output location"
+        for vcf_index in ~{sep=' ' indexFilesToCopy}; do
+            gsutil cp $vcf_index "${CLEANED_OUTPUT_LOCATION}"
+        done
+    else
+        echo "No index files to copy."
+    fi
+
+    echo "Finished copying all files to ${CLEANED_OUTPUT_LOCATION}"
+    >>>
 }
