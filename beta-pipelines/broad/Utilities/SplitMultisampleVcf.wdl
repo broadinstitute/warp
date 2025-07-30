@@ -9,17 +9,17 @@ version 1.0
 workflow SplitMultiSampleVcfWorkflow {
     input {
         File multiSampleVcf
-        Boolean createIndexFiles
         String outputLocation
 
         # Optional parameters w/ defaults
+        Boolean createIndexFiles = true
         Int chunkSize = 1000
         Int cpu = 1
         Int memoryMb = 6000
         String bcftoolsDocker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
     }
 
-    String gsutil_docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:486.0.0"
+    String gsutil_docker = "gcr.io/google.com/cloudsdktool/cloud-sdk"
 
     parameter_meta {
         multiSampleVcf: "Input multi-sample VCF file to be split"
