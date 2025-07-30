@@ -55,7 +55,7 @@ workflow SplitMultiSampleVcfWorkflow {
         # THREE: Extact single-sample VCFs (using the "chunked" sample list generated in the ProcessSampleList task)
         # This is scattered by the number of "chunks" generated (i.e. if 100 samples in chunks of 20,
         # this will scatter 5 wide). Optionally generates index files
-        call ProcessSampleChunkAndCopyFiles {
+        call ExtractSingleSampleVcfs {
             input:
                 chunkSize = chunkSize,
                 chunkedSampleFile = chunkedSampleFile,
@@ -69,8 +69,8 @@ workflow SplitMultiSampleVcfWorkflow {
         # FOUR: Copy each chunk's output files to the destination
         call CopyFilesToDestination {
             input:
-                vcfsToCopy = ProcessSampleChunkAndCopyFiles.vcfsToCopy,
-                indexFilesToCopy = ProcessSampleChunkAndCopyFiles.indexFilesToCopy,
+                vcfsToCopy = ExtractSingleSampleVcfs.vcfsToCopy,
+                indexFilesToCopy = ExtractSingleSampleVcfs.indexFilesToCopy,
                 outputLocation = outputLocation,
                 docker = gsutil_docker,
                 cpu = cpu,
@@ -160,7 +160,7 @@ task ProcessSampleList {
   }
 }
 
-task ProcessSampleChunkAndCopyFiles {
+task ExtractSingleSampleVcfs {
   input {
     Int chunkSize
     File chunkedSampleFile
@@ -212,7 +212,7 @@ task ProcessSampleChunkAndCopyFiles {
 
     # Generate index files if requested
 
-    if [ "${createIndexFiles}" = "true" ]; then
+    if [ "~{createIndexFiles}" = "true" ]; then
       echo "Index files were requested. Generating index files for each VCF now"
       for vcf in $OUTPUT_DIR/*.vcf.gz; do
         bcftools index -t $vcf
