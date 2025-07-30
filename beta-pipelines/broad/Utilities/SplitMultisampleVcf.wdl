@@ -216,7 +216,7 @@ task ExtractSingleSampleVcfs {
     if [ "~{createIndexFiles}" = "true" ]; then
       echo "Index files were requested. Generating index files for each VCF now"
       for vcf in $OUTPUT_DIR/*.vcf.gz; do
-        bcftools index -t $vcf
+        bcftools index -tf $vcf
       done
     fi
 
@@ -224,7 +224,7 @@ task ExtractSingleSampleVcfs {
 
   output {
     Array[File] vcfsToCopy = glob("output_vcfs/*.vcf.gz")
-    Array[File] indexFilesToCopy = if createIndexFiles then glob("output_vcfs/*.csi") else []
+    Array[File] indexFilesToCopy = if createIndexFiles then glob("output_vcfs/*.tbi") else []
   }
 
   runtime {
