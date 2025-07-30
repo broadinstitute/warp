@@ -72,6 +72,7 @@ workflow SplitMultiSampleVcfWorkflow {
                 vcfsToCopy = ExtractSingleSampleVcfs.vcfsToCopy,
                 indexFilesToCopy = ExtractSingleSampleVcfs.indexFilesToCopy,
                 outputLocation = outputLocation,
+                createIndexFiles = createIndexFiles,
                 docker = gsutil_docker,
                 cpu = cpu,
                 memoryMb = memoryMb
@@ -241,6 +242,7 @@ task CopyFilesToDestination {
         Array[File] vcfsToCopy
         Array[File] indexFilesToCopy
         String outputLocation
+        Boolean createIndexFiles
         String docker
         Int cpu
         Int memoryMb
@@ -250,6 +252,7 @@ task CopyFilesToDestination {
         vcfsToCopy: "Array of VCF files to copy to the output location"
         indexFilesToCopy: "Array of index files to copy to the output location (if requested)"
         outputLocation: "GCP location where output vcfs (and indices, if requested) are written to"
+        createIndexFiles: "Whether index files should be created for each individual VCF"
         docker: "Docker image containing gsutil"
         cpu: "Number of CPU cores to allocate (default: 1)"
         memoryMb: "Memory allocation in megabytes (default: 6000)"
@@ -267,25 +270,35 @@ task CopyFilesToDestination {
     # ------------------------------------------------------------------------------------------------------
 
     # Copy all VCFs to the final output location
+    echo "Preparing list of VCF files to copy"
+    vcf_fofn=$(mktemp)
+    for vcf in ~{sep=' ' vcfsToCopy}; do
+        echo "$vcf" >> "$vcf_fofn"
+    done
 
     echo "Copying VCF files to the output location"
-    for vcf in ~{sep=' ' vcfsToCopy}; do
-        gsutil cp $vcf ${CLEANED_OUTPUT_LOCATION}
-    done
+    gsutil -m cp -I "$CLEANED_OUTPUT_LOCATION" < "$vcf_fofn"
+    rm "$vcf_fofn"
 
     # ------------------------------------------------------------------------------------------------------
 
     # Conditionally copy index files if they exist
-    if [ ~{length(indexFilesToCopy)} -gt 0 ]; then
-        echo "Copying index files to the output location"
+    if [ "~{createIndexFiles}" = "true" ]; then
+        echo "Preparing list of index files to copy"
+        index_fofn=$(mktemp)
         for vcf_index in ~{sep=' ' indexFilesToCopy}; do
-            gsutil cp $vcf_index "${CLEANED_OUTPUT_LOCATION}"
+            echo "$vcf_index" >> "$index_fofn"
         done
+
+        echo "Copying index files to the output location"
+        gsutil -m cp -I "$CLEANED_OUTPUT_LOCATION" < "$index_fofn"
+        rm "$index_fofn"
     else
         echo "No index files to copy."
     fi
 
     echo "Finished copying all files to ${CLEANED_OUTPUT_LOCATION}"
+
     >>>
 
   runtime {
