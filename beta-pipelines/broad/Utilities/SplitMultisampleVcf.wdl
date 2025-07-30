@@ -69,8 +69,8 @@ workflow SplitMultiSampleVcfWorkflow {
         # FOUR: Copy each chunk's output files to the destination
         call CopyFilesToDestination {
             input:
-                vcfFofn = ExtractSingleSampleVcfs.vcfFofn,
-                indexFofn = ExtractSingleSampleVcfs.indexFofn,
+                vcfTar = ExtractSingleSampleVcfs.vcfTar,
+                vcfIndexTar = ExtractSingleSampleVcfs.vcfIndexTar,
                 outputLocation = outputLocation,
                 createIndexFiles = createIndexFiles,
                 docker = gsutil_docker,
@@ -221,29 +221,24 @@ task ExtractSingleSampleVcfs {
     fi
 
     # ------------------------------------------------------------------------------------------------------
-    # Write list of VCF files to FOFN
+    # Create tarballs for output files
 
-    echo "Writing list of VCF files to FOFN"
-    for f in $OUTPUT_DIR/*.vcf.gz; do
-        realpath "$f"
-    done > vcf_fofn.txt
+    echo "Creating tarball of VCF files"
+    tar -czf vcfs.tar.gz -C "$OUTPUT_DIR" $(basename -a $OUTPUT_DIR/*.vcf.gz)
 
-    # Write index file list only if they were generated
     if [ "~{createIndexFiles}" = "true" ]; then
-        echo "Writing list of index files to FOFN"
-        for f in $OUTPUT_DIR/*.tbi; do
-            realpath "$f"
-        done > index_fofn.txt
+      echo "Creating tarball of index files"
+      tar -czf index_files.tar.gz -C "$OUTPUT_DIR" $(basename -a $OUTPUT_DIR/*.tbi)
     else
-        # create empty file to avoid downstream failures
-        touch index_fofn.txt
+      echo "Skipping index tarball – no index files generated."
+      touch index_files.tar.gz  # Empty file to avoid downstream failure
     fi
 
     >>>
 
   output {
-    File vcfFofn = "vcf_fofn.txt"
-    File indexFofn = "index_fofn.txt"
+    File vcfTar = "vcfs.tar.gz"
+    File vcfIndexTar = "index_files.tar.gz"
   }
 
   runtime {
@@ -258,8 +253,8 @@ task ExtractSingleSampleVcfs {
 task CopyFilesToDestination {
 
     input {
-        File vcfFofn
-        File indexFofn
+        File vcfTar
+        File vcfIndexTar
         String outputLocation
         Boolean createIndexFiles
         String docker
@@ -268,8 +263,8 @@ task CopyFilesToDestination {
     }
 
     parameter_meta {
-        vcfFofn: "File of VCF file paths to be copied to output destinatino"
-        indexFofn: "File of VCF index file paths to be copied to output destinatino"
+        vcfTar: "Tar file containing all VCF file paths to be copied to output destinatino"
+        vcfIndexTar: "Tar file of all VCF index file paths to be copied to output destinatino"
         outputLocation: "GCP location where output vcfs (and indices, if requested) are written to"
         createIndexFiles: "Whether index files should be created for each individual VCF"
         docker: "Docker image containing gsutil"
@@ -287,19 +282,39 @@ task CopyFilesToDestination {
     echo "Using cleaned output location: ${CLEANED_OUTPUT_LOCATION}"
 
     # ------------------------------------------------------------------------------------------------------
+    # Extract VCFs
+    echo "Extracting VCF tarball"
+    mkdir -p vcfs
+    tar -xzf ~{vcfTar} -C vcfs
 
-    # Copy all VCFs to the final output location
-    echo "Copying VCF files to the output location"
-    gsutil -m cp -I "$CLEANED_OUTPUT_LOCATION" < ~{vcfFofn}
+    echo "Writing VCF files to FOFN"
+    find vcfs -type f -name '*.vcf.gz' -exec realpath {} \; > vcf_fofn.txt
+
+    # ------------------------------------------------------------------------------------------------------
+    # Optionally extract index files and write to FOFN
+    if [ "~{createIndexFiles}" = "true" ]; then
+        echo "Extracting index tarball"
+        mkdir -p index_files
+        tar -xzf ~{vcfIndexTar} -C index_files
+
+        echo "Writing index files to FOFN"
+        find index_files -type f -name '*.tbi' -exec realpath {} \; > index_fofn.txt
+      else
+        echo "No index files provided, creating empty index_fofn.txt"
+        touch index_fofn.txt
+      fi
+
+    # ------------------------------------------------------------------------------------------------------
+    # Copy VCFs
+    echo "Copying VCF files to output location"
+    gsutil -m cp -I "${CLEANED_OUTPUT_LOCATION}" < vcf_fofn.txt
 
     # ------------------------------------------------------------------------------------------------------
 
-    # Conditionally copy index files if they exist
+    # Copy index files if applicable
     if [ "~{createIndexFiles}" = "true" ]; then
-        echo "Copying index files to the output location"
-        gsutil -m cp -I "$CLEANED_OUTPUT_LOCATION" < ~{indexFofn}
-    else
-        echo "No index files to copy."
+        echo "Copying index files to output location"
+        gsutil -m cp -I "${CLEANED_OUTPUT_LOCATION}" < index_fofn.txt
     fi
 
     echo "Finished copying all files to ${CLEANED_OUTPUT_LOCATION}"
