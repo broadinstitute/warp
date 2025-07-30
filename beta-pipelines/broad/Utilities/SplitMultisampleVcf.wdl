@@ -19,7 +19,7 @@ workflow SplitMultiSampleVcfWorkflow {
         String bcftoolsDocker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
     }
 
-    String gsutil_docker = "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    String gsutil_docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:525.0.0"
 
     parameter_meta {
         multiSampleVcf: "Input multi-sample VCF file to be split"
@@ -287,4 +287,11 @@ task CopyFilesToDestination {
 
     echo "Finished copying all files to ${CLEANED_OUTPUT_LOCATION}"
     >>>
+
+  runtime {
+    cpu: cpu
+    memory: "${memoryMb} MiB"
+    docker: docker
+    noAddress: true
+  }
 }
