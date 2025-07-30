@@ -224,12 +224,16 @@ task ExtractSingleSampleVcfs {
     # Write list of VCF files to FOFN
 
     echo "Writing list of VCF files to FOFN"
-    ls $OUTPUT_DIR/*.vcf.gz > vcf_fofn.txt
+    for f in $OUTPUT_DIR/*.vcf.gz; do
+        realpath "$f"
+    done > vcf_fofn.txt
 
     # Write index file list only if they were generated
     if [ "~{createIndexFiles}" = "true" ]; then
         echo "Writing list of index files to FOFN"
-        ls $OUTPUT_DIR/*.tbi > index_fofn.txt
+        for f in $OUTPUT_DIR/*.tbi; do
+            realpath "$f"
+        done > index_fofn.txt
     else
         # create empty file to avoid downstream failures
         touch index_fofn.txt
