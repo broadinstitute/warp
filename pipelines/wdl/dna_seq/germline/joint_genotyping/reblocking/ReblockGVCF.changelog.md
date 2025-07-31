@@ -1,4 +1,9 @@
 # 2.4.1
+25-07-31 (Date of Last Commit)
+
+* Reorganized all WDL pipelines into the wdl pipeline directory
+
+# 2.4.1
 2025-02-21 (Date of Last Commit)
 
 * Updated HaplotypeCaller_GATK4_VCF to use MEM_SIZE and MEM_UNIT; this does not affect the outputs of this pipeline

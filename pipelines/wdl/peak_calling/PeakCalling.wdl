@@ -29,7 +29,7 @@ workflow PeakCalling {
       String cloud_provider
   }
 
-  String pipeline_version = "1.0.0"
+  String pipeline_version = "1.0.1"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"

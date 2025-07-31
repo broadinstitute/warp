@@ -1,3 +1,8 @@
+# 3.2.1
+25-07-31 (Date of Last Commit)
+
+* Reorganized all WDL pipelines into the wdl pipeline directory
+
 # 3.2.4
 2025-02-21 (Date of Last Commit)
 

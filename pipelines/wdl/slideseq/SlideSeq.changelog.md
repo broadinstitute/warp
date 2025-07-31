@@ -1,3 +1,8 @@
+# 3.6.1
+25-07-31 (Date of Last Commit)
+
+* Reorganized all WDL pipelines into the wdl pipeline directory
+
 # 3.6.3
 2025-06-20 (Date of Last Commit)
 * Added reference genome/GTF headers to fragment file via new string inputs; this change does not affect this pipeline
