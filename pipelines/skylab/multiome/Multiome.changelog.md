@@ -1,3 +1,8 @@
+# 6.1.1
+25-07-31 (Date of Last Commit)
+
+* Added a new optional input parameter, cellbender_hardware_memory_GB, to the CellBender tasks in the Optimus.wdl; this allows users to specify the hardware memory in GB for the CellBender tasks. The default value is set to 32 GB.
+
 # 6.1.0
 25-07-16 (Date of Last Commit)
 
