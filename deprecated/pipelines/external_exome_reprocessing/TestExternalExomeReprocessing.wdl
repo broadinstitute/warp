@@ -1,7 +1,7 @@
 version 1.0
 
 
-import "../../pipelines/broad/reprocessing/external/exome/ExternalExomeReprocessing.wdl" as ExternalExomeReprocessing
+import "../../pipelines/wdl/reprocessing/external/exome/ExternalExomeReprocessing.wdl" as ExternalExomeReprocessing
 import "../../verification/VerifyExternalReprocessing.wdl" as VerifyExternalReprocessing
 import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 

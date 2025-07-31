@@ -4,10 +4,15 @@ version 1.0
 ##
 ## This WDL pipeline implements data pre-processing and initial variant calling (GVCF
 ## generation) according to the GATK Best Practices (June 2016) for germline SNP and
-## Indel discovery in human whole-genome data.
+## Indel discovery in human exome sequencing data.
+##
+## NOTE: "Reblocking" of the output GVCF is now done by default. This reduces the genomic resolution of hom-ref
+## genotype qualities, which may affect de novo calling in trios. See
+## https://broadinstitute.github.io/warp/docs/Pipelines/Exome_Germline_Single_Sample_Pipeline/README/
+## for more details.
 ##
 ## Requirements/expectations :
-## - Human whole-genome pair-end sequencing data in unmapped BAM (uBAM) format
+## - Human exome sequencing data in unmapped BAM (uBAM) format
 ## - One or more read groups, one per uBAM file, all belonging to a single sample (SM)
 ## - Input uBAM files must additionally comply with the following requirements:
 ## - - filenames all have the same suffix (we use ".unmapped.bam")
@@ -31,96 +36,82 @@ version 1.0
 import "../../../../../../tasks/broad/UnmappedBamToAlignedBam.wdl" as ToBam
 import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
 import "../../../../../../tasks/broad/Qc.wdl" as QC
+import "../../../../../../tasks/broad/BamProcessing.wdl" as Processing
 import "../../../../../../tasks/broad/BamToCram.wdl" as ToCram
-import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
-import "../../../../../../pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
+import "../../variant_calling/VariantCalling.wdl" as ToGvcf
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
+import "../../../../../../tasks/broad/Utilities.wdl" as utils
 
 # WORKFLOW DEFINITION
-workflow WholeGenomeGermlineSingleSample {
+workflow ExomeGermlineSingleSample {
 
-
-  String pipeline_version = "3.3.4"
+  String pipeline_version = "3.2.4"
 
 
   input {
+    PapiSettings papi_settings
     SampleAndUnmappedBams sample_and_unmapped_bams
     DNASeqSingleSampleReferences references
-    DragmapReference? dragmap_reference
     VariantCallingScatterSettings scatter_settings
-    PapiSettings papi_settings
 
     File? fingerprint_genotypes_file
     File? fingerprint_genotypes_index
 
-    File wgs_coverage_interval_list
+    File target_interval_list
+    File bait_interval_list
+    String bait_set_name
 
+    Boolean skip_reblocking = false
     Boolean provide_bam_output = false
-    Boolean use_gatk3_haplotype_caller = true
-
-    Boolean dragen_functional_equivalence_mode = false
-    Boolean dragen_maximum_quality_mode = false
-
-    Boolean run_dragen_mode_variant_calling = false
-    Boolean use_spanning_event_genotyping = true
-    Boolean unmap_contaminant_reads = true
-    Boolean perform_bqsr = true
-    Boolean use_bwa_mem = true
-    Boolean allow_empty_ref_alt = false
-    Boolean use_dragen_hard_filtering = false
 
     String cloud_provider
   }
 
-  if (dragen_functional_equivalence_mode && dragen_maximum_quality_mode) {
-    call Utilities.ErrorWithMessage as PresetArgumentsError {
+  # docker images
+  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+  String gatk_docker_azure = "terrapublic.azurecr.io/gatk:4.6.1.0"
+  String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
+
+  # make sure either gcp or azr is supplied as cloud_provider input
+  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+    call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
       input:
-        message = "Both dragen_functional_equivalence_mode and dragen_maximum_quality_mode have been set to true, however, they are mutually exclusive. You can set either of them to true, or set them both to false and adjust the arguments individually."
+        message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
     }
   }
-
-  if (run_dragen_mode_variant_calling && use_gatk3_haplotype_caller) {
-    call Utilities.ErrorWithMessage as DragenModeVariantCallingAndGATK3Error {
-      input:
-        message = "DRAGEN mode variant calling has been activated, however, the HaplotypeCaller version has been set to use GATK 3. Please set use_gatk3_haplotype_caller to false to use DRAGEN mode variant calling."
-    }
-  }
-
-  # Set DRAGEN-related arguments according to the preset arguments
-  Boolean run_dragen_mode_variant_calling_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then true else run_dragen_mode_variant_calling
-  Boolean use_spanning_event_genotyping_ = if dragen_functional_equivalence_mode then false else (if dragen_maximum_quality_mode then true else use_spanning_event_genotyping)
-  Boolean unmap_contaminant_reads_ = if dragen_functional_equivalence_mode then false else (if dragen_maximum_quality_mode then true else unmap_contaminant_reads)
-  Boolean perform_bqsr_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then false else perform_bqsr
-  Boolean use_bwa_mem_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then false else use_bwa_mem
-  Boolean use_gatk3_haplotype_caller_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then false else use_gatk3_haplotype_caller
-  Boolean use_dragen_hard_filtering_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then true else use_dragen_hard_filtering
 
   # Not overridable:
-  Float lod_threshold = -20.0
+  Float lod_threshold = -10.0
   String cross_check_fingerprints_by = "READGROUP"
   String recalibrated_bam_basename = sample_and_unmapped_bams.base_file_name + ".aligned.duplicates_marked.recalibrated"
 
   String final_gvcf_base_name = select_first([sample_and_unmapped_bams.final_gvcf_base_name, sample_and_unmapped_bams.base_file_name])
 
+
+  call Processing.GenerateSubsettedContaminationResources {
+    input:
+        bait_set_name = bait_set_name,
+        target_interval_list = target_interval_list,
+        contamination_sites_bed = references.contamination_sites_bed,
+        contamination_sites_mu = references.contamination_sites_mu,
+        contamination_sites_ud = references.contamination_sites_ud,
+        preemptible_tries = papi_settings.preemptible_tries
+  }
+
   call ToBam.UnmappedBamToAlignedBam {
     input:
-      sample_and_unmapped_bams    = sample_and_unmapped_bams,
-      references                  = references,
-      dragmap_reference           = dragmap_reference,
-      papi_settings               = papi_settings,
+      sample_and_unmapped_bams = sample_and_unmapped_bams,
+      references = references,
+      papi_settings = papi_settings,
 
-      contamination_sites_ud = references.contamination_sites_ud,
-      contamination_sites_bed = references.contamination_sites_bed,
-      contamination_sites_mu = references.contamination_sites_mu,
+      contamination_sites_ud = GenerateSubsettedContaminationResources.subsetted_contamination_ud,
+      contamination_sites_bed = GenerateSubsettedContaminationResources.subsetted_contamination_bed,
+      contamination_sites_mu = GenerateSubsettedContaminationResources.subsetted_contamination_mu,
 
       cross_check_fingerprints_by = cross_check_fingerprints_by,
-      haplotype_database_file     = references.haplotype_database_file,
-      lod_threshold               = lod_threshold,
-      recalibrated_bam_basename   = recalibrated_bam_basename,
-      perform_bqsr                = perform_bqsr_,
-      use_bwa_mem                 = use_bwa_mem_,
-      unmap_contaminant_reads     = unmap_contaminant_reads_,
-      allow_empty_ref_alt         = allow_empty_ref_alt
+      haplotype_database_file = references.haplotype_database_file,
+      lod_threshold = lod_threshold,
+      recalibrated_bam_basename = recalibrated_bam_basename
   }
 
   call AggregatedQC.AggregatedBamQC {
@@ -149,34 +140,8 @@ workflow WholeGenomeGermlineSingleSample {
       agg_preemptible_tries = papi_settings.agg_preemptible_tries
   }
 
-  # QC the sample WGS metrics (stringent thresholds)
-  call QC.CollectWgsMetrics as CollectWgsMetrics {
-    input:
-      input_bam = UnmappedBamToAlignedBam.output_bam,
-      input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
-      metrics_filename = sample_and_unmapped_bams.base_file_name + ".wgs_metrics",
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
-      wgs_coverage_interval_list = wgs_coverage_interval_list,
-      preemptible_tries = papi_settings.agg_preemptible_tries
-  }
-
-  # QC the sample raw WGS metrics (common thresholds)
-  call QC.CollectRawWgsMetrics as CollectRawWgsMetrics {
-    input:
-      input_bam = UnmappedBamToAlignedBam.output_bam,
-      input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
-      metrics_filename = sample_and_unmapped_bams.base_file_name + ".raw_wgs_metrics",
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
-      wgs_coverage_interval_list = wgs_coverage_interval_list,
-      preemptible_tries = papi_settings.agg_preemptible_tries
-  }
-
   call ToGvcf.VariantCalling as BamToGvcf {
     input:
-      run_dragen_mode_variant_calling = run_dragen_mode_variant_calling_,
-      use_spanning_event_genotyping = use_spanning_event_genotyping_,
       calling_interval_list = references.calling_interval_list,
       evaluation_interval_list = references.evaluation_interval_list,
       haplotype_scatter_count = scatter_settings.haplotype_scatter_count,
@@ -187,15 +152,25 @@ workflow WholeGenomeGermlineSingleSample {
       ref_fasta = references.reference_fasta.ref_fasta,
       ref_fasta_index = references.reference_fasta.ref_fasta_index,
       ref_dict = references.reference_fasta.ref_dict,
-      ref_str = references.reference_fasta.ref_str,
       dbsnp_vcf = references.dbsnp_vcf,
       dbsnp_vcf_index = references.dbsnp_vcf_index,
       base_file_name = sample_and_unmapped_bams.base_file_name,
       final_vcf_base_name = final_gvcf_base_name,
       agg_preemptible_tries = papi_settings.agg_preemptible_tries,
-      use_gatk3_haplotype_caller = use_gatk3_haplotype_caller_,
-      use_dragen_hard_filtering = use_dragen_hard_filtering_,
+      skip_reblocking = skip_reblocking,
       cloud_provider = cloud_provider
+  }
+
+  call QC.CollectHsMetrics as CollectHsMetrics {
+    input:
+      input_bam = UnmappedBamToAlignedBam.output_bam,
+      input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
+      metrics_filename = sample_and_unmapped_bams.base_file_name + ".hybrid_selection_metrics",
+      ref_fasta = references.reference_fasta.ref_fasta,
+      ref_fasta_index = references.reference_fasta.ref_fasta_index,
+      target_interval_list = target_interval_list,
+      bait_interval_list = bait_interval_list,
+      preemptible_tries = papi_settings.agg_preemptible_tries
   }
 
   if (provide_bam_output) {
@@ -217,9 +192,6 @@ workflow WholeGenomeGermlineSingleSample {
     Array[File] unsorted_read_group_quality_distribution_metrics = UnmappedBamToAlignedBam.unsorted_read_group_quality_distribution_metrics
 
     File read_group_alignment_summary_metrics = AggregatedBamQC.read_group_alignment_summary_metrics
-    File read_group_gc_bias_detail_metrics = AggregatedBamQC.read_group_gc_bias_detail_metrics
-    File read_group_gc_bias_pdf = AggregatedBamQC.read_group_gc_bias_pdf
-    File read_group_gc_bias_summary_metrics = AggregatedBamQC.read_group_gc_bias_summary_metrics
 
     File? cross_check_fingerprints_metrics = UnmappedBamToAlignedBam.cross_check_fingerprints_metrics
 
@@ -231,9 +203,6 @@ workflow WholeGenomeGermlineSingleSample {
     File agg_alignment_summary_metrics = AggregatedBamQC.agg_alignment_summary_metrics
     File agg_bait_bias_detail_metrics = AggregatedBamQC.agg_bait_bias_detail_metrics
     File agg_bait_bias_summary_metrics = AggregatedBamQC.agg_bait_bias_summary_metrics
-    File agg_gc_bias_detail_metrics = AggregatedBamQC.agg_gc_bias_detail_metrics
-    File agg_gc_bias_pdf = AggregatedBamQC.agg_gc_bias_pdf
-    File agg_gc_bias_summary_metrics = AggregatedBamQC.agg_gc_bias_summary_metrics
     File agg_insert_size_histogram_pdf = AggregatedBamQC.agg_insert_size_histogram_pdf
     File agg_insert_size_metrics = AggregatedBamQC.agg_insert_size_metrics
     File agg_pre_adapter_detail_metrics = AggregatedBamQC.agg_pre_adapter_detail_metrics
@@ -245,14 +214,13 @@ workflow WholeGenomeGermlineSingleSample {
     File? fingerprint_summary_metrics = AggregatedBamQC.fingerprint_summary_metrics
     File? fingerprint_detail_metrics = AggregatedBamQC.fingerprint_detail_metrics
 
-    File wgs_metrics = CollectWgsMetrics.metrics
-    File raw_wgs_metrics = CollectRawWgsMetrics.metrics
-
     File duplicate_metrics = UnmappedBamToAlignedBam.duplicate_metrics
     File? output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
 
     File gvcf_summary_metrics = BamToGvcf.vcf_summary_metrics
     File gvcf_detail_metrics = BamToGvcf.vcf_detail_metrics
+
+    File hybrid_selection_metrics = CollectHsMetrics.metrics
 
     File? output_bam = provided_output_bam
     File? output_bam_index = provided_output_bam_index

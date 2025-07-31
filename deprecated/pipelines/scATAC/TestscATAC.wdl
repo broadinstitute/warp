@@ -1,7 +1,7 @@
 version 1.0
 
 
-import "../../pipelines/skylab/scATAC/scATAC.wdl" as scATAC
+import "../../pipelines/wdl/scATAC/scATAC.wdl" as scATAC
 import "../../verification/VerifyscATAC.wdl" as VerifyscATAC
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy

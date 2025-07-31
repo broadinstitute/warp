@@ -1,7 +1,7 @@
 version 1.0
 
 
-import "../../pipelines/broad/internal/rna_seq/BroadInternalRNAWithUMIs.wdl" as BroadInternalRNAWithUMIs
+import "../../pipelines/wdl/internal/rna_seq/BroadInternalRNAWithUMIs.wdl" as BroadInternalRNAWithUMIs
 import "../../verification/VerifyRNAWithUMIs.wdl" as VerifyRNAWithUMIs
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy

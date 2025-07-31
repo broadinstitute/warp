@@ -1,7 +1,7 @@
 version 1.0
 
 
-import "../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as CramToUnmappedBams
+import "../../pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as CramToUnmappedBams
 import "../../verification/VerifyCramToUnmappedBamsUpdated.wdl" as VerifyCramToUnmappedBamsUpdated
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy

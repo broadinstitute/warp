@@ -1,6 +1,6 @@
 version 1.0
 # ExternalWholeGenomeReprocessing is now deprecated
-import "../../../../../pipelines/broad/reprocessing/wgs/WholeGenomeReprocessing.wdl" as WholeGenomeReprocessing
+import "../../../../../pipelines/wdl/reprocessing/wgs/WholeGenomeReprocessing.wdl" as WholeGenomeReprocessing
 import "../../../../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow ExternalWholeGenomeReprocessing {

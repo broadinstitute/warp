@@ -1,7 +1,7 @@
 version 1.0
 
 
-import "../../pipelines/broad/arrays/imputation/Imputation.wdl" as Imputation
+import "../../pipelines/wdl/arrays/imputation/Imputation.wdl" as Imputation
 import "../../verification/VerifyImputation.wdl" as VerifyImputation
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy

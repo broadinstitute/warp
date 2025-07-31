@@ -1,7 +1,7 @@
 version 1.0
 
 
-import "../../pipelines/broad/arrays/imputation_beagle/ImputationBeagle.wdl" as ImputationBeagle
+import "../../pipelines/wdl/arrays/imputation_beagle/ImputationBeagle.wdl" as ImputationBeagle
 import "../../verification/VerifyImputationBeagle.wdl" as VerifyImputationBeagle
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy

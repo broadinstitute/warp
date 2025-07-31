@@ -1,7 +1,7 @@
 version 1.0
 
 
-import "../../pipelines/broad/arrays/multi_sample/MultiSampleArrays.wdl" as MultiSampleArrays
+import "../../pipelines/wdl/arrays/multi_sample/MultiSampleArrays.wdl" as MultiSampleArrays
 import "../../verification/VerifyMultiSampleArrays.wdl" as VerifyMultiSampleArrays
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy

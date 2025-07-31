@@ -1,7 +1,7 @@
 version 1.0
 
 import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../pipelines/skylab/optimus/Optimus.wdl" as Optimus
+import "../../pipelines/wdl/optimus/Optimus.wdl" as Optimus
 import "../../verification/VerifyOptimus.wdl" as VerifyOptimus
 import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 

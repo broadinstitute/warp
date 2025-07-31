@@ -1,23 +1,27 @@
-
 version 1.0
 
-import "../../../pipelines/skylab/atac/atac.wdl" as atac
-import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
+import "../atac/atac.wdl" as atac
+import "../optimus/Optimus.wdl" as optimus
+import "../peak_calling/PeakCalling.wdl" as peakcalling
+
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
-import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
 import "../../../tasks/broad/Utilities.wdl" as utils
 
-workflow PairedTag {
+workflow Multiome {
 
-    String pipeline_version = "2.1.5"
+
+    String pipeline_version = "6.1.0"
+
 
     input {
+        String cloud_provider
         String input_id
-        # Additional library aliquot id
+        # Additional library aliquot ID
         String? gex_nhash_id
         String? atac_nhash_id
+        Int expected_cells = 3000
 
-        # Optimus Inputs
+        # Optimus inputs
         String counting_mode = "sn_rna"
         Array[File] gex_r1_fastq
         Array[File] gex_r2_fastq
@@ -31,46 +35,46 @@ workflow PairedTag {
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Forward"
         Boolean count_exons = false
-        File gex_whitelist = if cloud_provider == "gcp" then "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt" else "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_gex.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
+        String? soloMultiMappers
 
-        String? soloMultiMappers = "EM"
         # ATAC inputs
         # Array of input fastq files
         Array[File] atac_r1_fastq
         Array[File] atac_r2_fastq
         Array[File] atac_r3_fastq
-
+        # VM size used for several ATAC tasks
         String vm_size = "Standard_M128s"
-
-        # BWA input
+        # BWA tar reference
         File tar_bwa_reference
+        # Chromosone sizes 
         File chrom_sizes
         # Trimadapters input
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
-        # Whitelist
-        File atac_whitelist = if cloud_provider == "gcp" then "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt" else "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_atac.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
 
-        # PairedTag
-        Boolean preindex
-
-        # Expected to be either 'gcp' or 'azure'
-        String cloud_provider
-
-        # If true, run cellbender
+        # CellBender
         Boolean run_cellbender = false
+        # Peak Calling
+        Boolean run_peak_calling = false
     }
 
-    # All docker images that are needed for tasks in this workflow
-    String upstools_docker = "upstools:2.0.0"
-    String snapatac_docker = "snapatac2:2.0.0"
-
-    # Prefixes based on cloud env
+    # Determine docker prefix based on cloud provider
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
     String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
-
-    # choose docker prefix based on cloud_provider input
     String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+
+    # Define docker images
+    String snap_atac_docker_image = "snapatac2:2.0.0"
+
+    # Define all whitelist files
+    File gcp_gex_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
+    File gcp_atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
+    File azure_gex_whitelist = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_gex.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
+    File azure_atac_whitelist = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_atac.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
+
+    # Determine which whitelist files to use based on cloud provider
+    File gex_whitelist = if cloud_provider == "gcp" then gcp_gex_whitelist else azure_gex_whitelist
+    File atac_whitelist = if cloud_provider == "gcp" then gcp_atac_whitelist else azure_atac_whitelist
 
     # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
     if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
@@ -83,12 +87,14 @@ workflow PairedTag {
     # Call the Optimus workflow
     call optimus.Optimus as Optimus {
         input:
+            cloud_provider = cloud_provider,
             counting_mode = counting_mode,
             r1_fastq = gex_r1_fastq,
             r2_fastq = gex_r2_fastq,
             i1_fastq = gex_i1_fastq,
             input_id = input_id + "_gex",
             output_bam_basename = input_id + "_gex",
+            gex_nhash_id = gex_nhash_id,
             tar_star_reference = tar_star_reference,
             annotations_gtf = annotations_gtf,
             mt_genes = mt_genes,
@@ -99,73 +105,73 @@ workflow PairedTag {
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
-            cloud_provider = cloud_provider,
             soloMultiMappers = soloMultiMappers,
-            gex_nhash_id = gex_nhash_id,
+            cloud_provider = cloud_provider,
+            gex_expected_cells = expected_cells,
             run_cellbender = run_cellbender
     }
 
     # Call the ATAC workflow
-        # Call the ATAC workflow
-    scatter (idx in range(length(atac_r1_fastq))) {
-        call Demultiplexing.PairedTagDemultiplex as demultiplex {
-            input:
-              read1_fastq = atac_r1_fastq[idx],
-              read3_fastq = atac_r3_fastq[idx],
-              barcodes_fastq = atac_r2_fastq[idx],
-              input_id = input_id + "_atac",
-              whitelist = atac_whitelist,
-              preindex = preindex,
-              docker_path = docker_prefix + upstools_docker
-        }
-    }
-
-    # Call the ATAC workflow
-    call atac.ATAC as Atac_preindex {
+    call atac.ATAC as Atac {
         input:
-            read1_fastq_gzipped = demultiplex.fastq1,
-            read2_fastq_gzipped = demultiplex.barcodes,
-            read3_fastq_gzipped = demultiplex.fastq3,
+            cloud_provider = cloud_provider,
+            read1_fastq_gzipped = atac_r1_fastq,
+            read2_fastq_gzipped = atac_r2_fastq,
+            read3_fastq_gzipped = atac_r3_fastq,
             input_id = input_id + "_atac",
             tar_bwa_reference = tar_bwa_reference,
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3,
-            annotations_gtf = annotations_gtf,
-            preindex = preindex,
-            cloud_provider = cloud_provider,
             vm_size = vm_size,
-            atac_nhash_id = atac_nhash_id
+            annotations_gtf = annotations_gtf,
+            atac_nhash_id = atac_nhash_id,
+            adapter_seq_read3 = adapter_seq_read3,
+            atac_expected_cells = expected_cells,
+            peak_calling = false
+
     }
 
-    if (preindex) {
-        call Demultiplexing.ParseBarcodes as ParseBarcodes {
+    call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
+        input:
+            docker_path = docker_prefix + snap_atac_docker_image,
+            atac_h5ad = Atac.snap_metrics,
+            gex_h5ad = Optimus.h5ad_output_file,
+            gex_whitelist = gex_whitelist,
+            atac_whitelist = atac_whitelist,
+            atac_fragment = Atac.fragment_file,
+            input_gtf = annotations_gtf,
+            input_bwa_reference = tar_bwa_reference
+    }
+
+    if (run_peak_calling) {
+        call peakcalling.PeakCalling as PeakCalling {
             input:
-              atac_h5ad = Atac_preindex.snap_metrics,
-              atac_fragment = Atac_preindex.fragment_file,
-              docker_path = docker_prefix + snapatac_docker,
+                annotations_gtf = annotations_gtf,
+                metrics_h5ad = JoinBarcodes.atac_h5ad_file,
+                chrom_sizes = chrom_sizes,
+                output_base_name = input_id,
+                cloud_provider = cloud_provider,
         }
-    }      
+    }
 
     meta {
         allowNestedInputs: true
     }
 
-    File atac_fragment_out = select_first([ParseBarcodes.atac_fragment_tsv,Atac_preindex.fragment_file])
-    File atac_fragment_index_out = select_first([ParseBarcodes.atac_fragment_tsv_tbi,Atac_preindex.fragment_file_index])
-    File atac_h5ad_out = select_first([ParseBarcodes.atac_h5ad_file, Atac_preindex.snap_metrics])
     
     output {
         
-        String pairedtag_pipeline_version_out = pipeline_version
+        String multiome_pipeline_version_out = pipeline_version
 
         # atac outputs
-        File bam_aligned_output_atac = Atac_preindex.bam_aligned_output
-        File fragment_file_atac = atac_fragment_out
-        File snap_metrics_atac = atac_h5ad_out
-        File atac_library_final = Atac_preindex.library_metrics_file
-        File fragment_file_index_atac = atac_fragment_index_out
+        File bam_aligned_output_atac = Atac.bam_aligned_output
+        File fragment_file_atac = JoinBarcodes.atac_fragment_tsv
+        File fragment_file_index = JoinBarcodes.atac_fragment_tsv_index
+        File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
+        File atac_library_metrics = Atac.library_metrics_file
+        File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad
+        File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
@@ -176,14 +182,16 @@ workflow PairedTag {
         File cell_metrics_gex = Optimus.cell_metrics
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
-        File h5ad_output_file_gex = Optimus.h5ad_output_file
-        File? library_metrics = Optimus.library_metrics
+        File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
         File? multimappers_EM_matrix = Optimus.multimappers_EM_matrix
         File? multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
         File? multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
         File? multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
-        
-        # cellbender outputs
+        File? gex_aligner_metrics = Optimus.aligner_metrics
+        File? library_metrics = Optimus.library_metrics
+        File? mtx_files = Optimus.mtx_files
+
+         # cellbender outputs
         File? cell_barcodes_csv = Optimus.cell_barcodes_csv
         File? checkpoint_file = Optimus.checkpoint_file
         Array[File]? h5_array = Optimus.h5_array

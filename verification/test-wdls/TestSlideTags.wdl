@@ -1,7 +1,7 @@
 version 1.0
 
 import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../pipelines/skylab/slidetags/SlideTags.wdl" as SlideTags
+import "../../pipelines/wdl/slidetags/SlideTags.wdl" as SlideTags
 import "../../verification/VerifySlideTags.wdl" as VerifySlideTags
 import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 

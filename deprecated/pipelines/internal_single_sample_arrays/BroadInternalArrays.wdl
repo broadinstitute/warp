@@ -1,6 +1,6 @@
 version 1.0
 # BroadInternalArrays is now deprecated 2025-03-06
-import "../../../../../pipelines/broad/arrays/single_sample/Arrays.wdl" as ArraysPipeline
+import "../../../../../pipelines/wdl/arrays/single_sample/Arrays.wdl" as ArraysPipeline
 import "../../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
 import "../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 

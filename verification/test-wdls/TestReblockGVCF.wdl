@@ -1,7 +1,7 @@
 version 1.0
 
 
-import "../../pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as ReblockGVCF
+import "../../pipelines/wdl/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as ReblockGVCF
 import "../../verification/VerifyGvcf.wdl" as VerifyGvcf
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
