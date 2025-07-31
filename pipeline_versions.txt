@@ -10,9 +10,9 @@ SlideTags	 1.0.2	2025-07-31
 SlideSeq	 3.6.3	2025-06-20 
 BuildIndices	 4.0.0	2025-01-17 
 IlluminaGenotypingArray	 1.12.24	2024-11-04 
-ArrayImputationQuotaConsumed	 1.0.2	2025-04-07 
-ImputationBeagle	 1.0.2	2025-04-07 
-Imputation	 1.1.18	2025-04-07 
+ArrayImputationQuotaConsumed	 1.0.3	2025-07-31 
+ImputationBeagle	 2.0.0	2025-07-31 
+Imputation	 1.1.19	2025-07-31 
 UltimaGenomicsWholeGenomeCramOnly	 1.1.0	2025-03-17 
 ReblockGVCF	 2.4.1	2025-02-21 
 UltimaGenomicsJointGenotyping	 1.2.2	2024-11-04 
