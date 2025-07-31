@@ -5,6 +5,8 @@
 * Update ImputationBeagle pipeline to split by chunks of samples to help scale the workflow to more samples.
 This also includes tasks to split the input VCF into sample chunks, run the imputation on each chunk, and then
 merge the results back together.  These changes change the scientific output of the pipeline.
+* Removed SeparateMultiallelics and RemoveSymbolicAlleles tasks as they are not something we want to do
+anymore.
 
 ### Additional changes
 * Use SSD for tasks that localize large files to help with performance on Google Batch.

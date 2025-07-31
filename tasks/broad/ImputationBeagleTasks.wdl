@@ -309,7 +309,7 @@ task SelectSamplesWithCut {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-dsde-methods/ckachulis/bcftools_bgzip"
+    docker: "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
     disks: "local-disk " + disk_size_gb + " HDD"
     memory: memory_mb + " MiB"
     preemptible: 3
@@ -393,7 +393,7 @@ task MergeSampleChunksVcfsWithPaste {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-dsde-methods/ckachulis/bcftools_bgzip@sha256:6035c38fbc4b8631af796a99c568253f2c26886a97c5fd42ce4b8355f424307d"
+    docker: "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
     disks: "local-disk " + disk_size_gb + " HDD"
     memory: mem_gb + " GiB"
     cpu: cpu
