@@ -1,8 +1,12 @@
 # 2.0.0
 2025-07-31 (Date of Last Commit)
 
+### Breaking changes
 * Update ImputationBeagle pipeline to split by chunks of samples to help scale the workflow to more samples.
-This also includes tasks to split the input VCF into sample chunks, run the imputation on each chunk, and then merge the results back together.
+This also includes tasks to split the input VCF into sample chunks, run the imputation on each chunk, and then
+merge the results back together.  These changes change the scientific output of the pipeline.
+
+### Additional changes
 * Use SSD for tasks that localize large files to help with performance on Google Batch.
 * Add maxRetries to all tasks to help with performance on Google Batch.
 
