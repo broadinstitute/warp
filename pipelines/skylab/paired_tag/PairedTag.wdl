@@ -64,6 +64,7 @@ workflow PairedTag {
     # All docker images that are needed for tasks in this workflow
     String upstools_docker = "upstools:2.0.0"
     String snapatac_docker = "snapatac2:2.0.0"
+    String csv_docker = "alpine:3.14"
 
     # Prefixes based on cloud env
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -156,6 +157,12 @@ workflow PairedTag {
     File atac_fragment_index_out = select_first([ParseBarcodes.atac_fragment_tsv_tbi,Atac_preindex.fragment_file_index])
     File atac_h5ad_out = select_first([ParseBarcodes.atac_h5ad_file, Atac_preindex.snap_metrics])
     
+    call MaskPeakCallingMetrics {
+        input:
+            docker_path = docker_prefix + csv_docker
+            library_metrics = Atac_preindex.library_metrics_file    
+    }
+
     output {
         
         String pairedtag_pipeline_version_out = pipeline_version
@@ -164,7 +171,7 @@ workflow PairedTag {
         File bam_aligned_output_atac = Atac_preindex.bam_aligned_output
         File fragment_file_atac = atac_fragment_out
         File snap_metrics_atac = atac_h5ad_out
-        File atac_library_final = Atac_preindex.library_metrics_file
+        File atac_library_final = MaskPeakCallingMetrics.library_metrics_file
         File fragment_file_index_atac = atac_fragment_index_out
 
         # optimus outputs
