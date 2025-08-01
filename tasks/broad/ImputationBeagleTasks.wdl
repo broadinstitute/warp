@@ -449,8 +449,8 @@ task RecalculateDR2AndAF {
     File query_file
     Int n_samples
     Int disk_size_gb = ceil(2 * size(query_file, "GiB")) + 10
-    Int mem_gb = 6
-    Int cpu = 1
+    Int mem_gb = 12
+    Int cpu = 2
     Int chunksize = 10000
     Int preemptible = 3
   }
