@@ -1,6 +1,9 @@
 version 1.0
 
 workflow HLAGenotyping {
+
+    String pipeline_version = "aou_9.0.0"
+
     input {
         String gatk_docker
         String hlahd_docker

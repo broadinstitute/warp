@@ -1,6 +1,9 @@
 version 1.0
 
 workflow MakeTable {
+
+    String pipeline_version = "aou_9.0.0"
+
 	input {
 		Array[File] consensus_calls
 		Array[String] sample_ids
