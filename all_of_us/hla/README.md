@@ -1,4 +1,5 @@
 # HLA Pipelines
+The following pipelines are used to generate and aggregate HLA genotyping results from sequencing data.
 
 ## HLAGenotyping
 #### Background
