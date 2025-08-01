@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../../tasks/broad/UMIAwareDuplicateMarking.wdl" as UmiMD
-import "../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
+import "../../../../tasks/broad/UMIAwareDuplicateMarking.wdl" as UmiMD
+import "../../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 
 ## Copyright Broad Institute, 2021
 ##
@@ -20,7 +20,7 @@ import "../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 
 workflow RNAWithUMIsPipeline {
 
-  String pipeline_version = "1.0.18"
+  String pipeline_version = "1.0.19"
 
   input {
     File? bam

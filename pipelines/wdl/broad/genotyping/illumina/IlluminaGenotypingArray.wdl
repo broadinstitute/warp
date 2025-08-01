@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
-import "../../../../tasks/broad/Qc.wdl" as Qc
+import "../../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
+import "../../../../../tasks/broad/Qc.wdl" as Qc
 
 ## Copyright Broad Institute, 2019
 ##
@@ -21,7 +21,7 @@ import "../../../../tasks/broad/Qc.wdl" as Qc
 
 workflow IlluminaGenotypingArray {
 
-  String pipeline_version = "1.12.24"
+  String pipeline_version = "1.12.25"
 
   input {
     String sample_alias

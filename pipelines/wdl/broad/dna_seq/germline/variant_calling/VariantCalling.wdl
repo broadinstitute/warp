@@ -1,15 +1,15 @@
 version 1.0
 
-import "../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as Calling
-import "../../../../../tasks/broad/Qc.wdl" as QC
-import "../../../../../tasks/broad/Utilities.wdl" as Utils
-import "../../../../../tasks/broad/BamProcessing.wdl" as BamProcessing
-import "../../../../../tasks/broad/DragenTasks.wdl" as DragenTasks
+import "../../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as Calling
+import "../../../../../../tasks/broad/Qc.wdl" as QC
+import "../../../../../../tasks/broad/Utilities.wdl" as Utils
+import "../../../../../../tasks/broad/BamProcessing.wdl" as BamProcessing
+import "../../../../../../tasks/broad/DragenTasks.wdl" as DragenTasks
 
 workflow VariantCalling {
 
 
-  String pipeline_version = "2.2.5"
+  String pipeline_version = "2.2.6"
 
 
   input {

@@ -33,19 +33,19 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../../../../../tasks/broad/UnmappedBamToAlignedBam.wdl" as ToBam
-import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
-import "../../../../../../tasks/broad/Qc.wdl" as QC
-import "../../../../../../tasks/broad/BamProcessing.wdl" as Processing
-import "../../../../../../tasks/broad/BamToCram.wdl" as ToCram
-import "../../../../../../pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
-import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
-import "../../../../../../tasks/broad/Utilities.wdl" as utils
+import "../../../../../../../tasks/broad/UnmappedBamToAlignedBam.wdl" as ToBam
+import "../../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
+import "../../../../../../../tasks/broad/Qc.wdl" as QC
+import "../../../../../../../tasks/broad/BamProcessing.wdl" as Processing
+import "../../../../../../../tasks/broad/BamToCram.wdl" as ToCram
+import "../../../../dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
+import "../../../../../../../structs/dna_seq/DNASeqStructs.wdl"
+import "../../../../../../../tasks/broad/Utilities.wdl" as utils
 
 # WORKFLOW DEFINITION
 workflow ExomeGermlineSingleSample {
 
-  String pipeline_version = "3.2.4"
+  String pipeline_version = "3.2.5"
 
 
   input {
