@@ -74,3 +74,27 @@ Key characteristics:
 - `File consensus` – Final consensus genotype call
 - `File? optitype_result` – Optitype genotype result (Optional)
 - `File? polysolver_result` – Polysolver genotype result (Optional)
+
+## MakeTable
+#### Background
+
+This WDL workflow consolidates HLA consensus calls from multiple samples into a single summary table. It generates a tabular output where each row represents a sample and each column represents one HLA allele call.
+
+Key characteristics:
+- Expects precomputed HLA consensus files per sample.
+- Sample IDs are provided explicitly in the same order as the consensus files.
+- Validates consistency in header format across all samples.
+- Produces a TSV-formatted summary table with sample IDs and allele calls.
+
+#### Inputs
+- `Array[File] consensus_calls` – List of consensus result files, one per sample
+- `Array[String] sample_ids` – List of sample IDs (must be the same length and order as `consensus_calls`)
+
+#### Step 1. Combine
+- Parses each consensus file to extract HLA genotype fields.
+- Constructs a unified header by inspecting the first sample.
+- Appends sample genotype data as rows under the unified header.
+- Merges sample IDs into the first column of the final table.
+
+#### Outputs
+- `File result` – Final combined summary table (`result.txt`)
