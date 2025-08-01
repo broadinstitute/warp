@@ -1,3 +1,8 @@
+# 2.1.5
+2025-07-16 (Date of Last Commit)
+
+* Added reference genome/GTF headers to fragment file via new string inputs; this change does not affect this pipeline
+
 # 2.1.4
 2025-06-18 (Date of Last Commit) 
 

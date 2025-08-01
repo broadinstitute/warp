@@ -1,3 +1,8 @@
+# 6.1.0
+25-07-16 (Date of Last Commit)
+
+* Added reference genome/GTF headers to fragment file via new string inputs
+
 # 6.0.5
 2025-06-18 (Date of Last Commit) 
 
