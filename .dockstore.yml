@@ -34,6 +34,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
 
+  - name: HLAGenotyping
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/hla/HLAGenotyping.wdl
+
   - name: IlluminaGenotypingArray
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl
@@ -49,6 +53,10 @@ workflows:
   - name: JointGenotyping
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
+
+  - name: MakeTable
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
 
   - name: Multiome
     subclass: WDL
