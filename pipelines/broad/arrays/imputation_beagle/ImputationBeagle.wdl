@@ -208,7 +208,8 @@ workflow ImputationBeagle {
         call beagleTasks.RecalculateDR2AndAF {
           input:
             query_file = QueryMergedVcfForReannotation.output_query_file,
-            n_samples = CountSamples.nSamples
+            mem_gb = 4 + ceil(CountSamples.nSamples / 1000),
+            n_samples = CountSamples.nSamples,
         }
 
         call beagleTasks.ReannotateDR2AndAF {

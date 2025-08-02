@@ -413,7 +413,7 @@ task QueryMergedVcfForReannotation {
     Int disk_size_gb = ceil(2 * size(vcf, "GiB")) + 10
     Int mem_gb = 4
     Int cpu = 1
-    Int preemptible = 3
+    Int preemptible = 0
   }
   String vcf_basename = basename(vcf)
 
@@ -449,10 +449,10 @@ task RecalculateDR2AndAF {
     File query_file
     Int n_samples
     Int disk_size_gb = ceil(2 * size(query_file, "GiB")) + 10
-    Int mem_gb = 12
-    Int cpu = 2
+    Int mem_gb = 6
+    Int cpu = 1
     Int chunksize = 10000
-    Int preemptible = 3
+    Int preemptible = 0
   }
 
   command <<<
