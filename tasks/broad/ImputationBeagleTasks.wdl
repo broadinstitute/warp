@@ -413,7 +413,7 @@ task QueryMergedVcfForReannotation {
     Int disk_size_gb = ceil(2 * size(vcf, "GiB")) + 10
     Int mem_gb = 4
     Int cpu = 1
-    Int preemptible = 0
+    Int preemptible = 3
   }
   String vcf_basename = basename(vcf)
 
