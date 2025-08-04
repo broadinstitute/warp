@@ -6,6 +6,7 @@ import "../../../tasks/skylab/PairedTagUtils.wdl" as AddBB
 import "../../../tasks/broad/Utilities.wdl" as utils
 import "../peak_calling/PeakCalling.wdl" as peakcalling # import peakcalling as subworkflow
 
+
 workflow ATAC {
   meta {
     description: "Processing for single-cell ATAC-seq data from the level of raw fastq reads. This is the first step of the multiome pipeline. ATAC-seq (Assay for Transposase-Accessible Chromatin using sequencing) is a technique used in molecular biology to assess genome-wide chromatin accessibility. This pipeline processes 10x Genomics Multiome ATAC FASTQ files."
