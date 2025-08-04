@@ -17,10 +17,12 @@ workflow SplitMultiSampleVcfWorkflow {
         Int cpu = 1
         Int memoryMb = 6000
         String bcftoolsDocker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
-        Int diskSizeGb
+        Int? diskSizeGb
     }
 
     String gsutil_docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:525.0.0"
+    Int calculated_disk_size = ceil(21*chunkSize*size(multiSampleVcf, "GiB")/(chunkSize+20)) + 10
+    Int disk_size = select_first([calculated_disk_size, diskSizeGb]) # Default disk size if not provided
 
     parameter_meta {
         multiSampleVcf: "Input multi-sample VCF file to be split"
@@ -39,7 +41,7 @@ workflow SplitMultiSampleVcfWorkflow {
             docker = bcftoolsDocker,
             cpu = cpu,
             memoryMb = memoryMb,
-            diskSizeGb = diskSizeGb
+            diskSizeGb = disk_size
     }
 
     # TWO: Break up the extracted samples by the chunk size (and create an output with samples included in the chunk)
@@ -50,7 +52,7 @@ workflow SplitMultiSampleVcfWorkflow {
             docker = bcftoolsDocker,
             cpu = cpu,
             memoryMb = memoryMb,
-            diskSizeGb = diskSizeGb
+            diskSizeGb = disk_size
     }
 
 
@@ -67,7 +69,7 @@ workflow SplitMultiSampleVcfWorkflow {
                 docker = bcftoolsDocker,
                 cpu = cpu,
                 memoryMb = memoryMb,
-                diskSizeGb = diskSizeGb
+                diskSizeGb = disk_size
         }
 
         # FOUR: Copy each chunk's output files to the destination
@@ -80,7 +82,7 @@ workflow SplitMultiSampleVcfWorkflow {
                 docker = gsutil_docker,
                 cpu = cpu,
                 memoryMb = memoryMb,
-                diskSizeGb = diskSizeGb
+                diskSizeGb = disk_size
         }
     }
 }
