@@ -17,6 +17,7 @@ workflow SplitMultiSampleVcfWorkflow {
         Int cpu = 1
         Int memoryMb = 6000
         String bcftoolsDocker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
+        Int diskSizeGb
     }
 
     String gsutil_docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:525.0.0"
@@ -37,7 +38,8 @@ workflow SplitMultiSampleVcfWorkflow {
             multiSampleVcf = multiSampleVcf,
             docker = bcftoolsDocker,
             cpu = cpu,
-            memoryMb = memoryMb
+            memoryMb = memoryMb,
+            diskSizeGb = diskSizeGb
     }
 
     # TWO: Break up the extracted samples by the chunk size (and create an output with samples included in the chunk)
@@ -47,7 +49,8 @@ workflow SplitMultiSampleVcfWorkflow {
             chunkSize = chunkSize,
             docker = bcftoolsDocker,
             cpu = cpu,
-            memoryMb = memoryMb
+            memoryMb = memoryMb,
+            diskSizeGb = diskSizeGb
     }
 
 
@@ -63,7 +66,8 @@ workflow SplitMultiSampleVcfWorkflow {
                 createIndexFiles = createIndexFiles,
                 docker = bcftoolsDocker,
                 cpu = cpu,
-                memoryMb = memoryMb
+                memoryMb = memoryMb,
+                diskSizeGb = diskSizeGb
         }
 
         # FOUR: Copy each chunk's output files to the destination
@@ -75,7 +79,8 @@ workflow SplitMultiSampleVcfWorkflow {
                 createIndexFiles = createIndexFiles,
                 docker = gsutil_docker,
                 cpu = cpu,
-                memoryMb = memoryMb
+                memoryMb = memoryMb,
+                diskSizeGb = diskSizeGb
         }
     }
 }
@@ -87,6 +92,7 @@ task ExtractSamplesFromMultiSampleVcf {
     String docker
     Int cpu
     Int memoryMb
+    Int diskSizeGb
   }
 
   parameter_meta {
@@ -94,6 +100,7 @@ task ExtractSamplesFromMultiSampleVcf {
     docker: "Docker image containing bcftools (default: us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889)"
     cpu: "Number of CPU cores to allocate (default: 1)"
     memoryMb: "Memory allocation in megabytes (default: 6000)"
+    diskSizeGb:  "Disk space in gigabytes"
   }
 
   command <<<
@@ -109,6 +116,7 @@ task ExtractSamplesFromMultiSampleVcf {
     docker: docker
     cpu: cpu
     memory: "${memoryMb} MiB"
+    disks: "local-disk ${diskSizeGb} SSD"
   }
 }
 
@@ -119,6 +127,7 @@ task ProcessSampleList {
     String docker
     Int cpu
     Int memoryMb
+    Int diskSizeGb
   }
 
   parameter_meta {
@@ -127,6 +136,7 @@ task ProcessSampleList {
     cpu: "Number of CPU cores to allocate (default: 1)"
     memoryMb: "Memory allocation in megabytes (default: 6000)"
     docker: "Docker image containing bcftools (default: us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889)"
+    diskSizeGb:  "Disk space in gigabytes"
   }
 
   command <<<
@@ -158,6 +168,7 @@ task ProcessSampleList {
     cpu: cpu
     memory: "${memoryMb} MiB"
     docker: docker
+    disks: "local-disk ${diskSizeGb} SSD"
   }
 }
 
@@ -170,9 +181,7 @@ task ExtractSingleSampleVcfs {
     String docker
     Int cpu
     Int memoryMb
-
-    # This calculation is explained in https://github.com/broadinstitute/warp/pull/937
-    Int diskSizeGb = ceil(21*chunkSize*size(multiSampleVcf, "GiB")/(chunkSize+20)) + 10
+    Int diskSizeGb
   }
 
   parameter_meta {
@@ -260,6 +269,7 @@ task CopyFilesToDestination {
         String docker
         Int cpu
         Int memoryMb
+        Int diskSizeGb
     }
 
     parameter_meta {
@@ -270,6 +280,7 @@ task CopyFilesToDestination {
         docker: "Docker image containing gsutil"
         cpu: "Number of CPU cores to allocate (default: 1)"
         memoryMb: "Memory allocation in megabytes (default: 6000)"
+        diskSizeGb:  "Disk space in gigabytes"
     }
 
     command <<<
@@ -326,5 +337,6 @@ task CopyFilesToDestination {
     memory: "${memoryMb} MiB"
     docker: docker
     noAddress: true
+    disks: "local-disk ${diskSizeGb} SSD"
   }
 }
