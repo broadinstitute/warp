@@ -98,7 +98,6 @@ task create_hw_pca_training {
 
     Int min_vcf_partitions = select_first([min_vcf_partitions_in, 200])
 
-    # You do not have to use heredoc.  You can also send a python script as a parameter and run it in the command block.
     command <<<
         set -e
         python3 <<EOF
