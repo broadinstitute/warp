@@ -167,14 +167,16 @@ task plot_pca {
 
     command <<<
         set -e
+
         python3 <<EOF
         import os
         import os.path
         import pandas as pd
         import numpy as np
         import matplotlib.pyplot as plt
+        import ast
 
-        def check_pc(pc:Int) -> None:
+        def check_pc(pc: int) -> None:
             if pc < 1:
                 raise ValueError(f'Specified pc was negative or zero: {pc}.  Inputs are 1-indexed.')
 
@@ -202,18 +204,27 @@ task plot_pca {
 
             plt.savefig(output_figure_fname)
 
+        # Define variables from WDL inputs
+        output_prefix = "~{output_prefix}"
         pc1 = ~{pc1}
         pc2 = ~{pc2}
+
+        # Validate PC values
         check_pc(pc1)
         check_pc(pc2)
-        output_figure_basename = f'~{output_prefix}_~{pc1}_~{pc2}.png'
-        df = pd.read_csv("~{pca_tsv}", sep="\t")
-        df['scores'] = df['scores'].apply(eval)
 
-        # We have no pop labels, but the plot command expects it
+        # Create output filename
+        output_figure_basename = f'{output_prefix}_{pc1}_{pc2}.png'
+
+        # Read and process data
+        df = pd.read_csv("~{pca_tsv}", sep="\t")
+        df['scores'] = df['scores'].apply(ast.literal_eval)  # Safer than eval()
+
+        # Add pop labels since plot function expects them
         df['pop_label'] = ["No label"] * len(df)
         df['pop_label']
 
+        # Generate the plot
         plot_categorical_points(df, 'scores', pc1, pc2, 'pop_label', output_figure_basename)
 
         EOF
