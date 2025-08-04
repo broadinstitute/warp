@@ -85,6 +85,10 @@ task create_hw_pca_training {
         String final_output_prefix
         Int num_pcs
         Int? min_vcf_partitions_in
+        Int disk_gb = 1000
+        Int mem_gb = 240
+        Int cpu = 48
+        String disk_type = "SSD"
     }
 
     parameter_meta {
@@ -104,7 +108,30 @@ task create_hw_pca_training {
         import numpy as np
         import hail as hl
 
-        hl.init(default_reference='GRCh38', idempotent=True)
+        spark_conf={
+            # Driver settings
+            'spark.driver.memory': '40g',
+            'spark.driver.maxResultSize': '20g',
+
+            # Executor settings (12 executors × 4 cores = 48 cores total)
+            'spark.executor.memory': '18g',
+            'spark.executor.cores': '4',
+            'spark.executor.instances': '12',
+
+            # Parallelism settings
+            'spark.sql.shuffle.partitions': '1500',
+            'spark.default.parallelism': '1500',
+
+            # Adaptive query execution
+            'spark.sql.adaptive.enabled': 'true',
+            'spark.sql.adaptive.coalescePartitions.enabled': 'true',
+
+            # Memory management
+            'spark.executor.memory.fraction': '0.8',
+            'spark.serializer': 'org.apache.spark.serializer.KryoSerializer'
+        }
+        hl.init(default_reference='GRCh38', idempotent=False, spark_conf=spark_conf)
+        print(hl.spark_context().master)
 
         def get_PCA_scores(vcf_bgz:str, num_pcs:int, min_vcf_partitions=200):
             v = hl.import_vcf(vcf_bgz, force_bgz=True,  min_partitions=min_vcf_partitions)
@@ -125,9 +152,9 @@ task create_hw_pca_training {
     }
     runtime {
         docker: "hailgenetics/hail:0.2.67"
-        memory: "123 GB"
-        cpu: "16"
-        disks: "local-disk 500 HDD"
+        memory: "${mem_gb} GB"
+        cpu: "${cpu}"
+        disks: "local-disk ${disk_gb} ${disk_type}"
     }
 }
 
