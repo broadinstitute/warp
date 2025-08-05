@@ -159,7 +159,7 @@ workflow PairedTag {
     
     call MaskPeakCallingMetrics {
         input:
-            docker_path = docker_prefix + csv_docker
+            docker_path = docker_prefix + csv_docker,
             library_metrics = Atac_preindex.library_metrics_file    
     }
 
