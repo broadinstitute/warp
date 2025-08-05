@@ -310,6 +310,8 @@ task MaskPeakCallingMetrics {
       "fraction_of_high-quality_fragments_overlapping_tss"
       "fraction_of_genome_in_peaks"
       "fraction_of_high-quality_fragments_overlapping_peaks"
+      "number_of_peaks"
+      "fraction_of_transposition_events_in_peaks_in_cells"
     )
 
     # Copy input file to working directory
