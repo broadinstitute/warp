@@ -419,13 +419,10 @@ task QueryMergedVcfForReannotation {
 
   command <<<
     set -euo pipefail
-    ln -sf ~{vcf} ~{vcf_basename}
-
-    tabix ~{vcf_basename}
 
     bcftools query -f '%CHROM,%POS,%REF,%ALT[,%DS,%AP1,%AP2]\n' ~{vcf} | gzip -c > query_tbl.csv.gz
+    bcftools query -l ~{vcf} | wc -l | awk '{print $1}')> n_samples.txt
   >>>
-
 
   runtime {
     docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
@@ -439,20 +436,19 @@ task QueryMergedVcfForReannotation {
 
   output {
     File output_query_file = "query_tbl.csv.gz"
-    File output_vcf = "~{vcf_basename}"
-    File output_vcf_index = "~{vcf_basename}.tbi"
+    Int n_samples = read_int("n_samples.txt")
   }
 }
 
-task RecalculateDR2AndAF {
+task RecalculateDR2AndAFChunked {
   input {
     File query_file
     Int n_samples
     Int disk_size_gb = ceil(2 * size(query_file, "GiB")) + 10
     Int mem_gb = 6
     Int cpu = 1
-    Int chunksize = 10000
-    Int preemptible = 0
+    Int chunksize = 50000
+    Int preemptible = 3
   }
 
   command <<<
@@ -461,6 +457,8 @@ task RecalculateDR2AndAF {
     python3 << EOF
     import pandas as pd
     import numpy as np
+
+    pd.options.mode.chained_assignment = None  # default='warn'
 
     ds_dict = {f'sample_{i}_DS': 'float' for i in range(~{n_samples})}
     ap1_dict = {f'sample_{i}_AP1': 'float' for i in range(~{n_samples})}
@@ -476,29 +474,28 @@ task RecalculateDR2AndAF {
       ap1 = chunk[[f'sample_{i}_AP1' for i in range(~{n_samples})]].to_numpy()
       ap2 = chunk[[f'sample_{i}_AP2' for i in range(~{n_samples})]].to_numpy()
 
-      # AF calc
-      af = dosages.mean(axis=1)/2
-      af_rounded = np.round(af, 4)
+      # sum dosages
+      sum_ds = np.sum(dosages, axis=1)
 
-      # DR2 calc
-      sum_squared_ap1_ap2 = np.sum(ap1**2 + ap2**2, axis=1)
-      sum_ap1_ap2 = np.sum(ap1 + ap2, axis=1)
-      denominator = (2*~{n_samples} * sum_ap1_ap2) - (sum_ap1_ap2**2)
+      # sum AP1, AP2
+      sum_ap1 = np.sum(ap1, axis=1)
+      sum_ap1_squared = np.sum(ap1**2, axis=1)
+      sum_ap2 = np.sum(ap2, axis=1)
+      sum_ap2_squared = np.sum(ap2**2, axis=1)
 
       # values to annotate the vcf with
       chunk_annotations = chunk[["CHROM","POS","REF","ALT"]]
-      chunk_annotations["AF"] = af_rounded
-      chunk_annotations["DR2"] = np.where((af==0) | (af==1) | (denominator==0), 0.00, np.round(((2*~{n_samples} * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / denominator, 2))
+      chunk_annotations["SUM_DS"] = sum_ds
+      chunk_annotations["SUM_AP1"] = sum_ap1
+      chunk_annotations["SUM_AP1_SQUARED"] = sum_ap1_squared
+      chunk_annotations["SUM_AP2"] = sum_ap2
+      chunk_annotations["SUM_AP2_SQUARED"] = sum_ap2_squared
+      chunk_annotations["NUM_SAMPLES"] = ~{n_samples}
       out_annotation_dfs.append(chunk_annotations)
 
     annotations_df = pd.concat(out_annotation_dfs)
-    annotations_df.to_csv("annotations.tsv", sep="\t", index=False, header=False)
+    annotations_df.to_csv("chunked_annotations.tsv", sep="\t", index=False, header=False)
     EOF
-
-    echo "$(date) - annotations recomputed"
-
-    bgzip annotations.tsv
-    tabix -s1 -b2 -e2 annotations.tsv.gz
 
   >>>
 
@@ -513,8 +510,92 @@ task RecalculateDR2AndAF {
   }
 
   output {
-    File output_annotations_file = "annotations.tsv.gz"
-    File output_annotations_file_index = "annotations.tsv.gz.tbi"
+    File output_summary_file = "chunked_annotations.tsv"
+  }
+}
+
+task AggregateChunkedDR2AndAF {
+  input {
+    Array[File] sample_chunked_annotation_files
+    Int disk_size_gb = ceil(2 * size(sample_chunked_annotation_files, "GiB")) + 10
+    Int mem_gb = 6
+    Int cpu = 1
+    Int preemptible = 3
+  }
+
+  command <<<
+    set -euo pipefail
+
+    python3 << EOF
+    import pandas as pd
+    import numpy as np
+
+    pd.options.mode.chained_assignment = None  # default='warn'
+
+    dtypes_dict = {f'{col}': 'float' for col in ("SUM_DS", "SUM_AP1", "SUM_AP1_SQUARED", "SUM_AP2", "SUM_AP2_SQUARED")}
+    dtypes_dict["NUM_SAMPLES"] = "int"
+
+    # Read all the chunked annotation files into a single DataFrame
+    dfs = [pd.read_csv(file, sep="\t", header=None, names=["CHROM", "POS", "REF", "ALT", "SUM_DS", \
+      "SUM_AP1", "SUM_AP1_SQUARED", "SUM_AP2", "SUM_AP2_SQUARED", "NUM_SAMPLES"], dtype=dtypes_dict \
+    ) for file in ["~{sep='", "' sample_chunked_annotation_files}"]]
+    combined_df = pd.concat(dfs)
+
+    # Group by CHROM, POS, REF, ALT and aggregate SUM_DS, SUM_AP1, SUM_AP2
+    aggregated_df = combined_df.groupby(["CHROM", "POS", "REF", "ALT"]).agg({
+        "SUM_DS": "sum",
+        "SUM_AP1": "sum",
+        "SUM_AP1_SQUARED": "sum",
+        "SUM_AP2": "sum",
+        "SUM_AP2_SQUARED": "sum",
+        "NUM_SAMPLES": "sum"
+    }).reset_index()
+
+    # Aggregated NUM_SAMPLES should be the same across all rows, so we can take the first value
+    num_samples = aggregated_df["NUM_SAMPLES"].iloc[0]
+
+    # Calculate AF
+    af = aggregated_df["SUM_DS"] / (2 * num_samples)
+    aggregated_df["AF"] = np.round(af, 4)
+
+
+    # Calculate DR2
+    sum_squared_ap1_ap2 = aggregated_df["SUM_AP1_SQUARED"] + aggregated_df["SUM_AP2_SQUARED"]
+    sum_ap1_ap2 = aggregated_df["SUM_AP1"] + aggregated_df["SUM_AP2"]
+
+    denominator = (2 * num_samples * sum_ap1_ap2) - (sum_ap1_ap2)**2
+
+    aggregated_df["DR2"] = np.where(
+        (af == 0) | (af == 1) | (denominator == 0), 0.00, np.round(((2 * num_samples * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / denominator, 2)
+    )
+
+    # Select relevant columns for output
+    aggregated_df = aggregated_df[["CHROM", "POS", "REF", "ALT", "AF", "DR2"]]
+
+    # Save the aggregated DataFrame to a TSV file
+    aggregated_df.to_csv("aggregated_annotations.tsv", sep="\t", index=False, header=False)
+    EOF
+
+    echo "$(date) - annotations recomputed"
+
+    bgzip aggregated_annotations.tsv
+    tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
+
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+    disks: "local-disk " + disk_size_gb + " HDD"
+    memory: mem_gb + " GiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 2
+    noAddress: true
+  }
+
+  output {
+    File output_annotations_file = "aggregated_annotations.tsv.gz"
+    File output_annotations_file_index = "aggregated_annotations.tsv.gz.tbi"
   }
 }
 
@@ -522,7 +603,6 @@ task RecalculateDR2AndAF {
 task ReannotateDR2AndAF {
   input {
     File vcf
-    File vcf_index
     File annotations_tsv
     File annotations_tsv_index
     Int disk_size_gb = ceil(2 * size(vcf, "GiB") + size(annotations_tsv, "GiB")) + 10
@@ -535,6 +615,9 @@ task ReannotateDR2AndAF {
 
   command <<<
     set -euo pipefail
+
+    echo "$(date) - indexing input vcf"
+    bcftools index -t ~{vcf}
 
     echo "$(date) - annotating vcf with new annotations"
     bcftools annotate --no-version -a ~{annotations_tsv} -c CHROM,POS,REF,ALT,AF,DR2 -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}

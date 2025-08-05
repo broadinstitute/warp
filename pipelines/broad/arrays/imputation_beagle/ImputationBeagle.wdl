@@ -190,6 +190,21 @@ workflow ImputationBeagle {
             output_basename = impute_scatter_sample_chunk_basename + ".imputed.no_overlaps",
             gatk_docker = gatk_docker
         }
+        # set up DR2 and AF reannotation for the imputed VCFs
+        if (num_sample_chunks > 1) {
+          call beagleTasks.QueryMergedVcfForReannotation {
+            input:
+              vcf = LocalizeAndSubsetVcfToRegion.output_vcf,
+          }
+
+          call beagleTasks.RecalculateDR2AndAFChunked {
+            input:
+              query_file = QueryMergedVcfForReannotation.output_query_file,
+              n_samples = QueryMergedVcfForReannotation.n_samples,
+          }
+        }
+        # create a non optional File if it exists for use in the AggregateChunkedDR2AndAF task
+        File chunked_dr2_af = select_first([RecalculateDR2AndAFChunked.output_summary_file, ""])
       }
 
       # only merge sample chunks if there is more than one
@@ -199,25 +214,16 @@ workflow ImputationBeagle {
             input_vcfs = LocalizeAndSubsetVcfToRegion.output_vcf,
             output_vcf_basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.samples_merged",
         }
-
-        call beagleTasks.QueryMergedVcfForReannotation {
+        call beagleTasks.AggregateChunkedDR2AndAF {
           input:
-            vcf = MergeSampleChunksVcfsWithPaste.output_vcf,
-        }
-
-        call beagleTasks.RecalculateDR2AndAF {
-          input:
-            query_file = QueryMergedVcfForReannotation.output_query_file,
-            mem_gb = 3 + ceil(CountSamples.nSamples / 1000),
-            n_samples = CountSamples.nSamples,
+            sample_chunked_annotation_files = chunked_dr2_af
         }
 
         call beagleTasks.ReannotateDR2AndAF {
           input:
-            vcf = QueryMergedVcfForReannotation.output_vcf,
-            vcf_index = QueryMergedVcfForReannotation.output_vcf_index,
-            annotations_tsv = RecalculateDR2AndAF.output_annotations_file,
-            annotations_tsv_index = RecalculateDR2AndAF.output_annotations_file_index
+            vcf = MergeSampleChunksVcfsWithPaste.output_vcf,
+            annotations_tsv = AggregateChunkedDR2AndAF.output_annotations_file,
+            annotations_tsv_index = AggregateChunkedDR2AndAF.output_annotations_file_index
         }
       }
 
