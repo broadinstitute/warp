@@ -157,7 +157,7 @@ workflow PairedTag {
     File atac_fragment_index_out = select_first([ParseBarcodes.atac_fragment_tsv_tbi,Atac_preindex.fragment_file_index])
     File atac_h5ad_out = select_first([ParseBarcodes.atac_h5ad_file, Atac_preindex.snap_metrics])
     
-    call MaskPeakCallingMetrics {
+    call Demultiplexing.MaskPeakCallingMetrics {
         input:
             docker_path = docker_prefix + csv_docker,
             library_metrics = Atac_preindex.library_metrics_file    
