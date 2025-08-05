@@ -1,12 +1,12 @@
 Pipeline Name	Version	Date of Last Commit
-Optimus	 8.0.3	2025-06-20 
-Multiome	 6.1.0	25-07-16 
+Optimus	 8.0.4	2025-07-31 
+Multiome	 6.1.1	25-07-31 
 MultiSampleSmartSeq2SingleNucleus	 2.2.2	 2025-06-20 
-PairedTag	 2.1.5	2025-07-16 
+PairedTag	 2.1.6	2025-07-31 
 PeakCalling	 1.0.0	
 atac	 2.9.0	2025-06-18  
 snm3C	 4.0.5	2025-06-16 
-SlideTags	 1.0.1	2025-06-20 
+SlideTags	 1.0.2	2025-07-31 
 SlideSeq	 3.6.3	2025-06-20 
 BuildIndices	 4.0.0	2025-01-17 
 IlluminaGenotypingArray	 1.12.24	2024-11-04 
