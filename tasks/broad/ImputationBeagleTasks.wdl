@@ -421,7 +421,7 @@ task QueryMergedVcfForReannotation {
     set -euo pipefail
 
     bcftools query -f '%CHROM,%POS,%REF,%ALT[,%DS,%AP1,%AP2]\n' ~{vcf} | gzip -c > query_tbl.csv.gz
-    bcftools query -l ~{vcf} | wc -l | awk '{print $1}')> n_samples.txt
+    bcftools query -l ~{vcf} | wc -l | awk '{print $1}' > n_samples.txt
   >>>
 
   runtime {
