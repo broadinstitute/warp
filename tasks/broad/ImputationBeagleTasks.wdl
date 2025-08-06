@@ -518,13 +518,16 @@ task AggregateChunkedDR2AndAF {
   input {
     Array[File] sample_chunked_annotation_files
     Int disk_size_gb = ceil(2 * size(sample_chunked_annotation_files, "GiB")) + 10
-    Int mem_gb = 13
-    Int cpu = 2
+    Int mem_gb = 6
+    Int cpu = 1
     Int preemptible = 3
+    Int line_chunk_size = 100000
   }
 
   command <<<
     set -euo pipefail
+
+    echo "$(date) - recomputing annotations"
 
     python3 << EOF
     import pandas as pd
@@ -535,45 +538,67 @@ task AggregateChunkedDR2AndAF {
     dtypes_dict = {f'{col}': 'float' for col in ("SUM_DS", "SUM_AP1", "SUM_AP1_SQUARED", "SUM_AP2", "SUM_AP2_SQUARED")}
     dtypes_dict["NUM_SAMPLES"] = "int"
 
-    # Read all the chunked annotation files into a single DataFrame
-    dfs = [pd.read_csv(file, sep="\t", header=None, names=["CHROM", "POS", "REF", "ALT", "SUM_DS", \
-      "SUM_AP1", "SUM_AP1_SQUARED", "SUM_AP2", "SUM_AP2_SQUARED", "NUM_SAMPLES"], dtype=dtypes_dict \
-    ) for file in ["~{sep='", "' sample_chunked_annotation_files}"]]
-    combined_df = pd.concat(dfs)
+    file_paths = ["~{sep='", "' sample_chunked_annotation_files}"]
 
-    # Group by CHROM, POS, REF, ALT and aggregate SUM_DS, SUM_AP1, SUM_AP2
-    aggregated_df = combined_df.groupby(["CHROM", "POS", "REF", "ALT"]).agg({
-        "SUM_DS": "sum",
-        "SUM_AP1": "sum",
-        "SUM_AP1_SQUARED": "sum",
-        "SUM_AP2": "sum",
-        "SUM_AP2_SQUARED": "sum",
-        "NUM_SAMPLES": "sum"
-    }).reset_index()
+    # Get number of lines in first file since all files should have the same number of lines
+    num_lines = sum(1 for _ in open(file_paths[0]))
 
-    # Aggregated NUM_SAMPLES should be the same across all rows, so we can take the first value
-    num_samples = aggregated_df["NUM_SAMPLES"].iloc[0]
+    all_aggregated_results = []
+    chunk_start = 0
+    line_chunk_size = ~{line_chunk_size}
 
-    # Calculate AF
-    af = aggregated_df["SUM_DS"] / (2 * num_samples)
-    aggregated_df["AF"] = np.round(af, 4)
+    while chunk_start < num_lines:
+      chunked_dfs = []
+      for file_path in file_paths:
+        chunked_df = pd.read_csv(file_path, sep="\t", header=None, names=["CHROM", "POS", "REF", "ALT", "SUM_DS", \
+        "SUM_AP1", "SUM_AP1_SQUARED", "SUM_AP2", "SUM_AP2_SQUARED", "NUM_SAMPLES"], dtype=dtypes_dict, \
+        skiprows=chunk_start, nrows=line_chunk_size)
+        chunked_dfs.append(chunked_df)
 
+      combined_chunk_df = pd.concat(chunked_dfs)
 
-    # Calculate DR2
-    sum_squared_ap1_ap2 = aggregated_df["SUM_AP1_SQUARED"] + aggregated_df["SUM_AP2_SQUARED"]
-    sum_ap1_ap2 = aggregated_df["SUM_AP1"] + aggregated_df["SUM_AP2"]
+      # Group by CHROM, POS, REF, ALT and aggregate SUM_DS, SUM_AP1, SUM_AP2
+      aggregated_df = combined_chunk_df.groupby(["CHROM", "POS", "REF", "ALT"]).agg({
+          "SUM_DS": "sum",
+          "SUM_AP1": "sum",
+          "SUM_AP1_SQUARED": "sum",
+          "SUM_AP2": "sum",
+          "SUM_AP2_SQUARED": "sum",
+          "NUM_SAMPLES": "sum"
+      }).reset_index()
 
-    denominator = (2 * num_samples * sum_ap1_ap2) - (sum_ap1_ap2)**2
+      # Aggregated NUM_SAMPLES should be the same across all rows, so we can take the first value
+      num_samples = aggregated_df["NUM_SAMPLES"].iloc[0]
 
-    aggregated_df["DR2"] = np.where(
-        (af == 0) | (af == 1) | (denominator == 0), 0.00, np.round(((2 * num_samples * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / denominator, 2)
-    )
+      # Calculate AF
+      af = aggregated_df["SUM_DS"] / (2 * num_samples)
+      aggregated_df["AF"] = np.round(af, 4)
 
-    # Select relevant columns for output
-    aggregated_df = aggregated_df[["CHROM", "POS", "REF", "ALT", "AF", "DR2"]]
+      # Calculate DR2
+      sum_squared_ap1_ap2 = aggregated_df["SUM_AP1_SQUARED"] + aggregated_df["SUM_AP2_SQUARED"]
+      sum_ap1_ap2 = aggregated_df["SUM_AP1"] + aggregated_df["SUM_AP2"]
+
+      denominator = (2 * num_samples * sum_ap1_ap2) - (sum_ap1_ap2)**2
+
+      aggregated_df["DR2"] = np.where(
+          (af == 0) | (af == 1) | (denominator == 0), 0.00, np.round(((2 * num_samples * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / denominator, 2)
+      )
+
+      # Select relevant columns for output and add to final output
+      aggregated_df = aggregated_df[["CHROM", "POS", "REF", "ALT", "AF", "DR2"]]
+      all_aggregated_results.append(aggregated_df)
+
+      # clean up memory
+      del chunked_dfs, combined_chunk_df, aggregated_df
+
+      # Move to the next chunk
+      chunk_start += line_chunk_size
+
+    # Concatenate all results
+    all_aggregated_df = pd.concat(all_aggregated_results, ignore_index=True)
 
     # Save the aggregated DataFrame to a TSV file
-    aggregated_df.to_csv("aggregated_annotations.tsv", sep="\t", index=False, header=False)
+    all_aggregated_df.to_csv("aggregated_annotations.tsv", sep="\t", index=False, header=False)
     EOF
 
     echo "$(date) - annotations recomputed"
@@ -581,6 +606,7 @@ task AggregateChunkedDR2AndAF {
     bgzip aggregated_annotations.tsv
     tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
 
+    echo "$(date) - done zipping and indexing aggregated annotations"
   >>>
 
   runtime {
