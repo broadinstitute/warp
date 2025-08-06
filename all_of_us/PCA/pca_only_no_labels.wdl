@@ -55,6 +55,7 @@ task ConcatenateChromosomalVcfs {
         # Runtime parameters
         String bcftools_docker = "mgibio/bcftools-cwl:1.12"
         Int memory_gb = 128
+        Int cpu = 16
         Int disk_gb = 1000 # 1 TB
         Int num_preemptible_attempts = 1
     }
@@ -73,7 +74,8 @@ task ConcatenateChromosomalVcfs {
     runtime {
         docker: bcftools_docker
         memory: "${memory_gb} GB"
-        disk: "${disk_gb} GB"
+        cpu: "${cpu}"
+        disk: "local-disk ${disk_gb} HDD"
         preemptible: num_preemptible_attempts
     }
 }
@@ -153,7 +155,7 @@ task create_hw_pca_training {
         docker: "hailgenetics/hail:0.2.67"
         memory: "${mem_gb} GB"
         cpu: "${cpu}"
-        disks: "local-disk ${disk_gb} ${disk_type}"
+        disks: "local-disk ${disk_gb} ${disk_type}" # large SSD is recommended for increase processing speed
     }
 }
 
@@ -163,6 +165,11 @@ task plot_pca {
         File pca_tsv
         Int pc1
         Int pc2
+
+        # Runtime parameters
+        Int disk_gb = 500
+        Int mem_gb = 16
+        Int cpu = 2
     }
 
     command <<<
@@ -222,7 +229,6 @@ task plot_pca {
 
         # Add pop labels since plot function expects them
         df['pop_label'] = ["No label"] * len(df)
-        df['pop_label']
 
         # Generate the plot
         plot_categorical_points(df, 'scores', pc1, pc2, 'pop_label', output_figure_basename)
@@ -236,8 +242,8 @@ task plot_pca {
 
     runtime {
         docker: "faizanbashir/python-datascience:3.6"
-        memory: "16 GB"
-        cpu: "2"
-        disks: "local-disk 500 HDD"
+        memory: "${mem_gb} GB"
+        cpu: "${cpu}"
+        disks: "local-disk ${disk_gb} HDD"
     }
 }

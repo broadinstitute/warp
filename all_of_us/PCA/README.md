@@ -18,13 +18,24 @@ Key characteristics:
 
 #### Inputs
 Analysis Parameters:
-- `File full_bgz` – BGZ-compressed VCF file containing variant data
-- `File full_bgz_index` – Index file for the BGZ-compressed VCF
+- `Array[File] hq_sites_vcf_files` – Array of BGZ-compressed VCF files containing variant data
+- `Array[File] hq_sites_vcf_indices` – Array of index files corresponding to the BGZ-compressed VCF files
 - `String final_output_prefix` – Prefix for all output filenames
 - `Int num_pcs` – Number of principal components to compute
 - `Int? min_vcf_partitions_in` – Optional minimum number of partitions for VCF processing (default: 200)
 
-#### Step 1. create_hw_pca_training
+#### Step 1. ConcatenateChromosomalVcfs
+- Input Validation: Ensures all input VCF files are properly formatted and indexed
+- VCF Concatenation: Combines per-chromosome BGZ-compressed VCF files into a single file
+- Indexing: Creates a `.tbi` index file for the concatenated VCF
+- Resource Management: Configured with high memory and disk requirements for large-scale processing
+
+Technical Details:
+- Uses `bcftools concat` for efficient concatenation
+- Ensures output is BGZ-compressed and indexed for downstream compatibility
+- Configured with 128 GB memory and 1 TB disk space
+
+#### Step 2. create_hw_pca_training
 - Input Validation: Ensures BGZ file and index are properly formatted and accessible
 - VCF Import: Loads the BGZ-compressed VCF file into Hail with specified minimum partitions
 - PCA Computation: Performs Hardy-Weinberg equilibrium normalized PCA on genotype data
@@ -35,9 +46,9 @@ Technical Details:
 - Uses Hail's `hwe_normalized_pca` function for population structure analysis
 - Processes genotype (GT) field from VCF data
 - Exports eigenvalues and scores but not loadings for efficiency
-- Configured with 123 GB memory and 16 CPUs for large-scale processing
+- Configured with 240 GB memory and 48 CPUs for large-scale processing
 
-#### Step 2. plot_pca
+#### Step 3. plot_pca
 - Data Loading: Reads the PCA results TSV file into a pandas DataFrame
 - Score Parsing: Converts string representations of score arrays back to numeric arrays
 - Label Assignment: Assigns "No label" to all samples since no population labels are available
@@ -52,16 +63,24 @@ Technical Details:
 
 #### Outputs
 
+- `File concatenated_vcf` – BGZ-compressed VCF file containing combined data from all chromosomes
+- `File concatenated_vcf_idx` – Index file for the concatenated VCF
 - `File training_pca_labels_ht_tsv` – TSV file containing PCA scores for all samples
 - `File training_pca_labels_tsv_plots` – PNG plot file showing PC1 vs PC2 scatter plot
 
 #### Runtime Requirements
 
+**ConcatenateChromosomalVcfs task:**
+- Docker: `mgibio/bcftools-cwl:1.12`
+- Memory: 128 GB
+- CPU: 16 cores
+- Disk: 1 TB HDD
+
 **create_hw_pca_training task:**
 - Docker: `hailgenetics/hail:0.2.67`
-- Memory: 123 GB
-- CPU: 16 cores
-- Disk: 500 GB HDD
+- Memory: 240 GB
+- CPU: 48 cores
+- Disk: 1 TB SSD
 
 **plot_pca task:**
 - Docker: `faizanbashir/python-datascience:3.6`
