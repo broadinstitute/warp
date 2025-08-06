@@ -1,6 +1,5 @@
 # 2.1.7
-
-2025-08-04 (Date of Last Commit)
+2025-08-06 (Date of Last Commit)
 
 * Added MaskPeakCallingMetrics task to remove innappropriate peak calling metrics from PairedTag
 
