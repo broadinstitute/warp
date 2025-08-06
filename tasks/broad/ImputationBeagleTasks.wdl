@@ -590,6 +590,7 @@ task AggregateChunkedDR2AndAF {
 
       # clean up memory
       del chunked_dfs, combined_chunk_df, aggregated_df
+      gc.collect()
 
       # Move to the next chunk
       chunk_start += line_chunk_size
