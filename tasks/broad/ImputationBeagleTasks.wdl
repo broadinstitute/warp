@@ -532,6 +532,7 @@ task AggregateChunkedDR2AndAF {
     python3 << EOF
     import pandas as pd
     import numpy as np
+    import gc
 
     pd.options.mode.chained_assignment = None  # default='warn'
 
