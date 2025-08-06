@@ -29,7 +29,7 @@ workflow ATAC {
 
     # Option for running files with preindex
     Boolean preindex = false
-    # Option for running peak calling
+    # Option for running peak calling, library level peak calling is always run 
     Boolean peak_calling = false
     
     # BWA ref
