@@ -575,7 +575,7 @@ task AggregateChunkedDR2AndAF {
       outputs_dfs.append(aggregated_df)
 
     # Concatenate all the aggregated DataFrames
-    aggregated_dfs = pd.concat(outputs_dfs)
+    aggregated_dfs = pd.concat(outputs_dfs, ignore_index=True)
 
     # Save the aggregated DataFrame to a TSV file
     aggregated_dfs.to_csv("aggregated_annotations.tsv", sep="\t", index=False, header=False)
