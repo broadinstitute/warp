@@ -539,41 +539,46 @@ task AggregateChunkedDR2AndAF {
     dfs = [pd.read_csv(file, sep="\t", header=None, names=["CHROM", "POS", "REF", "ALT", "SUM_DS", \
       "SUM_AP1", "SUM_AP1_SQUARED", "SUM_AP2", "SUM_AP2_SQUARED", "NUM_SAMPLES"], dtype=dtypes_dict \
     ) for file in ["~{sep='", "' sample_chunked_annotation_files}"]]
-    combined_df = pd.concat(dfs)
 
-    # Group by CHROM, POS, REF, ALT and aggregate SUM_DS, SUM_AP1, SUM_AP2
-    aggregated_df = combined_df.groupby(["CHROM", "POS", "REF", "ALT"]).agg({
-        "SUM_DS": "sum",
-        "SUM_AP1": "sum",
-        "SUM_AP1_SQUARED": "sum",
-        "SUM_AP2": "sum",
-        "SUM_AP2_SQUARED": "sum",
-        "NUM_SAMPLES": "sum"
-    }).reset_index()
+    outputs_dfs = []
+    for df_slice in dfs:
+      # Group by CHROM, POS, REF, ALT and aggregate SUM_DS, SUM_AP1, SUM_AP2
+      aggregated_df = df_slice.groupby(["CHROM", "POS", "REF", "ALT"]).agg({
+          "SUM_DS": "sum",
+          "SUM_AP1": "sum",
+          "SUM_AP1_SQUARED": "sum",
+          "SUM_AP2": "sum",
+          "SUM_AP2_SQUARED": "sum",
+          "NUM_SAMPLES": "sum"
+      }).reset_index()
 
-    # Aggregated NUM_SAMPLES should be the same across all rows, so we can take the first value
-    num_samples = aggregated_df["NUM_SAMPLES"].iloc[0]
+      # Aggregated NUM_SAMPLES should be the same across all rows, so we can take the first value
+      num_samples = aggregated_df["NUM_SAMPLES"].iloc[0]
 
-    # Calculate AF
-    af = aggregated_df["SUM_DS"] / (2 * num_samples)
-    aggregated_df["AF"] = np.round(af, 4)
+      # Calculate AF
+      af = aggregated_df["SUM_DS"] / (2 * num_samples)
+      aggregated_df["AF"] = np.round(af, 4)
 
 
-    # Calculate DR2
-    sum_squared_ap1_ap2 = aggregated_df["SUM_AP1_SQUARED"] + aggregated_df["SUM_AP2_SQUARED"]
-    sum_ap1_ap2 = aggregated_df["SUM_AP1"] + aggregated_df["SUM_AP2"]
+      # Calculate DR2
+      sum_squared_ap1_ap2 = aggregated_df["SUM_AP1_SQUARED"] + aggregated_df["SUM_AP2_SQUARED"]
+      sum_ap1_ap2 = aggregated_df["SUM_AP1"] + aggregated_df["SUM_AP2"]
 
-    denominator = (2 * num_samples * sum_ap1_ap2) - (sum_ap1_ap2)**2
+      denominator = (2 * num_samples * sum_ap1_ap2) - (sum_ap1_ap2)**2
 
-    aggregated_df["DR2"] = np.where(
-        (af == 0) | (af == 1) | (denominator == 0), 0.00, np.round(((2 * num_samples * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / denominator, 2)
-    )
+      aggregated_df["DR2"] = np.where(
+          (af == 0) | (af == 1) | (denominator == 0), 0.00, np.round(((2 * num_samples * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / denominator, 2)
+      )
 
-    # Select relevant columns for output
-    aggregated_df = aggregated_df[["CHROM", "POS", "REF", "ALT", "AF", "DR2"]]
+      # Select relevant columns for output
+      aggregated_df = aggregated_df[["CHROM", "POS", "REF", "ALT", "AF", "DR2"]]
+      outputs_dfs.append(aggregated_df)
+
+    # Concatenate all the aggregated DataFrames
+    aggregated_dfs = pd.concat(outputs_dfs)
 
     # Save the aggregated DataFrame to a TSV file
-    aggregated_df.to_csv("aggregated_annotations.tsv", sep="\t", index=False, header=False)
+    aggregated_dfs.to_csv("aggregated_annotations.tsv", sep="\t", index=False, header=False)
     EOF
 
     echo "$(date) - annotations recomputed"
