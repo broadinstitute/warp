@@ -1,10 +1,10 @@
 Pipeline Name	Version	Date of Last Commit
 Optimus	 8.0.4	2025-07-31 
-Multiome	 6.1.1	25-07-31 
+Multiome	 6.1.2	2025-08-06 
 MultiSampleSmartSeq2SingleNucleus	 2.2.2	 2025-06-20 
-PairedTag	 2.1.7	
+PairedTag	 2.1.7	2025-08-06 
 PeakCalling	 1.0.0	
-atac	 2.9.0	2025-06-18  
+atac	 2.9.1	2025-08-06  
 snm3C	 4.0.5	2025-06-16 
 SlideTags	 1.0.2	2025-07-31 
 SlideSeq	 3.6.3	2025-06-20 
