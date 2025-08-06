@@ -204,7 +204,7 @@ workflow ImputationBeagle {
           }
         }
         # create a non optional File if it exists for use in the AggregateChunkedDR2AndAF task
-        File chunked_dr2_af = select_first([RecalculateDR2AndAFChunked.output_summary_file, "will_fail.txt"])
+        File chunked_dr2_af = select_first([RecalculateDR2AndAFChunked.output_summary_file, "gs://fake/will_fail.txt"])
       }
 
       # only merge sample chunks if there is more than one
