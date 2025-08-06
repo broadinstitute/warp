@@ -447,7 +447,7 @@ task RecalculateDR2AndAFChunked {
     Int disk_size_gb = ceil(2 * size(query_file, "GiB")) + 10
     Int mem_gb = 6
     Int cpu = 1
-    Int chunksize = 50000
+    Int chunksize = 30000
     Int preemptible = 3
   }
 
@@ -603,6 +603,7 @@ task AggregateChunkedDR2AndAF {
 task ReannotateDR2AndAF {
   input {
     File vcf
+    File vcf_index
     File annotations_tsv
     File annotations_tsv_index
     Int disk_size_gb = ceil(2 * size(vcf, "GiB") + size(annotations_tsv, "GiB")) + 10
@@ -615,9 +616,6 @@ task ReannotateDR2AndAF {
 
   command <<<
     set -euo pipefail
-
-    echo "$(date) - indexing input vcf"
-    bcftools index -t ~{vcf}
 
     echo "$(date) - annotating vcf with new annotations"
     bcftools annotate --no-version -a ~{annotations_tsv} -c CHROM,POS,REF,ALT,AF,DR2 -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}

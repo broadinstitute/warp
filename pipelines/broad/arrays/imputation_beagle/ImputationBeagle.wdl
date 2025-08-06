@@ -214,6 +214,13 @@ workflow ImputationBeagle {
             input_vcfs = LocalizeAndSubsetVcfToRegion.output_vcf,
             output_vcf_basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.samples_merged",
         }
+
+        call beagleTasks.CreateVcfIndex as IndexMergedSampleChunksVcfs {
+          input:
+            vcf_input = MergeSampleChunksVcfsWithPaste.output_vcf,
+            gatk_docker = gatk_docker
+        }
+
         call beagleTasks.AggregateChunkedDR2AndAF {
           input:
             sample_chunked_annotation_files = chunked_dr2_af
@@ -221,7 +228,8 @@ workflow ImputationBeagle {
 
         call beagleTasks.ReannotateDR2AndAF {
           input:
-            vcf = MergeSampleChunksVcfsWithPaste.output_vcf,
+            vcf = IndexMergedSampleChunksVcfs.vcf,
+            vcf_index = IndexMergedSampleChunksVcfs.vcf_index,
             annotations_tsv = AggregateChunkedDR2AndAF.output_annotations_file,
             annotations_tsv_index = AggregateChunkedDR2AndAF.output_annotations_file_index
         }
