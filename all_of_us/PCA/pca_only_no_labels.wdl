@@ -155,7 +155,7 @@ task create_hw_pca_training {
         docker: "hailgenetics/hail:0.2.67"
         memory: "${mem_gb} GB"
         cpu: "${cpu}"
-        disks: "local-disk ${disk_gb} ${disk_type}" # large SSD is recommended for increase processing speed
+        disks: "local-disk ${disk_gb} ${disk_type}" # large SSD is recommended for increased processing speed
     }
 }
 
