@@ -74,6 +74,7 @@ workflow mt_coverage_merge {
         Array[String] theoretical_sensitivity_metrics
         Array[String] cram_path
     }
+    String pipeline_version = "beta_0.0.0"
 
     call generate_tsv_file {
         input:
