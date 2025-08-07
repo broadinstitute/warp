@@ -259,7 +259,8 @@ workflow ImputationBeagle {
   call beagleTasks.CreateVcfIndex as GatherVcfsIndex {
     input:
       vcf_input = GatherVcfsNoIndex.output_vcf,
-      gatk_docker = gatk_docker
+      gatk_docker = gatk_docker,
+      preemptible = 0
   }
 
   call tasks.StoreChunksInfo {

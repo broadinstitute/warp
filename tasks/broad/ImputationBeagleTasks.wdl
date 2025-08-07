@@ -202,6 +202,7 @@ task CreateVcfIndex {
     Int cpu = 1
     Int memory_mb = 6000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    Int preemptible = 3
   }
   Int command_mem = memory_mb - 1500
   Int max_heap = memory_mb - 1000
@@ -220,7 +221,7 @@ task CreateVcfIndex {
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    preemptible: 3
+    preemptible: preemptible
     maxRetries: 2
     noAddress: true
   }
