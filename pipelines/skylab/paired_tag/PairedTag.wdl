@@ -64,7 +64,7 @@ workflow PairedTag {
     # All docker images that are needed for tasks in this workflow
     String upstools_docker = "upstools:2.0.0"
     String snapatac_docker = "snapatac2:2.0.0"
-    String csv_docker = "alpine:3.14"
+    String csv_docker = "docker.io/library/alpine:3.14"
 
     # Prefixes based on cloud env
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
