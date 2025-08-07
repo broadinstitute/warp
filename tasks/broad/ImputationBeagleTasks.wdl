@@ -646,7 +646,7 @@ task RemoveAPAnnotations {
     set -euo pipefail
 
     echo "$(date) - removing ap1 and ap2 annotations from vcf"
-    bcftools annotate -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
+    bcftools annotate --no-version -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
   >>>
 
 
