@@ -9,6 +9,7 @@ workflow pca_only_no_labels {
         Int num_pcs
         Int? min_vcf_partitions_in
     }
+    String pipeline_version = "beta_0.0.0"
 
     call ConcatenateChromosomalVcfs {
         input:
