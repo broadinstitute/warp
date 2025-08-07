@@ -256,7 +256,7 @@ workflow ImputationBeagle {
       gatk_docker = gatk_docker
   }
 
-  call beagleTasks.CreateVcfIndex as GatherVcfsIndex {
+  call beagleTasks.CreateVcfIndex as CreateIndexForGatheredVcf {
     input:
       vcf_input = GatherVcfsNoIndex.output_vcf,
       gatk_docker = gatk_docker,
@@ -275,8 +275,8 @@ workflow ImputationBeagle {
   }
   
   output {
-    File imputed_multi_sample_vcf = GatherVcfsIndex.output_vcf
-    File imputed_multi_sample_vcf_index = GatherVcfsIndex.output_vcf_index
+    File imputed_multi_sample_vcf = CreateIndexForGatheredVcf.output_vcf
+    File imputed_multi_sample_vcf_index = CreateIndexForGatheredVcf.output_vcf_index
     File chunks_info = StoreChunksInfo.chunks_info
   }
 
