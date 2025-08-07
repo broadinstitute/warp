@@ -85,8 +85,8 @@ workflow ImputationBeagle {
       # generate the chunked vcf file that will be used for imputation, including overlaps
       call tasks.GenerateChunk {
         input:
-          vcf = CreateVcfIndex.vcf,
-          vcf_index = CreateVcfIndex.vcf_index,
+          vcf = CreateVcfIndex.output_vcf,
+          vcf_index = CreateVcfIndex.output_vcf_index,
           start = startWithOverlaps,
           end = endWithOverlaps,
           chrom = referencePanelContig.contig,
@@ -228,8 +228,8 @@ workflow ImputationBeagle {
 
         call beagleTasks.ReannotateDR2AndAF {
           input:
-            vcf = IndexMergedSampleChunksVcfs.vcf,
-            vcf_index = IndexMergedSampleChunksVcfs.vcf_index,
+            vcf = IndexMergedSampleChunksVcfs.output_vcf,
+            vcf_index = IndexMergedSampleChunksVcfs.output_vcf_index,
             annotations_tsv = AggregateChunkedDR2AndAF.output_annotations_file,
             annotations_tsv_index = AggregateChunkedDR2AndAF.output_annotations_file_index
         }
@@ -249,10 +249,16 @@ workflow ImputationBeagle {
     Array[File] chromosome_vcfs = select_all(UpdateHeader.output_vcf)
   }
 
-  call tasks.GatherVcfs {
+  call beagleTasks.GatherVcfsNoIndex {
     input:
       input_vcfs = flatten(chromosome_vcfs),
       output_vcf_basename = output_basename + ".imputed",
+      gatk_docker = gatk_docker
+  }
+
+  call beagleTasks.CreateVcfIndex as GatherVcfsIndex {
+    input:
+      vcf_input = GatherVcfsNoIndex.output_vcf,
       gatk_docker = gatk_docker
   }
 
@@ -268,8 +274,8 @@ workflow ImputationBeagle {
   }
   
   output {
-    File imputed_multi_sample_vcf = GatherVcfs.output_vcf
-    File imputed_multi_sample_vcf_index = GatherVcfs.output_vcf_index
+    File imputed_multi_sample_vcf = GatherVcfsIndex.output_vcf
+    File imputed_multi_sample_vcf_index = GatherVcfsIndex.output_vcf_index
     File chunks_info = StoreChunksInfo.chunks_info
   }
 

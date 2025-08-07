@@ -217,7 +217,7 @@ task CreateVcfIndex {
   }
   runtime {
     docker: gatk_docker
-    disks: "local-disk ${disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
@@ -225,8 +225,8 @@ task CreateVcfIndex {
     noAddress: true
   }
   output {
-    File vcf = "~{vcf_basename}"
-    File vcf_index = "~{vcf_basename}.tbi"
+    File output_vcf = "~{vcf_basename}"
+    File output_vcf_index = "~{vcf_basename}.tbi"
   }
 }
 
@@ -627,7 +627,6 @@ task AggregateChunkedDR2AndAF {
   }
 }
 
-
 task ReannotateDR2AndAF {
   input {
     File vcf
@@ -668,3 +667,39 @@ task ReannotateDR2AndAF {
     File output_vcf_index = "~{output_base}.vcf.gz.tbi"
   }
 }
+
+task GatherVcfsNoIndex {
+  input {
+    Array[File] input_vcfs
+    String output_vcf_basename
+
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+    Int cpu = 1
+    Int memory_mb = 16000
+    Int disk_size_gb = ceil(3*size(input_vcfs, "GiB")) + 10
+  }
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
+
+  command <<<
+    set -e -o pipefail
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    GatherVcfs \
+    -I ~{sep=' -I ' input_vcfs} \
+    --REORDER_INPUT_BY_FIRST_VARIANT \
+    -O ~{output_vcf_basename}.vcf.gz
+  >>>
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} SSD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    maxRetries: 2
+    noAddress: true
+  }
+  output {
+    File output_vcf = "~{output_vcf_basename}.vcf.gz"
+  }
+}
+
