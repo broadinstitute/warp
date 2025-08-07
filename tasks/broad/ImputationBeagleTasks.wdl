@@ -645,9 +645,6 @@ task RemoveAPAnnotations {
 
     echo "$(date) - annotating vcf with new annotations"
     bcftools annotate -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
-
-    echo "$(date) - indexing unannotated vcf"
-    bcftools index -t ~{output_base}.vcf.gz
   >>>
 
 
@@ -663,7 +660,6 @@ task RemoveAPAnnotations {
 
   output {
     File output_vcf = "~{output_base}.vcf.gz"
-    File output_vcf_index = "~{output_base}.vcf.gz.tbi"
   }
 }
 
