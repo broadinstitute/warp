@@ -628,6 +628,45 @@ task AggregateChunkedDR2AndAF {
   }
 }
 
+task RemoveAPAnnotations {
+  input {
+    File vcf
+    File vcf_index
+    Int disk_size_gb = ceil(2 * size(vcf, "GiB")) + 10
+    Int mem_gb = 4
+    Int cpu = 1
+    Int preemptible = 3
+  }
+
+  String output_base = basename(vcf, ".vcf.gz")
+
+  command <<<
+    set -euo pipefail
+
+    echo "$(date) - annotating vcf with new annotations"
+    bcftools annotate -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
+
+    echo "$(date) - indexing unannotated vcf"
+    bcftools index -t ~{output_base}.vcf.gz
+  >>>
+
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+    disks: "local-disk " + disk_size_gb + " HDD"
+    memory: mem_gb + " GiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 2
+    noAddress: true
+  }
+
+  output {
+    File output_vcf = "~{output_base}.vcf.gz"
+    File output_vcf_index = "~{output_base}.vcf.gz.tbi"
+  }
+}
+
 task ReannotateDR2AndAF {
   input {
     File vcf
@@ -646,7 +685,7 @@ task ReannotateDR2AndAF {
     set -euo pipefail
 
     echo "$(date) - annotating vcf with new annotations"
-    bcftools annotate --no-version -a ~{annotations_tsv} -c CHROM,POS,REF,ALT,AF,DR2 -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
+    bcftools annotate --no-version -a ~{annotations_tsv} -c CHROM,POS,REF,ALT,AF,DR2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
 
     echo "$(date) - indexing annotated vcf"
     bcftools index -t ~{output_base}.vcf.gz

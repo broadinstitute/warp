@@ -197,13 +197,20 @@ workflow ImputationBeagle {
               vcf = LocalizeAndSubsetVcfToRegion.output_vcf,
           }
 
+          call beagleTasks.RemoveAPAnnotations {
+            input:
+              vcf = LocalizeAndSubsetVcfToRegion.output_vcf,
+              vcf_index = LocalizeAndSubsetVcfToRegion.output_vcf_index,
+          }
+
           call beagleTasks.RecalculateDR2AndAFChunked {
             input:
               query_file = QueryMergedVcfForReannotation.output_query_file,
               n_samples = QueryMergedVcfForReannotation.n_samples,
           }
         }
-        # create a non optional File if it exists for use in the AggregateChunkedDR2AndAF task
+        # create a non optional File if it exists for use in the future tasks
+        File ap_annotations_removed_vcf = select_first([RemoveAPAnnotations.output_vcf, "gs://fake/will_fail.txt"])
         File chunked_dr2_af = select_first([RecalculateDR2AndAFChunked.output_summary_file, "gs://fake/will_fail.txt"])
       }
 
@@ -211,7 +218,7 @@ workflow ImputationBeagle {
       if (num_sample_chunks > 1) {
         call beagleTasks.MergeSampleChunksVcfsWithPaste {
           input:
-            input_vcfs = LocalizeAndSubsetVcfToRegion.output_vcf,
+            input_vcfs = ap_annotations_removed_vcf,
             output_vcf_basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.samples_merged",
         }
 
