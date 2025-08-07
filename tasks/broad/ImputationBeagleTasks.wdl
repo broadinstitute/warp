@@ -643,7 +643,7 @@ task RemoveAPAnnotations {
   command <<<
     set -euo pipefail
 
-    echo "$(date) - annotating vcf with new annotations"
+    echo "$(date) - removing ap1 and ap2 annotations from vcf"
     bcftools annotate -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
   >>>
 
@@ -680,7 +680,7 @@ task ReannotateDR2AndAF {
   command <<<
     set -euo pipefail
 
-    echo "$(date) - annotating vcf with new annotations"
+    echo "$(date) - annotating vcf with recalculated af and dr2 annotations"
     bcftools annotate --no-version -a ~{annotations_tsv} -c CHROM,POS,REF,ALT,AF,DR2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
 
     echo "$(date) - indexing annotated vcf"
