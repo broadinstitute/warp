@@ -459,6 +459,7 @@ task RecalculateDR2AndAFChunked {
     import pandas as pd
     import numpy as np
 
+    # pandas spits out a view vs copy warning a lot of times which isn't relevant to this code
     pd.options.mode.chained_assignment = None  # default='warn'
 
     ds_dict = {f'sample_{i}_DS': 'float' for i in range(~{n_samples})}
@@ -535,6 +536,7 @@ task AggregateChunkedDR2AndAF {
     import numpy as np
     import gc
 
+    # pandas spits out a view vs copy warning a lot of times which isn't relevant to this code
     pd.options.mode.chained_assignment = None  # default='warn'
 
     dtypes_dict = {f'{col}': 'float' for col in ("SUM_DS", "SUM_AP1", "SUM_AP1_SQUARED", "SUM_AP2", "SUM_AP2_SQUARED")}
