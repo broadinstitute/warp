@@ -18,13 +18,16 @@ task QcChecks {
         # grab header from vcf
         bcftools view -h ~{vcf_input} > header.vcf
 
+        # check for vcf version > 4.0
         if grep -q "^##fileformat=VCFv[4-9]\." header.vcf; then
             echo "VCF version 4.0+";
         else
             echo "VCF version < 4.0 or not found;" >> qc_messages.txt;
         fi
 
+        # check for variants in all canonical chromosome chr1 to chr22
         gunzip -c ~{vcf_input} | grep -v "#" | cut -f1 | sort -u > chromosomes.txt
+
         missing_chromosomes=()
         # Check for chr1 through chr22
         for i in {1..22}; do
@@ -32,11 +35,20 @@ task QcChecks {
                 missing_chromosomes+=("chr${i}")
             fi
         done
+
         # report missing chromosomes
         if [ ${#missing_chromosomes[@]} -eq 0 ]; then
             echo "All chromosomes from chr1 to chr22 are present."
         else
-            echo "Missing data for chromosomes: ${missing_chromosomes[*]} ;" >> qc_messages.txt
+            echo "Missing data for chromosomes: ${missing_chromosomes[*]};" >> qc_messages.txt
+        fi
+
+        # check for a large number of variants in input vcf
+        line_count=$(gunzip -c ~{vcf_input} | grep -v "#" | wc -l | tr -d ' ')
+        if [ "$line_count" -gt 10000000 ]; then
+        echo "Greater than 10 million variants found in input VCF." >> qc_messages.txt
+        else
+            echo "Less than or equal to 10 million variants found in input VCF."
         fi
 
         # Task should always succeed
@@ -48,6 +60,7 @@ task QcChecks {
         disks: "local-disk ${disk_size_gb} SSD"
         memory: "${memory_mb} MiB"
         cpu: cpu
+        preemptible: 3
         maxRetries: 2
         noAddress: true
     }
