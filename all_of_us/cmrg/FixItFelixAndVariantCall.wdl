@@ -76,7 +76,7 @@ workflow FixItFelixAndVariantCall {
     output {
         File output_vcf = call_variants.output_vcf
         File output_vcf_index = call_variants.output_vcf_index
-        String output_pipeline_version = ~{pipeline_version}
+        String output_pipeline_version = pipeline_version
     }
 }
 
