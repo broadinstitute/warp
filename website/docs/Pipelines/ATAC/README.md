@@ -23,7 +23,7 @@ The following table provides a quick glance at the ATAC pipeline features:
 | Pipeline features | Description | Source |
 |--- | --- | --- |
 | Assay type | 10x single cell or single nucleus ATAC | [10x Genomics](https://www.10xgenomics.com)
-| Overall workflow  | Barcode correction, read alignment, and fragment quantification | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl)
+| Overall workflow  | Barcode correction, read alignment, and fragment quantification | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/atac/atac.wdl)
 | Workflow language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence | GRCh38 human genome primary sequence | GENCODE |
 | Aligner | bwa-mem2 | [Li H. and Durbin R., 2009](http://www.ncbi.nlm.nih.gov/pubmed/19451168) |
@@ -36,7 +36,7 @@ The following table provides a quick glance at the ATAC pipeline features:
 
 ### ATAC installation
 
-To download the latest ATAC release, see the release tags prefixed with "Multiome" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All ATAC pipeline releases are documented in the [ATAC changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.changelog.md). 
+To download the latest ATAC release, see the release tags prefixed with "Multiome" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All ATAC pipeline releases are documented in the [ATAC changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/multiome/atac.changelog.md). 
 
 To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
@@ -82,12 +82,12 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | ------------------------------------ | 
-| [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | Bash | Bash | Uses the virtual machine type to determine the optimal number of FASTQ files for performing the BWA-mem alignment step. This allows BWA-mem to run in parallel on multiple FASTQ files in the subsequent workflow steps. |
-| [FastqProcessing as SplitFastq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastqprocess | custom | Dynamically selects the correct barcode orientation, corrects cell barcodes, and splits FASTQ files by the optimal number determined in the [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) task. The smaller FASTQ files are grouped by cell barcode with each read having the corrected (CB) and raw barcode (CR) in the read name. |
-| [TrimAdapters](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | Cutadapt v4.4 | cutadapt | Trims adaptor sequences. |
-| [BWAPairedEndAlignment](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | bwa-mem2 | mem | Aligns reads from each set of partitioned FASTQ files to the genome and outputs a BAM with ATAC barcodes in the CB:Z tag. |
-| [CreateFragmentFile](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | make_fragment_file, import_data | SnapATAC2 | Generates a fragment file from the final aligned BAM and outputs per barcode quality metrics in h5ad. A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). This task is nondeterministic.|
-| [PeakCalling](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/atac/atac.wdl) | macs3 | SnapATAC2 | Generates two h5ad files (`cellbybin.h5ad` and `cellbypeak.h5ad`) from the CreateFragmentFile h5ad output file (`metrics.h5ad`). The `cellbybin.h5ad` contains the peak called per cluster in the macs3 unstructured metadata and `cellbypeak.h5ad` contains the merged peaks and the count matrix of peaks per fragment. A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). This task is nondeterministic.|
+| [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/atac/atac.wdl) | Bash | Bash | Uses the virtual machine type to determine the optimal number of FASTQ files for performing the BWA-mem alignment step. This allows BWA-mem to run in parallel on multiple FASTQ files in the subsequent workflow steps. |
+| [FastqProcessing as SplitFastq](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/FastqProcessing.wdl) | fastqprocess | custom | Dynamically selects the correct barcode orientation, corrects cell barcodes, and splits FASTQ files by the optimal number determined in the [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/atac/atac.wdl) task. The smaller FASTQ files are grouped by cell barcode with each read having the corrected (CB) and raw barcode (CR) in the read name. |
+| [TrimAdapters](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/atac/atac.wdl) | Cutadapt v4.4 | cutadapt | Trims adaptor sequences. |
+| [BWAPairedEndAlignment](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/atac/atac.wdl) | bwa-mem2 | mem | Aligns reads from each set of partitioned FASTQ files to the genome and outputs a BAM with ATAC barcodes in the CB:Z tag. |
+| [CreateFragmentFile](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/atac/atac.wdl) | make_fragment_file, import_data | SnapATAC2 | Generates a fragment file from the final aligned BAM and outputs per barcode quality metrics in h5ad. A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). This task is nondeterministic.|
+| [PeakCalling](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/atac/atac.wdl) | macs3 | SnapATAC2 | Generates two h5ad files (`cellbybin.h5ad` and `cellbypeak.h5ad`) from the CreateFragmentFile h5ad output file (`metrics.h5ad`). The `cellbybin.h5ad` contains the peak called per cluster in the macs3 unstructured metadata and `cellbypeak.h5ad` contains the merged peaks and the count matrix of peaks per fragment. A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). This task is nondeterministic.|
 
 ## Output variables
 
@@ -102,7 +102,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 ## Versioning and testing
 
-All ATAC pipeline releases are documented in the [ATAC changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/multiome/test_inputs). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
+All ATAC pipeline releases are documented in the [ATAC changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/multiome/atac.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/multiome/test_inputs). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
 
 ## Citing the ATAC Pipeline
 

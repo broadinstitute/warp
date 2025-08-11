@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Changelog Style Guide Overview
 
-The style guide provides formatting guidelines and language suggestions for pipeline changelogs. It is divided into four sections: 1) Changelog Information, which details the types of changes listed in a changelog, 2) Language Usage, which describes language style and syntax for changelog information, 3) Changelog Format, which provides sample formatting for changelog information, and 4) Sample Changelog Entries, which displays two examples of changelog entries taken from the [Optimus.changelog.md file](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.changelog.md).
+The style guide provides formatting guidelines and language suggestions for pipeline changelogs. It is divided into four sections: 1) Changelog Information, which details the types of changes listed in a changelog, 2) Language Usage, which describes language style and syntax for changelog information, 3) Changelog Format, which provides sample formatting for changelog information, and 4) Sample Changelog Entries, which displays two examples of changelog entries taken from the [Optimus.changelog.md file](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/optimus/Optimus.changelog.md).
 
 ## Changelog Information
 
@@ -20,7 +20,7 @@ The file name is not included in the actual changelog- it is just the file name.
 
 ### 2) The pipeline release version name
 
-- Ex: [Illumina Genotyping Array pipeline](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.changelog.md) version name is a number (i.e. "1.0.0")
+- Ex: [Illumina Genotyping Array pipeline](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/genotyping/illumina/IlluminaGenotypingArray.changelog.md) version name is a number (i.e. "1.0.0")
 
 The version name is listed at the top of each changelog entry section. It should follow [Semantic versioning (SemVer)](https://semver.org/) which uses the major.minor.patch version number.
 

@@ -36,7 +36,7 @@ The following table provides a quick glance at the Multiome pipeline features:
 
 ### snm3C installation
 
-To download the latest snm3C release, see the release tags prefixed with "snm3C" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All snm3C pipeline releases are documented in the [snm3C changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snm3C/snm3C.changelog.md). 
+To download the latest snm3C release, see the release tags prefixed with "snm3C" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All snm3C pipeline releases are documented in the [snm3C changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/snm3C/snm3C.changelog.md). 
 
 To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
@@ -47,7 +47,7 @@ The snm3C workflow can be deployed using [Cromwell](https://cromwell.readthedocs
 
 ### Inputs
 
-The snm3C workflow requires a JSON configuration file specifying the input files and parameters for the analysis. Example configuration files can be found in the snm3C [`test_inputs`](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/snm3C/test_inputs) directory in the WARP repository.
+The snm3C workflow requires a JSON configuration file specifying the input files and parameters for the analysis. Example configuration files can be found in the snm3C [`test_inputs`](https://github.com/broadinstitute/warp/tree/develop/pipelines/wdl/snm3C/test_inputs) directory in the WARP repository.
 
 #### Input descriptions
 
@@ -85,7 +85,7 @@ Overall, the snm3C workflow:
 
 The tools each snm3C task employs are detailed in the table below. 
 
-To see specific tool parameters, select the [workflow WDL link](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snm3C/snm3C.wdl); then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `# runtime values` section as `docker: `. More details about these tools and parameters can be found in the [YAP documentation](https://hq-1.gitbook.io/mc/).
+To see specific tool parameters, select the [workflow WDL link](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/snm3C/snm3C.wdl); then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `# runtime values` section as `docker: `. More details about these tools and parameters can be found in the [YAP documentation](https://hq-1.gitbook.io/mc/).
 
 | Task name | Tool | Software | Description |
 | --- | --- | --- | --- |
@@ -160,7 +160,7 @@ The following table lists the output variables and files produced by the pipelin
 
 ## Versioning
 
-All snm3C pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snm3C/snm3C.changelog.md).
+All snm3C pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/snm3C/snm3C.changelog.md).
 
 ## Citing the snm3C Pipeline
 
