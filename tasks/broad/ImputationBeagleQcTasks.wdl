@@ -28,8 +28,8 @@ task QcChecks {
         missing_chromosomes=()
         # Check for chr1 through chr22
         for i in {1..22}; do
-            if ! grep -q "^chr${i}$" "~{vcf_input}"; then
-            missing_chromosomes+=("chr${i}")
+            if ! grep -q "^chr${i}$" "chromosomes.txt"; then
+                missing_chromosomes+=("chr${i}")
             fi
         done
         # report missing chromosomes
