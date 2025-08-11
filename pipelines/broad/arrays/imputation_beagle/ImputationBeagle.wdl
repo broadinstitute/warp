@@ -192,7 +192,7 @@ workflow ImputationBeagle {
         }
         # set up DR2 and AF reannotation for the imputed VCFs
         if (num_sample_chunks > 1) {
-          call beagleTasks.QueryMergedVcfForReannotation {
+          call beagleTasks.QuerySampleChunkedVcfForReannotation {
             input:
               vcf = LocalizeAndSubsetVcfToRegion.output_vcf,
           }
@@ -205,8 +205,8 @@ workflow ImputationBeagle {
 
           call beagleTasks.RecalculateDR2AndAFChunked {
             input:
-              query_file = QueryMergedVcfForReannotation.output_query_file,
-              n_samples = QueryMergedVcfForReannotation.n_samples,
+              query_file = QuerySampleChunkedVcfForReannotation.output_query_file,
+              n_samples = QuerySampleChunkedVcfForReannotation.n_samples,
           }
         }
         # create a non optional File if it exists for use in the future tasks
