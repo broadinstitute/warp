@@ -9,21 +9,21 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/skylab/smartseq2_single_nucleus_multisample/**'
+      - 'pipelines/wdl/smartseq2_single_nucleus_multisample/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/skylab/CheckInputs.wdl'
-      - 'tasks/skylab/TrimAdapters.wdl'
-      - 'tasks/skylab/StarAlign.wdl'
-      - 'tasks/skylab/Picard.wdl'
-      - 'tasks/skylab/FeatureCounts.wdl'
-      - 'tasks/skylab/H5adUtils.wdl'
-      - 'tasks/broad/Utilities.wdl'
+      - 'tasks/wdl/CheckInputs.wdl'
+      - 'tasks/wdl/TrimAdapters.wdl'
+      - 'tasks/wdl/StarAlign.wdl'
+      - 'tasks/wdl/Picard.wdl'
+      - 'tasks/wdl/FeatureCounts.wdl'
+      - 'tasks/wdl/H5adUtils.wdl'
+      - 'tasks/wdl/Utilities.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyMultiSampleSmartSeq2SingleNucleus.wdl'
       - 'verification/VerifyTasks.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestMultiSampleSmartSeq2SingleNucleus.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_multisamplesmartseq2singlenucleus.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -58,7 +58,7 @@ jobs:
     with:
       pipeline_name: TestMultiSampleSmartSeq2SingleNucleus
       dockstore_pipeline_name: Smartseq2_Single_Nucleus_Multisample
-      pipeline_dir: pipelines/skylab/smartseq2_single_nucleus_multisample
+      pipeline_dir: pipelines/wdl/smartseq2_single_nucleus_multisample
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

@@ -10,21 +10,21 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/skylab/multiome/**'
+      - 'pipelines/wdl/multiome/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/skylab/MergeSortBam.wdl'
-      - 'tasks/skylab/FastqProcessing.wdl'
-      - 'tasks/skylab/PairedTagUtils.wdl'
-      - 'pipelines/skylab/optimus/Optimus.wdl'
-      - 'tasks/skylab/FastqProcessing.wdl'
-      - 'tasks/skylab/StarAlign.wdl'
-      - 'tasks/skylab/Metrics.wdl'
-      - 'tasks/skylab/RunEmptyDrops.wdl'
-      - 'tasks/skylab/CheckInputs.wdl'
-      - 'tasks/skylab/MergeSortBam.wdl'
-      - 'tasks/skylab/H5adUtils.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/MergeSortBam.wdl'
+      - 'tasks/wdl/FastqProcessing.wdl'
+      - 'tasks/wdl/PairedTagUtils.wdl'
+      - 'pipelines/wdl/optimus/Optimus.wdl'
+      - 'tasks/wdl/FastqProcessing.wdl'
+      - 'tasks/wdl/StarAlign.wdl'
+      - 'tasks/wdl/Metrics.wdl'
+      - 'tasks/wdl/RunEmptyDrops.wdl'
+      - 'tasks/wdl/CheckInputs.wdl'
+      - 'tasks/wdl/MergeSortBam.wdl'
+      - 'tasks/wdl/H5adUtils.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyMultiome.wdl'
       - 'verification/VerifyTasks.wdl'
@@ -66,7 +66,7 @@ jobs:
     with:
       pipeline_name: TestMultiome
       dockstore_pipeline_name: Multiome
-      pipeline_dir: pipelines/skylab/multiome
+      pipeline_dir: pipelines/wdl/multiome
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

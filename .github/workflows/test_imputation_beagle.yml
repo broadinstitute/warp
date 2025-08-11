@@ -9,14 +9,14 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/broad/arrays/imputation_beagle/**'
+      - 'pipelines/wdl/arrays/imputation_beagle/**'
       - 'structs/imputation/ImputationBeagleStructs.wdl'
-      - 'tasks/broad/ImputationTasks.wdl'
-      - 'tasks/broad/ImputationBeagleTasks.wdl'
+      - 'tasks/wdl/ImputationTasks.wdl'
+      - 'tasks/wdl/ImputationBeagleTasks.wdl'
       - 'verification/VerifyImputationBeagle.wdl'
       - 'verification/test-wdls/TestImputationBeagle.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       - '.github/workflows/test_imputation_beagle.yml'
       - '.github/workflows/warp_test_workflow.yml'
 
@@ -48,7 +48,7 @@ env:
   # pipeline configuration
   PIPELINE_NAME: TestImputationBeagle
   DOCKSTORE_PIPELINE_NAME: ImputationBeagle
-  PIPELINE_DIR: "pipelines/broad/arrays/imputation_beagle"
+  PIPELINE_DIR: "pipelines/wdl/arrays/imputation_beagle"
 
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
@@ -65,7 +65,7 @@ jobs:
     with:
       pipeline_name: TestImputationBeagle
       dockstore_pipeline_name: ImputationBeagle
-      pipeline_dir: pipelines/broad/arrays/imputation_beagle
+      pipeline_dir: pipelines/wdl/arrays/imputation_beagle
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

@@ -10,18 +10,18 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/skylab/atac/**'
+      - 'pipelines/wdl/atac/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/skylab/MergeSortBam.wdl'
-      - 'tasks/skylab/FastqProcessing.wdl'
-      - 'tasks/skylab/PairedTagUtils.wdl'
-      - 'tasks/broad/Utilities.wdl'
+      - 'tasks/wdl/MergeSortBam.wdl'
+      - 'tasks/wdl/FastqProcessing.wdl'
+      - 'tasks/wdl/PairedTagUtils.wdl'
+      - 'tasks/wdl/Utilities.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyATAC.wdl'
       - 'verification/VerifyTasks.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestATAC.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_atac.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -53,7 +53,7 @@ jobs:
     with:
       pipeline_name: TestATAC
       dockstore_pipeline_name: atac
-      pipeline_dir: pipelines/skylab/atac
+      pipeline_dir: pipelines/wdl/atac
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

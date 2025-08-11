@@ -1,7 +1,7 @@
 version 1.0
 
 import "../verification/VerifyTasks.wdl" as Tasks
-import "../tasks/broad/ImputationTasks.wdl" as ImputationTasks
+import "../tasks/wdl/ImputationTasks.wdl" as ImputationTasks
 
 ## Copyright Broad Institute, 2018
 ##

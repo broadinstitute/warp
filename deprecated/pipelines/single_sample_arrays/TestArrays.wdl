@@ -1,8 +1,8 @@
 version 1.0
 
-import "../../pipelines/broad/arrays/single_sample/Arrays.wdl" as Arrays
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../pipelines/wdl/arrays/single_sample/Arrays.wdl" as Arrays
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
 import "../../verification/VerifyArrays.wdl" as VerifyArrays
 
 workflow TestArrays {

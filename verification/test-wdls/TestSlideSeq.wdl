@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/skylab/slideseq/SlideSeq.wdl" as SlideSeq
+import "../../pipelines/wdl/slideseq/SlideSeq.wdl" as SlideSeq
 import "../../verification/VerifySlideSeq.wdl" as VerifySlideSeq
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestSlideSeq {
 

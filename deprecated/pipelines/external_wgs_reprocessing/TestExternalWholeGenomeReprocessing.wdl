@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/broad/reprocessing/external/wgs/ExternalWholeGenomeReprocessing.wdl" as ExternalWholeGenomeReprocessing
+import "../../pipelines/wdl/reprocessing/external/wgs/ExternalWholeGenomeReprocessing.wdl" as ExternalWholeGenomeReprocessing
 import "../../verification/VerifyExternalReprocessing.wdl" as VerifyExternalReprocessing
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestExternalWholeGenomeReprocessing {
 

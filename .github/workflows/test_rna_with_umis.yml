@@ -10,18 +10,18 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/broad/rna_seq/**'
+      - 'pipelines/wdl/rna_seq/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/broad/UMIAwareDuplicateMarking.wdl'
-      - 'tasks/broad/RNAWithUMIsTasks.wdl'
-      - 'tasks/broad/Utilities.wdl'
+      - 'tasks/wdl/UMIAwareDuplicateMarking.wdl'
+      - 'tasks/wdl/RNAWithUMIsTasks.wdl'
+      - 'tasks/wdl/Utilities.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyRNAWithUMIs.wdl'
       - 'verification/VerifyMetrics.wdl'
       - 'verification/VerifyTasks.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestRNAWithUMIsPipeline.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_rna_with_umis.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -57,7 +57,7 @@ jobs:
     with:
       pipeline_name: TestRNAWithUMIsPipeline
       dockstore_pipeline_name: RNAWithUMIsPipeline
-      pipeline_dir: pipelines/broad/rna_seq
+      pipeline_dir: pipelines/wdl/rna_seq
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

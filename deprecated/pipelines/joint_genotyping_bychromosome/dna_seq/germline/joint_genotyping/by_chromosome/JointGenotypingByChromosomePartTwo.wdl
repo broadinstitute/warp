@@ -1,6 +1,6 @@
 version 1.0
 # The JointGenotypingByChromosomePartTwo is deprecated 2025-03-06
-import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
+import "../../../../../../tasks/wdl/JointGenotypingTasks.wdl" as Tasks
 
 # Joint Genotyping for hg38 Exomes and Whole Genomes (has not been tested on hg19)
 workflow JointGenotypingByChromosomePartTwo {

@@ -10,11 +10,11 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/**'
+      - 'pipelines/wdl/dna_seq/germline/joint_genotyping/UltimaGenomics/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/broad/JointGenotypingTasks.wdl'
-      - 'tasks/broad/UltimaGenomicsGermlineFilteringThreshold.wdl'
-      - 'tasks/broad/JointGenotypingTasks.wdl'
+      - 'tasks/wdl/JointGenotypingTasks.wdl'
+      - 'tasks/wdl/UltimaGenomicsGermlineFilteringThreshold.wdl'
+      - 'tasks/wdl/JointGenotypingTasks.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyUltimaGenomicsJointGenotyping.wdl'
       # test WDL and its dependencies
@@ -23,8 +23,8 @@ on:
       - 'verification/VerifyMetrics.wdl'
       - 'verification/VerifyGermlineSingleSample.wdl'
       - 'verification/VerifyNA12878.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_ultima_genomics_joint_genotyping.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -60,7 +60,7 @@ jobs:
     with:
       pipeline_name: TestUltimaGenomicsJointGenotyping
       dockstore_pipeline_name: UltimaGenomicsJointGenotyping
-      pipeline_dir: pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics
+      pipeline_dir: pipelines/wdl/dna_seq/germline/joint_genotyping/UltimaGenomics
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

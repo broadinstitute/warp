@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl" as MultiSampleSmartSeq2SingleNucleus
+import "../../pipelines/wdl/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl" as MultiSampleSmartSeq2SingleNucleus
 import "../../verification/VerifyMultiSampleSmartSeq2SingleNucleus.wdl" as VerifyMultiSampleSmartSeq2SingleNucleus
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestMultiSampleSmartSeq2SingleNucleus {
 

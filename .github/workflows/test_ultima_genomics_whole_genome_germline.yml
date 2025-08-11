@@ -10,18 +10,18 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/broad/dna_seq/germline/single_sample/ugwgs/**'
+      - 'pipelines/wdl/dna_seq/germline/single_sample/ugwgs/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl'
-      - 'tasks/broad/GermlineVariantDiscovery.wdl'
+      - 'tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl'
+      - 'tasks/wdl/GermlineVariantDiscovery.wdl'
       - 'structs/dna_seq/DNASeqStructs.wdl'
-      - 'tasks/broad/Alignment.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl'
+      - 'tasks/wdl/Alignment.wdl'
+      - 'tasks/wdl/Qc.wdl'
+      - 'tasks/wdl/UltimaGenomicsWholeGenomeGermlineQC.wdl'
       - 'structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl'
-      - 'tasks/broad/InternalTasks.wdl'
-      - 'tasks/broad/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl'
-      - 'pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl'
+      - 'tasks/wdl/InternalTasks.wdl'
+      - 'tasks/wdl/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl'
+      - 'pipelines/wdl/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyUltimaGenomicsWholeGenomeGermline.wdl'
       - 'verification/VerifyMetrics.wdl'
@@ -29,8 +29,8 @@ on:
       - 'verification/VerifyNA12878.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestUltimaGenomicsWholeGenomeGermline.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_ultima_genomics_whole_genome_germline.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -66,7 +66,7 @@ jobs:
     with:
       pipeline_name: TestUltimaGenomicsWholeGenomeGermline
       dockstore_pipeline_name: UltimaGenomicsWholeGenomeGermline
-      pipeline_dir: pipelines/broad/dna_seq/germline/single_sample/ugwgs
+      pipeline_dir: pipelines/wdl/dna_seq/germline/single_sample/ugwgs
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

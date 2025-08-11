@@ -1,11 +1,11 @@
 version 1.0
 # AnnotationFiltration is now deprecated 2025-03-06
 
-import "../../../tasks/broad/Funcotator.wdl" as Funcotator
+import "../../../tasks/wdl/Funcotator.wdl" as Funcotator
 
 workflow AnnotationFiltration {
 
-  String pipeline_version = "1.2.8"
+  String pipeline_version = "1.2.9"
 
   input {
     Array[File] vcfs

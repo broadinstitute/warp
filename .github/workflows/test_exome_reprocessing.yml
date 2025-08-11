@@ -10,22 +10,22 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-     - 'pipelines/broad/reprocessing/exome/**'
-     - 'pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl'
-     - 'pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl'
+     - 'pipelines/wdl/reprocessing/exome/**'
+     - 'pipelines/wdl/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl'
+     - 'pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl'
       # tasks from the pipeline WDL and their dependencies
-     - 'tasks/broad/UnmappedBamToAlignedBam.wdl'
-     - 'tasks/broad/AggregatedBamQC.wdl'
-     - 'tasks/broad/Qc.wdl'
-     - 'tasks/broad/BamProcessing.wdl'
-     - 'tasks/broad/BamToCram.wdl'
+     - 'tasks/wdl/UnmappedBamToAlignedBam.wdl'
+     - 'tasks/wdl/AggregatedBamQC.wdl'
+     - 'tasks/wdl/Qc.wdl'
+     - 'tasks/wdl/BamProcessing.wdl'
+     - 'tasks/wdl/BamToCram.wdl'
      - 'structs/dna_seq/DNASeqStructs.wdl'
-     - 'pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl'
-     - 'tasks/broad/GermlineVariantDiscovery.wdl'
-     - 'tasks/broad/Utilities.wdl'
-     - 'tasks/broad/DragenTasks.wdl'
-     - 'tasks/broad/Qc.wdl'
-     - 'tasks/broad/Utilities.wdl'
+     - 'pipelines/wdl/dna_seq/germline/variant_calling/VariantCalling.wdl'
+     - 'tasks/wdl/GermlineVariantDiscovery.wdl'
+     - 'tasks/wdl/Utilities.wdl'
+     - 'tasks/wdl/DragenTasks.wdl'
+     - 'tasks/wdl/Qc.wdl'
+     - 'tasks/wdl/Utilities.wdl'
       # verification WDL and its dependencies
      - 'verification/VerifyExomeReprocessing.wdl'
      - 'verification/VerifyGermlineSingleSample.wdl'
@@ -33,7 +33,7 @@ on:
      - 'verification/test-wdls/TestCramToUnmappedBams.wdl'
      - 'verification/VerifyMetrics.wdl'
      - 'verification/VerifyTasks.wdl'
-     - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+     - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
      - '.github/workflows/test_exome_reprocessing.yml'
      - '.github/workflows/warp_test_workflow.yml'
@@ -69,7 +69,7 @@ jobs:
     with:
       pipeline_name: TestExomeReprocessing
       dockstore_pipeline_name: ExomeReprocessing
-      pipeline_dir: pipelines/broad/reprocessing/exome
+      pipeline_dir: pipelines/wdl/reprocessing/exome
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

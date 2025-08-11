@@ -2,9 +2,9 @@ version 1.0
 
 # CheckFingerprint has been deprecated 2025-03-06
 
-import "../../../tasks/broad/Utilities.wdl" as utils
-import "../../../tasks/broad/InternalTasks.wdl" as InternalTasks
-import "../../../tasks/broad/Qc.wdl" as Qc
+import "../../../tasks/wdl/Utilities.wdl" as utils
+import "../../../tasks/wdl/InternalTasks.wdl" as InternalTasks
+import "../../../tasks/wdl/Qc.wdl" as Qc
 
 
 ## Copyright Broad Institute, 2022
@@ -26,7 +26,7 @@ import "../../../tasks/broad/Qc.wdl" as Qc
 
 workflow CheckFingerprint {
 
-  String pipeline_version = "1.0.23"
+  String pipeline_version = "1.0.24"
 
   input {
     File? input_vcf
