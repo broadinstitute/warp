@@ -38,6 +38,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
 
+  - name: FixItFelixAndVariantCall
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/cmrg/FixItFelixAndVariantCall.wdl
+  
   - name: IlluminaGenotypingArray
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl
