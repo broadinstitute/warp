@@ -31,13 +31,14 @@ workflow pca_only_no_labels {
     call plot_pca {
         input :
             output_prefix=final_output_prefix,
-            pca_tsv=create_hw_pca_training.pca_tsv,
+            pca_tsv=create_hw_pca_training.pca_scores_tsv,
             pc1=1,
             pc2=2
     }
 
     output {
-        File training_pca_labels_ht_tsv = create_hw_pca_training.pca_tsv
+        File training_pca_labels_ht_tsv = create_hw_pca_training.pca_scores_tsv
+        File training_pca_eigenvalues_tsv = create_hw_pca_training.pca_eigenvalues_tsv
         File training_pca_labels_tsv_plots = plot_pca.training_pca_labels_tsv_plot
     }
 }
@@ -146,11 +147,16 @@ task create_hw_pca_training {
         scores_training_export_tsv = scores_training.flatten()
         scores_training_export_tsv.export("~{final_output_prefix}_training_pca.tsv")
 
+        # Write out the eigenvalues as a tsv.
+        eigenvalues_df = pd.DataFrame(eigenvalues_training, columns=['eigenvalues'])
+        eigenvalues_df.to_csv("~{final_output_prefix}_training_pca_eigenvalues.tsv", sep='\\t', index=False)
+
         EOF
     >>>
 
     output {
-        File pca_tsv = "~{final_output_prefix}_training_pca.tsv"
+        File pca_scores_tsv = "~{final_output_prefix}_training_pca.tsv"
+        File pca_eigenvalues_tsv = "~{final_output_prefix}_training_pca_eigenvalues.tsv"
     }
     runtime {
         docker: "hailgenetics/hail:0.2.67"
