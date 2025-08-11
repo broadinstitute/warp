@@ -87,7 +87,7 @@ Upon successful completion, the workflow produces a fully imputed multi-sample V
 
 | Output                           | Description                                          |
 |----------------------------------|------------------------------------------------------|
-| `imputed_multi_sample_vcf`       | Final imputed multi-sample VCF file                  |
+| `imputed_multi_sample_vcf`       | Final imputed multi-sample WGS VCF file              |
 | `imputed_multi_sample_vcf_index` | Index file for the imputed VCF                       |
 | `chunks_info`                    | Information about processed chunks and QC statistics |
 
