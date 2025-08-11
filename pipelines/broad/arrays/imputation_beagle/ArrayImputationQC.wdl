@@ -20,7 +20,7 @@ workflow QuotaConsumed {
 
     call tasks.QcChecks {
         input:
-            vcf = multi_sample_vcf
+            vcf_input = multi_sample_vcf
     }
 
     output {
