@@ -277,6 +277,6 @@ task call_variants {
     output {
         File output_vcf = "~{if generate_gvcf then output_filename else 'filtered_' + output_filename}"
         File output_vcf_index = "~{if generate_gvcf then output_filename + '.tbi' else 'filtered_' + output_filename + '.tbi'}"
-        String output_pipeline_version = pipeline_version
+        String output_pipeline_version = ~{pipeline_version}
     }
 }
