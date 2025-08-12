@@ -15,6 +15,9 @@ task QcChecks {
     String vcf_basename = basename(vcf_input)
 
     command <<<
+        # create empty qc messages file
+        touch qc_messages.txt
+
         # grab header from vcf
         bcftools view -h ~{vcf_input} > header.vcf
 
@@ -25,7 +28,7 @@ task QcChecks {
             echo "VCF version < 4.0 or not found;" >> qc_messages.txt;
         fi
 
-        # check for variants in all canonical chromosome chr1 to chr22
+        # check for variants in all canonical chromosomes - chr1 to chr22
         gunzip -c ~{vcf_input} | grep -v "#" | cut -f1 | sort -u > chromosomes.txt
 
         missing_chromosomes=()
@@ -36,7 +39,6 @@ task QcChecks {
             fi
         done
 
-        # report missing chromosomes
         if [ ${#missing_chromosomes[@]} -eq 0 ]; then
             echo "All chromosomes from chr1 to chr22 are present."
         else
@@ -46,12 +48,12 @@ task QcChecks {
         # check for a large number of variants in input vcf
         line_count=$(gunzip -c ~{vcf_input} | grep -v "#" | wc -l | tr -d ' ')
         if [ "$line_count" -gt 10000000 ]; then
-        echo "Greater than 10 million variants found in input VCF." >> qc_messages.txt
+            echo "Greater than 10 million variants found in input VCF." >> qc_messages.txt
         else
             echo "Less than or equal to 10 million variants found in input VCF."
         fi
 
-        # Task should always succeed
+        # This task should always succeed
         exit 0
 
     >>>
