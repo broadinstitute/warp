@@ -20,16 +20,17 @@ workflow SplitMultiSampleVcfWorkflow {
         Int? diskSizeGb
     }
 
+    String pipeline_version = "1.0.0"
     String gsutil_docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:525.0.0"
     Int calculated_disk_size = ceil(21*chunkSize*size(multiSampleVcf, "GiB")/(chunkSize+20)) + 10
     Int disk_size = select_first([calculated_disk_size, diskSizeGb]) # Default disk size if not provided
 
     parameter_meta {
         multiSampleVcf: "Input multi-sample VCF file to be split"
-        createIndexFiles: "Whether index files should be created for each individual VCF"
         outputLocation: "GCP location where output vcfs (and indices, if requested) are written to"
+        createIndexFiles: "Whether index files should be created for each individual VCF. (default: true)."
         chunkSize: "Number of samples to process in each chunk (default: 1000)"
-        cpu: "Number of CPU cores to allocate (default: 1)"
+        cpu: "Number of CPU cores to allocate for each task (default: 1)"
         memoryMb: "Memory allocation in megabytes (default: 6000)"
         bcftoolsDocker: "Docker image containing bcftools (default: us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889)"
     }
@@ -44,7 +45,7 @@ workflow SplitMultiSampleVcfWorkflow {
             diskSizeGb = disk_size
     }
 
-    # TWO: Break up the extracted samples by the chunk size (and create an output with samples included in the chunk)
+    # TWO: Break up the extracted samples by the chunk size (and create an output with samples included in each chunk)
     call ProcessSampleList {
         input:
             sampleListFile = ExtractSamplesFromMultiSampleVcf.sampleIdFile,
@@ -100,7 +101,7 @@ task ExtractSamplesFromMultiSampleVcf {
   parameter_meta {
     multiSampleVcf: "Input multi-sample VCF file to be split"
     docker: "Docker image containing bcftools (default: us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889)"
-    cpu: "Number of CPU cores to allocate (default: 1)"
+    cpu: "Number of CPU cores to allocate for each task (default: 1)"
     memoryMb: "Memory allocation in megabytes (default: 6000)"
     diskSizeGb:  "Disk space in gigabytes"
   }
@@ -135,7 +136,7 @@ task ProcessSampleList {
   parameter_meta {
     sampleListFile: "File containing ALL sample IDs extracted from the multi-sample VCF"
     chunkSize: "Number of samples to process in each chunk (default: 1000)"
-    cpu: "Number of CPU cores to allocate (default: 1)"
+    cpu: "Number of CPU cores to allocate for each task (default: 1)"
     memoryMb: "Memory allocation in megabytes (default: 6000)"
     docker: "Docker image containing bcftools (default: us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889)"
     diskSizeGb:  "Disk space in gigabytes"
@@ -192,7 +193,7 @@ task ExtractSingleSampleVcfs {
     multiSampleVcf: "Input multi-sample VCF file to be split"
     createIndexFiles: "Whether index files should be created for each individual VCF"
     docker: "Docker image containing bcftools (default: us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889)"
-    cpu: "Number of CPU cores to allocate (default: 1)"
+    cpu: "Number of CPU cores to allocate for each task (default: 1)"
     memoryMb: "Memory allocation in megabytes (default: 6000)"
     diskSizeGb:  "Disk space in gigabytes"
   }
@@ -280,7 +281,7 @@ task CopyFilesToDestination {
         outputLocation: "GCP location where output vcfs (and indices, if requested) are written to"
         createIndexFiles: "Whether index files should be created for each individual VCF"
         docker: "Docker image containing gsutil"
-        cpu: "Number of CPU cores to allocate (default: 1)"
+        cpu: "Number of CPU cores to allocate for each task (default: 1)"
         memoryMb: "Memory allocation in megabytes (default: 6000)"
         diskSizeGb:  "Disk space in gigabytes"
     }

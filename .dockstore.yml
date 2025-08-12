@@ -107,7 +107,7 @@ workflows:
   - name: SplitMultisampleVcf
     subclass: WDL
     primaryDescriptorPath: /beta-pipelines/broad/Utilities/SplitMultisampleVcf.wdl
-    readMePath: /beta-pipelines/broad/Utilities/SplitMultisampleVcf_README.md
+    readMePath: /beta-pipelines/broad/Utilities/README.md
 
   - name: TestATAC
     subclass: WDL
