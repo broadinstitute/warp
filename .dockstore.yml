@@ -1,6 +1,10 @@
 version: 1.2
 workflows:
 
+  - name: aggregate_rsem_results
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/aggregate_rsem_results.wdl
+  
   - name: ArrayImputationQuotaConsumed
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ArrayImputationQuotaConsumed.wdl
@@ -50,6 +54,14 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
 
+  - name: leafcutter_bam_to_junc
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_bam_to_junc.wdl
+  
+  - name: leafcutter_cluster
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_cluster.wdl
+    
   - name: Multiome
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/multiome/Multiome.wdl
@@ -63,6 +75,10 @@ workflows:
   - name: PairedTag
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/paired_tag/PairedTag.wdl
+
+  - name: pca_only_no_labels
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/PCA/pca_only_no_labels.wdl
 
   - name: PeakCalling
     subclass: WDL
