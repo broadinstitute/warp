@@ -54,11 +54,18 @@ def check_zero_values_in_library_metrics(file_path, file_name):
                 if not line or line.startswith('#'):
                     continue
                 
-                # Parse key-value pairs (assuming format like "metric_name: value" or "metric_name\tvalue")
+                # Parse key-value pairs (assuming format like "metric_name: value" or "metric_name\tvalue" or CSV)
                 if ':' in line:
                     key, value = line.split(':', 1)
                 elif '\t' in line:
                     parts = line.split('\t')
+                    if len(parts) >= 2:
+                        key, value = parts[0], parts[1]
+                    else:
+                        continue
+                elif ',' in line:
+                    # Handle CSV format (comma-separated)
+                    parts = line.split(',')
                     if len(parts) >= 2:
                         key, value = parts[0], parts[1]
                     else:
