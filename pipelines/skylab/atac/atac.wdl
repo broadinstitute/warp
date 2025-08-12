@@ -29,7 +29,7 @@ workflow ATAC {
 
     # Option for running files with preindex
     Boolean preindex = false
-    # Option for running peak calling
+    # Option for running peak calling, library level peak calling is always run 
     Boolean peak_calling = false
     
     # BWA ref
@@ -52,7 +52,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.9.0"
+  String pipeline_version = "2.9.1"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
