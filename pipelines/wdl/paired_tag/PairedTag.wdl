@@ -1,15 +1,15 @@
 
 version 1.0
 
-import "../../../pipelines/wdl/atac/atac.wdl" as atac
-import "../../../pipelines/wdl/optimus/Optimus.wdl" as optimus
-import "../../../tasks/wdl/H5adUtils.wdl" as H5adUtils
-import "../../../tasks/wdl/PairedTagUtils.wdl" as Demultiplexing
-import "../../../tasks/wdl/Utilities.wdl" as utils
+import "../atac/atac.wdl" as atac
+import "../optimus/Optimus.wdl" as optimus
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
+import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
+import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "2.1.6"
+    String pipeline_version = "2.1.1"
 
     input {
         String input_id

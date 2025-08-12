@@ -1,12 +1,12 @@
 version 1.0
 
-import "../../../tasks/wdl/FastqProcessing.wdl" as FastqProcessing
-import "../../../tasks/wdl/StarAlign.wdl" as StarAlign
-import "../../../tasks/wdl/Metrics.wdl" as Metrics
-import "../../../tasks/wdl/RunEmptyDrops.wdl" as RunEmptyDrops
-import "../../../tasks/wdl/CheckInputs.wdl" as OptimusInputChecks
-import "../../../tasks/wdl/H5adUtils.wdl" as H5adUtils
-import "../../../tasks/wdl/Utilities.wdl" as utils
+import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
+import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
+import "../../../tasks/skylab/Metrics.wdl" as Metrics
+import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
+import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
+import "../../../tasks/broad/Utilities.wdl" as utils
 import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender_no_cuda
 import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 
@@ -42,7 +42,6 @@ workflow Optimus {
 
     # CellBender
     Boolean run_cellbender = false
-    Int? cellbender_hardware_memory_GB = 32
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -74,7 +73,7 @@ workflow Optimus {
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
     # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
-    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times.
+    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
 
   }
 
@@ -271,7 +270,7 @@ workflow Optimus {
           hardware_cpu_count = 4,
           hardware_disk_size_GB = 50,
           hardware_gpu_type = "nvidia-tesla-t4",
-          hardware_memory_GB = cellbender_hardware_memory_GB,
+          hardware_memory_GB = 32,
           hardware_preemptible_tries = 2,
           hardware_zones = "us-central1-a us-central1-c",
           nvidia_driver_version = "470.82.01"
@@ -286,7 +285,7 @@ workflow Optimus {
           hardware_cpu_count = 4,
           hardware_disk_size_GB = 50,
           hardware_gpu_type = "nvidia-tesla-t4",
-          hardware_memory_GB = cellbender_hardware_memory_GB,
+          hardware_memory_GB = 32,
           hardware_preemptible_tries = 2,
           hardware_zones = "us-central1-a us-central1-c",
           nvidia_driver_version = "470.82.01"

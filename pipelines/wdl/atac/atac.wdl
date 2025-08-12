@@ -1,10 +1,10 @@
 version 1.0
 
-import "../../../tasks/wdl/MergeSortBam.wdl" as Merge
-import "../../../tasks/wdl/FastqProcessing.wdl" as FastqProcessing
-import "../../../tasks/wdl/PairedTagUtils.wdl" as AddBB
-import "../../../tasks/wdl/Utilities.wdl" as utils
-import "../../../pipelines/wdl/peak_calling/PeakCalling.wdl" as peakcalling # import peakcalling as subworkflow
+import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
+import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
+import "../../../tasks/skylab/PairedTagUtils.wdl" as AddBB
+import "../../../tasks/broad/Utilities.wdl" as utils
+import "../peak_calling/PeakCalling.wdl" as peakcalling # import peakcalling as subworkflow
 
 workflow ATAC {
   meta {
@@ -52,7 +52,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.9.0"
+  String pipeline_version = "2.9.1"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"

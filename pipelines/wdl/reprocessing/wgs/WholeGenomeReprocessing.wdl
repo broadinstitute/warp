@@ -1,12 +1,12 @@
 version 1.0
 
-import "../../../../pipelines/wdl/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl" as WholeGenomeGermlineSingleSample
-import "../../../../pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl" as WholeGenomeGermlineSingleSample
+import "../cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
 import "../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 workflow WholeGenomeReprocessing {
 
-  String pipeline_version = "3.3.5"
+  String pipeline_version = "3.3.4"
 
   input {
     File? input_cram

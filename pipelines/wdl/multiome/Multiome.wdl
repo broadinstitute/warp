@@ -1,11 +1,11 @@
 version 1.0
 
-import "../../../pipelines/wdl/atac/atac.wdl" as atac
-import "../../../pipelines/wdl/optimus/Optimus.wdl" as optimus
-import "../../../pipelines/wdl/peak_calling/PeakCalling.wdl" as peakcalling
+import "../atac/atac.wdl" as atac
+import "../optimus/Optimus.wdl" as optimus
+import "../peak_calling/PeakCalling.wdl" as peakcalling
 
-import "../../../tasks/wdl/H5adUtils.wdl" as H5adUtils
-import "../../../tasks/wdl/Utilities.wdl" as utils
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
+import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
