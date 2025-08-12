@@ -9,7 +9,9 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "6.0.5"
+
+    String pipeline_version = "6.1.2"
+
 
     input {
         String cloud_provider
@@ -137,7 +139,9 @@ workflow Multiome {
             gex_h5ad = Optimus.h5ad_output_file,
             gex_whitelist = gex_whitelist,
             atac_whitelist = atac_whitelist,
-            atac_fragment = Atac.fragment_file
+            atac_fragment = Atac.fragment_file,
+            input_gtf = annotations_gtf,
+            input_bwa_reference = tar_bwa_reference
     }
 
     if (run_peak_calling) {

@@ -1,3 +1,7 @@
+# 4.1.0
+2025-08-11 (Date of Last Commit)
+
+* Changed read threshold max from 10M to 6M in demulitiplexing step
 # 4.0.5
 2025-06-16 (Date of Last Commit)
 

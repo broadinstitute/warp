@@ -91,6 +91,11 @@ workflow RunAoUAnvilMergeFilterAndQc {
         # This list should be ordered.  Eg, ["chr21", "chr22"]
         Array[String] contigs
 
+        # The genomic region for the output VCFs to cover.
+        # Optional, but if not provided, the entire contig will be processed.
+        Int? start_position
+        Int? end_position
+
         # String used in construction of output filename
         #  Cannot contain any special characters, ie, characters must be alphanumeric or "_"
         String prefix
@@ -134,6 +139,8 @@ workflow RunAoUAnvilMergeFilterAndQc {
             input:
                 input_aou_vds_url = aou_vds_url,
                 contig = contig,
+                start_position = start_position,
+                end_position = end_position,
                 prefix = prefix,
                 gcs_project = gcs_project,
                 gcs_subnetwork_name = gcs_subnetwork_name,
@@ -163,6 +170,8 @@ task FilterAndQCVariants {
 
         # contig must be in the reference
         String contig
+        Int? start_position
+        Int? end_position
         String prefix
 
         # dataproc params
@@ -257,6 +266,8 @@ task FilterAndQCVariants {
                     --output_aou_vcf_header_url ~{output_aou_vcf_header_url} \
                     --output_report_url ~{output_report_url} \
                     --contig ~{contig} \
+                    ~{"--start_pos " + start_position} \
+                    ~{"--end_pos " + end_position} \
                     --temp_bucket gs://{cluster_temp_bucket}/{cluster_name}'''
 
                     print("Running: " + submit_cmd)
