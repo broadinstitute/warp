@@ -19,8 +19,14 @@ task QcChecks {
         # create empty qc messages file
         touch qc_messages.txt
 
-        # index vcf - necessary for gatk command
-        bcftools index -t ~{vcf_input}
+        # check for a large number of variants in input vcf and exit if greater than 10 million
+        line_count=$(bcftools stats ~{vcf_input}  | grep "number of records:" | awk '{print $6}')
+        if [ "$line_count" -gt 10000000 ]; then
+            echo "Greater than 10 million variants found in input VCF." >> qc_messages.txt
+            exit 0
+        else
+            echo "Less than or equal to 10 million variants found in input VCF."
+        fi
 
         # grab header from vcf
         bcftools view -h ~{vcf_input} > header.vcf
@@ -49,15 +55,8 @@ task QcChecks {
             echo "Missing data for chromosomes: ${missing_chromosomes[*]};" >> qc_messages.txt
         fi
 
-        # check for a large number of variants in input vcf
-        line_count=$(gunzip -c ~{vcf_input} | grep -v "#" | wc -l | tr -d ' ')
-        if [ "$line_count" -gt 10000000 ]; then
-            echo "Greater than 10 million variants found in input VCF." >> qc_messages.txt
-        else
-            echo "Less than or equal to 10 million variants found in input VCF."
-        fi
-
         # check reference header lines if they exist
+        bcftools index -t ~{vcf_input} # necessary for gatk ValidateVariants command
         gatk ValidateVariants \
         -V ~{vcf_input} \
         --sequence-dictionary ~{ref_dict} \
