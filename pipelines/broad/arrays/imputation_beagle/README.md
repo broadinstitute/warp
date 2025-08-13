@@ -99,7 +99,7 @@ The ArrayImputationQuotaConsumed pipeline is used by the All of Us/AnVIL Imputat
 
 ## ArrayImputationQC summary
 
-The ArrayImputationQuotaConsumed pipeline is used by the All of Us/AnVIL Imputation Service and runs variout qc checks on the input multi-sample VCF, checks include:
+The ArrayImputationQuotaConsumed pipeline is used by the All of Us/AnVIL Imputation Service and runs various qc checks on the input multi-sample VCF, checks include:
 - vcf version 4.x
 - hg38 chromosome names
 - variants on each of the hg38 canonical chromosomes.
