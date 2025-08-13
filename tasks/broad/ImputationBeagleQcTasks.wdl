@@ -3,6 +3,7 @@ version 1.0
 task QcChecks {
     input {
         File vcf_input
+        File ref_dict
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
         Int cpu = 1
@@ -51,6 +52,19 @@ task QcChecks {
             echo "Greater than 10 million variants found in input VCF." >> qc_messages.txt
         else
             echo "Less than or equal to 10 million variants found in input VCF."
+        fi
+
+        # check reference header lines if they exist
+        gatk ValidateVariants \
+        -V ~{vcf_input} \
+        --sequence-dictionary ~{ref_dict} \
+        --validation-type-to-exclude ALL \
+        2> gatk_output.txt
+
+        if grep -q "incompatible contigs" gatk_output.txt; then
+            echo "found incompatible contigs in VCF header;" >> qc_messages.txt;
+        else
+            echo "no incompatible contigs found in VCF header;"
         fi
 
         # This task should always succeed
