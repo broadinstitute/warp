@@ -19,6 +19,9 @@ task QcChecks {
         # create empty qc messages file
         touch qc_messages.txt
 
+        # index vcf - necessary for gatk command
+        bcftools index -t ~{vcf_input}
+
         # grab header from vcf
         bcftools view -h ~{vcf_input} > header.vcf
 
