@@ -118,7 +118,7 @@ task subset_cram {
         docker: gatk_docker
         memory: "3 GB"
         disks: "local-disk " + disk_size + " HDD"
-        preemptible: 0
+        preemptible: 1
     }
 
     output {
@@ -272,7 +272,7 @@ task call_variants {
         docker: gatk_docker
         memory: "4 GB"
         disks: "local-disk " + disk_size + " HDD"
-        preemptible: 0
+        preemptible: 1
     }
 
     output {
