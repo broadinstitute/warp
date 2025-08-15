@@ -535,25 +535,6 @@ task combine_vcfs {
             exit 1
         fi
 
-        ## TODO - install mtswirl
-        #! cd ~;
-        #! rm -rf mtSwirl
-        #! git clone https://github.com/jamesemery/mtSwirl.git;
-        #! cd ~;
-        #! pip install --upgrade pip;
-        #! pip install --upgrade aiohttp;
-        #! pip install --upgrade gnomad;
-
-
-        #! git clone https://github.com/broadinstitute/gnomad_qc.git
-        #! mv gnomad_qc gnomad_qc_hold
-        #! mv gnomad_qc_hold/gnomad_qc ./
-        #! rm -rf gnomad_qc_hold
-        #! cd gnomad_qc && pip install .
-        #! git clone https://github.com/rahulg603/gnomad-mitochondria.git
-        #! mv gnomad-mitochondria gnomad_mitochondria_hold
-        #! mv gnomad_mitochondria_hold/gnomad_mitochondria ./
-        #! cd ~;
 
         # Run the combine_vcfs.py script
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/combine_vcfs.py \
