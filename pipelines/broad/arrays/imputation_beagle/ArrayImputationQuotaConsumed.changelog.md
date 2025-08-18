@@ -1,3 +1,8 @@
+# 1.0.3
+2025-07-31 (Date of Last Commit)
+
+* Add maxRetries to tasks to help with performance on Google Batch.
+
 # 1.0.2
 2025-04-07 (Date of Last Commit)
 
