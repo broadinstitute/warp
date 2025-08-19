@@ -113,7 +113,7 @@ CODE
   >>>
 
   runtime {
-    docker: "python:3.9-slim"
+    docker: "pandas/pandas:mamba-all"
     memory: "2 GiB"
     disks: "local-disk 10 HDD"
   }
