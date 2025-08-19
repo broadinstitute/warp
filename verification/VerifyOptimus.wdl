@@ -181,4 +181,8 @@ workflow VerifyOptimus {
       cell_metrics = test_cell_metrics,
       library_metrics = test_library_metrics
   }
+
+  output {
+    String zero_check_result = CheckZeroColumns.result
+  }
 }
