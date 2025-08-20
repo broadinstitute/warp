@@ -44,7 +44,8 @@ workflow snm3C {
     }
 
     # version of the pipeline
-    String pipeline_version = "4.0.5"
+
+    String pipeline_version = "4.1.0"
 
     call Demultiplexing {
         input:
@@ -155,7 +156,7 @@ task Demultiplexing {
     String plate_id
     Int batch_number
     Int min_threshold = 100
-    Int max_threshold = 10000000
+    Int max_threshold = 6000000
     String docker
 
     Int disk_size = 1000

@@ -72,7 +72,7 @@ workflow mt_coverage_merge {
         Array[String] theoretical_sensitivity_metrics
         Array[String] cram_path
     }
-    String pipeline_version = "beta_0.0.0"
+
 
     call generate_tsv_file {
         input:
@@ -341,6 +341,7 @@ task generate_tsv_file {
             writer = csv.writer(f, delimiter="\t")
             writer.writerow(headers)
             writer.writerows(rows)
+
         EOF
     >>>
 
@@ -623,5 +624,3 @@ task add_annotations {
         disks: "local-disk 50 SSD"
     }
 }
-
-
