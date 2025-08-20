@@ -1,6 +1,14 @@
 # Mitochondria Pipelines
 
-This directory contains pipelines for processing mitochondrial DNA (mtDNA) data, including variant calling, coverage analysis, and merging coverage metrics. The pipelines are designed to handle hg38-aligned input files and produce high-quality outputs for downstream analysis.
+This directory contains pipelines for processing mitochondrial DNA (mtDNA) data, including variant calling, coverage analysis, and merging coverage metrics based on the mtSwirl v2.5_MongoSwirl_Single pipeline and mtSwirl scripts for running in Terra. All original WDL and scripts can be found the [mtSwirl GitHub repository](https://github.com/rahulg603/mtSwirl).
+
+This pipeline was originally released as part of the manuscript: Nuclear genetic control of mitochondrial DNA copy number and heteroplasmy in humans, which can be found at [Nature](https://www.nature.com/articles/s41586-023-06426-5). 
+
+If you use these resources in your work, please cite as Gupta et al. 2023 Nature:
+Gupta, R., Kanai, M., Durham, T.J. et al. Nuclear genetic control of mtDNA copy number and heteroplasmy in humans. Nature, in press. https://doi.org/10.1038/s41586-023-06426-5.
+
+The pipelines are designed to handle hg38-aligned input files and produce high-quality outputs for downstream analysis.
+
 
 ---
 
