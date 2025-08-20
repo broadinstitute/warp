@@ -307,13 +307,15 @@ task RecordMetadata {
   }
 
   command <<<
-  ls -l
-  python3  /script/add-introns-to-gtf.py  --input-gtf ~{modified_annotation_gtf}  --output-gtf introns.gtf
+
+  python3  /script/add-introns-to-gtf.py  \
+    --input-gtf "~{modified_annotation_gtf}" \
+    --output-gtf "~{modified_annotation_gtf}_with_introns.gtf"
 
   >>>
 
   output {
-    File modified_annotation_gtf_with_introns = "introns.gtf"
+    File modified_annotation_gtf_with_introns = "~{modified_annotation_gtf}_with_introns.gtf"
   }
 
   runtime {
