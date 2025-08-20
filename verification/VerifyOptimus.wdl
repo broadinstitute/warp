@@ -12,7 +12,7 @@ task CheckForZeroColumns {
 
   command <<<
     set -e
-
+    pip3 install pandas
     python3 <<CODE
 import pandas as pd
 import sys
@@ -113,8 +113,8 @@ CODE
   >>>
 
   runtime {
-    docker: "pandas/pandas:mamba-all"
-    memory: "2 GiB"
+    docker: "python:3.10.0-buster"
+    memory: "16 GiB"
     disks: "local-disk 10 HDD"
   }
 
