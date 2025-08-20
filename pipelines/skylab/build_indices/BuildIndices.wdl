@@ -13,6 +13,8 @@ workflow BuildIndices {
     File annotations_gtf
     File genome_fa
     File biotypes
+
+    Boolean run_add_introns
   }
 
   # version of this pipeline
@@ -61,9 +63,11 @@ workflow BuildIndices {
       ]
     }
 
-  call SNSS2AddIntronsToGTF {
-    input:
+  if (run_add_introns) {
+    call SNSS2AddIntronsToGTF {
+      input:
       modified_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf
+    }
   }
 
   output {
