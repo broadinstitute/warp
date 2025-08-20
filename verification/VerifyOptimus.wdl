@@ -113,7 +113,7 @@ CODE
   >>>
 
   runtime {
-    docker: "python:3.10.0-buster"
+    docker: "us.gcr.io/broad-gotc-prod/warp-tools/python-numpy-pandas:1.0.0-2.2.3-1.25.2"
     memory: "16 GiB"
     disks: "local-disk 10 HDD"
   }
