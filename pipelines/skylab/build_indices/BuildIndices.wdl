@@ -303,7 +303,7 @@ task RecordMetadata {
 
   task SNSS2AddIntronsToGTF {
   input {
-    String modified_annotation_gtf
+    File modified_annotation_gtf
   }
 
   command <<<
