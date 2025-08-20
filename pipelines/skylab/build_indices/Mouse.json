@@ -5,5 +5,6 @@
 "BuildIndices.gtf_annotation_version":"M31",
 "BuildIndices.genome_source":"GENCODE",
 "BuildIndices.genome_build":"GRCm39",
-"BuildIndices.organism":"Mouse"
+"BuildIndices.organism":"Mouse",
+"BuildIndices.run_add_introns":"true"
 }
