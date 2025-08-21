@@ -141,6 +141,7 @@ workflow VerifyOptimus {
     File test_library_metrics
     File truth_library_metrics
 
+  Boolean check_zero_metrics = false
     Boolean? done
   }
 
@@ -175,14 +176,16 @@ workflow VerifyOptimus {
             truth_text_file = truth_library_metrics
   }
 
-  call CheckForZeroColumns as CheckZeroColumns {
-    input:
-      gene_metrics = test_gene_metrics,
-      cell_metrics = test_cell_metrics,
-      library_metrics = test_library_metrics
+  if (check_zero_metrics) {
+    call CheckForZeroColumns as CheckZeroColumns {
+      input:
+        gene_metrics = test_gene_metrics,
+        cell_metrics = test_cell_metrics,
+        library_metrics = test_library_metrics
+    }
   }
 
   output {
-    String zero_check_result = CheckZeroColumns.result
+    String? zero_check_result = CheckZeroColumns.result
   }
 }
