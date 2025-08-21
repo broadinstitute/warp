@@ -62,7 +62,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_cluster.wdl
     
-  - name: mitochondira_pipeline
+  - name: mitochondria_pipeline
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/mitochondria_pipeline.wdl
 
