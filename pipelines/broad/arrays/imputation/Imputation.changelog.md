@@ -1,3 +1,9 @@
+# 1.1.19
+2025-07-31 (Date of Last Commit)
+
+* Add maxRetries to tasks to help with performance on Google Batch.
+* Use SSD for tasks that localize large files to help with performance on Google Batch.
+
 # 1.1.18
 2025-04-07 (Date of Last Commit)
 
