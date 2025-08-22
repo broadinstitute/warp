@@ -38,6 +38,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
 
+  - name: HLAGenotyping
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/hla/HLAGenotyping.wdl
+
   - name: IlluminaGenotypingArray
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl
@@ -61,6 +65,10 @@ workflows:
   - name: leafcutter_cluster
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_cluster.wdl
+    
+  - name: MakeTable
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
     
   - name: mitochondria_pipeline
     subclass: WDL
