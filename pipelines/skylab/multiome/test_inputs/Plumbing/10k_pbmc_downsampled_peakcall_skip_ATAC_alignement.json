@@ -29,5 +29,5 @@
   "Multiome.atac_nhash_id":"example_1234",
   "Multiome.run_peak_calling": true,
   "Multiome.PeakCalling.probability_threshold":"1.00",
-  "Multiome.PeakCalling.aligned_ATAC_bam":"gs://broad-gotc-test-storage/Multiome/truth/plumbing/master/10k_pbmc_downsampled_peakcall/10k_PBMC_downsampled_atac.bam"
+  "Multiome.aligned_ATAC_bam":"gs://broad-gotc-test-storage/Multiome/truth/plumbing/master/10k_pbmc_downsampled_peakcall/10k_PBMC_downsampled_atac.bam"
 }
