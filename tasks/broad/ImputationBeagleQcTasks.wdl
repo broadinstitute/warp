@@ -15,6 +15,8 @@ task QcChecks {
 
     String vcf_basename = basename(vcf_input)
 
+    String ref_dict_basename = basename(ref_dict)
+
     command <<<
         # create empty qc messages file
         touch qc_messages.txt
@@ -64,9 +66,16 @@ task QcChecks {
         2> gatk_output.txt
 
         if grep -q "incompatible contigs" gatk_output.txt; then
-            echo "found incompatible contigs in VCF header;" >> qc_messages.txt;
+            echo "Found incompatible contigs (against reference dictionary ${ref_dict_basename}) in VCF header;" >> qc_messages.txt;
         else
-            echo "no incompatible contigs found in VCF header;"
+            echo "No incompatible contigs found in VCF header;"
+        fi
+
+        # passes_qc is true if qc_messages is empty
+        if [ ! -s qc_messages.txt ]; then
+            echo "true" > passes_qc.txt
+        else
+            echo "false" > passes_qc.txt
         fi
 
         # This task should always succeed
@@ -83,6 +92,7 @@ task QcChecks {
         noAddress: true
     }
     output {
+        Boolean passes_qc = read_boolean("passes_qc.txt")
         String qc_messages = read_string("qc_messages.txt")
     }
 }

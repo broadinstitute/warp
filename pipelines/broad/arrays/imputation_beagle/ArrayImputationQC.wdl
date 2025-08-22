@@ -2,7 +2,7 @@ version 1.0
 
 import "../../../../tasks/broad/ImputationBeagleQcTasks.wdl" as tasks
 
-workflow QuotaConsumed {
+workflow InputQC {
     String pipeline_version = "1.0.0"
 
     input {
@@ -25,6 +25,7 @@ workflow QuotaConsumed {
     }
 
     output {
+        Boolean passes_qc = QcChecks.passes_qc
         String qc_messages = QcChecks.qc_messages
     }
 }
