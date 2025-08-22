@@ -8,7 +8,6 @@ workflow ReblockGVCF {
 
   String pipeline_version = "2.4.1"
 
-
   input {
     File gvcf
     File gvcf_index
@@ -27,14 +26,14 @@ workflow ReblockGVCF {
   String gvcf_basename = basename(gvcf, gvcf_file_extension)
   # docker images
   String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
-  String gatk_docker_azure = "terrapublic.azurecr.io/gatk:4.6.1.0"
-  String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
+  String gatk_docker_aws = "broadinstitute/gatk:4.6.1.0"
+  String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_aws
 
-  # make sure either gcp or azr is supplied as cloud_provider input
-  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+  # make sure either GCP or AWS is supplied as cloud_provider input
+  if ((cloud_provider != "gcp") && (cloud_provider != "aws")) {
     call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
       input:
-        message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+        message = "cloud_provider must be supplied with either 'gcp' or 'aws'."
     }
   }
 
@@ -61,7 +60,7 @@ workflow ReblockGVCF {
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index,
         ref_dict = ref_dict,
-        calling_interval_list = select_first([calling_interval_list, gvcf]), #nice trick so we don't have to pass around intervals; shouldn't be too much slower
+        calling_interval_list = select_first([calling_interval_list, gvcf]),
         calling_interval_list_index = gvcf_index,
         calling_intervals_defined = defined(calling_interval_list),
         is_gvcf = true,
