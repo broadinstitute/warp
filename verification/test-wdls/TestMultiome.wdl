@@ -46,6 +46,9 @@ workflow TestMultiome {
       String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
       String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
 
+      # Optional aligned ATAC bam file
+      File? aligned_ATAC_bam
+
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
       String results_path
@@ -87,7 +90,8 @@ workflow TestMultiome {
         cloud_provider = cloud_provider,
         gex_nhash_id = gex_nhash_id,
         atac_nhash_id = atac_nhash_id,
-        run_peak_calling = run_peak_calling
+        run_peak_calling = run_peak_calling,
+        aligned_ATAC_bam = aligned_ATAC_bam
     }
 
     

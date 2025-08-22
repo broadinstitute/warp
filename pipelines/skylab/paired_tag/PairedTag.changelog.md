@@ -1,3 +1,8 @@
+# 2.1.8 
+2025-08-15 (Date of Last Commit)
+
+* Added an option to input an aligned ATAC BAM file to the PairedTag pipeline; this allows users to skip the ATAC alignment step if they already have an aligned BAM file 
+
 # 2.1.7
 2025-08-06 (Date of Last Commit)
 

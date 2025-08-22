@@ -52,6 +52,9 @@ workflow TestATAC {
 
       # Option for running peak calling
       Boolean peak_calling = false
+
+      # Optional aligned ATAC bam file
+      File? aligned_ATAC_bam
     }
 
     meta {
@@ -78,7 +81,8 @@ workflow TestATAC {
         whitelist = whitelist,
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3,
-        peak_calling = peak_calling
+        peak_calling = peak_calling,
+        aligned_ATAC_bam = aligned_ATAC_bam
     }
 
 
