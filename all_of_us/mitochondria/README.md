@@ -9,7 +9,6 @@ Gupta, R., Kanai, M., Durham, T.J. et al. Nuclear genetic control of mtDNA copy 
 
 The pipelines are designed to handle hg38-aligned input files and produce high-quality outputs for downstream analysis.
 
-
 ---
 
 ## **Mitochondria Pipeline**

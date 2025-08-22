@@ -8,9 +8,6 @@ workflow mt_coverage_merge {
         String ancestry_tsv
         String dob_tsv
 
-        String hail_docker_img = "us.gcr.io/broad-dsp-gcr-public/terra-jupyter-hail:1.1.12"
-
-
         ## Copy of all of the fields in the sample table (this can be reduced)
         Array[String] n_liftover_r2_spanning_complex
         Array[String] success_liftover_variants
@@ -75,6 +72,7 @@ workflow mt_coverage_merge {
         Array[String] theoretical_sensitivity_metrics
         Array[String] cram_path
     }
+
 
     call generate_tsv_file {
         input:
@@ -152,8 +150,7 @@ workflow mt_coverage_merge {
 
     call annotate_coverage {
         input:
-            input_tsv = process_tsv_files.processed_tsv,  # Input TSV file path
-            hail_docker = hail_docker_img  # Docker image with Hail and dependencies
+            input_tsv = process_tsv_files.processed_tsv  # Input TSV file path
     }
 
     call combine_vcfs {
@@ -161,8 +158,7 @@ workflow mt_coverage_merge {
             input_tsv = process_tsv_files.processed_tsv,  # Input TSV file path
             coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
             artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed",  # Path to artifact-prone sites BED file
-            file_name = "combined_vcf.vcf.gz",  # Output file name
-            hail_docker = hail_docker_img  # Docker image with Hail and dependencies
+            file_name = "combined_vcf.vcf.gz"  # Output file name
     }
 
     call add_annotations as annotated {
@@ -170,7 +166,6 @@ workflow mt_coverage_merge {
             coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
             coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
             vcf_mt = combine_vcfs.results_tar,  # Path to the MatrixTable
-            hail_docker = hail_docker_img,  # Docker image with Hail and dependencies
             keep_all_samples = true,
             output_name = "annotated"
     }
@@ -180,7 +175,6 @@ workflow mt_coverage_merge {
             coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
             coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
             vcf_mt = combine_vcfs.results_tar,  # Path to the MatrixTable
-            hail_docker = hail_docker_img,  # Docker image with Hail and dependencies
             keep_all_samples = false,
             output_name = "filt_annotated"
     }
@@ -194,243 +188,6 @@ workflow mt_coverage_merge {
     }
 
 }
-
-task combine_vcfs {
-    input {
-        String input_tsv        # Input TSV file path
-        File coverage_mt_tar    # Tar.gzipped directory of the Hail table
-        String a_ref = "GRCh38"           # Reference genome (e.g., GRCh38)
-        Boolean overwrite = false  # Overwrite existing files (default: false)
-        String vcf_col_name = "final_vcf"     # Column name for VCFs
-        String output_bucket = "./results"    # Output bucket path
-        String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"  # Path to artifact-prone sites BED file
-        String file_name        # Output file name
-        String hail_docker      # Docker image with Hail and dependencies
-    }
-
-    command <<<
-        set -euxo pipefail
-
-        mkdir -p ./tmp
-        mkdir -p ./results
-
-        WORK_DIR=$(pwd)
-
-        # Unzip the tar.gz file containing the Hail table
-        mkdir -p ./unzipped_coverage.ht
-        tar -xzf ~{coverage_mt_tar} -C /cromwell_root/unzipped_coverage.ht
-        ls -lh /cromwell_root/unzipped_coverage.ht
-        cp -r /cromwell_root/unzipped_coverage.ht/merged_coverage_tsvs.mt /cromwell_root/unzipped_coverage.mt
-
-        # Verify the extracted directory TODO
-        if [ ! -d "/cromwell_root/unzipped_coverage.mt" ]; then
-        echo "Error: Directory '/cromwell_root/unzipped_coverage.mt' does not exist after extraction."
-        exit 1
-        fi
-
-        ## TODO - install mtswirl
-        ! cd ~;
-        ! rm -rf mtSwirl
-        ! git clone https://github.com/jamesemery/mtSwirl.git;
-        ! cd ~;
-        ! pip install --upgrade pip;
-        ! pip install --upgrade aiohttp;
-        ! pip install --upgrade gnomad;
-
-
-        ! git clone https://github.com/broadinstitute/gnomad_qc.git
-        ! mv gnomad_qc gnomad_qc_hold
-        ! mv gnomad_qc_hold/gnomad_qc ./
-        ! rm -rf gnomad_qc_hold
-        ! cd gnomad_qc && pip install .
-        ! git clone https://github.com/rahulg603/gnomad-mitochondria.git
-        ! mv gnomad-mitochondria gnomad_mitochondria_hold
-        ! mv gnomad_mitochondria_hold/gnomad_mitochondria ./
-        ! cd ~;
-
-        # Run the combine_vcfs.py script
-        python3 ./mtSwirl/generate_mtdna_call_mt/Terra/combine_vcfs.py \
-        --input-tsv ~{input_tsv} \
-        -c /cromwell_root/unzipped_coverage.mt \
-        -a-ref ~{a_ref} \
-        --overwrite \
-        --vcf-col-name ~{vcf_col_name} \
-        --output-bucket ./results \
-        --temp-dir ./tmp \
-        --artifact-prone-sites-path ~{artifact_prone_sites_path} \
-        --file-name ~{file_name} \
-        --include-extra-v2-fields
-
-
-        # Tar zip the results directory
-        tar -czf $WORK_DIR/results.tar.gz ./results/combined_vcf.vcf.gz.mt
-    >>>
-
-    output {
-        File results_tar = "results.tar.gz"
-    }
-
-    runtime {
-        docker: hail_docker
-        memory: "8 GB"
-        cpu: "4"
-        disks: "local-disk 50 SSD"
-    }
-}
-
-
-task annotate_coverage {
-    input {
-        String input_tsv        # Input TSV file path (optional)
-        Int? chunk_size = 100    # Chunk size for combining VCFs (default: 100)
-        Boolean overwrite = false  # Overwrite existing files (default: false)
-        Boolean keep_targets = false  # Add annotation for target (default: false)
-        Boolean hail_only = false  # Skip generating flat files (default: false)
-        Int? split_merging = 10  # Number of jobs for splitting merging (default: 1)
-        String hail_docker      # Docker image with Hail and dependencies
-    }
-
-    command <<<
-        set -euxo pipefail
-
-        mkdir -p ./tmp
-        mkdir -p ./results.ht
-
-        WORK_DIR=$(pwd)
-
-        ## TODO - install mtswirl
-        ! cd ~;
-        ! rm -rf mtSwirl
-        ! git clone https://github.com/jamesemery/mtSwirl.git;
-        ! cd ~;
-        ! pip install --upgrade pip;
-        ! pip install --upgrade aiohttp;
-        ! pip install --upgrade gnomad;
-
-
-        # Run the annotate_coverage.py script
-        python3 ./mtSwirl/generate_mtdna_call_mt/Terra/annotate_coverage.py \
-        ~{if overwrite then "--overwrite" else ""} \
-        ~{if keep_targets then "--keep-targets" else ""} \
-        --input-tsv ~{input_tsv} \
-        --output-ht "./merged_coverage_tsvs.ht" \
-        --temp-dir "./tmp/" \
-        --chunk-size ~{chunk_size} \
-        ~{if hail_only then "--hail-only" else ""} \
-        --split-merging ~{split_merging}
-
-
-        ## note that both the ht and the mt are outputted by the tool
-        ls -lh ./merged_coverage_tsvs.ht
-        ls -lht ./merged_coverage_tsvs.mt
-
-        # Archive the MatrixTable
-        tar -czf $WORK_DIR/coverages_tsv.mt.tar.gz ./merged_coverage_tsvs.mt*
-    >>>
-
-    output {
-        File output_ht = "coverages_tsv.mt.tar.gz"
-    }
-
-    runtime {
-        docker: hail_docker
-        memory: "8 GB"
-        cpu: "24"
-        disks: "local-disk 100 SSD"
-    }
-}
-
-
-task add_annotations {
-    input {
-        File coverage_mt_tar    # Tar.gzipped directory of the Hail table
-        Boolean keep_all_samples = false  # Keep all samples (default: false)
-        String coverage_tsv     # Path to the coverage input TSV file
-        File vcf_mt             # Path to the MatrixTable
-        String hail_docker      # Docker image with Hail and dependencies
-        String output_name      # directory output name
-    }
-
-    command <<<
-        set -euxo pipefail
-
-        WORK_DIR=$(pwd)
-
-        # Unzip the tar.gz file containing the Hail table
-        mkdir -p ./unzipped_coverage.mt
-        tar -xzf ~{coverage_mt_tar} -C ./unzipped_coverage.mt
-        ls -lh ./unzipped_coverage.mt/merged_coverage_tsvs.mt
-
-        # Unzip the tar.gz file containing the Hail table
-        mkdir -p ./unzipped_vcf.mt
-        tar -xzf ~{vcf_mt} -C ./unzipped_vcf.mt
-        ls -lh ./unzipped_vcf.mt/results/combined_vcf.vcf.gz.mt
-
-        # Verify the extracted directory
-        if [ ! -d "./unzipped_coverage.mt" ]; then
-        echo "Error: Directory './unzipped_coverage.mt' does not exist after extraction."
-        exit 1
-        fi
-
-        apt-get update && apt-get install -y libpq-dev
-
-        ## TODO - install mtswirl
-        ! cd $WORK_DIR;
-        ! rm -rf mtSwirl
-        ! git clone https://github.com/jamesemery/mtSwirl.git;
-        ! cd $WORK_DIR;
-        ! pip install --upgrade pip
-        ! pip uninstall -y psycopg2 psycopg2-binary  # Ensure both are removed
-        ! pip install psycopg2-binary  # Use the binary version to avoid build issues
-        ! pip install pipdeptree
-        ! pipdeptree | grep psycopg2  # Check for dependencies requiring psycopg2
-        ! pip install --upgrade aiohttp
-        ! pip install --upgrade gnomad
-
-        # Verify installation
-        ! pip list | grep psycopg2
-
-
-        ! git clone https://github.com/broadinstitute/gnomad_qc.git
-        ! mv gnomad_qc gnomad_qc_hold
-        ! mv gnomad_qc_hold/gnomad_qc ./
-        ! rm -rf gnomad_qc_hold
-        ! cd gnomad_qc && pip install .
-        ! cd $WORK_DIR;
-        ! git clone https://github.com/rahulg603/gnomad-mitochondria.git
-        ! mv gnomad-mitochondria gnomad_mitochondria_hold
-        ! mv gnomad_mitochondria_hold/gnomad_mitochondria ./
-        ! cd $WORK_DIR;
-
-        ! pip list
-        # Run the add_annotations.py script
-        python3 ./mtSwirl/generate_mtdna_call_mt/add_annotations.py \
-        --sample-stats=~{coverage_tsv} \
-        ~{if keep_all_samples then "--keep-all-samples" else ""} \
-        --fully-skip-vep \
-        --band-aid-dbsnp-path-fix \
-        --min-het-threshold 0.05 \
-        -v ./~{output_name}/vep \
-        -a ~{coverage_tsv} \
-        -m unzipped_vcf.mt/results/combined_vcf.vcf.gz.mt \
-        -d ./~{output_name} \
-
-        # Compress the annotated output directory
-        tar -czf $WORK_DIR/annotated_output.tar.gz ~{output_name}
-    >>>
-
-    output {
-        File annotated_output_tar = "annotated_output.tar.gz"
-    }
-
-    runtime {
-        docker: hail_docker
-        memory: "8 GB"
-        cpu: "4"
-        disks: "local-disk 50 SSD"
-    }
-}
-
 
 task generate_tsv_file {
 
@@ -567,12 +324,13 @@ task generate_tsv_file {
 
         # Process the TSV file in Python
         python3 <<EOF
+
         import csv
 
         # Read the input data from the temporary file
         with open("input_data.tsv", "r") as f:
-        reader = csv.reader(f, delimiter="\t")
-        data = list(reader)
+            reader = csv.reader(f, delimiter="\t")
+            data = list(reader)
 
         # Extract headers and rows
         headers = [row[0] for row in data]
@@ -580,9 +338,10 @@ task generate_tsv_file {
 
         # Write the output TSV
         with open("summary.tsv", "w") as f:
-        writer = csv.writer(f, delimiter="\t")
-        writer.writerow(headers)
-        writer.writerows(rows)
+            writer = csv.writer(f, delimiter="\t")
+            writer.writerow(headers)
+            writer.writerows(rows)
+
         EOF
     >>>
 
@@ -591,7 +350,7 @@ task generate_tsv_file {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-dsde-methods/emeryj/mthail:python.3.9"
+        docker: "python:3.9-slim"
     }
 }
 
@@ -602,13 +361,13 @@ task process_tsv_files {
         File dob_tsv       # Path to echo_DoB_data.tsv
         File input_tsv     # Input TSV file to process
         String output_tsv_name = "processed_data.tsv"  # Name of the output TSV file
-        String docker_image = "us.gcr.io/broad-dsde-methods/emeryj/mthail:dockerimageV1"  # Docker image with Python and pandas
     }
 
     command <<<
         set -euxo pipefail
 
         python3 <<EOF
+
         import pandas as pd
         import numpy as np
 
@@ -625,14 +384,14 @@ task process_tsv_files {
         filtered_df["s"] = filtered_df["research_id"]
         filtered_df = filtered_df.rename(columns={
         "research_id": "participant_id",
-        "final_base_level_coverage_metrics": "coverage",
-        "mt_final_vcf": "final_vcf"
+            "final_base_level_coverage_metrics": "coverage",
+            "mt_final_vcf": "final_vcf"
         })
         filtered_df_2 = filtered_df.rename(columns={
-        "participant_id": "entity:participant_id",
-        "mean_coverage": "mt_mean_coverage",
-        "median_coverage": "mt_median_coverage",
-        "mt_final_vcf": "final_vcf"
+            "participant_id": "entity:participant_id",
+            "mean_coverage": "mt_mean_coverage",
+            "median_coverage": "mt_median_coverage",
+            "mt_final_vcf": "final_vcf"
         })
         filtered_df_2["freemix_percentage"] = 0
 
@@ -643,18 +402,18 @@ task process_tsv_files {
 
         # Merge with filtered_df on 'research_id' and 's'
         filtered_df_2 = filtered_df_2.merge(
-        coveragetsv_df[['research_id', 'mean_coverage', 'biosample_collection_date']],
+            coveragetsv_df[['research_id', 'mean_coverage', 'biosample_collection_date']],
         left_on='s', right_on='research_id', how='left'
         )
         filtered_df_2.drop(columns=['research_id'], inplace=True)
         filtered_df_2 = filtered_df_2.merge(
-        ancestrytsv_df[['research_id', 'ancestry_pred']],
-        left_on='s', right_on='research_id', how='left'
+            ancestrytsv_df[['research_id', 'ancestry_pred']],
+            left_on='s', right_on='research_id', how='left'
         )
         filtered_df_2.drop(columns=['research_id'], inplace=True)
         filtered_df_2 = filtered_df_2.merge(
-        dobtsv_df[['research_id', 'date_of_birth']],
-        left_on='s', right_on='research_id', how='left'
+            dobtsv_df[['research_id', 'date_of_birth']],
+            left_on='s', right_on='research_id', how='left'
         )
         filtered_df_2.drop(columns=['research_id'], inplace=True)
 
@@ -662,7 +421,7 @@ task process_tsv_files {
         filtered_df_2['date_of_birth'] = pd.to_datetime(filtered_df_2['date_of_birth'])
         filtered_df_2['biosample_collection_date'] = pd.to_datetime(filtered_df_2['biosample_collection_date'])
         filtered_df_2['age'] = pd.to_numeric(
-        np.floor((filtered_df_2['biosample_collection_date'] - filtered_df_2['date_of_birth']).dt.days / 365)
+            np.floor((filtered_df_2['biosample_collection_date'] - filtered_df_2['date_of_birth']).dt.days / 365)
         )
         filtered_df_2['age'] = filtered_df_2['age'].fillna(39).astype(int)
 
@@ -675,7 +434,7 @@ task process_tsv_files {
 
         # Filter rows with valid coverage metrics
         filtered_df_2 = filtered_df_2[
-        (filtered_df_2['coverage_metrics'].notna()) & (filtered_df_2['coverage_metrics'] != '')
+            (filtered_df_2['coverage_metrics'].notna()) & (filtered_df_2['coverage_metrics'] != '')
         ]
 
         # Save the processed DataFrame to a TSV file
@@ -688,8 +447,180 @@ task process_tsv_files {
     }
 
     runtime {
-        docker: docker_image
+        docker: "us.gcr.io/broad-gotc-prod/python-numpy-pandas:1.0.0-2.2.3-1.25.2"
         memory: "4 GB"
         cpu: "2"
+    }
+}
+
+task annotate_coverage {
+    input {
+        String input_tsv        # Input TSV file path (optional)
+        Int? chunk_size = 100    # Chunk size for combining VCFs (default: 100)
+        Boolean overwrite = false  # Overwrite existing files (default: false)
+        Boolean keep_targets = false  # Add annotation for target (default: false)
+        Boolean hail_only = false  # Skip generating flat files (default: false)
+        Int? split_merging = 10  # Number of jobs for splitting merging (default: 1)
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        mkdir -p ./tmp
+        mkdir -p ./results.ht
+
+        WORK_DIR=$(pwd)
+
+
+        # Run the annotate_coverage.py script
+        python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/annotate_coverage.py \
+        ~{if overwrite then "--overwrite" else ""} \
+        ~{if keep_targets then "--keep-targets" else ""} \
+        --input-tsv ~{input_tsv} \
+        --output-ht "./merged_coverage_tsvs.ht" \
+        --temp-dir "./tmp/" \
+        --chunk-size ~{chunk_size} \
+        ~{if hail_only then "--hail-only" else ""} \
+        --split-merging ~{split_merging}
+
+
+        ## note that both the ht and the mt are outputted by the tool
+        ls -lh ./merged_coverage_tsvs.ht
+        ls -lht ./merged_coverage_tsvs.mt
+
+        # Archive the MatrixTable
+        tar -czf $WORK_DIR/coverages_tsv.mt.tar.gz ./merged_coverage_tsvs.mt*
+    >>>
+
+    output {
+        File output_ht = "coverages_tsv.mt.tar.gz"
+    }
+
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
+        memory: "8 GB"
+        cpu: "24"
+        disks: "local-disk 100 SSD"
+    }
+}
+
+task combine_vcfs {
+    input {
+        String input_tsv        # Input TSV file path
+        File coverage_mt_tar    # Tar.gzipped directory of the Hail table
+        String a_ref = "GRCh38"           # Reference genome (e.g., GRCh38)
+        Boolean overwrite = false  # Overwrite existing files (default: false)
+        String vcf_col_name = "final_vcf"     # Column name for VCFs
+        String output_bucket = "./results"    # Output bucket path
+        String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"  # Path to artifact-prone sites BED file
+        String file_name        # Output file name
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        mkdir -p ./tmp
+        mkdir -p ./results
+
+        WORK_DIR=$(pwd)
+
+        # Unzip the tar.gz file containing the Hail table
+        mkdir -p ./unzipped_coverage.ht
+        tar -xzf ~{coverage_mt_tar} -C /cromwell_root/unzipped_coverage.ht
+        ls -lh /cromwell_root/unzipped_coverage.ht
+        cp -r /cromwell_root/unzipped_coverage.ht/merged_coverage_tsvs.mt /cromwell_root/unzipped_coverage.mt
+
+        # Verify the extracted directory TODO
+        if [ ! -d "/cromwell_root/unzipped_coverage.mt" ]; then
+            echo "Error: Directory '/cromwell_root/unzipped_coverage.mt' does not exist after extraction."
+            exit 1
+        fi
+
+
+        # Run the combine_vcfs.py script
+        python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/combine_vcfs.py \
+        --input-tsv ~{input_tsv} \
+        -c /cromwell_root/unzipped_coverage.mt \
+        -a-ref ~{a_ref} \
+        --overwrite \
+        --vcf-col-name ~{vcf_col_name} \
+        --output-bucket ./results \
+        --temp-dir ./tmp \
+        --artifact-prone-sites-path ~{artifact_prone_sites_path} \
+        --file-name ~{file_name} \
+        --include-extra-v2-fields
+
+
+        # Tar zip the results directory
+        tar -czf $WORK_DIR/results.tar.gz ./results/combined_vcf.vcf.gz.mt
+    >>>
+
+    output {
+        File results_tar = "results.tar.gz"
+    }
+
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
+        memory: "8 GB"
+        cpu: "4"
+        disks: "local-disk 50 SSD"
+    }
+}
+
+task add_annotations {
+    input {
+        File coverage_mt_tar    # Tar.gzipped directory of the Hail table
+        Boolean keep_all_samples = false  # Keep all samples (default: false)
+        String coverage_tsv     # Path to the coverage input TSV file
+        File vcf_mt             # Path to the MatrixTable
+        String output_name      # directory output name
+    }
+
+     command <<<
+        set -euxo pipefail
+
+        WORK_DIR=$(pwd)
+
+        # Unzip coverage MatrixTable tarball
+        mkdir -p ./unzipped_coverage.mt
+        tar -xzf ~{coverage_mt_tar} -C ./unzipped_coverage.mt
+        ls -lh ./unzipped_coverage.mt/merged_coverage_tsvs.mt
+
+        # Unzip VCF MatrixTable tarball
+        mkdir -p ./unzipped_vcf.mt
+        tar -xzf ~{vcf_mt} -C ./unzipped_vcf.mt
+        ls -lh ./unzipped_vcf.mt/results/combined_vcf.vcf.gz.mt
+
+        # Verify extraction
+        if [ ! -d "./unzipped_coverage.mt" ]; then
+            echo "Error: Directory './unzipped_coverage.mt' does not exist after extraction."
+            exit 1
+        fi
+
+        # Run the add_annotations.py script baked inside mtSwirl clone
+        python3 /opt/mtSwirl/generate_mtdna_call_mt/add_annotations.py \
+            --sample-stats=~{coverage_tsv} \
+            ~{if keep_all_samples then "--keep-all-samples" else ""} \
+            --fully-skip-vep \
+            --band-aid-dbsnp-path-fix \
+            --min-het-threshold 0.05 \
+            -v ./~{output_name}/vep \
+            -a ~{coverage_tsv} \
+            -m unzipped_vcf.mt/results/combined_vcf.vcf.gz.mt \
+            -d ./~{output_name}
+
+        # Compress the annotated output directory
+        tar -czf $WORK_DIR/annotated_output.tar.gz ~{output_name}
+    >>>
+
+    output {
+        File annotated_output_tar = "annotated_output.tar.gz"
+    }
+
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
+        memory: "8 GB"
+        cpu: "4"
+        disks: "local-disk 50 SSD"
     }
 }
