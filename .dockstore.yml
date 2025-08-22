@@ -70,6 +70,14 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
     
+  - name: mitochondria_pipeline
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/mitochondria/mitochondria_pipeline.wdl
+
+  - name: mt_coverage_merge
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/mitochondria/mt_coverage_merge.wdl
+
   - name: Multiome
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/multiome/Multiome.wdl
