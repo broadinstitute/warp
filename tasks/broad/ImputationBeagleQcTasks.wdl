@@ -65,8 +65,9 @@ task QcChecks {
         --validation-type-to-exclude ALL \
         2> gatk_output.txt
 
+        ref_dict_basename="~{ref_dict_basename}"
         if grep -q "incompatible contigs" gatk_output.txt; then
-            echo "Found incompatible contigs (against reference dictionary ~{ref_dict_basename}) in VCF header;" >> qc_messages.txt;
+            echo "Found incompatible contigs (against reference dictionary $ref_dict_basename) in VCF header;" >> qc_messages.txt;
         else
             echo "No incompatible contigs found in VCF header;"
         fi
