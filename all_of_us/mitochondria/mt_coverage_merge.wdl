@@ -77,6 +77,7 @@ task subset_data_table {
     input {
         File full_data_tsv
         File? sample_list_tsv
+        #TODO take the basename of sample_list_tsv and use that to name the subset output tsv
         String output_tsv = "subset_data.tsv"
     }
 
@@ -97,7 +98,7 @@ df_samples = pd.read_csv("~{sample_list_tsv}", sep="\t", header=None, names=["sa
 
 # Check if TSV has header (Terra-style: entity:sample_id)
 first_col = df_main.columns[0]
-if first_col.startswith("entity:") or first_col == "sample_id":
+if first_col.startswith("entity:sample_id"):
     id_col = first_col
 else:
     sys.exit("ERROR: Unrecognized format for sample ID column in the full data TSV.")
@@ -118,8 +119,6 @@ EOF
         cpu: "2"
     }
 }
-
-
 
 task process_tsv_files {
     input {
