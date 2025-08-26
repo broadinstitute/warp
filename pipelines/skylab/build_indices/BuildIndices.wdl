@@ -328,7 +328,6 @@ task RecordMetadata {
     memory: "50 GiB"
     disks: "local-disk 100 HDD"
     disk: 100 + " GB" # TES
-    cpu:"16"
   }
 }
 
