@@ -87,7 +87,7 @@ task Phase {
     Int xmx_mb = memory_mb - 5000             # I suggest setting this parameter to be 85-90% of the memory_mb parameter
     Int disk_size_gb = ceil((3 * size(dataset_vcf, "GiB")) + size(ref_panel_bref3, "GiB")) + 10          # value may need to be adjusted
 
-    Boolean for_dependency         # used for task dependency management
+    Array[Boolean] for_dependency         # used for task dependency management
   }
 
   command <<<
