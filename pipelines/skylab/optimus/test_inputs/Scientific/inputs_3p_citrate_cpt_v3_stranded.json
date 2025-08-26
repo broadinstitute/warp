@@ -1,12 +1,12 @@
 {
   "Optimus.r1_fastq": [
-"gs://broad-gotc-test-storage/Optimus/input/scientific/chemistry_X10_V3/3p_citrate_cpt/3p_citrate_cpt_fastqs/3p_citrate_cpt_S1_L002_R1_001.fastq.gz"
+"gs://broad-gotc-test-storage/Optimus/input/scientific/chemistry_X10_V3/3p_citrate_cpt/3p_citrate_cpt_fastqs/3p_citrate_cpt_S5_L002_R1_001.fastq.gz"
   ],
   "Optimus.r2_fastq": [
-"gs://broad-gotc-test-storage/Optimus/input/scientific/chemistry_X10_V3/3p_citrate_cpt/3p_citrate_cpt_fastqs/3p_citrate_cpt_S1_L002_R2_001.fastq.gz"
+"gs://broad-gotc-test-storage/Optimus/input/scientific/chemistry_X10_V3/3p_citrate_cpt/3p_citrate_cpt_fastqs/3p_citrate_cpt_S5_L002_R2_001.fastq.gz"
   ],
   "Optimus.i1_fastq": [
-"gs://broad-gotc-test-storage/Optimus/input/scientific/chemistry_X10_V3/3p_citrate_cpt/3p_citrate_cpt_fastqs/3p_citrate_cpt_S1_L002_I1_001.fastq.gz"
+"gs://broad-gotc-test-storage/Optimus/input/scientific/chemistry_X10_V3/3p_citrate_cpt/3p_citrate_cpt_fastqs/3p_citrate_cpt_S5_L002_I1_001.fastq.gz"
   ],
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/hg38/v0/star/star_2.7.9a_primary_gencode_human_v27.tar",
   "Optimus.input_id": "3p_citrate_cpt",
