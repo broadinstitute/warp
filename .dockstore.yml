@@ -140,7 +140,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/snm3C/snm3C.wdl
 
-  - name: SplitMultisampleVCF
+  - name: SplitMultisampleVcf
     subclass: WDL
 
     primaryDescriptorPath: /beta-pipelines/broad/Utilities/SpltMultisampleVCF/SplitMultisampleVCF.wdl
