@@ -98,7 +98,7 @@ df_samples = pd.read_csv("~{sample_list_tsv}", sep="\t", header=None, names=["sa
 
 # Check if TSV has header (Terra-style: entity:sample_id)
 first_col = df_main.columns[0]
-if first_col.startswith("entity:sample_id"):
+if first_col.startswith("entity:"):
     id_col = first_col
 else:
     sys.exit("ERROR: Unrecognized format for sample ID column in the full data TSV.")
