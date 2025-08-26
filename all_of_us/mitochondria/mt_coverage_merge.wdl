@@ -10,22 +10,27 @@ workflow mt_coverage_merge {
 
 
         File full_data_tsv
-        File sample_list_tsv
+        File? sample_list_tsv
+
     }
 
-
+if (defined(sample_list_tsv)) {
     call subset_data_table {
         input:
             full_data_tsv = full_data_tsv,
             sample_list_tsv = sample_list_tsv
+        }
 }
+
+    File input_table = select_first([subset_data_table.subset_tsv, full_data_tsv])
+
 
     call process_tsv_files {
         input:
             coverage_tsv = coverage_tsv,
             ancestry_tsv = ancestry_tsv,
             dob_tsv = dob_tsv,
-            input_tsv = subset_data_table.subset_tsv,
+            input_tsv = input_table
     }
 
     call annotate_coverage {
@@ -66,46 +71,54 @@ workflow mt_coverage_merge {
         File annotated_output_tar = annotated.annotated_output_tar
         File filt_annotated_output_tar = filt_annotated.annotated_output_tar
     }
-
 }
 
 task subset_data_table {
-  input {
-    File full_data_tsv
-    File sample_list_tsv   # one sample ID per line
-    String output_tsv = "subset_data.tsv"
-  }
+    input {
+        File full_data_tsv
+        File? sample_list_tsv
+        String output_tsv = "subset_data.tsv"
+    }
 
-  command <<<
+    command <<<
     set -euxo pipefail
     python3 <<'EOF'
+import pandas as pd
+import sys
 
-    import pandas as pd
-    import sys
+# If sample_list_tsv is not defined, just copy the full TSV
+if "~{sample_list_tsv}" == "":
+    df_main = pd.read_csv("~{full_data_tsv}", sep="\t", dtype=str)
+    df_main.to_csv("~{output_tsv}", sep="\t", index=False)
+    sys.exit(0)
 
-    df = pd.read_csv(input_tsv, sep="\t")
+df_main = pd.read_csv("~{full_data_tsv}", sep="\t", dtype=str)
+df_samples = pd.read_csv("~{sample_list_tsv}", sep="\t", header=None, names=["sample_id"], dtype=str)
 
-    # Check if TSV has header (Terra-style: entity:sample_id)
-    if not any(col.startswith("entity:") for col in df.columns):
-        sys.stderr.write("ERROR: Input TSV does not contain a Terra-style entity column (expected header like 'entity:sample_id').\n")
-        sys.exit(1)
+# Check if TSV has header (Terra-style: entity:sample_id)
+first_col = df_main.columns[0]
+if first_col.startswith("entity:") or first_col == "sample_id":
+    id_col = first_col
+else:
+    sys.exit("ERROR: Unrecognized format for sample ID column in the full data TSV.")
 
-    df_subset = df_main[df_main[id_col].isin(df_samples["sample_id"])]
+df_subset = df_main[df_main[id_col].isin(df_samples["sample_id"])]
 
-    df_subset.to_csv("~{output_tsv}", sep="\t", index=False)
-    EOF
-  >>>
+df_subset.to_csv("~{output_tsv}", sep="\t", index=False)
+EOF
+    >>>
 
-  output {
-    File subset_tsv = "~{output_tsv}"
-  }
+    output {
+        File subset_tsv = "~{output_tsv}"
+    }
 
-  runtime {
-    docker: "us.gcr.io/broad-gotc-prod/python-numpy-pandas:1.0.0-2.2.3-1.25.2"
-    memory: "4 GB"
-    cpu: "2"
-  }
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/python-numpy-pandas:1.0.0-2.2.3-1.25.2"
+        memory: "4 GB"
+        cpu: "2"
+    }
 }
+
 
 
 task process_tsv_files {
