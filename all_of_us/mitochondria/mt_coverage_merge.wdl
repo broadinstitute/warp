@@ -77,9 +77,9 @@ task subset_data_table {
     input {
         File full_data_tsv
         File? sample_list_tsv
-        #TODO take the basename of sample_list_tsv and use that to name the subset output tsv
-        String output_tsv = "subset_data.tsv"
     }
+
+    String output_tsv = basename(sample_list_tsv, ".tsv") + "_data.tsv"
 
     command <<<
     set -euxo pipefail
