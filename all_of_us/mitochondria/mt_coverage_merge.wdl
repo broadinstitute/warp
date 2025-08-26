@@ -14,6 +14,8 @@ workflow mt_coverage_merge {
 
     }
 
+    String pipeline_version = "1.0.0"
+
 if (defined(sample_list_tsv)) {
     call subset_data_table {
         input:
