@@ -1,0 +1,33 @@
+{
+  "Multiome.annotations_gtf":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf",
+  "Multiome.input_id":"10k_PBMC_downsampled",
+  "Multiome.cloud_provider":"gcp",
+  "Multiome.gex_r1_fastq":[
+    "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R1_gex.fastq.gz"
+  ],
+  "Multiome.gex_r2_fastq":[
+    "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R2_gex.fastq.gz"
+  ],
+  "Multiome.atac_r1_fastq":[
+    "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R1_atac.fastq.gz"
+  ],
+  "Multiome.atac_r2_fastq":[
+    "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R2_atac.fastq.gz"
+  ],
+  "Multiome.atac_r3_fastq":[
+    "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R3_atac.fastq.gz"
+  ],
+  "Multiome.tar_bwa_reference":"gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar",
+  "Multiome.tar_star_reference":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_star2.7.10a-Human-GENCODE-build-GRCh38-43.tar",
+  "Multiome.chrom_sizes":"gs://pd-test-storage-public/Multiome/input/hg38.chrom.sizes",
+  "Multiome.run_cellbender":"false",
+  "Multiome.Atac.cpu_platform_bwa":"Intel Cascade Lake",
+  "Multiome.Atac.num_threads_bwa":"16",
+  "Multiome.Atac.mem_size_bwa":"64", 
+  "Multiome.soloMultiMappers":"Uniform",
+  "Multiome.gex_nhash_id":"example_1234",
+  "Multiome.atac_nhash_id":"example_1234",
+  "Multiome.run_peak_calling": true,
+  "Multiome.PeakCalling.probability_threshold":"1.00",
+  "Multiome.aligned_ATAC_bam":"gs://broad-gotc-test-storage/Multiome/truth/plumbing/master/10k_pbmc_downsampled_peakcall/10k_PBMC_downsampled_atac.bam"
+}
