@@ -14,7 +14,7 @@ workflow BuildIndices {
     File genome_fa
     File biotypes
 
-    Boolean run_add_introns
+    Boolean run_add_introns = false
   }
 
   # version of this pipeline

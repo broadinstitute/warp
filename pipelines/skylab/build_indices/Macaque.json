@@ -5,6 +5,5 @@
   "BuildIndices.gtf_annotation_version":"103",
   "BuildIndices.genome_source":"NCBI",
   "BuildIndices.genome_build":"GCF_003339765.1",
-  "BuildIndices.organism":"Macaque",
-  "BuildIndices.run_add_introns":"true"
+  "BuildIndices.organism":"Macaque"
 }
