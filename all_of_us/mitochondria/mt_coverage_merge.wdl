@@ -79,7 +79,7 @@ task subset_data_table {
         File? sample_list_tsv
     }
 
-    String output_tsv = basename(sample_list_tsv, ".tsv") + "_data.tsv"
+    String output_tsv = basename(select_first([sample_list_tsv, full_data_tsv]), ".tsv") + "_data.tsv"
 
     command <<<
     set -euxo pipefail
