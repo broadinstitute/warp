@@ -11,6 +11,7 @@ ReblockGVCF	 2.4.1	2025-02-21
 VariantCalling	 2.2.5	2025-02-21 
 UltimaGenomicsWholeGenomeCramOnly	 1.1.0	2025-03-17 
 Imputation	 1.1.19	2025-07-31 
+ArrayImputationQC	 1.0.0	2025-08-11 
 ArrayImputationQuotaConsumed	 1.0.3	2025-07-31 
 ImputationBeagle	 2.0.0	2025-07-31 
 RNAWithUMIsPipeline	 1.0.18	2024-11-04 

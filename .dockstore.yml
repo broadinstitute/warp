@@ -9,6 +9,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ArrayImputationQuotaConsumed.wdl
 
+  - name: ArrayImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ArrayImputationQC.wdl
+
   - name: atac
     subclass: WDL
     primaryDescriptorPath:
