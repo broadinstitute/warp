@@ -133,7 +133,7 @@ workflow ImputationBeagle {
   }
 
   scatter (contig_index in range(length(contigs))) {
-    # these are specific to hg38 - contig is format 'chr1'
+    # cant have the same variable names in different scatters, so add _2 to "differentiate"
     String reference_basename_2 = reference_panel_path_prefix + "." + contigs[contig_index]
     String genetic_map_filename_2 = genetic_maps_path + "plink." + contigs[contig_index] + ".GRCh38.withchr.map"
 

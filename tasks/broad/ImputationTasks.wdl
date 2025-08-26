@@ -22,7 +22,7 @@ task CalculateChromosomeLength {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
-    maxRetries: 2
+    maxRetries: 1
     noAddress: true
   }
   output {
@@ -99,7 +99,7 @@ task GenerateChunk {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
-    maxRetries: 2
+    maxRetries: 1
     noAddress: true
   }
   parameter_meta {
@@ -308,7 +308,7 @@ task GatherVcfs {
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
-    maxRetries: 2
+    maxRetries: 1
     noAddress: true
   }
   output {
@@ -384,7 +384,7 @@ task UpdateHeader {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
-    maxRetries: 2
+    maxRetries: 1
     noAddress: true
   }
   output {
@@ -559,7 +559,7 @@ task CountSamples {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
-    maxRetries: 2
+    maxRetries: 1
     noAddress: true
   }
   output {
@@ -646,7 +646,7 @@ task StoreChunksInfo {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
-    maxRetries: 2
+    maxRetries: 1
     noAddress: true
   }
   output {
