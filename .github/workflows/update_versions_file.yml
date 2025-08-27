@@ -34,13 +34,14 @@ jobs:
           echo "Current directory: "
           pwd
           ls -lht
-          echo -e "Pipeline Name\tVersion\tDate of Last Commit" > pipeline_versions.txt
+          echo -e "Pipeline Name\tVersion\tDate of Last Commit" > unsorted_pipeline_versions.txt
           find pipelines -name "*.changelog.md" -type f | while read -r file; do
             pipeline_name=$(basename "$file" .changelog.md)
             version=$(head -n 1 "$file" | sed 's/#//')
             last_commit_date=$(sed -n '2p' "$file" | sed 's/([^)]*)//g')
-            echo -e "$pipeline_name\t$version\t$last_commit_date" >> pipeline_versions.txt
+            echo -e "$pipeline_name\t$version\t$last_commit_date" >> unsorted_pipeline_versions.txt
           done
+          sort -k1,1 unsorted_pipeline_versions.txt > pipeline_versions.txt
         
       # This step commits and pushes the changes to the repository
       - name: Commit and push changes
@@ -54,4 +55,3 @@ jobs:
             git commit -m "Updated pipeline_versions.txt with all pipeline version information"
             git push
           fi
-        
