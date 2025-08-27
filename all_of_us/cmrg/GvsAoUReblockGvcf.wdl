@@ -96,7 +96,7 @@ task ReblockAndCopy {
 
   runtime {
     memory: "5 GB"
-    bootDiskSizeGb: "15"
+    bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     preemptible: 3
     docker: docker_image
