@@ -20,7 +20,6 @@ workflow BuildIndices {
   # version of this pipeline
   String pipeline_version = "4.1.0"
 
-
   parameter_meta {
     annotations_gtf: "the annotation file"
     genome_fa: "the fasta file"
