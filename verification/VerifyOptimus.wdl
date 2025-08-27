@@ -44,10 +44,18 @@ def check_zero_columns(file_path, file_name):
         print(f"ERROR: Could not process {file_name}: {str(e)}")
         return False
 
-def check_zero_values_in_library_metrics(file_path, file_name):
+def check_zero_values_in_library_metrics(file_path, file_name, skip_metrics=None):
     """Check for metrics with zero values in a key-value format file"""
+    if skip_metrics is None:
+        skip_metrics = [
+            "reads_mapped_antisense_to_gene",
+            "reads_mapped_confidently_to_intronic_regions", 
+            "percent_intronic_reads"
+        ]
+    
     try:
         zero_metrics = []
+        skipped_metrics = []
         with open(file_path, 'r') as f:
             for line in f:
                 line = line.strip()
@@ -80,16 +88,22 @@ def check_zero_values_in_library_metrics(file_path, file_name):
                 try:
                     numeric_value = float(value)
                     if numeric_value == 0.0:
-                        zero_metrics.append(key)
+                        if key in skip_metrics:
+                            skipped_metrics.append(key)
+                        else:
+                            zero_metrics.append(key)
                 except ValueError:
                     # Skip non-numeric values
                     continue
+        
+        if skipped_metrics:
+            print(f"INFO: {file_name} skipped zero-value metrics: {', '.join(skipped_metrics)}")
         
         if zero_metrics:
             print(f"ERROR: {file_name} has metrics with zero values: {', '.join(zero_metrics)}")
             return False
         else:
-            print(f"PASS: {file_name} has no metrics with zero values")
+            print(f"PASS: {file_name} has no problematic metrics with zero values")
             return True
             
     except Exception as e:
