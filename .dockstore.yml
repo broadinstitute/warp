@@ -42,6 +42,14 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
 
+  - name: FixItFelixAndVariantCall
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/cmrg/FixItFelixAndVariantCall.wdl
+
+  - name: GvsAoUReblockGvcf
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/cmrg/GvsAoUReblockGvcf.wdl
+
   - name: HLAGenotyping
     subclass: WDL
     primaryDescriptorPath: /all_of_us/hla/HLAGenotyping.wdl
