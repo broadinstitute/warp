@@ -13,11 +13,12 @@ workflow BuildIndices {
     File annotations_gtf
     File genome_fa
     File biotypes
+
+    Boolean run_add_introns = false
   }
 
   # version of this pipeline
-  String pipeline_version = "4.0.0"
-
+  String pipeline_version = "4.1.0"
 
   parameter_meta {
     annotations_gtf: "the annotation file"
@@ -61,6 +62,13 @@ workflow BuildIndices {
       ]
     }
 
+  if (run_add_introns) {
+    call SNSS2AddIntronsToGTF {
+      input:
+      modified_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf
+    }
+  }
+
   output {
     File snSS2_star_index = BuildStarSingleNucleus.star_index
     String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
@@ -68,6 +76,7 @@ workflow BuildIndices {
     File reference_bundle = BuildBWAreference.reference_bundle
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
     File metadata = RecordMetadata.metadata_file
+    File? snSS2_annotation_gtf_with_introns = SNSS2AddIntronsToGTF.modified_annotation_gtf_with_introns
   }
 }
 
@@ -154,7 +163,7 @@ task BuildStarSingleNucleus {
             --output-gtf ~{annotation_gtf_modified} \
             --species ~{organism}
         echo "listing files, should see modified gtf"
-        ls 
+        ls
     else
         echo "running GTF modification for non-marmoset"
         python3 /script/modify_gtf.py \
@@ -294,4 +303,31 @@ task RecordMetadata {
     cpu: "1"
   }
 }
+
+  task SNSS2AddIntronsToGTF {
+  input {
+    File modified_annotation_gtf
+  }
+    String basename = basename(modified_annotation_gtf, ".gtf")
+
+  command <<<
+
+  python3  /script/add-introns-to-gtf.py  \
+    --input-gtf "~{modified_annotation_gtf}" \
+    --output-gtf "~{basename}_with_introns.gtf"
+
+  >>>
+
+  output {
+    File modified_annotation_gtf_with_introns = "~{basename}_with_introns.gtf"
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.1.0"
+    memory: "50 GiB"
+    disks: "local-disk 100 HDD"
+    disk: 100 + " GB" # TES
+  }
+}
+
 

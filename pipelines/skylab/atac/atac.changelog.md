@@ -1,3 +1,13 @@
+# 2.9.2
+2025-08-15 (Date of Last Commit)
+
+* Added an option to input an aligned ATAC BAM file; this allows users to skip the ATAC alignment step if they already have an aligned BAM file
+
+# 2.9.1
+2025-08-06 (Date of Last Commit) 
+
+* Added MaskPeakCallingMetrics task to remove innappropriate peak calling metrics from PairedTag
+
 # 2.9.0
 2025-06-18 (Date of Last Commit) 
 

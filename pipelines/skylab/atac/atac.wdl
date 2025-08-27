@@ -29,7 +29,7 @@ workflow ATAC {
 
     # Option for running files with preindex
     Boolean preindex = false
-    # Option for running peak calling
+    # Option for running peak calling, library level peak calling is always run 
     Boolean peak_calling = false
     
     # BWA ref
@@ -50,9 +50,12 @@ workflow ATAC {
     # TrimAdapters input
     String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
+
+    # Optional Aligned BAM input to skip alignment step
+    File? aligned_ATAC_bam
   }
 
-  String pipeline_version = "2.9.0"
+  String pipeline_version = "2.9.2"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -85,55 +88,59 @@ workflow ATAC {
     cpu_platform_bwa: "CPU platform for bwa-mem2 task (default: Intel Ice Lake)"
  }
 
-  call GetNumSplits {
-    input:
-       nthreads = num_threads_bwa, 
-       mem_size = mem_size_bwa,
-       cpu_platform = cpu_platform_bwa,
-       vm_size = vm_size
-  }
-
-  call FastqProcessing.FastqProcessATAC as SplitFastq {
-    input:
-      read1_fastq = read1_fastq_gzipped,
-      read3_fastq = read3_fastq_gzipped,
-      barcodes_fastq = read2_fastq_gzipped,
-      output_base_name = input_id,
-      num_output_files = GetNumSplits.ranks_per_node_out,
-      whitelist = whitelist,
-      docker_path = docker_prefix + warp_tools_docker
-  }
-
-  scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
-    call TrimAdapters {
+  if (!defined(aligned_ATAC_bam)) {
+    call GetNumSplits {
       input:
-        read1_fastq = SplitFastq.fastq_R1_output_array[idx],
-        read3_fastq = SplitFastq.fastq_R3_output_array[idx],
-        output_base_name = input_id + "_" + idx,
-        adapter_seq_read1 = adapter_seq_read1,
-        adapter_seq_read3 = adapter_seq_read3,
-        docker_path = docker_prefix + cutadapt_docker
+         nthreads = num_threads_bwa,
+         mem_size = mem_size_bwa,
+         cpu_platform = cpu_platform_bwa,
+         vm_size = vm_size
+    }
+
+    call FastqProcessing.FastqProcessATAC as SplitFastq {
+      input:
+        read1_fastq = read1_fastq_gzipped,
+        read3_fastq = read3_fastq_gzipped,
+        barcodes_fastq = read2_fastq_gzipped,
+        output_base_name = input_id,
+        num_output_files = GetNumSplits.ranks_per_node_out,
+        whitelist = whitelist,
+        docker_path = docker_prefix + warp_tools_docker
+    }
+
+    scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
+      call TrimAdapters {
+        input:
+          read1_fastq = SplitFastq.fastq_R1_output_array[idx],
+          read3_fastq = SplitFastq.fastq_R3_output_array[idx],
+          output_base_name = input_id + "_" + idx,
+          adapter_seq_read1 = adapter_seq_read1,
+          adapter_seq_read3 = adapter_seq_read3,
+          docker_path = docker_prefix + cutadapt_docker
+      }
+    }
+
+    call BWAPairedEndAlignment {
+      input:
+          read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
+          read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
+          tar_bwa_reference = tar_bwa_reference,
+          output_base_name = input_id,
+          nthreads = num_threads_bwa,
+          mem_size = mem_size_bwa,
+          cpu_platform = cpu_platform_bwa,
+          docker_path = docker_prefix + samtools_docker,
+          cloud_provider = cloud_provider,
+          vm_size = vm_size
     }
   }
 
-  call BWAPairedEndAlignment {
-    input:
-        read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
-        read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
-        tar_bwa_reference = tar_bwa_reference,
-        output_base_name = input_id,
-        nthreads = num_threads_bwa, 
-        mem_size = mem_size_bwa,
-        cpu_platform = cpu_platform_bwa,
-        docker_path = docker_prefix + samtools_docker,
-        cloud_provider = cloud_provider,
-        vm_size = vm_size
-  }
+  File aligned_bam = select_first([aligned_ATAC_bam, BWAPairedEndAlignment.bam_aligned_output])
 
   if (preindex) {
     call AddBB.AddBBTag as BBTag {
       input:
-        bam = BWAPairedEndAlignment.bam_aligned_output,
+        bam = aligned_bam,
         input_id = input_id,
         docker_path = docker_prefix + upstools_docker
     }
@@ -152,7 +159,7 @@ workflow ATAC {
   if (!preindex) {
     call CreateFragmentFile {
       input:
-        bam = BWAPairedEndAlignment.bam_aligned_output,
+        bam = aligned_bam,
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf,
         preindex = preindex,
@@ -173,7 +180,7 @@ workflow ATAC {
     }
   }
   
-  File bam_aligned_output_atac = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
+  File bam_aligned_output_atac = select_first([BBTag.bb_bam, aligned_bam])
   File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
   File fragment_file_index_atac = select_first([BB_fragment.fragment_file_index, CreateFragmentFile.fragment_file_index])
   File snap_metrics_atac = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])

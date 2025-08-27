@@ -1,3 +1,13 @@
+# 6.1.3
+2025-08-15 (Date of Last Commit)
+
+* Added an option to input an aligned ATAC BAM file to the Multiome pipeline; this allows users to skip the ATAC alignment step if they already have an aligned BAM file
+
+# 6.1.2
+2025-08-06 (Date of Last Commit)
+
+* Added MaskPeakCallingMetrics task to remove innappropriate library level peak calling metrics from PairedTag
+
 # 6.1.1
 25-07-31 (Date of Last Commit)
 

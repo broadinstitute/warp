@@ -295,3 +295,44 @@ task ParseBarcodes {
       File atac_fragment_tsv_tbi = "~{atac_fragment_base}.sorted.tsv.gz.csi"
   }
 }
+
+task MaskPeakCallingMetrics {
+  input {
+    File library_metrics 
+    String docker_path
+  }
+  command <<<
+    set -e
+
+    # Array of strings to filter out
+    filter_strings=(
+      "tss_enrichment_score"
+      "fraction_of_high-quality_fragments_overlapping_tss"
+      "fraction_of_genome_in_peaks"
+      "fraction_of_high-quality_fragments_overlapping_peaks"
+      "number_of_peaks"
+      "fraction_of_transposition_events_in_peaks_in_cells"
+    )
+
+    # Copy input file to working directory
+    cp ~{library_metrics} library_metrics_input.txt
+
+    # Remove lines starting with any of the filter strings
+    for string in "${filter_strings[@]}"; do
+      grep -v "^${string}" library_metrics_input.txt > temp_file && mv temp_file library_metrics_input.txt
+    done
+
+    # Output the filtered file
+    mv library_metrics_input.txt library_metrics_filtered.txt
+
+  >>>
+
+  runtime {
+    docker: docker_path
+    disks: "local-disk 32 HDD"
+    memory: "8000 MiB"
+  }
+  output {
+    File library_metrics_file = "library_metrics_filtered.txt"
+  }
+}
