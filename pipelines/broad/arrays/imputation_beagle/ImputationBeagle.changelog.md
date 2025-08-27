@@ -1,3 +1,10 @@
+# 2.0.1
+2025-08-26 (Date of Last Commit)
+
+* Update tasks to use maxRetries of 1 instead of 2. 1 retry is sufficient for transient errors and helps reduce costs.
+* Split the two nested scatters from each other so no shard will perform phasing/imputation if any shard fails qc checks
+* updated phase/impute tasks to work with the retry with more memory workflow option to help with OOM issues we're seeing in those tasks
+
 # 2.0.0
 2025-07-31 (Date of Last Commit)
 
