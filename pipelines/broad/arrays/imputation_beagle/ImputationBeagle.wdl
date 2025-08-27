@@ -222,7 +222,7 @@ workflow ImputationBeagle {
               n_samples = QuerySampleChunkedVcfForReannotation.n_samples,
           }
         }
-        # create a non optional File if it exists for use in the future tasks
+        # create a non optional File for use in the future tasks, wdl quirk requires the dummy value to exist
         File ap_annotations_removed_vcf = select_first([RemoveAPAnnotations.output_vcf, "gs://fake/will_fail.txt"])
         File chunked_dr2_af = select_first([RecalculateDR2AndAFChunked.output_summary_file, "gs://fake/will_fail.txt"])
       }
