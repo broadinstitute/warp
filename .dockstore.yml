@@ -41,7 +41,11 @@ workflows:
   - name: FixItFelixAndVariantCall
     subclass: WDL
     primaryDescriptorPath: /all_of_us/cmrg/FixItFelixAndVariantCall.wdl
-  
+
+  - name: GvsAoUReblockGvcf
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/cmrg/GvsAoUReblockGvcf.wdl
+
   - name: IlluminaGenotypingArray
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl
