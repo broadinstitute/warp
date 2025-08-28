@@ -1,6 +1,5 @@
 version 1.0
 
-
 # This workflow splits a multi-sample VCF file into individual single-sample VCF files. This is achieved by creating
 # "chunk" of samples, processing each chunk to extract the corresponding samples from the multi-sample VCF,
 # and then zipping the outputs for each chunk.
