@@ -19,10 +19,10 @@ IlluminaGenotypingArray	 1.12.24	2024-11-04
 PeakCalling	 1.0.0	
 Optimus	 8.0.4	2025-07-31 
 SlideSeq	 3.6.3	2025-06-20 
-PairedTag	 2.1.7	2025-08-06 
-BuildIndices	 4.0.0	2025-01-17 
+PairedTag	 2.1.8 	2025-08-15 
+BuildIndices	 4.1.0	2025-08-20 
 snm3C	 4.1.0	2025-08-11 
-Multiome	 6.1.2	2025-08-06 
+Multiome	 6.1.3	2025-08-15 
 SlideTags	 1.0.2	2025-07-31 
-atac	 2.9.1	2025-08-06  
+atac	 2.9.2	2025-08-15 
 MultiSampleSmartSeq2SingleNucleus	 2.2.2	 2025-06-20 

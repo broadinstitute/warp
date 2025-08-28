@@ -10,7 +10,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 workflow Multiome {
 
 
-    String pipeline_version = "6.1.2"
+    String pipeline_version = "6.1.3"
 
 
     input {
@@ -51,6 +51,7 @@ workflow Multiome {
         # Trimadapters input
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
+        File? aligned_ATAC_bam
 
         # CellBender
         Boolean run_cellbender = false
@@ -128,7 +129,8 @@ workflow Multiome {
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
-            peak_calling = false
+            peak_calling = false,
+            aligned_ATAC_bam = aligned_ATAC_bam
 
     }
 
