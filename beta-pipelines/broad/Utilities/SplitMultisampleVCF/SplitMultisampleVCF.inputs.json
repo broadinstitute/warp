@@ -1,0 +1,5 @@
+
+{
+  "SplitMultiSampleVcfWorkflow.multiSampleVcf": "gs://broad-gotc-test-storage/imputation/scientific/vcfs/merged_input_samples.vcf.gz",
+  "SplitMultiSampleVcfWorkflow.outputLocation": "gs://fc-5aee4dc3-05c4-4d57-8b2b-66d316e2c6c3/split_vcfs"
+}
