@@ -9,6 +9,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ArrayImputationQuotaConsumed.wdl
 
+  - name: ArrayImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ArrayImputationQC.wdl
+
   - name: atac
     subclass: WDL
     primaryDescriptorPath:
@@ -38,6 +42,18 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
 
+  - name: FixItFelixAndVariantCall
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/cmrg/FixItFelixAndVariantCall.wdl
+
+  - name: GvsAoUReblockGvcf
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/cmrg/GvsAoUReblockGvcf.wdl
+
+  - name: HLAGenotyping
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/hla/HLAGenotyping.wdl
+
   - name: IlluminaGenotypingArray
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl
@@ -62,6 +78,18 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_cluster.wdl
     
+  - name: MakeTable
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
+    
+  - name: mitochondria_pipeline
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/mitochondria/mitochondria_pipeline.wdl
+
+  - name: mt_coverage_merge
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/mitochondria/mt_coverage_merge.wdl
+
   - name: Multiome
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/multiome/Multiome.wdl
