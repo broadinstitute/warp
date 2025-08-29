@@ -1,3 +1,8 @@
+# 1.1.20
+2025-08-26 (Date of Last Commit)
+
+* Update tasks to use maxRetries of 1 instead of 2. 1 retry is sufficient for transient errors and helps reduce costs.
+
 # 1.1.19
 2025-07-31 (Date of Last Commit)
 

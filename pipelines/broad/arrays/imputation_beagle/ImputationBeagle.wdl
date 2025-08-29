@@ -6,7 +6,7 @@ import "../../../../tasks/broad/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
 
-  String pipeline_version = "2.0.0"
+  String pipeline_version = "2.0.1"
 
   input {
     Int chunkLength = 25000000
@@ -130,9 +130,22 @@ workflow ImputationBeagle {
         errorCount = n_failed_chunks_int,
         message = "contig " + referencePanelContig.contig + " had " + n_failed_chunks_int + " failing chunks"
     }
+  }
 
-    scatter (i in range(num_chunks)) {
-      String impute_scatter_position_chunk_basename = referencePanelContig.contig + "_chunk_" + i
+  scatter (contig_index in range(length(contigs))) {
+    # cant have the same variable names in different scatters, so add _2 to "differentiate"
+    String reference_basename_2 = reference_panel_path_prefix + "." + contigs[contig_index]
+    String genetic_map_filename_2 = genetic_maps_path + "plink." + contigs[contig_index] + ".GRCh38.withchr.map"
+
+    ReferencePanelContig referencePanelContig_2 = {
+                                                  "bed": reference_basename_2 + bed_suffix,
+                                                  "bref3": reference_basename_2  + bref3_suffix,
+                                                  "contig": contigs[contig_index],
+                                                  "genetic_map": genetic_map_filename_2
+                                                }
+    Int num_chunks_2 = num_chunks[contig_index]
+    scatter (i in range(num_chunks_2)) {
+      String impute_scatter_position_chunk_basename = referencePanelContig_2.contig + "_chunk_" + i
 
       scatter (j in range(num_sample_chunks)) {
         # sample FORMAT fields in vcfs start after the 8 mandatory fields plus FORMAT (FORMAT isnt mandatory
@@ -146,7 +159,7 @@ workflow ImputationBeagle {
         if (num_sample_chunks > 1) {
           call beagleTasks.SelectSamplesWithCut {
             input:
-              vcf = chunkedVcfsWithOverlapsForImputation[i],
+              vcf = chunkedVcfsWithOverlapsForImputation[contig_index][i],
               cut_start_field = start_sample,
               cut_end_field = end_sample,
               basename = impute_scatter_sample_chunk_basename
@@ -155,13 +168,13 @@ workflow ImputationBeagle {
 
         call beagleTasks.Phase {
           input:
-            dataset_vcf = select_first([SelectSamplesWithCut.output_vcf, chunkedVcfsWithOverlapsForImputation[i]]),
-            ref_panel_bref3 = referencePanelContig.bref3,
-            chrom = referencePanelContig.contig,
+            dataset_vcf = select_first([SelectSamplesWithCut.output_vcf, chunkedVcfsWithOverlapsForImputation[contig_index][i]]),
+            ref_panel_bref3 = referencePanelContig_2.bref3,
+            chrom = referencePanelContig_2.contig,
             basename = impute_scatter_sample_chunk_basename + ".phased",
-            genetic_map_file = referencePanelContig.genetic_map,
-            start = startWithOverlaps[i],
-            end = endWithOverlaps[i],
+            genetic_map_file = referencePanelContig_2.genetic_map,
+            start = startWithOverlaps[contig_index][i],
+            end = endWithOverlaps[contig_index][i],
             cpu = beagle_cpu,
             memory_mb = beagle_phase_memory_in_gb * 1024,
             for_dependency = FailQCNChunks.done
@@ -170,12 +183,12 @@ workflow ImputationBeagle {
         call beagleTasks.Impute {
           input:
             dataset_vcf = Phase.vcf,
-            ref_panel_bref3 = referencePanelContig.bref3,
-            chrom = referencePanelContig.contig,
+            ref_panel_bref3 = referencePanelContig_2.bref3,
+            chrom = referencePanelContig_2.contig,
             basename = impute_scatter_sample_chunk_basename + ".imputed",
-            genetic_map_file = referencePanelContig.genetic_map,
-            start = startWithOverlaps[i],
-            end = endWithOverlaps[i],
+            genetic_map_file = referencePanelContig_2.genetic_map,
+            start = startWithOverlaps[contig_index][i],
+            end = endWithOverlaps[contig_index][i],
             impute_with_allele_probabilities = impute_with_allele_probablities,
             cpu = beagle_cpu,
             memory_mb = beagle_impute_memory_in_gb * 1024
@@ -184,9 +197,9 @@ workflow ImputationBeagle {
         call beagleTasks.LocalizeAndSubsetVcfToRegion {
           input:
             vcf = Impute.vcf,
-            start = start[i],
-            end = end[i],
-            contig = referencePanelContig.contig,
+            start = start[contig_index][i],
+            end = end[contig_index][i],
+            contig = referencePanelContig_2.contig,
             output_basename = impute_scatter_sample_chunk_basename + ".imputed.no_overlaps",
             gatk_docker = gatk_docker
         }
@@ -209,7 +222,7 @@ workflow ImputationBeagle {
               n_samples = QuerySampleChunkedVcfForReannotation.n_samples,
           }
         }
-        # create a non optional File if it exists for use in the future tasks
+        # create a non optional File for use in future tasks, wdl quirk requires the dummy value to exist to validate
         File ap_annotations_removed_vcf = select_first([RemoveAPAnnotations.output_vcf, "gs://fake/will_fail.txt"])
         File chunked_dr2_af = select_first([RecalculateDR2AndAFChunked.output_summary_file, "gs://fake/will_fail.txt"])
       }

@@ -3,7 +3,7 @@ version 1.0
 import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
 
 workflow QuotaConsumed {
-    String pipeline_version = "1.0.3"
+    String pipeline_version = "1.0.4"
 
     input {
         Int chunkLength = 25000000

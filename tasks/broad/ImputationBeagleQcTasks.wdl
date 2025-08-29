@@ -89,7 +89,7 @@ task QcChecks {
         memory: "${memory_mb} MiB"
         cpu: cpu
         preemptible: 3
-        maxRetries: 2
+        maxRetries: 1
         noAddress: true
     }
     output {
