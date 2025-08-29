@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: 3.x
       
-      # This step updates a a file called "pipeline_versions.txt" with the names, versions, and last commit dates of all the pipelines found in the 
+      # This step updates a file called "pipeline_versions.txt" with the names, versions, and last commit dates of all the pipelines found in the
       # "warp/pipelines" directory by parsing the contents of the "*.changelog.md" files.
       - name: Update Pipeline Versions
         run: |
