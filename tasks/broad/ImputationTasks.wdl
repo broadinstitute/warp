@@ -381,8 +381,8 @@ task UpdateHeader {
     --replace -V ~{vcf} \
     ~{disable_sequence_dict_validation_flag}
 
-    ## update header with pipeline name and version if provided
-    if [ -n ~{default="" pipeline_header_line} ]; then
+    ## update header with pipeline_header_line if provided
+    if [ -n "~{default="" pipeline_header_line}" ]; then
       mv ~{basename}.vcf.gz temp.vcf.gz
       mv ~{basename}.vcf.gz.tbi temp.vcf.gz.tbi
 
@@ -390,7 +390,7 @@ task UpdateHeader {
       TOTAL_LINES=$(wc -l < "header.txt")
       sed -i "${TOTAL_LINES}i\##~{pipeline_header_line}" header.txt
 
-      bcftools reheader -h header.txt -Oz -o ~{basename}.vcf.gz temp.vcf.gz
+      bcftools reheader -h header.txt -o ~{basename}.vcf.gz temp.vcf.gz
       bcftools index -t ~{basename}.vcf.gz
     fi
   >>>
