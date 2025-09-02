@@ -15,6 +15,12 @@ workflow BuildIndices {
     File biotypes
 
     Boolean run_add_introns = false
+    Boolean? run_mitofinder = false              
+    String?  mito_accession                       # e.g. chimp or ferret mito accession (NC_…)
+    File?    mito_ref_gbk                         # path to mitochondrion reference .gbk
+    String?  ncbi_email                           # optional, for efetch
+    String?  ncbi_api_key                         # optional, for efetch quota
+    Array[String]? mitofinder_opts                # optional, override extra flags to MitoFinder/add_mito
   }
 
   # version of this pipeline
@@ -25,6 +31,27 @@ workflow BuildIndices {
     genome_fa: "the fasta file"
     biotypes: "gene_biotype attributes to include in the gtf file"
   }
+  # ---- Append mitochondrial sequence + annotations ----
+  if (run_mitofinder) {
+    call MitoAnnotate as mito {
+      input:
+        mito_accession = mito_accession,
+        mito_ref_gbk   = select_first([mito_ref_gbk]),
+        genome_fa      = genome_fa,
+        transcript_gtf = annotations_gtf,
+        spec_name      = organism,
+        email          = ncbi_email,
+        api_key        = ncbi_api_key,
+        mitofinder_opts = mitofinder_opts
+    }
+  }
+
+  # Choose the files the rest of the pipeline should use:
+  File genome_fa_for_indices =
+    if (run_mitofinder) then mito.out_fasta else genome_fa
+
+  File annotations_gtf_for_indices =
+    if (run_mitofinder) then mito.out_gtf else annotations_gtf
 
     call BuildStarSingleNucleus {
       input:
@@ -331,3 +358,48 @@ task RecordMetadata {
 }
 
 
+task MitoAnnotate {
+  input {
+    String mito_accession
+    File   mito_ref_gbk
+    File   genome_fa
+    File   transcript_gtf
+    String spec_name
+
+    String? email
+    String? api_key
+    Array[String]? mitofinder_opts
+  }
+
+  command <<<
+    set -euo pipefail
+
+    # Run your Dockerized script; it writes *_mito.fasta and *_mito.gtf
+    add_mito \
+      -a ~{mito_accession} \
+      -r ~{mito_ref_gbk} \
+      -g ~{basename(genome_fa)} \
+      -t ~{basename(transcript_gtf)} \
+      -n ~{spec_name} \
+      ~{if defined(email) then ("-e " + email) else ""} \
+      ~{if defined(api_key) then ("-k " + api_key) else ""} \
+      ~{if defined(mitofinder_opts) then sep=" " mitofinder_opts else ""}
+
+    # List for debugging
+    ls -lah
+  >>>
+
+  output {
+    # add_mito names outputs by appending "_mito"
+    File out_fasta = sub(basename(genome_fa), "(?i)\\.fa(sta)?$", "") + "_mito.fasta"
+    File out_gtf   = sub(basename(transcript_gtf), "(?i)\\.gtf$", "") + "_mito.gtf"
+  }
+
+  runtime {
+    # Build and push this from your Dockerfile (see note below)
+    docker: ""
+    memory: "8 GiB"
+    disks: "local-disk 50 HDD"
+    cpu: 2
+  }
+}
