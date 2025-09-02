@@ -21,6 +21,8 @@ workflow ImputationBeagle {
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
     String output_basename # the basename for intermediate and output files
 
+    String? pipeline_header_line # optional additional header lines to add to the output VCF
+
     # file extensions used to find reference panel files
     String bed_suffix = ".bed"
     String bref3_suffix = ".bref3"
@@ -262,6 +264,7 @@ workflow ImputationBeagle {
           ref_dict = ref_dict,
           basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,
+          pipeline_header_line = pipeline_header_line,
           gatk_docker = gatk_docker
       }
     }
