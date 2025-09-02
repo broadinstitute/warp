@@ -148,6 +148,7 @@ workflow ImputationBeagle {
     Int num_chunks_2 = num_chunks[contig_index]
     scatter (i in range(num_chunks_2)) {
       String impute_scatter_position_chunk_basename = referencePanelContig_2.contig + "_chunk_" + i
+      String? impute_scatter_pipeline_header_line = pipeline_header_line
 
       scatter (j in range(num_sample_chunks)) {
         # sample FORMAT fields in vcfs start after the 8 mandatory fields plus FORMAT (FORMAT isnt mandatory
@@ -264,7 +265,7 @@ workflow ImputationBeagle {
           ref_dict = ref_dict,
           basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,
-          pipeline_header_line = pipeline_header_line,
+          pipeline_header_line = impute_scatter_pipeline_header_line,
           gatk_docker = gatk_docker
       }
     }
