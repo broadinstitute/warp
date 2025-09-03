@@ -3,7 +3,7 @@ version 1.0
 import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
 
 workflow QuotaConsumed {
-    String pipeline_version = "1.0.4"
+    String pipeline_version = "1.0.5"
 
     input {
         Int chunkLength = 25000000
@@ -16,6 +16,8 @@ workflow QuotaConsumed {
         String reference_panel_path_prefix
         String genetic_maps_path
         String output_basename
+
+        String? pipeline_header_line
     }
 
     call tasks.CountSamples {

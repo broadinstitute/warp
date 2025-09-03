@@ -1,3 +1,9 @@
+# 2.0.2
+2025-09-03 (Date of Last Commit)
+
+* Add optional pipeline_header_line input that when supplied, will add a header line containing this value to the 
+header of the output vcf
+
 # 2.0.1
 2025-08-26 (Date of Last Commit)
 

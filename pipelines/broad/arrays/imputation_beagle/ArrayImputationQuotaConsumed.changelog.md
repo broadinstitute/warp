@@ -1,3 +1,8 @@
+# 1.0.5
+2025-09-03 (Date of Last Commit)
+
+* Add optional pipeline_header_line input to match beagle imputation pipeline inputs
+
 # 1.0.4
 2025-08-26 (Date of Last Commit)
 
