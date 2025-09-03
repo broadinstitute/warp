@@ -54,62 +54,92 @@ The Mitochondria Pipeline processes mtDNA data from whole-genome sequencing (WGS
 ## **mt_coverage_merge Pipeline**
 
 ### Overview
+The workflow takes a main table of sample data and several supplementary data files as input. Its goal is to produce a final, comprehensively annotated mitochondrial variant callset. It does this by:
+- Preparing a master sample information file.
+- Merging all individual coverage files into a single coverage dataset.
+- Merging all individual VCF files, using the coverage data to improve accuracy.
+- Running an extensive annotation and QC process on the final merged VCFs.
 
-The `mt_coverage_merge` pipeline processes mitochondrial coverage data by combining multiple input files, annotating the coverage, and generating a final output. It is designed to handle large-scale datasets and produce merged coverage metrics for downstream analysis.
+A key feature of this pipeline is that the final annotation step is run twice in parallel: once keeping all samples (`annotated`) and once filtering out low-quality samples (`filt_annotated`), producing two distinct final outputs.
 
-### Key Features
+### Task: `subset_data_table`
+- **Purpose**: This is an optional first step that filters the main sample data table to only include a specific list of desired samples.
+- **Inputs**:
+  - `full_data_tsv`: The main data table containing information for all samples, including paths to their VCF and coverage files.
+  - `sample_list_tsv` (Optional): A simple text file with one column of sample IDs to keep.
 
-- **Input Merging**: Combines multiple coverage-related TSV files into a single processed file.
-- **Annotation**: Annotates coverage data with additional metadata (e.g., ancestry, date of birth).
-- **Hail Integration**: Uses Hail for efficient processing and annotation of large datasets.
+- **Transformation**:
+  - A simple Python script using pandas reads both files.
+  - It filters the `full_data_tsv` to keep only the rows whose sample ID is present in the `sample_list_tsv`.
+  - If `sample_list_tsv` is not provided, it simply passes the `full_data_tsv` through unchanged.
 
-### Inputs
+- **Output**:
+  - `subset_tsv`: A new TSV file containing data for only the selected samples.
 
-- **Coverage Data**:
-    - `coverage_tsv`: A TSV file containing coverage metrics.
-    - `ancestry_tsv`: A TSV file with ancestry predictions.
-    - `dob_tsv`: A TSV file with date of birth data.
-- **Sample Table Fields**:
-    - Arrays of strings representing various genomic metrics and files (e.g., `n_liftover_r2_spanning_complex`, `self_mt_aligned_bai`, etc.).
-- **Docker Image**:
-    - `hail_docker_img`: Specifies the Docker image for running Hail-based tasks.
+### Task: `process_tsv_files`
+- **Purpose**: To perform data wrangling by merging several different information sources into a single, clean, master sample sheet that the downstream Hail scripts can use.
 
-### Outputs
+- **Inputs**:
+  - `input_tsv`: The (potentially subsetted) data table from the previous step.
+  - `coverage_tsv`: A supplementary file containing QC metrics like mean sequencing coverage.
+  - `ancestry_tsv`: A file with the predicted genetic ancestry for each sample.
+  - `dob_tsv`: A file with the date of birth for each sample.
 
-- **Processed TSV**:
-    - `processed_tsv`: A merged and annotated TSV file containing coverage metrics and metadata.
-- **Hail Table**:
-    - `output_ht`: A compressed Hail Table for downstream analysis.
+- **Transformation**:
+  - This task runs a pandas script to join these four files together based on the sample ID.
+  - It renames columns to match the expected format for the Hail scripts (e.g., `ancestry_pred` becomes `pop`).
+  - It calculates a new `age` column by subtracting the date of birth from the biosample collection date.
 
-### Workflow Steps
+- **Output**:
+  - `processed_tsv`: A single, master TSV file with all the necessary columns (`s`, `coverage`, `final_vcf`, `pop`, `age`, etc.) for the main pipeline.
 
-1. **Generate TSV File**:
-    - Combines input arrays into a single TSV file.
-2. **Process TSV Files**:
-    - Merges the combined TSV with additional metadata (e.g., ancestry, date of birth).
-    - Calculates participant age and other derived metrics.
-3. **Annotate Coverage**:
-    - Uses Hail to annotate the processed TSV file and generate a Hail Table.
+### Task: `annotate_coverage`
+- **Purpose**: To merge all the individual per-base coverage files into a single, unified Hail MatrixTable.
+- **Inputs**:
+  - `input_tsv`: The master processed_tsv from the previous step, which contains the paths to each sample's coverage file.
 
-### Runtime Requirements
+- **Transformation**:
+  - This task calls the `annotate_coverage.py` script. 
+  - This script performs the scalable, **hierarchical merge** of all the individual coverage files listed in the input TSV. 
+  - After merging, it calculates summary statistics across all samples, such as the mean and median coverage at each base of the mitochondrial genome. 
+  - Finally, it archives the resulting Hail MatrixTable into a compressed tarball (`.tar.gz`).
 
-- **Docker Images**:
-    - `hail_docker_img`: For Hail-based tasks.
-- **Resources**:
-    - Memory and CPU requirements vary by task, with high-memory configurations for large-scale processing.
+- **Output**:
+  - `output_ht`: A `tar.gz` archive containing the final combined coverage MatrixTable.
 
----
+### Task: `combine_vcfs`
+- **Purpose**: To merge all individual sample VCF files into a single, combined MatrixTable, using the coverage data for improved accuracy.
+- **Inputs**:
+  - `input_tsv`: The master `processed_tsv`, which contains the paths to each sample's VCF file.
+  - `coverage_mt_tar`: The compressed coverage MatrixTable produced by the `annotate_coverage` task.
 
-## Usage
+- **Transformation**:
+  - This task calls the `combine_vcfs.py` script.
+  - It first unzips the coverage MatrixTable so it can be read by Hail.
+  - The Python script then performs the **hierarchical merge** of all the individual VCF files.
+  - Critically, it uses the unzipped coverage data to accurately distinguish between sites with no variation (homoplasmic reference) and sites with low sequencing depth (missing data).
+  - The resulting merged VCF MatrixTable is archived into a `.tar.gz` file.
 
-### Inputs
+- **Output**:
+  - `results_tar`: A `tar.gz` archive containing the combined VCF MatrixTable.
 
-Provide the required input files and parameters in a JSON or YAML format. Example:
+### Task: `add_annotations` (called as `annotated` and `filt_annotated`)
+- **Purpose**: To perform the final, extensive annotation and quality control of the combined VCF callset.
+- **Inputs**:
+  - `vcf_mt`: The compressed VCF MatrixTable from the `combine_vcfs` task.
+  - `coverage_mt`: The compressed coverage MatrixTable from the `annotate_coverage` task.
+  - `coverage_tsv`: The master `processed_tsv`, which is used here to provide sample-level QC stats.
+  - `keep_all_samples`: A boolean flag that is the key difference between the two calls.
 
-```json
-{
-  "coverage_tsv": "path/to/coverage.tsv",
-  "ancestry_tsv": "path/to/ancestry.tsv",
-  "dob_tsv": "path/to/dob.tsv",
-  "hail_docker_img": "hailgenetics/hail:0.2.67"
-}
+- **Transformation**:
+  - This task calls the comprehensive `add_annotations.py` script. It first unzips the input VCF and coverage MatrixTables.
+  - The script then adds dozens of annotations, including:
+    - Allele frequencies (overall, per-population, per-haplogroup). 
+    - Pathogenicity predictions for tRNA variants. 
+    - Quality control filters (`indel_stack`, `common_low_heteroplasmy`, etc.). 
+  - The transformation depends on the `keep_all_samples` flag:
+    - `annotated` call (`keep_all_samples = true`): The script calculates all QC metrics but does not remove any samples. 
+    - `filt_annotated` call (`keep_all_samples = false`): The script removes samples that fail QC filters for contamination, copy number, etc.
+
+- **Output**:
+  - `annotated_output_tar` / `filt_annotated_output_tar`: Two separate `.tar.gz` archives, each containing a complete set of output files (MatrixTables, VCFs, text files) for the respective analysis—one with all samples included, and one with only the QC-passed samples.
