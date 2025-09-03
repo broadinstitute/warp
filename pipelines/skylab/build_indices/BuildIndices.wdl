@@ -15,7 +15,7 @@ workflow BuildIndices {
     File biotypes
 
     Boolean run_add_introns = false
-    Boolean? run_mitofinder = false              
+    Boolean run_mitofinder = false              
     String?  mito_accession                       # e.g. chimp or ferret mito accession (NC_…)
     File?    mito_ref_gbk                         # path to mitochondrion reference .gbk
     String?  ncbi_email                           # optional, for efetch
@@ -31,33 +31,30 @@ workflow BuildIndices {
     genome_fa: "the fasta file"
     biotypes: "gene_biotype attributes to include in the gtf file"
   }
-  # ---- Append mitochondrial sequence + annotations ----
-  if (run_mitofinder) {
-    call MitoAnnotate as mito {
-      input:
-        mito_accession = mito_accession,
-        mito_ref_gbk   = select_first([mito_ref_gbk]),
-        genome_fa      = genome_fa,
-        transcript_gtf = annotations_gtf,
-        spec_name      = organism,
-        email          = ncbi_email,
-        api_key        = ncbi_api_key,
-        mitofinder_opts = mitofinder_opts
+  
+    # ---- Append mitochondrial sequence + annotations ----
+    # Note: String comparison is case-sensitive.
+    if (run_mitofinder && organism != "Human" && organism != "Mouse") {
+      call MitoAnnotate as mito {
+        input:
+          mito_accession = select_first([mito_accession]),
+          mito_ref_gbk   = select_first([mito_ref_gbk]),
+          genome_fa      = genome_fa,
+          transcript_gtf = annotations_gtf,
+          spec_name      = organism,
+          mitofinder_opts = mitofinder_opts
+      }
     }
-  }
 
-  # Choose the files the rest of the pipeline should use:
-  File genome_fa_for_indices =
-    if (run_mitofinder) then mito.out_fasta else genome_fa
-
-  File annotations_gtf_for_indices =
-    if (run_mitofinder) then mito.out_gtf else annotations_gtf
+    # Choose the files the rest of the pipeline should use:
+    File genome_fa_for_indices = select_first([mito.out_fasta, genome_fa])
+    File annotations_gtf_for_indices = select_first([mito.out_gtf, annotations_gtf])
 
     call BuildStarSingleNucleus {
       input:
         gtf_annotation_version = gtf_annotation_version,
-        genome_fa = genome_fa,
-        annotation_gtf = annotations_gtf,
+        genome_fa = genome_fa_for_indices,
+        annotation_gtf = annotations_gtf_for_indices,
         biotypes = biotypes,
         genome_build = genome_build,
         genome_source = genome_source,
@@ -65,11 +62,11 @@ workflow BuildIndices {
     }
     call CalculateChromosomeSizes {
       input:
-        genome_fa = genome_fa
+        genome_fa = genome_fa_for_indices
     }
     call BuildBWAreference {
       input:
-        genome_fa = genome_fa,
+        genome_fa = genome_fa_for_indices,
         chrom_sizes_file = CalculateChromosomeSizes.chrom_sizes,
         genome_source = genome_source,
         genome_build = genome_build,
@@ -79,20 +76,21 @@ workflow BuildIndices {
 
     call RecordMetadata {
       input:
-      pipeline_version = pipeline_version,
-      input_files = [annotations_gtf, genome_fa, biotypes],
-      output_files = [
-      BuildStarSingleNucleus.star_index,
-      BuildStarSingleNucleus.modified_annotation_gtf,
-      CalculateChromosomeSizes.chrom_sizes,
-      BuildBWAreference.reference_bundle
-      ]
+        pipeline_version = pipeline_version,
+        ### IMPROVEMENT 2: Log the files actually used for indexing. ###
+        input_files = [annotations_gtf_for_indices, genome_fa_for_indices, biotypes],
+        output_files = [
+          BuildStarSingleNucleus.star_index,
+          BuildStarSingleNucleus.modified_annotation_gtf,
+          CalculateChromosomeSizes.chrom_sizes,
+          BuildBWAreference.reference_bundle
+        ]
     }
 
   if (run_add_introns) {
     call SNSS2AddIntronsToGTF {
       input:
-      modified_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf
+        modified_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf
     }
   }
 
@@ -104,8 +102,56 @@ workflow BuildIndices {
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
     File metadata = RecordMetadata.metadata_file
     File? snSS2_annotation_gtf_with_introns = SNSS2AddIntronsToGTF.modified_annotation_gtf_with_introns
+    # Optional outputs from the mito step
+    File? mito_annotated_fasta = mito.out_fasta
+    File? mito_annotated_gtf = mito.out_gtf
   }
 }
+
+task MitoAnnotate {
+  input {
+    String mito_accession
+    File   mito_ref_gbk
+    File   genome_fa
+    File   transcript_gtf
+    String spec_name
+    Array[String]? mitofinder_opts
+  }
+
+  command <<<
+    set -euo pipefail
+
+    # Run your Dockerized script; it writes *_mito.fasta and *_mito.gtf
+    add_mito \
+      -a ~{mito_accession} \
+      -r ~{mito_ref_gbk} \
+      -g ~{genome_fa} \
+      -t ~{transcript_gtf} \
+      -n ~{spec_name} \
+      ~{if defined(mitofinder_opts) then sep(" ", select_first([mitofinder_opts])) else ""}
+
+    # List for debugging
+    ls -lah
+  >>>
+
+  output {
+    # add_mito names outputs by appending "_mito"
+    # This regex-based approach is great and robust. No changes needed here.
+    File out_fasta = sub(basename(genome_fa), "\\.(fa|fasta)(\\.gz)?$", "") + "_mito.fasta"
+    File out_gtf   = sub(basename(transcript_gtf), "\\.(gtf)(\\.gz)?$", "") + "_mito.gtf"
+  }
+
+  runtime {
+    ### IMPROVEMENT 4: Add a placeholder for the Docker image path. ###
+    # IMPORTANT: You must build the Dockerfile provided and push it to a registry.
+    # Replace the line below with the path to your image.
+    docker: "gcr.io/your-google-project/your-image-name:tag"
+    memory: "8 GiB"
+    disks: "local-disk 50 HDD"
+    cpu: 2
+  }
+}
+
 
 task CalculateChromosomeSizes {
   input {
@@ -354,52 +400,5 @@ task RecordMetadata {
     memory: "50 GiB"
     disks: "local-disk 100 HDD"
     disk: 100 + " GB" # TES
-  }
-}
-
-
-task MitoAnnotate {
-  input {
-    String mito_accession
-    File   mito_ref_gbk
-    File   genome_fa
-    File   transcript_gtf
-    String spec_name
-
-    String? email
-    String? api_key
-    Array[String]? mitofinder_opts
-  }
-
-  command <<<
-    set -euo pipefail
-
-    # Run your Dockerized script; it writes *_mito.fasta and *_mito.gtf
-    add_mito \
-      -a ~{mito_accession} \
-      -r ~{mito_ref_gbk} \
-      -g ~{basename(genome_fa)} \
-      -t ~{basename(transcript_gtf)} \
-      -n ~{spec_name} \
-      ~{if defined(email) then ("-e " + email) else ""} \
-      ~{if defined(api_key) then ("-k " + api_key) else ""} \
-      ~{if defined(mitofinder_opts) then sep=" " mitofinder_opts else ""}
-
-    # List for debugging
-    ls -lah
-  >>>
-
-  output {
-    # add_mito names outputs by appending "_mito"
-    File out_fasta = sub(basename(genome_fa), "(?i)\\.fa(sta)?$", "") + "_mito.fasta"
-    File out_gtf   = sub(basename(transcript_gtf), "(?i)\\.gtf$", "") + "_mito.gtf"
-  }
-
-  runtime {
-    # Build and push this from your Dockerfile (see note below)
-    docker: ""
-    memory: "8 GiB"
-    disks: "local-disk 50 HDD"
-    cpu: 2
   }
 }
