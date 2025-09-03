@@ -36,6 +36,7 @@ workflow ImputationBeagle {
     Int beagle_phase_memory_in_gb = 40
     Int beagle_impute_memory_in_gb = 45
   }
+  String defined_pipeline_header_line = if defined(pipeline_header_line) then select_first([pipeline_header_line]) else ""
 
   call tasks.CountSamples {
     input:
@@ -146,7 +147,6 @@ workflow ImputationBeagle {
                                                   "genetic_map": genetic_map_filename_2
                                                 }
     Int num_chunks_2 = num_chunks[contig_index]
-    String? impute_scatter_pipeline_header_line = pipeline_header_line
     scatter (i in range(num_chunks_2)) {
       String impute_scatter_position_chunk_basename = referencePanelContig_2.contig + "_chunk_" + i
 
@@ -265,7 +265,7 @@ workflow ImputationBeagle {
           ref_dict = ref_dict,
           basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,
-          task_pipeline_header_line = impute_scatter_pipeline_header_line,
+          pipeline_header_line = defined_pipeline_header_line,
           gatk_docker = gatk_docker
       }
     }
