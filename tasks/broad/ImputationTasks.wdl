@@ -359,7 +359,7 @@ task UpdateHeader {
     File ref_dict
     String basename
     Boolean disable_sequence_dictionary_validation = true
-    String? pipeline_header_line
+    String? task_pipeline_header_line
 
     Int disk_size_gb = ceil(4*(size(vcf, "GiB") + size(vcf_index, "GiB"))) + 20
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
@@ -382,13 +382,13 @@ task UpdateHeader {
     ~{disable_sequence_dict_validation_flag}
 
     ## update header with pipeline_header_line if provided
-    if [ -n "~{default="" pipeline_header_line}" ]; then
+    if [ -n "~{default="" task_pipeline_header_line}" ]; then
       mv ~{basename}.vcf.gz temp.vcf.gz
       mv ~{basename}.vcf.gz.tbi temp.vcf.gz.tbi
 
       bcftools view -h --no-version temp.vcf.gz > header.txt
       TOTAL_LINES=$(wc -l < "header.txt")
-      sed -i "${TOTAL_LINES}i\##~{pipeline_header_line}" header.txt
+      sed -i "${TOTAL_LINES}i\##~{task_pipeline_header_line}" header.txt
 
       bcftools reheader -h header.txt -o ~{basename}.vcf.gz temp.vcf.gz
       bcftools index -t ~{basename}.vcf.gz
