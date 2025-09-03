@@ -18,8 +18,6 @@ workflow BuildIndices {
     Boolean run_mitofinder = false              
     String?  mito_accession                       # e.g. chimp or ferret mito accession (NC_…)
     File?    mito_ref_gbk                         # path to mitochondrion reference .gbk
-    String?  ncbi_email                           # optional, for efetch
-    String?  ncbi_api_key                         # optional, for efetch quota
     Array[String]? mitofinder_opts                # optional, override extra flags to MitoFinder/add_mito
   }
 
@@ -77,7 +75,12 @@ workflow BuildIndices {
     call RecordMetadata {
       input:
         pipeline_version = pipeline_version,
-        ### IMPROVEMENT 2: Log the files actually used for indexing. ###
+        ### MODIFIED: Pass all mito-related info to the metadata task ###
+        was_mitofinder_run = run_mitofinder,
+        organism = organism,
+        mito_accession_used = mito_accession,
+        mito_ref_gbk_used = mito_ref_gbk,
+        mitofinder_opts_used = mitofinder_opts,
         input_files = [annotations_gtf_for_indices, genome_fa_for_indices, biotypes],
         output_files = [
           BuildStarSingleNucleus.star_index,
@@ -142,9 +145,6 @@ task MitoAnnotate {
   }
 
   runtime {
-    ### IMPROVEMENT 4: Add a placeholder for the Docker image path. ###
-    # IMPORTANT: You must build the Dockerfile provided and push it to a registry.
-    # Replace the line below with the path to your image.
     docker: "gcr.io/your-google-project/your-image-name:tag"
     memory: "8 GiB"
     disks: "local-disk 50 HDD"
@@ -325,6 +325,12 @@ task RecordMetadata {
     String pipeline_version
     Array[File] input_files
     Array[File] output_files
+    # New inputs for logging mito info
+    Boolean was_mitofinder_run
+    String organism
+    String? mito_accession_used
+    File? mito_ref_gbk_used
+    Array[String]? mitofinder_opts_used
   }
 
   command <<<
@@ -334,6 +340,27 @@ task RecordMetadata {
     echo "Pipeline Version: ~{pipeline_version}" > metadata.txt
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
     echo "" >> metadata.txt
+
+    ### NEW/MODIFIED: Add the MitoFinder section to the metadata file ###
+    echo "--- MitoFinder Details ---" >> metadata.txt
+    # Check if the boolean flag is true
+    if [[ "~{was_mitofinder_run}" == "true" ]]; then
+      echo "MitoFinder was run for organism: ~{organism}" >> metadata.txt
+      # Check for and report the specific parameters used, handling optional inputs.
+      if [ -n "~{mito_accession_used}" ]; then
+        echo "Mitochondrial Accession: ~{mito_accession_used}" >> metadata.txt
+      fi
+      if [ -n "~{mito_ref_gbk_used}" ]; then
+        echo "Mitochondrial Reference GBK: ~{mito_ref_gbk_used}" >> metadata.txt
+      fi
+      if [ -n "~{sep=' ' mitofinder_opts_used}" ]; then
+        echo "MitoFinder Extra Options: ~{sep=' ' mitofinder_opts_used}" >> metadata.txt
+      fi
+    else
+      echo "MitoFinder was not run." >> metadata.txt
+    fi
+    echo "" >> metadata.txt
+    ###################################################################
 
     # echo paths and md5sums for input files
     echo "Input Files and their md5sums:" >> metadata.txt
