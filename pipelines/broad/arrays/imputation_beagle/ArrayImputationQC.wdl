@@ -3,7 +3,7 @@ version 1.0
 import "../../../../tasks/broad/ImputationBeagleQcTasks.wdl" as tasks
 
 workflow InputQC {
-    String pipeline_version = "1.0.1"
+    String pipeline_version = "1.0.2"
 
     input {
         Int chunkLength = 25000000
@@ -16,6 +16,8 @@ workflow InputQC {
         String reference_panel_path_prefix
         String genetic_maps_path
         String output_basename
+
+        String? pipeline_header_line
     }
 
     call tasks.QcChecks {

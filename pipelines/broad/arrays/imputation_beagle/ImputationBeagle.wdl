@@ -6,7 +6,7 @@ import "../../../../tasks/broad/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
 
-  String pipeline_version = "2.0.1"
+  String pipeline_version = "2.0.2"
 
   input {
     Int chunkLength = 25000000
@@ -21,6 +21,8 @@ workflow ImputationBeagle {
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
     String output_basename # the basename for intermediate and output files
 
+    String? pipeline_header_line # optional additional header lines to add to the output VCF
+
     # file extensions used to find reference panel files
     String bed_suffix = ".bed"
     String bref3_suffix = ".bref3"
@@ -34,6 +36,7 @@ workflow ImputationBeagle {
     Int beagle_phase_memory_in_gb = 40
     Int beagle_impute_memory_in_gb = 45
   }
+  String defined_pipeline_header_line = if defined(pipeline_header_line) then select_first([pipeline_header_line]) else ""
 
   call tasks.CountSamples {
     input:
@@ -262,6 +265,7 @@ workflow ImputationBeagle {
           ref_dict = ref_dict,
           basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,
+          pipeline_header_line = defined_pipeline_header_line,
           gatk_docker = gatk_docker
       }
     }
