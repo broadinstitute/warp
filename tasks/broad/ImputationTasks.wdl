@@ -388,7 +388,8 @@ task UpdateHeader {
 
       bcftools view -h --no-version temp.vcf.gz > header.txt
       TOTAL_LINES=$(wc -l < "header.txt")
-      sed -i "${TOTAL_LINES}i\##~{pipeline_header_line}" header.txt
+      REMOVED_COMMENT_CHARACTER_HEADER_LINE=$(echo "~{pipeline_header_line}" | sed 's/^#*//')
+      sed -i "${TOTAL_LINES}i\##${REMOVED_COMMENT_CHARACTER_HEADER_LINE}" header.txt
 
       bcftools reheader -h header.txt -o ~{basename}.vcf.gz temp.vcf.gz
       bcftools index -t ~{basename}.vcf.gz
