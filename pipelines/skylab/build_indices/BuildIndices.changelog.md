@@ -1,4 +1,4 @@
-# 5.1.0
+# 5.0.0
 2025-09-02 (Date of Last Commit)
 
 * Added the MitoAnnotate task to optionally append mitochondrial sequence and annotations via MitoFinder.  
