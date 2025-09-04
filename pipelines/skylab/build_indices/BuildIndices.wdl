@@ -347,13 +347,13 @@ task RecordMetadata {
     if [[ "~{was_mitofinder_run}" == "true" ]]; then
       echo "MitoFinder was run for organism: ~{organism}" >> metadata.txt
       # Check for and report the specific parameters used, handling optional inputs.
-      if [ -n "~{mito_accession_used}" ]; then
+      if [ "~{mito_accession_used}" != "" ]; then
         echo "Mitochondrial Accession: ~{mito_accession_used}" >> metadata.txt
       fi
-      if [ -n "~{mito_ref_gbk_used}" ]; then
+      if [ "~{mito_ref_gbk_used}" != "" ]; then
         echo "Mitochondrial Reference GBK: ~{mito_ref_gbk_used}" >> metadata.txt
       fi
-      if [ -n "~{sep=' ' mitofinder_opts_used}" ]; then
+      if [ "~{sep=' ' mitofinder_opts_used}" != "" ]; then
         echo "MitoFinder Extra Options: ~{sep=' ' mitofinder_opts_used}" >> metadata.txt
       fi
     else
