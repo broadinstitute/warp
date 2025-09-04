@@ -145,7 +145,7 @@ task MitoAnnotate {
   }
 
   runtime {
-    docker: "gcr.io/your-google-project/your-image-name:tag"
+    docker: "us.gcr.io/broad-gotc-prod/add_mito:1.0.0-1.4.2"
     memory: "8 GiB"
     disks: "local-disk 50 HDD"
     cpu: 2
