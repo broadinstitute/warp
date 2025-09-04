@@ -131,7 +131,7 @@ task MitoAnnotate {
       -g ~{genome_fa} \
       -t ~{transcript_gtf} \
       -n ~{spec_name} \
-      ~{if defined(mitofinder_opts) then sep=" " select_first([mitofinder_opts]) else ""}
+      ~{sep=' ' mitofinder_opts}
 
     # List for debugging
     ls -lah
