@@ -128,6 +128,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_ancestry.wdl
  
+  - name: run_sample_outlier_qc
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/ancestry/run_sample_outlier_qc.wdl
+    
   - name: Smartseq2_Single_Nucleus
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl
