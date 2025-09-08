@@ -338,7 +338,7 @@ task RecordMetadata {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.1.0"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:np_fix_add_introns"
     memory: "50 GiB"
     disks: "local-disk 100 HDD"
     disk: 100 + " GB" # TES
