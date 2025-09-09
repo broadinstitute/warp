@@ -291,7 +291,7 @@ task filter_by_sites_only {
         gsutil cp ~{vcf_idx} .
         fi
 
-        gatk SelectVariants -V ~{updated_input_vcf} -L ~{sites_only_vcf}  -O ~{output_filename}
+        gatk SelectVariants -V ~{updated_input_vcf} --exclude-filtered -L ~{sites_only_vcf}  -O ~{output_filename}
         gatk IndexFeatureFile -I ~{output_filename}
     >>>
 
