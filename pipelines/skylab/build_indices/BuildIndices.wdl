@@ -329,7 +329,6 @@ task RecordMetadata {
   --runThreadN 16
 
   tar -cvf ~{star_index_name} star
-
   >>>
 
   output {
