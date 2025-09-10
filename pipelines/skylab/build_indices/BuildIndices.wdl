@@ -18,7 +18,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "4.1.0"
+  String pipeline_version = "4.2.0"
 
   parameter_meta {
     annotations_gtf: "the annotation file"
@@ -65,7 +65,8 @@ workflow BuildIndices {
   if (run_add_introns) {
     call SNSS2AddIntronsToGTF {
       input:
-      modified_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf
+      modified_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf,
+      genome_fa = genome_fa
     }
   }
 
@@ -77,6 +78,7 @@ workflow BuildIndices {
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
     File metadata = RecordMetadata.metadata_file
     File? snSS2_annotation_gtf_with_introns = SNSS2AddIntronsToGTF.modified_annotation_gtf_with_introns
+    File? star_index_with_introns = SNSS2AddIntronsToGTF.star_index_with_introns
   }
 }
 
@@ -307,8 +309,10 @@ task RecordMetadata {
   task SNSS2AddIntronsToGTF {
   input {
     File modified_annotation_gtf
+    File genome_fa
   }
     String basename = basename(modified_annotation_gtf, ".gtf")
+    String star_index_name = "~{basename}_intron.tar"
 
   command <<<
 
@@ -316,14 +320,24 @@ task RecordMetadata {
     --input-gtf "~{modified_annotation_gtf}" \
     --output-gtf "~{basename}_with_introns.gtf"
 
+  mkdir star
+  STAR --runMode genomeGenerate \
+  --genomeDir star \
+  --genomeFastaFiles ~{genome_fa} \
+  --sjdbGTFfile ~{basename}_with_introns.gtf \
+  --sjdbOverhang 100 \
+  --runThreadN 16
+
+  tar -cvf ~{star_index_name} star
   >>>
 
   output {
     File modified_annotation_gtf_with_introns = "~{basename}_with_introns.gtf"
+    File star_index_with_introns = star_index_name
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.1.0"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:4.2.0"
     memory: "50 GiB"
     disks: "local-disk 100 HDD"
     disk: 100 + " GB" # TES
