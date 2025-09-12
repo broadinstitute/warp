@@ -19,3 +19,7 @@ All released WARP pipelines should meet the following criteria:
 :::tip
 Read more about our pipeline development in our [Best Practices](./BestPractices.md) documentation.
 :::
+
+When citing WARP, please use the following:
+
+Degatano, Kylee, Aseel Awdeh, Robert Sidney Cox III, Wes Dingman, George Grant, Farzaneh Khajouei, Elizabeth Kiernan, et al. 2025. "Warp Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis." _Bioinformatics (Oxford, England)_, September, https://doi.org/10.1093/bioinformatics/btaf494
