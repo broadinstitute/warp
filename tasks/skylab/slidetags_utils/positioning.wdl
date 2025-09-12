@@ -100,7 +100,7 @@ task generate_positioning {
   }
   
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/slide-tags:np_new_slidetags_code"
+    docker: docker
     memory: "~{mem_GiB} GB"
     disks: "local-disk ~{disk_GiB} SSD"
     cpu: nthreads
