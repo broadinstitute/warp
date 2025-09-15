@@ -1,5 +1,5 @@
 # 1.0.3
-2025-09-11 (Date of Last Commit)
+2025-09-15 (Date of Last Commit)
 
 * Add instruction for updating ImputationBeagle wdl when this workflow's pipeline_version changes for improved version tracking across wdls
 
