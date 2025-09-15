@@ -131,6 +131,13 @@ workflows:
   - name: run_relatedness
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_relatedness.wdl
+  
+  - name: run_sample_outlier_qc
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/ancestry/run_sample_outlier_qc.wdl
+
+  - name: run_sample_outlier_qc_plotting
+    subclass: WDL
 
   - name: Smartseq2_Single_Nucleus
     subclass: WDL
