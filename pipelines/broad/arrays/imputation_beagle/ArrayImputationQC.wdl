@@ -3,7 +3,7 @@ version 1.0
 import "../../../../tasks/broad/ImputationBeagleQcTasks.wdl" as tasks
 
 workflow InputQC {
-    # if this changes, update the input_qc_version value in ImputationBeagle.wdl as well
+    # if this changes, update the input_qc_version value in ImputationBeagle.wdl
     String pipeline_version = "1.0.3"
 
     input {
