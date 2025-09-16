@@ -1,3 +1,8 @@
+# 2.0.3
+2025-09-11 (Date of Last Commit)
+
+* Add pipeline_version values for InputQC and QuotaConsumed wdls for improved version tracking across wdls
+
 # 2.0.2
 2025-09-03 (Date of Last Commit)
 
