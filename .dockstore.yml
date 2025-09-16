@@ -26,6 +26,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
 
+  - name: CyriusStarAlleleCalling
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/pgx/CyriusStarAlleleCalling.wdl
+
   - name: determine_hq_sites_intersection
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/determine_hq_sites_intersection.wdl
