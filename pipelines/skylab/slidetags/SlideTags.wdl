@@ -34,7 +34,7 @@ workflow SlideTags {
         String? gex_nhash_id
         File? mt_genes
 
-        String docker = "us.gcr.io/broad-gotc-prod/slide-tags@sha256:3f6d5e8612fbe32ca8cab09f32e1c83dec200a8382ca7cc23b48bb401d0212f4"
+        String docker = "us.gcr.io/broad-gotc-prod/slide-tags@sha256:f789b7d049c309bde7868f31279cf44f0f752a397638d149a9700a783f438a7f"
      }
     
     parameter_meta {
