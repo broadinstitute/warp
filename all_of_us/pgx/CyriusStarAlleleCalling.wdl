@@ -18,11 +18,11 @@ workflow CyriusStarAlleleCalling {
         input:
             input_bam = input_cram,
             input_bam_index = input_cram_index,
-        sample_name = sample_name,
-        interval_list = interval_list,
-        ref_dict = ref_dict,
-        ref_fasta = ref_fasta,
-        ref_fasta_index = ref_fasta_index
+            sample_name = sample_name,
+            interval_list = interval_list,
+            ref_dict = ref_dict,
+            ref_fasta = ref_fasta,
+            ref_fasta_index = ref_fasta_index
     }
 
     call RunCyrius {
