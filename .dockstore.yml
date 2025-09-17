@@ -82,6 +82,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_cluster.wdl
     
+  - name: LocalizeAndConcatStargazer
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/pgx/LocalizeAndConcatStargazer.wdl
+  
   - name: MakeTable
     subclass: WDL
     primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
