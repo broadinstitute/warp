@@ -401,7 +401,7 @@ task annotate_coverage {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
+        docker: hail_docker
         memory: "8 GB"
         cpu: "24"
         disks: "local-disk 100 SSD"
