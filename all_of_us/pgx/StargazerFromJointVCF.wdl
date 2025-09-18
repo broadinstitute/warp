@@ -46,11 +46,10 @@ workflow StargazerFromJointVCF {
             gene_names = ['dpyd'],
             memory_in_mb = 7500
     }
-    File tsv_output = write_lines(flatten([RunStargazer.stargazer_details, Stargazer_DPYD.stargazer_details]))
-
+    
     output {
         Array[File] stargazer_details = flatten([RunStargazer.stargazer_details, Stargazer_DPYD.stargazer_details])
-        File final_tsv_output = "~{sample_name}" +tsv_output
+        File tsv_output = write_lines(flatten([RunStargazer.stargazer_details, Stargazer_DPYD.stargazer_details]))
     }
 }
 
