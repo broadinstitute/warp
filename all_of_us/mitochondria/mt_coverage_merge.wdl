@@ -252,7 +252,7 @@ task annotate_coverage {
         Boolean hail_only = false  # Skip generating flat files (default: false)
         Int? split_merging = 10  # Number of jobs for splitting merging (default: 1)
 
-        String output_bucket_path # Path to the google bucket for output files, e.g. "gs://my-bucket/my-subdir/". No trailing slash.
+        String output_bucket_path # Path to the google bucket for output files, e.g. "gs://my-bucket/my-subdir". No trailing slash.
 
         # dataproc params
         String gcs_project
@@ -278,7 +278,7 @@ task annotate_coverage {
     }
 
     # define output file urls with file names
-    String output_aou_vcf_url = output_bucket_path + "merged_coverage_tsvs.ht"
+    String output_aou_vcf_url = output_bucket_path + "/merged_coverage_tsvs.ht"
 
     command <<<
         set -euxo pipefail
@@ -397,7 +397,7 @@ task annotate_coverage {
     #>>>
 
     output {
-        String output_ht = "coverages_tsv.mt.tar.gz"
+        String output_ht = output_aou_vcf_url
     }
 
     runtime {
