@@ -44,9 +44,9 @@ workflow run_relatedness {
         String task_identifier  # An identifier associated with the run like "aou_delta"
         String statistics = 'kin' # Set of statistics to compute. Default to 'kin' which is the kinship statistic
         Float min_individual_maf = 0.01 #  The minimum individual-specific minor allele frequency.
-        Int block_size = 2048 # Block size of block matrices used in the algorithm
+        Int block_size = 512 # Block size of block matrices used in the algorithm
         Float min_kinship = 0.1 # Pairs of samples with kinship lower than min_kinship are excluded from the results.
-        Int min_partitions = 1200  # Minimum number of partitions for optimization
+        Int min_partitions = 20000  # Minimum number of partitions for optimization
         String gcs_output_url  # Google Cloud Storage path for the output files
         String executor_cores  # Number of cores assigned to each Spark executor
         String driver_cores  # Number of cores assigned to the Spark driver
@@ -67,7 +67,7 @@ workflow run_relatedness {
         String hail_docker = "us.gcr.io/broad-dsde-methods/lichtens/hail_dataproc_wdl:1.1"  # Docker image with Hail and Google Cloud SDK
         #String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.125"  # Docker image with Hail and Google Cloud SDK
     }
-    String pipeline_version="aou_9.0.0"
+    String pipeline_version="aou_9.1.0"
 
     call run_relatedness_task {
         # Task inputs mirror workflow inputs
@@ -203,7 +203,7 @@ task run_relatedness_task {
             cluster_start_cmd = f"""
                 hailctl dataproc start --num-workers ~{num_workers}
                 --region ~{region} --project ~{gcs_project} --service-account {account}
-                --worker-machine-type n1-standard-4
+                --worker-machine-type n2-highmem-8
                 --master-machine-type n1-highmem-32
                 --max-idle=60m --max-age=1440m
                 --subnet=projects/~{gcs_project}/regions/~{region}/subnetworks/~{gcs_subnetwork_name}
