@@ -2,7 +2,7 @@
 2025-09-18 (Date of Last Commit)
 
 * Update CountSamples task to use SSD for more efficient localization of large files on Google Batch.
-* Update Phase and Impute tasks to use a docker image running on java 17 instead of java 8 for better memory management.
+* Update Phase and Impute tasks to use a docker image running on Java 17 instead of Java 8 for better memory management.
 
 # 2.0.3
 2025-09-11 (Date of Last Commit)
