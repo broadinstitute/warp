@@ -127,7 +127,7 @@ workflow RunAoUAnvilMergeFilterAndQc {
         #  However, since this can be a lightweight VM, overriding is unlikely to be necessary.
 
         # The docker to be used on the VM.  This will need both Hail and Google Cloud SDK installed.
-        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.130"
+        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.134"
     }
 
     # Ensure that trailing slash is included in the output bucket path
