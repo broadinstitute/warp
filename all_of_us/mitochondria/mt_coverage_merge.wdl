@@ -17,7 +17,7 @@ workflow mt_coverage_merge {
         String gcs_subnetwork_name = 'subnetwork'
         String output_bucket_path
         String region = "us-central1"
-        String hail_docker = "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:mtswirl_data_proc_v2"
+        String hail_docker = "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:mtswirl_data_proc_v3"
         String prefix
 
     }
