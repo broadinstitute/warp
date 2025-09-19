@@ -92,7 +92,7 @@ task Phase {
   command <<<
     set -e -o pipefail
 
-    java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 \
+    java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 -XX:-UseCompressedOops \
     -jar /usr/gitc/beagle.17Dec24.224.jar \
     gt=~{dataset_vcf} \
     ref=~{ref_panel_bref3} \
@@ -139,7 +139,7 @@ task Impute {
   command <<<
     set -e -o pipefail
 
-    java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 \
+    java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 -XX:-UseCompressedOops \
     -jar /usr/gitc/beagle.17Dec24.224.jar \
     gt=~{dataset_vcf} \
     ref=~{ref_panel_bref3} \
