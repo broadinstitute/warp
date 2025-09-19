@@ -1,7 +1,12 @@
-# 4.0.6
+# 4.1.1
+2025-09-19 (Date of Last Commit)
+
+* Resolved merge conflicts and reorganize WDL pipelines into unified directory
+
+# 4.1.0
 2025-08-11 (Date of Last Commit)
 
-* Reorganized pipelines into the wdl directory
+* Changed read threshold max from 10M to 6M in demulitiplexing step
 
 # 4.0.5
 2025-06-16 (Date of Last Commit)

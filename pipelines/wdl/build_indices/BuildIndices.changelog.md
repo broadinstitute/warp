@@ -1,3 +1,13 @@
+# 4.2.0
+2025-09-10 (Date of Last Commit)
+
+* Modified the SNSS2AddIntronsToGTF task to create a tarred STAR index alongside the intron-modified GTF file. This is a new output of the pipeline.
+
+# 4.1.0
+2025-08-20 (Date of Last Commit)
+
+* Added the SNSS2AddIntronsToGTF task to modify human and mouse GENCODE GTF files by adding introns. This is a new output of the pipeline
+
 # 4.0.0
 2025-01-17 (Date of Last Commit)
 

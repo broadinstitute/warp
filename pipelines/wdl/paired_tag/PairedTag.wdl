@@ -9,7 +9,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "2.1.1"
+    String pipeline_version = "2.1.9"
 
     input {
         String input_id
@@ -50,6 +50,8 @@ workflow PairedTag {
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         # Whitelist
         File atac_whitelist = if cloud_provider == "gcp" then "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt" else "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_atac.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
+        # Optional aligned ATAC bam file
+        File? aligned_ATAC_bam
 
         # PairedTag
         Boolean preindex
@@ -64,6 +66,7 @@ workflow PairedTag {
     # All docker images that are needed for tasks in this workflow
     String upstools_docker = "upstools:2.0.0"
     String snapatac_docker = "snapatac2:2.0.0"
+    String csv_docker = "ubuntu:24.04"
 
     # Prefixes based on cloud env
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -136,7 +139,8 @@ workflow PairedTag {
             preindex = preindex,
             cloud_provider = cloud_provider,
             vm_size = vm_size,
-            atac_nhash_id = atac_nhash_id
+            atac_nhash_id = atac_nhash_id,
+            aligned_ATAC_bam = aligned_ATAC_bam
     }
 
     if (preindex) {
@@ -156,6 +160,12 @@ workflow PairedTag {
     File atac_fragment_index_out = select_first([ParseBarcodes.atac_fragment_tsv_tbi,Atac_preindex.fragment_file_index])
     File atac_h5ad_out = select_first([ParseBarcodes.atac_h5ad_file, Atac_preindex.snap_metrics])
     
+    call Demultiplexing.MaskPeakCallingMetrics as MaskPeakCallingMetrics {
+        input:
+            docker_path = csv_docker,
+            library_metrics = Atac_preindex.library_metrics_file    
+    }
+
     output {
         
         String pairedtag_pipeline_version_out = pipeline_version
@@ -164,7 +174,7 @@ workflow PairedTag {
         File bam_aligned_output_atac = Atac_preindex.bam_aligned_output
         File fragment_file_atac = atac_fragment_out
         File snap_metrics_atac = atac_h5ad_out
-        File atac_library_final = Atac_preindex.library_metrics_file
+        File atac_library_final = MaskPeakCallingMetrics.library_metrics_file
         File fragment_file_index_atac = atac_fragment_index_out
 
         # optimus outputs

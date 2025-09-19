@@ -1,7 +1,17 @@
-# 2.9.1
-25-07-31 (Date of Last Commit)
+# 2.9.3
+2025-09-19 (Date of Last Commit)
 
-* Reorganized all WDL pipelines into the wdl pipeline directory
+* Resolved merge conflicts and reorganize WDL pipelines into unified directory
+
+# 2.9.2
+2025-08-15 (Date of Last Commit)
+
+* Added an option to input an aligned ATAC BAM file; this allows users to skip the ATAC alignment step if they already have an aligned BAM file
+
+# 2.9.1
+2025-08-06 (Date of Last Commit) 
+
+* Added MaskPeakCallingMetrics task to remove innappropriate peak calling metrics from PairedTag
 
 # 2.9.0
 2025-06-18 (Date of Last Commit) 

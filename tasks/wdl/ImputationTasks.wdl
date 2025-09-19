@@ -22,6 +22,7 @@ task CalculateChromosomeLength {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 1
     noAddress: true
   }
   output {
@@ -89,13 +90,16 @@ task GenerateChunk {
     --restrict-alleles-to BIALLELIC \
     -L ~{chrom}:~{start}-~{end} \
     -O ~{basename}.vcf.gz \
-    --exclude-filtered true
+    --exclude-filtered true \
+    -select 'POS >= ~{start}'
   }
   runtime {
     docker: gatk_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    preemptible: 3
+    maxRetries: 1
     noAddress: true
   }
   parameter_meta {
@@ -301,9 +305,10 @@ task GatherVcfs {
   >>>
   runtime {
     docker: gatk_docker
-    disks: "local-disk ${disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    maxRetries: 1
     noAddress: true
   }
   output {
@@ -354,6 +359,7 @@ task UpdateHeader {
     File ref_dict
     String basename
     Boolean disable_sequence_dictionary_validation = true
+    String? pipeline_header_line
 
     Int disk_size_gb = ceil(4*(size(vcf, "GiB") + size(vcf_index, "GiB"))) + 20
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
@@ -365,13 +371,29 @@ task UpdateHeader {
   String disable_sequence_dict_validation_flag = if disable_sequence_dictionary_validation then "--disable-sequence-dictionary-validation" else ""
 
   command <<<
-    ## update the header of the merged vcf
+    set -e -o pipefail
+
+    ## update the header of the merged vcf with the reference dictionary
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     UpdateVCFSequenceDictionary \
     --source-dictionary ~{ref_dict} \
     --output ~{basename}.vcf.gz \
     --replace -V ~{vcf} \
     ~{disable_sequence_dict_validation_flag}
+
+    ## update header with pipeline_header_line if provided
+    if [ -n "~{default="" pipeline_header_line}" ]; then
+      mv ~{basename}.vcf.gz temp.vcf.gz
+      mv ~{basename}.vcf.gz.tbi temp.vcf.gz.tbi
+
+      bcftools view -h --no-version temp.vcf.gz > header.txt
+      TOTAL_LINES=$(wc -l < "header.txt")
+      REMOVED_COMMENT_CHARACTER_HEADER_LINE=$(echo "~{pipeline_header_line}" | sed 's/^#*//')
+      sed -i "${TOTAL_LINES}i\##${REMOVED_COMMENT_CHARACTER_HEADER_LINE}" header.txt
+
+      bcftools reheader -h header.txt -o ~{basename}.vcf.gz temp.vcf.gz
+      bcftools index -t ~{basename}.vcf.gz
+    fi
   >>>
   runtime {
     docker: gatk_docker
@@ -379,6 +401,7 @@ task UpdateHeader {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 1
     noAddress: true
   }
   output {
@@ -521,7 +544,7 @@ task MergeSingleSampleVcfs {
   >>>
   runtime {
     docker: bcftools_docker
-    disks: "local-disk ${disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
     noAddress: true
@@ -553,6 +576,7 @@ task CountSamples {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 1
     noAddress: true
   }
   output {
@@ -639,6 +663,7 @@ task StoreChunksInfo {
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3
+    maxRetries: 1
     noAddress: true
   }
   output {
