@@ -66,6 +66,7 @@ workflow StargazerFromJointVCF {
         }
 
     command <<<
+        set -euxo pipefail
         ~{if defined(panel_vcf_override) then "mv " + panel_vcf_override + " /stargazer-grc38-v.2.0.2/stargazer/1kgp_vcf/grc38/" else ""}
 
         # Create REF_CACHE. Used when indexing a CRAM
@@ -115,6 +116,7 @@ task SelectVariants {
     }
 
     command <<<
+        set -euxo pipefail
         /gatk/gatk SelectVariants -V ~{inputVCF} -sn ~{sample_name} -O ~{outputVCFname}
     >>>
     runtime {

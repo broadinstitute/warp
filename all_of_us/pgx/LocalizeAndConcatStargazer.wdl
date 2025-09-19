@@ -31,6 +31,7 @@ task LocalizeAndConcat {
     }
 
     command <<<
+        set -euxo pipefail
         rm -rf per_sample
         mkdir per_sample
         cat ~{fofn} | gsutil -m cp -I per_sample/
