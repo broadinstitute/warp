@@ -312,7 +312,7 @@ task annotate_coverage {
 
         # Must be local filepath
         script_path = "/opt/mtSwirl/generate_mtdna_call_mt/Terra/annotate_coverage.py"
-        utils_path = "/opt/mtSwirl/generate_mtdna_call_mt/Terra/merging_utils.py"
+        utils_path = "/opt/mtSwirl/generate_mtdna_call_mt/merging_utils.py"
 
         with open("account.txt", "r") as account_file:
             account = account_file.readline().strip()
