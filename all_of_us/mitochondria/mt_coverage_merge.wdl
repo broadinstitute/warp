@@ -312,6 +312,7 @@ task annotate_coverage {
 
         # Must be local filepath
         script_path = "/opt/mtSwirl/generate_mtdna_call_mt/Terra/annotate_coverage.py"
+        utils_path = "/opt/mtSwirl/generate_mtdna_call_mt/Terra/merging_utils.py"
 
         with open("account.txt", "r") as account_file:
             account = account_file.readline().strip()
@@ -337,6 +338,7 @@ task annotate_coverage {
                     #### THIS IS WHERE YOU CALL YOUR SCRIPT AND COPY THE OUTPUT LOCALLY (so that it can get back into WDL-space)
                     submit_cmd = f'''gcloud dataproc jobs submit pyspark {script_path} \
                     --cluster={cluster_name} --project ~{gcs_project} --region=~{region} --account {account} --driver-log-levels root=WARN -- \
+                    --py-files={utils_path} \
                     ~{if overwrite then "--overwrite" else ""} \
                     ~{if keep_targets then "--keep-targets" else ""} \
                     --input-tsv ~{input_tsv} \
