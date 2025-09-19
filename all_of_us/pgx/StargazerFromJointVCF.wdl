@@ -49,7 +49,6 @@ workflow StargazerFromJointVCF {
     
     output {
         Array[File] stargazer_details = flatten([RunStargazer.stargazer_details, Stargazer_DPYD.stargazer_details])
-        File tsv_output = write_lines(flatten([RunStargazer.stargazer_details, Stargazer_DPYD.stargazer_details]))
     }
 }
 
