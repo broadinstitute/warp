@@ -283,6 +283,8 @@ task annotate_coverage {
     command <<<
         set -euxo pipefail
 
+        zip -r mtdna_modules.zip /opt/mtSwirl/generate_mtdna_call_mt/
+
         gcloud config list account --format "value(core.account)" 1> account.txt
 
         #### TEST:  Make sure that this docker image is configured for python3
@@ -312,7 +314,7 @@ task annotate_coverage {
 
         # Must be local filepath
         script_path = "/opt/mtSwirl/generate_mtdna_call_mt/Terra/annotate_coverage.py"
-        utils_path = "/opt/mtSwirl/generate_mtdna_call_mt/merging_utils.py"
+        # utils_path = "/opt/mtSwirl/generate_mtdna_call_mt/merging_utils.py"
 
         with open("account.txt", "r") as account_file:
             account = account_file.readline().strip()
@@ -338,7 +340,7 @@ task annotate_coverage {
                     #### THIS IS WHERE YOU CALL YOUR SCRIPT AND COPY THE OUTPUT LOCALLY (so that it can get back into WDL-space)
                     submit_cmd = f'''gcloud dataproc jobs submit pyspark {script_path} \
                     --cluster={cluster_name} --project ~{gcs_project} --region=~{region} --account {account} --driver-log-levels root=WARN -- \
-                    --py-files={utils_path} \
+                    --py-files=mtdna_modules.zip \
                     ~{if overwrite then "--overwrite" else ""} \
                     ~{if keep_targets then "--keep-targets" else ""} \
                     --input-tsv ~{input_tsv} \
