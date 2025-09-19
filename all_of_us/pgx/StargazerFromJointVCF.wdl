@@ -95,7 +95,7 @@ workflow StargazerFromJointVCF {
         disk: "100 GB"
         bootDiskSizeGb: 15
         preemptible: 3
-        docker: select_first([stargazer_docker, "terraworkflows.azurecr.io/stargazer@sha256:2b43c8753a0fe4c2e26f007dfad13050e5e581a7348bbe562fcfe98af2a6752f"])
+        docker: select_first([stargazer_docker, "us.gcr.io/broad-dsde-methods/stargazer:latest"])
     }
 }
 
