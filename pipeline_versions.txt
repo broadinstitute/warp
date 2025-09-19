@@ -1,4 +1,3 @@
-Pipeline Name	Version	Date of Last Commit
 ArrayImputationQC	 1.0.3	2025-09-15 
 ArrayImputationQuotaConsumed	 1.0.7	2025-09-19 
 BuildIndices	 4.2.0	2025-09-10 
@@ -11,9 +10,10 @@ ImputationBeagle	 2.0.4	2025-09-19
 JointGenotyping	 1.7.3	2025-08-11 
 MultiSampleSmartSeq2SingleNucleus	 2.2.2	 2025-06-20 
 Multiome	 6.1.3	2025-08-15 
-Optimus	 8.0.4	2025-07-31 
-PairedTag	 2.1.9 	2025-09-19 
+Optimus	 8.0.4	25-07-31 
+PairedTag	 2.1.8 	2025-08-15 
 PeakCalling	 1.0.1	2025-08-11 
+Pipeline Name	Version	Date of Last Commit
 RNAWithUMIsPipeline	 1.0.19	2025-08-11 
 ReblockGVCF	 2.4.2	2025-08-11 
 SlideSeq	 3.6.3	2025-06-20 
@@ -24,5 +24,5 @@ UltimaGenomicsWholeGenomeGermline	 1.2.0	2025-03-17
 VariantCalling	 2.2.6	2025-08-11 
 WholeGenomeGermlineSingleSample	 3.3.5	2025-08-11 
 WholeGenomeReprocessing	 3.3.5	2025-08-11 
-atac	 2.9.3	2025-09-19  
-snm3C	 4.1.1	2025-09-19
+atac	 2.9.3	2025-09-19 
+snm3C	 4.1.1	2025-09-19 
