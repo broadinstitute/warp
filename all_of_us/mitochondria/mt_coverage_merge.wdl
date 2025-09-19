@@ -341,10 +341,12 @@ task annotate_coverage {
                     submit_cmd = f'''gcloud dataproc jobs submit pyspark {script_path} \
                     --cluster={cluster_name} --project ~{gcs_project} --region=~{region} --account {account} --driver-log-levels root=WARN -- \
                     --py-files=mtdna_modules.zip \
+                    --properties=spark.yarn.appMasterEnv.PYTHONPATH=mtdna_modules.zip \
+                    -- \
                     ~{if overwrite then "--overwrite" else ""} \
                     ~{if keep_targets then "--keep-targets" else ""} \
                     --input-tsv ~{input_tsv} \
-                    --output-ht-url ~{output_aou_vcf_url} \
+                    --output-ht ~{output_aou_vcf_url} \
                     --temp-dir gs://{cluster_temp_bucket}/{cluster_name} \
                     --chunk-size ~{chunk_size} \
                     ~{if hail_only then "--hail-only" else ""} \
