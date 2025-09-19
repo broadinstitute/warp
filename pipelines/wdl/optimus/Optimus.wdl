@@ -1,12 +1,12 @@
 version 1.0
 
-import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
-import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
-import "../../../tasks/skylab/Metrics.wdl" as Metrics
-import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
-import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
-import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
-import "../../../tasks/broad/Utilities.wdl" as utils
+import "../../../tasks/wdl/FastqProcessing.wdl" as FastqProcessing
+import "../../../tasks/wdl/StarAlign.wdl" as StarAlign
+import "../../../tasks/wdl/Metrics.wdl" as Metrics
+import "../../../tasks/wdl/RunEmptyDrops.wdl" as RunEmptyDrops
+import "../../../tasks/wdl/CheckInputs.wdl" as OptimusInputChecks
+import "../../../tasks/wdl/H5adUtils.wdl" as H5adUtils
+import "../../../tasks/wdl/Utilities.wdl" as utils
 import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender_no_cuda
 import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 

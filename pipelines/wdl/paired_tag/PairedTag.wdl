@@ -3,9 +3,9 @@ version 1.0
 
 import "../atac/atac.wdl" as atac
 import "../optimus/Optimus.wdl" as optimus
-import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
-import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
-import "../../../tasks/broad/Utilities.wdl" as utils
+import "../../../tasks/wdl/H5adUtils.wdl" as H5adUtils
+import "../../../tasks/wdl/PairedTagUtils.wdl" as Demultiplexing
+import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow PairedTag {
 

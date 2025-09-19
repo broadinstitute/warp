@@ -1,9 +1,9 @@
 version 1.0
 
-import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
-import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
-import "../../../tasks/skylab/PairedTagUtils.wdl" as AddBB
-import "../../../tasks/broad/Utilities.wdl" as utils
+import "../../../tasks/wdl/MergeSortBam.wdl" as Merge
+import "../../../tasks/wdl/FastqProcessing.wdl" as FastqProcessing
+import "../../../tasks/wdl/PairedTagUtils.wdl" as AddBB
+import "../../../tasks/wdl/Utilities.wdl" as utils
 import "../peak_calling/PeakCalling.wdl" as peakcalling # import peakcalling as subworkflow
 
 workflow ATAC {
