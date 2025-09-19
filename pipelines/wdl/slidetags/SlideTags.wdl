@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../../tasks/skylab/slidetags_utils/spatial-count.wdl" as SpatialCount
-import "../../../tasks/skylab/slidetags_utils/positioning.wdl" as Positioning
+import "../../../tasks/wdl/slidetags_utils/spatial-count.wdl" as SpatialCount
+import "../../../tasks/wdl/slidetags_utils/positioning.wdl" as Positioning
 import "../optimus/Optimus.wdl" as optimus
 
 workflow SlideTags {

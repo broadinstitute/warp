@@ -1,13 +1,13 @@
 version 1.0
 
 import "../../../somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl" as UltimaGenomicsWholeGenomeCramOnly
-import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl" as Tasks
-import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
-import "../../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
-import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl" as UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates
-import "../../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
-import "../../../../../../tasks/broad/Qc.wdl" as QC
-import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl" as UltimaGenomicsWholeGenomeGermlineQC
+import "../../../../../../tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl" as Tasks
+import "../../../../../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../../../../../tasks/wdl/GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
+import "../../../../../../tasks/wdl/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl" as UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates
+import "../../../../../../tasks/wdl/InternalTasks.wdl" as InternalTasks
+import "../../../../../../tasks/wdl/Qc.wdl" as QC
+import "../../../../../../tasks/wdl/UltimaGenomicsWholeGenomeGermlineQC.wdl" as UltimaGenomicsWholeGenomeGermlineQC
 import "../../../../../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
 import "../../joint_genotyping/reblocking/ReblockGVCF.wdl" as ReblockGVCF
 
