@@ -3,6 +3,7 @@ version 1.0
 task QcChecks {
     input {
         File vcf_input
+        Array[String] contigs
         File ref_dict
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
@@ -40,21 +41,23 @@ task QcChecks {
             echo "VCF version < 4.0 or not found;" >> qc_messages.txt;
         fi
 
-        # check for variants in all canonical chromosomes - chr1 to chr22
+        # check for variants in at least one of the canonical chromosomes - chr1 to chr22
         gunzip -c ~{vcf_input} | grep -v "#" | cut -f1 | sort -u > chromosomes.txt
 
-        missing_chromosomes=()
-        # Check for chr1 through chr22
-        for i in {1..22}; do
-            if ! grep -q "^chr${i}$" "chromosomes.txt"; then
-                missing_chromosomes+=("chr${i}")
+        allowed_chromosomes=()
+        filtered_chromosomes=()
+        # Check for at least one input chromosome in the list of allowed contigs
+        for chr in  ~{sep=" " contigs}; do
+            allowed_chromosomes+=("${chr}")
+            if grep -q "^${chr}$" "chromosomes.txt"; then
+                filtered_chromosomes+=("${chr}")
             fi
         done
 
-        if [ ${#missing_chromosomes[@]} -eq 0 ]; then
-            echo "All chromosomes from chr1 to chr22 are present."
+        if [ ${#filtered_chromosomes[@]} -eq 0 ]; then
+            echo "Input must include data for at least one chromosome in the allowed contigs (${allowed_chromosomes[*]})." >> qc_messages.txt
         else
-            echo "Missing data for chromosomes: ${missing_chromosomes[*]};" >> qc_messages.txt
+            echo "Found data for chromosomes: ${filtered_chromosomes[*]};"
         fi
 
         # check reference header lines if they exist

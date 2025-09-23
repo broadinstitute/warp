@@ -24,6 +24,7 @@ workflow InputQC {
     call tasks.QcChecks {
         input:
             vcf_input = multi_sample_vcf,
+            contigs = contigs,
             ref_dict = ref_dict,
     }
 
