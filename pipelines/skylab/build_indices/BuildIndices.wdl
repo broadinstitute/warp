@@ -337,7 +337,7 @@ task RecordMetadata {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:4.2.0"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:np_run_macaque_through_add_introns"
     memory: "50 GiB"
     disks: "local-disk 100 HDD"
     disk: 100 + " GB" # TES
