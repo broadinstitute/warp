@@ -60,9 +60,11 @@ workflow ImputationBeagle {
       gatk_docker = gatk_docker
   }
 
+  Array[String] input_contigs = InferContigsFromVcf.contigs
+
   Float chunkLengthFloat = chunkLength
 
-  scatter (contig in InferContigsFromVcf.contigs) {
+  scatter (contig in input_contigs) {
     # these are specific to hg38 - contig is format 'chr1'
     String reference_basename = reference_panel_path_prefix + "." + contig
     String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.withchr.map"
@@ -143,15 +145,15 @@ workflow ImputationBeagle {
     }
   }
 
-  scatter (contig_index in range(length(contigs))) {
+  scatter (contig_index in range(length(input_contigs))) {
     # cant have the same variable names in different scatters, so add _2 to "differentiate"
-    String reference_basename_2 = reference_panel_path_prefix + "." + contigs[contig_index]
-    String genetic_map_filename_2 = genetic_maps_path + "plink." + contigs[contig_index] + ".GRCh38.withchr.map"
+    String reference_basename_2 = reference_panel_path_prefix + "." + input_contigs[contig_index]
+    String genetic_map_filename_2 = genetic_maps_path + "plink." + input_contigs[contig_index] + ".GRCh38.withchr.map"
 
     ReferencePanelContig referencePanelContig_2 = {
                                                   "bed": reference_basename_2 + bed_suffix,
                                                   "bref3": reference_basename_2  + bref3_suffix,
-                                                  "contig": contigs[contig_index],
+                                                  "contig": input_contigs[contig_index],
                                                   "genetic_map": genetic_map_filename_2
                                                 }
     Int num_chunks_2 = num_chunks[contig_index]
