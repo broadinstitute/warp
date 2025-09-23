@@ -25,7 +25,7 @@ task QcChecks {
         # check for a large number of variants in input vcf and exit if greater than 10 million
         line_count=$(bcftools stats ~{vcf_input}  | grep "number of records:" | awk '{print $6}')
         if [ "$line_count" -gt 10000000 ]; then
-            echo "Greater than 10 million variants found in input VCF." >> qc_messages.txt
+            echo "Greater than 10 million variants found in input VCF;" >> qc_messages.txt
             exit 0
         else
             echo "Less than or equal to 10 million variants found in input VCF."
@@ -55,9 +55,9 @@ task QcChecks {
         done
 
         if [ ${#filtered_chromosomes[@]} -eq 0 ]; then
-            echo "Input must include data for at least one chromosome in the allowed contigs (${allowed_chromosomes[*]})." >> qc_messages.txt
+            echo "Input must include data for at least one chromosome in the allowed contigs (${allowed_chromosomes[*]});" >> qc_messages.txt
         else
-            echo "Found data for chromosomes: ${filtered_chromosomes[*]};"
+            echo "Found data for chromosomes: ${filtered_chromosomes[*]}."
         fi
 
         # check reference header lines if they exist
