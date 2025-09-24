@@ -1,7 +1,8 @@
 # 1.1.0
-2025-09-23 (Date of Last Commit)
+2025-09-24 (Date of Last Commit)
 
-* Allow subset of chromosomes in VCF input, but require at least one of the specified contigs.
+* Allow subset of chromosomes in VCF input, but require at least one of the allowed contigs, as specified by the new input `allowed_contigs`, 
+which replaces `contigs`.
 
 # 1.0.3
 2025-09-15 (Date of Last Commit)

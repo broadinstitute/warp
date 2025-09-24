@@ -3,7 +3,7 @@ version 1.0
 task QcChecks {
     input {
         File vcf_input
-        Array[String] contigs
+        Array[String] allowed_contigs
         File ref_dict
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
@@ -47,7 +47,7 @@ task QcChecks {
         allowed_chromosomes=()
         filtered_chromosomes=()
         # Check for at least one input chromosome in the list of allowed contigs
-        for chr in  ~{sep=" " contigs}; do
+        for chr in  ~{sep=" " allowed_contigs}; do
             allowed_chromosomes+=("${chr}")
             if grep -q "^${chr}$" "chromosomes.txt"; then
                 filtered_chromosomes+=("${chr}")

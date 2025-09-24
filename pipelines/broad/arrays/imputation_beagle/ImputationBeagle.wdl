@@ -17,7 +17,7 @@ workflow ImputationBeagle {
     File multi_sample_vcf
 
     File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
-    Array[String] contigs # list of possible contigs that will be processed
+    Array[String] allowed_contigs # list of possible contigs that will be processed. note the workflow will not error out if any of these contigs are missing
     String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
     String output_basename # the basename for intermediate and output files
@@ -53,18 +53,18 @@ workflow ImputationBeagle {
       gatk_docker = gatk_docker
   }
 
-  call beagleTasks.InferContigsFromVcf {
+  call beagleTasks.CalculateContigsToProcess {
     input:
       vcf_input = multi_sample_vcf,
-      allowed_contigs = contigs,
+      allowed_contigs = allowed_contigs,
       gatk_docker = gatk_docker
   }
 
-  Array[String] input_contigs = InferContigsFromVcf.contigs
+  Array[String] contigs_to_process = CalculateContigsToProcess.contigs_to_process
 
   Float chunkLengthFloat = chunkLength
 
-  scatter (contig in input_contigs) {
+  scatter (contig in contigs_to_process) {
     # these are specific to hg38 - contig is format 'chr1'
     String reference_basename = reference_panel_path_prefix + "." + contig
     String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.withchr.map"
@@ -145,15 +145,15 @@ workflow ImputationBeagle {
     }
   }
 
-  scatter (contig_index in range(length(input_contigs))) {
+  scatter (contig_index in range(length(contigs_to_process))) {
     # cant have the same variable names in different scatters, so add _2 to "differentiate"
-    String reference_basename_2 = reference_panel_path_prefix + "." + input_contigs[contig_index]
-    String genetic_map_filename_2 = genetic_maps_path + "plink." + input_contigs[contig_index] + ".GRCh38.withchr.map"
+    String reference_basename_2 = reference_panel_path_prefix + "." + contigs_to_process[contig_index]
+    String genetic_map_filename_2 = genetic_maps_path + "plink." + contigs_to_process[contig_index] + ".GRCh38.withchr.map"
 
     ReferencePanelContig referencePanelContig_2 = {
                                                   "bed": reference_basename_2 + bed_suffix,
                                                   "bref3": reference_basename_2  + bref3_suffix,
-                                                  "contig": input_contigs[contig_index],
+                                                  "contig": contigs_to_process[contig_index],
                                                   "genetic_map": genetic_map_filename_2
                                                 }
     Int num_chunks_2 = num_chunks[contig_index]

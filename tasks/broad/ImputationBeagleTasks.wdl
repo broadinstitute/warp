@@ -1,6 +1,6 @@
 version 1.0
 
-task InferContigsFromVcf {
+task CalculateContigsToProcess {
   input {
     File vcf_input
     Array[String] allowed_contigs
@@ -23,12 +23,12 @@ task InferContigsFromVcf {
             echo "${chr}" >> filtered_chromosomes.txt
         fi
     done
-    
+
     echo "Filtered chromosomes: $(cat filtered_chromosomes.txt | tr '\n' ' ')"
   >>>
 
   output {
-    Array[String] contigs = read_lines("filtered_chromosomes.txt")
+    Array[String] contigs_to_process = read_lines("filtered_chromosomes.txt")
   }
   runtime {
     docker: gatk_docker

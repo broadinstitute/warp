@@ -15,7 +15,7 @@ workflow TestImputationBeagle {
       File multi_sample_vcf
       
       File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
-      Array[String] contigs
+      Array[String] allowed_contigs
       String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
       String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
       String output_basename # the basename for intermediate and output files
@@ -36,7 +36,7 @@ workflow TestImputationBeagle {
         chunkOverlaps = chunkOverlaps,
         multi_sample_vcf = multi_sample_vcf,
         ref_dict = ref_dict,
-        contigs = contigs,
+        allowed_contigs = allowed_contigs,
         reference_panel_path_prefix = reference_panel_path_prefix,
         genetic_maps_path = genetic_maps_path,
         output_basename = output_basename,
