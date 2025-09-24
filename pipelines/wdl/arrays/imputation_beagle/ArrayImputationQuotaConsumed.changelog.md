@@ -22,7 +22,7 @@
 2025-07-31 (Date of Last Commit)
 
 * Add maxRetries to tasks to help with performance on Google Batch.
->>>>>>> develop:pipelines/broad/arrays/imputation_beagle/ArrayImputationQuotaConsumed.changelog.md
+
 
 # 1.0.2
 2025-04-07 (Date of Last Commit)

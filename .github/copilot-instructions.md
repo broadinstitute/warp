@@ -1,16 +1,35 @@
 # WARP AI Coding Guidelines
 
+These guidelines are for AI agents to interact with the WARP repo. They should also be a useful point of reference for humans too! Every time an agent interacts with WARP, please ask it to update these instructions to reflect on what it has learned, and to clarify and condense the instructions to reduce mistakes.
+
 ## Architecture Overview
 
 WARP is a collection of cloud-optimized WDL (Workflow Description Language) pipelines for biological data processing. The repository follows a structured pattern with a **flattened directory structure**:
 
 - **`pipelines/wdl/`**: All workflow definitions in a unified directory structure
-- **`tasks/wdl/`**: All reusable WDL tasks in a unified directory structure  
+- **`tasks/wdl/`**: All *reusable* WDL tasks in a unified directory structure  
 - **`structs/`**: WDL struct definitions for type safety
 - **`verification/`**: Test workflows that validate pipeline outputs
 - **`scripts/`**: Build and validation automation
 
-### Directory Structure
+## Team History and Pipeline Organization
+
+- **Historical Teams**: Content originally organized by Broad and Skylab teams
+  - Broad team: DNA-seq, arrays, reprocessing 
+  - Skylab team: Single-cell RNA-seq, ATAC-seq, multiome
+- **Current Organization**: Unified under `pipelines/wdl/` and `tasks/wdl/` directories
+- Docker images maintained separately in [warp-tools](https://github.com/broadinstitute/warp-tools)
+
+### Flattened Directory Structure
+
+As of the latest reorganization, the repository uses a flattened structure:
+
+- **Old structure**: `pipelines/broad/` and `pipelines/skylab/` → **New**: `pipelines/wdl/`
+- **Old structure**: `tasks/broad/` and `tasks/skylab/` → **New**: `tasks/wdl/`
+
+This maintains the same directory depth while consolidating historical team-specific directories.
+
+### Current Directory Structure
 
 ```
 pipelines/wdl/
@@ -33,15 +52,16 @@ tasks/wdl/
 ├── Utilities.wdl
 └── ... (all task files)
 ```
+## Migration and Reorganization Notes
 
-### Flattened Directory Structure
+When working with import statements or file paths:
 
-As of the latest reorganization, the repository uses a flattened structure:
-
-- **Old structure**: `pipelines/broad/` and `pipelines/skylab/` → **New**: `pipelines/wdl/`
-- **Old structure**: `tasks/broad/` and `tasks/skylab/` → **New**: `tasks/wdl/`
-
-This maintains the same directory depth while consolidating team-specific directories.
+- All `pipelines/broad/` references should use `pipelines/wdl/`
+- All `pipelines/skylab/` references should use `pipelines/wdl/`
+- All `tasks/broad/` references should use `tasks/wdl/`
+- All `tasks/skylab/` references should use `tasks/wdl/`
+- Relative imports maintain the same depth but point to unified directories
+- GitHub workflow path triggers have been updated accordingly
 
 ## WDL Development Patterns
 
@@ -76,7 +96,7 @@ find pipelines/wdl -name "*.wdl" -exec sed -i 's|tasks/broad/|tasks/wdl/|g' {} \
 find pipelines/wdl -name "*.wdl" -exec sed -i 's|tasks/skylab/|tasks/wdl/|g' {} \;
 ```
 
-Note that `-exec sed` commands are quite powerful and can modify many files at once. Use with caution and verify changes.
+Note that `-exec sed` commands are powerful and can modify many files at once. Use with caution and verify changes.
 
 ### Pipeline Versioning
 
@@ -118,7 +138,7 @@ Each pipeline has a `<PipelineName>.changelog.md` file. For every version bump:
 # 1.2.5
 2025-09-19 (Date of Last Commit)
 
-* Resolved merge conflicts and reorganize WDL pipelines into unified directory
+* Reorganize WDL pipelines into unified directory
 * Updated docker image to latest version
 
 # 1.2.4
@@ -133,7 +153,7 @@ Each pipeline has a `<PipelineName>.changelog.md` file. For every version bump:
 
 **⚠️ CRITICAL REQUIREMENT: EVERY WDL file modification MUST be validated with womtool before committing ⚠️**
 
-Always validate WDL syntax immediately after making ANY change to a WDL file. You need to know where womtool is located on your system. For example:
+Always validate WDL syntax immediately after making ANY change to a WDL file. You need to know where womtool is located on your system. If you can't find it, ask your operator before proceeding. For example:
 
 ```bash
 java -jar ~/womtool-90.jar validate path/to/pipeline.wdl
@@ -141,8 +161,7 @@ java -jar ~/womtool-90.jar validate path/to/pipeline.wdl
 
 **Non-Negotiable Rules:**
 
-- **EVERY WDL change** requires womtool validation - no exceptions, even for simple version updates
-- **NEVER commit** a WDL file without successful womtool validation
+- **EVERY WDL change** requires womtool validation - no exceptions, even for simple version updates. **NEVER commit** a WDL file without successful womtool validation
 - **ALL modified WDL files** must pass validation, including dependencies
 - **IMMEDIATE validation** - run womtool right after each WDL edit, not at the end
 - Import path errors are the most common validation failures after directory reorganization
@@ -160,7 +179,7 @@ Test workflows follow strict naming: `Test<PipelineName>.wdl` in `verification/t
 
 - Import main pipeline and verification workflow
 - Use `GetValidationInputs` tasks to compare test vs truth outputs
-- Include `update_truth` boolean for refreshing golden files
+- Only include `update_truth` boolean for refreshing golden files if indicated to do so by a human
 
 ### Release Process
 
@@ -204,14 +223,6 @@ meta {
 }
 ```
 
-## Team History and Pipeline Organization
-
-- **Historical Teams**: Content originally organized by Broad and Skylab teams
-  - Broad team: DNA-seq, arrays, reprocessing 
-  - Skylab team: Single-cell RNA-seq, ATAC-seq, multiome
-- **Current Organization**: Unified under `pipelines/wdl/` and `tasks/wdl/` directories
-- Docker images maintained separately in [warp-tools](https://github.com/broadinstitute/warp-tools)
-
 ## GitHub Workflows and CI/CD
 
 ### Workflow Path Triggers
@@ -228,7 +239,7 @@ paths:
 
 ### Testing System
 
-- Tests are triggered when files change in relevant `pipelines/wdl/` or `tasks/wdl/` paths
+- Tests are triggered when files change in relevant `pipelines/wdl/` or pipeline associated `tasks/wdl/` paths
 - Each pipeline has a dedicated test workflow file
 - Verification WDLs in `verification/` directory validate outputs
 
@@ -246,17 +257,6 @@ paths:
 - `wreleaser/`: CLI tool for querying releases
 - `scripts/common.sh`: Shared build functions
 - `verification/test-wdls/scripts/`: Test generation utilities
-
-## Migration and Reorganization Notes
-
-When working with import statements or file paths:
-
-- All `pipelines/broad/` references should use `pipelines/wdl/`
-- All `pipelines/skylab/` references should use `pipelines/wdl/`
-- All `tasks/broad/` references should use `tasks/wdl/`
-- All `tasks/skylab/` references should use `tasks/wdl/`
-- Relative imports maintain the same depth but point to unified directories
-- GitHub workflow path triggers have been updated accordingly
 
 ### Git Merge Conflict Resolution
 
@@ -316,7 +316,7 @@ for wdl in $(find pipelines/wdl -name "*.wdl"); do
 done
 ```
 
-**Common Causes**:
+**Common Causes of Smart Test Failure**:
 - Merge conflicts resolved incorrectly
 - Manual version updates applied to only one file
 - Automated scripts updating WDL but not changelog (or vice versa)

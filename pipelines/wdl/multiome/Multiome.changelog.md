@@ -149,7 +149,7 @@
 # 5.3.1
 2024-07-18 (Date of Last Commit)
 
-* The atac.wdl was refactored into its own directory under the pipelines/skylab directory; this change does not impact the Multiome outputs
+* The atac.wdl was refactored into its own directory under the pipelines/wdl directory; this change does not impact the Multiome outputs
 
 # 5.3.0
 2024-07-11 (Date of Last Commit)
