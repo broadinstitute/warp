@@ -23,7 +23,7 @@ task InferContigsFromVcf {
             echo "${chr}" >> filtered_chromosomes.txt
         fi
     done
-    # grep -w -f <(printf "%s\n" ~{sep=" " allowed_contigs}) chromosomes.txt > filtered_chromosomes.txt
+    
     echo "Filtered chromosomes: $(cat filtered_chromosomes.txt | tr '\n' ' ')"
   >>>
 

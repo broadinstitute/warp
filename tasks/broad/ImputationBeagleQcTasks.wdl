@@ -25,7 +25,7 @@ task QcChecks {
         # check for a large number of variants in input vcf and exit if greater than 10 million
         line_count=$(bcftools stats ~{vcf_input}  | grep "number of records:" | awk '{print $6}')
         if [ "$line_count" -gt 10000000 ]; then
-            echo "Greater than 10 million variants found in input VCF;" >> qc_messages.txt
+            echo "Greater than 10 million variants found in input VCF." >> qc_messages.txt
             exit 0
         else
             echo "Less than or equal to 10 million variants found in input VCF."
@@ -38,7 +38,7 @@ task QcChecks {
         if grep -q "^##fileformat=VCFv[4-9]\." header.vcf; then
             echo "VCF version 4.0+";
         else
-            echo "VCF version < 4.0 or not found;" >> qc_messages.txt;
+            echo "VCF version < 4.0 or not found." >> qc_messages.txt;
         fi
 
         # check for variants in at least one of the canonical chromosomes - chr1 to chr22
@@ -55,7 +55,7 @@ task QcChecks {
         done
 
         if [ ${#filtered_chromosomes[@]} -eq 0 ]; then
-            echo "Input must include data for at least one chromosome in the allowed contigs (${allowed_chromosomes[*]});" >> qc_messages.txt
+            echo "Input must include data for at least one chromosome in the allowed contigs (${allowed_chromosomes[*]})." >> qc_messages.txt
         else
             echo "Found data for chromosomes: ${filtered_chromosomes[*]}."
         fi
@@ -70,9 +70,9 @@ task QcChecks {
 
         ref_dict_basename="~{ref_dict_basename}"
         if grep -q "incompatible contigs" gatk_output.txt; then
-            echo "Found incompatible contigs (against reference dictionary $ref_dict_basename) in VCF header;" >> qc_messages.txt;
+            echo "Found incompatible contigs (against reference dictionary $ref_dict_basename) in VCF header." >> qc_messages.txt;
         else
-            echo "No incompatible contigs found in VCF header;"
+            echo "No incompatible contigs found in VCF header."
         fi
 
         # passes_qc is true if qc_messages is empty
