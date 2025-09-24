@@ -2,7 +2,7 @@
     "ImputationBeagle.multi_sample_vcf": "gs://broad-gotc-test-storage/imputation_beagle/scientific/vcfs/NA12878_10_duplicate.merged.cleaned.vcf.gz",
     "ImputationBeagle.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
     "ImputationBeagle.reference_panel_path_prefix": "gs://broad-gotc-test-storage/imputation_beagle/scientific/1000G_HGDP_no_singletons_reference_panel/hgdp.tgp.gwaspy.AN_added.bcf.ac2",
-    "ImputationBeagle.allowed_contigs": ["chr21","chr22"],
+    "ImputationBeagle.allowed_contigs": ["chr20","chr21","chr22"],
     "ImputationBeagle.genetic_maps_path": "gs://broad-gotc-test-storage/imputation_beagle/scientific/plink-genetic-maps/",
     "ImputationBeagle.output_basename": "plumbing_test"
 }
