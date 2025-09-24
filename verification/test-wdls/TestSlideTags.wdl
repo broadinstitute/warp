@@ -33,7 +33,7 @@ workflow TestSlideTags {
       String? soloMultiMappers
       String? gex_nhash_id
 	    File? mt_genes
-	    String docker = "us.gcr.io/broad-gotc-prod/slide-tags@sha256:cf96e8822cfc4baf1daf320f90ae283881cff5c8c8320652e995ce6aa452f005"
+	    String docker = "us.gcr.io/broad-gotc-prod/slide-tags@sha256:e3523b40c1a9ad927becad4d356547369ec381350f756c66a6e3d170eee66cde"
 	
 	    String truth_path
 	    String results_path
