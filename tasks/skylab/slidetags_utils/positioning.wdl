@@ -5,6 +5,7 @@ task generate_positioning {
     Array[String] rna_paths
     String sb_path
     String input_id
+    Boolean run_dropsift
     Int mem_GiB  = 128
     Int disk_GiB = 128
     Int nthreads = 16
@@ -54,7 +55,8 @@ task generate_positioning {
 
     # Run the script
     echo ; echo "Running run-positioning.R"
-    Rscript run-positioning.R RNA $baseSB output --dropsift
+
+    Rscript run-positioning.R RNA $baseSB output ~{if run_dropsift then "--dropsift" else ""}
 
     # Upload the results
     ls output/* 

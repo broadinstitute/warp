@@ -34,7 +34,10 @@ workflow SlideTags {
         String? gex_nhash_id
         File? mt_genes
 
-        String docker = "us.gcr.io/broad-gotc-prod/slide-tags@sha256:e3523b40c1a9ad927becad4d356547369ec381350f756c66a6e3d170eee66cde"
+        # Dropsift is off by default
+        Boolean run_dropsift = false
+
+        String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.2.0"
      }
     
     parameter_meta {
@@ -81,7 +84,8 @@ workflow SlideTags {
             rna_paths = [Optimus.h5ad_output_file, Optimus.library_metrics],
             sb_path = spatial_count.sb_counts,
             docker = docker,
-            input_id = input_id
+            input_id = input_id,
+            run_dropsift = run_dropsift
      }
 
     output {
