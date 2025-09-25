@@ -238,7 +238,7 @@ task LocalizeAndSubsetVcfToRegion {
     Int end
     Boolean exclude_filtered = false
 
-    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
+    Int disk_size_gb = ceil(3*size(vcf, "GiB")) + 10
     Int cpu = 1
     Int memory_mb = 6000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
@@ -249,11 +249,13 @@ task LocalizeAndSubsetVcfToRegion {
   command {
     set -e -o pipefail
 
-    tabix ~{vcf}
+    # Recompress the VCF to ensure there isn't an issue with the input compression which we saw with java 17
+    gunzip -c ~{vcf} | bgzip > recompressed.vcf.gz
+    tabix recompressed.vcf.gz
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants \
-    -V ~{vcf} \
+    -V recompressed.vcf.gz \
     -L ~{contig}:~{start}-~{end} \
     -select 'POS >= ~{start}' ~{if exclude_filtered then "--exclude-filtered" else ""} \
     -O ~{output_basename}.vcf.gz
