@@ -14,8 +14,6 @@ task generate_positioning {
     set -euo pipefail
     set -x
     echo "<< starting spatial-count >>"
-    
-    #Rscript -e "install.packages(c('optparse', 'BiocManager'), repos='https://cloud.r-project.org'); BiocManager::install('IRanges')"
 
     gcloud config set storage/process_count 16 # is this set by user?
     gcloud config set storage/thread_count  2 # is this set by user?
