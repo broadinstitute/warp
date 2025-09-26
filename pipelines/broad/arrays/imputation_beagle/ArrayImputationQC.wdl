@@ -3,7 +3,8 @@ version 1.0
 import "../../../../tasks/broad/ImputationBeagleQcTasks.wdl" as tasks
 
 workflow InputQC {
-    String pipeline_version = "1.0.2"
+    # if this changes, update the input_qc_version value in ImputationBeagle.wdl
+    String pipeline_version = "1.0.3"
 
     input {
         Int chunkLength = 25000000
