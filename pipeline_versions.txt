@@ -17,7 +17,7 @@ Pipeline Name	Version	Date of Last Commit
 RNAWithUMIsPipeline	 1.0.18	2024-11-04 
 ReblockGVCF	 2.4.1	2025-02-21 
 SlideSeq	 3.6.3	2025-06-20 
-SlideTags	 1.0.2	2025-07-31 
+SlideTags	 1.0.3	2025-09-25 
 UltimaGenomicsJointGenotyping	 1.2.2	2024-11-04 
 UltimaGenomicsWholeGenomeCramOnly	 1.1.0	2025-03-17 
 UltimaGenomicsWholeGenomeGermline	 1.2.0	2025-03-17 
