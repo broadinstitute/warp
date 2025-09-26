@@ -35,7 +35,7 @@ The Beagle workflow requires several essential inputs to perform genotype imputa
 |-------------------------------|--------------------------------------------------------------------------|
 | `multi_sample_vcf`            | Multi-sample VCF file containing genotype data                           |
 | `ref_dict`                    | Reference dictionary for contig information and header updating          |
-| `contigs`                     | Array of contigs/chromosomes to process                                  |
+| `contigs`                     | Array of allowed contigs/chromosomes to process                          |
 | `reference_panel_path_prefix` | Path and prefix to reference panel files in bucket                       |
 | `genetic_maps_path`           | Path to genetic maps for all contigs                                     |
 | `output_basename`             | Basename for intermediate and output files                               |
@@ -59,6 +59,8 @@ The Beagle workflow consists of multiple interconnected tasks that work together
 |----------------------------------------|------------------------------------------------------------------------------------|-------------------------------------------------|------------------------------------------------------------------------------|
 | `CountSamples`                         | Count number of samples in input VCF                                               | multi_sample_vcf                                | Determines resource allocation for downstream tasks                          |
 | `CreateVcfIndex`                       | Index the input VCF file                                                           | multi_sample_vcf                                | Creates index for efficient VCF access                                       |
+| `CalculateContigsToProcess`            | Determine which contigs will be processed by the workflow                          | multi_sample_vcf, 
+contigs                               | Extract contigs from input VCF and filter by allowed contigs                     |
 | `CalculateChromosomeLength`            | Calculate length of each chromosome                                                | ref_dict, contig                                | Determines number of chunks needed per chromosome                            |
 | `GenerateChunk`                        | Create chunked VCF files with overlaps                                             | indexed VCF, coordinates                        | Splits chromosomes into processable chunks                                   |
 | `CountVariantsInChunks`                | Count variants in chunks vs reference panel                                        | chunk VCF, reference panel                      | Quality control for chunk validity                                           |
