@@ -18,7 +18,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "4.2.0"
+  String pipeline_version = "4.2.1"
 
   parameter_meta {
     annotations_gtf: "the annotation file"
@@ -337,7 +337,7 @@ task RecordMetadata {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:4.3.0"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:4.2.1"
     memory: "50 GiB"
     disks: "local-disk 100 HDD"
     disk: 100 + " GB" # TES
