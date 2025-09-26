@@ -35,7 +35,7 @@ workflow SlideTags {
         File? mt_genes
 
         # Dropsift is off by default
-        Boolean run_dropsift = false
+        Boolean run_dropsift = true
 
         String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.2.0"
      }
