@@ -34,7 +34,7 @@ workflow TestSlideTags {
       String? gex_nhash_id
 	  File? mt_genes
 	  String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.2.0"
-      Boolean run_dropsift = true
+      Boolean run_dropsift = false
 	
 	  String truth_path
 	  String results_path
