@@ -13,7 +13,7 @@ workflow InputQC {
         File multi_sample_vcf
 
         File ref_dict
-        Array[String] allowed_contigs
+        Array[String] contigs # list of possible contigs that will be processed. note the workflow will not error out if any of these contigs are missing
         String reference_panel_path_prefix
         String genetic_maps_path
         String output_basename
@@ -24,7 +24,7 @@ workflow InputQC {
     call tasks.QcChecks {
         input:
             vcf_input = multi_sample_vcf,
-            allowed_contigs = allowed_contigs,
+            allowed_contigs = contigs,
             ref_dict = ref_dict,
     }
 

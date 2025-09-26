@@ -7,7 +7,7 @@ import "../../../../tasks/broad/ImputationBeagleTasks.wdl" as beagleTasks
 workflow ImputationBeagle {
   String pipeline_version = "2.1.0"
   String input_qc_version = "1.1.0"
-  String quota_consumed_version = "1.0.8"
+  String quota_consumed_version = "1.0.7"
 
   input {
     Int chunkLength = 25000000
@@ -17,7 +17,7 @@ workflow ImputationBeagle {
     File multi_sample_vcf
 
     File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
-    Array[String] allowed_contigs # list of possible contigs that will be processed. note the workflow will not error out if any of these contigs are missing
+    Array[String] contigs # list of possible contigs that will be processed. note the workflow will not error out if any of these contigs are missing
     String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
     String output_basename # the basename for intermediate and output files
@@ -56,7 +56,7 @@ workflow ImputationBeagle {
   call beagleTasks.CalculateContigsToProcess {
     input:
       vcf_input = multi_sample_vcf,
-      allowed_contigs = allowed_contigs,
+      allowed_contigs = contigs,
       gatk_docker = gatk_docker
   }
 

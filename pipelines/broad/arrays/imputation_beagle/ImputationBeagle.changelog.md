@@ -1,8 +1,7 @@
 # 2.1.0
-2025-09-24 (Date of Last Commit)
+2025-09-26 (Date of Last Commit)
 
-* Infer chromosomes present in input VCF and filter them against the allowed contigs as specified by the new input `allowed_contigs`, 
-which replaces `contigs`.
+* Infer chromosomes present in input VCF and filter them against the allowed contigs as specified by the repurposed `contigs` input.
 
 # 2.0.4
 2025-09-18 (Date of Last Commit)
