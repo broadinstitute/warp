@@ -785,3 +785,45 @@ task GatherVcfsNoIndex {
   }
 }
 
+task FilterVcfByDR2 {
+  input {
+    File vcf
+    Float dr2_threshold
+    String basename
+
+    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 6000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+  }
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
+
+  command {
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants \
+    -V ~{vcf} \
+    -O ~{basename}.vcf.gz \
+    -select 'DR2 >= dr2_threshold'
+  }
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+  parameter_meta {
+    vcf: {
+           description: "vcf",
+           localization_optional: true
+         }
+  }
+  output {
+    File output_vcf = "~{basename}.vcf.gz"
+    File output_vcf_index = "~{basename}.vcf.gz.tbi"
+  }
+}
+
