@@ -286,7 +286,7 @@ workflow ImputationBeagle {
       call tasks.UpdateHeader {
         input:
           vcf = select_first([FilterVcfByDR2.output_vcf, ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
-          vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
+          vcf_index = select_first([FilterVcfByDR2.output_vcf_index, ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
           ref_dict = ref_dict,
           basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,
