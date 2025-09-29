@@ -572,7 +572,7 @@ task CountSamples {
   >>>
   runtime {
     docker: bcftools_docker
-    disks: "local-disk ${disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
     cpu: cpu
     preemptible: 3

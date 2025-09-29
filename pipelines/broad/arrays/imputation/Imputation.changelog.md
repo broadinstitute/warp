@@ -1,3 +1,8 @@
+# 1.1.22
+2025-09-18 (Date of Last Commit)
+
+* Update CountSamples task to use SSD for more efficient localization of large files on Google Batch.
+
 # 1.1.21
 2025-09-03 (Date of Last Commit)
 
