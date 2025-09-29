@@ -117,9 +117,11 @@ task BuildStarSingleNucleus {
     File biotypes
     Int disk = 100
   }
+
   meta {
     description: "Modify GTF files and build reference index files for STAR aligner"
   }
+
   String ref_name = "star2.7.10a-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
   String star_index_name = "modified_~{ref_name}.tar"
   String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
