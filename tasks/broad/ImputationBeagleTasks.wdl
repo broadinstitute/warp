@@ -815,12 +815,6 @@ task FilterVcfByDR2 {
     maxRetries: 1
     noAddress: true
   }
-  parameter_meta {
-    vcf: {
-           description: "vcf",
-           localization_optional: true
-         }
-  }
   output {
     File output_vcf = "~{basename}.vcf.gz"
     File output_vcf_index = "~{basename}.vcf.gz.tbi"
