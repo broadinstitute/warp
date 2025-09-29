@@ -788,6 +788,7 @@ task GatherVcfsNoIndex {
 task FilterVcfByDR2 {
   input {
     File vcf
+    File vcf_index
     Float dr2_threshold
     String basename
 
