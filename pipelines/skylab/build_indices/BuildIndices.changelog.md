@@ -1,3 +1,8 @@
+# 4.2.1
+2025-09-26 (Date of Last Commit)
+
+* Modified the SNSS2AddIntronsToGTF task to support Refseq GTF files in addition to GENCODE files
+
 # 4.2.0
 2025-09-10 (Date of Last Commit)
 
