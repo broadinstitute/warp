@@ -277,6 +277,7 @@ workflow ImputationBeagle {
         call beagleTasks.FilterVcfByDR2 {
           input:
             vcf = select_first([ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
+            vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
             basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.filtered",
             dr2_threshold = defined_min_dr2_for_inclusion,
             gatk_docker = gatk_docker
