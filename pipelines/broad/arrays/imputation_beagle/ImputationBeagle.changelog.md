@@ -1,7 +1,7 @@
 # 2.1.1
 2025-09-29 (Date of Last Commit)
 
-* Add optional min_dr2_for_inclusion input and optional task to allow users to specify a minimum DR2 threshold for including imputed variants in the final output VCF. Variants with DR2 below this threshold will be excluded from the final output VCF.
+* Add optional min_dr2_for_inclusion input and FilterVcfByDR2 optional task to allow users to specify a minimum DR2 threshold for including imputed variants in the final output VCF. Variants with DR2 below this threshold will be excluded from the final output VCF.
 
 # 2.1.0
 2025-09-26 (Date of Last Commit)
