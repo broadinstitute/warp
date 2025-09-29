@@ -1,5 +1,47 @@
 version 1.0
 
+task CalculateContigsToProcess {
+  input {
+    File vcf_input
+    Array[String] allowed_contigs
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    Int cpu = 1
+    Int memory_mb = 16000
+    Int disk_size_gb = ceil(size(vcf_input, "GiB")) + 10
+  }
+
+  command <<<
+    set -e -o pipefail
+
+    # extract all chromosomes in input
+    gunzip -c ~{vcf_input} | grep -v "#" | cut -f1 | sort -u > chromosomes.txt
+    echo "Extracted chromosomes: $(cat chromosomes.txt | tr '\n' ' ')"
+
+    # filter to allowed contigs, enforcing order
+    for chr in ~{sep=" " allowed_contigs}; do
+        if grep -q "^${chr}$" "chromosomes.txt"; then
+            echo "${chr}" >> filtered_chromosomes.txt
+        fi
+    done
+
+    echo "Filtered chromosomes: $(cat filtered_chromosomes.txt | tr '\n' ' ')"
+  >>>
+
+  output {
+    Array[String] contigs_to_process = read_lines("filtered_chromosomes.txt")
+  }
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} SSD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+
+}
+
 task CountVariantsInChunks {
   input {
     File vcf

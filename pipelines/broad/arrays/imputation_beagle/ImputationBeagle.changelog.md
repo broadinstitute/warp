@@ -1,3 +1,8 @@
+# 2.1.0
+2025-09-26 (Date of Last Commit)
+
+* Add CalculateContigsToProcess task to infer chromosomes present in input VCF and filter them against the allowed contigs specified by the repurposed `contigs` input.
+
 # 2.0.4
 2025-09-18 (Date of Last Commit)
 
