@@ -804,7 +804,7 @@ task FilterVcfByDR2 {
     SelectVariants \
     -V ~{vcf} \
     -O ~{basename}.vcf.gz \
-    -select 'DR2 >= dr2_threshold'
+    -select 'DR2 >= ~{dr2_threshold}'
   }
   runtime {
     docker: gatk_docker
