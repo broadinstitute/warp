@@ -623,6 +623,7 @@ task ValidateVCF {
     Boolean is_gvcf = true
     String? extra_args
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    Int additional_disk = 20
     Int machine_mem_mb = 7000
   }
 
@@ -631,7 +632,7 @@ task ValidateVCF {
 
   Int command_mem_mb = machine_mem_mb - 2000
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
+  Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20 + additional_disk
 
   command {
     set -e
