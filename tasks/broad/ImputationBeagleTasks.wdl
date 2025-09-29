@@ -800,11 +800,11 @@ task FilterVcfByDR2 {
   Int max_heap = memory_mb - 1000
 
   command {
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
-    SelectVariants \
-    -V ~{vcf} \
-    -O ~{basename}.vcf.gz \
-    -select 'DR2 >= ~{dr2_threshold}'
+    set -e -o pipefail
+
+    bcftools filter -i 'INFO/DR2 >= ~{dr2_threshold}' -Oz -o ~{basename}.vcf.gz ~{vcf}
+
+    bcftools index -t ~{basename}.vcf.gz
   }
   runtime {
     docker: gatk_docker
