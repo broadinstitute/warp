@@ -12,6 +12,7 @@ workflow TestImputationBeagle {
       Int chunkLength = 25000000
       Int chunkOverlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
       Int sample_chunk_size = 1000 # this is the number of samples that will be processed in parallel in each chunked scatter
+      Float min_dr2_for_inclusion = 0.0
 
       
       File multi_sample_vcf
@@ -20,7 +21,7 @@ workflow TestImputationBeagle {
       Array[String] contigs # list of possible contigs that will be processed. note the workflow will not error out if any of these contigs are missing
       String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
       String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
-      String output_basename # the basename for intermediate and output files
+      String output_basename # the basename for intermediate and output filesFloat min_dr2_for_inclusion
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -37,6 +38,7 @@ workflow TestImputationBeagle {
         chunkLength = chunkLength,
         chunkOverlaps = chunkOverlaps,
         sample_chunk_size = sample_chunk_size,
+        min_dr2_for_inclusion = min_dr2_for_inclusion,
         multi_sample_vcf = multi_sample_vcf,
         ref_dict = ref_dict,
         contigs = contigs,
