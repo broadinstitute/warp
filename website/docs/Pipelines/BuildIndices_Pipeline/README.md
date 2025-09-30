@@ -63,7 +63,7 @@ Marmoset scripts expect a custom-modified input Marmoset GTF file and FASTA file
 | annotations_gtf | GTF file containing gene annotations; used to build the STAR reference files. | File |
 | genome_fa | Genome FASTA file used for building indices. | File |
 | biotypes | TSV file containing gene biotypes attributes to include in the modified GTF file; the first column contains the biotype and the second column contains “Y” to include or “N” to exclude the biotype; [GENCODE biotypes](https://www.gencodegenes.org/pages/biotypes.html) are used for GENCODE references and RefSeq biotypes are used for NCBI references. | File |
-| run_add_introns | Optional boolean to indicate whether to create reference files that include intronic regions; default is false. | Boolean |
+| run_add_introns | Boolean to indicate whether to create reference files that include intronic regions; default is false. | Boolean |
 
 ## BuildIndices tasks and tools
 
