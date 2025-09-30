@@ -11,7 +11,7 @@ workflow ImputationBeagle {
 
   input {
     Int chunkLength = 25000000
-    Int chunkOverlaps = 2000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
+    Int chunkOverlaps = 2000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects 
     Int sample_chunk_size = 1000 # this is the number of samples that will be processed in parallel in each chunked scatter
 
     File multi_sample_vcf
