@@ -797,8 +797,6 @@ task FilterVcfByDR2 {
     Int memory_mb = 6000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
   }
-  Int command_mem = memory_mb - 1500
-  Int max_heap = memory_mb - 1000
 
   command {
     set -e -o pipefail
