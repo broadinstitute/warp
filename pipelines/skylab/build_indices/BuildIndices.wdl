@@ -19,6 +19,7 @@ workflow BuildIndices {
     String?  mito_accession                       # e.g. chimp or ferret mito accession (NC_…)
     File?    mito_ref_gbk                         # path to mitochondrion reference .gbk
     Array[String]? mitofinder_opts                # optional, override extra flags to MitoFinder/add_mito
+    File?    annotations_gff                       # gff file for mitofinder 
   }
 
   # version of this pipeline
@@ -39,15 +40,20 @@ workflow BuildIndices {
           mito_accession = select_first([mito_accession]),
           mito_ref_gbk   = select_first([mito_ref_gbk]),
           genome_fa      = genome_fa,
-          transcript_gtf = annotations_gtf,
+          transcript_gtf = select_first([annotations_gff]),
           spec_name      = organism,
           mitofinder_opts = mitofinder_opts
+      }
+      call AppendMitoGTF as mito_gtf {
+        input:
+          original_gtf   = annotations_gtf,
+          mito_gtf       = mito.out_gtf
       }
     }
 
     # Choose the files the rest of the pipeline should use:
     File genome_fa_for_indices = select_first([mito.out_fasta, genome_fa])
-    File annotations_gtf_for_indices = select_first([mito.out_gtf, annotations_gtf])
+    File annotations_gtf_for_indices = select_first([mito_gtf.out_gtf, annotations_gtf])
 
     call BuildStarSingleNucleus {
       input:
@@ -152,6 +158,34 @@ task MitoAnnotate {
     memory: "8 GiB"
     disks: "local-disk 50 HDD"
     cpu: 2
+  }
+}
+
+task AppendMitoGTF {
+  input {
+    File original_gtf
+    File mito_gtf
+  }
+
+  command <<<
+    set -euo pipefail
+
+    # Concatenate the original GTF and the mito GTF
+    cat ~{original_gtf} ~{mito_gtf} > combined_annotations.gtf
+
+    # List for debugging
+    ls -lah
+  >>>
+
+  output {
+    File out_gtf = "combined_annotations.gtf"
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    memory: "2 GiB"
+    disks: "local-disk 10 HDD"
+    cpu: 1
   }
 }
 
