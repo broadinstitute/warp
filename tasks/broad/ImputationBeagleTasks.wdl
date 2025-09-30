@@ -291,6 +291,8 @@ task LocalizeAndSubsetVcfToRegion {
   command {
     set -e -o pipefail
 
+    tabix ~{vcf}
+
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants \
     -V ~{vcf} \
