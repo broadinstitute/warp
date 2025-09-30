@@ -24,6 +24,7 @@ workflow BuildIndices {
   # version of this pipeline
   String pipeline_version = "5.0.0"
 
+
   parameter_meta {
     annotations_gtf: "the annotation file"
     genome_fa: "the fasta file"
@@ -93,7 +94,8 @@ workflow BuildIndices {
   if (run_add_introns) {
     call SNSS2AddIntronsToGTF {
       input:
-        modified_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf
+      modified_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf,
+      genome_fa = genome_fa
     }
   }
 
@@ -108,6 +110,7 @@ workflow BuildIndices {
     # Optional outputs from the mito step
     File? mito_annotated_fasta = mito.out_fasta
     File? mito_annotated_gtf = mito.out_gtf
+    File? star_index_with_introns = SNSS2AddIntronsToGTF.star_index_with_introns
   }
 }
 
@@ -188,9 +191,11 @@ task BuildStarSingleNucleus {
     File biotypes
     Int disk = 100
   }
+
   meta {
     description: "Modify GTF files and build reference index files for STAR aligner"
   }
+
   String ref_name = "star2.7.10a-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
   String star_index_name = "modified_~{ref_name}.tar"
   String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
@@ -407,8 +412,10 @@ task RecordMetadata {
   task SNSS2AddIntronsToGTF {
   input {
     File modified_annotation_gtf
+    File genome_fa
   }
     String basename = basename(modified_annotation_gtf, ".gtf")
+    String star_index_name = "~{basename}_intron.tar"
 
   command <<<
 
@@ -416,14 +423,24 @@ task RecordMetadata {
     --input-gtf "~{modified_annotation_gtf}" \
     --output-gtf "~{basename}_with_introns.gtf"
 
+  mkdir star
+  STAR --runMode genomeGenerate \
+  --genomeDir star \
+  --genomeFastaFiles ~{genome_fa} \
+  --sjdbGTFfile ~{basename}_with_introns.gtf \
+  --sjdbOverhang 100 \
+  --runThreadN 16
+
+  tar -cvf ~{star_index_name} star
   >>>
 
   output {
     File modified_annotation_gtf_with_introns = "~{basename}_with_introns.gtf"
+    File star_index_with_introns = star_index_name
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.1.0"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:4.2.1"
     memory: "50 GiB"
     disks: "local-disk 100 HDD"
     disk: 100 + " GB" # TES

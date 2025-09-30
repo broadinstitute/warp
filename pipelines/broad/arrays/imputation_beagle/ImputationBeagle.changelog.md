@@ -1,3 +1,25 @@
+# 2.1.0
+2025-09-26 (Date of Last Commit)
+
+* Add CalculateContigsToProcess task to infer chromosomes present in input VCF and filter them against the allowed contigs specified by the repurposed `contigs` input.
+
+# 2.0.4
+2025-09-18 (Date of Last Commit)
+
+* Update CountSamples task to use SSD for more efficient localization of large files on Google Batch.
+* Update Phase and Impute tasks to use a docker image running on Java 17 instead of Java 8 for better memory management.
+* Update LocalizeAndSubsetVcfToRegion task to decompress/compress to get rid of possible empty blocks from the Java 17 update https://broadworkbench.atlassian.net/browse/TSPS-612
+
+# 2.0.3
+2025-09-11 (Date of Last Commit)
+
+* Add pipeline_version values for InputQC and QuotaConsumed wdls for improved version tracking across wdls
+
+# 2.0.2
+2025-09-03 (Date of Last Commit)
+
+* Add optional pipeline_header_line input that when supplied, will add a header line containing this value to the header of the output vcf
+
 # 2.0.1
 2025-08-26 (Date of Last Commit)
 

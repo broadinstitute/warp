@@ -11,11 +11,13 @@ workflow TestImputationBeagle {
     input {
       Int chunkLength = 25000000
       Int chunkOverlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
+      Int sample_chunk_size = 1000 # this is the number of samples that will be processed in parallel in each chunked scatter
+
       
       File multi_sample_vcf
       
       File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
-      Array[String] contigs
+      Array[String] contigs # list of possible contigs that will be processed. note the workflow will not error out if any of these contigs are missing
       String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
       String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
       String output_basename # the basename for intermediate and output files
@@ -34,6 +36,7 @@ workflow TestImputationBeagle {
       input:
         chunkLength = chunkLength,
         chunkOverlaps = chunkOverlaps,
+        sample_chunk_size = sample_chunk_size,
         multi_sample_vcf = multi_sample_vcf,
         ref_dict = ref_dict,
         contigs = contigs,

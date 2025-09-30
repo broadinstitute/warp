@@ -1,3 +1,18 @@
+# 1.0.7
+2025-09-18 (Date of Last Commit)
+
+* Update CountSamples task to use SSD for more efficient localization of large files on Google Batch.
+
+# 1.0.6
+2025-09-15 (Date of Last Commit)
+
+* Add instruction for updating ImputationBeagle wdl when this workflow's pipeline_version changes for improved version tracking across wdls
+
+# 1.0.5
+2025-09-03 (Date of Last Commit)
+
+* Add optional pipeline_header_line input to match beagle imputation pipeline inputs
+
 # 1.0.4
 2025-08-26 (Date of Last Commit)
 

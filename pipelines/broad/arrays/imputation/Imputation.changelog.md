@@ -1,3 +1,14 @@
+# 1.1.22
+2025-09-18 (Date of Last Commit)
+
+* Update CountSamples task to use SSD for more efficient localization of large files on Google Batch.
+
+# 1.1.21
+2025-09-03 (Date of Last Commit)
+
+* Update UpdateHeader task to add an optional pipeline_header_line input that when supplied, will add a header line containing 
+this value to the header of the output vcf.  Currently not used by this pipeline
+
 # 1.1.20
 2025-08-26 (Date of Last Commit)
 

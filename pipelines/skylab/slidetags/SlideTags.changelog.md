@@ -1,3 +1,8 @@
+# 1.0.3
+2025-09-25 (Date of Last Commit)
+
+* Updated the positioning.wdl code to the latest version from the Macosko Lab repository to incorporate recent improvements: added DropSift support, fixed various bugs. The Positioning script produces more metadata, saves new plotting output, and runs a more efficient algorithm
+
 # 1.0.2
 2025-07-31 (Date of Last Commit)
 
