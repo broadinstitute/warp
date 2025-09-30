@@ -4,7 +4,7 @@ import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
 
 workflow QuotaConsumed {
     # if this changes, update the quota_consumed_version value in ImputationBeagle.wdl
-    String pipeline_version = "1.0.7"
+    String pipeline_version = "1.1.0"
 
 
     input {
@@ -20,6 +20,7 @@ workflow QuotaConsumed {
         String output_basename
 
         String? pipeline_header_line
+        Float? min_dr2_for_inclusion
     }
 
     call tasks.CountSamples {
