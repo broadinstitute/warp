@@ -112,6 +112,9 @@ The following table lists the output variables and files produced by the pipelin
 | snSS2_annotation_gtf_modified | `modified_v<gtf_annotation_version>.annotation.gtf` | GTF file containing gene annotations filtered for selected biotypes. |
 | reference_bundle | `bwa-mem2-2.2.1-<organism>-<genome_source>-build-<genome_build>.tar` | TAR file containing the reference index files for [BWA-mem](https://github.com/lh3/bwa) alignment. |
 | chromosome_sizes | `chrom.sizes` | Text file containing chromosome sizes for the genome build. |
+| snSS2_annotation_gtf_with_introns | `<modified_annotation_gtf>_with_introns.gtf` | Optional GTF file containing gene annotations filtered for selected biotypes, with intronic regions included. |
+| star_index_with_introns | `<modified_annotation_gtf>_intron.tar` | Optional TAR file containing a species-specific reference genome and GTF file containing intronic regions for [STAR](https://github.com/alexdobin/STAR) alignment. |
+
 
 ## Versioning and testing
 
