@@ -1,3 +1,8 @@
+# 1.1.0
+2025-09-29 (Date of Last Commit)
+
+* Add min_dr2_for_inclusion input to match changes to ImputationBeagle wdl for filtering imputed variants by DR2.
+
 # 1.0.7
 2025-09-18 (Date of Last Commit)
 

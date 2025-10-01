@@ -5,13 +5,13 @@ import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
 import "../../../../tasks/broad/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
-  String pipeline_version = "2.1.0"
-  String input_qc_version = "1.1.0"
-  String quota_consumed_version = "1.0.7"
+  String pipeline_version = "2.2.0"
+  String input_qc_version = "1.2.0"
+  String quota_consumed_version = "1.1.0"
 
   input {
     Int chunkLength = 25000000
-    Int chunkOverlaps = 2000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
+    Int chunkOverlaps = 2000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects 
     Int sample_chunk_size = 1000 # this is the number of samples that will be processed in parallel in each chunked scatter
 
     File multi_sample_vcf
@@ -23,6 +23,7 @@ workflow ImputationBeagle {
     String output_basename # the basename for intermediate and output files
 
     String? pipeline_header_line # optional additional header lines to add to the output VCF
+    Float? min_dr2_for_inclusion # minimum dr2 to include a variant in the output vcf, applied after reannotation
 
     # file extensions used to find reference panel files
     String bed_suffix = ".bed"
@@ -37,7 +38,10 @@ workflow ImputationBeagle {
     Int beagle_phase_memory_in_gb = 40
     Int beagle_impute_memory_in_gb = 45
   }
+
+  # have to define these here to use them in nested scatters
   String defined_pipeline_header_line = if defined(pipeline_header_line) then select_first([pipeline_header_line]) else ""
+  Float defined_min_dr2_for_inclusion = if defined(min_dr2_for_inclusion) then select_first([min_dr2_for_inclusion]) else 0.0
 
   call tasks.CountSamples {
     input:
@@ -268,10 +272,22 @@ workflow ImputationBeagle {
         }
       }
 
+      # only filter by dr2 if the user has defined a threshold greater than 0
+      if (defined_min_dr2_for_inclusion > 0.0) {
+        call beagleTasks.FilterVcfByDR2 {
+          input:
+            vcf = select_first([ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
+            vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
+            basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.filtered",
+            dr2_threshold = defined_min_dr2_for_inclusion,
+            gatk_docker = gatk_docker
+        }
+      }
+
       call tasks.UpdateHeader {
         input:
-          vcf = select_first([ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
-          vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
+          vcf = select_first([FilterVcfByDR2.output_vcf, ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
+          vcf_index = select_first([FilterVcfByDR2.output_vcf_index, ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
           ref_dict = ref_dict,
           basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,

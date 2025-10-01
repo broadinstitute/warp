@@ -785,3 +785,38 @@ task GatherVcfsNoIndex {
   }
 }
 
+task FilterVcfByDR2 {
+  input {
+    File vcf
+    File vcf_index
+    Float dr2_threshold
+    String basename
+
+    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 6000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+  }
+
+  command {
+    set -e -o pipefail
+
+    bcftools filter -i 'INFO/DR2 >= ~{dr2_threshold}' -Oz -o ~{basename}.vcf.gz ~{vcf}
+
+    bcftools index -t ~{basename}.vcf.gz
+  }
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+  output {
+    File output_vcf = "~{basename}.vcf.gz"
+    File output_vcf_index = "~{basename}.vcf.gz.tbi"
+  }
+}
+

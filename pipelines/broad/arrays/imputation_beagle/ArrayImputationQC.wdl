@@ -4,7 +4,7 @@ import "../../../../tasks/broad/ImputationBeagleQcTasks.wdl" as tasks
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in ImputationBeagle.wdl
-    String pipeline_version = "1.1.0"
+    String pipeline_version = "1.2.0"
 
     input {
         Int chunkLength = 25000000
@@ -19,6 +19,8 @@ workflow InputQC {
         String output_basename
 
         String? pipeline_header_line
+        Float? min_dr2_for_inclusion
+
     }
 
     call tasks.QcChecks {
