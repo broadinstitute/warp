@@ -15,22 +15,51 @@ workflow BuildIndices {
     File biotypes
 
     Boolean run_add_introns = false
+    Boolean run_mitofinder = false              
+    String?  mito_accession                       # e.g. chimp or ferret mito accession (NC_…)
+    File?    mito_ref_gbk                         # path to mitochondrion reference .gbk
+    Array[String]? mitofinder_opts                # optional, override extra flags to MitoFinder/add_mito
+    File?    annotations_gff                       # gff file for mitofinder 
   }
 
   # version of this pipeline
-  String pipeline_version = "4.2.1"
+  String pipeline_version = "5.0.0"
+
 
   parameter_meta {
     annotations_gtf: "the annotation file"
     genome_fa: "the fasta file"
     biotypes: "gene_biotype attributes to include in the gtf file"
   }
+  
+    # ---- Append mitochondrial sequence + annotations ----
+    # Note: String comparison is case-sensitive.
+    if (run_mitofinder && organism != "Human" && organism != "Mouse") {
+      call MitoAnnotate as mito {
+        input:
+          mito_accession = select_first([mito_accession]),
+          mito_ref_gbk   = select_first([mito_ref_gbk]),
+          genome_fa      = genome_fa,
+          transcript_gtf = select_first([annotations_gff]),
+          spec_name      = organism,
+          mitofinder_opts = mitofinder_opts
+      }
+      call AppendMitoGTF as mito_gtf {
+        input:
+          original_gtf   = annotations_gtf,
+          mito_gtf       = mito.out_gtf
+      }
+    }
+
+    # Choose the files the rest of the pipeline should use:
+    File genome_fa_for_indices = select_first([mito.out_fasta, genome_fa])
+    File annotations_gtf_for_indices = select_first([mito_gtf.out_gtf, annotations_gtf])
 
     call BuildStarSingleNucleus {
       input:
         gtf_annotation_version = gtf_annotation_version,
-        genome_fa = genome_fa,
-        annotation_gtf = annotations_gtf,
+        genome_fa = genome_fa_for_indices,
+        annotation_gtf = annotations_gtf_for_indices,
         biotypes = biotypes,
         genome_build = genome_build,
         genome_source = genome_source,
@@ -38,11 +67,11 @@ workflow BuildIndices {
     }
     call CalculateChromosomeSizes {
       input:
-        genome_fa = genome_fa
+        genome_fa = genome_fa_for_indices
     }
     call BuildBWAreference {
       input:
-        genome_fa = genome_fa,
+        genome_fa = genome_fa_for_indices,
         chrom_sizes_file = CalculateChromosomeSizes.chrom_sizes,
         genome_source = genome_source,
         genome_build = genome_build,
@@ -52,14 +81,20 @@ workflow BuildIndices {
 
     call RecordMetadata {
       input:
-      pipeline_version = pipeline_version,
-      input_files = [annotations_gtf, genome_fa, biotypes],
-      output_files = [
-      BuildStarSingleNucleus.star_index,
-      BuildStarSingleNucleus.modified_annotation_gtf,
-      CalculateChromosomeSizes.chrom_sizes,
-      BuildBWAreference.reference_bundle
-      ]
+        pipeline_version = pipeline_version,
+        ### MODIFIED: Pass all mito-related info to the metadata task ###
+        was_mitofinder_run = run_mitofinder,
+        organism = organism,
+        mito_accession_used = mito_accession,
+        mito_ref_gbk_used = mito_ref_gbk,
+        mitofinder_opts_used = mitofinder_opts,
+        input_files = [annotations_gtf_for_indices, genome_fa_for_indices, biotypes],
+        output_files = [
+          BuildStarSingleNucleus.star_index,
+          BuildStarSingleNucleus.modified_annotation_gtf,
+          CalculateChromosomeSizes.chrom_sizes,
+          BuildBWAreference.reference_bundle
+        ]
     }
 
   if (run_add_introns) {
@@ -78,9 +113,82 @@ workflow BuildIndices {
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
     File metadata = RecordMetadata.metadata_file
     File? snSS2_annotation_gtf_with_introns = SNSS2AddIntronsToGTF.modified_annotation_gtf_with_introns
+    # Optional outputs from the mito step
+    File? mito_annotated_fasta = mito.out_fasta
+    File? mito_annotated_gtf = mito.out_gtf
     File? star_index_with_introns = SNSS2AddIntronsToGTF.star_index_with_introns
   }
 }
+
+task MitoAnnotate {
+  input {
+    String mito_accession
+    File   mito_ref_gbk
+    File   genome_fa
+    File   transcript_gtf
+    String spec_name
+    Array[String]? mitofinder_opts
+  }
+
+  command <<<
+    set -euo pipefail
+
+    # Run your Dockerized script; it writes *_mito.fasta and *_mito.gtf
+    add_mito \
+      -a ~{mito_accession} \
+      -r ~{mito_ref_gbk} \
+      -g ~{genome_fa} \
+      -t ~{transcript_gtf} \
+      -n ~{spec_name} \
+      ~{sep=' ' mitofinder_opts}
+
+    # List for debugging
+    ls -lah
+  >>>
+
+  output {
+    # add_mito names outputs by appending "_mito"
+    # This regex-based approach is great and robust. No changes needed here.
+    File out_fasta = sub(basename(genome_fa), "\\.(fa|fasta)(\\.gz)?$", "") + "_mito.fasta"
+    File out_gtf   = sub(basename(transcript_gtf), "\\.(gtf)(\\.gz)?$", "") + "_mito.gtf"
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/add_mito:1.0.0-1.4.2"
+    memory: "8 GiB"
+    disks: "local-disk 50 HDD"
+    cpu: 2
+  }
+}
+
+task AppendMitoGTF {
+  input {
+    File original_gtf
+    File mito_gtf
+  }
+
+  command <<<
+    set -euo pipefail
+
+    # Concatenate the original GTF and the mito GTF
+    cat ~{original_gtf} ~{mito_gtf} > combined_annotations.gtf
+
+    # List for debugging
+    ls -lah
+  >>>
+
+  output {
+    File out_gtf = "combined_annotations.gtf"
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    memory: "2 GiB"
+    disks: "local-disk 10 HDD"
+    cpu: 1
+  }
+}
+
 
 task CalculateChromosomeSizes {
   input {
@@ -256,6 +364,12 @@ task RecordMetadata {
     String pipeline_version
     Array[File] input_files
     Array[File] output_files
+    # New inputs for logging mito info
+    Boolean was_mitofinder_run
+    String organism
+    String? mito_accession_used
+    File? mito_ref_gbk_used
+    Array[String]? mitofinder_opts_used
   }
 
   command <<<
@@ -265,6 +379,27 @@ task RecordMetadata {
     echo "Pipeline Version: ~{pipeline_version}" > metadata.txt
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
     echo "" >> metadata.txt
+
+    ### NEW/MODIFIED: Add the MitoFinder section to the metadata file ###
+    echo "--- MitoFinder Details ---" >> metadata.txt
+    # Check if the boolean flag is true
+    if [[ "~{was_mitofinder_run}" == "true" ]]; then
+      echo "MitoFinder was run for organism: ~{organism}" >> metadata.txt
+      # Check for and report the specific parameters used, handling optional inputs.
+      if [ "~{mito_accession_used}" != "" ]; then
+        echo "Mitochondrial Accession: ~{mito_accession_used}" >> metadata.txt
+      fi
+      if [ "~{mito_ref_gbk_used}" != "" ]; then
+        echo "Mitochondrial Reference GBK: ~{mito_ref_gbk_used}" >> metadata.txt
+      fi
+      if [ "~{sep=' ' mitofinder_opts_used}" != "" ]; then
+        echo "MitoFinder Extra Options: ~{sep=' ' mitofinder_opts_used}" >> metadata.txt
+      fi
+    else
+      echo "MitoFinder was not run." >> metadata.txt
+    fi
+    echo "" >> metadata.txt
+    ###################################################################
 
     # echo paths and md5sums for input files
     echo "Input Files and their md5sums:" >> metadata.txt
@@ -345,5 +480,3 @@ task RecordMetadata {
     disk: 100 + " GB" # TES
   }
 }
-
-
