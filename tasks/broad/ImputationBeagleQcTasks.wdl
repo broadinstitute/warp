@@ -60,8 +60,17 @@ task QcChecks {
             echo "Found data for chromosomes: ${filtered_chromosomes[*]}."
         fi
 
+        # check for sorted or non bgzf compressed vcf
+        bcftools index -t ~{vcf_input} 2> index_stderr.txt
+        if grep -qE "unsorted positions|not coninuous" "$file"; then
+            echo "Input VCF is not sorted" >> qc_messages.txt;
+        fi
+
+        if grep -q "not BGZF compressed" "$file"; then
+            echo "Input VCF is BGZF compressed" >> qc_messages.txt;
+        fi
+
         # check reference header lines if they exist
-        bcftools index -t ~{vcf_input} # necessary for gatk ValidateVariants command
         gatk ValidateVariants \
         -V ~{vcf_input} \
         --sequence-dictionary ~{ref_dict} \
