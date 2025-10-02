@@ -1,3 +1,8 @@
+# 2.2.1
+2025-10-01 (Date of Last Commit)
+
+* update input_qc_version to 1.2.1
+
 # 2.2.0
 2025-09-29 (Date of Last Commit)
 
