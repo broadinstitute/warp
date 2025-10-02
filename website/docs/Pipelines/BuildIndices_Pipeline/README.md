@@ -63,6 +63,7 @@ Marmoset scripts expect a custom-modified input Marmoset GTF file and FASTA file
 | annotations_gtf | GTF file containing gene annotations; used to build the STAR reference files. | File |
 | genome_fa | Genome FASTA file used for building indices. | File |
 | biotypes | TSV file containing gene biotypes attributes to include in the modified GTF file; the first column contains the biotype and the second column contains “Y” to include or “N” to exclude the biotype; [GENCODE biotypes](https://www.gencodegenes.org/pages/biotypes.html) are used for GENCODE references and RefSeq biotypes are used for NCBI references. | File |
+| run_add_introns | Boolean to indicate whether to create reference files that include intronic regions; default is false. | Boolean |
 
 ## BuildIndices tasks and tools
 
@@ -80,6 +81,7 @@ To see specific tool parameters, select the [workflow WDL link](https://github.c
 | BuildStarSingleNucleus | [modify_gtf.py](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/modify_gtf.py), STAR | [warp-tools](https://github.com/broadinstitute/warp-tools/tree/develop), [STAR](https://github.com/alexdobin/STAR) | Checks that the input GTF file contains input genome source, genome build version, and annotation version with correct build source information, modifies files for the STAR aligner, and creates STAR index file. If "Marmoset" is selected as organism, a [Marmoset-specific custom script](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/modify_gtf_marmoset.py) is run to modify the GTF |
 | CalculateChromosomeSizes | faidx | [Samtools](http://www.htslib.org/) | Reads the genome FASTA file to create a FASTA index file that contains the genome chromosome sizes. |
 | BuildBWAreference | index | [bwa-mem2](https://github.com/bwa-mem2/bwa-mem2) | Builds the reference bundle for the bwa aligner. |
+| SNSS2AddIntronsToGTF | [add-introns-to-gtf.py](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/add-introns-to-gtf.py), STAR |  [warp-tools](https://github.com/broadinstitute/warp-tools/tree/develop), [STAR](https://github.com/alexdobin/STAR) |  Adds intron annotations to a GTF, regenerates a STAR genome index with the updated annotation and reference FASTA, and packages the index into a tar archive for downstream use.
 
 #### 1. Check inputs, modify reference files, and create STAR index file
 
@@ -112,6 +114,9 @@ The following table lists the output variables and files produced by the pipelin
 | snSS2_annotation_gtf_modified | `modified_v<gtf_annotation_version>.annotation.gtf` | GTF file containing gene annotations filtered for selected biotypes. |
 | reference_bundle | `bwa-mem2-2.2.1-<organism>-<genome_source>-build-<genome_build>.tar` | TAR file containing the reference index files for [BWA-mem](https://github.com/lh3/bwa) alignment. |
 | chromosome_sizes | `chrom.sizes` | Text file containing chromosome sizes for the genome build. |
+| snSS2_annotation_gtf_with_introns | `<modified_annotation_gtf>_with_introns.gtf` | Optional GTF file containing gene annotations filtered for selected biotypes, with intronic regions included. |
+| star_index_with_introns | `<modified_annotation_gtf>_intron.tar` | Optional TAR file containing a species-specific reference genome and GTF file containing intronic regions for [STAR](https://github.com/alexdobin/STAR) alignment. |
+
 
 ## Versioning and testing
 

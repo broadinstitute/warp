@@ -35,7 +35,7 @@ The Beagle workflow requires several essential inputs to perform genotype imputa
 |-------------------------------|--------------------------------------------------------------------------|
 | `multi_sample_vcf`            | Multi-sample VCF file containing genotype data                           |
 | `ref_dict`                    | Reference dictionary for contig information and header updating          |
-| `contigs`                     | Array of contigs/chromosomes to process                                  |
+| `contigs`                     | Array of allowed contigs/chromosomes to process                          |
 | `reference_panel_path_prefix` | Path and prefix to reference panel files in bucket                       |
 | `genetic_maps_path`           | Path to genetic maps for all contigs                                     |
 | `output_basename`             | Basename for intermediate and output files                               |
@@ -50,6 +50,7 @@ The Beagle workflow requires several essential inputs to perform genotype imputa
 | `gatk_docker`                 | GATK Docker image (default: us.gcr.io/broad-gatk/gatk:4.6.0.0)           |
 | `ubuntu_docker`               | Ubuntu Docker image (default: us.gcr.io/broad-dsde-methods/ubuntu:20.04) |
 | `error_count_override`        | Optional override for error count threshold                              |
+| `min_dr2_for_inclusion`       | Min value of DR2 to include in final output (default: 0.0)               |
 
 ### Workflow Tasks
 
@@ -59,6 +60,7 @@ The Beagle workflow consists of multiple interconnected tasks that work together
 |----------------------------------------|------------------------------------------------------------------------------------|-------------------------------------------------|------------------------------------------------------------------------------|
 | `CountSamples`                         | Count number of samples in input VCF                                               | multi_sample_vcf                                | Determines resource allocation for downstream tasks                          |
 | `CreateVcfIndex`                       | Index the input VCF file                                                           | multi_sample_vcf                                | Creates index for efficient VCF access                                       |
+| `CalculateContigsToProcess`            | Determine which contigs will be processed by the workflow                          | multi_sample_vcf, contigs                       | Extracts contigs from input VCF and filters by allowed contigs               |
 | `CalculateChromosomeLength`            | Calculate length of each chromosome                                                | ref_dict, contig                                | Determines number of chunks needed per chromosome                            |
 | `GenerateChunk`                        | Create chunked VCF files with overlaps                                             | indexed VCF, coordinates                        | Splits chromosomes into processable chunks                                   |
 | `CountVariantsInChunks`                | Count variants in chunks vs reference panel                                        | chunk VCF, reference panel                      | Quality control for chunk validity                                           |
@@ -76,6 +78,7 @@ The Beagle workflow consists of multiple interconnected tasks that work together
 | `IndexMergedSampleChunksVcfs`          | Create an index for merged sample merged VCF                                       | merged sample chunked VCFs                      | Indexes are useful for downstream processing                                 |
 | `AggregateChunkedDR2AndAF`             | Calculate site level values for AF and DR2 using split chunk numbers               | sample chunk DS, AP1, AP2 summarized values     | Allows us to calculate site level annotations across the sample chunked vcfs |
 | `ReannotateDR2AndAF`                   | apply calculated AF and DR2 annotations to merged VCF                              | Aggregated DR2 and AF annotation file           | We now have a fully merged, correctly annotated vcf                          |
+| `FilterVcfByDR2`                       | Filter variants by DR2 threshold                                                   | imputed VCF, min_dr2_for_inclusion              | Removes variants below provided min_dr2_for_inclusion value                  |
 | `UpdateHeader`                         | Update VCF header with reference info                                              | imputed VCF, ref_dict                           | Ensures proper VCF formatting                                                |
 | `GatherVcfsNoIndex`                    | Combine all chromosome chunks                                                      | all processed chunks                            | Creates final output VCF                                                     |
 | `IndexMergedSampleChunksVcfs`          | Create an index for final output                                                   | final output VCf                                | Indexes are useful for downstream processing                                 |

@@ -1,3 +1,13 @@
+# 4.2.1
+2025-09-26 (Date of Last Commit)
+
+* Modified the SNSS2AddIntronsToGTF task to support Refseq GTF files in addition to GENCODE files
+
+# 4.2.0
+2025-09-10 (Date of Last Commit)
+
+* Modified the SNSS2AddIntronsToGTF task to create a tarred STAR index alongside the intron-modified GTF file. This is a new output of the pipeline.
+
 # 4.1.0
 2025-08-20 (Date of Last Commit)
 

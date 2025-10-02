@@ -3,7 +3,9 @@ version 1.0
 import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
 
 workflow QuotaConsumed {
-    String pipeline_version = "1.0.3"
+    # if this changes, update the quota_consumed_version value in ImputationBeagle.wdl
+    String pipeline_version = "1.1.0"
+
 
     input {
         Int chunkLength = 25000000
@@ -16,6 +18,9 @@ workflow QuotaConsumed {
         String reference_panel_path_prefix
         String genetic_maps_path
         String output_basename
+
+        String? pipeline_header_line
+        Float? min_dr2_for_inclusion
     }
 
     call tasks.CountSamples {

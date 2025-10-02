@@ -3,6 +3,7 @@ version 1.0
 task QcChecks {
     input {
         File vcf_input
+        Array[String] allowed_contigs
         File ref_dict
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
@@ -37,24 +38,26 @@ task QcChecks {
         if grep -q "^##fileformat=VCFv[4-9]\." header.vcf; then
             echo "VCF version 4.0+";
         else
-            echo "VCF version < 4.0 or not found;" >> qc_messages.txt;
+            echo "VCF version < 4.0 or not found." >> qc_messages.txt;
         fi
 
-        # check for variants in all canonical chromosomes - chr1 to chr22
+        # check for variants in at least one of the canonical chromosomes - chr1 to chr22
         gunzip -c ~{vcf_input} | grep -v "#" | cut -f1 | sort -u > chromosomes.txt
 
-        missing_chromosomes=()
-        # Check for chr1 through chr22
-        for i in {1..22}; do
-            if ! grep -q "^chr${i}$" "chromosomes.txt"; then
-                missing_chromosomes+=("chr${i}")
+        allowed_chromosomes=()
+        filtered_chromosomes=()
+        # Check for at least one input chromosome in the list of allowed contigs
+        for chr in  ~{sep=" " allowed_contigs}; do
+            allowed_chromosomes+=("${chr}")
+            if grep -q "^${chr}$" "chromosomes.txt"; then
+                filtered_chromosomes+=("${chr}")
             fi
         done
 
-        if [ ${#missing_chromosomes[@]} -eq 0 ]; then
-            echo "All chromosomes from chr1 to chr22 are present."
+        if [ ${#filtered_chromosomes[@]} -eq 0 ]; then
+            echo "Input must include data for at least one chromosome in the allowed contigs (${allowed_chromosomes[*]})." >> qc_messages.txt
         else
-            echo "Missing data for chromosomes: ${missing_chromosomes[*]};" >> qc_messages.txt
+            echo "Found data for chromosomes: ${filtered_chromosomes[*]}."
         fi
 
         # check reference header lines if they exist
@@ -67,9 +70,9 @@ task QcChecks {
 
         ref_dict_basename="~{ref_dict_basename}"
         if grep -q "incompatible contigs" gatk_output.txt; then
-            echo "Found incompatible contigs (against reference dictionary $ref_dict_basename) in VCF header;" >> qc_messages.txt;
+            echo "Found incompatible contigs (against reference dictionary $ref_dict_basename) in VCF header." >> qc_messages.txt;
         else
-            echo "No incompatible contigs found in VCF header;"
+            echo "No incompatible contigs found in VCF header."
         fi
 
         # passes_qc is true if qc_messages is empty
@@ -89,7 +92,7 @@ task QcChecks {
         memory: "${memory_mb} MiB"
         cpu: cpu
         preemptible: 3
-        maxRetries: 2
+        maxRetries: 1
         noAddress: true
     }
     output {
