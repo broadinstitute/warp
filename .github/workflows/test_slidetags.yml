@@ -18,6 +18,7 @@ on:
       - 'tasks/skylab/CheckInputs.wdl'
       - 'tasks/skylab/MergeSortBam.wdl'
       - 'tasks/broad/Utilities.wdl'
+      - 'tasks/skylab/slidetags_utils/**'
       # verification WDL and its dependencies
       - 'verification/VerifySlideTags.wdl'
       - 'verification/VerifyTasks.wdl'

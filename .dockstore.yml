@@ -123,11 +123,30 @@ workflows:
   - name: RNAWithUMIsPipeline
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl
-
+  
+  - name: run_preprocess_admixture_est_rye
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/admixture/run_preprocess_admixture_est_rye.wdl
+  
+  - name: run_admixture_est_rye
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/admixture/run_admixture_est_rye.wdl
+  
   - name: run_ancestry
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_ancestry.wdl
  
+  - name: run_relatedness
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/ancestry/run_relatedness.wdl
+  
+  - name: run_sample_outlier_qc
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/ancestry/run_sample_outlier_qc.wdl
+
+  - name: run_sample_outlier_qc_plotting
+    subclass: WDL
+
   - name: Smartseq2_Single_Nucleus
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl
@@ -147,6 +166,12 @@ workflows:
   - name: snm3C-seq
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/snm3C/snm3C.wdl
+
+  - name: SplitMultisampleVcf
+    subclass: WDL
+
+    primaryDescriptorPath: /beta-pipelines/broad/Utilities/SplitMultisampleVCF/SplitMultisampleVCF.wdl
+    readMePath: /beta-pipelines/broad/Utilities/SplitMultisampleVCF/README.md
 
   - name: TestATAC
     subclass: WDL
