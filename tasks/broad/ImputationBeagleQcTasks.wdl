@@ -67,7 +67,7 @@ task QcChecks {
         fi
 
         if grep -q "not BGZF compressed" index_stderr.txt; then
-            echo "Input VCF is BGZF compressed" >> qc_messages.txt;
+            echo "Input VCF is not BGZF compressed" >> qc_messages.txt;
         fi
 
         # check reference header lines if they exist
