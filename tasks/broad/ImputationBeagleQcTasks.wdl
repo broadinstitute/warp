@@ -62,11 +62,11 @@ task QcChecks {
 
         # check for sorted or non bgzf compressed vcf
         bcftools index -t ~{vcf_input} 2> index_stderr.txt
-        if grep -qE "unsorted positions|not coninuous" "$file"; then
+        if grep -qE "unsorted positions|not coninuous" index_stderr.txt; then
             echo "Input VCF is not sorted" >> qc_messages.txt;
         fi
 
-        if grep -q "not BGZF compressed" "$file"; then
+        if grep -q "not BGZF compressed" index_stderr.txt; then
             echo "Input VCF is BGZF compressed" >> qc_messages.txt;
         fi
 
