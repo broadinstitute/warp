@@ -130,6 +130,8 @@ workflow RunAoUAnvilMergeFilterAndQc {
         String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.134"
     }
 
+    String pipeline_version = "aou_9.0.0"
+
     # Ensure that trailing slash is included in the output bucket path
     String output_bucket_path_with_trailing_slash = sub(output_bucket_path, "/$", "") + "/"
 
