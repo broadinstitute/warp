@@ -28,7 +28,7 @@ workflow pca_only_no_labels {
             min_vcf_partitions_in=min_vcf_partitions_in
     }
 
-    call plot_pca {
+    call plot_pca as plot_1_2 {
         input :
             output_prefix=final_output_prefix,
             pca_tsv=create_hw_pca_training.pca_tsv,
@@ -36,9 +36,18 @@ workflow pca_only_no_labels {
             pc2=2
     }
 
+    call plot_pca as plot_3_4 {
+        input :
+            output_prefix=final_output_prefix,
+            pca_tsv=create_hw_pca_training.pca_tsv,
+            pc1=3,
+            pc2=4
+    }
+
     output {
         File training_pca_labels_ht_tsv = create_hw_pca_training.pca_tsv
-        File training_pca_labels_tsv_plots = plot_pca.training_pca_labels_tsv_plot
+        File training_pca_labels_tsv_plots_1_2 = plot_1_2.training_pca_labels_tsv_plot
+        File training_pca_labels_tsv_plots_3_4 = plot_3_4.training_pca_labels_tsv_plot
     }
 }
 
@@ -142,8 +151,11 @@ task create_hw_pca_training {
 
         eigenvalues_training, scores_training = get_PCA_scores("~{full_bgz}", ~{num_pcs}, ~{min_vcf_partitions})
 
+        # Expand PCA scores into separate columns
+        scores_training = scores_training.annotate(**{f'PC{i+1}': scores_training.scores[i] for i in range(~{num_pcs})})
+        scores_training_export_tsv = scores_training.select('s', *[f'PC{i+1}' for i in range(~{num_pcs})])
+
         # Write out the training_pca as a tsv.
-        scores_training_export_tsv = scores_training.flatten()
         scores_training_export_tsv.export("~{final_output_prefix}_training_pca.tsv")
 
         EOF
@@ -196,19 +208,16 @@ task plot_pca {
             labels = df[col_category].unique()
             colors = plt.cm.rainbow(np.linspace(0, 1, len(labels)))
 
-            display_labels = {label:f'1k-{label}' for label in labels}
-
             # Plot each group with a different color
             for label, color in zip(labels, colors):
                 subset = df[df[col_category] == label]
                 x = [d[pc_x] for d in subset['scores']]
                 y = [d[pc_y] for d in subset['scores']]
-                plt.scatter(x, y, label=display_labels[label], color=color, s=2)
+                plt.scatter(x, y, color=color, s=2, alpha=0.5)  # Removed legend and added alpha for transparency
 
-            plt.title('Categorical Computed PCA')
+            plt.title('CDRv9 PCA')
             plt.xlabel(f'PC{pc1}')
             plt.ylabel(f'PC{pc2}')
-            plt.legend()
 
             plt.savefig(output_figure_fname)
 
