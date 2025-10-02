@@ -63,7 +63,7 @@ The workflow takes in a TSV file containing sample names, as well as output metr
 A key feature of this pipeline is that the final annotation step is run twice in parallel: once keeping all samples (`annotated`) and once filtering out low-quality samples (`filt_annotated`), producing two distinct final outputs.
 
 ### Task: `subset_data_table`
-- **Purpose**: This is an optional first step that filters the main sample data table to only include a specific list of desired samples.
+- **Purpose**: This is an optional first step that filters the input sample TSV (containing output metrics from the Mitochondria Pipeline) to only include a specific list of desired samples.
 - **Inputs**:
   - `full_data_tsv`: The main data table containing information for all samples, including paths to their VCF and coverage files.
   - `sample_list_tsv` (Optional): A simple text file with one column of sample IDs to keep.
