@@ -65,7 +65,7 @@ A key feature of this pipeline is that the final annotation step is run twice in
 ### Task: `subset_data_table`
 - **Purpose**: This is an optional first step that filters the input sample TSV (containing output metrics from the Mitochondria Pipeline) to only include a specific list of desired samples.
 - **Inputs**:
-  - `full_data_tsv`: The main data table containing information for all samples, including paths to their VCF and coverage files.
+- `full_data_tsv`: The input TSV containing information for all samples, including paths to their VCF and coverage files produced by the Mitochondria Pipeline
   - `sample_list_tsv` (Optional): A simple text file with one column of sample IDs to keep.
 
 - **Transformation**:
