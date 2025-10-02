@@ -6,6 +6,7 @@ workflow InputQC {
     # if this changes, update the input_qc_version value in ImputationBeagle.wdl
     String pipeline_version = "1.2.0"
 
+
     input {
         Int chunkLength = 25000000
         Int chunkOverlaps = 5000000

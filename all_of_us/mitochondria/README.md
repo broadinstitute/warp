@@ -54,6 +54,7 @@ The Mitochondria Pipeline processes mtDNA data from whole-genome sequencing (WGS
 ## **mt_coverage_merge Pipeline**
 
 ### Overview
+
 The workflow takes in a TSV file containing sample names, as well as output metrics and output files files from the Mitochondria Pipeline workflow. Its goal is to produce a final, comprehensively annotated mitochondrial variant callset. It does this by:
 - Preparing a master sample information file.
 - Merging all individual coverage files into a single coverage dataset.
