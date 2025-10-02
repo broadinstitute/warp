@@ -5,7 +5,7 @@
   "JointGenotyping.SplitIntervalList.scatter_mode": "INTERVAL_COUNT_WITH_DISTRIBUTED_REMAINDER",
   "JointGenotyping.SplitIntervalList.extra_args": "--dont-mix-contigs",
 
-  "JointGenotyping.unpadded_intervals_file": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.noCentromeres.noTelomeres.interval_list",
+  "JointGenotyping.unpadded_intervals_file": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.handcurated.noCentromeres.noTelomeres.interval_list",
   "JointGenotyping.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
   "JointGenotyping.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
   "JointGenotyping.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
