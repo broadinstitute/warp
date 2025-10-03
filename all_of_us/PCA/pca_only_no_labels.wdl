@@ -217,8 +217,8 @@ task plot_pca {
             # Plot each group with a different color
             for label, color in zip(labels, colors):
                 subset = df[df[col_category] == label]
-                x = [d[pc_x] for d in subset['scores']]
-                y = [d[pc_y] for d in subset['scores']]
+                x = subset[f'PC{pc1}']
+                y = subset[f'PC{pc2}']
                 plt.scatter(x, y, color=color, s=2, alpha=0.5)  # Removed legend and added alpha for transparency
 
             plt.title('CDRv9 PCA')
