@@ -154,7 +154,7 @@ task create_hw_pca_training {
 
         # Expand PCA scores into separate columns
         scores_training = scores_training.annotate(**{f'PC{i+1}': scores_training.scores[i] for i in range(~{num_pcs})})
-        scores_training_export_tsv = scores_training.select('s', *[f'PC{i+1}' for i in range(~{num_pcs})])
+        scores_training_export_tsv = scores_training.key_by().select('s', *[f'PC{i+1}' for i in range(~{num_pcs})])
 
         # Write out the training_pca as a tsv.
         scores_training_export_tsv.export("~{final_output_prefix}_training_pca.tsv")
