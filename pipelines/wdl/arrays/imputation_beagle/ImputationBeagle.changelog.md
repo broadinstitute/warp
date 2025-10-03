@@ -1,4 +1,4 @@
-# 2.0.5
+# 2.2.2
 2025-10-03 (Date of Last Commit)
 
 * Resolved merge conflicts and reorganize WDL pipelines into unified directory

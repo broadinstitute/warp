@@ -6,7 +6,7 @@ import "../../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow Imputation {
 
-  String pipeline_version = "1.1.22"
+  String pipeline_version = "1.1.23"
 
   input {
     Int chunkLength = 25000000
