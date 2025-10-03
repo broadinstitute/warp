@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl" as JointGenotyping
+import "../../pipelines/wdl/dna_seq/germline/joint_genotyping/JointGenotyping.wdl" as JointGenotyping
 import "../../verification/VerifyJointGenotyping.wdl" as VerifyJointGenotyping
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestJointGenotyping {
 

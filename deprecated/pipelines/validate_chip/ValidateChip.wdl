@@ -1,7 +1,7 @@
 version 1.0
 # The ValidateChip pipeline is deprecated 2025-03-06
-import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
-import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
+import "../../../../tasks/wdl/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
+import "../../../../tasks/wdl/InternalArraysTasks.wdl" as InternalTasks
 
 ## Copyright Broad Institute, 2019
 ##

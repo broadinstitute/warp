@@ -2,9 +2,9 @@ version 1.0
 
 # BroadInternalImputation is now deprecated 2025-03-06
 
-import "../../../../../pipelines/broad/arrays/imputation/Imputation.wdl" as ImputationPipeline
-import "../../../../../tasks/broad/InternalImputationTasks.wdl" as InternalImputationTasks
-import "../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
+import "../../../../../pipelines/wdl/arrays/imputation/Imputation.wdl" as ImputationPipeline
+import "../../../../../tasks/wdl/InternalImputationTasks.wdl" as InternalImputationTasks
+import "../../../../../tasks/wdl/InternalTasks.wdl" as InternalTasks
 
 workflow BroadInternalImputation {
     meta {

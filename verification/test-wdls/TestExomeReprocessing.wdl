@@ -1,9 +1,9 @@
 version 1.0
 
-import "../../pipelines/broad/reprocessing/exome/ExomeReprocessing.wdl" as ExomeReprocessing
+import "../../pipelines/wdl/reprocessing/exome/ExomeReprocessing.wdl" as ExomeReprocessing
 import "../../verification/VerifyExomeReprocessing.wdl" as VerifyExomeReprocessing
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 import "../../structs/dna_seq/DNASeqStructs.wdl"
 
 

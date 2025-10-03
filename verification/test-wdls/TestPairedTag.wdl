@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/skylab/paired_tag/PairedTag.wdl" as PairedTag
+import "../../pipelines/wdl/paired_tag/PairedTag.wdl" as PairedTag
 import "../../verification/VerifyPairedTag.wdl" as VerifyPairedTag
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestPairedTag {
 

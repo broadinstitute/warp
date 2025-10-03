@@ -19,4 +19,4 @@ The snap-add-bmat function was then used to add cell-by-bin matrices to the resu
 Custom python scripts were then used to make a [GA4GH-compliant BAM](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/makeCompliantBAM.py) and to export select Snap file metrics to [individual text files](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/breakoutSnap.py).
 
 An example of the pipeline and its outputs is available on [Terra](https://app.terra.bio/#workspaces/brain-initiative-bcdc/SnapATAC_Pipeline) and more documentation can be found at [here](./README.md).
-Examples of genomic reference files and other inputs can be found in the pipeline’s [example JSON](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/scATAC/example_inputs/human_example.json).
+Examples of genomic reference files and other inputs can be found in the pipeline’s [example JSON](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/scATAC/example_inputs/human_example.json).

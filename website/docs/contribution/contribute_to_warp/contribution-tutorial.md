@@ -5,7 +5,7 @@ This example provides step-by-step instructions for how to apply the WARP [Contr
 Read the [Contribution Guidelines](./contribution-guidelines.md) for more information on the contribution process, types of contributions, and the review process.
 
 ### Background
-For this example contribution, we'll make a simple change to the `input_id` metadata description in the [Optimus workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.wdl).  
+For this example contribution, we'll make a simple change to the `input_id` metadata description in the [Optimus workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/optimus/Optimus.wdl).  
 
 This parameter description is currently listed in the pipeline's WDL workflow as: 
 

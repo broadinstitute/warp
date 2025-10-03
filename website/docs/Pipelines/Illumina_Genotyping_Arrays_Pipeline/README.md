@@ -22,7 +22,7 @@ The Illumina Genotyping Array pipeline was developed by the Broad Pipelines team
 
 The Illumina Genotyping Array workflow is written in the Workflow Description Language [WDL](https://openwdl.org/) and can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/develop/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. 
 
-For the latest workflow version and release notes, please see the Illumina Genotyping Array changelog [IlluminaGenotypingArray.changelog.md](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.changelog.md). 
+For the latest workflow version and release notes, please see the Illumina Genotyping Array changelog [IlluminaGenotypingArray.changelog.md](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/genotyping/illumina/IlluminaGenotypingArray.changelog.md). 
 
 The latest release of the workflow, example data, and dependencies are available from the WARP [releases page](https://github.com/broadinstitute/warp/releases). To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
 
@@ -33,7 +33,7 @@ The workflow requires that each input is specified in a JSON file. All sample an
 
 Some tasks, such as rare variant calling, fingerprinting, and genotype concordance, are optional. 
 
-An example of all workflow inputs (both required and optional) can be found in the [example.json](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/genotyping/illumina/example.json) file. The tables below describe the workflow inputs, their formats, and whether they are required or optional. 
+An example of all workflow inputs (both required and optional) can be found in the [example.json](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/genotyping/illumina/example.json) file. The tables below describe the workflow inputs, their formats, and whether they are required or optional. 
 
 #### Sample data inputs
 
@@ -101,11 +101,11 @@ An example of all workflow inputs (both required and optional) can be found in t
 
 ## Workflow Tools and Tasks
 
-The Illumina Genotyping Array workflow imports a series of tasks from the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/broad/IlluminaGenotypingArrayTasks.wdl). The following sections summarize the tasks and software tools the workflow uses, as well as the relevant inputs and outputs.
+The Illumina Genotyping Array workflow imports a series of tasks from the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/IlluminaGenotypingArrayTasks.wdl). The following sections summarize the tasks and software tools the workflow uses, as well as the relevant inputs and outputs.
 
 ### Tools
 
-The following table provides a summary of the WDL tasks and software tools called by the Illumina Array Genotyping workflow. Note that sometimes a task and tool have the same name. The task refers to the task listed in the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/broad/IlluminaGenotypingArrayTasks.wdl).
+The following table provides a summary of the WDL tasks and software tools called by the Illumina Array Genotyping workflow. Note that sometimes a task and tool have the same name. The task refers to the task listed in the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/IlluminaGenotypingArrayTasks.wdl).
 
 | Task | Tool | Source |
 | --- | --- | --- |
@@ -128,7 +128,7 @@ The following table provides a summary of the WDL tasks and software tools calle
 
 ### Task summary
 
-Overall, the workflow imports the ["IlluminaGenotypingArrayTasks.wdl"](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/IlluminaGenotypingArrayTasks.wdl) task to:
+Overall, the workflow imports the ["IlluminaGenotypingArrayTasks.wdl"](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/IlluminaGenotypingArrayTasks.wdl) task to:
 
 1. Perform genotype calling
 2. Detect contamination
@@ -231,7 +231,7 @@ For more information on the VCF output, see the pipeline's [VCF Overview](./Illu
 
 ## Versioning
 
-All Illumina Genotyping Array workflow releases are documented in the [workflow changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.changelog.md).
+All Illumina Genotyping Array workflow releases are documented in the [workflow changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/genotyping/illumina/IlluminaGenotypingArray.changelog.md).
 
 ## Try the pipeline in Terra
 
@@ -241,7 +241,7 @@ The Illumina Genotyping Array Pipeline is available on the cloud-based platform 
 
 If you use the Illumina Genotyping Array Pipeline in your research, please cite our preprint:
 
-Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Kiernan, E., Konwar, K., Mathews, K.L., Palis, K., et al. Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis. Bioinformatics 2025; btaf494. https://doi.org/10.1093/bioinformatics/btaf494
 
 ## Feedback and questions
 

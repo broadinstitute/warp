@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/skylab/snm3C/snm3C.wdl" as snm3C
+import "../../pipelines/wdl/snm3C/snm3C.wdl" as snm3C
 import "../../verification/Verifysnm3C.wdl" as Verifysnm3C
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow Testsnm3C {
 

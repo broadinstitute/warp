@@ -2,10 +2,10 @@ version 1.0
 
 # BroadInternalRNAWithUMIs is now deprecated 2025-03-06
 
-import "../../../../pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIs
-import "../../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
-import "../../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
-import "../../../../tasks/broad/Utilities.wdl" as utils
+import "../../../../pipelines/wdl/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIs
+import "../../../../pipelines/wdl/qc/CheckFingerprint.wdl" as FP
+import "../../../../tasks/wdl/RNAWithUMIsTasks.wdl" as tasks
+import "../../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow BroadInternalRNAWithUMIs {
 

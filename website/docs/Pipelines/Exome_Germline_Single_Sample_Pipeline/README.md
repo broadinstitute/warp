@@ -23,7 +23,7 @@ You can test the pipeline in Terra! Go the [Exome-Analysis-Pipeline workspace](h
 
 ### Workflow Installation and Requirements
 
-The Exome Germline Single Sample workflow is written in the Workflow Description Language WDL and can be downloaded by cloning the [warp repository](https://github.com/broadinstitute/warp/tree/master) in GitHub. The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Exome Germline Single Sample [changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.changelog.md).
+The Exome Germline Single Sample workflow is written in the Workflow Description Language WDL and can be downloaded by cloning the [warp repository](https://github.com/broadinstitute/warp/tree/master) in GitHub. The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Exome Germline Single Sample [changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.changelog.md).
 
 ### Software Version Requirements
 
@@ -53,7 +53,7 @@ The Exome Germline Single Sample workflow is written in the Workflow Description
 
 ## Workflow Tasks and Tools
 
-The Exome Germline Single Sample [workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl) imports a series of tasks from the WARP [tasks library](https://github.com/broadinstitute/warp/tree/master/tasks/broad) and a DNASeq struct ([DNASeqStructs.wdl](https://github.com/broadinstitute/warp/blob/master/structs/dna_seq/DNASeqStructs.wdl)) containing reference files from the [structs library](https://github.com/broadinstitute/warp/tree/master/structs/dna_seq).
+The Exome Germline Single Sample [workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl) imports a series of tasks from the WARP [tasks library](https://github.com/broadinstitute/warp/tree/master/tasks/wdl) and a DNASeq struct ([DNASeqStructs.wdl](https://github.com/broadinstitute/warp/blob/master/structs/dna_seq/DNASeqStructs.wdl)) containing reference files from the [structs library](https://github.com/broadinstitute/warp/tree/master/structs/dna_seq).
 
 You can read more about the software tools implemented in these tasks by reading the GATK [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932) documentation.
 
@@ -77,7 +77,7 @@ As of November 2021, reblocking is a default task in the Exome pipeline. To skip
 "ExomeGermlineSingleSample.BamToGvcf.skip_reblocking": true
 ```
 
-The [Reblocking task](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/GermlineVariantDiscovery.wdl) uses the GATK ReblockGVCF tool with the arguments:
+The [Reblocking task](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/GermlineVariantDiscovery.wdl) uses the GATK ReblockGVCF tool with the arguments:
 
 ```WDL
 -do-qual-approx -floor-blocks -GQB 20 -GQB 30 -GQB 40 
@@ -134,7 +134,7 @@ view the following tutorial [(How to) Execute Workflows from the gatk-workflows 
 
 If you use the Exome Germline Single Sample Pipeline in your research, please consider citing our preprint:
 
-Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Kiernan, E., Konwar, K., Mathews, K.L., Palis, K., et al. Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis. Bioinformatics 2025; btaf494. https://doi.org/10.1093/bioinformatics/btaf494
 
 ## Contact Us
 

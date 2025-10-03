@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl" as IlluminaGenotypingArray
+import "../../pipelines/wdl/genotyping/illumina/IlluminaGenotypingArray.wdl" as IlluminaGenotypingArray
 import "../../verification/VerifyIlluminaGenotypingArray.wdl" as VerifyIlluminaGenotypingArray
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestIlluminaGenotypingArray {
 

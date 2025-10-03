@@ -13,7 +13,7 @@ slug: /Pipelines/RNA_with_UMIs_Pipeline/README
 
 ## Introduction to the RNA with UMIs workflow
 
-The [RNA with UMIs pipeline](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl) is an open-source, cloud-optimized workflow for processing total RNA isolated with the Transcriptome Capture (TCap) method. TCap is a technique that hybridizes exome baits to cDNA library preparations to better facilitate RNA-sequencing in low-input or poor quality (degraded) samples. These libraries may additionally be prepared with Unique Molecular Identifiers (UMIs), which can help distinguish biological signal from noise resulting from PCR amplification.
+The [RNA with UMIs pipeline](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/rna_seq/RNAWithUMIsPipeline.wdl) is an open-source, cloud-optimized workflow for processing total RNA isolated with the Transcriptome Capture (TCap) method. TCap is a technique that hybridizes exome baits to cDNA library preparations to better facilitate RNA-sequencing in low-input or poor quality (degraded) samples. These libraries may additionally be prepared with Unique Molecular Identifiers (UMIs), which can help distinguish biological signal from noise resulting from PCR amplification.
 
 Overall, the workflow performs UMI correction, aligns reads to the genome, quantifies gene counts, and calculates quality metrics. The workflow produces genome- and transcriptome-aligned BAMs with indices and quality metrics files. 
 
@@ -32,7 +32,7 @@ The following table provides a quick glance at the RNA with UMIs pipeline featur
 | Pipeline features | Description | Source | 
 | --- | --- | --- |
 | Assay type | TCap (or any bulk) RNA-seq data | [Cieslik et al. 2015](https://genome.cshlp.org/content/25/9/1372) |
-| Overall workflow | Read alignment and transcriptome quantification | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl) |
+| Overall workflow | Read alignment and transcriptome quantification | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/rna_seq/RNAWithUMIsPipeline.wdl) |
 | Workflow language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic reference sequence | GRCh38 (hg38) and GRCh37 (hg19) human genome primary sequence | Genome Reference Consortium [GRCh38](https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.39) and [GRCh37](https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.25/) |
 | Gene annotations | GENCODE v34 (hg38) and v19 (hg19) gene annotations | GENCODE [v34](https://www.gencodegenes.org/human/release_34.html) and [v19](https://www.gencodegenes.org/human/release_19.html) | 
@@ -45,7 +45,7 @@ The following table provides a quick glance at the RNA with UMIs pipeline featur
 
 ### Installation
 
-To download the latest release of the RNA with UMIs pipeline, see the release tags prefixed with "RNAwithUMIs" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All releases of the RNA with UMIs pipeline are documented in the [RNA with UMIs changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/rna_seq/RNAWithUMIsPipeline.changelog.md). 
+To download the latest release of the RNA with UMIs pipeline, see the release tags prefixed with "RNAwithUMIs" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All releases of the RNA with UMIs pipeline are documented in the [RNA with UMIs changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/rna_seq/RNAWithUMIsPipeline.changelog.md). 
 
 To search releases of this and other pipelines, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
@@ -57,7 +57,7 @@ The RNA with UMIs pipeline can be deployed using [Cromwell](https://cromwell.rea
 
 ### Inputs
 
-The RNA with UMIs workflow inputs are specified in JSON configuration files. Example configuration files can be found in the [test_inputs](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/rna_seq/test_inputs) folder in the WARP repository.
+The RNA with UMIs workflow inputs are specified in JSON configuration files. Example configuration files can be found in the [test_inputs](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/rna_seq/test_inputs) folder in the WARP repository.
 
 #### Input descriptions
 
@@ -119,7 +119,7 @@ For more information about ALT contigs, HLA, decoys, and ALT-aware mapping, see 
 
 ## RNA with UMIs tasks and tools
 
-The [RNA with UMIs workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl) imports two additional WDL scripts. The [UMIAwareDuplicateMarking.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/broad/UMIAwareDuplicateMarking.wdl) script is a nested workflow used to mark duplicate sequencing reads, while the [RNAWithUMIsTasks.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) script contains individual "tasks" called by the workflow.
+The [RNA with UMIs workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/rna_seq/RNAWithUMIsPipeline.wdl) imports two additional WDL scripts. The [UMIAwareDuplicateMarking.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/UMIAwareDuplicateMarking.wdl) script is a nested workflow used to mark duplicate sequencing reads, while the [RNAWithUMIsTasks.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RNAWithUMIsTasks.wdl) script contains individual "tasks" called by the workflow.
 
 Overall, the RNA with UMIs workflow:
 1. Converts FASTQs to unmapped BAMs. 
@@ -138,22 +138,22 @@ To see specific tool parameters, select the task WDL link in the table; then fin
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
-| [tasks.FastqToUbam](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | FastqToSam | [Picard](https://broadinstitute.github.io/picard/) | Converts the paired-end FASTQ files to unmapped BAM. | 
-| [tasks.ExtractUMIs](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | ExtractUmisFromBam | [fgbio](http://fulcrumgenomics.github.io/fgbio/) | Extracts UMIs from the unmapped BAM and stores them in the RX tag of output BAM. | 
-| [tasks.SamToFastq](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | FastqToSam | [Picard](https://broadinstitute.github.io/picard/) | Converts the BAM file to paired-end FASTQ files for adapter clipping and removes reads that fail platform/vendor quality checks performed by the sequencing platform. | 
-| [tasks.Fastp](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | fastp | [fastp](https://github.com/OpenGene/fastp) | Trims adapters and polyA tails from reads. |
-| [tasks.FastqToUbam (alias = FastqToUbamAfterClipping)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | FastqToSam | [Picard](https://broadinstitute.github.io/picard/) | Converts the trimmed paired-end FASTQ files to unmapped BAM. |
-| [tasks.FastQC](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | FastQC | [FastQC](https://github.com/s-andrews/FastQC) | Collects overall quality control metrics before alignment and generates an HTML-formatted report. |
-| [tasks.STAR](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | STAR | [STAR](https://github.com/alexdobin/STAR) | Aligns reads to the genome (using the StarIndex file) and outputs aligned reads to BAM. The task additionally converts the resulting BAM file to transcriptome coordinates, producing a transcriptome-aligned BAM. Parameters are listed below. |
-| [tasks.CopyReadGroupsToHeader](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | view, reheader | [Samtools](http://www.htslib.org/) | Copies the read group information from the genome-aligned BAM to the transcriptome-aligned BAM. |
-| [UmiMD.UMIAwareDuplicateMarking](https://github.com/broadinstitute/warp/blob/master/tasks/broad/UMIAwareDuplicateMarking.wdl) | SortSam, MarkDuplicates, group | [Picard](https://broadinstitute.github.io/picard/), [GATK](https://gatk.broadinstitute.org/hc/en-us), [UMI-tools](https://umi-tools.readthedocs.io/en/latest/index.html) | Marks duplicates on the genome-aligned BAM and tags reads with error-corrected UMIs. | 
-| [UmiMD.UMIAwareDuplicateMarking (alias = UMIAwareDuplicateMarkingTranscriptome)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/UMIAwareDuplicateMarking.wdl) | SortSam, MarkDuplicates, group | [Picard](https://broadinstitute.github.io/picard/), [GATK](https://gatk.broadinstitute.org/hc/en-us), [UMI-tools](https://umi-tools.readthedocs.io/en/latest/index.html) | Marks duplicates on the transcriptome-aligned BAM and tags reads with error-corrected UMIs. |
-| [tasks.PostprocessTranscriptomeForRSEM](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | PostProcessReadsForRSEM | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Sorts reads for RSEM compatibility. |
-| [tasks.GetSampleName](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | GetSampleName | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Writes the sample name from the unmapped BAM header into a separate text file. |
-| [tasks.rnaseqc2](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | rnaseqc | [RNA-SeQC](https://github.com/getzlab/rnaseqc) | Uses the genome-aligned, duplicate-marked BAM file to calculate TPMs, gene counts, exon counts, fragment sizes, and additional metrics, each of which is outputted to an individual file. |
-| [tasks.CollectRNASeqMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | CollectRNASeqMetrics | [Picard](https://broadinstitute.github.io/picard/) | Calculates RNA metrics; strand specificity is set to SECOND_READ_TRANSCRIPTION_STRAND. |
-| [tasks.CollectMultipleMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | CollectMultipleMetrics | [Picard](https://broadinstitute.github.io/picard/) | Collects multiple classes of metrics; runs tools CollectInsertSizeMetrics and CollectAlignmentSummaryMetrics. |
-| [tasks.CalculateContamination](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | GetPileupSummaries, Calculate Contamination | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Uses the population VCF and index files to calculate pileup metrics and estimate cross-sample contamination. |
+| [tasks.FastqToUbam](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RNAWithUMIsTasks.wdl) | FastqToSam | [Picard](https://broadinstitute.github.io/picard/) | Converts the paired-end FASTQ files to unmapped BAM. | 
+| [tasks.ExtractUMIs](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RNAWithUMIsTasks.wdl) | ExtractUmisFromBam | [fgbio](http://fulcrumgenomics.github.io/fgbio/) | Extracts UMIs from the unmapped BAM and stores them in the RX tag of output BAM. | 
+| [tasks.SamToFastq](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/RNAWithUMIsTasks.wdl) | FastqToSam | [Picard](https://broadinstitute.github.io/picard/) | Converts the BAM file to paired-end FASTQ files for adapter clipping and removes reads that fail platform/vendor quality checks performed by the sequencing platform. | 
+| [tasks.Fastp](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/RNAWithUMIsTasks.wdl) | fastp | [fastp](https://github.com/OpenGene/fastp) | Trims adapters and polyA tails from reads. |
+| [tasks.FastqToUbam (alias = FastqToUbamAfterClipping)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RNAWithUMIsTasks.wdl) | FastqToSam | [Picard](https://broadinstitute.github.io/picard/) | Converts the trimmed paired-end FASTQ files to unmapped BAM. |
+| [tasks.FastQC](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/RNAWithUMIsTasks.wdl) | FastQC | [FastQC](https://github.com/s-andrews/FastQC) | Collects overall quality control metrics before alignment and generates an HTML-formatted report. |
+| [tasks.STAR](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RNAWithUMIsTasks.wdl) | STAR | [STAR](https://github.com/alexdobin/STAR) | Aligns reads to the genome (using the StarIndex file) and outputs aligned reads to BAM. The task additionally converts the resulting BAM file to transcriptome coordinates, producing a transcriptome-aligned BAM. Parameters are listed below. |
+| [tasks.CopyReadGroupsToHeader](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RNAWithUMIsTasks.wdl) | view, reheader | [Samtools](http://www.htslib.org/) | Copies the read group information from the genome-aligned BAM to the transcriptome-aligned BAM. |
+| [UmiMD.UMIAwareDuplicateMarking](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/UMIAwareDuplicateMarking.wdl) | SortSam, MarkDuplicates, group | [Picard](https://broadinstitute.github.io/picard/), [GATK](https://gatk.broadinstitute.org/hc/en-us), [UMI-tools](https://umi-tools.readthedocs.io/en/latest/index.html) | Marks duplicates on the genome-aligned BAM and tags reads with error-corrected UMIs. | 
+| [UmiMD.UMIAwareDuplicateMarking (alias = UMIAwareDuplicateMarkingTranscriptome)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/UMIAwareDuplicateMarking.wdl) | SortSam, MarkDuplicates, group | [Picard](https://broadinstitute.github.io/picard/), [GATK](https://gatk.broadinstitute.org/hc/en-us), [UMI-tools](https://umi-tools.readthedocs.io/en/latest/index.html) | Marks duplicates on the transcriptome-aligned BAM and tags reads with error-corrected UMIs. |
+| [tasks.PostprocessTranscriptomeForRSEM](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/RNAWithUMIsTasks.wdl) | PostProcessReadsForRSEM | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Sorts reads for RSEM compatibility. |
+| [tasks.GetSampleName](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RNAWithUMIsTasks.wdl) | GetSampleName | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Writes the sample name from the unmapped BAM header into a separate text file. |
+| [tasks.rnaseqc2](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RNAWithUMIsTasks.wdl) | rnaseqc | [RNA-SeQC](https://github.com/getzlab/rnaseqc) | Uses the genome-aligned, duplicate-marked BAM file to calculate TPMs, gene counts, exon counts, fragment sizes, and additional metrics, each of which is outputted to an individual file. |
+| [tasks.CollectRNASeqMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RNAWithUMIsTasks.wdl) | CollectRNASeqMetrics | [Picard](https://broadinstitute.github.io/picard/) | Calculates RNA metrics; strand specificity is set to SECOND_READ_TRANSCRIPTION_STRAND. |
+| [tasks.CollectMultipleMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RNAWithUMIsTasks.wdl) | CollectMultipleMetrics | [Picard](https://broadinstitute.github.io/picard/) | Collects multiple classes of metrics; runs tools CollectInsertSizeMetrics and CollectAlignmentSummaryMetrics. |
+| [tasks.CalculateContamination](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RNAWithUMIsTasks.wdl) | GetPileupSummaries, Calculate Contamination | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Uses the population VCF and index files to calculate pileup metrics and estimate cross-sample contamination. |
 
 #### 1. Convert FASTQ to uBAM
 
@@ -173,7 +173,7 @@ The resulting RX tag may contain information like "ACT-GCT." The "ACT" is the 3 
 
 #### 3. Convert uBAM to FASTQs and filter reads
 
-The [tasks.SamToFastq](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) task uses Picard's [FastqToSam](https://gatk.broadinstitute.org/hc/en-us/articles/360036510672) to convert the unmapped BAM to paired-end FASTQ files that can then be used for adapter clipping. This step also removes reads that fail to pass platform/vendor quality checks performed by the sequencing platform and flagged with the corresponding [SAM flag value](https://broadinstitute.github.io/picard/explain-flags.html).
+The [tasks.SamToFastq](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/RNAWithUMIsTasks.wdl) task uses Picard's [FastqToSam](https://gatk.broadinstitute.org/hc/en-us/articles/360036510672) to convert the unmapped BAM to paired-end FASTQ files that can then be used for adapter clipping. This step also removes reads that fail to pass platform/vendor quality checks performed by the sequencing platform and flagged with the corresponding [SAM flag value](https://broadinstitute.github.io/picard/explain-flags.html).
 
 #### 4. Trim adapters and poly(A) tails
 
@@ -191,7 +191,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 #### 5. Convert FASTQs to uBAM
 
-The [tasks.FastqToUbam (alias = FastqToUbamAfterClipping)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) task converts trimmed FASTQs to an unmapped BAM using Picard's [FastqToSam](https://gatk.broadinstitute.org/hc/en-us/articles/360036510672).
+The [tasks.FastqToUbam (alias = FastqToUbamAfterClipping)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RNAWithUMIsTasks.wdl) task converts trimmed FASTQs to an unmapped BAM using Picard's [FastqToSam](https://gatk.broadinstitute.org/hc/en-us/articles/360036510672).
 
 #### 6. Alignment with STAR
 
@@ -225,7 +225,7 @@ After duplicate reads have been tagged, the workflow uses [RNA-SeQC](https://git
 
 The pipeline uses [FastQC](https://github.com/s-andrews/FastQC),  [RNA-SeQC](https://github.com/getzlab/rnaseqc), Picard's [CollectRNASeqMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037057492-CollectRnaSeqMetrics-Picard-) and [CollectMultipleMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037594031-CollectMultipleMetrics-Picard-) tools, and GATK's [GetPileupSummaries](https://gatk.broadinstitute.org/hc/en-us/articles/4418051471643-GetPileupSummaries) and [CalculateContamination](https://gatk.broadinstitute.org/hc/en-us/articles/4418054253211-CalculateContamination) tools to calculate summary metrics that can be used to assess the quality of the data each time the pipeline is run. 
 
-If you are a member of the Broad Institute's Genomics Platform using the [internal RNA with UMIs pipeline](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/internal/rna_seq/BroadInternalRNAWithUMIs.wdl), there is an additional step that merges the individual metrics files to create the `MergeMetrics.unified_metrics` output file and prepare the data for use in the Terra Data Repository.
+If you are a member of the Broad Institute's Genomics Platform using the [internal RNA with UMIs pipeline](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/internal/rna_seq/BroadInternalRNAWithUMIs.wdl), there is an additional step that merges the individual metrics files to create the `MergeMetrics.unified_metrics` output file and prepare the data for use in the Terra Data Repository.
 
 #### 10. Outputs
 
@@ -264,7 +264,7 @@ Workflow outputs are described in the table below.
 
 ## Versioning
 
-All RNA with UMIs pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/rna_seq/RNAWithUMIsPipeline.changelog.md).
+All RNA with UMIs pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/rna_seq/RNAWithUMIsPipeline.changelog.md).
 
 ## Citing the RNA with UMIs Pipeline
 

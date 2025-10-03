@@ -14,7 +14,7 @@ slug: /Pipelines/BuildIndices_Pipeline/README
 
 ## Introduction to the BuildIndices workflow
 
-The [BuildIndices workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/BuildIndices.wdl) is an open-source, cloud-optimized pipeline developed in collaboration with the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN) and the BRAIN Initiative Cell Atlas Network (BICAN). 
+The [BuildIndices workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/build_indices/BuildIndices.wdl) is an open-source, cloud-optimized pipeline developed in collaboration with the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN) and the BRAIN Initiative Cell Atlas Network (BICAN). 
 
 Overall, the workflow filters GTF files for selected gene biotypes, calculates chromosome sizes, and builds reference bundles with required files for [STAR](https://github.com/alexdobin/STAR) and [bwa-mem2](https://github.com/bwa-mem2/bwa-mem2) aligners.
 
@@ -23,7 +23,7 @@ The following table provides a quick glance at the BuildIndices pipeline feature
 
 | Pipeline features | Description | Source |
 | --- | --- | --- |
-| Overall workflow | Reference bundle creation for STAR and bwa-mem2 aligners | Code available on [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/BuildIndices.wdl) |
+| Overall workflow | Reference bundle creation for STAR and bwa-mem2 aligners | Code available on [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/build_indices/BuildIndices.wdl) |
 | Workflow language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence | GRCh38 human genome primary sequence, M32 (GRCm39) mouse genome primary sequence, and release 103 (GCF_003339765.1) macaque genome primary sequence  | GENCODE [human reference files](https://www.gencodegenes.org/human/release_43.html), GENCODE [mouse reference files](https://www.gencodegenes.org/mouse/release_M32.html), and NCBI [macaque reference files](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_003339765.1/) |
 | Gene annotation reference (GTF) | Reference containing gene annotations | GENCODE [human GTF](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/gencode.v43.annotation.gtf.gz), GENCODE [mouse GTF](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M32/gencode.vM32.primary_assembly.annotation.gtf.gz), and NCBI [macaque GTF](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_003339765.1/) |
@@ -35,7 +35,7 @@ The following table provides a quick glance at the BuildIndices pipeline feature
 
 ### BuildIndices installation
 
-To download the latest BuildIndices release, see the release tags prefixed with "BuildIndices" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All BuildIndices pipeline releases are documented in the [BuildIndices changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/BuildIndices.changelog.md). 
+To download the latest BuildIndices release, see the release tags prefixed with "BuildIndices" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All BuildIndices pipeline releases are documented in the [BuildIndices changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/build_indices/BuildIndices.changelog.md). 
 
 To search releases of this and other pipelines, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
@@ -45,7 +45,7 @@ The BuildIndices pipeline can be deployed using [Cromwell](https://cromwell.read
 
 ### Inputs
 
-The BuildIndices workflow inputs are specified in JSON configuration files. Configuration files for [macaque](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/Macaque.json) and [mouse](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/Mouse.json) references can be found in the WARP repository.
+The BuildIndices workflow inputs are specified in JSON configuration files. Configuration files for [macaque](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/build_indices/Macaque.json) and [mouse](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/build_indices/Mouse.json) references can be found in the WARP repository.
 
 #### Input descriptions
 The table below describes the input variables for the BuildIndices workflow. 
@@ -74,7 +74,7 @@ Overall, the BuildIndices workflow:
 
 The tasks and tools used in the BuildIndices workflow are detailed in the table below. 
 
-To see specific tool parameters, select the [workflow WDL link](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/BuildIndices.wdl); then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `# runtime values` section as `docker: `.
+To see specific tool parameters, select the [workflow WDL link](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/build_indices/BuildIndices.wdl); then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `# runtime values` section as `docker: `.
 
 | Task name | Tool | Software | Description | 
 | --- | --- | --- | --- | 
@@ -120,13 +120,13 @@ The following table lists the output variables and files produced by the pipelin
 
 ## Versioning and testing
 
-All BuildIndices pipeline releases are documented in the [BuildIndices changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/BuildIndices.changelog.md) and tested manually using [reference JSON files](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices).
+All BuildIndices pipeline releases are documented in the [BuildIndices changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/build_indices/BuildIndices.changelog.md) and tested manually using [reference JSON files](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/build_indices).
 
 ## Citing the BuildIndices Pipeline
 
 If you use the BuildIndices Pipeline in your research, please consider citing our preprint:
 
-Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Kiernan, E., Konwar, K., Mathews, K.L., Palis, K., et al. Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis. Bioinformatics 2025; btaf494. https://doi.org/10.1093/bioinformatics/btaf494
 
 ## Consortia support
 This pipeline is supported by the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN) and SCORCH. 

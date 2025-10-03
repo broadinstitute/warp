@@ -2,10 +2,10 @@ version 1.0
 
 # The Arrays pipeline is now deprecated 2025-03-06
 
-import "../../../../pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl" as IlluminaGenotyping
-import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
-import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
-import "../../../../tasks/broad/Utilities.wdl" as utils
+import "../../../../pipelines/wdl/genotyping/illumina/IlluminaGenotypingArray.wdl" as IlluminaGenotyping
+import "../../../../tasks/wdl/InternalArraysTasks.wdl" as InternalArraysTasks
+import "../../../../tasks/wdl/InternalTasks.wdl" as InternalTasks
+import "../../../../tasks/wdl/Utilities.wdl" as utils
 
 ## Copyright Broad Institute, 2019
 ##

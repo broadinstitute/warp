@@ -2,8 +2,8 @@ version 1.0
 
 # GDCWholeGenomeSomaticSingleSample is now deprecated 2025-03-06
 
-import "../../../../../../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
-import "../../../../../../../tasks/broad/CheckContaminationSomatic.wdl" as CheckContamination
+import "../../../../../../../pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../../../../tasks/wdl/CheckContaminationSomatic.wdl" as CheckContamination
 
 struct FastqPairRecord {
     File forward_fastq

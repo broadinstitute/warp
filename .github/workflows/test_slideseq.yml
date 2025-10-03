@@ -10,21 +10,21 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/skylab/slideseq/**'
+      - 'pipelines/wdl/slideseq/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/skylab/StarAlign.wdl'
-      - 'tasks/skylab/FastqProcessing.wdl'
-      - 'tasks/skylab/Metrics.wdl'
-      - 'tasks/skylab/H5adUtils.wdl'
-      - 'tasks/skylab/CheckInputs.wdl'
-      - 'tasks/skylab/MergeSortBam.wdl'
-      - 'tasks/broad/Utilities.wdl'
+      - 'tasks/wdl/StarAlign.wdl'
+      - 'tasks/wdl/FastqProcessing.wdl'
+      - 'tasks/wdl/Metrics.wdl'
+      - 'tasks/wdl/H5adUtils.wdl'
+      - 'tasks/wdl/CheckInputs.wdl'
+      - 'tasks/wdl/MergeSortBam.wdl'
+      - 'tasks/wdl/Utilities.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifySlideSeq.wdl'
       - 'verification/VerifyTasks.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestSlideSeq.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_slideseq.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -60,7 +60,7 @@ jobs:
     with:
       pipeline_name: TestSlideSeq
       dockstore_pipeline_name: SlideSeq
-      pipeline_dir: pipelines/skylab/slideseq
+      pipeline_dir: pipelines/wdl/slideseq
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

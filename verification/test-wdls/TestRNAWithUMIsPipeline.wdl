@@ -1,9 +1,9 @@
 version 1.0
 
-import "../../tasks/broad/Utilities.wdl" as Utilities
+import "../../tasks/wdl/Utilities.wdl" as Utilities
 import "../../verification/VerifyRNAWithUMIs.wdl" as VerifyRNAWithUMIs
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
-import "../../pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../pipelines/wdl/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
 
 workflow TestRNAWithUMIsPipeline {
   

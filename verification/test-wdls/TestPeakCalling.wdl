@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/skylab/peak_calling/PeakCalling.wdl" as PeakCalling
+import "../../pipelines/wdl/peak_calling/PeakCalling.wdl" as PeakCalling
 import "../../verification/VerifyPeakCalling.wdl" as VerifyPeakCalling
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestPeakCalling {
 

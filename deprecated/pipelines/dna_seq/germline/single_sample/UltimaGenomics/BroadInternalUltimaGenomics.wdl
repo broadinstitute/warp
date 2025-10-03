@@ -2,9 +2,9 @@ version 1.0
 
 # BroadInternalUltimaGenomics is now deprecated 2025-03-06
 
-import "../../../../../../../pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl" as UltimaGenomicsWholeGenomeGermline
+import "../../../../../../../pipelines/wdl/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl" as UltimaGenomicsWholeGenomeGermline
 import "../../../../../../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
-import "../../../../../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
+import "../../../../../../../pipelines/wdl/qc/CheckFingerprint.wdl" as FP
 
 workflow BroadInternalUltimaGenomics {
 

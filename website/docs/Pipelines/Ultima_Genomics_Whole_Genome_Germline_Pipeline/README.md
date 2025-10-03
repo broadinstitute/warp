@@ -13,7 +13,7 @@ slug: /Pipelines/Ultima_Genomics_Whole_Genome_Germline_Pipeline/README
 
 ## Introduction to the UG_WGS workflow
 
-The [Ultima Genomics Whole Genome Germline (UG_WGS) workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl) is an open-source, cloud-optimized workflow for processing whole-genome germline sequencing data generated using the Ultima Genomics sequencing platform. 
+The [Ultima Genomics Whole Genome Germline (UG_WGS) workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl) is an open-source, cloud-optimized workflow for processing whole-genome germline sequencing data generated using the Ultima Genomics sequencing platform. 
 
 ### Background: Ultima Genomics sequencing
 
@@ -33,7 +33,7 @@ The workflow requires either an aligned CRAM output of the sequencing platform o
 
 ### Installation
 
-To download the latest release of the UG_WGS pipeline, see the release tags prefixed with "UG_WGS" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All releases of the UG_WGS pipeline are documented in the [UG_WGS changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.changelog.md). 
+To download the latest release of the UG_WGS pipeline, see the release tags prefixed with "UG_WGS" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All releases of the UG_WGS pipeline are documented in the [UG_WGS changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.changelog.md). 
 
 To search releases of this and other pipelines, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
 
@@ -45,7 +45,7 @@ The UG_WGS pipeline can be deployed using [Cromwell](https://cromwell.readthedoc
 
 ### Inputs
 
-The UG_WGS workflow inputs are specified in JSON configuration files. An example configuration file can be found in the [input_files](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/dna_seq/germline/single_sample/ugwgs/input_files) folder in the WARP repository. 
+The UG_WGS workflow inputs are specified in JSON configuration files. An example configuration file can be found in the [input_files](https://github.com/broadinstitute/warp/tree/develop/pipelines/wdl/dna_seq/germline/single_sample/ugwgs/input_files) folder in the WARP repository. 
 
 Multiple workflow inputs are in the form of structs, which are defined in [UG_WGS structs WDL](https://github.com/broadinstitute/warp/blob/develop/structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl). 
 
@@ -104,12 +104,12 @@ The workflow input variables are listed below. If an input variable is part of a
 | pipeline_version | N/A | String that describes the pipeline version number. | String |
 
 #### Reference files
-Reference files, such as the hg38- and dbSNP-related files are located in a public Google bucket. See the [example input configuration file](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/ugwgs/input_files/UltimaGenomicsWholeGenomeGermline.inputs.json) for cloud locations.
+Reference files, such as the hg38- and dbSNP-related files are located in a public Google bucket. See the [example input configuration file](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/germline/single_sample/ugwgs/input_files/UltimaGenomicsWholeGenomeGermline.inputs.json) for cloud locations.
 
 
 ## UG_WGS tasks and tools
 
-The [UG_WGS workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl) imports additional WDL scripts that contain the different workflow tasks. When applicable, links to these additional WDL scripts (subtasks/subworkflows) are provided in the summary section below. 
+The [UG_WGS workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl) imports additional WDL scripts that contain the different workflow tasks. When applicable, links to these additional WDL scripts (subtasks/subworkflows) are provided in the summary section below. 
 
 * Workflow tasks use different software tools to manipulate the workflow input data. To see specific tool parameters, select the task WDL link in the table; then find the task and view the `command {}` section of the task in the WDL script. 
 
@@ -131,11 +131,11 @@ When applicable, links to the sub-workflow WDLs and nested tasks WDLs are provid
 :::
 
 ### 1. Align and mark duplicates
-**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl)
+**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl)
 
   * **Nested task name and WDL link:**
 
-  [UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.AlignmentAndMarkDuplicates](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl)
+  [UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.AlignmentAndMarkDuplicates](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl)
 
 The table below details the subtasks called by the AlignmentAndMarkDuplicates task, which splits the CRAM or BAM into subfiles, converts them to uBAM format, converts the uBAM to FASTQ for alignment with BWA-MEM, and marks duplicate reads in the resulting BAM files. 
 
@@ -143,54 +143,54 @@ The Picard tool MarkDuplicatesSpark has been adapted to handle ambiguity in the 
 
 | Subtask name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- |
-| [Tasks.SplitCram as SplitInputCram](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | split | crammer | If CRAM is the workflow input, splits the CRAM and outputs a split CRAM. |
-| [AlignmentTasks.SamSplitter as SplitInputBam](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/Alignment.wdl) | SplitSamByNumberOfReads | Picard | If BAM is workflow input, splits the BAM and outputs an array of BAMs. |
-| [Tasks.ConvertCramOrBamToUBam as ConvertToUbam](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | view, RevertSam | samtools, Picard | Converts the split CRAM or BAM file to uBAM. |
-| [Tasks.SamToFastqAndBwaMemAndMba](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | SamToFastq, bwa mem, MergeBamAlignment | Picard, bwa mem  | Converts each uBAM to FASTQ format, aligns with BWA-MEM, and merges the alignment in the resulting BAM with metadata from the uBAM. |
-| [Tasks.MarkDuplicatesSpark](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | MarkDuplicatesSpark | GATK | Flags duplicate reads in the array of aligned and merged BAMs to create a new output BAM and index. |
+| [Tasks.SplitCram as SplitInputCram](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | split | crammer | If CRAM is the workflow input, splits the CRAM and outputs a split CRAM. |
+| [AlignmentTasks.SamSplitter as SplitInputBam](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/Alignment.wdl) | SplitSamByNumberOfReads | Picard | If BAM is workflow input, splits the BAM and outputs an array of BAMs. |
+| [Tasks.ConvertCramOrBamToUBam as ConvertToUbam](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | view, RevertSam | samtools, Picard | Converts the split CRAM or BAM file to uBAM. |
+| [Tasks.SamToFastqAndBwaMemAndMba](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | SamToFastq, bwa mem, MergeBamAlignment | Picard, bwa mem  | Converts each uBAM to FASTQ format, aligns with BWA-MEM, and merges the alignment in the resulting BAM with metadata from the uBAM. |
+| [Tasks.MarkDuplicatesSpark](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | MarkDuplicatesSpark | GATK | Flags duplicate reads in the array of aligned and merged BAMs to create a new output BAM and index. |
 
 ### 2. Convert BAM to CRAM and validate the CRAM
 
-**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl)
+**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl)
 
 The two tasks below are used to convert each duplicate-marked BAM to CRAM and validate the resulting files.
 
 | TASK name and WDL link | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [Utilities.ConvertToCram](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/Utilities.wdl) | view | samtools | Converts the duplicated-marked BAM to CRAM. |
-| [QC.ValidateSamFile as ValidateCram](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/Qc.wdl) | ValidateSamFile | Picard | Validates the CRAM file. |
+| [Utilities.ConvertToCram](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/Utilities.wdl) | view | samtools | Converts the duplicated-marked BAM to CRAM. |
+| [QC.ValidateSamFile as ValidateCram](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/Qc.wdl) | ValidateSamFile | Picard | Validates the CRAM file. |
 
 
 ### 3. Extract nucleotide flow order
 
-**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl)
+**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl)
 
 The flow order is the order in which nucleotides are passed during sequencing. This information is captured in the header of the BAM and is extracted as a text file for downstream processing.
 
 | TASK name and WDL link | Tool | Software | Description |
 | --- | --- | --- | --- | 
-| [Tasks.ExtractSampleNameFlowOrder](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | GetSampleName | GATK | Extracts the flow order from the BAM header into a text file that is used in downstream VCF post-processing. |
+| [Tasks.ExtractSampleNameFlowOrder](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | GetSampleName | GATK | Extracts the flow order from the BAM header into a text file that is used in downstream VCF post-processing. |
 
 ### 4. Calculate quality control metrics
 
-**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl)
+**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl)
 
  * **Nested task name and WDL link:**
 
- [UltimaGenomicsWholeGenomeGermlineQC.UltimaGenomicsWholeGenomeGermlineQC as CollectStatistics](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl)
+ [UltimaGenomicsWholeGenomeGermlineQC.UltimaGenomicsWholeGenomeGermlineQC as CollectStatistics](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineQC.wdl)
 
 The workflow uses a contamination estimation that has been adapted to use only the highest quality SNP sites based on flow cycles and local realignment. This is different from the [Whole Genome Germline Single Sample](https://broadinstitute.github.io/warp/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/README/) pipeline in that HaplotypeCaller performs local realignment and feeds that output to VerifyBAM ID, which cleans up the alignment.
 
 | Subtask name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
-| [Tasks.HaplotypeCaller as HaplotypeCallerForContamination](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Runs HaplotypeCaller using an interval list of variants with high allele frequencies (`contamination_sites_vcf`). |
-| [Tasks.CheckContamination](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | VerifyBamID | VerifyBamID | Checks contamination in the HaplotypeCallerForContamination bamout file. |
-| [Tasks.CollectDuplicateMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | CollectDuplicateMetrics | Picard | Checks duplication metrics in the aggregated, duplicate-marked BAM file. | 
-| [QC.CollectQualityYieldMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/Qc.wdl) | CollectQualityYieldMetrics | Picard | Calculates QC metrics on the duplicated-marked BAM. | 
-| [Tasks.CollectWgsMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | CollectWgsMetrics | Picard | Collects WGS metrics on the duplicate-marked BAM using stringent thresholds. |
-| [Tasks.CollectRawWgsMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | CollectRawWgsMetrics | Picard | Collects the raw WGS metrics on the duplicated-marked BAM with commonly used QC metrics. |
-| [Tasks.CollectAggregationMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | CollectMultipleMetrics | Picard | Performs QC on the aligned, duplicated-marked BAM.| 
-| [QC.CheckPreValidation](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/Qc.wdl) | custom script | python3 | Checks chimerism and duplicate files for a given threshold using a custom python script. |
+| [Tasks.HaplotypeCaller as HaplotypeCallerForContamination](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Runs HaplotypeCaller using an interval list of variants with high allele frequencies (`contamination_sites_vcf`). |
+| [Tasks.CheckContamination](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | VerifyBamID | VerifyBamID | Checks contamination in the HaplotypeCallerForContamination bamout file. |
+| [Tasks.CollectDuplicateMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | CollectDuplicateMetrics | Picard | Checks duplication metrics in the aggregated, duplicate-marked BAM file. | 
+| [QC.CollectQualityYieldMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/Qc.wdl) | CollectQualityYieldMetrics | Picard | Calculates QC metrics on the duplicated-marked BAM. | 
+| [Tasks.CollectWgsMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | CollectWgsMetrics | Picard | Collects WGS metrics on the duplicate-marked BAM using stringent thresholds. |
+| [Tasks.CollectRawWgsMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | CollectRawWgsMetrics | Picard | Collects the raw WGS metrics on the duplicated-marked BAM with commonly used QC metrics. |
+| [Tasks.CollectAggregationMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | CollectMultipleMetrics | Picard | Performs QC on the aligned, duplicated-marked BAM.| 
+| [QC.CheckPreValidation](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/Qc.wdl) | custom script | python3 | Checks chimerism and duplicate files for a given threshold using a custom python script. |
 
 ### 5. Variant call with HaplotypeCaller
 
@@ -198,30 +198,30 @@ The workflow implements initial variant calling with a version of HaplotypeCalle
 
 | Task name and WDL link | Tool | Software | Description |
 | --- | --- | --- | --- | 
-| [Utilities.ScatterIntervalList](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/Utilities.wdl) | IntervalListTools | Picard | Splits the calling interval list into sub-intervals in order to perform variant calling on the sub-intervals. |
-| [Tasks.HaplotypeCaller](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Performs initial variant calling on the aligned BAM file and outputs sub-interval GVCFs and a bamout file. |
+| [Utilities.ScatterIntervalList](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/Utilities.wdl) | IntervalListTools | Picard | Splits the calling interval list into sub-intervals in order to perform variant calling on the sub-intervals. |
+| [Tasks.HaplotypeCaller](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Performs initial variant calling on the aligned BAM file and outputs sub-interval GVCFs and a bamout file. |
 
 ### 6. Merge VCFs and BAMs and convert GVCF to VCF
 The workflow performs multiple post-processing steps to prepare the VCF for downstream joint calling. The HaplotypeCaller GVCF outputs are merged into a single GVCF and then converted to VCF in preparation for this post-processing.
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
-| [VariantDiscoverTasks.MergeVCFs](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/GermlineVariantDiscovery.wdl) | MergeVcfs | Picard | Merges the array of GVCFs from HaplotypeCaller into one VCF and index. |
-| [Tasks.MergeBams](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | MergeSamFiles | Picard | Merges the HaplotypeCaller bamout files into a single BAM file. |
-| [Tasks.ConvertGVCFtoVCF](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | GenotypeGVCFs | GATK | Converts to GVCF to VCF format in preparation for post-processing. |
+| [VariantDiscoverTasks.MergeVCFs](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/GermlineVariantDiscovery.wdl) | MergeVcfs | Picard | Merges the array of GVCFs from HaplotypeCaller into one VCF and index. |
+| [Tasks.MergeBams](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | MergeSamFiles | Picard | Merges the HaplotypeCaller bamout files into a single BAM file. |
+| [Tasks.ConvertGVCFtoVCF](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | GenotypeGVCFs | GATK | Converts to GVCF to VCF format in preparation for post-processing. |
 
 ### 7. Perform VCF post-processing
 The workflow performs post-processing steps to prepare the VCF for downstream joint calling. First, it annotates the merged HaplotypeCaller output VCF with dbSNP variants, then it trains a model, a random forest classifier ([Almogy et al., 2022](https://www.biorxiv.org/content/10.1101/2022.05.29.493900v1)), to distinguish between true positive variants and false positives. Next, the model is applied to filter variants in the VCF.
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
-| [Tasks.AnnotateVCF](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | VariantAnnotator | GATK | Adds dbSNP annotations to the HaplotypeCaller output VCF and outputs a new VCF with index. |
-| [Tasks.AddIntervalAnnotationsToVCF](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | annotate | bcftools | Adds additional interval annotations to the VCF. |
-| [Tasks.TrainModel](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | Custom script (train_models_pipeline.py) | genomics.py3 | Trains a model that can be applied for variant filtering to distinguish true and false-positive variants. |
-| [Tasks.AnnotateVCF_AF](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | view, index | vcfanno, bcftools | Adds gnomAD allele frequencies to the VCF for downstream metric calculation. |
-| [Tasks.FilterVCF](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | filter_variants_pipeline.py | genomics.py3 | Applies a trained model to filter for high quality VCF variants. |
-| [Tasks.MoveAnnotationsToGvcf](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | annotate | bcftools | Move the annotations and the tree score from the filtered VCF to produces a final post-processed GVCF and index. |
-| [ReblockGVCF.ReblockGVCF](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl) | ReblockGVCF | GATK | Reblocks the annotated GVCF. For more information on why the WARP germline pipelines perform reblocking, see the [blog on reblocking](https://broadinstitute.github.io/warp/blog/Nov21_ReblockedGVCF). |
+| [Tasks.AnnotateVCF](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | VariantAnnotator | GATK | Adds dbSNP annotations to the HaplotypeCaller output VCF and outputs a new VCF with index. |
+| [Tasks.AddIntervalAnnotationsToVCF](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | annotate | bcftools | Adds additional interval annotations to the VCF. |
+| [Tasks.TrainModel](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | Custom script (train_models_pipeline.py) | genomics.py3 | Trains a model that can be applied for variant filtering to distinguish true and false-positive variants. |
+| [Tasks.AnnotateVCF_AF](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | view, index | vcfanno, bcftools | Adds gnomAD allele frequencies to the VCF for downstream metric calculation. |
+| [Tasks.FilterVCF](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | filter_variants_pipeline.py | genomics.py3 | Applies a trained model to filter for high quality VCF variants. |
+| [Tasks.MoveAnnotationsToGvcf](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | annotate | bcftools | Move the annotations and the tree score from the filtered VCF to produces a final post-processed GVCF and index. |
+| [ReblockGVCF.ReblockGVCF](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl) | ReblockGVCF | GATK | Reblocks the annotated GVCF. For more information on why the WARP germline pipelines perform reblocking, see the [blog on reblocking](https://broadinstitute.github.io/warp/blog/Nov21_ReblockedGVCF). |
 
 ### 8. Outputs
 
@@ -263,20 +263,20 @@ Workflow outputs are described in the table below.
 | id | ID from the aligned BAM header. | String |
 
 #### Using outputs for downstream joint calling
-The outputs of the UG_WGS workflow are not yet compatible with the WARP [Ultimate Genomics Joint Genotyping workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl), but efforts to release the workflow are in-progress.  
+The outputs of the UG_WGS workflow are not yet compatible with the WARP [Ultimate Genomics Joint Genotyping workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl), but efforts to release the workflow are in-progress.  
 
 <!--- Validation will go here --->
 
 
 ## Versioning
 
-All UG_WGS pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.changelog.md).
+All UG_WGS pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.changelog.md).
 
 ## Citing the UG_WGS Pipeline
 
 If you use the UG_WGS Pipeline in your research, please cite our preprint:
 
-Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Kiernan, E., Konwar, K., Mathews, K.L., Palis, K., et al. Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis. Bioinformatics 2025; btaf494. https://doi.org/10.1093/bioinformatics/btaf494
 
 ## Feedback
 

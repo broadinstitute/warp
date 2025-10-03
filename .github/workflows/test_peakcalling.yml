@@ -10,15 +10,15 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/skylab/peak_calling/**'
+      - 'pipelines/wdl/peak_calling/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/broad/Utilities.wdl'
+      - 'tasks/wdl/Utilities.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyPeakCalling.wdl'
       - 'verification/VerifyTasks.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestPeakCalling.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_peakcalling.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -55,7 +55,7 @@ jobs:
     with:
       pipeline_name: TestPeakCalling
       dockstore_pipeline_name: PeakCalling
-      pipeline_dir: pipelines/skylab/peak_calling
+      pipeline_dir: pipelines/wdl/peak_calling
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

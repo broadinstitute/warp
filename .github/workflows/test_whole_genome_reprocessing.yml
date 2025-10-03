@@ -10,22 +10,22 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/broad/reprocessing/wgs/**'
-      - 'pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl'
+      - 'pipelines/wdl/reprocessing/wgs/**'
+      - 'pipelines/wdl/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl'
       # tasks from the pipeline WDL and their dependencies
       - 'structs/dna_seq/DNASeqStructs.wdl'
-      - 'tasks/broad/Alignment.wdl'
-      - 'tasks/broad/DragmapAlignment.wdl'
-      - 'tasks/broad/SplitLargeReadGroup.wdl'
-      - 'tasks/broad/BamProcessing.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'tasks/broad/AggregatedBamQC.wdl'
-      - 'tasks/broad/BamToCram.wdl'
-      - 'pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl'
-      - 'pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl'
-      - 'tasks/broad/GermlineVariantDiscovery.wdl'
-      - 'tasks/broad/DragenTasks.wdl'
+      - 'tasks/wdl/Alignment.wdl'
+      - 'tasks/wdl/DragmapAlignment.wdl'
+      - 'tasks/wdl/SplitLargeReadGroup.wdl'
+      - 'tasks/wdl/BamProcessing.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/Qc.wdl'
+      - 'tasks/wdl/AggregatedBamQC.wdl'
+      - 'tasks/wdl/BamToCram.wdl'
+      - 'pipelines/wdl/dna_seq/germline/variant_calling/VariantCalling.wdl'
+      - 'pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl'
+      - 'tasks/wdl/GermlineVariantDiscovery.wdl'
+      - 'tasks/wdl/DragenTasks.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyExomeReprocessing.wdl'
       - 'verification/VerifyGermlineSingleSample.wdl'
@@ -33,7 +33,7 @@ on:
       - 'verification/VerifyTasks.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestWholeGenomeGermlineSingleSample.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_whole_genome_reprocessing.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -69,7 +69,7 @@ jobs:
     with:
       pipeline_name: TestWholeGenomeReprocessing
       dockstore_pipeline_name: WholeGenomeReprocessing
-      pipeline_dir: pipelines/broad/reprocessing/wgs
+      pipeline_dir: pipelines/wdl/reprocessing/wgs
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

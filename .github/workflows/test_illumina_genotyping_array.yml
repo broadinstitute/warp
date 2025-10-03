@@ -10,16 +10,16 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/broad/genotyping/illumina/**'
+      - 'pipelines/wdl/genotyping/illumina/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/broad/IlluminaGenotypingArrayTasks.wdl'
-      - 'tasks/broad/Qc.wdl'
+      - 'tasks/wdl/IlluminaGenotypingArrayTasks.wdl'
+      - 'tasks/wdl/Qc.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyIlluminaGenotypingArray.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestIlluminaGenotypingArray.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_illumina_genotyping_array.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -55,7 +55,7 @@ jobs:
     with:
       pipeline_name: TestIlluminaGenotypingArray
       dockstore_pipeline_name: IlluminaGenotypingArray
-      pipeline_dir: pipelines/broad/genotyping/illumina
+      pipeline_dir: pipelines/wdl/genotyping/illumina
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

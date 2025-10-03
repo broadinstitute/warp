@@ -17,9 +17,9 @@ The Imputation pipeline imputes missing genotypes from either a multi-sample VCF
  
 ### Workflow installation and requirements
  
-The [Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/Imputation.wdl) is written in the Workflow Description Language (WDL) and can be deployed using a WDL-compatible execution engine like  [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms.
+The [Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation/Imputation.wdl) is written in the Workflow Description Language (WDL) and can be deployed using a WDL-compatible execution engine like  [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms.
  
-To identify the latest workflow version and release notes, please see the Imputation workflow [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/Imputation.changelog.md). 
+To identify the latest workflow version and release notes, please see the Imputation workflow [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation/Imputation.changelog.md). 
  
 The latest release of the workflow, example data, and dependencies are available from the WARP releases page. To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
 
@@ -34,7 +34,7 @@ The table below describes each of the Imputation pipeline inputs. The workflow r
 
 However, the pipeline is cost-optimized for between 100 and 1,000 samples. After 1,000 samples, the cost per sample no longer decreases (see the [Price estimates](#price-estimates) section). 
 
-For examples of how to specify each input in a configuration file, as well as cloud locations for different example input files, see the [example input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json).
+For examples of how to specify each input in a configuration file, as well as cloud locations for different example input files, see the [example input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation/example_inputs.json).
 
  
 | Input name | Description | Type |
@@ -65,7 +65,7 @@ For examples of how to specify each input in a configuration file, as well as cl
  
 ### Imputation reference panel
  
-The Imputation workflow's reference panel files are hosted in a [public Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg19/v0/1000G_reference_panel;tab=objects?prefix=&forceOnObjectsSortingFiltering=false). For the cloud-path (URI) to the files, see the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json).
+The Imputation workflow's reference panel files are hosted in a [public Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg19/v0/1000G_reference_panel;tab=objects?prefix=&forceOnObjectsSortingFiltering=false). For the cloud-path (URI) to the files, see the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation/example_inputs.json).
 
 #### Generation of the modified 1000 Genomes reference
 Initial tests of the Imputation workflow followed by assessments of polygenic risk score revealed that disease risk scores were lower when computed from imputed array data as opposed to whole-genome sequencing data. This was found to be due to incorrectly genotyped sites in the 1000G reference panel. As a result, the 1000G reference files were modified for the Imputation pipeline as described in the [references overview](./references_overview.md). You can view the original, unmodified 1000G VCFs [here](https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/).
@@ -79,7 +79,7 @@ Currently, the pipeline does not perform imputation on the X-chromosome and no r
  
 ## Workflow tasks and tools
  
-The [Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/Imputation.wdl) imports a series of tasks from the ImputationTasks WDL, which is hosted in the Broad [tasks library](https://github.com/broadinstitute/warp/tree/develop/tasks/broad). The table below describes each workflow task, including the task name, tools, relevant software and non-default parameters. 
+The [Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation/Imputation.wdl) imports a series of tasks from the ImputationTasks WDL, which is hosted in the Broad [tasks library](https://github.com/broadinstitute/warp/tree/develop/tasks/broad). The table below describes each workflow task, including the task name, tools, relevant software and non-default parameters. 
  
 | Task name (alias) in WDL | Tool | Software | Description |
 | --- | --- | --- | --- |
@@ -143,7 +143,7 @@ The pipeline is cost-optimized for between 100 and 1,000 samples, where the cost
 
 If you use the Imputation Pipeline in your research, please consider citing our preprint:
 
-Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Kiernan, E., Konwar, K., Mathews, K.L., Palis, K., et al. Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis. Bioinformatics 2025; btaf494. https://doi.org/10.1093/bioinformatics/btaf494
  
 ## Contact us
 

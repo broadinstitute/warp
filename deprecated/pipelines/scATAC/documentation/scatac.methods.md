@@ -1,4 +1,4 @@
-# scATAC v1.1.0 Methods
+# scATAn example of the pipeline and its outputs is available on Terra (https://app.terra.bio/#workspaces/brain-initiative-bcdc/SnapATAC_Pipeline) and more documentation can be found at https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/atac/scATAC/README.md. Examples of genomic reference files and other inputs can be found in the pipeline's [example JSON](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/atac/scATAC/example_inputs/human_example.json).C v1.1.0 Methods
 Below we provide a sample methods section for a publication. For the complete pipeline documentation, see the [scATAC README](README.md).
 
 # Methods

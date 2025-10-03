@@ -10,23 +10,23 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/skylab/optimus/**'
+      - 'pipelines/wdl/optimus/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/skylab/FastqProcessing.wdl'
-      - 'tasks/skylab/StarAlign.wdl'
-      - 'tasks/skylab/Metrics.wdl'
-      - 'tasks/skylab/RunEmptyDrops.wdl'
-      - 'tasks/skylab/CheckInputs.wdl'
-      - 'tasks/skylab/MergeSortBam.wdl'
-      - 'tasks/skylab/H5adUtils.wdl'
-      - 'tasks/broad/Utilities.wdl'
+      - 'tasks/wdl/FastqProcessing.wdl'
+      - 'tasks/wdl/StarAlign.wdl'
+      - 'tasks/wdl/Metrics.wdl'
+      - 'tasks/wdl/RunEmptyDrops.wdl'
+      - 'tasks/wdl/CheckInputs.wdl'
+      - 'tasks/wdl/MergeSortBam.wdl'
+      - 'tasks/wdl/H5adUtils.wdl'
+      - 'tasks/wdl/Utilities.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyOptimus.wdl'
       - 'verification/VerifyTasks.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestOptimus.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_optimus.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -63,7 +63,7 @@ jobs:
     with:
       pipeline_name: TestOptimus
       dockstore_pipeline_name: Optimus
-      pipeline_dir: pipelines/skylab/optimus
+      pipeline_dir: pipelines/wdl/optimus
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

@@ -10,14 +10,14 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/broad/reprocessing/cram_to_unmapped_bams/**'
+      - 'pipelines/wdl/reprocessing/cram_to_unmapped_bams/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/broad/Utilities.wdl'
+      - 'tasks/wdl/Utilities.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyCramToUnmappedBams.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestCramToUnmappedBams.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_cram_to_unmapped_bams.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -53,7 +53,7 @@ jobs:
     with:
       pipeline_name: TestCramToUnmappedBams
       dockstore_pipeline_name: CramToUnmappedBams
-      pipeline_dir: pipelines/broad/reprocessing/cram_to_unmapped_bams
+      pipeline_dir: pipelines/wdl/reprocessing/cram_to_unmapped_bams
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}
