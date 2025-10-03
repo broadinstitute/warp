@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl" as UltimaGenomicsJointGenotyping
+import "../../pipelines/wdl/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl" as UltimaGenomicsJointGenotyping
 import "../../verification/VerifyUltimaGenomicsJointGenotyping.wdl" as VerifyUltimaGenomicsJointGenotyping
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestUltimaGenomicsJointGenotyping {
 

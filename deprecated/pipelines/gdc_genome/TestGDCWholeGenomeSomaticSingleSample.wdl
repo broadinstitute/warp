@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.wdl" as GDCWholeGenomeSomaticSingleSample
+import "../../pipelines/wdl/dna_seq/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.wdl" as GDCWholeGenomeSomaticSingleSample
 import "../../verification/VerifyGDCSomaticSingleSample.wdl" as VerifyGDCSomaticSingleSample
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestGDCWholeGenomeSomaticSingleSample {
 

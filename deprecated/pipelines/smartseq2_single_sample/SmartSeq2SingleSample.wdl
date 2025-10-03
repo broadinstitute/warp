@@ -2,11 +2,11 @@ version 1.0
 
 # SmartSeq2SingleSample is now deprecated 2025-03-06
 
-import "../../../tasks/skylab/HISAT2.wdl" as HISAT2
-import "../../../tasks/skylab/Picard.wdl" as Picard
-import "../../../tasks/skylab/RSEM.wdl" as RSEM
-import "../../../tasks/skylab/GroupMetricsOutputs.wdl" as GroupQCs
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/wdl/HISAT2.wdl" as HISAT2
+import "../../../tasks/wdl/Picard.wdl" as Picard
+import "../../../tasks/wdl/RSEM.wdl" as RSEM
+import "../../../tasks/wdl/GroupMetricsOutputs.wdl" as GroupQCs
+import "../../../tasks/wdl/LoomUtils.wdl" as LoomUtils
 
 workflow SmartSeq2SingleSample {
   meta {
