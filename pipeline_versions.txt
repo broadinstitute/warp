@@ -1,28 +1,28 @@
-Pipeline Name	Version	Date of Last Commit
+ArrayImputationQC	 1.2.0	2025-09-29 
+ArrayImputationQuotaConsumed	 1.1.0	2025-09-29 
+BuildIndices	 4.2.1	2025-09-26 
 CramToUnmappedBams	 1.1.3	2024-08-02 
-ExomeReprocessing	 3.3.4	2025-02-21 
-WholeGenomeReprocessing	 3.3.4	2025-02-21 
-UltimaGenomicsWholeGenomeGermline	 1.2.0	2025-03-17 
 ExomeGermlineSingleSample	 3.2.4	2025-02-21 
-WholeGenomeGermlineSingleSample	 3.3.4	2025-02-12 
-JointGenotyping	 1.7.2	2024-11-04 
-UltimaGenomicsJointGenotyping	 1.2.2	2024-11-04 
-ReblockGVCF	 2.4.1	2025-02-21 
-VariantCalling	 2.2.5	2025-02-21 
-UltimaGenomicsWholeGenomeCramOnly	 1.1.0	2025-03-17 
-Imputation	 1.1.19	2025-07-31 
-ArrayImputationQC	 1.0.0	2025-08-11 
-ArrayImputationQuotaConsumed	 1.0.3	2025-07-31 
-ImputationBeagle	 2.0.0	2025-07-31 
-RNAWithUMIsPipeline	 1.0.18	2024-11-04 
+ExomeReprocessing	 3.3.4	2025-02-21 
 IlluminaGenotypingArray	 1.12.24	2024-11-04 
-PeakCalling	 1.0.0	
-Optimus	 8.0.4	2025-07-31 
-SlideSeq	 3.6.3	2025-06-20 
-PairedTag	 2.1.8 	2025-08-15 
-BuildIndices	 4.1.0	2025-08-20 
-snm3C	 4.1.0	2025-08-11 
-Multiome	 6.1.3	2025-08-15 
-SlideTags	 1.0.2	2025-07-31 
-atac	 2.9.2	2025-08-15 
+Imputation	 1.1.22	2025-09-18 
+ImputationBeagle	 2.2.0	2025-09-29 
+JointGenotyping	 1.7.2	2024-11-04 
 MultiSampleSmartSeq2SingleNucleus	 2.2.2	 2025-06-20 
+Multiome	 6.1.3	2025-08-15 
+Optimus	 8.0.4	2025-07-31 
+PairedTag	 2.1.8 	2025-08-15 
+PeakCalling	 1.0.0	
+Pipeline Name	Version	Date of Last Commit
+RNAWithUMIsPipeline	 1.0.18	2024-11-04 
+ReblockGVCF	 2.4.1	2025-02-21 
+SlideSeq	 3.6.3	2025-06-20 
+SlideTags	 1.0.3	2025-09-25 
+UltimaGenomicsJointGenotyping	 1.2.2	2024-11-04 
+UltimaGenomicsWholeGenomeCramOnly	 1.1.0	2025-03-17 
+UltimaGenomicsWholeGenomeGermline	 1.2.0	2025-03-17 
+VariantCalling	 2.2.5	2025-02-21 
+WholeGenomeGermlineSingleSample	 3.3.4	2025-02-12 
+WholeGenomeReprocessing	 3.3.4	2025-02-21 
+atac	 2.9.2	2025-08-15 
+snm3C	 4.1.0	2025-08-11 
