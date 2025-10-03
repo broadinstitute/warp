@@ -200,7 +200,6 @@ task plot_pca {
         import pandas as pd
         import numpy as np
         import matplotlib.pyplot as plt
-        import ast
 
         def check_pc(pc: int) -> None:
             if pc < 1:
@@ -217,8 +216,8 @@ task plot_pca {
             # Plot each group with a different color
             for label, color in zip(labels, colors):
                 subset = df[df[col_category] == label]
-                x = subset[f'PC{pc1}']
-                y = subset[f'PC{pc2}']
+                x = subset[f'PC{pc1}']  # Updated to use individual PC columns
+                y = subset[f'PC{pc2}']  # Updated to use individual PC columns
                 plt.scatter(x, y, color=color, s=2, alpha=0.5)  # Removed legend and added alpha for transparency
 
             plt.title('CDRv9 PCA')
@@ -241,7 +240,6 @@ task plot_pca {
 
         # Read and process data
         df = pd.read_csv("~{pca_tsv}", sep="\t")
-        df['scores'] = df['scores'].apply(ast.literal_eval)  # Safer than eval()
 
         # Add pop labels since plot function expects them
         df['pop_label'] = ["No label"] * len(df)
