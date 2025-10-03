@@ -1,3 +1,8 @@
+# 1.2.1
+2025-10-01 (Date of Last Commit)
+
+* Add check for vcf being bgzipped and in sorted order
+
 # 1.2.0
 2025-09-29 (Date of Last Commit)
 
