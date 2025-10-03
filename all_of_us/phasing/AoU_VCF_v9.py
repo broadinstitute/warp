@@ -147,7 +147,7 @@ mt_fil = mt.filter_rows(
     ((mt.filters.contains('LowQual')) | # VARIABLE!!! Probably a checkbox?
      (mt.filters.contains('NO_HQ_GENOTYPES')) | # VARIABLE!!! Probably a checkbox?
      (mt.filters.contains('ExcessHet'))) | # VARIABLE!!! Probably a checkbox?
-    (mt.variant_qc.call_rate < 0.9) |  # VARIABLE!!!
+    (mt.variant_qc.call_rate < 0.95) |  # VARIABLE!!!
     (mt.variant_qc.gq_stats.mean < 30.0),  # VARIABLE!!!  #### Changed from 30.0 to 1.0 ####
     keep=False)
 
@@ -160,7 +160,7 @@ mt_fil = mt_fil.annotate_rows(
                      HC = mt_fil.infor.homozygote_count,
                      AVSAD = mt_fil.average_variant_sum_AD))
 
-fields_to_drop = ['filters', 'variant_qc', 'infor', 'maximum_variant_AC', 'defined_AD', 'average_variant_sum_AD']
+fields_to_drop = ['variant_qc', 'infor', 'maximum_variant_AC', 'defined_AD', 'average_variant_sum_AD']
 
 mt_fil = mt_fil.drop(*fields_to_drop)
 
@@ -173,6 +173,9 @@ vcf_metadata = """##fileformat=VCFv4.2
 ##INFO=<ID=HC,Number=R,Type=Integer,Description="Number of homozygotes per allele. One element per allele, including the reference.">
 ##INFO=<ID=AVSAD,Number=1,Type=Float,Description="Mean sum of allelic depts. Proxies DP.">
 ##INFO=<ID=GQ,Number=1,Type=Float,Description="Mean Genotype Quality">
+##FILTER=<ID=LowQual,Description="Low quality score">
+##FILTER=<ID=ExcessHet,Description="Excess heteroygotes">
+##FILTER=<ID=NO_HQ_GENOTYPES,Description="No high-quality genotypes">
 """
 vcf_metadata += "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t0000000000"
 

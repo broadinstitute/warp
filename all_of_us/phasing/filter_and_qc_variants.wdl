@@ -127,8 +127,10 @@ workflow RunAoUAnvilMergeFilterAndQc {
         #  However, since this can be a lightweight VM, overriding is unlikely to be necessary.
 
         # The docker to be used on the VM.  This will need both Hail and Google Cloud SDK installed.
-        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.130"
+        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.134"
     }
+
+    String pipeline_version = "aou_9.0.0"
 
     # Ensure that trailing slash is included in the output bucket path
     String output_bucket_path_with_trailing_slash = sub(output_bucket_path, "/$", "") + "/"
@@ -182,7 +184,7 @@ task FilterAndQCVariants {
         String worker_machine_type = "n1-highmem-4"
         Int num_workers = 2
         Int num_preemptible_workers = 50
-        Int time_to_live_minutes = 2880 # two days
+        Int time_to_live_minutes = 5760 # four days
         RuntimeAttr? runtime_attr_override
         String gcs_subnetwork_name
 
