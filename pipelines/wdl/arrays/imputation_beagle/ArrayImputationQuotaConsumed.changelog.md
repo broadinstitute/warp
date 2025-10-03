@@ -1,7 +1,12 @@
-# 1.0.7
-2025-09-19 (Date of Last Commit)
+# 1.1.0
+2025-09-29 (Date of Last Commit)
 
-* Resolved merge conflicts and reorganize WDL pipelines into unified directory
+* Add min_dr2_for_inclusion input to match changes to ImputationBeagle wdl for filtering imputed variants by DR2.
+
+# 1.0.7
+2025-09-18 (Date of Last Commit)
+
+* Update CountSamples task to use SSD for more efficient localization of large files on Google Batch.
 
 # 1.0.6
 2025-09-15 (Date of Last Commit)
@@ -22,7 +27,6 @@
 2025-07-31 (Date of Last Commit)
 
 * Add maxRetries to tasks to help with performance on Google Batch.
-
 
 # 1.0.2
 2025-04-07 (Date of Last Commit)

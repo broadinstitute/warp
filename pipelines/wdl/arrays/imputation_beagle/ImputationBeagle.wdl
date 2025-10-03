@@ -5,10 +5,9 @@ import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 import "../../../../tasks/wdl/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
-
-  String pipeline_version = "2.0.4"
-  String input_qc_version = "1.0.3"
-  String quota_consumed_version = "1.0.7"
+  String pipeline_version = "2.2.1"
+  String input_qc_version = "1.2.1"
+  String quota_consumed_version = "1.1.0"
 
   input {
     Int chunkLength = 25000000
@@ -18,12 +17,13 @@ workflow ImputationBeagle {
     File multi_sample_vcf
 
     File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
-    Array[String] contigs
+    Array[String] contigs # list of possible contigs that will be processed. note the workflow will not error out if any of these contigs are missing
     String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
     String output_basename # the basename for intermediate and output files
 
     String? pipeline_header_line # optional additional header lines to add to the output VCF
+    Float? min_dr2_for_inclusion # minimum dr2 to include a variant in the output vcf, applied after reannotation
 
     # file extensions used to find reference panel files
     String bed_suffix = ".bed"
@@ -38,7 +38,10 @@ workflow ImputationBeagle {
     Int beagle_phase_memory_in_gb = 40
     Int beagle_impute_memory_in_gb = 45
   }
+
+  # have to define these here to use them in nested scatters
   String defined_pipeline_header_line = if defined(pipeline_header_line) then select_first([pipeline_header_line]) else ""
+  Float defined_min_dr2_for_inclusion = if defined(min_dr2_for_inclusion) then select_first([min_dr2_for_inclusion]) else 0.0
 
   call tasks.CountSamples {
     input:
@@ -54,9 +57,18 @@ workflow ImputationBeagle {
       gatk_docker = gatk_docker
   }
 
+  call beagleTasks.CalculateContigsToProcess {
+    input:
+      vcf_input = multi_sample_vcf,
+      allowed_contigs = contigs,
+      gatk_docker = gatk_docker
+  }
+
+  Array[String] contigs_to_process = CalculateContigsToProcess.contigs_to_process
+
   Float chunkLengthFloat = chunkLength
 
-  scatter (contig in contigs) {
+  scatter (contig in contigs_to_process) {
     # these are specific to hg38 - contig is format 'chr1'
     String reference_basename = reference_panel_path_prefix + "." + contig
     String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.withchr.map"
@@ -137,15 +149,15 @@ workflow ImputationBeagle {
     }
   }
 
-  scatter (contig_index in range(length(contigs))) {
+  scatter (contig_index in range(length(contigs_to_process))) {
     # cant have the same variable names in different scatters, so add _2 to "differentiate"
-    String reference_basename_2 = reference_panel_path_prefix + "." + contigs[contig_index]
-    String genetic_map_filename_2 = genetic_maps_path + "plink." + contigs[contig_index] + ".GRCh38.withchr.map"
+    String reference_basename_2 = reference_panel_path_prefix + "." + contigs_to_process[contig_index]
+    String genetic_map_filename_2 = genetic_maps_path + "plink." + contigs_to_process[contig_index] + ".GRCh38.withchr.map"
 
     ReferencePanelContig referencePanelContig_2 = {
                                                   "bed": reference_basename_2 + bed_suffix,
                                                   "bref3": reference_basename_2  + bref3_suffix,
-                                                  "contig": contigs[contig_index],
+                                                  "contig": contigs_to_process[contig_index],
                                                   "genetic_map": genetic_map_filename_2
                                                 }
     Int num_chunks_2 = num_chunks[contig_index]
@@ -260,10 +272,22 @@ workflow ImputationBeagle {
         }
       }
 
+      # only filter by dr2 if the user has defined a threshold greater than 0
+      if (defined_min_dr2_for_inclusion > 0.0) {
+        call beagleTasks.FilterVcfByDR2 {
+          input:
+            vcf = select_first([ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
+            vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
+            basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.filtered",
+            dr2_threshold = defined_min_dr2_for_inclusion,
+            gatk_docker = gatk_docker
+        }
+      }
+
       call tasks.UpdateHeader {
         input:
-          vcf = select_first([ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
-          vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
+          vcf = select_first([FilterVcfByDR2.output_vcf, ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
+          vcf_index = select_first([FilterVcfByDR2.output_vcf_index, ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
           ref_dict = ref_dict,
           basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header",
           disable_sequence_dictionary_validation = false,

@@ -1,3 +1,18 @@
+# 1.2.1
+2025-10-01 (Date of Last Commit)
+
+* Add check for vcf being bgzipped and in sorted order
+
+# 1.2.0
+2025-09-29 (Date of Last Commit)
+
+* Add min_dr2_for_inclusion input to match changes to ImputationBeagle wdl for filtering imputed variants by DR2.
+
+# 1.1.0
+2025-09-26 (Date of Last Commit)
+
+* Allow subset of chromosomes in VCF input but require at least one of the allowed contigs specified by the repurposed `contigs` input.
+
 # 1.0.3
 2025-09-15 (Date of Last Commit)
 

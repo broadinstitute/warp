@@ -18,7 +18,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "4.2.0"
+  String pipeline_version = "4.2.1"
 
   parameter_meta {
     annotations_gtf: "the annotation file"
@@ -117,9 +117,11 @@ task BuildStarSingleNucleus {
     File biotypes
     Int disk = 100
   }
+
   meta {
     description: "Modify GTF files and build reference index files for STAR aligner"
   }
+
   String ref_name = "star2.7.10a-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
   String star_index_name = "modified_~{ref_name}.tar"
   String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
@@ -337,7 +339,7 @@ task RecordMetadata {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:4.2.0"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:4.2.1"
     memory: "50 GiB"
     disks: "local-disk 100 HDD"
     disk: 100 + " GB" # TES

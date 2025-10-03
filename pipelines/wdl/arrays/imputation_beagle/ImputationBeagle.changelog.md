@@ -1,7 +1,29 @@
-# 2.0.4
-2025-09-19 (Date of Last Commit)
+# 2.0.5
+2025-10-03 (Date of Last Commit)
 
 * Resolved merge conflicts and reorganize WDL pipelines into unified directory
+
+# 2.2.1
+2025-10-01 (Date of Last Commit)
+
+* update input_qc_version to 1.2.1 to match latest changes in InputQC wdl
+
+# 2.2.0
+2025-09-29 (Date of Last Commit)
+
+* Add optional min_dr2_for_inclusion input and FilterVcfByDR2 optional task to allow users to specify a minimum DR2 threshold for including imputed variants in the final output VCF. Variants with DR2 below this threshold will be excluded from the final output VCF.
+
+# 2.1.0
+2025-09-26 (Date of Last Commit)
+
+* Add CalculateContigsToProcess task to infer chromosomes present in input VCF and filter them against the allowed contigs specified by the repurposed `contigs` input.
+
+# 2.0.4
+2025-09-18 (Date of Last Commit)
+
+* Update CountSamples task to use SSD for more efficient localization of large files on Google Batch.
+* Update Phase and Impute tasks to use a docker image running on Java 17 instead of Java 8 for better memory management.
+* Update LocalizeAndSubsetVcfToRegion task to decompress/compress to get rid of possible empty blocks from the Java 17 update https://broadworkbench.atlassian.net/browse/TSPS-612
 
 # 2.0.3
 2025-09-11 (Date of Last Commit)

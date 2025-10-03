@@ -32,12 +32,14 @@ workflow TestSlideTags {
       Boolean count_exons = false
       String? soloMultiMappers
       String? gex_nhash_id
-	    File? mt_genes
-	    String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.1.0"
+	  File? mt_genes
+	  String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.2.0"
+      Boolean run_dropsift = false
 	
-	    String truth_path
-	    String results_path
-	    Boolean update_truth
+	  String truth_path
+	  String results_path
+	  Boolean update_truth
+
 
   }
 
