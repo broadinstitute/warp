@@ -10,27 +10,27 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/broad/dna_seq/germline/single_sample/wgs/**'
+      - 'pipelines/wdl/dna_seq/germline/single_sample/wgs/**'
       # tasks from the pipeline WDL and their dependencies
       - 'structs/dna_seq/DNASeqStructs.wdl'
-      - 'tasks/broad/Alignment.wdl'
-      - 'tasks/broad/DragmapAlignment.wdl'
-      - 'tasks/broad/SplitLargeReadGroup.wdl'
-      - 'tasks/broad/BamProcessing.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'tasks/broad/AggregatedBamQC.wdl'
-      - 'tasks/broad/BamToCram.wdl'
-      - 'pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl'
-      - 'tasks/broad/GermlineVariantDiscovery.wdl'
-      - 'tasks/broad/DragenTasks.wdl'
+      - 'tasks/wdl/Alignment.wdl'
+      - 'tasks/wdl/DragmapAlignment.wdl'
+      - 'tasks/wdl/SplitLargeReadGroup.wdl'
+      - 'tasks/wdl/BamProcessing.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/Qc.wdl'
+      - 'tasks/wdl/AggregatedBamQC.wdl'
+      - 'tasks/wdl/BamToCram.wdl'
+      - 'pipelines/wdl/dna_seq/germline/variant_calling/VariantCalling.wdl'
+      - 'tasks/wdl/GermlineVariantDiscovery.wdl'
+      - 'tasks/wdl/DragenTasks.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyGermlineSingleSample.wdl'
       - 'verification/VerifyMetrics.wdl'
       - 'verification/VerifyTasks.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestWholeGenomeGermlineSingleSample.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_whole_genome_germline_single_sample.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -66,7 +66,7 @@ jobs:
     with:
       pipeline_name: TestWholeGenomeGermlineSingleSample
       dockstore_pipeline_name: WholeGenomeGermlineSingleSample
-      pipeline_dir: pipelines/broad/dna_seq/germline/single_sample/wgs
+      pipeline_dir: pipelines/wdl/dna_seq/germline/single_sample/wgs
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}
