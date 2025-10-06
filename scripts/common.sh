@@ -15,16 +15,51 @@ function get_version_from_changelog() {
   echo $(grep -m1 '^#' ${changelog} | cut -f 2 -d ' ')
 }
 
+#function get_dependencies_for_wdl() {
+#  local -r wdl=${1}
+#
+#  local -a wdlImports=($(grep '^import ".*$' ${wdl} | grep -v 'http' | cut -d ' ' -f 2 | sed 's|\.\.\/||g' | xargs -n1))
+#  local -a subWorkflowImports=()
+#  for import in ${wdlImports[@]}; do
+#    subWorkflowImports=("${subWorkflowImports[@]}" $(get_dependencies_for_wdl ${import}))
+#  done
+#  echo ${wdlImports[@]} ${subWorkflowImports[@]}
+#}
+
 function get_dependencies_for_wdl() {
   local -r wdl=${1}
+  local -r wdlDir=$(dirname "${wdl}")
+  local -a wdlImports=()
 
-  local -a wdlImports=($(grep '^import ".*$' ${wdl} | grep -v 'http' | cut -d ' ' -f 2 | sed 's|\.\.\/||g' | xargs -n1))
+  while IFS= read -r importPath; do
+    # Extract import path and remove quotes
+    cleanPath=$(echo "${importPath}" | awk '{print $2}' | tr -d '"')
+
+    # Skip http imports
+    if [[ "${cleanPath}" =~ ^http ]]; then
+      continue
+    fi
+
+    # Resolve to absolute path relative to the WDL’s directory
+    local resolvedPath
+    resolvedPath=$(realpath -m "${wdlDir}/${cleanPath}")
+
+    # Only add if the file exists
+    if [[ -f "${resolvedPath}" ]]; then
+      wdlImports+=("${resolvedPath}")
+    else
+      stderr "Warning: could not resolve import ${cleanPath} from ${wdl}"
+    fi
+  done < <(grep '^import ".*$' "${wdl}")
+
   local -a subWorkflowImports=()
-  for import in ${wdlImports[@]}; do
-    subWorkflowImports=("${subWorkflowImports[@]}" $(get_dependencies_for_wdl ${import}))
+  for import in "${wdlImports[@]}"; do
+    subWorkflowImports+=($(get_dependencies_for_wdl "${import}"))
   done
-  echo ${wdlImports[@]} ${subWorkflowImports[@]}
+
+  echo "${wdlImports[@]}" "${subWorkflowImports[@]}"
 }
+
 
 function get_pipeline_dependencies() {
   local -r pipeline=${1}
