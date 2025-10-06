@@ -67,7 +67,7 @@ task ConcatenateChromosomalVcfs {
         String bcftools_docker = "mgibio/bcftools-cwl:1.12"
         Int memory_gb = 128
         Int cpu = 16
-        Int disk_gb = 1000 # 1 TB
+        Int disk_gb = 2000 # 2 TB
         Int num_preemptible_attempts = 1
     }
 
@@ -88,6 +88,7 @@ task ConcatenateChromosomalVcfs {
         cpu: "${cpu}"
         disk: "local-disk ${disk_gb} HDD"
         preemptible: num_preemptible_attempts
+        bootDiskSizeGb: 150
     }
 }
 
@@ -171,7 +172,7 @@ task create_hw_pca_training {
         File pca_eigenvalues_tsv = "~{final_output_prefix}_training_pca_eigenvalues.tsv"
     }
     runtime {
-        docker: "hailgenetics/hail:0.2.67"
+        docker: "hailgenetics/hail:0.2.134-py3.11"
         memory: "${mem_gb} GB"
         cpu: "${cpu}"
         disks: "local-disk ${disk_gb} ${disk_type}" # large SSD is recommended for increased processing speed
@@ -218,7 +219,7 @@ task plot_pca {
                 subset = df[df[col_category] == label]
                 x = subset[f'PC{pc1}']  # Updated to use individual PC columns
                 y = subset[f'PC{pc2}']  # Updated to use individual PC columns
-                plt.scatter(x, y, color=color, s=2, alpha=0.5)  # Removed legend and added alpha for transparency
+                plt.scatter(x, y, color=color, s=2, alpha=0.25)  # Removed legend and added alpha for transparency
 
             plt.title('CDRv9 PCA')
             plt.xlabel(f'PC{pc1}')
