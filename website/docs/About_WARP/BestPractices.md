@@ -2,6 +2,7 @@
 sidebar_position: 1
 ---
 
+
 # Best Practices for Building Data Processing Pipelines
 
 WARP pipeline development is guided by the best practices detailed below. We describe each of these best practices to give insight as to why they are important and we provide examples to give you a sense of how to apply them.
