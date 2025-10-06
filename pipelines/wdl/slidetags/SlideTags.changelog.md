@@ -1,7 +1,7 @@
 # 1.0.4
 2025-10-03 (Date of Last Commit)
 
-* Reorganized pipelines into the wdl directory
+* Reorganized pipelines into the wdl  directory
 
 # 1.0.3
 2025-09-25 (Date of Last Commit)
