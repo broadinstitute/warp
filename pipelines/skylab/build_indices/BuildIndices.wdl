@@ -49,6 +49,11 @@ workflow BuildIndices {
           original_gtf   = annotations_gtf,
           mito_gtf       = mito.out_gtf
       }
+      call BuildStarTAR as mito_star_index {
+        input:
+          annotation_gtf = mito_gtf.out_gtf,
+          genome_fa      = mito.out_fasta
+      }
     }
 
     # Choose the files the rest of the pipeline should use:
@@ -117,6 +122,7 @@ workflow BuildIndices {
     File? mito_annotated_fasta = mito.out_fasta
     File? mito_annotated_gtf = mito.out_gtf
     File? star_index_with_introns = SNSS2AddIntronsToGTF.star_index_with_introns
+    File? mito_star_index_tar = mito_star_index.star_index
   }
 }
 
@@ -180,7 +186,7 @@ task MitoAnnotate {
 
   output {
     File out_fasta = sub(basename(genome_fa), "\\.(fa|fasta)(\\.gz)?$", "") + "_mito.fasta"
-    File out_gtf   = sub(basename(transcript_gtf), "\\.(gtf)(\\.gz)?$", "") + "_mito.gtf"
+    File out_gtf   = sub(basename(transcript_gff), "\\.(gff)(\\.gz)?$", "") + "_mito.gtf"
   }
 
   runtime {
@@ -501,6 +507,41 @@ task RecordMetadata {
   output {
     File modified_annotation_gtf_with_introns = "~{basename}_with_introns.gtf"
     File star_index_with_introns = star_index_name
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:4.2.1"
+    memory: "50 GiB"
+    disks: "local-disk 100 HDD"
+    disk: 100 + " GB" # TES
+  }
+}
+
+  task BuildStarTAR {
+  input {
+    File annotation_gtf
+    File genome_fa
+  }
+    String basename = basename(annotation_gtf, ".gtf")
+    String star_index_name = "~{basename}.tar"
+
+  command <<<
+  set -euo pipefail
+  set -x
+
+  mkdir star
+  STAR --runMode genomeGenerate \
+  --genomeDir star \
+  --genomeFastaFiles ~{genome_fa} \
+  --sjdbGTFfile ~{basename}.gtf \
+  --sjdbOverhang 100 \
+  --runThreadN 16
+
+  tar -cvf ~{star_index_name} star
+  >>>
+
+  output {
+    File star_index = star_index_name
   }
 
   runtime {
