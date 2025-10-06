@@ -40,7 +40,7 @@ workflow BuildIndices {
           mito_accession = select_first([mito_accession]),
           mito_ref_gbk   = select_first([mito_ref_gbk]),
           genome_fa      = genome_fa,
-          transcript_gtf = select_first([annotations_gff]),
+          transcript_gff = select_first([annotations_gff]),
           spec_name      = organism,
           mitofinder_opts = mitofinder_opts
       }
@@ -125,30 +125,60 @@ task MitoAnnotate {
     String mito_accession
     File   mito_ref_gbk
     File   genome_fa
-    File   transcript_gtf
+    File   transcript_gff 
     String spec_name
     Array[String]? mitofinder_opts
   }
 
   command <<<
     set -euo pipefail
+    set -x
 
-    # Run your Dockerized script; it writes *_mito.fasta and *_mito.gtf
+    # WDL/Cromwell already localizes File inputs; these are valid inside the container.
+    GBK="~{mito_ref_gbk}"
+    FA="~{genome_fa}"
+    GFF_IN="~{transcript_gff}"
+
+    # Make a temp dir in the container for any conversions/decompression
+    tmpDir="$(mktemp -d)"
+    chmod 777 "$tmpDir"
+
+    echo "Container PWD: $(pwd)"
+    echo "Checking mounted /cromwell_root (should exist in Cromwell docker backends):"
+    ls -ld /cromwell_root || true
+
+    echo "Preflight: show inputs"
+    ls -l "$GBK" || (echo "Missing GBK at $GBK" && exit 1)
+    ls -l "$FA"  || (echo "Missing FASTA at $FA" && exit 1)
+    ls -l "$GFF_IN" || (echo "Missing transcript file at $GFF_IN" && exit 1)
+
+    # If add_mito can't read .gz, transparently decompress to a working copy.
+    GTF="$GFF_IN"
+    if file "$GFF_IN" 2>/dev/null | grep -qi 'compressed'; then
+      echo "Decompressing transcript annotations to GFF (stream-safe)..."
+      zcat -f "$GFF_IN" > "$tmpDir/transcripts.gff"
+      GFF="$tmpDir/transcripts.gff"
+    fi
+
+    # Optional: sanity peek (works for both gz and plain)
+    zcat -f "$GFF_IN" | head -n 3 || true
+
+    echo "Running add_mito with:"
+
+    # Run add_mito using ONLY the localized, in-container paths
     add_mito \
-      -a ~{mito_accession} \
-      -r ~{mito_ref_gbk} \
-      -g ~{genome_fa} \
-      -t ~{transcript_gtf} \
-      -n ~{spec_name} \
+      -a "~{mito_accession}" \
+      -r "$GBK" \
+      -g "$FA" \
+      -t "$GFF" \
+      -n "~{spec_name}" \
       ~{sep=' ' mitofinder_opts}
 
-    # List for debugging
+    echo "Listing outputs:"
     ls -lah
   >>>
 
   output {
-    # add_mito names outputs by appending "_mito"
-    # This regex-based approach is great and robust. No changes needed here.
     File out_fasta = sub(basename(genome_fa), "\\.(fa|fasta)(\\.gz)?$", "") + "_mito.fasta"
     File out_gtf   = sub(basename(transcript_gtf), "\\.(gtf)(\\.gz)?$", "") + "_mito.gtf"
   }
