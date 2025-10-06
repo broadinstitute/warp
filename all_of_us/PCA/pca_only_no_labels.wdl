@@ -88,7 +88,7 @@ task ConcatenateChromosomalVcfs {
         cpu: "${cpu}"
         disk: "local-disk ${disk_gb} HDD"
         preemptible: num_preemptible_attempts
-        bootDiskSizeGb: 150
+        bootDiskSizeGb: 1500
     }
 }
 
