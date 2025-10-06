@@ -64,7 +64,7 @@ task ConcatenateChromosomalVcfs {
         String output_vcf_basename = "combined_autosomes.vcf.gz"
 
         # Runtime parameters
-        String bcftools_docker = "mgibio/bcftools-cwl:1.12"
+        String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
         Int memory_gb = 128
         Int cpu = 16
         Int disk_gb = 2000 # 2 TB
@@ -88,7 +88,7 @@ task ConcatenateChromosomalVcfs {
         cpu: "${cpu}"
         disk: "local-disk ${disk_gb} HDD"
         preemptible: num_preemptible_attempts
-        bootDiskSizeGb: 1500
+        bootDiskSizeGb: 100
     }
 }
 
