@@ -46,7 +46,7 @@ workflow TestArrayImputationQC {
     }
 
     # Write pipeline outputs into json file so we can compare to truth
-    call WritePipelineOutputs {
+    call WriteMapToTsv {
       input:
         input_map = {
           "passes_qc": InputQC.passes_qc,
@@ -57,7 +57,7 @@ workflow TestArrayImputationQC {
     # Copy results of pipeline to test results bucket
     call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
       input:
-        files_to_copy             = [WritePipelineOutputs.json_file],
+        files_to_copy             = [WriteMapToTsv.tsv_file],
         destination_cloud_path    = results_path
     }
   
@@ -65,7 +65,7 @@ workflow TestArrayImputationQC {
     if (update_truth){
       call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
         input: 
-          files_to_copy             = [WritePipelineOutputs.json_file],
+          files_to_copy             = [WriteMapToTsv.tsv_file],
           destination_cloud_path    = truth_path
       }
     }
@@ -74,7 +74,7 @@ workflow TestArrayImputationQC {
     if (!update_truth){
         call Utilities.GetValidationInputs as GetOutputs {
           input:
-            input_file = WritePipelineOutputs.json_file,
+            input_file = WriteMapToTsv.tsv_file,
             results_path = results_path,
             truth_path = truth_path
         }
@@ -88,14 +88,14 @@ workflow TestArrayImputationQC {
     }
 }
 
-# Write a json file from a map of strings
-task WritePipelineOutputs {
+# Write a tsv file from a map of strings
+task WriteMapToTsv {
   input {
     Map[String, String] input_map
   }
 
   command <<<
-    python3 -c 'import json; print(json.dumps(~{input_map}, indent=4))' > output.json
+    cp ${write_map(input_map)} output.tsv
   >>>
 
   runtime {
@@ -104,6 +104,6 @@ task WritePipelineOutputs {
   }
 
   output {
-    File json_file = "output.json"
+    File tsv_file = "output.tsv"
   }
 }
