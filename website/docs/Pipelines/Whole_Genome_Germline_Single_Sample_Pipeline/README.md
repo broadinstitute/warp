@@ -69,15 +69,15 @@ When the workflow applies the DRAGMAP aligner, it calls reference files specific
  
 ### Workflow installation and requirements
  
-The [WGS workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl) is written in the Workflow Description Language [WDL](https://openwdl.org/) and can be downloaded by cloning the [warp repository](https://github.com/broadinstitute/warp/tree/master) in GitHub. 
-The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, see the WGS [changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.changelog.md).
+The [WGS workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl) is written in the Workflow Description Language [WDL](https://openwdl.org/) and can be downloaded by cloning the [warp repository](https://github.com/broadinstitute/warp/tree/master) in GitHub. 
+The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, see the WGS [changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.changelog.md).
  
 The latest release of the workflow, example data, and dependencies are available from the WARP [releases page](https://github.com/broadinstitute/warp/releases). You can explore releases using the WARP command-line tool, [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
  
 ### Input descriptions
 The tables below describe each of the WGS pipeline inputs and reference files. 
 
-Examples of how to specify each input can be found in the example [input configuration files (JSONs)](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
+Examples of how to specify each input can be found in the example [input configuration files (JSONs)](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/dna_seq/germline/single_sample/wgs/input_files). 
  
 Multiple references are imported as part of a struct from the [DNASeqStruct WDL](https://github.com/broadinstitute/warp/blob/master/structs/dna_seq/DNASeqStructs.wdl), which is located in the WARP [structs library](https://github.com/broadinstitute/warp/tree/master/structs). For references that are part of a struct, the tables below list the relevant struct’s name. 
  
@@ -92,7 +92,7 @@ Overall, the workflow has the following input requirements:
 * Reference genome must be Hg38 with ALT contigs
  
 #### Struct inputs
-The following table describes the inputs imported from a struct. Although these are specified in the WGS workflow using the struct name, the actual inputs for each struct are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
+The following table describes the inputs imported from a struct. Although these are specified in the WGS workflow using the struct name, the actual inputs for each struct are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/dna_seq/germline/single_sample/wgs/input_files). 
 
 
 | Input name | Struct name (alias) | Input description | Input type |
@@ -115,9 +115,9 @@ The following table describes the inputs imported from a struct. Although these 
 | agg_preemptible_tries |  PapiSettings (papi_settings) | Number of preemtible machine tries for the BamtoCram task. | Int |
  
 #### Additional inputs
-Additional inputs that are not contained in a struct are described in the table below. Similar to the struct inputs, these inputs are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files) or, when noted, are hardcoded into the WDL workflow.
+Additional inputs that are not contained in a struct are described in the table below. Similar to the struct inputs, these inputs are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/dna_seq/germline/single_sample/wgs/input_files) or, when noted, are hardcoded into the WDL workflow.
 
-* Optional inputs, like the fingerprint_genotypes_file, need to match your input samples. For example, the fingerprint file in the workflow's [test input configuration JSON](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files/WholeGenomeGermlineSingleSample.inputs.plumbing.masked_reference.json) is set up to check fingerprints for the NA12878 Plumbing sample. The sample name in the VCF matches the name used for the `sample_name` input.
+* Optional inputs, like the fingerprint_genotypes_file, need to match your input samples. For example, the fingerprint file in the workflow's [test input configuration JSON](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/dna_seq/germline/single_sample/wgs/input_files/WholeGenomeGermlineSingleSample.inputs.plumbing.masked_reference.json) is set up to check fingerprints for the NA12878 Plumbing sample. The sample name in the VCF matches the name used for the `sample_name` input.
 
 
 
@@ -144,7 +144,7 @@ Additional inputs that are not contained in a struct are described in the table 
  
 ## Workflow tasks and tools
  
-The WGS [workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl) imports a series of tasks, coded in WDL scripts, from the [tasks library](https://github.com/broadinstitute/warp/tree/master/tasks/broad).
+The WGS [workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl) imports a series of tasks, coded in WDL scripts, from the [tasks library](https://github.com/broadinstitute/warp/tree/master/tasks/broad).
 To learn more about the software tools implemented in these tasks, read the GATK support site’s [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932) overviews.
  
 :::tip Want to use the Whole Genome Germline Single Sample workflow in your publication?
@@ -156,104 +156,104 @@ The sections below outline each of the WGS workflow’s tasks and include tables
 
 
 **Workflow WDL task name and link:**
-[UnmappedBamToAlignedBam.UnmappedBamToAlignedBam](https://github.com/broadinstitute/warp/blob/master/tasks/broad/UnmappedBamToAlignedBam.wdl)
+[UnmappedBamToAlignedBam.UnmappedBamToAlignedBam](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/UnmappedBamToAlignedBam.wdl)
  
 The table below details the subtasks called by the UnmappedBamToAlignedBam task, which calculates metrics on the unsorted, unaligned BAMs for each readgroup using Picard and then aligns reads using either BWA mem or the DRAGEN DRAGMAP aligner. It optionally corrects base calling errors with BQSR. It lastly merges individual recalibrated BAM files into an aggregated BAM.
  
 | Subtask name (alias) and task WDL link | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [QC.CollectQualityYieldMetrics (CollectQualityYieldMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CollectQualityYieldMetrics | Picard | Calculates QC metrics on the unaligned BAM. |
-| [SplitRG.SplitLargeReadGroup (SplitRG)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/SplitLargeReadGroup.wdl) | --- | --- | If the BAM size is large, will split the BAMs; performs alignment using either BWA mem (`use_bwa_mem` = true) or the DRAGMAP aligner (`use_bwa_mem` = false). |
-| [Alignment.SamToFastqAndBwaMemAndMba (SamToFastqAndBwaMemAndMba)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Alignment.wdl) | SamToFastq; MergeBamAlignment | BWA mem, Picard | When `use_bwa_mem` = true, aligns using BWA mem; if `use_bwa_mem` = false, aligns with DRAGMAP aligner in the DragmapAlignment.SamToFastqAndDragmapAndMba task below. |
-| [DragmapAlignment.SamToFastqAndDragmapAndMba (SamToFastqAndDragmapAndMba)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/DragmapAlignment.wdl) | dragen-os, MergeBamAlignment | Dragmap, Picard | When `use_bwa_mem` = false, aligns with the DRAGMAP aligner. |
-| [QC.CollectUnsortedReadgroupBamQualityMetrics (CollectUnsortedReadgroupBamQualityMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CollectMultipleMetrics | Picard | Performs QC on the aligned BAMs with unsorted readgroups. | 
-| [Processing.MarkDuplicates (MarkDuplicates)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | MarkDuplicates | Picard | Marks duplicate reads. |
-| [Processing.SortSam](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | SortSam | Picard | Sorts the aggregated BAM by coordinate sort order. |
-| [QC.CrossCheckFingerprints (CrossCheckFingerprints)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CrosscheckFingerprints | Picard | Optionally checks fingerprints if haplotype database is provided. |
-| [Utils.CreateSequenceGroupingTSV (CreateSequenceGroupingTSV)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Utilities.wdl) | --- | python | Creates the sequencing groupings used for BQSR and PrintReads Scatter. |
-| [Processing.CheckContamination](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | VerifyBamID2 | --- | Checks cross-sample contamination prior to variant calling. |
-| [Processing.BaseRecalibrator (BaseRecalibrator)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | BaseRecalibrator | GATK | If `perform_bqsr` is true, performs base recalibration by interval. When using the DRAGEN-GATK mode, `perform_bqsr` is optionally false as base calling errors are corrected in the DRAGEN variant calling step.|
-| [Processing.GatherBqsrReports (GatherBqsrReports)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | GatherBQSRReports | GATK | Merges the BQSR reports resulting from by-interval calibration. |
-| [Processing.ApplyBQSR (ApplyBQSR)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | ApplyBQSR | GATK | Applies the BQSR base recalibration model by interval. |
-| [Processing.GatherSortedBamFiles (GatherBamFiles)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | GatherBamFiles | Picard | Merges the recalibrated BAM files. |
+| [QC.CollectQualityYieldMetrics (CollectQualityYieldMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | CollectQualityYieldMetrics | Picard | Calculates QC metrics on the unaligned BAM. |
+| [SplitRG.SplitLargeReadGroup (SplitRG)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/SplitLargeReadGroup.wdl) | --- | --- | If the BAM size is large, will split the BAMs; performs alignment using either BWA mem (`use_bwa_mem` = true) or the DRAGMAP aligner (`use_bwa_mem` = false). |
+| [Alignment.SamToFastqAndBwaMemAndMba (SamToFastqAndBwaMemAndMba)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Alignment.wdl) | SamToFastq; MergeBamAlignment | BWA mem, Picard | When `use_bwa_mem` = true, aligns using BWA mem; if `use_bwa_mem` = false, aligns with DRAGMAP aligner in the DragmapAlignment.SamToFastqAndDragmapAndMba task below. |
+| [DragmapAlignment.SamToFastqAndDragmapAndMba (SamToFastqAndDragmapAndMba)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/DragmapAlignment.wdl) | dragen-os, MergeBamAlignment | Dragmap, Picard | When `use_bwa_mem` = false, aligns with the DRAGMAP aligner. |
+| [QC.CollectUnsortedReadgroupBamQualityMetrics (CollectUnsortedReadgroupBamQualityMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | CollectMultipleMetrics | Picard | Performs QC on the aligned BAMs with unsorted readgroups. | 
+| [Processing.MarkDuplicates (MarkDuplicates)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/BamProcessing.wdl) | MarkDuplicates | Picard | Marks duplicate reads. |
+| [Processing.SortSam](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/BamProcessing.wdl) | SortSam | Picard | Sorts the aggregated BAM by coordinate sort order. |
+| [QC.CrossCheckFingerprints (CrossCheckFingerprints)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | CrosscheckFingerprints | Picard | Optionally checks fingerprints if haplotype database is provided. |
+| [Utils.CreateSequenceGroupingTSV (CreateSequenceGroupingTSV)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Utilities.wdl) | --- | python | Creates the sequencing groupings used for BQSR and PrintReads Scatter. |
+| [Processing.CheckContamination](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/BamProcessing.wdl) | VerifyBamID2 | --- | Checks cross-sample contamination prior to variant calling. |
+| [Processing.BaseRecalibrator (BaseRecalibrator)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/BamProcessing.wdl) | BaseRecalibrator | GATK | If `perform_bqsr` is true, performs base recalibration by interval. When using the DRAGEN-GATK mode, `perform_bqsr` is optionally false as base calling errors are corrected in the DRAGEN variant calling step.|
+| [Processing.GatherBqsrReports (GatherBqsrReports)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/BamProcessing.wdl) | GatherBQSRReports | GATK | Merges the BQSR reports resulting from by-interval calibration. |
+| [Processing.ApplyBQSR (ApplyBQSR)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/BamProcessing.wdl) | ApplyBQSR | GATK | Applies the BQSR base recalibration model by interval. |
+| [Processing.GatherSortedBamFiles (GatherBamFiles)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/BamProcessing.wdl) | GatherBamFiles | Picard | Merges the recalibrated BAM files. |
  
 ### Aggregate the aligned recalibrated BAM and calculate quality control metrics
 
 
 **Workflow task name and link:**
-[AggregatedBamQC.AggregatedBamQC](https://github.com/broadinstitute/warp/blob/master/tasks/broad/AggregatedBamQC.wdl) 
+[AggregatedBamQC.AggregatedBamQC](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/AggregatedBamQC.wdl) 
 
 
 The table below describes the subtasks of AggregatedBamQC.AggregatedBamQC task, which calculates quality control metrics on the aggregated recalibrated BAM file and checks for sample contamination.
  
 | Subtask name (alias) and link | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [QC.CollectReadgroupBamQualityMetrics (CollectReadgroupBamQualityMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CollectMultipleMetrics | Picard | Collects alignment summary and GC bias quality metrics on the recalibrated BAM. |
-| [QC.CollectAggregationMetrics (CollectAggregationMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CollectMultipleMetrics | Picard | Collects quality metrics from the aggregated BAM. |
-| [QC.CheckFingerprint (CheckFingerprint)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CheckFingerprint | Picard | Check that the fingerprint of the sample BAM matches the sample array. |
-| [QC.CalculateReadGroupChecksum (CalculateReadGroupChecksum)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CalculateReadGroupChecksum | Picard | Generate a checksum per readgroup in the final BAM. |  
+| [QC.CollectReadgroupBamQualityMetrics (CollectReadgroupBamQualityMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | CollectMultipleMetrics | Picard | Collects alignment summary and GC bias quality metrics on the recalibrated BAM. |
+| [QC.CollectAggregationMetrics (CollectAggregationMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | CollectMultipleMetrics | Picard | Collects quality metrics from the aggregated BAM. |
+| [QC.CheckFingerprint (CheckFingerprint)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | CheckFingerprint | Picard | Check that the fingerprint of the sample BAM matches the sample array. |
+| [QC.CalculateReadGroupChecksum (CalculateReadGroupChecksum)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | CalculateReadGroupChecksum | Picard | Generate a checksum per readgroup in the final BAM. |  
  
  
 ### Convert the aggregated recalibrated BAM to CRAM
 
 
 **Workflow task name and link:**
-[BamToCram.BamToCram](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamToCram.wdl)
+[BamToCram.BamToCram](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/BamToCram.wdl)
  
 The table below describes the subtasks of BamToCram.BamToCram task which converts the recalibrated BAM to CRAM format and produces a validation report.
 
 
 | Subtask name (alias) and link | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [Utils.ConvertToCram (ConvertToCram)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Utilities.wdl) | view, index | samtools | Converts the merged, recalibrated BAM to CRAM. |
-| [QC.CheckPreValidation (CheckPreValidation)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | --- | python | Checks if the data has massively high duplication or chimerism rates. |
-| [QC.ValidateSamFile (ValidateCram)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | ValidateSamFile | Picard | Validates the output CRAM file. |
+| [Utils.ConvertToCram (ConvertToCram)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Utilities.wdl) | view, index | samtools | Converts the merged, recalibrated BAM to CRAM. |
+| [QC.CheckPreValidation (CheckPreValidation)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | --- | python | Checks if the data has massively high duplication or chimerism rates. |
+| [QC.ValidateSamFile (ValidateCram)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | ValidateSamFile | Picard | Validates the output CRAM file. |
  
 ### Collect WGS metrics using stringent thresholds
 
 
 **Workflow task name and link:**
-[QC.CollectWgsMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl)
+[QC.CollectWgsMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl)
  
 The table below describes the QC.CollectWgsMetrics task which uses the Picard CollectWGSMetrics tool to calculate whole genome metrics using stringent thresholds.
 
 | Subtask name (alias) and link | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [CollectWgsMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CollectWgsMetrics | Picard | Collects WGS metrics using stringent thresholds; tasks will break if the read lengths in the BAM are greater than 250, so the max `read_length` is set to 250 by default. |
+| [CollectWgsMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | CollectWgsMetrics | Picard | Collects WGS metrics using stringent thresholds; tasks will break if the read lengths in the BAM are greater than 250, so the max `read_length` is set to 250 by default. |
  
 ### Collect raw WGS metrics using less stringent thresholds
 
 
 **Workflow task name and link:**
-[QC.CollectRawWgsMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl)
+[QC.CollectRawWgsMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl)
  
 The table below describes the QC.CollectRawWgsMetrics task which uses the Picard CollecRawtWGSMetrics tool to calculate whole genome metrics using common thresholds.
 
 
 | Subtask name (alias) and link | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [QC.CollectRawWgsMetrics (CollectRawWgsMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CollectRawWgsMetrics | Picard | Collects the raw WGS metrics with commonly used QC metrics. |
+| [QC.CollectRawWgsMetrics (CollectRawWgsMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | CollectRawWgsMetrics | Picard | Collects the raw WGS metrics with commonly used QC metrics. |
  
 ### Call variants with HaplotypeCaller
 
 
 **Workflow task name and link:**
-[VariantCalling.VariantCalling (BamToGvcf)](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl)
+[VariantCalling.VariantCalling (BamToGvcf)](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/dna_seq/germline/variant_calling/VariantCalling.wdl)
  
 The table below describes the subtasks of the VariantCalling.VariantCalling (BamToGvcf) workflow, which uses the GATK HaplotypeCaller for SNP and Indel discovery. When the workflow runs in DRAGEN mode, it produces a Dragstr model that is used during variant calling, and it performs hard filtering.
  
 | Subtask name (alias) and link | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [Dragen.CalibrateDragstrModel (DragstrAutoCalibration)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/DragenTasks.wdl) | CalibrateDragstrModel | GATK | If `run_dragen_mode_variant_calling` is true, uses the reference FASTA file, the reference’s corresponding public STR (short tandem repeat) table file, and the recalibrated BAM to estimate the parameters for the DRAGEN STR model. The output parameter tables are used for the DRAGEN mode HaplotypeCaller. |
-| [Utils.ScatterIntervalList (ScatterIntervalList)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Utilities.wdl) | IntervalListTools | Picard, python | Breaks the interval list into subintervals for downstream variant calling. |
-| [Calling.HaplotypeCaller_GATK35_GVCF (HaplotypeCallerGATK3)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/GermlineVariantDiscovery.wdl) | PrintReads, HaplotypeCaller | GATK4, GATK3.5 | If `use_gatk3_haplotype_caller` is true, will call GATK3 Haplotypecaller to call variants in GVCF mode, otherwise will use the HaplotypeCaller_GATK4_VCF task below. |
-| [Calling.HaplotypeCaller_GATK4_VCF (HaplotypeCallerGATK4)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/GermlineVariantDiscovery.wdl) | HaplotypeCaller | GATK4 | If `use_gatk3_haplotype_caller` is false, will call GATK4 Haplotypecaller to call variants in GVCF mode. If `run_dragen_mode_variant_calling` is true, uses the --dragstr-params-path containing the DragSTR model and runs it with HaplotypeCaller in --dragen-mode. |
-| [Calling.DragenHardFilterVcf (DragenHardFilterVcf)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/GermlineVariantDiscovery.wdl) | VariantFiltration | GATK | If `dragen_mode_hard_filter` is true, performs hard filtering that matches the filtering performed by the DRAGEN 3.4.12 pipeline. |
-| [BamProcessing.SortSam (SortBamout)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | SortSam | Picard |If the option to make a BAM out file is selected ( `make_bamout` is true), sorts and gathers the BAM files into one file. |
-| [MergeBamouts](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl) | merge, index | samtools | If `make_bamout` is true, makes corrections to the merged BAM out file from Picard. | 
-| [Calling.MergeVCFs (MergeVCFs)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/GermlineVariantDiscovery.wdl) | MergeVcfs | Picard | Combines by-interval (g)VCFs into a single sample (g)VCF file. |
-| [QC.ValidateVCF (ValidateVCF)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | ValidateVariants | GATK | Validates the (g)VCF from HaplotypeCaller with the -gvcf parameter. |
-| [QC.CollectVariantCallingMetrics (CollectVariantCallingMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CollectVariantCallingMetrics | Picard | Performs quality control on the (g)VCF. |
+| [Dragen.CalibrateDragstrModel (DragstrAutoCalibration)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/DragenTasks.wdl) | CalibrateDragstrModel | GATK | If `run_dragen_mode_variant_calling` is true, uses the reference FASTA file, the reference’s corresponding public STR (short tandem repeat) table file, and the recalibrated BAM to estimate the parameters for the DRAGEN STR model. The output parameter tables are used for the DRAGEN mode HaplotypeCaller. |
+| [Utils.ScatterIntervalList (ScatterIntervalList)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Utilities.wdl) | IntervalListTools | Picard, python | Breaks the interval list into subintervals for downstream variant calling. |
+| [Calling.HaplotypeCaller_GATK35_GVCF (HaplotypeCallerGATK3)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/GermlineVariantDiscovery.wdl) | PrintReads, HaplotypeCaller | GATK4, GATK3.5 | If `use_gatk3_haplotype_caller` is true, will call GATK3 Haplotypecaller to call variants in GVCF mode, otherwise will use the HaplotypeCaller_GATK4_VCF task below. |
+| [Calling.HaplotypeCaller_GATK4_VCF (HaplotypeCallerGATK4)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/GermlineVariantDiscovery.wdl) | HaplotypeCaller | GATK4 | If `use_gatk3_haplotype_caller` is false, will call GATK4 Haplotypecaller to call variants in GVCF mode. If `run_dragen_mode_variant_calling` is true, uses the --dragstr-params-path containing the DragSTR model and runs it with HaplotypeCaller in --dragen-mode. |
+| [Calling.DragenHardFilterVcf (DragenHardFilterVcf)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/GermlineVariantDiscovery.wdl) | VariantFiltration | GATK | If `dragen_mode_hard_filter` is true, performs hard filtering that matches the filtering performed by the DRAGEN 3.4.12 pipeline. |
+| [BamProcessing.SortSam (SortBamout)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/BamProcessing.wdl) | SortSam | Picard |If the option to make a BAM out file is selected ( `make_bamout` is true), sorts and gathers the BAM files into one file. |
+| [MergeBamouts](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/dna_seq/germline/variant_calling/VariantCalling.wdl) | merge, index | samtools | If `make_bamout` is true, makes corrections to the merged BAM out file from Picard. | 
+| [Calling.MergeVCFs (MergeVCFs)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/GermlineVariantDiscovery.wdl) | MergeVcfs | Picard | Combines by-interval (g)VCFs into a single sample (g)VCF file. |
+| [QC.ValidateVCF (ValidateVCF)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | ValidateVariants | GATK | Validates the (g)VCF from HaplotypeCaller with the -gvcf parameter. |
+| [QC.CollectVariantCallingMetrics (CollectVariantCallingMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | CollectVariantCallingMetrics | Picard | Performs quality control on the (g)VCF. |
  
 ## Workflow outputs
 
@@ -318,7 +318,7 @@ As of November 2021, reblocking is a default task in the WGS pipeline. To skip r
 "WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking": true
 ```
 
-The [Reblocking task](https://github.com/broadinstitute/warp/blob/master/tasks/broad/GermlineVariantDiscovery.wdl) uses the GATK ReblockGVCF tool with the arguments:
+The [Reblocking task](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/GermlineVariantDiscovery.wdl) uses the GATK ReblockGVCF tool with the arguments:
 
 ```WDL
 -do-qual-approx -floor-blocks -GQB 20 -GQB 30 -GQB 40 
@@ -373,7 +373,7 @@ The final CRAM files have base quality scores binned according to the [Functiona
 
 If you use the WGS Pipeline in your research, please cite our preprint:
 
-Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Kiernan, E., Konwar, K., Mathews, K.L., Palis, K., et al. Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis. Bioinformatics 2025; btaf494. https://doi.org/10.1093/bioinformatics/btaf494
 
 
 ## Contact us

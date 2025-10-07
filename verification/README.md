@@ -141,7 +141,7 @@ Example for *Arrays* workflow:
 
 $ python3 gentest.py --workflow Arrays --validation VerifyArrays
 
-$ INFO:root: - Workflow found at path -> broadinstitute/warp/pipelines/broad/arrays/single_sample/Arrays.wdl
+$ INFO:root: - Workflow found at path -> broadinstitute/warp/pipelines/wdl/arrays/single_sample/Arrays.wdl
 $ INFO:root: - Validation wdl found at path -> broadinstitute/warp/verification/VerifyArrays.wdl
 $ INFO:root: - Generating inputs for TestArrays.wdl...
 $ INFO:root: - Generating subworkflow inputs for Arrays.wdl...
