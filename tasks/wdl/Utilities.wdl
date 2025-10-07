@@ -223,7 +223,7 @@ task ErrorWithMessage {
   }
 }
 
-# Given either a file or list of files, output both the truth and results path
+# This task is unused for now, going to keep it in here though if we need it in the future
 task GetValidationInputs {
   input {
     String results_path
