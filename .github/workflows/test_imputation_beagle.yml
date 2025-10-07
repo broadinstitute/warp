@@ -9,8 +9,8 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/wdl/arrays/imputation_beagle/*'
-      - 'pipelines/wdl/arrays/imputation_beagle/test_inputs/**'
+      - 'pipelines/wdl/arrays/imputation_beagle/**'
+      - '!pipelines/wdl/arrays/imputation_beagle/input_qc/**'
       - 'structs/imputation/ImputationBeagleStructs.wdl'
       - 'tasks/wdl/ImputationTasks.wdl'
       - 'tasks/wdl/ImputationBeagleTasks.wdl'
