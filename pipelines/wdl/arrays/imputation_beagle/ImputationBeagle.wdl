@@ -6,7 +6,7 @@ import "../../../../tasks/wdl/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
   String pipeline_version = "2.2.2"
-  String input_qc_version = "1.2.1"
+  String input_qc_version = "1.2.2"
   String quota_consumed_version = "1.1.0"
 
   input {
