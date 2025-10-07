@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/broad/internal/dna_seq/germline/single_sample/UltimaGenomics/BroadInternalUltimaGenomics.wdl" as BroadInternalUltimaGenomics
+import "../../pipelines/wdl/internal/dna_seq/germline/single_sample/UltimaGenomics/BroadInternalUltimaGenomics.wdl" as BroadInternalUltimaGenomics
 import "../../verification/VerifyUltimaGenomicsWholeGenomeGermline.wdl" as VerifyUltimaGenomicsWholeGenomeGermline
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestBroadInternalUltimaGenomics {
 

@@ -10,25 +10,25 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/skylab/paired_tag/**'
-      - 'pipelines/skylab/optimus/Optimus.wdl'
+      - 'pipelines/wdl/paired_tag/**'
+      - 'pipelines/wdl/optimus/Optimus.wdl'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/skylab/H5adUtils.wdl'
-      - 'tasks/skylab/PairedTagUtils.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/skylab/FastqProcessing.wdl'
-      - 'tasks/skylab/StarAlign.wdl'
-      - 'tasks/skylab/Metrics.wdl'
-      - 'tasks/skylab/RunEmptyDrops.wdl'
-      - 'tasks/skylab/CheckInputs.wdl'
-      - 'tasks/skylab/MergeSortBam.wdl'
+      - 'tasks/wdl/H5adUtils.wdl'
+      - 'tasks/wdl/PairedTagUtils.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/FastqProcessing.wdl'
+      - 'tasks/wdl/StarAlign.wdl'
+      - 'tasks/wdl/Metrics.wdl'
+      - 'tasks/wdl/RunEmptyDrops.wdl'
+      - 'tasks/wdl/CheckInputs.wdl'
+      - 'tasks/wdl/MergeSortBam.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyPairedTag.wdl'
       - 'verification/VerifyTasks.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestPairedTag.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_pairedtag.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -64,7 +64,7 @@ jobs:
     with:
       pipeline_name: TestPairedTag
       dockstore_pipeline_name: PairedTag
-      pipeline_dir: pipelines/skylab/paired_tag
+      pipeline_dir: pipelines/wdl/paired_tag
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}
