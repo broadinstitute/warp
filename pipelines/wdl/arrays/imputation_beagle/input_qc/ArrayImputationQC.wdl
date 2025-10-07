@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../../tasks/wdl/ImputationBeagleQcTasks.wdl" as tasks
+import "../../../../../tasks/wdl/ImputationBeagleQcTasks.wdl" as tasks
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in ImputationBeagle.wdl

@@ -1,7 +1,7 @@
 version 1.0
 
 
-import "../../pipelines/wdl/arrays/imputation_beagle/ArrayImputationQC.wdl" as ArrayImputationQC
+import "../../pipelines/wdl/arrays/imputation_beagle/input_qc/ArrayImputationQC.wdl" as ArrayImputationQC
 import "../../verification/VerifyArrayImputationQC.wdl" as VerifyArrayImputationQC
 import "../../tasks/wdl/Utilities.wdl" as Utilities
 import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
