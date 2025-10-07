@@ -45,7 +45,7 @@ workflow SlideTags {
         pucks: "Array of paths to puck files"
         docker: "Docker image to use"
     }
-
+    
     # Call the optimus workflow
     call optimus.Optimus as Optimus {
         input:
