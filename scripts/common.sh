@@ -15,17 +15,6 @@ function get_version_from_changelog() {
   echo $(grep -m1 '^#' ${changelog} | cut -f 2 -d ' ')
 }
 
-#function get_dependencies_for_wdl() {
-#  local -r wdl=${1}
-#
-#  local -a wdlImports=($(grep '^import ".*$' ${wdl} | grep -v 'http' | cut -d ' ' -f 2 | sed 's|\.\.\/||g' | xargs -n1))
-#  local -a subWorkflowImports=()
-#  for import in ${wdlImports[@]}; do
-#    subWorkflowImports=("${subWorkflowImports[@]}" $(get_dependencies_for_wdl ${import}))
-#  done
-#  echo ${wdlImports[@]} ${subWorkflowImports[@]}
-#}
-
 function get_dependencies_for_wdl() {
   local -r wdl=${1}
   local -r wdlDir=$(dirname "${wdl}")

@@ -11,7 +11,6 @@ task generate_positioning {
     Int nthreads = 16
     String docker
   }
-
   command <<<
     set -euo pipefail
     set -x
