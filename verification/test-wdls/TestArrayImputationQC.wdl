@@ -95,7 +95,7 @@ task WriteMapToTsv {
   }
 
   command <<<
-    cp ${write_map(input_map)} output.tsv
+    cp ~{write_map(input_map)} output.tsv
   >>>
 
   runtime {
