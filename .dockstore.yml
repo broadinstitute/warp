@@ -11,7 +11,7 @@ workflows:
 
   - name: ArrayImputationQC
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/input_qc/ArrayImputationQC.wdl
+    primaryDescriptorPath: /pipelines/wdl/arrays/imputation_beagle/input_qc/ArrayImputationQC.wdl
 
   - name: atac
     subclass: WDL
