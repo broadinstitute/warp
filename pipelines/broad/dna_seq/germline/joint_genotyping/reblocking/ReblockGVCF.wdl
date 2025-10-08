@@ -20,22 +20,11 @@ workflow ReblockGVCF {
     String? annotations_to_remove_command
     Boolean? move_filters_to_genotypes
     String gvcf_file_extension = ".g.vcf.gz"
-    String cloud_provider
   }
 
   String gvcf_basename = basename(gvcf, gvcf_file_extension)
-  # docker images
-  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
-  String gatk_docker_aws = "broadinstitute/gatk:4.6.1.0"
-  String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_aws
-
-  # make sure either GCP or AWS is supplied as cloud_provider input
-  if ((cloud_provider != "gcp") && (cloud_provider != "aws")) {
-    call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
-      input:
-        message = "cloud_provider must be supplied with either 'gcp' or 'aws'."
-    }
-  }
+  # docker image
+  String gatk_docker = "broadinstitute/gatk:4.6.1.0"
 
   call Calling.Reblock as Reblock {
     input:
