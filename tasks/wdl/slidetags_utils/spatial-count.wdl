@@ -29,7 +29,7 @@ task count {
     # Assert that the fastqs exist
     fastqs=(~{sep=' ' fastq_paths})
     for fastq in "${fastqs[@]}" ; do
-        if ! gsutil stat "$fastq" &> /dev/null ; then
+        if ! gsutil stat --billing-project warp-pipeline-dev "$fastq" &> /dev/null ; then
             echo "ERROR: gsutil stat command failed on fastq $fastq"
             exit 1
         fi
@@ -43,7 +43,7 @@ task count {
     # Assert that the pucks exist
     pucks=(~{sep=' ' pucks})
     for puck in "${pucks[@]}" ; do
-        if ! gsutil stat "$puck" &> /dev/null ; then
+        if ! gsutil stat --billing-project warp-pipeline-dev "$puck" &> /dev/null ; then
             echo "ERROR: gsutil stat command failed on puck $puck"
             exit 1
         fi
