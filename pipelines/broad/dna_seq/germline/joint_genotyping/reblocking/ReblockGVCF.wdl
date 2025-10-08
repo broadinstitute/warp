@@ -23,8 +23,7 @@ workflow ReblockGVCF {
   }
 
   String gvcf_basename = basename(gvcf, gvcf_file_extension)
-  # docker image
-  String gatk_docker = "broadinstitute/gatk:4.6.1.0"
+  String gatk_docker = "broadinstitute/gatk:4.6.1.0" # docker image
 
   call Calling.Reblock as Reblock {
     input:
