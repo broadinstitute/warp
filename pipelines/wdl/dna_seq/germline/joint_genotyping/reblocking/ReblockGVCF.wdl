@@ -8,7 +8,6 @@ workflow ReblockGVCF {
 
   String pipeline_version = "2.4.3"
 
-
   input {
     File gvcf
     File gvcf_index
