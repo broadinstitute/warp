@@ -29,7 +29,7 @@ task count {
     # Assert that the fastqs exist
     fastqs=(~{sep=' ' fastq_paths})
     for fastq in "${fastqs[@]}" ; do
-        if ! gsutil --gcs-project-for-requester-pays warp-pipelines stat "$fastq" &> /dev/null ; then
+        if ! gsutil --gcs-project-for-requester-pays terra-435ea065 stat "$fastq" &> /dev/null ; then
             echo "ERROR: gsutil stat command failed on fastq $fastq"
             exit 1
         fi
