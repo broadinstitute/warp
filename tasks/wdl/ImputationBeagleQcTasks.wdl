@@ -26,6 +26,7 @@ task QcChecks {
         line_count=$(bcftools stats ~{vcf_input}  | grep "number of records:" | awk '{print $6}')
         if [ "$line_count" -gt 10000000 ]; then
             echo "Greater than 10 million variants found in input VCF." >> qc_messages.txt
+            echo "false" > passes_qc.txt
             exit 0
         else
             echo "Less than or equal to 10 million variants found in input VCF."
@@ -63,11 +64,11 @@ task QcChecks {
         # check for sorted or non bgzf compressed vcf
         bcftools index -t ~{vcf_input} 2> index_stderr.txt
         if grep -qiE "unsorted positions|not continuous" index_stderr.txt; then
-            echo "Input VCF is not sorted" >> qc_messages.txt;
+            echo "Input VCF is not sorted." >> qc_messages.txt;
         fi
 
         if grep -q "not BGZF compressed" index_stderr.txt; then
-            echo "Input VCF is not BGZF compressed" >> qc_messages.txt;
+            echo "Input VCF is not BGZF compressed." >> qc_messages.txt;
         fi
 
         # check reference header lines if they exist

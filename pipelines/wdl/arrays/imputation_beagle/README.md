@@ -97,13 +97,15 @@ Upon successful completion, the workflow produces a fully imputed multi-sample V
 
 ## ArrayImputationQuotaConsumed summary
 
-The ArrayImputationQuotaConsumed pipeline is used by the All of Us/AnVIL Imputation Service and calculates the number of samples in the input multi-sample VCF, which is the metric used by the service for ImputationBeagle pipeline quota.
+The ArrayImputationQuotaConsumed pipeline is used by the _All of Us_ + AnVIL Imputation Service and calculates the number of samples in the input multi-sample VCF, which is the metric used by the service for ImputationBeagle (array_imputation) pipeline quota.
 
 
 ## ArrayImputationQC summary
 
-The ArrayImputationQuotaConsumed pipeline is used by the All of Us/AnVIL Imputation Service and runs various qc checks on the input multi-sample VCF, checks include:
+The ArrayImputationQC pipeline is used by the _All of Us_ + AnVIL Imputation Service and runs various Quality Control checks on the input multi-sample VCF. Checks include:
 - vcf version 4.x
 - hg38 chromosome names
-- variants on each of the hg38 canonical chromosomes.
-- is not a WGS array vcf
+- variants on at least one of the hg38 canonical chromosomes
+- is not a WGS array vcf (has no more than 10 million records)
+- sorted positions
+- BGZF compression
