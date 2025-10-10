@@ -380,9 +380,11 @@ jobs:
             done
           done
           
-          # Generate final summary
+          # Generate final markdown and JSON summary
           FINAL_SUMMARY="## Combined Workflow Statuses\n\n"
-          
+          JSON_SUMMARY='{"summary":['
+          FIRST_ENTRY=true
+
            # Add all workflow statuses to the summary
           for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
             # Generate the submission URL and append to the summary
@@ -393,8 +395,32 @@ jobs:
             FINAL_SUMMARY+="[${INPUT_FILE_NAME}]($SUBMISSION_URL)\n"
             # Append the workflow statuses for this submission
             FINAL_SUMMARY+="${WORKFLOW_STATUSES[$SUBMISSION_ID]}\n\n"
+
+            # Parse workflow IDs and statuses for JSON
+            while IFS='|' read -r WORKFLOW_ID STATUS; do
+              # Trim whitespace
+              WORKFLOW_ID=$(echo "$WORKFLOW_ID" | xargs)
+              STATUS=$(echo "$STATUS" | xargs)
+
+              # Skip header row
+              if [ "$WORKFLOW_ID" != "Workflow ID" ] && [ "$WORKFLOW_ID" != "---" ]; then
+                # Add comma separator after first entry
+                if [ "$FIRST_ENTRY" = false ]; then
+                  JSON_SUMMARY+=','
+                else
+                  FIRST_ENTRY=false
+                fi
+
+                # Add JSON entry
+                JSON_SUMMARY+="{\"id\":\"$WORKFLOW_ID\",\"filename\":\"$INPUT_FILE_NAME\",\"url\":\"$SUBMISSION_URL\",\"status\":\"$STATUS\"}"
+              fi
+            done <<< "${WORKFLOW_STATUSES[$SUBMISSION_ID]}"
           done
           
+          # Close JSON array and object
+          JSON_SUMMARY+=']}'
+
+          echo "$JSON_SUMMARY" | jq '.' | tee workflow_summary.json
           echo -e "$FINAL_SUMMARY" >> $GITHUB_STEP_SUMMARY
           
           if [ "$OVERALL_SUCCESS" = false ]; then
