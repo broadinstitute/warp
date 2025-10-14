@@ -296,18 +296,29 @@ task BuildStarSingleNucleus {
   String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
 
   command <<<
+    # Decompress GTF if it's gzipped
+    if [[ "~{annotation_gtf}" == *.gz ]]; then
+        echo "Detected gzipped GTF file, decompressing..."
+        gunzip -c ~{annotation_gtf} > annotation.gtf
+        GTF_FILE="annotation.gtf"
+    else
+        echo "GTF file is not compressed"
+        GTF_FILE="~{annotation_gtf}"
+    fi
+
+
     # First check for marmoset GTF and modify header
     echo "checking for marmoset"
     if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
     then
         echo "marmoset is detected, running header modification"
         python3 /script/create_marmoset_header_mt_genes.py \
-            ~{annotation_gtf} > "/cromwell_root/header.gtf"
+            ${GTF_FILE} > "/cromwell_root/header.gtf"
     else
         echo "marmoset is not detected"
 
         # Check that input GTF files contain input genome source, genome build version, and annotation version
-        if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
+        if head -10 ${GTF_FILE} | grep -qi ~{genome_build}
         then
             echo Genome version found in the GTF file
         else
@@ -316,7 +327,7 @@ task BuildStarSingleNucleus {
         fi
 
         # Check that GTF file contains correct build source info in the first 10 lines of the GTF
-        if head -10 ~{annotation_gtf} | grep -qi ~{genome_source}
+        if head -10 ${GTF_FILE} | grep -qi ~{genome_source}
         then
             echo Source of genome build identified in the GTF file
         else
@@ -340,12 +351,12 @@ task BuildStarSingleNucleus {
     else
         echo "running GTF modification for non-marmoset"
         python3 /script/modify_gtf.py \
-            --input-gtf ~{annotation_gtf} \
+            --input-gtf ${GTF_FILE} \
             --output-gtf ~{annotation_gtf_modified} \
             --biotypes ~{biotypes}
     fi
     # python3 /script/modify_gtf.py  \
-    # --input-gtf ~{annotation_gtf} \
+    # --input-gtf ${GTF_FILE} \
     # --output-gtf ~{annotation_gtf_modified} \
     # --biotypes ~{biotypes}
 
