@@ -236,7 +236,8 @@ task AppendMitoGTF {
 
   runtime {
     #docker: "us.gcr.io/broad-gotc-prod/gffread:0.9.12--0"
-    docker: "ubuntu:20.04"
+    docker: "willmundlab/gffread:latest"
+    #docker: "ubuntu:20.04"
     memory: "2 GiB"
     disks: "local-disk 10 HDD"
     cpu: 1
