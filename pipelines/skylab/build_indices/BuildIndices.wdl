@@ -160,6 +160,7 @@ task MitoAnnotate {
 
     # If add_mito can't read .gz, transparently decompress to a working copy.
     GTF="$GFF_IN"
+    GFF="$GFF_IN"
     if file "$GFF_IN" 2>/dev/null | grep -qi 'compressed'; then
       echo "Decompressing transcript annotations to GFF (stream-safe)..."
       zcat -f "$GFF_IN" > "$tmpDir/transcripts.gff"
