@@ -184,11 +184,18 @@ task MitoAnnotate {
 
     echo "Listing outputs:"
     ls -lah
+
+    FA_OUT=$(find /mnt/disks/cromwell_root -name '*_mito.fasta' | head -n1)
+    GTF_OUT=$(find /mnt/disks/cromwell_root -name '*_mito.gtf' | head -n1)
+
+    cp "$FA_OUT" ./genome_mito.fasta
+    cp "$GTF_OUT" ./transcripts_mito.gtf
+
   >>>
 
   output {
-    File out_fasta = sub(basename(genome_fa), "\\.(fa|fasta)(\\.gz)?$", "") + "_mito.fasta"
-    File out_gtf   = sub(basename(transcript_gff), "\\.(gff)(\\.gz)?$", "") + "_mito.gtf"
+    File out_fasta = "genome_mito.fasta"
+    File out_gtf   = "transcripts_mito.gtf"
   }
 
   runtime {
@@ -208,11 +215,17 @@ task AppendMitoGTF {
   command <<<
     set -euo pipefail
 
+    # grep mitofinder in the mito_gtf and append those lines to the original gtf
+    grep "mitofinder" ~{mito_gtf} > mito_only.gtf
+
     # Concatenate the original GTF and the mito GTF
-    cat ~{original_gtf} ~{mito_gtf} > combined_annotations.gtf
+    cat ~{original_gtf} mito_only.gtf   > combined_annotations.gtf
 
     # List for debugging
     ls -lah
+    wc -l mito_only.gtf
+    wc -l ~{original_gtf}
+    wc -l combined_annotations.gtf
   >>>
 
   output {
