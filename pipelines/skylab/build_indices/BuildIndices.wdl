@@ -218,8 +218,18 @@ task AppendMitoGTF {
     # grep mitofinder in the mito_gtf and append those lines to the original gtf
     grep "mitofinder" ~{mito_gtf} > mito_only.gtf
 
+    # Check if original GTF is gzipped and decompress if needed
+    if [[ "~{original_gtf}" == *.gz ]]; then
+      echo "Original GTF is gzipped, decompressing..."
+      gunzip -c ~{original_gtf} > original_decompressed.gtf
+      ORIGINAL_FILE="original_decompressed.gtf"
+    else
+      ORIGINAL_FILE="~{original_gtf}"
+    fi
+
     # Concatenate the original GTF and the mito GTF
-    cat ~{original_gtf} mito_only.gtf > combined_annotations.gtf
+    echo "Combining GTF files..."
+    cat "${ORIGINAL_FILE}" mito_only.gtf > combined_annotations.gtf
 
     # List for debugging
     ls -lah
