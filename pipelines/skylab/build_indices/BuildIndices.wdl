@@ -57,8 +57,8 @@ workflow BuildIndices {
     }
 
     # Choose the files the rest of the pipeline should use:
-    File genome_fa_for_indices = select_first([mito.out_fasta, genome_fa])
-    File annotations_gtf_for_indices = select_first([mito_gtf.out_gtf, annotations_gtf])
+    File genome_fa_for_indices = select_first([genome_fa, mito.out_fasta])
+    File annotations_gtf_for_indices = select_first([annotations_gtf, mito_gtf.out_gtf])
 
     call BuildStarSingleNucleus {
       input:
@@ -553,6 +553,9 @@ task RecordMetadata {
   command <<<
   set -euo pipefail
   set -x
+
+  ls ~{basename}.gtf
+    wc -l ~{basename}.gtf
 
   mkdir star
   STAR --runMode genomeGenerate \
