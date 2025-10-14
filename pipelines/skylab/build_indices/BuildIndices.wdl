@@ -565,14 +565,11 @@ task RecordMetadata {
   set -euo pipefail
   set -x
 
-  ls ~{basename}.gtf
-    wc -l ~{basename}.gtf
-
   mkdir star
   STAR --runMode genomeGenerate \
   --genomeDir star \
   --genomeFastaFiles ~{genome_fa} \
-  --sjdbGTFfile ~{basename}.gtf \
+  --sjdbGTFfile ~{annotation_gtf} \
   --sjdbOverhang 100 \
   --runThreadN 16
 
