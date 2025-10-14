@@ -215,8 +215,11 @@ task AppendMitoGTF {
   command <<<
     set -euo pipefail
 
+    # Convert mito GFF to GTF
+    gffread ~{mito_gtf} -T -o mito_converted.gtf
+
     # grep mitofinder in the mito_gtf and append those lines to the original gtf
-    grep "mitofinder" ~{mito_gtf} > mito_only.gtf
+    grep "mitofinder" mito_converted.gtf > mito_only.gtf
 
     # Concatenate the original GTF and the mito GTF
     cat ~{original_gtf} mito_only.gtf   > combined_annotations.gtf
@@ -233,7 +236,7 @@ task AppendMitoGTF {
   }
 
   runtime {
-    docker: "ubuntu:20.04"
+    docker: "quay.io/biocontainers/gffread:0.9.12--0"
     memory: "2 GiB"
     disks: "local-disk 10 HDD"
     cpu: 1
