@@ -236,7 +236,7 @@ task AppendMitoGTF {
   }
 
   runtime {
-    docker: "quay.io/biocontainers/gffread:0.9.12--0"
+    docker: "us.gcr.io/broad-gotc-prod/gffread:0.9.12--0"
     memory: "2 GiB"
     disks: "local-disk 10 HDD"
     cpu: 1
