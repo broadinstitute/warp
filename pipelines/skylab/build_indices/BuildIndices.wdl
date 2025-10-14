@@ -158,13 +158,15 @@ task MitoAnnotate {
     ls -l "$FA"  || (echo "Missing FASTA at $FA" && exit 1)
     ls -l "$GFF_IN" || (echo "Missing transcript file at $GFF_IN" && exit 1)
 
-    # If add_mito can't read .gz, transparently decompress to a working copy.
     GFF="$GFF_IN"
-    if file "$GFF_IN" 2>/dev/null | grep -qi 'compressed'; then
+
+    # If add_mito can't read .gz, transparently decompress to a working copy.
+    if gzip -t "$GFF_IN" 2>/dev/null; then
       echo "Decompressing transcript annotations to GFF (stream-safe)..."
       zcat -f "$GFF_IN" > "$tmpDir/transcripts.gff"
       GFF="$tmpDir/transcripts.gff"
     fi
+
 
     # Optional: sanity peek (works for both gz and plain)
     zcat -f "$GFF_IN" | head -n 3 || true
