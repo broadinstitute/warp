@@ -1,4 +1,5 @@
-# 1.2.3 (Date of Last Commit)
+# 1.2.3 
+2025-10-15 (Date of Last Commit)
 
 * Update QcChecks task to improve error messages.
 
