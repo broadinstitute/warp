@@ -9,7 +9,7 @@ import "../../../../../tasks/wdl/DragenTasks.wdl" as DragenTasks
 workflow VariantCalling {
 
 
-  String pipeline_version = "2.2.6"
+  String pipeline_version = "2.2.7"
 
 
   input {
