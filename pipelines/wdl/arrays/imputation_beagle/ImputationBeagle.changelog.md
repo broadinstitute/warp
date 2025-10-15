@@ -1,3 +1,8 @@
+# 2.2.4
+2025-10-15 (Date of Last Commit)
+
+* Update input_qc_version to 1.2.3 to match latest changes in InputQC wdl
+
 # 2.2.3
 2025-10-07 (Date of Last Commit)
 

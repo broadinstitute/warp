@@ -1,3 +1,7 @@
+# 1.2.3 (Date of Last Commit)
+
+* Update QcChecks task to improve error messages.
+
 # 1.2.2
 2025-10-07 (Date of Last Commit)
 

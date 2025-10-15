@@ -56,9 +56,9 @@ task QcChecks {
         done
 
         if [ ${#filtered_chromosomes[@]} -eq 0 ]; then
-            echo "Input must include data for at least one chromosome in the allowed contigs (${allowed_chromosomes[*]})." >> qc_messages.txt
+            echo "Input must include variants for at least one chromosome in the supported contigs: (${allowed_chromosomes[*]})." >> qc_messages.txt
         else
-            echo "Found data for chromosomes: ${filtered_chromosomes[*]}."
+            echo "Found variants for chromosomes: ${filtered_chromosomes[*]}."
         fi
 
         # check for sorted or non bgzf compressed vcf
@@ -80,7 +80,8 @@ task QcChecks {
 
         ref_dict_basename="~{ref_dict_basename}"
         if grep -q "incompatible contigs" gatk_output.txt; then
-            echo "Found incompatible contigs (against reference dictionary $ref_dict_basename) in VCF header." >> qc_messages.txt;
+            bad_contigs=$(grep 'features contigs = ' gatk_output.txt | sed 's/.*\[\(.*\)\].*/\1/')
+            echo "Found only incompatible contigs (against reference dictionary $ref_dict_basename) in VCF header; found: ${bad_contigs}" >> qc_messages.txt
         else
             echo "No incompatible contigs found in VCF header."
         fi
