@@ -1,3 +1,9 @@
+# 1.2.1
+2025-10-09 (Date of Last Commit)
+
+* Modified the ReblockGVCF.wdl to use bash's basename instead of WDL's basename; this does not affect the outputs of this pipeline
+
+
 # 1.2.0
 2025-03-17 (Date of Last Commit)
 
