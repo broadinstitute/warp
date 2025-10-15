@@ -97,13 +97,22 @@ workflow BuildIndices {
         mito_accession_used = mito_accession,
         mito_ref_gbk_used = mito_ref_gbk,
         mitofinder_opts_used = mitofinder_opts,
-        input_files = [annotations_gtf_for_indices, genome_fa_for_indices, biotypes],
-        output_files = [
-          BuildStarSingleNucleus.star_index,
-          BuildStarSingleNucleus.modified_annotation_gtf,
-          CalculateChromosomeSizes.chrom_sizes,
-          BuildBWAreference.reference_bundle
-        ]
+        #input_files = [annotations_gtf_for_indices, genome_fa_for_indices, biotypes],
+        input_files = select_all([if run_mitofinder then annotations_gff else none, annotations_gtf, biotypes, genome_fa]),
+       # output_files = [
+       #   BuildStarSingleNucleus.star_index,
+       #   BuildStarSingleNucleus.modified_annotation_gtf,
+       #   CalculateChromosomeSizes.chrom_sizes,
+       #   BuildBWAreference.reference_bundle
+       # ]
+        output_files = select_all([
+                                  if run_mitofinder then mito.out_fasta else none,
+                                  if run_mitofinder then mito.out_gtf else none,
+                                  BuildStarSingleNucleus.star_index,
+                                  BuildStarSingleNucleus.modified_annotation_gtf,
+                                  CalculateChromosomeSizes.chrom_sizes,
+                                  BuildBWAreference.reference_bundle
+                                  ])
     }
 
   if (run_add_introns) {
