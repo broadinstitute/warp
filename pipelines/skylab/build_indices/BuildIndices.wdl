@@ -39,7 +39,7 @@ workflow BuildIndices {
     # ---- Append mitochondrial sequence + annotations ----
     # Note: String comparison is case-sensitive.
     if (run_mitofinder && organism != "Human" && organism != "Mouse") {
-      call MitoAnnotate as mito {
+      call MitoAnnotate as annotate_with_mitofinder {
         input:
           mito_accession = select_first([mito_accession]),
           mito_ref_gbk   = select_first([mito_ref_gbk]),
@@ -48,10 +48,10 @@ workflow BuildIndices {
           spec_name      = organism,
           mitofinder_opts = mitofinder_opts
       }
-      call AppendMitoGTF as mito_gtf {
+      call AppendMitoGTF as append_mito_gtf {
         input:
           original_gtf   = annotations_gtf,
-          mito_gtf       = mito.out_gtf
+          mito_gtf       = annotate_with_mitofinder.out_gtf
       }
      #call BuildStarTAR as mito_star_index {
      #  input:
@@ -61,14 +61,14 @@ workflow BuildIndices {
     }
 
     # Choose the files the rest of the pipeline should use:
-    File genome_fa_for_indices = select_first([genome_fa, mito.out_fasta])
-    File annotations_gtf_for_indices = select_first([annotations_gtf, mito_gtf.out_gtf])
+    File genome_fa_for_indices = select_first([genome_fa, annotate_with_mitofinder.out_fasta])
+    File annotations_gtf_for_indices = select_first([annotations_gtf, append_mito_gtf.out_gtf])
 
     call BuildStarSingleNucleus {
       input:
         gtf_annotation_version = gtf_annotation_version,
-        annotation_gtf = select_first([if run_mitofinder then mito_gtf.out_gtf else none, annotations_gtf]),
-        genome_fa = select_first([if run_mitofinder then mito.out_fasta else none, genome_fa]),
+        annotation_gtf = select_first([if run_mitofinder then append_mito_gtf.out_gtf else none, annotations_gtf]),
+        genome_fa = select_first([if run_mitofinder then annotate_with_mitofinder.out_fasta else none, genome_fa]),
         biotypes = biotypes,
         genome_build = genome_build,
         genome_source = genome_source,
@@ -97,7 +97,6 @@ workflow BuildIndices {
         mito_accession_used = mito_accession,
         mito_ref_gbk_used = mito_ref_gbk,
         mitofinder_opts_used = mitofinder_opts,
-        #input_files = [annotations_gtf_for_indices, genome_fa_for_indices, biotypes],
         input_files = select_all([if run_mitofinder then annotations_gff else none, annotations_gtf, biotypes, genome_fa]),
        # output_files = [
        #   BuildStarSingleNucleus.star_index,
@@ -106,8 +105,8 @@ workflow BuildIndices {
        #   BuildBWAreference.reference_bundle
        # ]
         output_files = select_all([
-                                  if run_mitofinder then mito.out_fasta else none,
-                                  if run_mitofinder then mito.out_gtf else none,
+                                  if run_mitofinder then annotate_with_mitofinder.out_fasta else none,
+                                  if run_mitofinder then append_mito_gtf.out_gtf else none,
                                   BuildStarSingleNucleus.star_index,
                                   BuildStarSingleNucleus.modified_annotation_gtf,
                                   CalculateChromosomeSizes.chrom_sizes,
@@ -132,8 +131,8 @@ workflow BuildIndices {
     File metadata = RecordMetadata.metadata_file
     File? snSS2_annotation_gtf_with_introns = SNSS2AddIntronsToGTF.modified_annotation_gtf_with_introns
     # Optional outputs from the mito step
-    File? mito_annotated_fasta = mito.out_fasta
-    File? mito_annotated_gtf = mito.out_gtf
+    File? mito_annotated_fasta = annotate_with_mitofinder.out_fasta
+    File? mito_annotated_gtf = annotate_with_mitofinder.out_gtf
     File? star_index_with_introns = SNSS2AddIntronsToGTF.star_index_with_introns
     File? mito_star_index_tar = BuildStarSingleNucleus.star_index
   }
