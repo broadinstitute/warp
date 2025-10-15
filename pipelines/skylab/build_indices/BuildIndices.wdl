@@ -22,6 +22,10 @@ workflow BuildIndices {
     File?    annotations_gff                       # gff file for mitofinder 
   }
 
+  if (false) {
+    String? none = "None"
+  }
+
   # version of this pipeline
   String pipeline_version = "5.0.0"
 
@@ -49,11 +53,11 @@ workflow BuildIndices {
           original_gtf   = annotations_gtf,
           mito_gtf       = mito.out_gtf
       }
-      call BuildStarTAR as mito_star_index {
-        input:
-          annotation_gtf = mito_gtf.out_gtf,
-          genome_fa      = mito.out_fasta
-      }
+     #call BuildStarTAR as mito_star_index {
+     #  input:
+     #    annotation_gtf = mito_gtf.out_gtf,
+     #    genome_fa      = mito.out_fasta
+     #}
     }
 
     # Choose the files the rest of the pipeline should use:
@@ -63,12 +67,13 @@ workflow BuildIndices {
     call BuildStarSingleNucleus {
       input:
         gtf_annotation_version = gtf_annotation_version,
-        genome_fa = genome_fa_for_indices,
-        annotation_gtf = annotations_gtf_for_indices,
+        annotation_gtf = select_first([if run_mitofinder then mito_gtf.out_gtf else none, annotations_gtf]),
+        genome_fa = select_first([if run_mitofinder then mito.out_fasta else none, genome_fa]),
         biotypes = biotypes,
         genome_build = genome_build,
         genome_source = genome_source,
-        organism = organism
+        organism = organism,
+        skip_gtf_modification = run_mitofinder,
     }
     call CalculateChromosomeSizes {
       input:
@@ -87,7 +92,6 @@ workflow BuildIndices {
     call RecordMetadata {
       input:
         pipeline_version = pipeline_version,
-        ### MODIFIED: Pass all mito-related info to the metadata task ###
         was_mitofinder_run = run_mitofinder,
         organism = organism,
         mito_accession_used = mito_accession,
@@ -122,7 +126,7 @@ workflow BuildIndices {
     File? mito_annotated_fasta = mito.out_fasta
     File? mito_annotated_gtf = mito.out_gtf
     File? star_index_with_introns = SNSS2AddIntronsToGTF.star_index_with_introns
-    File? mito_star_index_tar = mito_star_index.star_index
+    File? mito_star_index_tar = BuildStarSingleNucleus.star_index
   }
 }
 
@@ -284,6 +288,7 @@ task BuildStarSingleNucleus {
     File genome_fa
     File annotation_gtf
     File biotypes
+    Boolean skip_gtf_modification = false
     Int disk = 100
   }
 
@@ -337,28 +342,29 @@ task BuildStarSingleNucleus {
         set -eo pipefail
     fi
 
-    if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
-    then
-        echo "marmoset detected, running marmoset GTF modification"
-        echo "Listing files to check for head.gtf"
-        ls
-        python3 /script/modify_gtf_marmoset.py \
-            --input-gtf "/cromwell_root/header.gtf" \
-            --output-gtf ~{annotation_gtf_modified} \
-            --species ~{organism}
-        echo "listing files, should see modified gtf"
-        ls
+    if [ "~{skip_gtf_modification}" = "false" ]; then
+        if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
+        then
+            echo "marmoset detected, running marmoset GTF modification"
+            echo "Listing files to check for head.gtf"
+            ls
+            python3 /script/modify_gtf_marmoset.py \
+                --input-gtf "/cromwell_root/header.gtf" \
+                --output-gtf ~{annotation_gtf_modified} \
+                --species ~{organism}
+            echo "listing files, should see modified gtf"
+            ls
+        else
+            echo "running GTF modification for non-marmoset"
+            python3 /script/modify_gtf.py \
+                --input-gtf ${GTF_FILE} \
+                --output-gtf ~{annotation_gtf_modified} \
+                --biotypes ~{biotypes}
+        fi
     else
-        echo "running GTF modification for non-marmoset"
-        python3 /script/modify_gtf.py \
-            --input-gtf ${GTF_FILE} \
-            --output-gtf ~{annotation_gtf_modified} \
-            --biotypes ~{biotypes}
+        echo "Skipping GTF modification — using original GTF for STAR index"
+        cp ${GTF_FILE} ~{annotation_gtf_modified}
     fi
-    # python3 /script/modify_gtf.py  \
-    # --input-gtf ${GTF_FILE} \
-    # --output-gtf ~{annotation_gtf_modified} \
-    # --biotypes ~{biotypes}
 
     mkdir star
     STAR --runMode genomeGenerate \
