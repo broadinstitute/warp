@@ -64,6 +64,7 @@ task QcChecks {
         # check for sorted or non bgzf compressed vcf
         bcftools index -t ~{vcf_input} 2> index_stderr.txt
 
+        # note if both of these are true, only BGZF error will be reported because indexing stops after that error
         NOT_SORTED_MESSAGE="Input VCF is not sorted."
         if grep -qiE "unsorted positions|not continuous" index_stderr.txt; then
             echo "${NOT_SORTED_MESSAGE}" >> qc_messages.txt;
