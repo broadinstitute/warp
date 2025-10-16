@@ -63,12 +63,28 @@ task QcChecks {
 
         # check for sorted or non bgzf compressed vcf
         bcftools index -t ~{vcf_input} 2> index_stderr.txt
+
+        NOT_SORTED_MESSAGE="Input VCF is not sorted."
         if grep -qiE "unsorted positions|not continuous" index_stderr.txt; then
-            echo "Input VCF is not sorted." >> qc_messages.txt;
+            echo "${NOT_SORTED_MESSAGE}" >> qc_messages.txt;
         fi
 
+        NOT_BGZF_MESSAGE="Input VCF is not BGZF compressed."
         if grep -q "not BGZF compressed" index_stderr.txt; then
-            echo "Input VCF is not BGZF compressed." >> qc_messages.txt;
+            echo "${NOT_BGZF_MESSAGE}" >> qc_messages.txt;
+        fi
+
+        # exit now if index failed, since ValidateVariants requires an index
+        if [ ! -f "${vcf_input}.tbi" ]; then
+            # only add a message if there are not index-related errors already
+            if ! grep -q "${NOT_SORTED_MESSAGE}" qc_messages.txt && ! grep -q "${NOT_BGZF_MESSAGE}" qc_messages.txt; then
+                echo "Failed to index input VCF for an unknown reason." >> qc_messages.txt
+                # echo index stderr to logs for debugging
+                echo "Contents of index_stderr.txt:"
+                cat index_stderr.txt
+            fi
+            echo "false" > passes_qc.txt
+            exit 0
         fi
 
         # check reference header lines if they exist
