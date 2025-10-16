@@ -304,9 +304,10 @@ task BuildStarSingleNucleus {
     description: "Modify GTF files and build reference index files for STAR aligner"
   }
 
+  String gtf_prefix = if skip_gtf_modification then "" else "modified_"
   String ref_name = "star2.7.10a-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
-  String star_index_name = "modified_~{ref_name}.tar"
-  String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
+  String star_index_name = "~{gtf_prefix}~{ref_name}.tar"
+  String annotation_gtf_modified = "~{gtf_prefix}v~{gtf_annotation_version}.annotation.gtf"
 
   command <<<
     # Decompress GTF if it's gzipped
