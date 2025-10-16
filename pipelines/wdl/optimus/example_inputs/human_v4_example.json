@@ -1,0 +1,19 @@
+{
+  "Optimus.r1_fastq": [
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_10X_V4/pbmc_10k_v4_chr21_genic/pbmc_10k_v4_S1_L001_R1_001.filtered.fastq.gz",
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_10X_V4/pbmc_10k_v4_chr21_genic/pbmc_10k_v4_S1_L002_R1_001.filtered.fastq.gz"
+  ],
+  "Optimus.r2_fastq": [
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_10X_V4/pbmc_10k_v4_chr21_genic/pbmc_10k_v4_S1_L001_R2_001.filtered.fastq.gz",
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_10X_V4/pbmc_10k_v4_chr21_genic/pbmc_10k_v4_S1_L002_R2_001.filtered.fastq.gz"
+  ],
+  "Optimus.i1_fastq": [
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_10X_V4/pbmc_10k_v4_chr21_genic/pbmc_10k_v4_S1_L001_I1_001.filtered.fastq.gz",
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_10X_V4/pbmc_10k_v4_chr21_genic/pbmc_10k_v4_S1_L002_I1_001.filtered.fastq.gz"
+  ],
+  "Optimus.whitelist": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/inputs/3M-3pgex-may-2023.txt.gz",
+  "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/hg38/v0/star/star_2.7.9a_primary_gencode_human_v27.tar", 
+  "Optimus.input_id": "pbmc_human_v4",
+  "Optimus.chemistry": 4,
+  "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/gencode.v27.primary_assembly.annotation.gtf"
+}

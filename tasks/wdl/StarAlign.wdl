@@ -275,13 +275,13 @@ task STARsoloFastq {
         ## V2
         UMILen=10
         CBLen=16
-    elif [ "~{chemistry}" == 3 ]
+    elif [ "~{chemistry}" == 3 ] || [ "~{chemistry}" == 4 ]
     then
         ## V3
         UMILen=12
         CBLen=16
     else
-        echo Error: unknown chemistry value: "$chemistry". Should be one of "tenX_v2" or "texX_v3".
+        echo Error: unknown chemistry value: "$chemistry". Should be one of "tenX_v2", "tenX_v3", or "tenX_v4".
         exit 1;
     fi
 

@@ -27,7 +27,7 @@ task Attach10xBarcodes {
     i1_fastq: "optional, index fastq file; contains sample barcode"
     r2_unmapped_bam: "reverse unmapped bam file; contains alignable genomic information"
     whitelist: "10x genomics cell barcode whitelist"
-    chemistry: "chemistry employed, currently can be tenX_v2 or tenX_v3, the latter implies NO feature barcodes"
+    chemistry: "chemistry employed, currently can be tenX_v2, tenX_v3, or v4 (GEM-X), the latter two implies NO feature barcodes"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -47,7 +47,7 @@ task Attach10xBarcodes {
             --u2 "${r2_unmapped_bam}" \
             --whitelist "${whitelist}" \
             --output-bamfile barcoded.bam
-    elif [ "${chemistry}" == "tenX_v3" ]
+    elif [ "${chemistry}" == "tenX_v3" ] || [ "${chemistry}" == "tenX_v4" ]
     then
         ## V3
         AttachBarcodes \
