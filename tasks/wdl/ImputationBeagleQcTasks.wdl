@@ -56,7 +56,7 @@ task QcChecks {
         done
 
         if [ ${#filtered_chromosomes[@]} -eq 0 ]; then
-            echo "Input must include variants for at least one chromosome in the supported contigs: (${allowed_chromosomes[*]})." >> qc_messages.txt
+            echo "No variant data found for any chromosome in the supported contigs: (${allowed_chromosomes[*]})." >> qc_messages.txt
         else
             echo "Found variants for chromosomes: ${filtered_chromosomes[*]}."
         fi
