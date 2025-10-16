@@ -71,8 +71,9 @@ task QcChecks {
             echo "${NOT_BGZF_MESSAGE}" >> qc_messages.txt;
         fi
 
-        # exit now if indexing failed, since ValidateVariants requires an index
-        if [ ! -f "${vcf_input}.tbi" ]; then
+        if [ -f "~{vcf_input}.tbi" ]; then
+            echo "Input VCF indexed successfully. It therefore is sorted and bgzf-compressed."
+        else
             # only add a message if there are not index-related errors already
             if ! grep -q "${NOT_SORTED_MESSAGE}" qc_messages.txt && ! grep -q "${NOT_BGZF_MESSAGE}" qc_messages.txt; then
                 echo "Failed to index input VCF for an unknown reason." >> qc_messages.txt
@@ -81,9 +82,8 @@ task QcChecks {
                 cat index_stderr.txt
             fi
             echo "false" > passes_qc.txt
+            # exit now if indexing failed, since ValidateVariants requires an index
             exit 0
-        else
-            echo "Input VCF indexed successfully. It therefore must be sorted and bgzf-compressed."
         fi
 
         # check reference header lines if they exist
