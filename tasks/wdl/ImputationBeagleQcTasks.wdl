@@ -95,8 +95,7 @@ task QcChecks {
 
         ref_dict_basename="~{ref_dict_basename}"
         if grep -q "incompatible contigs" gatk_output.txt; then
-            bad_contigs=$(grep 'features contigs = ' gatk_output.txt | sed 's/.*\[\(.*\)\].*/\1/')
-            echo "Found only incompatible contigs (against reference dictionary $ref_dict_basename) in VCF header; found: ${bad_contigs}" >> qc_messages.txt
+            echo "Found only incompatible contigs (against reference dictionary $ref_dict_basename) in VCF header." >> qc_messages.txt
         else
             echo "No incompatible contigs found in VCF header."
         fi
