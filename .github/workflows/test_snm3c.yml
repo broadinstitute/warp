@@ -10,14 +10,14 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/skylab/snm3C/**'
+      - 'pipelines/wdl/snm3C/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/broad/Utilities.wdl'
+      - 'tasks/wdl/Utilities.wdl'
       # verification WDL and its dependencies
       - 'verification/Verifysnm3C.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/Testsnm3C.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_snm3c.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -53,7 +53,7 @@ jobs:
     with:
       pipeline_name: Testsnm3C
       dockstore_pipeline_name: snm3C-seq
-      pipeline_dir: pipelines/skylab/snm3C
+      pipeline_dir: pipelines/wdl/snm3C
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}
