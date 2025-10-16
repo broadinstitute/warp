@@ -11,10 +11,6 @@ task QcChecks {
         Int memory_mb = 4000
         Int disk_size_gb = ceil(1.1*size(vcf_input, "GiB")) + 10
     }
-    Int command_mem = memory_mb - 1500
-    Int max_heap = memory_mb - 1000
-
-    String vcf_basename = basename(vcf_input)
 
     String ref_dict_basename = basename(ref_dict)
 
@@ -75,7 +71,7 @@ task QcChecks {
             echo "${NOT_BGZF_MESSAGE}" >> qc_messages.txt;
         fi
 
-        # exit now if index failed, since ValidateVariants requires an index
+        # exit now if indexing failed, since ValidateVariants requires an index
         if [ ! -f "${vcf_input}.tbi" ]; then
             # only add a message if there are not index-related errors already
             if ! grep -q "${NOT_SORTED_MESSAGE}" qc_messages.txt && ! grep -q "${NOT_BGZF_MESSAGE}" qc_messages.txt; then
@@ -86,6 +82,8 @@ task QcChecks {
             fi
             echo "false" > passes_qc.txt
             exit 0
+        else
+            echo "Input VCF indexed successfully. It therefore must be sorted and bgzf-compressed."
         fi
 
         # check reference header lines if they exist
