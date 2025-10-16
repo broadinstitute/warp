@@ -53,11 +53,6 @@ workflow BuildIndices {
           original_gtf   = annotations_gtf,
           mito_gtf       = annotate_with_mitofinder.out_gtf
       }
-     #call BuildStarTAR as mito_star_index {
-     #  input:
-     #    annotation_gtf = mito_gtf.out_gtf,
-     #    genome_fa      = mito.out_fasta
-     #}
     }
 
     # Choose the files the rest of the pipeline should use:
@@ -98,12 +93,6 @@ workflow BuildIndices {
         mito_ref_gbk_used = mito_ref_gbk,
         mitofinder_opts_used = mitofinder_opts,
         input_files = select_all([if run_mitofinder then annotations_gff else none, annotations_gtf, biotypes, genome_fa]),
-       # output_files = [
-       #   BuildStarSingleNucleus.star_index,
-       #   BuildStarSingleNucleus.modified_annotation_gtf,
-       #   CalculateChromosomeSizes.chrom_sizes,
-       #   BuildBWAreference.reference_bundle
-       # ]
         output_files = select_all([
                                   if run_mitofinder then annotate_with_mitofinder.out_fasta else none,
                                   if run_mitofinder then append_mito_gtf.out_gtf else none,
@@ -172,16 +161,13 @@ task MitoAnnotate {
 
     GFF="$GFF_IN"
 
-    # If add_mito can't read .gz, transparently decompress to a working copy.
+    # If add_mito can't read .gz,  decompress to a working copy
     if gzip -t "$GFF_IN" 2>/dev/null; then
       echo "Decompressing transcript annotations to GFF (stream-safe)..."
       zcat -f "$GFF_IN" > "$tmpDir/transcripts.gff"
       GFF="$tmpDir/transcripts.gff"
     fi
 
-
-    # Optional: sanity peek (works for both gz and plain)
-    zcat -f "$GFF_IN" | head -n 3 || true
 
     echo "Running add_mito with:"
 
@@ -194,8 +180,6 @@ task MitoAnnotate {
       -n "~{spec_name}" \
       ~{sep=' ' mitofinder_opts}
 
-    echo "Listing outputs:"
-    ls -lah
 
     FA_OUT=$(find /mnt/disks/cromwell_root -name '*_mito.fasta' | head -n1)
     GTF_OUT=$(find /mnt/disks/cromwell_root -name '*_mito.gtf' | head -n1)
@@ -243,11 +227,6 @@ task AppendMitoGTF {
     echo "Combining GTF files..."
     cat "${ORIGINAL_FILE}" mito_only.gtf > combined_annotations.gtf
 
-    # List for debugging
-    ls -lah
-    wc -l mito_only.gtf
-    wc -l ~{original_gtf}
-    wc -l combined_annotations.gtf
   >>>
 
   output {
@@ -467,7 +446,6 @@ task RecordMetadata {
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
     echo "" >> metadata.txt
 
-    ### NEW/MODIFIED: Add the MitoFinder section to the metadata file ###
     echo "--- MitoFinder Details ---" >> metadata.txt
     # Check if the boolean flag is true
     if [[ "~{was_mitofinder_run}" == "true" ]]; then
@@ -486,7 +464,6 @@ task RecordMetadata {
       echo "MitoFinder was not run." >> metadata.txt
     fi
     echo "" >> metadata.txt
-    ###################################################################
 
     # echo paths and md5sums for input files
     echo "Input Files and their md5sums:" >> metadata.txt
