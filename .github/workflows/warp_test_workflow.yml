@@ -462,14 +462,23 @@ jobs:
             exit 1
           fi
 
-      # Step 13: Print Summary on Success
+      # Step 13: Upload Summary Artifact
+      # Purpose: Uploads the workflow summary JSON as an artifact for further analysis
+      - name: Upload Summary Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-summary-${{ github.run_id }}
+          path: workflow_summary.json
+
+      # Step 14: Print Summary on Success
       # Purpose: Prints the final summary of the pipeline execution in case of success
       - name: Print Summary on Success
         if: success()
         run: |
           echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
 
-      # Step 14: Print Summary on Failure
+      # Step 15: Print Summary on Failure
       # Purpose: Prints the final summary of the pipeline execution in case of failure
       - name: Print Summary on Failure
         if: failure()
