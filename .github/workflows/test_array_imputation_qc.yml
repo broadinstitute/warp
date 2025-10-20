@@ -1,4 +1,4 @@
-name: Test ImputationBeagle
+name: Test ArrayImputationQC
 
 # Controls when the workflow will run
 on:
@@ -9,16 +9,13 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/wdl/arrays/imputation_beagle/**'
-      - '!pipelines/wdl/arrays/imputation_beagle/input_qc/**'
-      - 'structs/imputation/ImputationBeagleStructs.wdl'
-      - 'tasks/wdl/ImputationTasks.wdl'
-      - 'tasks/wdl/ImputationBeagleTasks.wdl'
-      - 'verification/VerifyImputationBeagle.wdl'
-      - 'verification/test-wdls/TestImputationBeagle.wdl'
+      - 'pipelines/wdl/arrays/imputation_beagle/input_qc/**'
+      - 'tasks/wdl/ImputationBeagleQcTasks.wdl'
+      - 'verification/VerifyArrayImputationQC.wdl'
+      - 'verification/test-wdls/TestArrayImputationQC.wdl'
       - 'tasks/wdl/Utilities.wdl'
       - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_imputation_beagle.yml'
+      - '.github/workflows/test_array_imputation_qc.yml'
       - '.github/workflows/warp_test_workflow.yml'
 
 
@@ -47,9 +44,9 @@ on:
 
 env:
   # pipeline configuration
-  PIPELINE_NAME: TestImputationBeagle
-  DOCKSTORE_PIPELINE_NAME: ImputationBeagle
-  PIPELINE_DIR: "pipelines/wdl/arrays/imputation_beagle"
+  PIPELINE_NAME: TestArrayImputationQC
+  DOCKSTORE_PIPELINE_NAME: ArrayImputationQC
+  PIPELINE_DIR: "pipelines/wdl/arrays/imputation_beagle/input_qc"
 
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
@@ -61,12 +58,12 @@ env:
 
 
 jobs:
-  TestImputationBeagle:
+  TestArrayImputationQC:
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestImputationBeagle
-      dockstore_pipeline_name: ImputationBeagle
-      pipeline_dir: pipelines/wdl/arrays/imputation_beagle
+      pipeline_name: TestArrayImputationQC
+      dockstore_pipeline_name: ArrayImputationQC
+      pipeline_dir: pipelines/wdl/arrays/imputation_beagle/input_qc
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

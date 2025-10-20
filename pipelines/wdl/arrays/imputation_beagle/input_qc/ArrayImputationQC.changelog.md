@@ -1,3 +1,8 @@
+# 1.2.2
+2025-10-07 (Date of Last Commit)
+
+* Assign passes_qc output before exiting for inputs with too many records.
+
 # 1.2.1
 2025-10-01 (Date of Last Commit)
 
