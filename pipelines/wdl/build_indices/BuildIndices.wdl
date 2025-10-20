@@ -119,7 +119,6 @@ workflow BuildIndices {
     File? mito_annotated_fasta = annotate_with_mitofinder.out_fasta
     File? mito_annotated_gtf = append_mito_gtf.out_gtf
     File? star_index_with_introns = SNSS2AddIntronsToGTF.star_index_with_introns
-    File? mito_star_index_tar = BuildStarSingleNucleus.star_index
   }
 }
 
