@@ -451,7 +451,7 @@ task RecordMetadata {
         echo "Mitochondrial Accession: ~{mito_accession_used}" >> metadata.txt
       fi
       if [ "~{mito_ref_gbk_used}" != "" ]; then
-        echo "Mitochondrial Reference GBK: ~{mito_ref_gbk_used}" >> metadata.txt
+        echo "Mitochondrial Reference GBK: ~{mito_ref_gbk_used} (md5sum: $(md5sum "~{mito_ref_gbk_used}" | awk '{print $1}'))" >> metadata.txt
       fi
       if [ "~{sep=' ' mitofinder_opts_used}" != "" ]; then
         echo "MitoFinder Extra Options: ~{sep=' ' mitofinder_opts_used}" >> metadata.txt
@@ -464,14 +464,16 @@ task RecordMetadata {
     # echo paths and md5sums for input files
     echo "Input Files and their md5sums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
-      echo "$file : $(md5sum $file | awk '{print $1}')" >> metadata.txt
+      gs_path=$(echo "$file" | sed 's|^/mnt/disks/cromwell_root/|gs://|')
+      echo "$gs_path : $(md5sum "$file" | awk '{print $1}')" >> metadata.txt
     done
     echo "" >> metadata.txt
 
     # echo paths and md5sums for input files
     echo "Output Files and their md5sums:" >> metadata.txt
     for file in ~{sep=" " output_files}; do
-      echo "$file : $(md5sum $file | awk '{print $1}')" >> metadata.txt
+      gs_path=$(echo "$file" | sed 's|^/mnt/disks/cromwell_root/|gs://|')
+      echo "$gs_path : $(md5sum "$file" | awk '{print $1}')" >> metadata.txt
     done
     echo "" >> metadata.txt
 
