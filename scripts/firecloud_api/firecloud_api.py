@@ -352,7 +352,7 @@ class FirecloudAPI:
                 status_response = requests.get(status_url, headers=headers)
 
                 # Check for 500 errors and retry if necessary
-                if status_response.status_code in [500, 503]:
+                if status_response.status_code in [500, 502, 503]:
                     elapsed_time = time.time() - start_time
                     logging.warning(f"Received {status_response.status_code} error. Retrying in {retry_delay} seconds...")
                     logging.warning(f"Response content: {status_response.text[:500]}")
