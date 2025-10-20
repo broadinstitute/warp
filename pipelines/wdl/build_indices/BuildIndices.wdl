@@ -544,38 +544,3 @@ task RecordMetadata {
     disk: 100 + " GB" # TES
   }
 }
-
-  task BuildStarTAR {
-  input {
-    File annotation_gtf
-    File genome_fa
-  }
-    String basename = basename(annotation_gtf, ".gtf")
-    String star_index_name = "~{basename}.tar"
-
-  command <<<
-  set -euo pipefail
-  set -x
-
-  mkdir star
-  STAR --runMode genomeGenerate \
-  --genomeDir star \
-  --genomeFastaFiles ~{genome_fa} \
-  --sjdbGTFfile ~{annotation_gtf} \
-  --sjdbOverhang 100 \
-  --runThreadN 16
-
-  tar -cvf ~{star_index_name} star
-  >>>
-
-  output {
-    File star_index = star_index_name
-  }
-
-  runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:4.2.1"
-    memory: "50 GiB"
-    disks: "local-disk 100 HDD"
-    disk: 100 + " GB" # TES
-  }
-}
