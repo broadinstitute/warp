@@ -38,7 +38,7 @@ workflow BuildIndices {
   
     # ---- Append mitochondrial sequence + annotations ----
     # Note: String comparison is case-sensitive.
-    if (run_mitofinder && organism != "Human" && organism != "Mouse") {
+    if (run_mitofinder) {
       call MitoAnnotate as annotate_with_mitofinder {
         input:
           mito_accession = select_first([mito_accession]),
@@ -55,10 +55,6 @@ workflow BuildIndices {
       }
     }
 
-    # Choose the files the rest of the pipeline should use:
-    File genome_fa_for_indices = select_first([genome_fa, annotate_with_mitofinder.out_fasta])
-    File annotations_gtf_for_indices = select_first([annotations_gtf, append_mito_gtf.out_gtf])
-
     call BuildStarSingleNucleus {
       input:
         gtf_annotation_version = gtf_annotation_version,
@@ -72,11 +68,11 @@ workflow BuildIndices {
     }
     call CalculateChromosomeSizes {
       input:
-        genome_fa = genome_fa_for_indices
+        genome_fa = select_first([if run_mitofinder then annotate_with_mitofinder.out_fasta else none, genome_fa]),
     }
     call BuildBWAreference {
       input:
-        genome_fa = genome_fa_for_indices,
+        genome_fa = select_first([if run_mitofinder then annotate_with_mitofinder.out_fasta else none, genome_fa]),
         chrom_sizes_file = CalculateChromosomeSizes.chrom_sizes,
         genome_source = genome_source,
         genome_build = genome_build,
