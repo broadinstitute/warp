@@ -1,3 +1,9 @@
+# 5.0.0
+2025-09-30 (Date of Last Commit)
+
+* Added the MitoAnnotate  task to optionally append mitochondrial sequence and annotations via MitoFinder.
+  This task runs early in the pipeline and updates the genome FASTA and GTF prior to building STAR and BWA indices.
+
 # 4.2.1
 2025-09-26 (Date of Last Commit)
 

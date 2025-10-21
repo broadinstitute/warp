@@ -15,34 +15,64 @@ workflow BuildIndices {
     File biotypes
 
     Boolean run_add_introns = false
+    Boolean run_mitofinder = false              
+    String?  mito_accession                       # e.g. chimp or ferret mito accession (NC_…)
+    File?    mito_ref_gbk                         # path to mitochondrion reference .gbk
+    Array[String]? mitofinder_opts                # optional, override extra flags to MitoFinder/add_mito
+    File?    annotations_gff                       # gff file for mitofinder 
+  }
+
+  if (false) {
+    String? none = "None"
   }
 
   # version of this pipeline
-  String pipeline_version = "4.2.1"
+  String pipeline_version = "5.0.0"
+
 
   parameter_meta {
     annotations_gtf: "the annotation file"
     genome_fa: "the fasta file"
     biotypes: "gene_biotype attributes to include in the gtf file"
   }
+  
+    # ---- Append mitochondrial sequence + annotations ----
+    # Note: String comparison is case-sensitive.
+    if (run_mitofinder) {
+      call MitoAnnotate as annotate_with_mitofinder {
+        input:
+          mito_accession = select_first([mito_accession]),
+          mito_ref_gbk   = select_first([mito_ref_gbk]),
+          genome_fa      = genome_fa,
+          transcript_gff = select_first([annotations_gff]),
+          spec_name      = organism,
+          mitofinder_opts = mitofinder_opts
+      }
+      call AppendMitoGTF as append_mito_gtf {
+        input:
+          original_gtf   = annotations_gtf,
+          mito_gtf       = annotate_with_mitofinder.out_gtf
+      }
+    }
 
     call BuildStarSingleNucleus {
       input:
         gtf_annotation_version = gtf_annotation_version,
-        genome_fa = genome_fa,
-        annotation_gtf = annotations_gtf,
+        annotation_gtf = select_first([if run_mitofinder then append_mito_gtf.out_gtf else none, annotations_gtf]),
+        genome_fa = select_first([if run_mitofinder then annotate_with_mitofinder.out_fasta else none, genome_fa]),
         biotypes = biotypes,
         genome_build = genome_build,
         genome_source = genome_source,
-        organism = organism
+        organism = organism,
+        skip_gtf_modification = run_mitofinder,
     }
     call CalculateChromosomeSizes {
       input:
-        genome_fa = genome_fa
+        genome_fa = select_first([if run_mitofinder then annotate_with_mitofinder.out_fasta else none, genome_fa]),
     }
     call BuildBWAreference {
       input:
-        genome_fa = genome_fa,
+        genome_fa = select_first([if run_mitofinder then annotate_with_mitofinder.out_fasta else none, genome_fa]),
         chrom_sizes_file = CalculateChromosomeSizes.chrom_sizes,
         genome_source = genome_source,
         genome_build = genome_build,
@@ -52,14 +82,21 @@ workflow BuildIndices {
 
     call RecordMetadata {
       input:
-      pipeline_version = pipeline_version,
-      input_files = [annotations_gtf, genome_fa, biotypes],
-      output_files = [
-      BuildStarSingleNucleus.star_index,
-      BuildStarSingleNucleus.modified_annotation_gtf,
-      CalculateChromosomeSizes.chrom_sizes,
-      BuildBWAreference.reference_bundle
-      ]
+        pipeline_version = pipeline_version,
+        was_mitofinder_run = run_mitofinder,
+        organism = organism,
+        mito_accession_used = mito_accession,
+        mito_ref_gbk_used = mito_ref_gbk,
+        mitofinder_opts_used = mitofinder_opts,
+        input_files = select_all([if run_mitofinder then annotations_gff else none, annotations_gtf, biotypes, genome_fa]),
+        output_files = select_all([
+                                  if run_mitofinder then annotate_with_mitofinder.out_fasta else none,
+                                  if run_mitofinder then append_mito_gtf.out_gtf else none,
+                                  BuildStarSingleNucleus.star_index,
+                                  BuildStarSingleNucleus.modified_annotation_gtf,
+                                  CalculateChromosomeSizes.chrom_sizes,
+                                  BuildBWAreference.reference_bundle
+                                  ])
     }
 
   if (run_add_introns) {
@@ -78,9 +115,127 @@ workflow BuildIndices {
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
     File metadata = RecordMetadata.metadata_file
     File? snSS2_annotation_gtf_with_introns = SNSS2AddIntronsToGTF.modified_annotation_gtf_with_introns
+    # Optional outputs from the mito step
+    File? mito_annotated_fasta = annotate_with_mitofinder.out_fasta
+    File? mito_annotated_gtf = append_mito_gtf.out_gtf
     File? star_index_with_introns = SNSS2AddIntronsToGTF.star_index_with_introns
   }
 }
+
+task MitoAnnotate {
+  input {
+    String mito_accession
+    File   mito_ref_gbk
+    File   genome_fa
+    File   transcript_gff 
+    String spec_name
+    Array[String]? mitofinder_opts
+  }
+
+  command <<<
+    set -euo pipefail
+    set -x
+
+    # WDL/Cromwell already localizes File inputs; these are valid inside the container.
+    GBK="~{mito_ref_gbk}"
+    FA="~{genome_fa}"
+    GFF_IN="~{transcript_gff}"
+
+    # Make a temp dir in the container for any conversions/decompression
+    tmpDir="$(mktemp -d)"
+    chmod 777 "$tmpDir"
+
+    echo "Container PWD: $(pwd)"
+    echo "Checking mounted /cromwell_root (should exist in Cromwell docker backends):"
+    ls -ld /cromwell_root || true
+
+    echo "Preflight: show inputs"
+    ls -l "$GBK" || (echo "Missing GBK at $GBK" && exit 1)
+    ls -l "$FA"  || (echo "Missing FASTA at $FA" && exit 1)
+    ls -l "$GFF_IN" || (echo "Missing transcript file at $GFF_IN" && exit 1)
+
+    GFF="$GFF_IN"
+
+    # If add_mito can't read .gz,  decompress to a working copy
+    if gzip -t "$GFF_IN" 2>/dev/null; then
+      echo "Decompressing transcript annotations to GFF (stream-safe)..."
+      zcat -f "$GFF_IN" > "$tmpDir/transcripts.gff"
+      GFF="$tmpDir/transcripts.gff"
+    fi
+
+
+    echo "Running add_mito with:"
+
+    # Run add_mito using ONLY the localized, in-container paths
+    add_mito \
+      -a "~{mito_accession}" \
+      -r "$GBK" \
+      -g "$FA" \
+      -t "$GFF" \
+      -n "~{spec_name}" \
+      ~{sep=' ' mitofinder_opts}
+
+
+    FA_OUT=$(find /mnt/disks/cromwell_root -name '*_mito.fasta' | head -n1)
+    GTF_OUT=$(find /mnt/disks/cromwell_root -name '*_mito.gtf' | head -n1)
+
+    cp "$FA_OUT" ./genome_mito.fasta
+    cp "$GTF_OUT" ./transcripts_mito.gtf
+
+  >>>
+
+  output {
+    File out_fasta = "genome_mito.fasta"
+    File out_gtf   = "transcripts_mito.gtf"
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/add_mito:1.0.0-1.4.2"
+    memory: "8 GiB"
+    disks: "local-disk 50 HDD"
+    cpu: 2
+  }
+}
+
+task AppendMitoGTF {
+  input {
+    File original_gtf
+    File mito_gtf
+  }
+
+  command <<<
+    set -euo pipefail
+
+    # grep mitofinder in the mito_gtf and append those lines to the original gtf
+    grep "mitofinder" ~{mito_gtf} > mito_only.gtf
+
+    # Check if original GTF is gzipped and decompress if needed
+    if [[ "~{original_gtf}" == *.gz ]]; then
+      echo "Original GTF is gzipped, decompressing..."
+      gunzip -c ~{original_gtf} > original_decompressed.gtf
+      ORIGINAL_FILE="original_decompressed.gtf"
+    else
+      ORIGINAL_FILE="~{original_gtf}"
+    fi
+
+    # Concatenate the original GTF and the mito GTF
+    echo "Combining GTF files..."
+    cat "${ORIGINAL_FILE}" mito_only.gtf > combined_annotations.gtf
+
+  >>>
+
+  output {
+    File out_gtf = "combined_annotations.gtf"
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    memory: "2 GiB"
+    disks: "local-disk 10 HDD"
+    cpu: 1
+  }
+}
+
 
 task CalculateChromosomeSizes {
   input {
@@ -115,6 +270,7 @@ task BuildStarSingleNucleus {
     File genome_fa
     File annotation_gtf
     File biotypes
+    Boolean skip_gtf_modification = false
     Int disk = 100
   }
 
@@ -122,23 +278,35 @@ task BuildStarSingleNucleus {
     description: "Modify GTF files and build reference index files for STAR aligner"
   }
 
+  String gtf_prefix = if skip_gtf_modification then "" else "modified_"
   String ref_name = "star2.7.10a-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
-  String star_index_name = "modified_~{ref_name}.tar"
-  String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
+  String star_index_name = "~{gtf_prefix}~{ref_name}.tar"
+  String annotation_gtf_modified = "~{gtf_prefix}v~{gtf_annotation_version}.annotation.gtf"
 
   command <<<
+    # Decompress GTF if it's gzipped
+    if [[ "~{annotation_gtf}" == *.gz ]]; then
+        echo "Detected gzipped GTF file, decompressing..."
+        gunzip -c ~{annotation_gtf} > annotation.gtf
+        GTF_FILE="annotation.gtf"
+    else
+        echo "GTF file is not compressed"
+        GTF_FILE="~{annotation_gtf}"
+    fi
+
+
     # First check for marmoset GTF and modify header
     echo "checking for marmoset"
     if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
     then
         echo "marmoset is detected, running header modification"
         python3 /script/create_marmoset_header_mt_genes.py \
-            ~{annotation_gtf} > "/cromwell_root/header.gtf"
+            ${GTF_FILE} > "/cromwell_root/header.gtf"
     else
         echo "marmoset is not detected"
 
         # Check that input GTF files contain input genome source, genome build version, and annotation version
-        if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
+        if head -10 ${GTF_FILE} | grep -qi ~{genome_build}
         then
             echo Genome version found in the GTF file
         else
@@ -147,7 +315,7 @@ task BuildStarSingleNucleus {
         fi
 
         # Check that GTF file contains correct build source info in the first 10 lines of the GTF
-        if head -10 ~{annotation_gtf} | grep -qi ~{genome_source}
+        if head -10 ${GTF_FILE} | grep -qi ~{genome_source}
         then
             echo Source of genome build identified in the GTF file
         else
@@ -157,28 +325,29 @@ task BuildStarSingleNucleus {
         set -eo pipefail
     fi
 
-    if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
-    then
-        echo "marmoset detected, running marmoset GTF modification"
-        echo "Listing files to check for head.gtf"
-        ls
-        python3 /script/modify_gtf_marmoset.py \
-            --input-gtf "/cromwell_root/header.gtf" \
-            --output-gtf ~{annotation_gtf_modified} \
-            --species ~{organism}
-        echo "listing files, should see modified gtf"
-        ls
+    if [ "~{skip_gtf_modification}" = "false" ]; then
+        if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
+        then
+            echo "marmoset detected, running marmoset GTF modification"
+            echo "Listing files to check for head.gtf"
+            ls
+            python3 /script/modify_gtf_marmoset.py \
+                --input-gtf "/cromwell_root/header.gtf" \
+                --output-gtf ~{annotation_gtf_modified} \
+                --species ~{organism}
+            echo "listing files, should see modified gtf"
+            ls
+        else
+            echo "running GTF modification for non-marmoset"
+            python3 /script/modify_gtf.py \
+                --input-gtf ${GTF_FILE} \
+                --output-gtf ~{annotation_gtf_modified} \
+                --biotypes ~{biotypes}
+        fi
     else
-        echo "running GTF modification for non-marmoset"
-        python3 /script/modify_gtf.py \
-            --input-gtf ~{annotation_gtf} \
-            --output-gtf ~{annotation_gtf_modified} \
-            --biotypes ~{biotypes}
+        echo "Skipping GTF modification — using original GTF for STAR index"
+        cp ${GTF_FILE} ~{annotation_gtf_modified}
     fi
-    # python3 /script/modify_gtf.py  \
-    # --input-gtf ~{annotation_gtf} \
-    # --output-gtf ~{annotation_gtf_modified} \
-    # --biotypes ~{biotypes}
 
     mkdir star
     STAR --runMode genomeGenerate \
@@ -256,6 +425,12 @@ task RecordMetadata {
     String pipeline_version
     Array[File] input_files
     Array[File] output_files
+    # New inputs for logging mito info
+    Boolean was_mitofinder_run
+    String organism
+    String? mito_accession_used
+    File? mito_ref_gbk_used
+    Array[String]? mitofinder_opts_used
   }
 
   command <<<
@@ -266,17 +441,38 @@ task RecordMetadata {
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
     echo "" >> metadata.txt
 
+    echo "--- MitoFinder Details ---" >> metadata.txt
+    # Check if the boolean flag is true
+    if [[ "~{was_mitofinder_run}" == "true" ]]; then
+      echo "MitoFinder was run for organism: ~{organism}" >> metadata.txt
+      # Check for and report the specific parameters used, handling optional inputs.
+      if [ "~{mito_accession_used}" != "" ]; then
+        echo "Mitochondrial Accession: ~{mito_accession_used}" >> metadata.txt
+      fi
+      if [ "~{mito_ref_gbk_used}" != "" ]; then
+        echo "Mitochondrial Reference GBK: ~{mito_ref_gbk_used} (md5sum: $(md5sum "~{mito_ref_gbk_used}" | awk '{print $1}'))" >> metadata.txt
+      fi
+      if [ "~{sep=' ' mitofinder_opts_used}" != "" ]; then
+        echo "MitoFinder Extra Options: ~{sep=' ' mitofinder_opts_used}" >> metadata.txt
+      fi
+    else
+      echo "MitoFinder was not run." >> metadata.txt
+    fi
+    echo "" >> metadata.txt
+
     # echo paths and md5sums for input files
     echo "Input Files and their md5sums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
-      echo "$file : $(md5sum $file | awk '{print $1}')" >> metadata.txt
+      gs_path=$(echo "$file" | sed 's|^/mnt/disks/cromwell_root/|gs://|')
+      echo "$gs_path : $(md5sum "$file" | awk '{print $1}')" >> metadata.txt
     done
     echo "" >> metadata.txt
 
     # echo paths and md5sums for input files
     echo "Output Files and their md5sums:" >> metadata.txt
     for file in ~{sep=" " output_files}; do
-      echo "$file : $(md5sum $file | awk '{print $1}')" >> metadata.txt
+      gs_path=$(echo "$file" | sed 's|^/mnt/disks/cromwell_root/|gs://|')
+      echo "$gs_path : $(md5sum "$file" | awk '{print $1}')" >> metadata.txt
     done
     echo "" >> metadata.txt
 
@@ -345,5 +541,3 @@ task RecordMetadata {
     disk: 100 + " GB" # TES
   }
 }
-
-
