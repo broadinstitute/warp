@@ -1,3 +1,8 @@
+# 1.2.3 
+2025-10-17 (Date of Last Commit)
+
+* Update QcChecks task to improve error messages.
+
 # 1.2.2
 2025-10-07 (Date of Last Commit)
 
@@ -6,7 +11,7 @@
 # 1.2.1
 2025-10-01 (Date of Last Commit)
 
-* Add check for vcf being bgzipped and in sorted order
+* Add check for vcf being bgzipped and in sorted order.
 
 # 1.2.0
 2025-09-29 (Date of Last Commit)
@@ -21,12 +26,12 @@
 # 1.0.3
 2025-09-15 (Date of Last Commit)
 
-* Add instruction for updating ImputationBeagle wdl when this workflow's pipeline_version changes for improved version tracking across wdls
+* Add instruction for updating ImputationBeagle wdl when this workflow's pipeline_version changes for improved version tracking across wdls.
 
 # 1.0.2
 2025-09-03 (Date of Last Commit)
 
-* Add optional pipeline_header_line input to match beagle imputation pipeline inputs
+* Add optional pipeline_header_line input to match beagle imputation pipeline inputs.
 
 # 1.0.1
 2025-08-26 (Date of Last Commit)
