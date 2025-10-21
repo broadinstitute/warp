@@ -1,8 +1,9 @@
 {
-  "JointGenotyping.sample_name_map": "gs://broad-gotc-test-storage/JointGenotyping/inputs/plumbing/wgs/sample_name_map",
+  "JointGenotyping.sample_name_map": "gs://broad-gotc-test-storage/joint_genotyping/wgs/plumbing/callset/public_sample_name_map",
   "JointGenotyping.callset_name": "wgs_joint_genotyping_plumbing",
   "JointGenotyping.unbounded_scatter_count_scale_factor": 2.5,
-  "JointGenotyping.SplitIntervalList.scatter_mode": "INTERVAL_SUBDIVISION",
+  "JointGenotyping.SplitIntervalList.scatter_mode": "INTERVAL_COUNT_WITH_DISTRIBUTED_REMAINDER",
+  "JointGenotyping.SplitIntervalList.extra_args": "--dont-mix-contigs",
 
   "JointGenotyping.unpadded_intervals_file": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.handcurated.noCentromeres.noTelomeres.interval_list",
   "JointGenotyping.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
@@ -35,6 +36,7 @@
   "JointGenotyping.indel_recalibration_tranche_values": ["100.0", "99.95", "99.9", "99.5", "99.0", "97.0", "96.0", "95.0", "94.0", "93.5", "93.0", "92.0", "91.0", "90.0"],
 
   "JointGenotyping.use_allele_specific_annotations": false,
+  "JointGenotyping.CheckSamplesUnique.sample_num_threshold": 2,
   "JointGenotyping.GenotypeGVCFs.allow_old_rms_mapping_quality_annotation_data": true,
 
   "JointGenotyping.small_disk": 100,
