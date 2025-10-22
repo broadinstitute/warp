@@ -1,3 +1,11 @@
+---
+sidebar_position: 2
+---
+
+# Reference Species
+
+The following table lists species for which reference files have been built or are in development using the BuildIndices pipeline. For more detailed information about each species and the links to the reference fies, please see the README.md file.
+
 |Species|Latin Name|Genomic Reference|Gene Annotation File|Status|
 |---|---|---|---|---|
 |Human|Homo sapiens|GRCh38, primary assembly (PRI)|[GENCODE Release 43 GRCh38.p13](https://www.google.com/url?source=gmail&sa=E&q=https://www.gencodegenes.org/human)|Production|
