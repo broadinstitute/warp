@@ -19,3 +19,11 @@ venv/
 
 # Ignore generated credentials from google-github-actions/auth
 gha-creds-*.json
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
