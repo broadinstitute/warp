@@ -67,7 +67,7 @@ task ConcatenateChromosomalVcfs {
         String bcftools_docker = "mgibio/bcftools-cwl:1.12"
         Int memory_gb = 128
         Int cpu = 16
-        Int disk_gb = 2000 # 2 TB
+        Int disk_gb = 1500 # 1.5 TB
         Int num_preemptible_attempts = 1
     }
 
@@ -86,9 +86,9 @@ task ConcatenateChromosomalVcfs {
         docker: bcftools_docker
         memory: "${memory_gb} GB"
         cpu: "${cpu}"
-        disk: "local-disk ${disk_gb} HDD"
+        disks: "local-disk ${disk_gb} HDD"
         preemptible: num_preemptible_attempts
-        bootDiskSizeGb: 100
+        bootDiskSizeGb: 50
     }
 }
 
@@ -99,7 +99,7 @@ task create_hw_pca_training {
         String final_output_prefix
         Int num_pcs
         Int? min_vcf_partitions_in
-        Int disk_gb = 1000
+        Int disk_gb = 2000
         Int mem_gb = 240
         Int cpu = 48
         String disk_type = "SSD"
@@ -110,7 +110,7 @@ task create_hw_pca_training {
         full_bgz_index: {localization_optional: true}
     }
 
-    Int min_vcf_partitions = select_first([min_vcf_partitions_in, 200])
+    Int min_vcf_partitions = select_first([min_vcf_partitions_in, 100])
 
     command <<<
         set -e
@@ -121,13 +121,13 @@ task create_hw_pca_training {
         import numpy as np
         import hail as hl
 
-        spark_conf={
+        spark_conf = {
             # Driver settings
-            'spark.driver.memory': '40g',
+            'spark.driver.memory': '80g',  # Increased driver memory to 80 GB
             'spark.driver.maxResultSize': '20g',
 
             # Executor settings (12 executors × 4 cores = 48 cores total)
-            'spark.executor.memory': '18g',
+            'spark.executor.memory': '40g',  # Increased executor memory to 40 GB
             'spark.executor.cores': '4',
             'spark.executor.instances': '12',
 
