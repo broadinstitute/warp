@@ -1,3 +1,8 @@
+# 1.0.5
+2025-10-24 (Date of Last Commit)
+
+* Updated the positioning.wdl code to the latest version from the Macosko Lab repository to incorporate recent improvements
+
 # 1.0.4
 2025-10-03 (Date of Last Commit)
 

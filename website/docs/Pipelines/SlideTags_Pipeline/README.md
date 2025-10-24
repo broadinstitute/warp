@@ -158,9 +158,8 @@ All releases of the pipeline are documented in the repository’s changelog.
 
 ## Citing the Slide-tags Pipeline
 
-If you use the Slide-tags Pipeline in your research, please cite the original sources:
-
-- **Macosko Lab Pipelines:** https://github.com/MacoskoLab/Macosko-Pipelines/tree/main/slide-tags
+If you use the Slide-tags Pipeline in your research, please identify the pipeline in your methods section using the [Slide-tags SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_027567/resolver?q=SCR_027567&l=SCR_027567&i=rrid:SCR_027567).
+* Ex: *Slide-tags Pipeline (RRID:SCR_027567)*
 
 Please also consider citing our preprint:
 
@@ -168,7 +167,7 @@ Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Ki
 
 ## Acknowledgements
 
-We are immensely grateful Matthew Shabet and the Macosko Lab for development of these analsyes, for their generous time making these scripts FAIR, and for the many hours working with the WARP team to incoporate the scripts into WDL. 
+We are immensely grateful to Matthew Shabet and the Macosko Lab for the development of these analyses, for their generous time in making these scripts FAIR, and for the many hours spent working with the WARP team to incorporate the scripts into WDL.
 
 ## Feedback
 
