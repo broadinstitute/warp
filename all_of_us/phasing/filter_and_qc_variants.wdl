@@ -233,8 +233,11 @@ task FilterAndQCVariants {
         import uuid
         from google.cloud import dataproc_v1 as dataproc
 
+        # sanitize contig name by making all lowercase
+        cluster_contig = contig.lower()
+
         # Must match pattern (?:[a-z](?:[-a-z0-9]{0,49}[a-z0-9])?)
-        cluster_name = f'~{prefix}-~{contig}-hail-step1-{str(uuid.uuid4())[0:13]}'
+        cluster_name = f'~{prefix}-~{cluster_contig}-hail-step1-{str(uuid.uuid4())[0:13]}'
 
         # Must be local filepath
         script_path = "~{submission_script}"
