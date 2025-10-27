@@ -134,6 +134,7 @@ workflow SlideTags {
         File positioning_summary_pdf = positioning.summary_pdf
         File positioning_intermediates = positioning.intermediates_file
         File positioning_positioning_log = positioning.positioning_log
+
      }
 }
 
