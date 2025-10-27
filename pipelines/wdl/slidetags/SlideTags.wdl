@@ -6,7 +6,7 @@ import "../optimus/Optimus.wdl" as optimus
 
 workflow SlideTags {
 
-    String pipeline_version = "1.0.4"
+    String pipeline_version = "1.0.5"
 
     input {
 
@@ -19,13 +19,13 @@ workflow SlideTags {
         # Optimus inputs
         Array[File] gex_r1_fastq
         Array[File] gex_r2_fastq
-        Array[File]? gex_i1_fastq        
+        Array[File]? gex_i1_fastq
         File tar_star_reference
         File annotations_gtf
         File gex_whitelist
         String cloud_provider = "gcp"
         String input_id
-        Int expected_cells = 3000 
+        Int expected_cells = 3000
         String counting_mode = "sn_rna"
         Int tenx_chemistry_version = 3
         Int emptydrops_lower = 100
@@ -39,13 +39,13 @@ workflow SlideTags {
 
         String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.2.0"
      }
-    
+
     parameter_meta {
         spatial_fastq: "Array of paths to spatial fastq files"
         pucks: "Array of paths to puck files"
         docker: "Docker image to use"
     }
-    
+
     # Call the optimus workflow
     call optimus.Optimus as Optimus {
         input:
@@ -69,8 +69,8 @@ workflow SlideTags {
             count_exons = count_exons,
             soloMultiMappers = soloMultiMappers,
             gex_expected_cells = expected_cells
-    } 
-    
+    }
+
     call SpatialCount.count as spatial_count {
         input:
             fastq_paths = spatial_fastq,
@@ -92,13 +92,13 @@ workflow SlideTags {
         # Version of Optimus pipeline
         String optimus_pipeline_version_out = Optimus.pipeline_version_out
         File optimus_genomic_reference_version = Optimus.genomic_reference_version
-   
+
         # Optimus Metrics outputs
         File optimus_cell_metrics = Optimus.cell_metrics
         File optimus_gene_metrics = Optimus.gene_metrics
         File? optimus_cell_calls = Optimus.cell_calls
-   
-        # Optimus Star outputs 
+
+        # Optimus Star outputs
         File optimus_library_metrics = Optimus.library_metrics
         File optimus_bam = Optimus.bam
         File optimus_matrix = Optimus.matrix
@@ -111,10 +111,10 @@ workflow SlideTags {
         File? optimus_multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
         File? optimus_multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
         File? optimus_multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
-    
+
         # Optimus H5ad
         File optimus_h5ad_output_file = Optimus.h5ad_output_file
-        
+
         # Optimus Cellbender outputs
         File? cb_cell_barcodes_csv = Optimus.cell_barcodes_csv
         File? cb_checkpoint_file = Optimus.checkpoint_file
@@ -134,6 +134,7 @@ workflow SlideTags {
         File positioning_summary_pdf = positioning.summary_pdf
         File positioning_intermediates = positioning.intermediates_file
         File positioning_positioning_log = positioning.positioning_log
+
      }
 }
 
