@@ -11,10 +11,6 @@ task QcChecks {
         Int memory_mb = 4000
         Int disk_size_gb = ceil(1.1*size(vcf_input, "GiB")) + 10
     }
-    Int command_mem = memory_mb - 1500
-    Int max_heap = memory_mb - 1000
-
-    String vcf_basename = basename(vcf_input)
 
     String ref_dict_basename = basename(ref_dict)
 
@@ -25,7 +21,7 @@ task QcChecks {
         # check for a large number of variants in input vcf and exit if greater than 10 million
         line_count=$(bcftools stats ~{vcf_input}  | grep "number of records:" | awk '{print $6}')
         if [ "$line_count" -gt 10000000 ]; then
-            echo "Greater than 10 million variants found in input VCF." >> qc_messages.txt
+            echo "Greater than 10 million variants found in the input VCF." >> qc_messages.txt
             echo "false" > passes_qc.txt
             exit 0
         else
@@ -56,19 +52,38 @@ task QcChecks {
         done
 
         if [ ${#filtered_chromosomes[@]} -eq 0 ]; then
-            echo "Input must include data for at least one chromosome in the allowed contigs (${allowed_chromosomes[*]})." >> qc_messages.txt
+            echo "No variant data found for any chromosome in the supported contigs: (${allowed_chromosomes[*]})." >> qc_messages.txt
         else
-            echo "Found data for chromosomes: ${filtered_chromosomes[*]}."
+            echo "Found variants for chromosomes: ${filtered_chromosomes[*]}."
         fi
 
         # check for sorted or non bgzf compressed vcf
         bcftools index -t ~{vcf_input} 2> index_stderr.txt
+
+        # note if both of these are true, only BGZF error will be reported because indexing stops after that error
+        NOT_SORTED_MESSAGE="Input VCF is not sorted."
         if grep -qiE "unsorted positions|not continuous" index_stderr.txt; then
-            echo "Input VCF is not sorted." >> qc_messages.txt;
+            echo "${NOT_SORTED_MESSAGE}" >> qc_messages.txt;
         fi
 
+        NOT_BGZF_MESSAGE="Input VCF is not BGZF compressed."
         if grep -q "not BGZF compressed" index_stderr.txt; then
-            echo "Input VCF is not BGZF compressed." >> qc_messages.txt;
+            echo "${NOT_BGZF_MESSAGE}" >> qc_messages.txt;
+        fi
+
+        if [ -f "~{vcf_input}.tbi" ]; then
+            echo "Input VCF indexed successfully. It therefore is sorted and bgzf-compressed."
+        else
+            # only add a message if there are not index-related errors already
+            if ! grep -q "${NOT_SORTED_MESSAGE}" qc_messages.txt && ! grep -q "${NOT_BGZF_MESSAGE}" qc_messages.txt; then
+                echo "Failed to index input VCF for an unknown reason." >> qc_messages.txt
+                # echo index stderr to logs for debugging
+                echo "Contents of index_stderr.txt:"
+                cat index_stderr.txt
+            fi
+            echo "false" > passes_qc.txt
+            # exit now if indexing failed, since ValidateVariants requires an index
+            exit 0
         fi
 
         # check reference header lines if they exist
@@ -78,9 +93,8 @@ task QcChecks {
         --validation-type-to-exclude ALL \
         2> gatk_output.txt
 
-        ref_dict_basename="~{ref_dict_basename}"
         if grep -q "incompatible contigs" gatk_output.txt; then
-            echo "Found incompatible contigs (against reference dictionary $ref_dict_basename) in VCF header." >> qc_messages.txt;
+            echo "VCF header contains none of the expected contigs." >> qc_messages.txt
         else
             echo "No incompatible contigs found in VCF header."
         fi
