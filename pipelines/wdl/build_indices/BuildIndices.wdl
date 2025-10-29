@@ -355,7 +355,8 @@ task BuildStarSingleNucleus {
     --genomeFastaFiles ~{genome_fa} \
     --sjdbGTFfile ~{annotation_gtf_modified} \
     --sjdbOverhang 100 \
-    --runThreadN 16
+    --runThreadN 16 \
+    --limitGenomeGenerateRAM=43375752629
 
     tar -cvf ~{star_index_name} star
 
