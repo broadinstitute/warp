@@ -344,7 +344,7 @@ task BuildStarSingleNucleus {
                 --output-gtf ~{annotation_gtf_modified} \
                 --biotypes ~{biotypes}
             echo "listing files, should see modified gtf"
-            ls
+            ls -lR
         fi
     else
         echo "Skipping GTF modification — using original GTF for STAR index"
