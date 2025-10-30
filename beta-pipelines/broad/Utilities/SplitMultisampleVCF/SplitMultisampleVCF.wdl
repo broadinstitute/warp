@@ -8,7 +8,8 @@ version 1.0
 workflow SplitMultiSampleVcfWorkflow {
     input {
         File multiSampleVcf
-        String outputLocation
+        String workspaceBucket
+        String? outputFileNameSuffix
 
         # Optional parameters w/ defaults
         Boolean createIndexFiles = true
@@ -26,7 +27,8 @@ workflow SplitMultiSampleVcfWorkflow {
 
     parameter_meta {
         multiSampleVcf: "Input multi-sample VCF file to be split"
-        outputLocation: "GCP location where output vcfs (and indices, if requested) are written to"
+        workspaceBucket: "The bucket associated with the workspace."
+        outputFileNameSuffix: "If provided, the string will be appended to each output VCF file name (before the .vcf.gz extension)."
         createIndexFiles: "Whether index files should be created for each individual VCF. (default: true)."
         chunkSize: "Number of samples to process in each chunk (default: 1000)"
         cpu: "Number of CPU cores to allocate for each task (default: 1)"
@@ -73,11 +75,13 @@ workflow SplitMultiSampleVcfWorkflow {
         }
 
         # FOUR: Copy each chunk's output files to the destination
-        call CopyFilesToDestination {
+        call RenameAndCopyFilesToDestination {
             input:
+                multiSampleVcf = multiSampleVcf,
+                workspaceBucket = workspaceBucket,
+                outputFileNameSuffix = outputFileNameSuffix,
                 vcfTar = ExtractSingleSampleVcfs.vcfTar,
                 vcfIndexTar = ExtractSingleSampleVcfs.vcfIndexTar,
-                outputLocation = outputLocation,
                 createIndexFiles = createIndexFiles,
                 docker = gsutil_docker,
                 cpu = cpu,
@@ -261,12 +265,14 @@ task ExtractSingleSampleVcfs {
   }
 }
 
-task CopyFilesToDestination {
+task RenameAndCopyFilesToDestination {
 
     input {
+        File multiSampleVcf
+        String workspaceBucket
+        String? outputFileNameSuffix
         File vcfTar
         File vcfIndexTar
-        String outputLocation
         Boolean createIndexFiles
         String docker
         Int cpu
@@ -275,9 +281,11 @@ task CopyFilesToDestination {
     }
 
     parameter_meta {
+        multiSampleVcf: "Input multi-sample VCF file to be split"
+        workspaceBucket: "The bucket associated with the workspace."
+        outputFileNameSuffix: "If provided, the string will be appended to each output VCF file name (before the .vcf.gz extension)."
         vcfTar: "Tar file containing all VCF file paths to be copied to output destinatino"
         vcfIndexTar: "Tar file of all VCF index file paths to be copied to output destinatino"
-        outputLocation: "GCP location where output vcfs (and indices, if requested) are written to"
         createIndexFiles: "Whether index files should be created for each individual VCF"
         docker: "Docker image containing gsutil"
         cpu: "Number of CPU cores to allocate for each task (default: 1)"
@@ -289,19 +297,63 @@ task CopyFilesToDestination {
 
     # ------------------------------------------------------------------------------------------------------
 
-    # Ensure output location ends with a single "/"
-    CLEANED_OUTPUT_LOCATION="~{outputLocation}"
-    [[ "${CLEANED_OUTPUT_LOCATION}" != */ ]] && CLEANED_OUTPUT_LOCATION="${CLEANED_OUTPUT_LOCATION}/"
-    echo "Using cleaned output location: ${CLEANED_OUTPUT_LOCATION}"
+    # Generate the output directory where VCFs and index files will be copied
+    BASENAME=$(basename "~{multiSampleVcf}")
+    SAFE_BASENAME=$(echo "$BASENAME" | sed 's/[^A-Za-z0-9_-]/_/g')
+    echo "Subdirectory where files will be written: $SAFE_BASENAME"
+
+    # Normalize workspace bucket to ensure it starts with gs://
+    WORKSPACE_BUCKET="~{workspaceBucket}"
+    if [[ "$WORKSPACE_BUCKET" != gs://* ]]; then
+        WORKSPACE_BUCKET="gs://$WORKSPACE_BUCKET"
+    fi
+
+    OUTPUT_DIR="${WORKSPACE_BUCKET}/${SAFE_BASENAME}_output_vcfs/"
+    echo "Top-level output directory: $OUTPUT_DIR"
+
 
     # ------------------------------------------------------------------------------------------------------
+    # Function to optionally rename files with a suffix and update FOFN
+    rename_files_with_suffix() {
+        local fofn="$1"
+        local suffix="$2"
+        local ext_pattern="$3"
+
+        if [[ -n "$suffix" ]]; then
+            echo "Renaming files in $fofn with suffix '${suffix}' for pattern $ext_pattern"
+            local tmp_fofn="${fofn}.tmp"
+            > "$tmp_fofn"
+
+            while IFS= read -r filepath; do
+                dir=$(dirname "$filepath")
+                filename=$(basename "$filepath")
+                # Remove the extension pattern from the end
+                base="${filename%$ext_pattern}"
+                new_name="${base}_${suffix}${ext_pattern#$base}"  # Keep the extension intact
+                mv "$filepath" "${dir}/${new_name}"
+                echo "${dir}/${new_name}" >> "$tmp_fofn"
+            done < "$fofn"
+
+            mv "$tmp_fofn" "$fofn"
+        else
+            echo "No suffix provided, skipping renaming for $fofn"
+        fi
+    }
+
+    # ------------------------------------------------------------------------------------------------------
+
     # Extract VCFs
     echo "Extracting VCF tarball"
     mkdir -p vcfs
     tar -xzf ~{vcfTar} -C vcfs
 
+    $VCF_FOFN = vcf_fofn.txt
+
     echo "Writing VCF files to FOFN"
-    find vcfs -type f -name '*.vcf.gz' -exec realpath {} \; > vcf_fofn.txt
+    find vcfs -type f -name '*.vcf.gz' -exec realpath {} \; > $VCF_FOFN
+
+    # Call the function to rename the output files
+    rename_files_with_suffix $VCF_FOFN "~{outputFileNameSuffix}" ".vcf.gz"
 
     # ------------------------------------------------------------------------------------------------------
     # Optionally extract index files and write to FOFN
@@ -310,27 +362,32 @@ task CopyFilesToDestination {
         mkdir -p index_files
         tar -xzf ~{vcfIndexTar} -C index_files
 
+        $VCF_INDEX_FOFN = index_fofn.txt
+
         echo "Writing index files to FOFN"
-        find index_files -type f -name '*.tbi' -exec realpath {} \; > index_fofn.txt
+        find index_files -type f -name '*.tbi' -exec realpath {} \; > $VCF_INDEX_FOFN
+
+        # Call the function to rename the output files
+        rename_files_with_suffix $VCF_INDEX_FOFN "~{outputFileNameSuffix}" ".vcf.gz.tbi"
       else
         echo "No index files provided, creating empty index_fofn.txt"
-        touch index_fofn.txt
+        touch $VCF_INDEX_FOFN
       fi
 
     # ------------------------------------------------------------------------------------------------------
     # Copy VCFs
     echo "Copying VCF files to output location"
-    gsutil -m cp -I "${CLEANED_OUTPUT_LOCATION}" < vcf_fofn.txt
+    gsutil -m cp -I "${OUTPUT_DIR}" < vcf_fofn.txt
 
     # ------------------------------------------------------------------------------------------------------
 
     # Copy index files if applicable
     if [ "~{createIndexFiles}" = "true" ]; then
         echo "Copying index files to output location"
-        gsutil -m cp -I "${CLEANED_OUTPUT_LOCATION}" < index_fofn.txt
+        gsutil -m cp -I "${OUTPUT_DIR}" < index_fofn.txt
     fi
 
-    echo "Finished copying all files to ${CLEANED_OUTPUT_LOCATION}"
+    echo "Finished copying all files to ${OUTPUT_DIR}"
 
     >>>
 
