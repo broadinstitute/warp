@@ -20,7 +20,7 @@ workflow SplitMultiSampleVcfWorkflow {
         Int? diskSizeGb
     }
 
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "2.0.0"
     String gsutil_docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:525.0.0"
     Int calculated_disk_size = ceil(21*chunkSize*size(multiSampleVcf, "GiB")/(chunkSize+20)) + 10
     Int disk_size = select_first([calculated_disk_size, diskSizeGb]) # Default disk size if not provided
