@@ -380,9 +380,11 @@ jobs:
             done
           done
           
-          # Generate final summary
+          # Generate final markdown and JSON summary
           FINAL_SUMMARY="## Combined Workflow Statuses\n\n"
-          
+          JSON_SUMMARY='{"summary":['
+          FIRST_ENTRY=true
+
            # Add all workflow statuses to the summary
           for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
             # Generate the submission URL and append to the summary
@@ -393,8 +395,32 @@ jobs:
             FINAL_SUMMARY+="[${INPUT_FILE_NAME}]($SUBMISSION_URL)\n"
             # Append the workflow statuses for this submission
             FINAL_SUMMARY+="${WORKFLOW_STATUSES[$SUBMISSION_ID]}\n\n"
+
+            # Parse workflow IDs and statuses for JSON
+            while IFS='|' read -r WORKFLOW_ID STATUS; do
+              # Trim whitespace
+              WORKFLOW_ID=$(echo "$WORKFLOW_ID" | xargs)
+              STATUS=$(echo "$STATUS" | xargs)
+
+              # Skip header row
+              if [ "$WORKFLOW_ID" != "Workflow ID" ] && [ "$WORKFLOW_ID" != "---" ]; then
+                # Add comma separator after first entry
+                if [ "$FIRST_ENTRY" = false ]; then
+                  JSON_SUMMARY+=','
+                else
+                  FIRST_ENTRY=false
+                fi
+
+                # Add JSON entry
+                JSON_SUMMARY+="{\"id\":\"$WORKFLOW_ID\",\"filename\":\"$INPUT_FILE_NAME\",\"url\":\"$SUBMISSION_URL\",\"status\":\"$STATUS\"}"
+              fi
+            done <<< "${WORKFLOW_STATUSES[$SUBMISSION_ID]}"
           done
           
+          # Close JSON array and object
+          JSON_SUMMARY+=']}'
+
+          echo "$JSON_SUMMARY" | jq '.' | tee workflow_summary.json
           echo -e "$FINAL_SUMMARY" >> $GITHUB_STEP_SUMMARY
           
           if [ "$OVERALL_SUCCESS" = false ]; then
@@ -436,14 +462,23 @@ jobs:
             exit 1
           fi
 
-      # Step 13: Print Summary on Success
+      # Step 13: Upload Summary Artifact
+      # Purpose: Uploads the workflow summary JSON as an artifact for further analysis
+      - name: Upload Summary Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-summary
+          path: workflow_summary.json
+
+      # Step 14: Print Summary on Success
       # Purpose: Prints the final summary of the pipeline execution in case of success
       - name: Print Summary on Success
         if: success()
         run: |
           echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
 
-      # Step 14: Print Summary on Failure
+      # Step 15: Print Summary on Failure
       # Purpose: Prints the final summary of the pipeline execution in case of failure
       - name: Print Summary on Failure
         if: failure()

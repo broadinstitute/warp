@@ -3,7 +3,7 @@ const path = require("path");
 
 module.exports = {
   title: 'WARP',
-  tagline: 'WDL Analysis Research Pipelines',
+  tagline: 'Warp Analysis Research Pipelines',
   url: 'https://broadinstitute.github.io',
   baseUrl: '/warp/', // FIXME: /warp/
   onBrokenLinks: 'warn',
