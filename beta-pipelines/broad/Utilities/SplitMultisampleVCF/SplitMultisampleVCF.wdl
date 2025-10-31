@@ -347,7 +347,7 @@ task RenameAndCopyFilesToDestination {
     mkdir -p vcfs
     tar -xzf ~{vcfTar} -C vcfs
 
-    $VCF_FOFN = vcf_fofn.txt
+    VCF_FOFN="vcf_fofn.txt"
 
     echo "Writing VCF files to FOFN"
     find vcfs -type f -name '*.vcf.gz' -exec realpath {} \; > $VCF_FOFN
@@ -362,7 +362,7 @@ task RenameAndCopyFilesToDestination {
         mkdir -p index_files
         tar -xzf ~{vcfIndexTar} -C index_files
 
-        $VCF_INDEX_FOFN = index_fofn.txt
+        VCF_INDEX_FOFN="index_fofn.txt"
 
         echo "Writing index files to FOFN"
         find index_files -type f -name '*.tbi' -exec realpath {} \; > $VCF_INDEX_FOFN
