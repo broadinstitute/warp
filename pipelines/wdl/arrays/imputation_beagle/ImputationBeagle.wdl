@@ -98,9 +98,9 @@ workflow ImputationBeagle {
       String chunk_contig = referencePanelContig.contig
 
       Int start = (i * chunkLength) + 1
-      Int startWithOverlaps = if (start - chunkOverlaps < 1) then 1 else start - chunkOverlaps
+      Int startWithOverlaps = if ((start - chunkOverlaps) < 1) then 1 else (start - chunkOverlaps)
       Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
-      Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < end + chunkOverlaps) then CalculateChromosomeLength.chrom_length else end + chunkOverlaps
+      Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < (end + chunkOverlaps)) then CalculateChromosomeLength.chrom_length else (end + chunkOverlaps)
       String qc_scatter_position_chunk_basename = referencePanelContig.contig + "_chunk_" + i
 
       # generate the chunked vcf file that will be used for imputation, including overlaps
@@ -155,9 +155,14 @@ workflow ImputationBeagle {
         chr = referencePanelContig.contig
     }
 
+    call beagleTasks.CountValidContigChunks {
+      input:
+        valids = CheckChunks.valid
+    }
+
     # if any chunk for any chromosome fail CheckChunks, then we will not impute run any task in the next scatter,
     # namely phasing and imputing which would be the most costly to throw away
-    Int n_failed_chunks_int = select_first([error_count_override, length(filter(x -> x == false, CheckChunks.valid))])
+    Int n_failed_chunks_int = select_first([error_count_override, CountValidContigChunks.n_invalid_chunks])
     call beagleTasks.ErrorWithMessageIfErrorCountNotZero as FailQCNChunks {
       input:
         errorCount = n_failed_chunks_int,
@@ -184,7 +189,7 @@ workflow ImputationBeagle {
         # sample FORMAT fields in vcfs start after the 8 mandatory fields plus FORMAT (FORMAT isnt mandatory
         # but if you have samples in your vcf they are).  `cut` is 1 indexed, so we start at the 10th column.
         Int start_sample = (j * sample_chunk_size) + 10
-        Int end_sample = if (CountSamples.nSamples <= ((j + 1) * sample_chunk_size)) then CountSamples.nSamples + 9 else ((j + 1) * sample_chunk_size ) + 9
+        Int end_sample = if (CountSamples.nSamples <= ((j + 1) * sample_chunk_size)) then CountSamples.nSamples + 9 else ((j + 1) * sample_chunk_size) + 9
         String impute_scatter_sample_chunk_basename = impute_scatter_position_chunk_basename + ".sample_chunk_" + j
         Boolean impute_with_allele_probablities = num_sample_chunks > 1
 
@@ -329,7 +334,7 @@ workflow ImputationBeagle {
       preemptible = 0
   }
 
-  call tasks.StoreChunksInfo {
+  call beagleTasks.StoreChunksInfo {
     input:
       chunk_chroms = flatten(chunk_contig),
       starts = flatten(start),
@@ -338,7 +343,7 @@ workflow ImputationBeagle {
       vars_in_panel = flatten(CountVariantsInChunks.var_also_in_reference),
       valids = flatten(CheckChunks.valid),
       chroms = contigs_to_process,
-      vars_in_raw_input = flatten(CountVariantsInChromosome.n_variants),
+      vars_in_raw_input = CountVariantsInChromosome.n_variants,
       basename = output_basename
   }
   

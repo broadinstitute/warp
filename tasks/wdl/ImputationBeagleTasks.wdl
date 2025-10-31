@@ -116,6 +116,40 @@ task CheckChunks {
   }
 }
 
+task CountValidContigChunks {
+  input {
+    Array[Boolean] valids
+  }
+
+  command <<<
+    set -e -o pipefail
+
+    # Count the number of "true" values in the array
+    count=0
+    for val in ~{sep=" " valids}; do
+      if [ "$val" = "true" ]; then
+        count=$((count + 1))
+      fi
+    done
+    echo "$count" > n_valid_chunks.txt
+  >>>
+
+  output {
+    Int n_valid_chunks = read_int("n_valid_chunks.txt")
+    Int n_invalid_chunks = length(valids) - n_valid_chunks
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    cpu: 1
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+}
+
 task StoreChunksInfo {
   input {
     Array[String] chunk_chroms
