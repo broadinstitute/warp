@@ -44,26 +44,29 @@ task CalculateContigsToProcess {
 
 task CountVariantsInChunks {
   input {
-    File vcf
-    File vcf_index
-    File panel_bed_file
+    File input_variant_ids
+    File ref_panel_variant_ids
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
     Int cpu = 1
     Int memory_mb = 16000
-    Int disk_size_gb = ceil((2 * size([vcf, vcf_index], "GiB")) + size(panel_bed_file, "GiB")) + 10
+    Int disk_size_gb = ceil(size(input_variant_ids, "GiB") + size(ref_panel_variant_ids, "GiB")) + 10
   }
+
   Int command_mem = memory_mb - 1500
   Int max_heap = memory_mb - 1000
 
   command <<<
     set -e -o pipefail
 
-    ln -sf ~{vcf} input.vcf.gz
-    ln -sf ~{vcf_index} input.vcf.gz.tbi
+    # count variants in original input
+    wc -l ~{input_variant_ids} | awk '{print $1}' > var_in_original
 
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V input.vcf.gz | tail -n 1 > var_in_original
-    bedtools intersect -a ~{vcf} -b ~{panel_bed_file} | wc -l > var_also_in_reference
+    sort ~{input_variant_ids}> input_variant_ids_sorted
+    sort ~{ref_panel_variant_ids} > ref_panel_variant_ids_sorted
+    
+    # output lines common to both files, then count them
+    comm -12 input_variant_ids_sorted ref_panel_variant_ids_sorted | wc -l | awk '{print $1}' > var_also_in_reference
   >>>
 
   output {
@@ -71,7 +74,7 @@ task CountVariantsInChunks {
     Int var_also_in_reference = read_int("var_also_in_reference")
   }
   runtime {
-    docker: gatk_docker
+    docker: docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
@@ -110,6 +113,89 @@ task CheckChunks {
     preemptible: 3
     maxRetries: 1
     noAddress: true
+  }
+}
+
+task StoreChunksInfo {
+  input {
+    Array[String] chunk_chroms
+    Array[Int] starts
+    Array[Int] ends
+    Array[Int] vars_in_array
+    Array[Int] vars_in_panel
+    Array[Boolean] valids
+    Array[String] chroms
+    Array[Int] vars_in_raw_input
+    String basename
+
+    String python_docker = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 10
+  }
+  command <<<
+    python3 << "EOF"
+    import pandas as pd
+
+    # Parse input arrays
+    chunk_chroms = ["~{sep='", "' chunk_chroms}"]
+    starts = [~{sep=', ' starts}]
+    ends = [~{sep=', ' ends}]
+    # these are the counts of variants in each chunk
+    vars_in_array = [~{sep=', ' vars_in_array}]
+    vars_in_panel = [~{sep=', ' vars_in_panel}]
+    valids = ["~{sep='", "' valids}"]
+    
+    # Convert string booleans to actual booleans
+    chunk_was_imputed = [v.lower() == "true" for v in valids]
+    
+    # Create DataFrame
+    chunk_info = pd.DataFrame({
+        'chrom': chunk_chroms,
+        'start': starts,
+        'end': ends,
+        'var_in_filtered_input': vars_in_array,
+        'var_in_panel': vars_in_panel,
+        'chunk_was_imputed': chunk_was_imputed
+    })
+    
+    # Filter for failed chunks and drop the chunk_was_imputed column
+    failed_chunks = chunk_info[~chunk_info['chunk_was_imputed']].drop(columns=['chunk_was_imputed'])
+    n_failed_chunks = len(failed_chunks)
+    
+    # Aggregate variant counts by chromosome
+    contig_info_from_chunks = chunk_info.groupby('chrom', sort=False).agg({
+        'var_in_filtered_input': 'sum',
+        'var_in_panel': 'sum'
+    }).reset_index()
+
+    # add raw input counts
+    chroms = ["~{sep='", "' chroms}"]
+    contig_info = pd.DataFrame({'chrom': chroms, 'var_in_raw_input': [~{sep=', ' vars_in_raw_input}]})
+    contig_info = contig_info.merge(contig_info_from_chunks, on='chrom', how='left')
+
+    # Write outputs
+    chunk_info.to_csv("~{basename}_chunk_info.tsv", sep='\t', index=False)
+    failed_chunks.to_csv("~{basename}_failed_chunks.tsv", sep='\t', index=False)
+    contig_info.to_csv("~{basename}_contig_info.tsv", sep='\t', index=False)
+    with open("n_failed_chunks.txt", 'w') as f:
+        f.write(str(n_failed_chunks))
+    EOF
+  >>>
+  runtime {
+    docker: python_docker
+    disks : "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+  output {
+    File chunks_info = "~{basename}_chunk_info.tsv"
+    File failed_chunks = "~{basename}_failed_chunks.tsv"
+    File contigs_info = "~{basename}_contig_info.tsv"
+    File n_failed_chunks = "n_failed_chunks.txt"
   }
 }
 
@@ -820,3 +906,71 @@ task FilterVcfByDR2 {
   }
 }
 
+task ExtractUniqueVariantIds {
+  input {
+    File vcf
+
+    Int disk_size_gb = ceil(2 * size(vcf, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 4000
+    String bcftools_docker = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+    Int preemptible = 3
+  }
+
+  String output_base = basename(vcf, ".vcf.gz")
+
+  command <<<
+    set -e -o pipefail
+
+    bcftools query -f "%CHROM:%POS:%REF:%ALT\n" ~{vcf} | uniq > ~{output_base}.unique_variants
+    # sort and remove blank lines
+    sort ~{output_base}.unique_variants | sed '/^$/d' > ~{output_base}.unique_variants.sorted
+  >>>
+
+  runtime {
+    docker: bcftools_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 1
+    noAddress: true
+  }
+
+  output {
+    File unique_variant_ids = "~{output_base}.unique_variants.sorted"
+  }
+}
+
+task CountVariantsInChromosome {
+  input {
+    File unique_variant_ids
+    String chr
+
+    Int disk_size_gb = ceil(size(unique_variant_ids, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 4000
+    String docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
+    Int preemptible = 3
+  }
+
+  command <<<
+    set -e -o pipefail
+
+    cat ~{unique_variant_ids} | grep ~{chr} | wc -l | awk '{print $1}' > n_variants
+  >>>
+
+  runtime {
+    docker: docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 1
+    noAddress: true
+  }
+
+  output {
+    Int n_variants = read_int("n_variants")
+  }
+}
