@@ -15,7 +15,9 @@ workflow BuildIndices {
     File biotypes
 
     Boolean run_add_introns = false
-    Boolean run_mitofinder = false              
+    Boolean run_mitofinder = false
+    Boolean skip_gtf_modification = false
+
     String?  mito_accession                       # e.g. chimp or ferret mito accession (NC_…)
     File?    mito_ref_gbk                         # path to mitochondrion reference .gbk
     Array[String]? mitofinder_opts                # optional, override extra flags to MitoFinder/add_mito
@@ -64,7 +66,7 @@ workflow BuildIndices {
         genome_build = genome_build,
         genome_source = genome_source,
         organism = organism,
-        skip_gtf_modification = run_mitofinder,
+        skip_gtf_modification = skip_gtf_modification,
     }
     call CalculateChromosomeSizes {
       input:
@@ -108,7 +110,7 @@ workflow BuildIndices {
   }
 
   output {
-    File snSS2_star_index = BuildStarSingleNucleus.star_index
+    File star_index_tar = BuildStarSingleNucleus.star_index
     String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
     File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
     File reference_bundle = BuildBWAreference.reference_bundle
