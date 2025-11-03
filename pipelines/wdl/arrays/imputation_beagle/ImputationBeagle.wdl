@@ -131,7 +131,7 @@ workflow ImputationBeagle {
 
       call beagleTasks.ExtractUniqueVariantIds as ExtractUniqueVariantsFilteredChunk {
         input:
-          vcf = GenerateChunkNoOverlaps.output_vcf,
+          vcf = GenerateChunk.output_vcf, # FOR TESTING
       }
 
       call beagleTasks.CountVariantsInChunks {
