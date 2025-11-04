@@ -1,3 +1,8 @@
+# 2.3.0
+2025-10-04 (Date of Last Commit)
+
+* WIP
+
 # 2.2.4
 2025-10-17 (Date of Last Commit)
 
