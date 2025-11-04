@@ -150,7 +150,7 @@ task CountValidContigChunks {
   }
 }
 
-task StoreChunksInfo {
+task StoreMetricsInfo {
   input {
     Array[String] chunk_chroms
     Array[Int] starts

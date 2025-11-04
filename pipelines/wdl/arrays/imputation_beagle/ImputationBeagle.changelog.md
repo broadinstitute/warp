@@ -1,7 +1,14 @@
 # 2.3.0
 2025-10-04 (Date of Last Commit)
 
-* WIP
+* Perform chunk QC on chunks without padding, rather than chunks with padding
+* Add a new contigs_info output containing contig-wide metrics. New/changed tasks to support this:
+  * Add ExtractUniqueVariantIds task to create a list of unique variants from a vcf
+  * Add CountVariantsInChromosome task to count the number of unique variants in a given chromosome
+  * Change ReferencePanelContig struct to remove bed file and add unique_variants file for reference panel contigs
+  * Change CountVariantsInChunks to use unique_variants files rather than input vcfs and reference panel bed files
+  * Add CountValidContigChunks task to perform a simpler evaluation of chunk validity
+  * Rename StoreChunksInfo task to StoreMetricsInfo and update to include creating a contig-based metrics file in addition to the existing chunk-based metrics file
 
 # 2.2.4
 2025-10-17 (Date of Last Commit)

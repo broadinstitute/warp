@@ -334,7 +334,7 @@ workflow ImputationBeagle {
       preemptible = 0
   }
 
-  call beagleTasks.StoreChunksInfo {
+  call beagleTasks.StoreMetricsInfo {
     input:
       chunk_chroms = flatten(chunk_contig),
       starts = flatten(start),
@@ -350,8 +350,8 @@ workflow ImputationBeagle {
   output {
     File imputed_multi_sample_vcf = CreateIndexForGatheredVcf.output_vcf
     File imputed_multi_sample_vcf_index = CreateIndexForGatheredVcf.output_vcf_index
-    File chunks_info = StoreChunksInfo.chunks_info
-    File contigs_info = StoreChunksInfo.contigs_info
+    File chunks_info = StoreMetricsInfo.chunks_info
+    File contigs_info = StoreMetricsInfo.contigs_info
   }
 
   meta {
