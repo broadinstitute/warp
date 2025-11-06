@@ -296,28 +296,18 @@ task BuildStarSingleNucleus {
         GTF_FILE="~{annotation_gtf}"
     fi
 
-    # Fix GTF to add gene_name attribute if missing (copy from gene_id)
     echo "Checking and fixing gene_name attributes in GTF..."
-    awk -F'\t' 'BEGIN{OFS="\t"}
-    {
-      # Pass through comment lines unchanged
-      if ($0 ~ /^#/) {
-        print;
-        next;
-      }
-
-      # For data lines, check if gene_name is missing
-      if ($9 !~ /gene_name/) {
-        # Extract gene_id value
-        if (match($9, /gene_id "([^"]+)"/, arr)) {
-          # Remove trailing semicolon/whitespace if present
-          gsub(/;[[:space:]]*$/, "", $9);
-          # Add gene_name attribute with same value as gene_id
-          $9 = $9 "; gene_name \"" arr[1] "\";";
+    awk 'BEGIN { OFS="\t" }
+      /^#/ { print; next }
+      {
+        if ($9 !~ /gene_name/) {
+          match($9, /gene_id "([^"]+)"/, gid)
+          if (gid[1] != "") {
+            $9 = $9 "; gene_name \"" gid[1] "\";"
+          }
         }
-      }
-      print;
-    }' "$GTF_FILE" > fixed_annotation.gtf
+        print
+      }' "$GTF_FILE" > fixed_annotation.gtf
 
     # Use the fixed GTF for downstream processing
     GTF_FILE="fixed_annotation.gtf"
