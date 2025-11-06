@@ -30,9 +30,9 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/determine_hq_sites_intersection.wdl
 
-  - name: snm3C_demultiplexing_only
+  - name: snm3C_demultiplexing
     subclass: WDL
-    primaryDescriptorPath: /pipelines/wdl/snm3C/snm3C_demultiplexing_only.wdl
+    primaryDescriptorPath: /pipelines/wdl/snm3C/demultiplexing.wdl
   
   - name: ExomeGermlineSingleSample
     subclass: WDL

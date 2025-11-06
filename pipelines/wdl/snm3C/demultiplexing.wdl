@@ -1,7 +1,7 @@
 version 1.0
 import "../../../tasks/wdl/Utilities.wdl" as utils
 
-workflow snm3C_demultiplexing_only {
+workflow snm3C_demultiplexing {
 
     input {
         Array[File] fastq_input_read1
