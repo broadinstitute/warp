@@ -1,4 +1,5 @@
 version 1.0
+import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow snm3C_demultiplexing_only {
 
