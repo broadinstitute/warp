@@ -1,5 +1,4 @@
 version 1.0
-import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow snm3C_demultiplexing {
 
@@ -11,21 +10,7 @@ workflow snm3C_demultiplexing {
         String cloud_provider
         # mapping inputs
         Int batch_number = 6
-    }
-    #docker images
-    String m3c_yap_hisat_docker = "m3c-yap-hisat:2.4"
-    # Determine docker prefix based on cloud provider
-    String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
-    String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
-    String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
-    String cromwell_root_dir = if cloud_provider == "gcp" then "/mnt/disks/cromwell_root" else "/cromwell-executions"
-
-    # make sure either gcp or azr is supplied as cloud_provider input
-    if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
-        call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
-        input:
-            message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
-        }
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.4"
     }
 
     # version of the pipeline
@@ -38,7 +23,7 @@ workflow snm3C_demultiplexing {
             random_primer_indexes = random_primer_indexes,
             plate_id = plate_id,
             batch_number = batch_number,
-            docker = docker_prefix + m3c_yap_hisat_docker
+            docker = docker
     }
 
     meta {
