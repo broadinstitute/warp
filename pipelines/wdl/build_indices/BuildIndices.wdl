@@ -297,17 +297,23 @@ task BuildStarSingleNucleus {
     fi
 
     echo "Checking and fixing gene_name attributes in GTF..."
-    awk 'BEGIN { OFS="\t" }
+    awk -F'\t' 'BEGIN { OFS="\t" }
       /^#/ { print; next }
       {
-        if ($9 !~ /gene_name/) {
-          match($9, /gene_id "([^"]+)"/, gid)
-          if (gid[1] != "") {
-            $9 = $9 "; gene_name \"" gid[1] "\";"
+        gene_id = ""; gene_name = "";
+        if ($9 ~ /gene_id/) {
+          n = split($9, a, /gene_id "/)
+          if (n > 1) {
+            split(a[2], b, "\"")
+            gene_id = b[1]
           }
+        }
+        if ($9 !~ /gene_name/ && gene_id != "") {
+          $9 = $9 "; gene_name \"" gene_id "\";"
         }
         print
       }' "$GTF_FILE" > fixed_annotation.gtf
+
 
     # Use the fixed GTF for downstream processing
     GTF_FILE="fixed_annotation.gtf"
