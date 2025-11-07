@@ -471,14 +471,26 @@ jobs:
           name: workflow-summary
           path: workflow_summary.json
 
-      # Step 14: Print Summary on Success
+      # Step 14: Post Summary Artifact
+      # Purpose: Sends the workflow summary JSON to the workflow analysis processor
+      - name: Post Summary Artifact
+        if: always()
+        env:
+          WORKFLOW_SUMMARY_API_KEY: ${{ secrets.WORKFLOW_SUMMARY_API_KEY }}
+        run: |
+          curl -X POST "https://workflow-processor-5zhxczqoxq-uc.a.run.app/api/workflow-summary/" \
+            -H "Content-Type: application/json" \
+            -H "X-API-Key: $WORKFLOW_SUMMARY_API_KEY" \
+            -d "$(cat workflow_summary.json)"
+
+      # Step 15: Print Summary on Success
       # Purpose: Prints the final summary of the pipeline execution in case of success
       - name: Print Summary on Success
         if: success()
         run: |
           echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
 
-      # Step 15: Print Summary on Failure
+      # Step 16: Print Summary on Failure
       # Purpose: Prints the final summary of the pipeline execution in case of failure
       - name: Print Summary on Failure
         if: failure()
