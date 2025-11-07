@@ -477,11 +477,12 @@ jobs:
         if: always()
         env:
           WORKFLOW_SUMMARY_API_KEY: ${{ secrets.WORKFLOW_SUMMARY_API_KEY }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
         run: |
           curl -X POST "https://workflow-processor-5zhxczqoxq-uc.a.run.app/api/workflow-summary/" \
             -H "Content-Type: application/json" \
             -H "X-API-Key: $WORKFLOW_SUMMARY_API_KEY" \
-            -d "$(cat workflow_summary.json)"
+            -d "{ \"run_id\": \"$WORKFLOW_RUN_ID\", \"summary\": [ $(cat workflow_summary.json) ] }"
 
       # Step 15: Print Summary on Success
       # Purpose: Prints the final summary of the pipeline execution in case of success
