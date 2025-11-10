@@ -117,8 +117,6 @@ workflow ImputationBeagle {
           gatk_docker = gatk_docker
       }
 
-      String qc_scatter_position_chunk_no_overlaps_basename = referencePanelContig.contig + "_chunk_" + i + ".no_overlaps"
-
       # count variants in chunk (not including overlaps) and check overlap with ref panel
       call beagleTasks.ExtractUniqueVariantIds as ExtractUniqueVariantsFilteredChunk {
         input:

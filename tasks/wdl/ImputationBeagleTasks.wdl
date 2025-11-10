@@ -50,7 +50,7 @@ task ExtractUniqueVariantIds {
     Int? start
     Int? end
 
-    Int disk_size_gb = ceil(2 * size(vcf, "GiB")) + 10
+    Int disk_size_gb = ceil(size(vcf, "GiB")) + 10
     Int cpu = 1
     Int memory_mb = 4000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
