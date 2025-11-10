@@ -64,11 +64,6 @@ workflow ImputationBeagle {
       gatk_docker = gatk_docker
   }
 
-  call beagleTasks.ExtractUniqueVariantIds as ExtractUniqueVariantsRawInput {
-    input:
-      vcf = multi_sample_vcf
-  }
-
   Array[String] contigs_to_process = CalculateContigsToProcess.contigs_to_process
 
   Float chunkLengthFloat = chunkLength
@@ -90,6 +85,13 @@ workflow ImputationBeagle {
         ref_dict = ref_dict,
         chrom = referencePanelContig.contig,
         ubuntu_docker = ubuntu_docker
+    }
+
+    call beagleTasks.ExtractUniqueVariantIds as ExtractUniqueVariantIdsRawChromosome {
+      input:
+        vcf = CreateVcfIndex.output_vcf,
+        vcf_index = CreateVcfIndex.output_vcf_index,
+        chrom = contig
     }
 
     Int num_chunks = ceil(CalculateChromosomeLength.chrom_length / chunkLengthFloat)
@@ -117,43 +119,30 @@ workflow ImputationBeagle {
 
       String qc_scatter_position_chunk_no_overlaps_basename = referencePanelContig.contig + "_chunk_" + i + ".no_overlaps"
 
-      # generate the chunked vcf file that will be used for chunk checking and metrics, not including overlaps
-      call tasks.GenerateChunk as GenerateChunkNoOverlaps {
-        input:
-          vcf = CreateVcfIndex.output_vcf,
-          vcf_index = CreateVcfIndex.output_vcf_index,
-          start = start,
-          end = end,
-          chrom = referencePanelContig.contig,
-          basename = qc_scatter_position_chunk_no_overlaps_basename,
-          gatk_docker = gatk_docker
-      }
-
+      # count variants in chunk (not including overlaps) and check overlap with ref panel
       call beagleTasks.ExtractUniqueVariantIds as ExtractUniqueVariantsFilteredChunk {
         input:
-          vcf = GenerateChunkNoOverlaps.output_vcf,
+          vcf = GenerateChunk.output_vcf,
+          vcf_index = GenerateChunk.output_vcf_index,
+          chrom = referencePanelContig.contig,
+          start = start,
+          end = end
       }
 
-      call beagleTasks.CountVariantsInChunks {
+      call beagleTasks.CountUniqueVariantIdsInOverlap {
         input:
-          input_variant_ids = ExtractUniqueVariantsFilteredChunk.unique_variant_ids,
-          ref_panel_variant_ids = referencePanelContig.unique_variant_ids
+          variant_ids_1 = ExtractUniqueVariantsFilteredChunk.unique_variant_ids,
+          variant_ids_2 = referencePanelContig.unique_variant_ids
       }
 
       call beagleTasks.CheckChunks {
         input:
-          var_in_original = CountVariantsInChunks.var_in_original,
-          var_also_in_reference = CountVariantsInChunks.var_also_in_reference
+          var_in_original = ExtractUniqueVariantsFilteredChunk.unique_variant_count,
+          var_also_in_reference = CountUniqueVariantIdsInOverlap.var_overlap
       }
     }
 
     Array[File] chunkedVcfsWithOverlapsForImputation = GenerateChunk.output_vcf
-
-    call beagleTasks.CountVariantsInChromosome {
-      input:
-        unique_variant_ids = ExtractUniqueVariantsRawInput.unique_variant_ids,
-        chr = referencePanelContig.contig
-    }
 
     call beagleTasks.CountValidContigChunks {
       input:
@@ -339,11 +328,11 @@ workflow ImputationBeagle {
       chunk_chroms = flatten(chunk_contig),
       starts = flatten(start),
       ends = flatten(end),
-      vars_in_array = flatten(CountVariantsInChunks.var_in_original),
-      vars_in_panel = flatten(CountVariantsInChunks.var_also_in_reference),
+      vars_in_array = flatten(ExtractUniqueVariantsFilteredChunk.unique_variant_count),
+      vars_in_panel = flatten(CountUniqueVariantIdsInOverlap.var_overlap),
       valids = flatten(CheckChunks.valid),
       chroms = contigs_to_process,
-      vars_in_raw_input = CountVariantsInChromosome.n_variants,
+      vars_in_raw_input = ExtractUniqueVariantIdsRawChromosome.unique_variant_count,
       basename = output_basename
   }
   

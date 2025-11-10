@@ -42,15 +42,89 @@ task CalculateContigsToProcess {
 
 }
 
-task CountVariantsInChunks {
+task ExtractUniqueVariantIds {
   input {
-    File input_variant_ids
-    File ref_panel_variant_ids
+    File vcf
+    File vcf_index
+    String? chrom
+    Int? start
+    Int? end
+
+    Int disk_size_gb = ceil(2 * size(vcf, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 4000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+    Int preemptible = 3
+  }
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
+
+  String output_base = basename(vcf, ".vcf.gz")
+
+  String chrom_option = if defined(chrom) then "-L ~{chrom}" else ""
+  String region_option = if defined(chrom) && defined(start) && defined(end) then "-L ~{chrom}:~{start}-~{end}" else chrom_option
+
+  command <<<
+    set -e -o pipefail
+
+    echo "REGION OPTION IS SET TO: "
+    echo ~{region_option}
+
+    # use gatk to stream only the needed interval of the input vcf
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+      SelectVariants \
+      -V ~{vcf} \
+      ~{region_option} \
+      ~{"-select 'POS >= " + start + "'"} \
+      -O selected.vcf.gz
+    
+    # create variant ids file
+    bcftools query -f "%CHROM:%POS:%REF:%ALT\n" selected.vcf.gz | uniq > unique_variants
+    
+    # sort and remove blank lines
+    sort unique_variants | sed '/^$/d' > ~{output_base}.unique_variants.sorted
+
+    # count variants
+    wc -l ~{output_base}.unique_variants.sorted | awk '{print $1}' > var_count
+
+  >>>
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 1
+    noAddress: true
+  }
+
+  parameter_meta {
+    vcf: {
+       description: "vcf",
+       localization_optional: true
+     }
+    vcf_index: {
+       description: "vcf index",
+       localization_optional: true
+     }
+  }
+
+  output {
+    File unique_variant_ids = "~{output_base}.unique_variants.sorted"
+    Int unique_variant_count = read_int("var_count")
+  }
+}
+
+task CountUniqueVariantIdsInOverlap {
+  input {
+    File variant_ids_1
+    File variant_ids_2
 
     String docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
     Int cpu = 1
     Int memory_mb = 16000
-    Int disk_size_gb = ceil(size(input_variant_ids, "GiB") + size(ref_panel_variant_ids, "GiB")) + 10
+    Int disk_size_gb = ceil(size(variant_ids_1, "GiB") + size(variant_ids_2, "GiB")) + 10
   }
 
   Int command_mem = memory_mb - 1500
@@ -59,19 +133,15 @@ task CountVariantsInChunks {
   command <<<
     set -e -o pipefail
 
-    # count variants in original input
-    wc -l ~{input_variant_ids} | awk '{print $1}' > var_in_original
+    sort ~{variant_ids_1}> variant_ids_1_sorted
+    sort ~{variant_ids_2} > variant_ids_2_sorted
 
-    sort ~{input_variant_ids}> input_variant_ids_sorted
-    sort ~{ref_panel_variant_ids} > ref_panel_variant_ids_sorted
-    
     # output lines common to both files, then count them
-    comm -12 input_variant_ids_sorted ref_panel_variant_ids_sorted | wc -l | awk '{print $1}' > var_also_in_reference
+    comm -12 variant_ids_1_sorted variant_ids_2_sorted | wc -l | awk '{print $1}' > var_overlap
   >>>
 
   output {
-    Int var_in_original = read_int("var_in_original")
-    Int var_also_in_reference = read_int("var_also_in_reference")
+    Int var_overlap = read_int("var_overlap")
   }
   runtime {
     docker: docker
@@ -170,27 +240,15 @@ task StoreMetricsInfo {
   command <<<
     python3 << "EOF"
     import pandas as pd
-
-    # Parse input arrays
-    chunk_chroms = ["~{sep='", "' chunk_chroms}"]
-    starts = [~{sep=', ' starts}]
-    ends = [~{sep=', ' ends}]
-    # these are the counts of variants in each chunk
-    vars_in_array = [~{sep=', ' vars_in_array}]
-    vars_in_panel = [~{sep=', ' vars_in_panel}]
-    valids = ["~{sep='", "' valids}"]
-    
-    # Convert string booleans to actual booleans
-    chunk_was_imputed = [v.lower() == "true" for v in valids]
-    
-    # Create DataFrame
+ 
+    # assemble chunk_info DataFrame
     chunk_info = pd.DataFrame({
-        'chrom': chunk_chroms,
-        'start': starts,
-        'end': ends,
-        'var_in_filtered_input': vars_in_array,
-        'var_in_panel': vars_in_panel,
-        'chunk_was_imputed': chunk_was_imputed
+        'chrom': ["~{sep='", "' chunk_chroms}"],
+        'start': [~{sep=', ' starts}],
+        'end': [~{sep=', ' ends}],
+        'var_in_filtered_input': [~{sep=', ' vars_in_array}],
+        'var_in_panel': [~{sep=', ' vars_in_panel}],
+        'chunk_was_imputed': [v.lower() == "true" for v in ["~{sep='", "' valids}"]]
     })
     
     # Filter for failed chunks and drop the chunk_was_imputed column
@@ -204,8 +262,10 @@ task StoreMetricsInfo {
     }).reset_index()
 
     # add raw input counts
-    chroms = ["~{sep='", "' chroms}"]
-    contig_info = pd.DataFrame({'chrom': chroms, 'var_in_raw_input': [~{sep=', ' vars_in_raw_input}]})
+    contig_info = pd.DataFrame({
+        'chrom': ["~{sep='", "' chroms}"], 
+        'var_in_raw_input': [~{sep=', ' vars_in_raw_input}]
+    })
     contig_info = contig_info.merge(contig_info_from_chunks, on='chrom', how='left')
 
     # Write outputs
@@ -937,74 +997,5 @@ task FilterVcfByDR2 {
   output {
     File output_vcf = "~{basename}.vcf.gz"
     File output_vcf_index = "~{basename}.vcf.gz.tbi"
-  }
-}
-
-task ExtractUniqueVariantIds {
-  input {
-    File vcf
-
-    Int disk_size_gb = ceil(2 * size(vcf, "GiB")) + 10
-    Int cpu = 1
-    Int memory_mb = 4000
-    String bcftools_docker = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
-    Int preemptible = 3
-  }
-
-  String output_base = basename(vcf, ".vcf.gz")
-
-  command <<<
-    set -e -o pipefail
-
-    bcftools query -f "%CHROM:%POS:%REF:%ALT\n" ~{vcf} | uniq > ~{output_base}.unique_variants
-    # sort and remove blank lines
-    sort ~{output_base}.unique_variants | sed '/^$/d' > ~{output_base}.unique_variants.sorted
-  >>>
-
-  runtime {
-    docker: bcftools_docker
-    disks: "local-disk ${disk_size_gb} HDD"
-    memory: "${memory_mb} MiB"
-    cpu: cpu
-    preemptible: preemptible
-    maxRetries: 1
-    noAddress: true
-  }
-
-  output {
-    File unique_variant_ids = "~{output_base}.unique_variants.sorted"
-  }
-}
-
-task CountVariantsInChromosome {
-  input {
-    File unique_variant_ids
-    String chr
-
-    Int disk_size_gb = ceil(size(unique_variant_ids, "GiB")) + 10
-    Int cpu = 1
-    Int memory_mb = 4000
-    String docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
-    Int preemptible = 3
-  }
-
-  command <<<
-    set -e -o pipefail
-
-    cat ~{unique_variant_ids} | grep ~{chr} | wc -l | awk '{print $1}' > n_variants
-  >>>
-
-  runtime {
-    docker: docker
-    disks: "local-disk ${disk_size_gb} HDD"
-    memory: "${memory_mb} MiB"
-    cpu: cpu
-    preemptible: preemptible
-    maxRetries: 1
-    noAddress: true
-  }
-
-  output {
-    Int n_variants = read_int("n_variants")
   }
 }
