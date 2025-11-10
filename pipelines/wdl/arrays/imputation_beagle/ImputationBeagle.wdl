@@ -100,9 +100,9 @@ workflow ImputationBeagle {
       String chunk_contig = referencePanelContig.contig
 
       Int start = (i * chunkLength) + 1
-      Int startWithOverlaps = if ((start - chunkOverlaps) < 1) then 1 else (start - chunkOverlaps)
+      Int startWithOverlaps = if (start - chunkOverlaps < 1) then 1 else start - chunkOverlaps
       Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
-      Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < (end + chunkOverlaps)) then CalculateChromosomeLength.chrom_length else (end + chunkOverlaps)
+      Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < end + chunkOverlaps) then CalculateChromosomeLength.chrom_length else end + chunkOverlaps
       String qc_scatter_position_chunk_basename = referencePanelContig.contig + "_chunk_" + i
 
       # generate the chunked vcf file that will be used for imputation, including overlaps
