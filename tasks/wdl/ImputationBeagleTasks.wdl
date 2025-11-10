@@ -268,6 +268,10 @@ task StoreMetricsInfo {
     })
     contig_info = contig_info.merge(contig_info_from_chunks, on='chrom', how='left')
 
+    # add columns for percent_passing_filter and percent_overlap_with_panel, rounded to two decimal places
+    contig_info['percent_passing_filter'] = round(contig_info['var_in_filtered_input'] / contig_info['var_in_raw_input'] * 100, 2)
+    contig_info['percent_overlap_with_panel'] = round(contig_info['var_in_panel'] / contig_info['var_in_filtered_input'] * 100, 2)
+
     # Write outputs
     chunk_info.to_csv("~{basename}_chunk_info.tsv", sep='\t', index=False)
     failed_chunks.to_csv("~{basename}_failed_chunks.tsv", sep='\t', index=False)
