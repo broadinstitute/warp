@@ -319,6 +319,9 @@ task BuildStarSingleNucleus {
         print
       }' "$GTF_FILE" > fixed_annotation.gtf
 
+    head fixed_annotation.gtf
+    tail fixed_annotation.gtf
+
     # Use the fixed GTF for downstream processing
     GTF_FILE="fixed_annotation.gtf"
     echo "GTF gene_name fix complete"
