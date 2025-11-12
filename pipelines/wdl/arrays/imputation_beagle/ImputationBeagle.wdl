@@ -11,8 +11,8 @@ workflow ImputationBeagle {
 
   input {
     Int chunkLength = 25000000
-    Int chunkOverlaps = 2000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
-    Int sample_chunk_size = 1000 # this is the number of samples that will be processed in parallel in each chunked scatter
+    Int chunkOverlaps = 2000000 # the padding that will be added to the beginning and end of each chunk to reduce edge effects
+    Int sample_chunk_size = 1000 # the number of samples that will be processed in parallel in each chunked scatter
 
     File multi_sample_vcf
 
@@ -74,7 +74,7 @@ workflow ImputationBeagle {
     String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.withchr.map"
 
     ReferencePanelContig referencePanelContig = {
-      "bref3": reference_basename  + bref3_suffix,
+      "bref3": reference_basename + bref3_suffix,
       "contig": contig,
       "genetic_map": genetic_map_filename,
       "unique_variant_ids": reference_basename + unique_variant_ids_suffix
