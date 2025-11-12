@@ -1,5 +1,5 @@
 # 2.3.0
-2025-10-10 (Date of Last Commit)
+2025-11-10 (Date of Last Commit)
 
 * Perform chunk QC on chunks without padding, rather than chunks with padding
 * Add a new contigs_info output containing contig-wide metrics. New/changed tasks to support this:
