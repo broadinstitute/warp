@@ -1,3 +1,6 @@
+# aou_9.0.0
+* Added a string for pipeline version; this version is used for All of Us processing of the V9 release.
+
 # beta release
 2025-08-07 (Date of Last Commit)
 

@@ -78,7 +78,7 @@ workflow MitochondriaPipeline {
         Int? n_cpu_bwa
         Int? preemptible_tries
     }
-    String pipeline_version = "beta_0.0.0"
+    String pipeline_version = "aou_9.0.0"
 
     parameter_meta {
         wgs_aligned_input_bam_or_cram: "Full WGS hg38 bam or cram"
