@@ -16,7 +16,7 @@ workflow ImputationBeagle {
 
     File multi_sample_vcf
 
-    File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
+    File ref_dict # for reheadering / adding contig lengths in the header of the output VCF, and calculating contig lengths
     Array[String] contigs # list of possible contigs that will be processed. note the workflow will not error out if any of these contigs are missing
     String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
