@@ -1003,3 +1003,77 @@ task FilterVcfByDR2 {
     File output_vcf_index = "~{basename}.vcf.gz.tbi"
   }
 }
+
+task SelectVariantRecordsOnly {
+  input {
+    File vcf
+    File vcf_index
+    String basename
+
+    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 6000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+  }
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
+
+  command {
+    set -e -o pipefail
+
+    bcftools view -i 'GT[*]="alt"' -Oz -o ~{basename}.vcf.gz ~{vcf}
+
+    bcftools index -t ~{basename}.vcf.gz
+  }
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} SSD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    maxRetries: 1
+    noAddress: true
+  }
+
+  output {
+    File output_vcf = "~{basename}.vcf.gz"
+    File output_vcf_index = "~{basename}.vcf.gz.tbi"
+  }
+}
+
+task CreateHomRefSitesOnlyVcf {
+  input {
+    File vcf
+    File vcf_index
+    String basename
+
+    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 6000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+  }
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
+
+  command {
+    set -e -o pipefail
+
+    bcftools query -i 'GT[*]="alt"' query -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO/DR2\n' -Oz -o ~{basename}.vcf.gz ~{vcf}
+
+    bcftools index -t ~{basename}.vcf.gz
+  }
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} SSD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    maxRetries: 1
+    noAddress: true
+  }
+
+  output {
+    File output_vcf = "~{basename}.vcf.gz"
+    File output_vcf_index = "~{basename}.vcf.gz.tbi"
+  }
+}
