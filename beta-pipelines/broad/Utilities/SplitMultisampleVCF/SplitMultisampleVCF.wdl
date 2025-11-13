@@ -14,16 +14,11 @@ workflow SplitMultiSampleVcfWorkflow {
         # Optional parameters w/ defaults
         Boolean createIndexFiles = true
         Int chunkSize = 1000
-        Int cpu = 1
-        Int memoryMb = 6000
         String bcftoolsDocker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
-        Int? diskSizeGb
     }
 
     String pipeline_version = "2.0.0"
     String gsutil_docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:525.0.0"
-    Int calculated_disk_size = ceil(21*chunkSize*size(multiSampleVcf, "GiB")/(chunkSize+20)) + 10
-    Int disk_size = select_first([calculated_disk_size, diskSizeGb]) # Default disk size if not provided
 
     parameter_meta {
         multiSampleVcf: "Input multi-sample VCF file to be split"
@@ -40,10 +35,7 @@ workflow SplitMultiSampleVcfWorkflow {
     call ExtractSamplesFromMultiSampleVcf {
         input:
             multiSampleVcf = multiSampleVcf,
-            docker = bcftoolsDocker,
-            cpu = cpu,
-            memoryMb = memoryMb,
-            diskSizeGb = disk_size
+            docker = bcftoolsDocker
     }
 
     # TWO: Break up the extracted samples by the chunk size (and create an output with samples included in each chunk)
@@ -51,10 +43,7 @@ workflow SplitMultiSampleVcfWorkflow {
         input:
             sampleListFile = ExtractSamplesFromMultiSampleVcf.sampleIdFile,
             chunkSize = chunkSize,
-            docker = bcftoolsDocker,
-            cpu = cpu,
-            memoryMb = memoryMb,
-            diskSizeGb = disk_size
+            docker = bcftoolsDocker
     }
 
 
@@ -68,10 +57,7 @@ workflow SplitMultiSampleVcfWorkflow {
                 chunkedSampleFile = chunkedSampleFile,
                 multiSampleVcf = multiSampleVcf,
                 createIndexFiles = createIndexFiles,
-                docker = bcftoolsDocker,
-                cpu = cpu,
-                memoryMb = memoryMb,
-                diskSizeGb = disk_size
+                docker = bcftoolsDocker
         }
 
         # FOUR: Copy each chunk's output files to the destination
@@ -83,10 +69,7 @@ workflow SplitMultiSampleVcfWorkflow {
                 vcfTar = ExtractSingleSampleVcfs.vcfTar,
                 vcfIndexTar = ExtractSingleSampleVcfs.vcfIndexTar,
                 createIndexFiles = createIndexFiles,
-                docker = gsutil_docker,
-                cpu = cpu,
-                memoryMb = memoryMb,
-                diskSizeGb = disk_size
+                docker = gsutil_docker
         }
     }
 }
@@ -96,17 +79,11 @@ task ExtractSamplesFromMultiSampleVcf {
   input {
     File multiSampleVcf
     String docker
-    Int cpu
-    Int memoryMb
-    Int diskSizeGb
   }
 
   parameter_meta {
     multiSampleVcf: "Input multi-sample VCF file to be split"
     docker: "Docker image containing bcftools (default: us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889)"
-    cpu: "Number of CPU cores to allocate for each task (default: 1)"
-    memoryMb: "Memory allocation in megabytes (default: 6000)"
-    diskSizeGb:  "Disk space in gigabytes"
   }
 
   command <<<
@@ -120,9 +97,10 @@ task ExtractSamplesFromMultiSampleVcf {
 
   runtime {
     docker: docker
-    cpu: cpu
-    memory: "${memoryMb} MiB"
-    disks: "local-disk ${diskSizeGb} SSD"
+    cpu: 1
+    cpuPlatform: "Intel Ice Lake"
+    memory:  "2 GB"
+    disks: "local-disk 50 SSD"
   }
 }
 
@@ -131,18 +109,12 @@ task ProcessSampleList {
     File sampleListFile
     Int chunkSize
     String docker
-    Int cpu
-    Int memoryMb
-    Int diskSizeGb
   }
 
   parameter_meta {
     sampleListFile: "File containing ALL sample IDs extracted from the multi-sample VCF"
     chunkSize: "Number of samples to process in each chunk (default: 1000)"
-    cpu: "Number of CPU cores to allocate for each task (default: 1)"
-    memoryMb: "Memory allocation in megabytes (default: 6000)"
     docker: "Docker image containing bcftools (default: us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889)"
-    diskSizeGb:  "Disk space in gigabytes"
   }
 
   command <<<
@@ -171,10 +143,11 @@ task ProcessSampleList {
   }
 
   runtime {
-    cpu: cpu
-    memory: "${memoryMb} MiB"
     docker: docker
-    disks: "local-disk ${diskSizeGb} SSD"
+    cpu: 1
+    cpuPlatform: "Intel Ice Lake"
+    memory:  "2 GB"
+    disks: "local-disk 50 SSD"
   }
 }
 
@@ -185,9 +158,6 @@ task ExtractSingleSampleVcfs {
     File multiSampleVcf
     Boolean createIndexFiles
     String docker
-    Int cpu
-    Int memoryMb
-    Int diskSizeGb
   }
 
   parameter_meta {
@@ -196,9 +166,6 @@ task ExtractSingleSampleVcfs {
     multiSampleVcf: "Input multi-sample VCF file to be split"
     createIndexFiles: "Whether index files should be created for each individual VCF"
     docker: "Docker image containing bcftools (default: us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889)"
-    cpu: "Number of CPU cores to allocate for each task (default: 1)"
-    memoryMb: "Memory allocation in megabytes (default: 6000)"
-    diskSizeGb:  "Disk space in gigabytes"
   }
 
   command <<<
@@ -257,11 +224,11 @@ task ExtractSingleSampleVcfs {
   }
 
   runtime {
-    cpu: cpu
-    memory: "${memoryMb} MiB"
     docker: docker
-    disks: "local-disk ${diskSizeGb} SSD"
-    noAddress: true
+    cpu: 8
+    cpuPlatform: "Intel Ice Lake"
+    memory:  "16 GB"
+    disks: "local-disk 50 SSD"
   }
 }
 
@@ -275,9 +242,6 @@ task RenameAndCopyFilesToDestination {
         File vcfIndexTar
         Boolean createIndexFiles
         String docker
-        Int cpu
-        Int memoryMb
-        Int diskSizeGb
     }
 
     parameter_meta {
@@ -288,9 +252,6 @@ task RenameAndCopyFilesToDestination {
         vcfIndexTar: "Tar file of all VCF index file paths to be copied to output destinatino"
         createIndexFiles: "Whether index files should be created for each individual VCF"
         docker: "Docker image containing gsutil"
-        cpu: "Number of CPU cores to allocate for each task (default: 1)"
-        memoryMb: "Memory allocation in megabytes (default: 6000)"
-        diskSizeGb:  "Disk space in gigabytes"
     }
 
     command <<<
@@ -392,10 +353,10 @@ task RenameAndCopyFilesToDestination {
     >>>
 
   runtime {
-    cpu: cpu
-    memory: "${memoryMb} MiB"
     docker: docker
-    noAddress: true
-    disks: "local-disk ${diskSizeGb} SSD"
+    cpu: 2
+    cpuPlatform: "Intel Ice Lake"
+    memory:  "4 GB"
+    disks: "local-disk 50 SSD"
   }
 }
