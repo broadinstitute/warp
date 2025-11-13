@@ -173,6 +173,10 @@ workflows:
     primaryDescriptorPath: /beta-pipelines/broad/Utilities/SplitMultisampleVCF/SplitMultisampleVCF.wdl
     readMePath: /beta-pipelines/broad/Utilities/SplitMultisampleVCF/README.md
 
+  - name: SusieR_Workflow
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/susieR_workflow.wdl
+  
   - name: TestArrayImputationQC
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestArrayImputationQC.wdl
