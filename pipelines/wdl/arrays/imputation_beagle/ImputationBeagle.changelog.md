@@ -1,3 +1,10 @@
+# 3.0.0
+2026-02-10 (Date of Last Commit)
+
+### Breaking changes
+* Imputed homozygous reference sites have been removed from the `imputed_multi_sample_vcf` output.
+* Imputed homozygous reference sites are available in a new sites-only VCF output `imputed_hom_ref_sites_only_vcf`
+
 # 2.5.1
 2026-2-04 (Date of Last Commit)
 
@@ -102,7 +109,6 @@ anymore.
 ### Additional changes
 * Use SSD for tasks that localize large files to help with performance on Google Batch.
 * Add maxRetries to all tasks to help with performance on Google Batch.
-
 
 # 1.0.2
 2025-04-07 (Date of Last Commit)
