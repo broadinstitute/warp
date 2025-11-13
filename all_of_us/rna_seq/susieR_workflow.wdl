@@ -69,7 +69,7 @@ task PrepInputs {
     >>>
     
     runtime {
-        docker: "quay.io/biocontainers/htslib@sha256:ff9d466929dc2d587128afc213fc4516d"
+        docker: "quay.io/biocontainers/htslib@sha256:ff9d466929dc2d587128afc213fc4516d936ccc5e7fa39f39d3769f76b471293"
         disks: "local-disk 500 SSD"
         preemptible: "${NumPrempt}"
         memory: "2GB"
