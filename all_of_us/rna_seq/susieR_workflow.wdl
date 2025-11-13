@@ -180,7 +180,7 @@ workflow susieR_workflow {
         String OutputPrefix
         String PhenotypeID
     }
-    String pipeline_version = "aou_9.0.0""
+    String pipeline_version = "aou_9.0.0"
 
     call PrepInputs {
         input:
