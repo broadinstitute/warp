@@ -302,9 +302,25 @@ workflow ImputationBeagle {
           pipeline_header_line = defined_pipeline_header_line,
           gatk_docker = gatk_docker
       }
+
+      call beagleTasks.SelectVariantRecordsOnly {
+        input:
+          vcf = UpdateHeader.output_vcf,
+          vcf_index = UpdateHeader.output_vcf_index,
+          basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header.only_variants",
+      }
+
+      call beagleTasks.CreateHomRefSitesOnlyVcf {
+        input:
+          vcf = UpdateHeader.output_vcf,
+          vcf_index = UpdateHeader.output_vcf_index,
+          basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header.only_hom_ref.sites_only",
+      }
+
     }
 
-    Array[File] chromosome_vcfs = select_all(UpdateHeader.output_vcf)
+    Array[File] chromosome_vcfs = select_all(SelectVariantRecordsOnly.output_vcf)
+    Array[File] chromosome_hom_ref_sites_only_vcfs = select_all(CreateHomRefSitesOnlyVcf.output_vcf)
   }
 
   call beagleTasks.GatherVcfsNoIndex {
@@ -319,6 +335,19 @@ workflow ImputationBeagle {
       vcf_input = GatherVcfsNoIndex.output_vcf,
       gatk_docker = gatk_docker,
       preemptible = 0
+  }
+
+  call beagleTasks.GatherVcfsNoIndex as GatherHomRefSitesOnlyVcfs {
+    input:
+      input_vcfs = flatten(chromosome_hom_ref_sites_only_vcfs),
+      output_vcf_basename = output_basename + ".imputed.hom_ref_sites_only",
+      gatk_docker = gatk_docker
+  }
+
+  call beagleTasks.CreateVcfIndex as CreateIndexForGatheredVcfHomRefSitesOnly {
+    input:
+      vcf_input = GatherHomRefSitesOnlyVcfs.output_vcf,
+      gatk_docker = gatk_docker,
   }
 
   call beagleTasks.StoreMetricsInfo {
@@ -337,6 +366,8 @@ workflow ImputationBeagle {
   output {
     File imputed_multi_sample_vcf = CreateIndexForGatheredVcf.output_vcf
     File imputed_multi_sample_vcf_index = CreateIndexForGatheredVcf.output_vcf_index
+    File imputed_hom_ref_sites_only_vcf = CreateIndexForGatheredVcfHomRefSitesOnly.output_vcf
+    File imputed_hom_ref_sites_only_vcf_index = CreateIndexForGatheredVcfHomRefSitesOnly.output_vcf_index
     File chunks_info = StoreMetricsInfo.chunks_info
     File contigs_info = StoreMetricsInfo.contigs_info
   }
