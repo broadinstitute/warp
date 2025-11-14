@@ -225,10 +225,10 @@ task ExtractSingleSampleVcfs {
 
   runtime {
     docker: docker
-    cpu: 8
+    cpu: 4
     cpuPlatform: "Intel Ice Lake"
     memory:  "16 GB"
-    disks: "local-disk 50 SSD"
+    disks: "local-disk 200 SSD"
   }
 }
 
@@ -354,9 +354,9 @@ task RenameAndCopyFilesToDestination {
 
   runtime {
     docker: docker
-    cpu: 2
+    cpu: 4
     cpuPlatform: "Intel Ice Lake"
     memory:  "4 GB"
-    disks: "local-disk 50 SSD"
+    disks: "local-disk 200 SSD"
   }
 }
