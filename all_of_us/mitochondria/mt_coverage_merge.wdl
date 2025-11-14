@@ -154,25 +154,29 @@ task process_tsv_files {
         df = pd.read_csv("~{input_tsv}", sep="\t")
 
         # Define only the required columns
-        columns_needed = ["research_id", "final_base_level_coverage_metrics", "sample", "final_vcf"]
-
+        columns_needed = ["contamination", 
+                          "coverage_metrics", 
+                          "final_base_level_coverage_metrics", 
+                          "major_haplogroup",
+                          "mean_coverage", 
+                          "median_coverage", 
+                          "mtdna_consensus_overlaps",
+                          "mt_final_vcf", 
+                          "research_id",
+                          "sample"] 
+        
         # Keep only necessary columns
-        filtered_df = df
+        filtered_df = df[columns_needed]
 
         # Add and rename columns
         filtered_df["s"] = filtered_df["research_id"]
         filtered_df = filtered_df.rename(columns={
-        "research_id": "participant_id",
+            "research_id": "entity:participant_id",
             "final_base_level_coverage_metrics": "coverage",
-            "mt_final_vcf": "final_vcf"
-        })
-        filtered_df_2 = filtered_df.rename(columns={
-            "participant_id": "entity:participant_id",
             "mean_coverage": "mt_mean_coverage",
             "median_coverage": "mt_median_coverage",
             "mt_final_vcf": "final_vcf"
         })
-        filtered_df_2["freemix_percentage"] = 0
 
         # Load additional TSV files
         coveragetsv_df = pd.read_csv("~{coverage_tsv}", sep="\t")
@@ -180,44 +184,50 @@ task process_tsv_files {
         dobtsv_df = pd.read_csv("~{dob_tsv}", sep="\t")
 
         # Merge with filtered_df on 'research_id' and 's'
-        filtered_df_2 = filtered_df_2.merge(
-            coveragetsv_df[['research_id', 'mean_coverage', 'biosample_collection_date']],
-        left_on='s', right_on='research_id', how='left'
+        filtered_df = filtered_df.merge(
+            coveragetsv_df[['research_id', 'mean_coverage', 'biosample_collection_date', 'verify_bam_id2_contamination']],
+            left_on='s', right_on='research_id', how='left'
         )
-        filtered_df_2.drop(columns=['research_id'], inplace=True)
-        filtered_df_2 = filtered_df_2.merge(
+        filtered_df.drop(columns=['research_id'], inplace=True)
+        filtered_df = filtered_df.merge(
             ancestrytsv_df[['research_id', 'ancestry_pred']],
             left_on='s', right_on='research_id', how='left'
         )
-        filtered_df_2.drop(columns=['research_id'], inplace=True)
-        filtered_df_2 = filtered_df_2.merge(
+        filtered_df.drop(columns=['research_id'], inplace=True)
+        filtered_df = filtered_df.merge(
             dobtsv_df[['research_id', 'date_of_birth']],
             left_on='s', right_on='research_id', how='left'
         )
-        filtered_df_2.drop(columns=['research_id'], inplace=True)
+        filtered_df.drop(columns=['research_id'], inplace=True)
 
         # Calculate age
-        filtered_df_2['date_of_birth'] = pd.to_datetime(filtered_df_2['date_of_birth'])
-        filtered_df_2['biosample_collection_date'] = pd.to_datetime(filtered_df_2['biosample_collection_date'])
-        filtered_df_2['age'] = pd.to_numeric(
-            np.floor((filtered_df_2['biosample_collection_date'] - filtered_df_2['date_of_birth']).dt.days / 365)
+        filtered_df['date_of_birth'] = pd.to_datetime(filtered_df['date_of_birth'])
+        filtered_df['biosample_collection_date'] = pd.to_datetime(filtered_df['biosample_collection_date'])
+        filtered_df['age'] = pd.to_numeric(
+            np.floor((filtered_df['biosample_collection_date'] - filtered_df['date_of_birth']).dt.days / 365)
         )
-        filtered_df_2['age'] = filtered_df_2['age'].fillna(39).astype(int)
+        # commenting this out, since we want to test what happens with missing ages
+        #filtered_df['age'] = filtered_df['age'].fillna(39).astype(int)
+
+        # we will rename the verify_bam_id2_contamination to freemix_percentage instead of setting to 0 
+        #filtered_df["freemix_percentage"] = 0 
 
         # Rename columns for compatibility
-        filtered_df_2.rename(columns={"mean_coverage": "wgs_mean_coverage"}, inplace=True)
-        filtered_df_2.rename(columns={"ancestry_pred": "pop"}, inplace=True)
+        filtered_df.rename(columns={"mean_coverage": "wgs_mean_coverage"}, inplace=True)
+        filtered_df.rename(columns={"ancestry_pred": "pop"}, inplace=True)
+        filtered_df.rename(columns={"verify_bam_id2_contamination": "freemix_percentage"}, inplace=True)
 
-        # Temporary workaround
-        filtered_df_2["wgs_median_coverage"] = filtered_df_2["wgs_mean_coverage"]
+
+        # Temporary workaround - we are working on getting the real values from the Dragen metrics
+        filtered_df["wgs_median_coverage"] = filtered_df["wgs_mean_coverage"]
 
         # Filter rows with valid coverage metrics
-        filtered_df_2 = filtered_df_2[
-            (filtered_df_2['coverage_metrics'].notna()) & (filtered_df_2['coverage_metrics'] != '')
+        filtered_df = filtered_df[
+            (filtered_df['coverage_metrics'].notna()) & (filtered_df['coverage_metrics'] != '')
         ]
 
         # Save the processed DataFrame to a TSV file
-        filtered_df_2.to_csv("~{output_tsv_name}", sep="\t", index=False)
+        filtered_df.to_csv("~{output_tsv_name}", sep="\t", index=False)
         EOF
     >>>
 
@@ -286,9 +296,9 @@ task annotate_coverage {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
-        memory: "{memory_gb} GB"
-        cpu: "{cpu} "
-        disks: "local-disk {disk_gb} {disk_type}"
+        memory: memory_gb + " GB" 
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " " + disk_type 
         cpu_platform: cpu_platform
     }
 }
@@ -357,9 +367,9 @@ task combine_vcfs {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
-        memory: "{memory_gb} GB"
-        cpu: "{cpu} "
-        disks: "local-disk {disk_gb} {disk_type}"
+        memory: memory_gb + " GB" 
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " " + disk_type 
         cpu_platform: cpu_platform
     }
 }
@@ -423,9 +433,9 @@ task add_annotations {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
-        memory: "{memory_gb} GB"
-        cpu: "{cpu} "
-        disks: "local-disk {disk_gb} {disk_type}"
+        memory: memory_gb + " GB" 
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " " + disk_type 
         cpu_platform: cpu_platform
     }
 }
