@@ -1058,9 +1058,11 @@ task CreateHomRefSitesOnlyVcf {
   command {
     set -e -o pipefail
 
-    bcftools view -h ~{vcf} > ~{basename}.vcf
+    # create header with only first 8 columns
+    bcftools view -h ~{vcf} | grep "^##" > ~{basename}.vcf
+    bcftools view -h ~{vcf} | grep -v "^##" | cut -f1-8 >> ~{basename}.vcf
 
-    bcftools query -e 'GT[*]="alt"' -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO\n' ~{vcf} >> ~{basename}.vcf
+    bcftools query -e 'GT[*]="alt"' -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO/DR2\n' ~{vcf} >> ~{basename}.vcf
 
     bgzip ~{basename}.vcf
 
