@@ -1058,7 +1058,11 @@ task CreateHomRefSitesOnlyVcf {
   command {
     set -e -o pipefail
 
-    bcftools query -i 'GT[*]="alt"' query -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO/DR2\n' -Oz -o ~{basename}.vcf.gz ~{vcf}
+    bcftools view -h ~{vcf} > ~{basename}.vcf
+
+    bcftools query -e 'GT[*]="alt"' -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO/DR2\n' ~{vcf} >> ~{basename}.vcf
+
+    bgzip ~{basename}.vcf
 
     bcftools index -t ~{basename}.vcf.gz
   }
