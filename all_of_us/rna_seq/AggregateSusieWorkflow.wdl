@@ -20,7 +20,7 @@ task AggregateSusie{
 
     # Write the new local file paths into filelist.txt
     echo "Listing files in localized directory:"
-    ls -1 "$(pwd)/localized/*" > filelist.txt
+    ls -1 "$(pwd)/localized/*"
 
     echo "Creating file_paths.txt with local file paths:"
     ls -1 "$(pwd)/localized/*" > filelist.txt
