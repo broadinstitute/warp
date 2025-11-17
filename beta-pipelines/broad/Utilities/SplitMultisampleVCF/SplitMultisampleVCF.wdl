@@ -100,7 +100,7 @@ task ExtractSamplesFromMultiSampleVcf {
     cpu: 1
     cpuPlatform: "Intel Ice Lake"
     memory:  "2 GB"
-    disks: "local-disk 50 SSD"
+    disks: "local-disk 200 SSD"
   }
 }
 
@@ -147,7 +147,7 @@ task ProcessSampleList {
     cpu: 1
     cpuPlatform: "Intel Ice Lake"
     memory:  "2 GB"
-    disks: "local-disk 50 SSD"
+    disks: "local-disk 200 SSD"
   }
 }
 
