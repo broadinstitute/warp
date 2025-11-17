@@ -1,7 +1,5 @@
 version 1.0
 
-
-
 task AggregateSusie{
     input{
         #Array[File] SusieParquets

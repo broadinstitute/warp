@@ -7,7 +7,7 @@ workflows:
   
   - name: AggregateSusieWorkflow
     subclass: WDL
-    primaryDescriptorPath: /all_of_us/rna_seq/AggregateSusieWorkflow.w
+    primaryDescriptorPath: /all_of_us/rna_seq/AggregateSusieWorkflow.wdl
   
   - name: ArrayImputationQuotaConsumed
     subclass: WDL
