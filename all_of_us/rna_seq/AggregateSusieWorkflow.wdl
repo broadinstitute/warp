@@ -12,21 +12,27 @@ task AggregateSusie{
     command <<<
     export GSUTIL_PARALLEL_PROCESS_COUNT=32
     export GSUTIL_PARALLEL_THREAD_COUNT=8
+    mkdir parquet_inputs
+    while read path; do
+        gsutil -m cp "${path}" parquet_inputs/
+    done < ~{SusieParquetsFOFN}
 
-    awk '{print $1}' ~{SusieParquetsFOFN} | grep -v '^$' > file_paths.txt 
+    parquet_files=(parquet_inputs/*)
+    printf "%s\n" ${parquet_files[@]} > parquet_file_list.txt
+    # awk '{print $1}' ~{SusieParquetsFOFN} | grep -v '^$' > file_paths.txt 
 
-    mkdir -p localized
-    gsutil -m cp -I localized/ < file_paths.txt 
+    # mkdir -p localized
+    # gsutil -m cp -I localized/ < file_paths.txt 
 
-    # Write the new local file paths into filelist.txt
-    echo "Listing files in localized directory:"
-    ls -1 "$(pwd)/localized/*"
+    # # Write the new local file paths into filelist.txt
+    # echo "Listing files in localized directory:"
+    # ls -1 "$(pwd)/localized/*"
 
-    echo "Creating file_paths.txt with local file paths:"
-    ls -1 "$(pwd)/localized/*" > filelist.txt
+    # echo "Creating file_paths.txt with local file paths:"
+    # ls -1 "$(pwd)/localized/*" > filelist.txt
     
     echo "Running R script"
-    Rscript /tmp/merge_susie.R --FilePaths file_paths.txt  --OutputPrefix ~{OutputPrefix}
+    Rscript /tmp/merge_susie.R --FilePaths parquet_file_list.txt  --OutputPrefix ~{OutputPrefix}
     >>>
 
     runtime {
@@ -41,7 +47,7 @@ task AggregateSusie{
     output {
         File MergedSusieParquet = "${OutputPrefix}_SusieMerged.parquet" 
         File MergedSusieTsv = "${OutputPrefix}_SusieMerged.tsv.gz"
-        File FileList = "filelist.txt" 
+        File FileList = "parquet_file_list.txt" 
     } 
 
 }
