@@ -11,9 +11,17 @@ task AggregateSusie{
 
     command <<<
     mkdir parquet_inputs
-    while read path; do
-        gsutil -m cp "${path}" parquet_inputs/
-    done < ~{SusieParquetsFOFN}
+    # while read path; do
+    #     gsutil -m cp "${path}" parquet_inputs/
+    # done < ~{SusieParquetsFOFN}
+
+    echo $(date +"[%b %d %H:%M:%S]")
+    echo parallel copy start
+    # Single invocation, reads entire list from STDIN
+    gsutil -m cp -I parquet_inputs/ < ~{SusieParquetsFOFN}
+    echo $(date +"[%b %d %H:%M:%S]")
+    echo parallel copy done
+
 
     parquet_files=(parquet_inputs/*)
     printf "%s\n" ${parquet_files[@]} > parquet_file_list.txt
