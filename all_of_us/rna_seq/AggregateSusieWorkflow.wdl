@@ -19,7 +19,13 @@ task AggregateSusie{
     gsutil -m cp -I localized/ < file_paths.txt 
 
     # Write the new local file paths into filelist.txt
+    echo "Listing files in localized directory:"
     ls -1 "$(pwd)/localized/*" > filelist.txt
+
+    echo "Creating file_paths.txt with local file paths:"
+    ls -1 "$(pwd)/localized/*" > filelist.txt
+    
+    echo "Running R script"
     Rscript /tmp/merge_susie.R --FilePaths file_paths.txt  --OutputPrefix ~{OutputPrefix}
     >>>
 
@@ -34,7 +40,8 @@ task AggregateSusie{
 
     output {
         File MergedSusieParquet = "${OutputPrefix}_SusieMerged.parquet" 
-        File MergedSusieTsv = "${OutputPrefix}_SusieMerged.tsv.gz" 
+        File MergedSusieTsv = "${OutputPrefix}_SusieMerged.tsv.gz"
+        File FileList = "filelist.txt" 
     } 
 
 }
