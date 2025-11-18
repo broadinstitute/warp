@@ -200,6 +200,10 @@ task process_tsv_files {
         )
         filtered_df.drop(columns=['research_id'], inplace=True)
 
+        # Add a check to ensure that our filtered_df has the same number of samples (shape[0]) as the original df
+        if filtered_df.shape[0] != df.shape[0]:
+            raise ValueError("Filtered DataFrame does not have the same number of samples as the original.")
+
         # Calculate age
         filtered_df['date_of_birth'] = pd.to_datetime(filtered_df['date_of_birth'])
         filtered_df['biosample_collection_date'] = pd.to_datetime(filtered_df['biosample_collection_date'])
@@ -254,10 +258,10 @@ task annotate_coverage {
         Int? split_merging = 10  # Number of jobs for splitting merging (default: 1)
 
         # Runtime parameters
-        Int memory_gb = 1000
-        Int cpu = 64
-        Int disk_gb = 2000
-        String disk_type = "SSD"
+        Int memory_gb = 32 #1000
+        Int cpu = 4 #64
+        Int disk_gb = 500 #2000
+        String disk_type = "HDD" #"SSD"
         String cpu_platform = "Intel Ice Lake"
     }
 
@@ -315,10 +319,10 @@ task combine_vcfs {
         String file_name        # Output file name
 
         # Runtime parameters
-        Int memory_gb = 1000
-        Int cpu = 64
-        Int disk_gb = 2000
-        String disk_type = "SSD"
+        Int memory_gb = 32 #1000
+        Int cpu = 4 #64
+        Int disk_gb = 500 #2000
+        String disk_type = "HDD" #"SSD"
         String cpu_platform = "Intel Ice Lake"
     }
 
@@ -383,10 +387,10 @@ task add_annotations {
         String output_name      # directory output name
         
         # Runtime parameters
-        Int memory_gb = 1000
-        Int cpu = 64
-        Int disk_gb = 2000
-        String disk_type = "SSD"
+        Int memory_gb = 32 #1000
+        Int cpu = 4 #64
+        Int disk_gb = 500 #2000
+        String disk_type = "HDD" #"SSD"
         String cpu_platform = "Intel Ice Lake"
     }
 
