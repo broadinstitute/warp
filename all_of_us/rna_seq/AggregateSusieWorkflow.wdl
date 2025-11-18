@@ -10,50 +10,34 @@ task AggregateSusie{
     }
 
     command <<<
-    mkdir parquet_inputs
-    # while read path; do
-    #     gsutil -m cp "${path}" parquet_inputs/
-    # done < ~{SusieParquetsFOFN}
+    export GSUTIL_PARALLEL_PROCESS_COUNT=32
+    export GSUTIL_PARALLEL_THREAD_COUNT=8
 
-    echo $(date +"[%b %d %H:%M:%S]")
-    echo parallel copy start
-    # Single invocation, reads entire list from STDIN
-    gsutil -m cp -I parquet_inputs/ < ~{SusieParquetsFOFN}
-    echo $(date +"[%b %d %H:%M:%S]")
-    echo parallel copy done
+    awk '{print $1}' ~{SusieParquetsFOFN} | grep -v '^$' > file_paths.txt 
 
+    mkdir -p localized
+    gsutil -m cp -I localized/ < file_paths.txt 
 
-    parquet_files=(parquet_inputs/*)
-    printf "%s\n" ${parquet_files[@]} > parquet_file_list.txt
-    # awk '{print $1}' ~{SusieParquetsFOFN} | grep -v '^$' > file_paths.txt 
-
-    # mkdir -p localized
-    # gsutil -m cp -I localized/ < file_paths.txt 
-
-    # # Write the new local file paths into filelist.txt
-    # echo "Listing files in localized directory:"
-    # ls -1 "$(pwd)/localized/*"
-
-    # echo "Creating file_paths.txt with local file paths:"
-    # ls -1 "$(pwd)/localized/*" > filelist.txt
-    
-    echo "Running R script"
-    Rscript /tmp/merge_susie.R --FilePaths parquet_file_list.txt  --OutputPrefix ~{OutputPrefix}
+    # Write the new local file paths into filelist.txt
+    ls -1 "$(pwd)/localized/*" > filelist.txt
+    Rscript /tmp/merge_susie.R --FilePaths file_paths.txt  --OutputPrefix ~{OutputPrefix}
     >>>
 
     runtime {
-        docker: "ekiernan/aggregate_susie:v1"
+    # the docker sha that the workflow ran with is:
+    # ghcr.io/aou-multiomics-analysis/aggregate_susie@sha256:ede17b5112eadb765f22cdfbd2a987da96087a1e2f0ad224994c16f1af645443
+        docker: "ghcr.io/aou-multiomics-analysis/aggregate_susie:main"
         disks: "local-disk 500 SSD"
         memory: "~{Memory}GB"
         cpu: "~{NumThreads}"
     }
+    
  
 
 
     output {
         File MergedSusieParquet = "${OutputPrefix}_SusieMerged.parquet" 
-        File MergedSusieTsv = "${OutputPrefix}_SusieMerged.tsv.gz"
-        File FileList = "parquet_file_list.txt" 
+        File MergedSusieTsv = "${OutputPrefix}_SusieMerged.tsv.gz" 
     } 
 
 }
@@ -88,7 +72,7 @@ task AnnotateSusie {
         --VEPAnnotationsTable ~{AnnotationVEP}
     >>>
    runtime {
-        docker: "ghcr.io/aou-multiomics-analysis/aggregate_susie@sha256:5f742ab9e4d05d945eeb0d1faeef3d035068e62f1f591a75015ae7815e6b54bc"
+        docker: "ghcr.io/aou-multiomics-analysis/aggregate_susie:main"
         disks: "local-disk 500 SSD"
         memory: "~{Memory}GB"
         cpu: "1"
@@ -121,6 +105,7 @@ workflow AggregateSusieWorkflow {
         File AnnotationVEPIndex 
 
     }
+ 
     String pipeline_version = "aou_9.0.0"
     
     call AggregateSusie {
