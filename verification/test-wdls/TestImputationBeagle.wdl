@@ -51,7 +51,7 @@ workflow TestImputationBeagle {
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
                                     ImputationBeagle.imputed_multi_sample_vcf,
-                                    ImputationBeagle.imputed_multi_sample_vcf_index,
+                                    ImputationBeagle.imputed_hom_ref_sites_only_vcf
                                     ]
     ])
 
@@ -88,17 +88,17 @@ workflow TestImputationBeagle {
             results_path = results_path,
             truth_path = truth_path
         }
-        call Utilities.GetValidationInputs as GetVcf {
+        call Utilities.GetValidationInputs as GetImputedMultiSampleVcf {
           input:
             input_file = ImputationBeagle.imputed_multi_sample_vcf,
             results_path = results_path,
             truth_path = truth_path
         }
-        call Utilities.GetValidationInputs as GetVcfIndex {
+        call Utilities.GetValidationInputs as GetImputedSitesOnlyVcf {
           input:
-            input_file = ImputationBeagle.imputed_multi_sample_vcf_index,
-            results_path = results_path,
-            truth_path = truth_path
+            input_file = ImputationBeagle.imputed_hom_ref_sites_only_vcf,
+              results_path = results_path,
+              truth_path = truth_path
         }
 
 
@@ -106,10 +106,10 @@ workflow TestImputationBeagle {
         input:
           truth_metrics = GetMetrics.truth_files, 
           test_metrics = GetMetrics.results_files,
-          truth_vcf = GetVcf.truth_file, 
-          test_vcf = GetVcf.results_file,
-          truth_vcf_index = GetVcfIndex.truth_file, 
-          test_vcf_index = GetVcfIndex.results_file,
+          multi_sample_truth_vcf = GetImputedMultiSampleVcf.truth_file,
+          multi_sample_test_vcf = GetImputedMultiSampleVcf.results_file,
+          sites_only_truth_vcf = GetImputedSitesOnlyVcf.truth_file,
+          sites_only_test_vcf = GetImputedSitesOnlyVcf.results_file,
           done = CopyToTestResults.done
       }
     }
