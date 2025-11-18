@@ -228,7 +228,7 @@ task ExtractSingleSampleVcfs {
     cpu: 4
     cpuPlatform: "Intel Ice Lake"
     memory:  "16 GB"
-    disks: "local-disk 200 SSD"
+    disks: "local-disk 800 SSD"
   }
 }
 
@@ -357,6 +357,6 @@ task RenameAndCopyFilesToDestination {
     cpu: 4
     cpuPlatform: "Intel Ice Lake"
     memory:  "4 GB"
-    disks: "local-disk 200 SSD"
+    disks: "local-disk 800 SSD"
   }
 }
