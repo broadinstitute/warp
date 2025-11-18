@@ -4,6 +4,13 @@
 * Update Phase and Impute tasks to use a docker image that contains Beagle JAR 
 generated from GitHub repo [tmp-sharing/imp-server](https://github.com/tmp-sharing/imp-server/tree/master).
 
+# 3.0.0
+2025-11-18 (Date of Last Commit)
+
+### Breaking changes
+* Imputed homozygous reference sites have been removed from the imputed multi sample vcf output.
+* Imputed homozygous reference files have now been made available in a new sites only VCF output `imputed_hom_ref_sites_only_vcf`
+
 # 2.3.0
 2025-11-12 (Date of Last Commit)
 
@@ -82,7 +89,6 @@ anymore.
 ### Additional changes
 * Use SSD for tasks that localize large files to help with performance on Google Batch.
 * Add maxRetries to all tasks to help with performance on Google Batch.
-
 
 # 1.0.2
 2025-04-07 (Date of Last Commit)
