@@ -16,6 +16,9 @@ task PrepareSpliceData {
             --SpliceData ${SpliceData} \
             --SampleList ${SampleList} \
             --OutputPrefix ${OutputPrefix}
+        
+        echo listing files
+        ls -lh
         }
 
     runtime {
@@ -26,7 +29,7 @@ task PrepareSpliceData {
     }
 
     output {
-        File PhenotypeGroups = "${OutputPrefix}.phenotype_groups.tsv"
+        File PhenotypeGroups = "COMB.phenotype_groups.tsv"
     }
  }
 
