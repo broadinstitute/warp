@@ -291,7 +291,18 @@ workflow ImputationBeagle {
             gatk_docker = gatk_docker
         }
       }
-      File chunk_vcf = select_first([FilterVcfByDR2.output_vcf, ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]])
+
+      call tasks.UpdateHeader {
+        input:
+          vcf = select_first([FilterVcfByDR2.output_vcf, ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
+          vcf_index = select_first([FilterVcfByDR2.output_vcf_index, ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
+          ref_dict = ref_dict,
+          basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header",
+          disable_sequence_dictionary_validation = false,
+          pipeline_header_line = defined_pipeline_header_line,
+          gatk_docker = gatk_docker
+      }
+      File chunk_vcf = UpdateHeader.output_vcf
     }
 
     call beagleTasks.GatherVcfsNoIndex as GatherChunkVcfs {
@@ -306,17 +317,6 @@ workflow ImputationBeagle {
         vcf_input = GatherChunkVcfs.output_vcf,
         gatk_docker = gatk_docker,
         preemptible = 0
-    }
-
-    call tasks.UpdateHeader {
-      input:
-        vcf = CreateIndexForGatheredChunkVcfs.output_vcf,
-        vcf_index = CreateIndexForGatheredChunkVcfs.output_vcf_index,
-        ref_dict = ref_dict,
-        basename = referencePanelContig_2.contig + ".imputed.no_overlaps.update_header",
-        disable_sequence_dictionary_validation = false,
-        pipeline_header_line = defined_pipeline_header_line,
-        gatk_docker = gatk_docker
     }
 
     call beagleTasks.SelectVariantRecordsOnly {
