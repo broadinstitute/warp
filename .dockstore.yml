@@ -46,6 +46,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/cmrg/FixItFelixAndVariantCall.wdl
 
+  - name: get_wgs_median_coverage
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/mitochondria/get_wgs_median_coverage.wdl
+
   - name: GvsAoUReblockGvcf
     subclass: WDL
     primaryDescriptorPath: /all_of_us/cmrg/GvsAoUReblockGvcf.wdl
