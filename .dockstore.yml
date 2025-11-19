@@ -26,6 +26,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/build_indices/BuildIndices.wdl
 
+  - name: CalculatePhenotypeGroups
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/CalculatePhenotypeGroups.wdl
+  
   - name: CramToUnmappedBams
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
