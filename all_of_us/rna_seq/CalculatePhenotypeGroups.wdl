@@ -29,7 +29,7 @@ task PrepareSpliceData {
     }
 
     output {
-        File PhenotypeGroups = "COMB.phenotype_groups.tsv"
+        File PhenotypeGroups = "${OutputPrefix}.phenotype_groups.tsv"
     }
  }
 
