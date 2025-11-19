@@ -91,29 +91,29 @@ task subset_data_table {
     command <<<
     set -euxo pipefail
     python3 <<'EOF'
-import pandas as pd
-import sys
+    import pandas as pd
+    import sys
 
-# If sample_list_tsv is not defined, just copy the full TSV
-if "~{sample_list_tsv}" == "":
+    # If sample_list_tsv is not defined, just copy the full TSV
+    if "~{sample_list_tsv}" == "":
+        df_main = pd.read_csv("~{full_data_tsv}", sep="\t", dtype=str)
+        df_main.to_csv("~{output_tsv}", sep="\t", index=False)
+        sys.exit(0)
+
     df_main = pd.read_csv("~{full_data_tsv}", sep="\t", dtype=str)
-    df_main.to_csv("~{output_tsv}", sep="\t", index=False)
-    sys.exit(0)
+    df_samples = pd.read_csv("~{sample_list_tsv}", sep="\t", header=None, names=["sample_id"], dtype=str)
 
-df_main = pd.read_csv("~{full_data_tsv}", sep="\t", dtype=str)
-df_samples = pd.read_csv("~{sample_list_tsv}", sep="\t", header=None, names=["sample_id"], dtype=str)
+    # Check if TSV has header (Terra-style: entity:sample_id)
+    first_col = df_main.columns[0]
+    if first_col.startswith("entity:"):
+        id_col = first_col
+    else:
+        sys.exit("ERROR: Unrecognized format for sample ID column in the full data TSV.")
 
-# Check if TSV has header (Terra-style: entity:sample_id)
-first_col = df_main.columns[0]
-if first_col.startswith("entity:"):
-    id_col = first_col
-else:
-    sys.exit("ERROR: Unrecognized format for sample ID column in the full data TSV.")
+    df_subset = df_main[df_main[id_col].isin(df_samples["sample_id"])]
 
-df_subset = df_main[df_main[id_col].isin(df_samples["sample_id"])]
-
-df_subset.to_csv("~{output_tsv}", sep="\t", index=False)
-EOF
+    df_subset.to_csv("~{output_tsv}", sep="\t", index=False)
+    EOF
     >>>
 
     output {
@@ -244,7 +244,6 @@ task process_tsv_files {
         memory: "{memory_gb} GB"
         cpu: "{cpu} "
         disks: "local-disk {disk_gb} HDD"
-    }
     }
 }
 
