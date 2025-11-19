@@ -1,6 +1,6 @@
 # aou_9.1.0
 
-2025-10-02 (Date of Last Commit
+2025-10-02 (Date of Last Commit)
 
 * Added cluster parameters for max_idle; default is 60 but recommended number for more than 500K samples is 180 
 * Added cluster parameters for max_age; default is 1440 but recommended number for more than 500K samples is 2160
