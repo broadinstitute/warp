@@ -341,6 +341,7 @@ class FirecloudAPI:
         start_time = time.time()
         retry_delay = 5  # Start with a 5-second delay between retries
         max_retry_delay = 30  # Maximum retry delay in seconds
+        max_retry_duration = 15 * 60  # Maximum time to spend retrying server errors (15 minutes)
 
         # Continuously poll the status of the submission until completion
         while True:
@@ -351,8 +352,16 @@ class FirecloudAPI:
                 status_response = requests.get(status_url, headers=headers)
 
                 # Check for 500 errors and retry if necessary
-                if status_response.status_code == 500:
-                    logging.warning(f"Received 500 error. Retrying in {retry_delay} seconds...")
+                if status_response.status_code in [500, 502, 503]:
+                    elapsed_time = time.time() - start_time
+                    logging.warning(f"Received {status_response.status_code} error. Retrying in {retry_delay} seconds...")
+                    logging.warning(f"Response content: {status_response.text[:500]}")
+
+                    # Check if we've exceeded the maximum retry duration
+                    if elapsed_time > max_retry_duration:
+                        logging.error(f"Exceeded maximum retry duration of {max_retry_duration/60} minutes for handling server errors.")
+                        return {}
+
                     time.sleep(retry_delay)
                     # Implement exponential backoff with a cap
                     retry_delay = min(retry_delay * 1.5, max_retry_delay)
