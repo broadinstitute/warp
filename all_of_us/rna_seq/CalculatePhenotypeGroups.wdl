@@ -22,7 +22,7 @@ task PrepareSpliceData {
         }
 
     runtime {
-        docker: "ghcr.io/aou-multiomics-analysis/prepare_qtl@sha256:26d67f82e031a56d4f24763ec816170aa04ae0e9735fe54110da856bab2d8cc8"
+        docker: "ghcr.io/aou-multiomics-analysis/prepare_qtl@sha256:b9986a803ad82aee02945e9131f180fc028c73eadb889184e23aff8dabf573fe"
         memory: "${memory}GB"
         disks: "local-disk ${disk_space} HDD"
         cpu: "${num_threads}"
