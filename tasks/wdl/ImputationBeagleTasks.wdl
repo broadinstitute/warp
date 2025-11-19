@@ -1022,8 +1022,6 @@ task SelectVariantRecordsOnly {
     set -e -o pipefail
 
     bcftools view -i 'GT[*]="alt"' -Oz -o ~{basename}.vcf.gz ~{vcf}
-
-    bcftools index -t ~{basename}.vcf.gz
   }
 
   runtime {
@@ -1037,7 +1035,6 @@ task SelectVariantRecordsOnly {
 
   output {
     File output_vcf = "~{basename}.vcf.gz"
-    File output_vcf_index = "~{basename}.vcf.gz.tbi"
   }
 }
 
@@ -1065,8 +1062,6 @@ task CreateHomRefSitesOnlyVcf {
     bcftools query -e 'GT[*]="alt"' -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO\n' ~{vcf} >> ~{basename}.vcf
 
     bgzip ~{basename}.vcf
-
-    bcftools index -t ~{basename}.vcf.gz
   }
 
   runtime {
@@ -1080,6 +1075,5 @@ task CreateHomRefSitesOnlyVcf {
 
   output {
     File output_vcf = "~{basename}.vcf.gz"
-    File output_vcf_index = "~{basename}.vcf.gz.tbi"
   }
 }
