@@ -60,6 +60,7 @@ workflow TestImputationBeagle {
     Array[String] pipeline_metrics = flatten([
                                     [ # File outputs
                                     ImputationBeagle.chunks_info,
+                                    ImputationBeagle.contigs_info,
                                     ]
     ])
 
