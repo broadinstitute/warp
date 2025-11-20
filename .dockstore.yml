@@ -26,6 +26,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
 
+  - name: CyriusStarAlleleCalling
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/pgx/CyriusStarAlleleCalling.wdl
+
   - name: determine_hq_sites_intersection
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/determine_hq_sites_intersection.wdl
@@ -78,6 +82,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_cluster.wdl
     
+  - name: LocalizeAndConcatStargazer
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/pgx/LocalizeAndConcatStargazer.wdl
+  
   - name: MakeTable
     subclass: WDL
     primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
@@ -172,6 +180,11 @@ workflows:
 
     primaryDescriptorPath: /beta-pipelines/broad/Utilities/SplitMultisampleVCF/SplitMultisampleVCF.wdl
     readMePath: /beta-pipelines/broad/Utilities/SplitMultisampleVCF/README.md
+  
+  - name: StargazerFromJointVCF
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/pgx/StargazerFromJointVCF.wdl
+  
 
   - name: TestArrayImputationQC
     subclass: WDL
