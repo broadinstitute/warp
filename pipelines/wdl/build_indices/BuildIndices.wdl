@@ -29,7 +29,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.0.1"
+  String pipeline_version = "5.0.2"
 
 
   parameter_meta {
@@ -66,7 +66,7 @@ workflow BuildIndices {
         genome_build = genome_build,
         genome_source = genome_source,
         organism = organism,
-        skip_gtf_modification = skip_gtf_modification,
+        skip_gtf_modification = skip_gtf_modification
     }
     call CalculateChromosomeSizes {
       input:
@@ -272,7 +272,7 @@ task BuildStarSingleNucleus {
     File genome_fa
     File annotation_gtf
     File biotypes
-    Boolean skip_gtf_modification = false
+    Boolean skip_gtf_modification
     Int disk = 100
   }
 
@@ -318,9 +318,6 @@ task BuildStarSingleNucleus {
 
         print
       }' "$GTF_FILE" > fixed_annotation.gtf
-
-    head fixed_annotation.gtf
-    tail fixed_annotation.gtf
 
     # Use the fixed GTF for downstream processing
     GTF_FILE="fixed_annotation.gtf"
