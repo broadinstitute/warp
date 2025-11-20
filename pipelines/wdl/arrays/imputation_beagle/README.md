@@ -42,15 +42,16 @@ The Beagle workflow requires several essential inputs to perform genotype imputa
 | `chunkLength`                 | Length of chunks for processing (default: 25,000,000)                    |
 | `chunkOverlaps`               | Overlap padding to reduce edge effects (default: 2,000,000)              |
 | `sample_chunk_size`           | Number of samples to chunk by when processing (default: 1,000)           |
-| `bed_suffix`                  | File extension for reference panel bed files (default: .bed)             |
+| `pipeline_header_line`        | Optional additional header lines to add to the output VCF                |
+| `min_dr2_for_inclusion`       | Min value of DR2 to include in final output (default: 0.0)               |
 | `bref3_suffix`                | File extension for reference panel bref3 files (default: .bref3)         |
-| `beagle_cpu`                  | Number of cpus to use for Beagle Phase and Impute tasks (default: 8)     |
-| `beagle_phase_memory_in_gb`   | Memory, in GB, to use for Beagle Phase task (default: 40)                |
-| `beagle_impute_memory_in_gb`  | Memory, in GB, to use for Beagle Impute task (default: 45)               |
+| `unique_variant_ids_suffix`   | File extension for unique variant ID files (default: .unique_variants)   |
 | `gatk_docker`                 | GATK Docker image (default: us.gcr.io/broad-gatk/gatk:4.6.0.0)           |
 | `ubuntu_docker`               | Ubuntu Docker image (default: us.gcr.io/broad-dsde-methods/ubuntu:20.04) |
 | `error_count_override`        | Optional override for error count threshold                              |
-| `min_dr2_for_inclusion`       | Min value of DR2 to include in final output (default: 0.0)               |
+| `beagle_cpu`                  | Number of cpus to use for Beagle Phase and Impute tasks (default: 8)     |
+| `beagle_phase_memory_in_gb`   | Memory, in GB, to use for Beagle Phase task (default: 40)                |
+| `beagle_impute_memory_in_gb`  | Memory, in GB, to use for Beagle Impute task (default: 45)               |
 
 ### Workflow Tasks
 
@@ -63,9 +64,11 @@ The Beagle workflow consists of multiple interconnected tasks that work together
 | `CalculateContigsToProcess`            | Determine which contigs will be processed by the workflow                          | multi_sample_vcf, contigs                       | Extracts contigs from input VCF and filters by allowed contigs               |
 | `CalculateChromosomeLength`            | Calculate length of each chromosome                                                | ref_dict, contig                                | Determines number of chunks needed per chromosome                            |
 | `GenerateChunk`                        | Create chunked VCF files with overlaps                                             | indexed VCF, coordinates                        | Splits chromosomes into processable chunks                                   |
-| `CountVariantsInChunks`                | Count variants in chunks vs reference panel                                        | chunk VCF, reference panel                      | Quality control for chunk validity                                           |
+| `ExtractUniqueVariantIds`              | Extract unique variant IDs from VCFs                                               | VCF file                                        | Creates lists of unique variants in CHROM:POS:REF:ALT format                 |
+| `CountUniqueVariantIdsInOverlap`       | Count variants in chunks vs reference panel                                        | unique variant ID lists                         | Quality control for chunk validity using unique variant IDs                  |
 | `CheckChunks`                          | Validate chunk quality                                                             | variant counts                                  | Ensures chunks meet quality thresholds                                       |
-| `StoreChunksInfo`                      | Store chunk metadata and QC metrics                                                | chunk information                               | Tracks processing statistics                                                 |
+| `CountValidContigChunks`               | Count number of valid chunks per contig                                            | validation boolean array                        | Tracks valid chunks for metrics aggregation                                  |
+| `StoreMetricsInfo`                     | Store chunk and contig metadata and QC metrics                                     | chunk and contig information                    | Creates chunk-level and contig-level metrics files                           |
 | `ErrorWithMessageIfErrorCountNotZero`  | Fail workflow if CheckChunks fail                                                  | error counts                                    | Quality control gate before expensive operations                             |
 | `SelectSamplesWithCut`                 | Splits vcf into chunks of samples using `cut`                                      | chunk VCF                                       | helps with scaling the wdl                                                   |
 | `Phase`                                | Phase genotypes using Beagle                                                       | chunk VCF, reference panel, genetic map         | Determines haplotype phase for imputation                                    |
@@ -88,11 +91,12 @@ The Beagle workflow consists of multiple interconnected tasks that work together
 
 Upon successful completion, the workflow produces a fully imputed multi-sample VCF file along with supporting files for downstream analysis. The primary outputs include the final imputed VCF with its index file and some quality control information about the processing chunks.
 
-| Output                           | Description                                          |
-|----------------------------------|------------------------------------------------------|
-| `imputed_multi_sample_vcf`       | Final imputed multi-sample WGS VCF file              |
-| `imputed_multi_sample_vcf_index` | Index file for the imputed VCF                       |
-| `chunks_info`                    | Information about processed chunks and QC statistics |
+| Output                           | Description                                                                                                                              |
+|----------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `imputed_multi_sample_vcf`       | Final imputed multi-sample WGS VCF file                                                                                                  |
+| `imputed_multi_sample_vcf_index` | Index file for the imputed VCF                                                                                                           |
+| `chunks_info`                    | TSV containing chunk-level metrics: intervals, variant counts per chunk (filtered input and overlap with reference panel), and QC status |
+| `contigs_info`                   | TSV containing contig-level (chromosome-level) aggregated metrics: total variant counts in raw input, filtered input, and overlap with reference panel for each processed chromosome |
 
 
 ## ArrayImputationQuotaConsumed summary
