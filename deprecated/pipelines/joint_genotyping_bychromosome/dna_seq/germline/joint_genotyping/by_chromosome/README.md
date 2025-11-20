@@ -39,7 +39,7 @@ Simply `abort` or `void` the chromosome and resubmit it.
 If all goes well, and there are no bugs in the pipeline, joint calling by chromosome should be pretty simple.
 
   0. Clone `dsde-pipelines` into the PO directory using `git clone --depth 1 git@github.com:broadinstitute/dsde-pipelines.git`
-  1. Run `dsde-pipelines/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.sh setup [Exome|WGS]` to set up your directory.
+  1. Run `dsde-pipelines/pipelines/wdl/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.sh setup [Exome|WGS]` to set up your directory.
   2. Fill in the constants at the top of `./by_chromosome_client.sh`, which should now be in your directory.
   3. Make sure that this branch of `dsde-pipelines` is never merged. A new branch should be checked out for every run. 
   4. In `./by_chromosome_client.sh`, fill in the variables in the `## PROJECT-SPECIFIC CONSTANTS` section.

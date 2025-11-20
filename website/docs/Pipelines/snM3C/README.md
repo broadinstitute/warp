@@ -36,7 +36,7 @@ The following table provides a quick glance at the Multiome pipeline features:
 
 ### snm3C installation
 
-To download the latest snm3C release, see the release tags prefixed with "snm3C" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All snm3C pipeline releases are documented in the [snm3C changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snm3C/snm3C.changelog.md). 
+To download the latest snm3C release, see the release tags prefixed with "snm3C" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All snm3C pipeline releases are documented in the [snm3C changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/snm3C/snm3C.changelog.md). 
 
 To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
@@ -47,7 +47,7 @@ The snm3C workflow can be deployed using [Cromwell](https://cromwell.readthedocs
 
 ### Inputs
 
-The snm3C workflow requires a JSON configuration file specifying the input files and parameters for the analysis. Example configuration files can be found in the snm3C [`test_inputs`](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/snm3C/test_inputs) directory in the WARP repository.
+The snm3C workflow requires a JSON configuration file specifying the input files and parameters for the analysis. Example configuration files can be found in the snm3C [`test_inputs`](https://github.com/broadinstitute/warp/tree/develop/pipelines/wdl/snm3C/test_inputs) directory in the WARP repository.
 
 #### Input descriptions
 
@@ -85,7 +85,7 @@ Overall, the snm3C workflow:
 
 The tools each snm3C task employs are detailed in the table below. 
 
-To see specific tool parameters, select the [workflow WDL link](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snm3C/snm3C.wdl); then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `# runtime values` section as `docker: `. More details about these tools and parameters can be found in the [YAP documentation](https://hq-1.gitbook.io/mc/).
+To see specific tool parameters, select the [workflow WDL link](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/snm3C/snm3C.wdl); then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `# runtime values` section as `docker: `. More details about these tools and parameters can be found in the [YAP documentation](https://hq-1.gitbook.io/mc/).
 
 | Task name | Tool | Software | Description |
 | --- | --- | --- | --- |
@@ -160,7 +160,7 @@ The following table lists the output variables and files produced by the pipelin
 
 ## Versioning
 
-All snm3C pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snm3C/snm3C.changelog.md).
+All snm3C pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/snm3C/snm3C.changelog.md).
 
 ## Citing the snm3C Pipeline
 
@@ -176,7 +176,7 @@ Liu, H., Zhou, J., Tian, W. et al. DNA methylation atlas of the mouse brain at s
 
 Please cite the following preprint for the WARP repository and website:
 
-Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Kiernan, E., Konwar, K., Mathews, K.L., Palis, K., et al. Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis. Bioinformatics 2025; btaf494. https://doi.org/10.1093/bioinformatics/btaf494
 
 
 ## Consortia support
