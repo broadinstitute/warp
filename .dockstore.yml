@@ -154,6 +154,7 @@ workflows:
 
   - name: run_sample_outlier_qc_plotting
     subclass: WDL
+    primaryDescriptorPath: /all_of_us/ancestry/run_sample_outlier_qc_plotting.wdl
 
   - name: Smartseq2_Single_Nucleus
     subclass: WDL
