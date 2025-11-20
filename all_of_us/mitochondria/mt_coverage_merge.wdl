@@ -161,9 +161,8 @@ task process_tsv_files {
                           "mean_coverage", 
                           "median_coverage", 
                           "mtdna_consensus_overlaps",
-                          "mt_final_vcf", 
-                          "research_id",
-                          "sample"] 
+                          "final_vcf", 
+                          "research_id"] 
         
         # Keep only necessary columns
         filtered_df = df[columns_needed]
@@ -174,8 +173,7 @@ task process_tsv_files {
             "research_id": "entity:participant_id",
             "final_base_level_coverage_metrics": "coverage",
             "mean_coverage": "mt_mean_coverage",
-            "median_coverage": "mt_median_coverage",
-            "mt_final_vcf": "final_vcf"
+            "median_coverage": "mt_median_coverage"
         })
 
         # Load additional TSV files
