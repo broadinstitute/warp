@@ -1,3 +1,8 @@
+# 5.0.2
+2025-11-20 (Date of Last Commit)
+
+* Added logic add in gene_name attribute in GTF file in SNSS2AddIntronsToGTF task
+
 # 5.0.1
 2025-11-04 (Date of Last Commit)
 
