@@ -21,7 +21,7 @@ workflow BuildIndices {
     String?  mito_accession                       # e.g. chimp or ferret mito accession (NC_…)
     File?    mito_ref_gbk                         # path to mitochondrion reference .gbk
     Array[String]? mitofinder_opts                # optional, override extra flags to MitoFinder/add_mito
-    File?    annotations_gff                       # gff file for mitofinder 
+    File?    annotations_gff                       # gff file for mitofinder
   }
 
   if (false) {
@@ -29,7 +29,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.0.1"
+  String pipeline_version = "5.0.2"
 
 
   parameter_meta {
@@ -37,7 +37,7 @@ workflow BuildIndices {
     genome_fa: "the fasta file"
     biotypes: "gene_biotype attributes to include in the gtf file"
   }
-  
+
     # ---- Append mitochondrial sequence + annotations ----
     # Note: String comparison is case-sensitive.
     if (run_mitofinder) {
@@ -66,7 +66,7 @@ workflow BuildIndices {
         genome_build = genome_build,
         genome_source = genome_source,
         organism = organism,
-        skip_gtf_modification = skip_gtf_modification,
+        skip_gtf_modification = skip_gtf_modification
     }
     call CalculateChromosomeSizes {
       input:
@@ -129,7 +129,7 @@ task MitoAnnotate {
     String mito_accession
     File   mito_ref_gbk
     File   genome_fa
-    File   transcript_gff 
+    File   transcript_gff
     String spec_name
     Array[String]? mitofinder_opts
   }
@@ -272,7 +272,7 @@ task BuildStarSingleNucleus {
     File genome_fa
     File annotation_gtf
     File biotypes
-    Boolean skip_gtf_modification = false
+    Boolean skip_gtf_modification
     Int disk = 100
   }
 
@@ -296,28 +296,28 @@ task BuildStarSingleNucleus {
         GTF_FILE="~{annotation_gtf}"
     fi
 
-    # Fix GTF to add gene_name attribute if missing (copy from gene_id)
+    # Fix missing gene_name attributes
     echo "Checking and fixing gene_name attributes in GTF..."
-    awk -F'\t' 'BEGIN{OFS="\t"}
-    {
-      # Pass through comment lines unchanged
-      if ($0 ~ /^#/) {
-        print;
-        next;
-      }
-
-      # For data lines, check if gene_name is missing
-      if ($9 !~ /gene_name/) {
-        # Extract gene_id value
-        if (match($9, /gene_id "([^"]+)"/, arr)) {
-          # Remove trailing semicolon/whitespace if present
-          gsub(/;[[:space:]]*$/, "", $9);
-          # Add gene_name attribute with same value as gene_id
-          $9 = $9 "; gene_name \"" arr[1] "\";";
+    awk -F'\t' 'BEGIN { OFS="\t" }
+      /^#/ { print; next }
+      {
+        gene_id = ""; gene_name = "";
+        if ($9 ~ /gene_id/) {
+          n = split($9, a, /gene_id "/)
+          if (n > 1) {
+            split(a[2], b, "\"")
+            gene_id = b[1]
+          }
         }
-      }
-      print;
-    }' "$GTF_FILE" > fixed_annotation.gtf
+
+        # Check if gene_name is missing and add it
+        if ($9 !~ /gene_name/ && gene_id != "") {
+          sub(/[[:space:]]*;[[:space:]]*$/, "", $9)  # remove trailing semicolons/spaces
+          $9 = $9 "; gene_name \"" gene_id "\";"
+        }
+
+        print
+      }' "$GTF_FILE" > fixed_annotation.gtf
 
     # Use the fixed GTF for downstream processing
     GTF_FILE="fixed_annotation.gtf"
