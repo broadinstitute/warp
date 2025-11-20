@@ -4,11 +4,11 @@ workflows:
   - name: aggregate_rsem_results
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/aggregate_rsem_results.wdl
- 
+
   - name: AggregateSusieWorkflow
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/AggregateSusieWorkflow.wdl
- 
+
   - name: ArrayImputationQuotaConsumed
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/arrays/imputation_beagle/ArrayImputationQuotaConsumed.wdl
@@ -25,7 +25,7 @@ workflows:
   - name: Beagle5Phasing
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/Beagle5Phasing.wdl
-  
+
   - name: BuildIndices
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/build_indices/BuildIndices.wdl
@@ -33,11 +33,11 @@ workflows:
   - name: CalculatePhenotypeGroups
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/CalculatePhenotypeGroups.wdl
-  
+
   - name: convert_vcf_to_plink_bed
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/convert_vcf_to_plink_bed.wdl
-  
+
   - name: CramToUnmappedBams
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
@@ -65,6 +65,10 @@ workflows:
   - name: FixItFelixAndVariantCall
     subclass: WDL
     primaryDescriptorPath: /all_of_us/cmrg/FixItFelixAndVariantCall.wdl
+
+  - name: Glimpse2Imputation
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/Glimpse2Imputation.wdl
 
   - name: get_wgs_median_coverage
     subclass: WDL
@@ -216,7 +220,7 @@ workflows:
   - name: SusieR_Workflow
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/susieR_workflow.wdl
-  
+
   - name: TestArrayImputationQC
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestArrayImputationQC.wdl
