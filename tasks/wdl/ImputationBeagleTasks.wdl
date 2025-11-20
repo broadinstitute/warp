@@ -42,36 +42,109 @@ task CalculateContigsToProcess {
 
 }
 
-task CountVariantsInChunks {
+task ExtractUniqueVariantIds {
   input {
     File vcf
     File vcf_index
-    File panel_bed_file
+    String? chrom
+    Int? start
+    Int? end
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    Int disk_size_gb = ceil(size(vcf, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 4000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+    Int preemptible = 3
+  }
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
+
+  String output_base = basename(vcf, ".vcf.gz")
+
+  String chrom_option = if defined(chrom) then "-L ~{chrom}" else ""
+  String region_option = if defined(chrom) && defined(start) && defined(end) then "-L ~{chrom}:~{start}-~{end}" else chrom_option
+
+  command <<<
+    set -e -o pipefail
+
+    echo "REGION OPTION IS SET TO: "
+    echo ~{region_option}
+
+    # use gatk to stream only the needed interval of the input vcf
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+      SelectVariants \
+      -V ~{vcf} \
+      ~{region_option} \
+      ~{"-select 'POS >= " + start + "'"} \
+      -O selected.vcf.gz
+    
+    # create variant ids file
+    bcftools query -f "%CHROM:%POS:%REF:%ALT\n" selected.vcf.gz | uniq > unique_variants
+    
+    # sort and remove blank lines
+    sort unique_variants | sed '/^$/d' > ~{output_base}.unique_variants.sorted
+
+    # count variants
+    wc -l ~{output_base}.unique_variants.sorted | awk '{print $1}' > var_count
+
+  >>>
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 1
+    noAddress: true
+  }
+
+  parameter_meta {
+    vcf: {
+       description: "vcf",
+       localization_optional: true
+     }
+    vcf_index: {
+       description: "vcf index",
+       localization_optional: true
+     }
+  }
+
+  output {
+    File unique_variant_ids = "~{output_base}.unique_variants.sorted"
+    Int unique_variant_count = read_int("var_count")
+  }
+}
+
+task CountUniqueVariantIdsInOverlap {
+  input {
+    File variant_ids_1
+    File variant_ids_2
+
+    String docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
     Int cpu = 1
     Int memory_mb = 16000
-    Int disk_size_gb = ceil((2 * size([vcf, vcf_index], "GiB")) + size(panel_bed_file, "GiB")) + 10
+    Int disk_size_gb = ceil(size(variant_ids_1, "GiB") + size(variant_ids_2, "GiB")) + 10
   }
+
   Int command_mem = memory_mb - 1500
   Int max_heap = memory_mb - 1000
 
   command <<<
     set -e -o pipefail
 
-    ln -sf ~{vcf} input.vcf.gz
-    ln -sf ~{vcf_index} input.vcf.gz.tbi
+    sort ~{variant_ids_1}> variant_ids_1_sorted
+    sort ~{variant_ids_2} > variant_ids_2_sorted
 
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V input.vcf.gz | tail -n 1 > var_in_original
-    bedtools intersect -a ~{vcf} -b ~{panel_bed_file} | wc -l > var_also_in_reference
+    # output lines common to both files, then count them
+    comm -12 variant_ids_1_sorted variant_ids_2_sorted | wc -l | awk '{print $1}' > var_overlap
   >>>
 
   output {
-    Int var_in_original = read_int("var_in_original")
-    Int var_also_in_reference = read_int("var_also_in_reference")
+    Int var_overlap = read_int("var_overlap")
   }
   runtime {
-    docker: gatk_docker
+    docker: docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
@@ -110,6 +183,117 @@ task CheckChunks {
     preemptible: 3
     maxRetries: 1
     noAddress: true
+  }
+}
+
+task CountValidContigChunks {
+  input {
+    Array[Boolean] valids
+  }
+
+  command <<<
+    set -e -o pipefail
+
+    # Count the number of "true" values in the array
+    count=0
+    for val in ~{sep=" " valids}; do
+      if [ "$val" = "true" ]; then
+        count=$((count + 1))
+      fi
+    done
+    echo "$count" > n_valid_chunks.txt
+  >>>
+
+  output {
+    Int n_valid_chunks = read_int("n_valid_chunks.txt")
+    Int n_invalid_chunks = length(valids) - n_valid_chunks
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    cpu: 1
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+}
+
+task StoreMetricsInfo {
+  input {
+    Array[String] chunk_chroms
+    Array[Int] starts
+    Array[Int] ends
+    Array[Int] vars_in_array
+    Array[Int] vars_in_panel
+    Array[Boolean] valids
+    Array[String] chroms
+    Array[Int] vars_in_raw_input
+    String basename
+
+    String python_docker = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 10
+  }
+  command <<<
+    python3 << "EOF"
+    import pandas as pd
+ 
+    # assemble chunk_info DataFrame
+    chunk_info = pd.DataFrame({
+        'chrom': ["~{sep='", "' chunk_chroms}"],
+        'start': [~{sep=', ' starts}],
+        'end': [~{sep=', ' ends}],
+        'var_in_filtered_input': [~{sep=', ' vars_in_array}],
+        'var_in_panel': [~{sep=', ' vars_in_panel}],
+        'chunk_was_imputed': [v.lower() == "true" for v in ["~{sep='", "' valids}"]]
+    })
+    
+    # Filter for failed chunks and drop the chunk_was_imputed column
+    failed_chunks = chunk_info[~chunk_info['chunk_was_imputed']].drop(columns=['chunk_was_imputed'])
+    n_failed_chunks = len(failed_chunks)
+    
+    # Aggregate variant counts by chromosome
+    contig_info_from_chunks = chunk_info.groupby('chrom', sort=False).agg({
+        'var_in_filtered_input': 'sum',
+        'var_in_panel': 'sum'
+    }).reset_index()
+
+    # add raw input counts
+    contig_info = pd.DataFrame({
+        'chrom': ["~{sep='", "' chroms}"], 
+        'var_in_raw_input': [~{sep=', ' vars_in_raw_input}]
+    })
+    contig_info = contig_info.merge(contig_info_from_chunks, on='chrom', how='left')
+
+    # add columns for percent_passing_filter and percent_overlap_with_panel, rounded to two decimal places
+    contig_info['percent_passing_filter'] = round(contig_info['var_in_filtered_input'] / contig_info['var_in_raw_input'] * 100, 2)
+    contig_info['percent_overlap_with_panel'] = round(contig_info['var_in_panel'] / contig_info['var_in_filtered_input'] * 100, 2)
+
+    # Write outputs
+    chunk_info.to_csv("~{basename}_chunk_info.tsv", sep='\t', index=False)
+    failed_chunks.to_csv("~{basename}_failed_chunks.tsv", sep='\t', index=False)
+    contig_info.to_csv("~{basename}_contig_info.tsv", sep='\t', index=False)
+    with open("n_failed_chunks.txt", 'w') as f:
+        f.write(str(n_failed_chunks))
+    EOF
+  >>>
+  runtime {
+    docker: python_docker
+    disks : "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+  output {
+    File chunks_info = "~{basename}_chunk_info.tsv"
+    File failed_chunks = "~{basename}_failed_chunks.tsv"
+    File contigs_info = "~{basename}_contig_info.tsv"
+    File n_failed_chunks = "n_failed_chunks.txt"
   }
 }
 
@@ -819,4 +1003,3 @@ task FilterVcfByDR2 {
     File output_vcf_index = "~{basename}.vcf.gz.tbi"
   }
 }
-
