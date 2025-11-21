@@ -302,44 +302,28 @@ workflow ImputationBeagle {
           pipeline_header_line = defined_pipeline_header_line,
           gatk_docker = gatk_docker
       }
-      File chunk_vcf = UpdateHeader.output_vcf
+
+      call beagleTasks.SelectVariantRecordsOnly {
+        input:
+          vcf = UpdateHeader.output_vcf,
+          vcf_index = UpdateHeader.output_vcf_index,
+          basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header.only_variants",
+      }
+      call beagleTasks.CreateHomRefSitesOnlyVcf {
+        input:
+          vcf = UpdateHeader.output_vcf,
+          vcf_index = UpdateHeader.output_vcf_index,
+          basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header.only_hom_ref.sites_only",
+      }
     }
 
-    call beagleTasks.GatherVcfsNoIndex as GatherChunkVcfs {
-      input:
-        input_vcfs = chunk_vcf,
-        output_vcf_basename = referencePanelContig_2.contig + ".imputed",
-        gatk_docker = gatk_docker
-    }
-
-    call beagleTasks.CreateVcfIndex as CreateIndexForGatheredChunkVcfs {
-      input:
-        vcf_input = GatherChunkVcfs.output_vcf,
-        gatk_docker = gatk_docker,
-        preemptible = 0
-    }
-
-    call beagleTasks.SelectVariantRecordsOnly {
-      input:
-        vcf = CreateIndexForGatheredChunkVcfs.output_vcf,
-        vcf_index = CreateIndexForGatheredChunkVcfs.output_vcf_index,
-        basename = referencePanelContig_2.contig + ".imputed.no_overlaps.update_header.only_variants",
-    }
-
-    call beagleTasks.CreateHomRefSitesOnlyVcf {
-      input:
-        vcf = CreateIndexForGatheredChunkVcfs.output_vcf,
-        vcf_index = CreateIndexForGatheredChunkVcfs.output_vcf_index,
-        basename = referencePanelContig_2.contig + ".imputed.no_overlaps.update_header.only_hom_ref.sites_only",
-    }
-
-    File chromosome_vcf = SelectVariantRecordsOnly.output_vcf
-    File chromsome_hom_ref_sites_only_vcf = CreateHomRefSitesOnlyVcf.output_vcf
+    Array[File] chunk_variants_only_vcfs = select_all(SelectVariantRecordsOnly.output_vcf)
+    Array[File] chunk_hom_ref_sites_only_vcfs = select_all(CreateHomRefSitesOnlyVcf.output_vcf)
   }
 
   call beagleTasks.GatherVcfsNoIndex {
     input:
-      input_vcfs = chromosome_vcf,
+      input_vcfs = flatten(chunk_variants_only_vcfs),
       output_vcf_basename = output_basename + ".imputed",
       gatk_docker = gatk_docker
   }
@@ -353,7 +337,7 @@ workflow ImputationBeagle {
 
   call beagleTasks.GatherVcfsNoIndex as GatherHomRefSitesOnlyVcfs {
     input:
-      input_vcfs = chromsome_hom_ref_sites_only_vcf,
+      input_vcfs = flatten(chunk_hom_ref_sites_only_vcfs),
       output_vcf_basename = output_basename + ".imputed.hom_ref_sites_only",
       gatk_docker = gatk_docker
   }
