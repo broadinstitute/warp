@@ -319,7 +319,7 @@ task Phase {
     set -e -o pipefail
 
     java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 -XX:-UseCompressedOops \
-    -jar /usr/gitc/beagle.17Dec24.224.jar \
+    -jar /usr/gitc/beagle.d820c4e.jar \
     gt=~{dataset_vcf} \
     ref=~{ref_panel_bref3} \
     map=~{genetic_map_file} \
@@ -366,7 +366,7 @@ task Impute {
     set -e -o pipefail
 
     java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 -XX:-UseCompressedOops \
-    -jar /usr/gitc/beagle.17Dec24.224.jar \
+    -jar /usr/gitc/beagle.d820c4e.jar \
     gt=~{dataset_vcf} \
     ref=~{ref_panel_bref3} \
     map=~{genetic_map_file} \
