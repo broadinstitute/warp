@@ -1030,6 +1030,7 @@ task SelectVariantRecordsOnly {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 1
+    preemptible: 3
     noAddress: true
   }
 
@@ -1070,6 +1071,7 @@ task CreateHomRefSitesOnlyVcf {
     memory: "${memory_mb} MiB"
     cpu: cpu
     maxRetries: 1
+    preemptible: 3
     noAddress: true
   }
 
