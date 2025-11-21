@@ -50,6 +50,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/cmrg/FixItFelixAndVariantCall.wdl
 
+  - name: Glimpse2Imputation
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/Glimpse2Imputation.wdl
+
   - name: GvsAoUReblockGvcf
     subclass: WDL
     primaryDescriptorPath: /all_of_us/cmrg/GvsAoUReblockGvcf.wdl

@@ -67,7 +67,7 @@ workflow Glimpse2Imputation {
                 preemptible = preemptible,
                 docker = docker,
                 cpu = select_first([cpu_phase, 1]),
-                mem_gb = select_first([reference_chunk.right, mem_gb_phase])
+                mem_gb = select_first([mem_gb_phase, reference_chunk.right])
         }
     }
 
