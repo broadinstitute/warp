@@ -22,6 +22,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/build_indices/BuildIndices.wdl
 
+  - name: convert_vcf_to_plink_bed
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/admixture/convert_vcf_to_plink_bed.wdl
+  
   - name: CramToUnmappedBams
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
