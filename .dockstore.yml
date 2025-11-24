@@ -140,6 +140,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/run_preprocess_admixture_est_rye.wdl
   
+  - name: run_admixture
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/admixture/run_admixture.wdl
+  
   - name: run_admixture_est_rye
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/run_admixture_est_rye.wdl
