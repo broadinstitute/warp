@@ -165,7 +165,10 @@ task process_tsv_files {
                           "research_id"] 
         
         # Keep only necessary columns
-        filtered_df = df[columns_needed]
+        #filtered_df = df[columns_needed]
+     
+        # We're actually just going to keep all the columns and see if that fixes a type issue that is arising downstream
+        filtered_df = df
 
         # Add and rename columns
         filtered_df["s"] = filtered_df["research_id"]
@@ -212,12 +215,12 @@ task process_tsv_files {
         #filtered_df['age'] = filtered_df['age'].fillna(39).astype(int)
 
         # we will rename the verify_bam_id2_contamination to freemix_percentage instead of setting to 0 
-        filtered_df["freemix_percentage"] = 0 
+        # filtered_df["freemix_percentage"] = 0 
 
         # Rename columns for compatibility
         filtered_df.rename(columns={"mean_coverage": "wgs_mean_coverage"}, inplace=True)
         filtered_df.rename(columns={"ancestry_pred": "pop"}, inplace=True)
-        #filtered_df.rename(columns={"verify_bam_id2_contamination": "freemix_percentage"}, inplace=True)
+        filtered_df.rename(columns={"verify_bam_id2_contamination": "freemix_percentage"}, inplace=True)
 
 
         # Temporary workaround - we are working on getting the real values from the Dragen metrics
