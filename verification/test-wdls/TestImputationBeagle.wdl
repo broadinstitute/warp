@@ -97,8 +97,8 @@ workflow TestImputationBeagle {
         call Utilities.GetValidationInputs as GetImputedSitesOnlyVcf {
           input:
             input_file = ImputationBeagle.imputed_hom_ref_sites_only_vcf,
-              results_path = results_path,
-              truth_path = truth_path
+            results_path = results_path,
+            truth_path = truth_path
         }
 
 
