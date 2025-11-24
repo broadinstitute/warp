@@ -82,7 +82,7 @@ task get_wgs_median_coverage {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/python-numpy-pandas:1.0.0-2.2.3-1.25.2"
+        docker: "us.gcr.io/broad-gotc-prod/warp-tools:2.6.1"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " HDD"
