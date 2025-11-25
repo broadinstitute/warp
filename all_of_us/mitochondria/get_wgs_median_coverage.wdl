@@ -35,7 +35,7 @@ task get_wgs_median_coverage {
     command <<<
         set -euxo pipefail
 
-        python3 <<EOF
+        python3 <<'EOF'
         import pandas as pd
         import sys
         import subprocess
@@ -55,12 +55,12 @@ task get_wgs_median_coverage {
         # The df should consist of 2 columns: research_id and a file path specifying the location of the WGS metrics
         # For each row in the df, we want to run the following command using the filepath in the second column: gsutil cat [filepath] | awk '/^[0-9]/ { print $4; exit }'
         
-        median_coverages = []
         for index, row in df.iterrows():
             research_id = row[0]
             metrics_file_path = row[1]  # Assuming the second column contains the file path to the WGS metrics         
             try:
                 # run the gsutil and awk command to extract the median coverage
+                # Quote the awk heredoc to prevent shell expanding $4, and keep awk field reference intact
                 cmd = f"gsutil cat {metrics_file_path} | awk '/^[0-9]/ {{ print $4; exit }}'"
                 result = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
                 median_coverage = result.stdout.strip()
@@ -78,7 +78,7 @@ task get_wgs_median_coverage {
         >>>
     
     output {
-        File median_coverage_tsv = "~{output_tsv_name}"
+        File median_coverage_tsv = output_tsv_name
     }
 
     runtime {
