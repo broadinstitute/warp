@@ -214,6 +214,11 @@ task process_tsv_files {
         # commenting this out, since we want to test what happens with missing ages
         #filtered_df['age'] = filtered_df['age'].fillna(39).astype(int)
 
+        # changing this to cast to int and alert to any missing values
+        filtered_df['age'] = filtered_df['age'].astype(int)
+        if filtered_df['age'].isna().any():
+            raise ValueError("Unexpected missing ages detected.")
+
         # we will rename the verify_bam_id2_contamination to freemix_percentage instead of setting to 0 
         # filtered_df["freemix_percentage"] = 0 
 
