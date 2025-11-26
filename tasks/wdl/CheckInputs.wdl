@@ -67,11 +67,13 @@ task checkOptimusInput {
     Int tenx_chemistry_version
     String gcp_whitelist_v2
     String gcp_whitelist_v3
+    String gcp_whitelist_v4
     String azure_whitelist_v2
     String azure_whitelist_v3
+    String azure_whitelist_v4
     Boolean ignore_r1_read_length
     String alpine_docker_path
-  }  
+  }
 
   meta {
     description: "checks optimus input values and fails the pipeline immediately"
@@ -145,9 +147,24 @@ task checkOptimusInput {
       echo "WHITELIST:" $WHITELIST
       echo $WHITELIST > whitelist.txt
       echo 16C12M > read_struct.txt
+    elif [[ ~{tenx_chemistry_version} == 4 ]]
+      then
+      if [[ "~{cloud_provider}" == "gcp" ]]
+      then
+        WHITELIST="~{gcp_whitelist_v4}"
+      elif [[ "~{cloud_provider}" == "azure" ]]
+      then
+        WHITELIST="~{azure_whitelist_v4}"
+      else
+        pass="false"
+        echo "ERROR: Cloud provider must be either gcp or azure"
+      fi
+      echo "WHITELIST:" $WHITELIST
+      echo $WHITELIST > whitelist.txt
+      echo 16C12M > read_struct.txt
     else
       pass="false"
-      echo "ERROR: Chemistry version must be either 2 or 3"
+      echo "ERROR: Chemistry version must be either 2, 3, or 4"
     fi
     
     if [[ ~{tenx_chemistry_version} == 2 && $COUNT != 26 && ~{ignore_r1_read_length} == "false" ]]
@@ -158,6 +175,10 @@ task checkOptimusInput {
       then
       pass="false"
       echo "Read1 FASTQ does not match v3 chemistry; to override set ignore_r1_read_length to true"
+    elif [[ ~{tenx_chemistry_version} == 4 && $COUNT != 28 && ~{ignore_r1_read_length} == "false" ]]
+      then
+      pass="false"
+      echo "Read1 FASTQ does not match v4 chemistry; to override set ignore_r1_read_length to true"
     else
       pass="true"
     fi
