@@ -79,6 +79,11 @@ task subset_data_table {
     input {
         File full_data_tsv
         File? sample_list_tsv
+
+        # Runtime parameters
+        Int memory_gb = 16
+        Int cpu = 4 
+        Int disk_gb = 100
     }
 
     String output_tsv = basename(select_first([sample_list_tsv, full_data_tsv]), ".tsv") + "_data.tsv"
@@ -117,8 +122,9 @@ EOF
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/python-numpy-pandas:1.0.0-2.2.3-1.25.2"
-        memory: "4 GB"
-        cpu: "2"
+        memory: "{memory_gb} GB"
+        cpu: "{cpu} "
+        disks: "local-disk {disk_gb} HDD"
     }
 }
 
@@ -129,6 +135,11 @@ task process_tsv_files {
         File dob_tsv       # Path to echo_DoB_data.tsv
         File input_tsv     # Input TSV file to process
         String output_tsv_name = "processed_data.tsv"  # Name of the output TSV file
+
+        # Runtime parameters
+        Int memory_gb = 16
+        Int cpu = 4 
+        Int disk_gb = 100
     }
 
     command <<<
@@ -216,8 +227,10 @@ task process_tsv_files {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/python-numpy-pandas:1.0.0-2.2.3-1.25.2"
-        memory: "4 GB"
-        cpu: "2"
+        memory: "{memory_gb} GB"
+        cpu: "{cpu} "
+        disks: "local-disk {disk_gb} HDD"
+    }
     }
 }
 
@@ -229,6 +242,13 @@ task annotate_coverage {
         Boolean keep_targets = false  # Add annotation for target (default: false)
         Boolean hail_only = false  # Skip generating flat files (default: false)
         Int? split_merging = 10  # Number of jobs for splitting merging (default: 1)
+
+        # Runtime parameters
+        Int memory_gb = 1000
+        Int cpu = 64
+        Int disk_gb = 2000
+        String disk_type = "SSD"
+        String cpu_platform = "Intel Ice Lake"
     }
 
     command <<<
@@ -266,9 +286,10 @@ task annotate_coverage {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
-        memory: "8 GB"
-        cpu: "24"
-        disks: "local-disk 100 SSD"
+        memory: "{memory_gb} GB"
+        cpu: "{cpu} "
+        disks: "local-disk {disk_gb} {disk_type}"
+        cpu_platform: cpu_platform
     }
 }
 
@@ -282,6 +303,13 @@ task combine_vcfs {
         String output_bucket = "./results"    # Output bucket path
         String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"  # Path to artifact-prone sites BED file
         String file_name        # Output file name
+
+        # Runtime parameters
+        Int memory_gb = 1000
+        Int cpu = 64
+        Int disk_gb = 2000
+        String disk_type = "SSD"
+        String cpu_platform = "Intel Ice Lake"
     }
 
     command <<<
@@ -329,9 +357,10 @@ task combine_vcfs {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
-        memory: "8 GB"
-        cpu: "4"
-        disks: "local-disk 50 SSD"
+        memory: "{memory_gb} GB"
+        cpu: "{cpu} "
+        disks: "local-disk {disk_gb} {disk_type}"
+        cpu_platform: cpu_platform
     }
 }
 
@@ -342,6 +371,13 @@ task add_annotations {
         String coverage_tsv     # Path to the coverage input TSV file
         File vcf_mt             # Path to the MatrixTable
         String output_name      # directory output name
+        
+        # Runtime parameters
+        Int memory_gb = 1000
+        Int cpu = 64
+        Int disk_gb = 2000
+        String disk_type = "SSD"
+        String cpu_platform = "Intel Ice Lake"
     }
 
      command <<<
@@ -387,8 +423,9 @@ task add_annotations {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
-        memory: "8 GB"
-        cpu: "4"
-        disks: "local-disk 50 SSD"
+        memory: "{memory_gb} GB"
+        cpu: "{cpu} "
+        disks: "local-disk {disk_gb} {disk_type}"
+        cpu_platform: cpu_platform
     }
 }
