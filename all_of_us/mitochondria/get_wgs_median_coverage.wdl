@@ -55,14 +55,15 @@ task split_wgs_tsv {
             exit 1
         fi
 
-        # Compute lines per shard (ceil division on data rows only)
-        DATA_LINES=$((TOTAL_LINES - 1))
-        NUM=~{num_shards}
-        LINES_PER_SHARD=$(( (DATA_LINES + NUM - 1) / NUM ))
-        if [ "$LINES_PER_SHARD" -lt 1 ]; then LINES_PER_SHARD=1; fi
+    # Compute data rows and desired shard count
+    DATA_LINES=$((TOTAL_LINES - 1))
+    NUM=~{num_shards}
+    echo "TOTAL_LINES=$TOTAL_LINES DATA_LINES=$DATA_LINES NUM=$NUM" >&2
 
-        # Split data rows into chunks, then prepend header to each
-        tail -n +2 "~{wgs_metrics_tsv}" | split -d -l "$LINES_PER_SHARD" - parts/shard_
+    # Split data rows into ~NUM balanced chunks using GNU split lines mode
+    # This aims for NUM chunks; some may be empty if NUM > DATA_LINES
+    tail -n +2 "~{wgs_metrics_tsv}" | split -d -n l/$NUM - parts/shard_
+    echo "Produced $(ls parts | wc -l | tr -d ' ') raw parts" >&2
         for f in parts/shard_*; do
             # Prepend header
             mv "$f" "$f.body"
@@ -159,8 +160,8 @@ task merge_tsvs {
     command <<<
         set -euxo pipefail
 
-        # Sort file list for reproducibility
-        printf '%s\n' ~{sep='\n' part_tsvs} | sort > filelist.txt
+        # Sort file list for reproducibility (avoid executing paths as commands)
+        for f in ~{sep=' ' part_tsvs}; do echo "$f"; done | sort > filelist.txt
         first=true
         while IFS= read -r f; do
             if $first; then
