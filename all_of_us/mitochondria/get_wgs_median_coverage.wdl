@@ -55,15 +55,16 @@ task split_wgs_tsv {
             exit 1
         fi
 
-    # Compute data rows and desired shard count
-    DATA_LINES=$((TOTAL_LINES - 1))
-    NUM=~{num_shards}
-    echo "TOTAL_LINES=$TOTAL_LINES DATA_LINES=$DATA_LINES NUM=$NUM" >&2
+        # Compute data rows and desired shard count
+        DATA_LINES=$((TOTAL_LINES - 1))
+        NUM=~{num_shards}
+        echo "TOTAL_LINES=$TOTAL_LINES DATA_LINES=$DATA_LINES NUM=$NUM" >&2
 
-    # Split data rows into ~NUM balanced chunks using GNU split lines mode
-    # This aims for NUM chunks; some may be empty if NUM > DATA_LINES
-    tail -n +2 "~{wgs_metrics_tsv}" | split -d -n l/$NUM - parts/shard_
-    echo "Produced $(ls parts | wc -l | tr -d ' ') raw parts" >&2
+        # Split data rows into ~NUM balanced chunks using GNU split lines mode
+        # Note: -n l/NUM requires a regular file (not stdin), so write data rows to a temp file first
+        tail -n +2 "~{wgs_metrics_tsv}" > data_rows.tsv
+        split -d -n l/$NUM data_rows.tsv parts/shard_
+        echo "Produced $(ls parts/shard_* 2>/dev/null | wc -l | tr -d ' ') raw parts" >&2
         for f in parts/shard_*; do
             # Prepend header
             mv "$f" "$f.body"
