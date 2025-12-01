@@ -377,6 +377,11 @@ task BuildStarSingleNucleus {
         cp ${GTF_FILE} ~{annotation_gtf_modified}
     fi
 
+    ######## debugging #######
+    echo "Removing lines where column 3 == 'source' in GTF..."
+    awk -F'\t' 'BEGIN {OFS="\t"} $3 != "source" {print}' ~{annotation_gtf_modified} > temp.gtf && mv temp.gtf ~{annotation_gtf_modified}
+    echo "Removing lines where column 3 == 'source' in GTF complete. Building STAR index..."
+
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
