@@ -24,7 +24,7 @@ workflow vds_to_vcf {
         # This should be ordered
         Array[String] contigs
     }
-    String pipeline_version = "aou-8.0.0"
+    String pipeline_version = "aou_9.0.0"
 
     scatter (contig in contigs) {
         call process_vds {
@@ -61,6 +61,11 @@ task process_vds {
         String chromosome
         Int n_parts
         String output_prefix
+        String docker = "hailgenetics/hail:0.2.134-py3.11"
+        Int memory_gb = 624
+        Int cpu = 96
+        Int bootDiskSize_gb = 500
+        Int disk_gb = 1000
     }
     command <<<
         set -e
@@ -78,10 +83,6 @@ task process_vds {
         # Start Hail
         import pandas as pd
         import numpy as np
-        from hail.matrixtable import MatrixTable
-        from hail.typecheck import typecheck
-        from hail.vds.variant_dataset import VariantDataset
-
         import hail as hl
 
         spark_conf_more_ram = dict()
@@ -128,95 +129,8 @@ task process_vds {
         # Drop gvcf_info (if it exists) since it causes issues in test data we have seen.
         if 'gvcf_info' in vd_gt.entry:
             vd_gt = vd_gt.drop('gvcf_info')
-        
-        
 
-
-
-        @typecheck(vds=VariantDataset)
-        def to_dense_mt(vds: 'VariantDataset') -> 'MatrixTable':
-            """Creates a single, dense :class:`.MatrixTable` from the split
-            :class:`.VariantDataset` representation.
-
-            Parameters
-            ----------
-            vds : :class:`.VariantDataset`
-                Dataset in VariantDataset representation.
-
-            Returns
-            -------
-            :class:`.MatrixTable`
-                Dataset in dense MatrixTable representation.
-            """
-            ref = vds.reference_data
-            # FIXME(chrisvittal) consider changing END semantics on VDS to make this better
-            # see https://github.com/hail-is/hail/issues/13183 for why this is here and more discussion
-            # we assume that END <= contig.length
-            ref = ref.annotate_rows(_locus_global_pos=ref.locus.global_position(), _locus_pos=ref.locus.position)
-            ref = ref.transmute_entries(_END_GLOBAL=ref._locus_global_pos + (ref.END - ref._locus_pos))
-
-            to_drop = 'alleles', 'rsid', 'ref_allele', '_locus_global_pos', '_locus_pos'
-            ref = ref.drop(*(x for x in to_drop if x in ref.row))
-            var = vds.variant_data
-            refl = ref.localize_entries('_ref_entries')
-            varl = var.localize_entries('_var_entries', '_var_cols')
-            varl = varl.annotate(_variant_defined=True)
-            joined = varl.key_by('locus').join(refl, how='outer')
-            dr = joined.annotate(
-                dense_ref=hl.or_missing(
-                    joined._variant_defined, hl.scan._densify(hl.len(joined._var_cols), joined._ref_entries)
-                )
-            )
-            dr = dr.filter(dr._variant_defined)
-
-            def coalesce_join(ref, var):
-                call_field = 'GT' if 'GT' in var else 'LGT'
-                assert call_field in var, var.dtype
-
-                if call_field not in ref:
-                    ref_call_field = 'GT' if 'GT' in ref else 'LGT'
-                    if ref_call_field not in ref:
-                        ref = ref.annotate(**{call_field: hl.call(0, 0)})
-                    else:
-                        ref = ref.annotate(**{call_field: ref[ref_call_field]})
-
-                # call_field is now in both ref and var
-                ref_set, var_set = set(ref.dtype), set(var.dtype)
-                shared_fields, var_fields = var_set & ref_set, var_set - ref_set
-
-                return hl.if_else(
-                    hl.is_defined(var),
-                    var.select(*shared_fields, *var_fields),
-                    ref.select(*shared_fields, **{f: hl.missing(var[f].dtype) for f in var_fields}),
-                )
-
-            dr = dr.annotate(
-                _dense=hl.rbind(
-                    dr._ref_entries,
-                    lambda refs_at_this_row: hl.enumerate(hl.zip(dr._var_entries, dr.dense_ref)).map(
-                        lambda tup: coalesce_join(
-                            hl.coalesce(
-                                refs_at_this_row[tup[0]],
-                                hl.or_missing(tup[1][1]._END_GLOBAL >= dr.locus.global_position(), tup[1][1]),
-                            ),
-                            tup[1][0],
-                        )
-                    ),
-                ),
-            )
-
-            dr = dr._key_by_assert_sorted('locus', 'alleles')
-            fields_to_drop = ['_var_entries', '_ref_entries', 'dense_ref', '_variant_defined']
-
-            if hl.vds.VariantDataset.ref_block_max_length_field in dr.globals:
-                fields_to_drop.append(hl.vds.VariantDataset.ref_block_max_length_field)
-
-            if 'ref_allele' in dr.row:
-                fields_to_drop.append('ref_allele')
-            dr = dr.drop(*fields_to_drop)
-            return dr._unlocalize_entries('_dense', '_var_cols', list(var.col_key))
-
-        d_callset = to_dense_mt(hl.vds.VariantDataset(callset.reference_data, vd_gt))
+        d_callset = hl.vds.to_dense_mt(hl.vds.VariantDataset(callset.reference_data, vd_gt))
         d_callset = d_callset.annotate_rows(gt_stats = hl.agg.call_stats(d_callset.GT, d_callset.alleles))
         d_callset = d_callset.rename({"gt_stats":"info"})
         d_callset.describe()
@@ -246,11 +160,11 @@ task process_vds {
         File vcf_so_idx = "~{output_prefix}.~{chromosome}.so.vcf.bgz.tbi"
     }
     runtime {
-        docker: "hailgenetics/hail:0.2.127-py3.11"
-        memory: "624 GB"
-        cpu: "96"
-        disks: "local-disk 1000 HDD"
-        bootDiskSizeGb: 500
+        docker: docker
+        memory: "~{memory_gb} GiB"
+        cpu: cpu
+        disks: "local-disk ~{disk_gb} HDD"
+        bootDiskSizeGb: bootDiskSize_gb
     }
 }
 
@@ -259,6 +173,10 @@ task create_fofn {
         Array[String] file_urls1
         Array[String] file_urls2
         String output_prefix
+        String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+        Int memory_gb = 3
+        Int cpu = 1
+        Int disk_gb = 100
     }
     File fofn1_in = write_lines(file_urls1)
     File fofn2_in = write_lines(file_urls2)
@@ -272,9 +190,9 @@ task create_fofn {
         File fofn2 = "~{output_prefix}.fofn2.txt"
     }
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
-        memory: "3 GB"
-        cpu: "1"
-        disks: "local-disk 100 HDD"
+        docker: docker
+        memory: "~{memory_gb} GiB"
+        cpu: cpu
+        disks: "local-disk ~{disk_gb} HDD"
     }
 }

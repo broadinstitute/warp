@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/skylab/paired_tag/PairedTag.wdl" as PairedTag
+import "../../pipelines/wdl/paired_tag/PairedTag.wdl" as PairedTag
 import "../../verification/VerifyPairedTag.wdl" as VerifyPairedTag
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestPairedTag {
 
@@ -47,6 +47,8 @@ workflow TestPairedTag {
       String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
       # Whitelist
       File atac_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt"
+      # Optional aligned ATAC bam file
+      File? aligned_ATAC_bam
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -90,7 +92,8 @@ workflow TestPairedTag {
         soloMultiMappers = soloMultiMappers,
         cloud_provider = cloud_provider,
         gex_nhash_id = gex_nhash_id,
-        atac_nhash_id = atac_nhash_id
+        atac_nhash_id = atac_nhash_id,
+        aligned_ATAC_bam = aligned_ATAC_bam
     }
 
     

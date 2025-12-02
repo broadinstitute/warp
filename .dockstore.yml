@@ -1,22 +1,34 @@
 version: 1.2
 workflows:
 
+  - name: aggregate_rsem_results
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/aggregate_rsem_results.wdl
+
   - name: ArrayImputationQuotaConsumed
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ArrayImputationQuotaConsumed.wdl
+    primaryDescriptorPath: /pipelines/wdl/arrays/imputation_beagle/ArrayImputationQuotaConsumed.wdl
+
+  - name: ArrayImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/arrays/imputation_beagle/input_qc/ArrayImputationQC.wdl
 
   - name: atac
     subclass: WDL
     primaryDescriptorPath:
-      /pipelines/skylab/atac/atac.wdl
+      /pipelines/wdl/atac/atac.wdl
 
   - name: BuildIndices
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/build_indices/BuildIndices.wdl
+    primaryDescriptorPath: /pipelines/wdl/build_indices/BuildIndices.wdl
 
   - name: CramToUnmappedBams
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
+    primaryDescriptorPath: /pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
+
+  - name: CyriusStarAlleleCalling
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/pgx/CyriusStarAlleleCalling.wdl
 
   - name: determine_hq_sites_intersection
     subclass: WDL
@@ -24,49 +36,93 @@ workflows:
   
   - name: ExomeGermlineSingleSample
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl
+    primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl
 
   - name: ExomeReprocessing
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/reprocessing/exome/ExomeReprocessing.wdl
+    primaryDescriptorPath: /pipelines/wdl/reprocessing/exome/ExomeReprocessing.wdl
+
+  - name: FilterandQCVariants
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
+
+  - name: FixItFelixAndVariantCall
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/cmrg/FixItFelixAndVariantCall.wdl
+
+  - name: GvsAoUReblockGvcf
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/cmrg/GvsAoUReblockGvcf.wdl
+
+  - name: HLAGenotyping
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/hla/HLAGenotyping.wdl
 
   - name: IlluminaGenotypingArray
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl
+    primaryDescriptorPath: /pipelines/wdl/genotyping/illumina/IlluminaGenotypingArray.wdl
 
   - name: Imputation
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/arrays/imputation/Imputation.wdl
+    primaryDescriptorPath: /pipelines/wdl/arrays/imputation/Imputation.wdl
 
   - name: ImputationBeagle
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ImputationBeagle.wdl
+    primaryDescriptorPath: /pipelines/wdl/arrays/imputation_beagle/ImputationBeagle.wdl
 
   - name: JointGenotyping
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
+    primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
+
+  - name: leafcutter_bam_to_junc
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_bam_to_junc.wdl
+
+  - name: leafcutter_cluster
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_cluster.wdl
+
+  - name: LocalizeAndConcatStargazer
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/pgx/LocalizeAndConcatStargazer.wdl
+
+  - name: MakeTable
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
+
+  - name: mitochondria_pipeline
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/mitochondria/mitochondria_pipeline.wdl
+
+  - name: mt_coverage_merge
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/mitochondria/mt_coverage_merge.wdl
 
   - name: Multiome
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/multiome/Multiome.wdl
+    primaryDescriptorPath: /pipelines/wdl/multiome/Multiome.wdl
 
   - name: Optimus
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/optimus/Optimus.wdl
+    primaryDescriptorPath: /pipelines/wdl/optimus/Optimus.wdl
     testParameterFiles:
-          -  /warp/pipelines/skylab/optimus/example_inputs/human_v3_example.json
+          -  /warp/pipelines/wdl/optimus/example_inputs/human_v3_example.json
 
   - name: PairedTag
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/paired_tag/PairedTag.wdl
+    primaryDescriptorPath: /pipelines/wdl/paired_tag/PairedTag.wdl
+
+  - name: pca_only_no_labels
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/PCA/pca_only_no_labels.wdl
 
   - name: PeakCalling
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/peak_calling/PeakCalling.wdl
+    primaryDescriptorPath: /pipelines/wdl/peak_calling/PeakCalling.wdl
 
   - name: ReblockGVCF
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl
+    primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl
 
   - name: rnaseq_aou
     subclass: WDL
@@ -74,31 +130,66 @@ workflows:
 
   - name: RNAWithUMIsPipeline
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl
+    primaryDescriptorPath: /pipelines/wdl/rna_seq/RNAWithUMIsPipeline.wdl
+
+  - name: run_preprocess_admixture_est_rye
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/admixture/run_preprocess_admixture_est_rye.wdl
+
+  - name: run_admixture_est_rye
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/admixture/run_admixture_est_rye.wdl
 
   - name: run_ancestry
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_ancestry.wdl
  
+  - name: run_relatedness
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/ancestry/run_relatedness.wdl
+
+  - name: run_sample_outlier_qc
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/ancestry/run_sample_outlier_qc.wdl
+
+  - name: run_sample_outlier_qc_plotting
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/ancestry/run_sample_outlier_qc_plotting.wdl
+
   - name: Smartseq2_Single_Nucleus
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl
+    primaryDescriptorPath: /pipelines/wdl/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl
 
   - name: Smartseq2_Single_Nucleus_Multisample
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl
+    primaryDescriptorPath: /pipelines/wdl/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl
 
   - name: SlideSeq
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/slideseq/SlideSeq.wdl
+    primaryDescriptorPath: /pipelines/wdl/slideseq/SlideSeq.wdl
 
   - name: SlideTags
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/slidetags/SlideTags.wdl
+    primaryDescriptorPath: /pipelines/wdl/slidetags/SlideTags.wdl
 
   - name: snm3C-seq
     subclass: WDL
-    primaryDescriptorPath: /pipelines/skylab/snm3C/snm3C.wdl
+    primaryDescriptorPath: /pipelines/wdl/snm3C/snm3C.wdl
+
+  - name: SplitMultisampleVcf
+    subclass: WDL
+
+    primaryDescriptorPath: /beta-pipelines/broad/Utilities/SplitMultisampleVCF/SplitMultisampleVCF.wdl
+    readMePath: /beta-pipelines/broad/Utilities/SplitMultisampleVCF/README.md
+
+  - name: StargazerFromJointVCF
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/pgx/StargazerFromJointVCF.wdl
+
+
+  - name: TestArrayImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestArrayImputationQC.wdl
 
   - name: TestATAC
     subclass: WDL
@@ -198,19 +289,19 @@ workflows:
 
   - name: UltimaGenomicsWholeGenomeGermline
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl
+    primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl
 
   - name: UltimaGenomicsJointGenotyping
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl
+    primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl
 
   - name: UltimaGenomicsWholeGenomeCramOnly
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl
+    primaryDescriptorPath: /pipelines/wdl/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl
 
   - name: VariantCalling
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
+    primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/variant_calling/VariantCalling.wdl
 
   - name: vds_to_vcf
     subclass: WDL
@@ -218,8 +309,8 @@ workflows:
   
   - name: WholeGenomeGermlineSingleSample
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl
+    primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl
 
   - name: WholeGenomeReprocessing
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/reprocessing/wgs/WholeGenomeReprocessing.wdl
+    primaryDescriptorPath: /pipelines/wdl/reprocessing/wgs/WholeGenomeReprocessing.wdl

@@ -1,27 +1,28 @@
-Pipeline Name	Version	Date of Last Commit
-IlluminaGenotypingArray	 1.12.24	2024-11-04
-WholeGenomeReprocessing	 3.3.4	2025-02-21 
-ExomeReprocessing	 3.3.4	2025-02-21 
+ArrayImputationQC	 1.2.3 	2025-10-17 
+ArrayImputationQuotaConsumed	 1.1.0	2025-09-29 
+BuildIndices	 5.0.2	2025-11-20 
 CramToUnmappedBams	 1.1.3	2024-08-02 
-RNAWithUMIsPipeline	 1.0.18	2024-11-04 
-ArrayImputationQuotaConsumed	 1.0.2	2025-04-07
-ImputationBeagle	 1.0.2	2025-04-07
-Imputation	 1.1.18	2025-04-07
-UltimaGenomicsWholeGenomeCramOnly	 1.1.0	2025-03-17
-JointGenotyping	 1.7.2	2024-11-04
-UltimaGenomicsJointGenotyping	 1.2.2	2024-11-04
-ReblockGVCF	 2.4.1	2025-02-21
-UltimaGenomicsWholeGenomeGermline	 1.2.0	2025-03-17 
-WholeGenomeGermlineSingleSample	 3.3.4	2025-02-12 
-ExomeGermlineSingleSample	 3.2.4	2025-02-21 
-VariantCalling	 2.2.5	2025-02-21 
-atac	 2.7.2	2025-04-15
-Multiome	 6.0.3	25-05-27
-BuildIndices	 4.0.0	2025-01-17
-Optimus	 8.0.1	2025-05-27
-MultiSampleSmartSeq2SingleNucleus	 2.2.1	2025-05-27
-SlideSeq	 3.6.1	2025-05-27
-snm3C	 4.0.4	2024-08-06
-PeakCalling	 1.0.0
-SlideTags	 1.0.0
-PairedTag	 2.1.2	2025-05-27
+ExomeGermlineSingleSample	 3.2.6	2025-10-09 
+ExomeReprocessing	 3.3.6	2025-10-09 
+IlluminaGenotypingArray	 1.12.26	2025-10-09 
+Imputation	 1.1.23	2025-10-03 
+ImputationBeagle	 2.3.0	2025-11-12 
+JointGenotyping	 1.7.3	2025-08-11 
+MultiSampleSmartSeq2SingleNucleus	 2.2.2	 2025-06-20 
+Multiome	 6.1.3	2025-08-15 
+Optimus	 8.0.4	25-07-31 
+PairedTag	 2.1.9	2025-09-19 
+PeakCalling	 1.0.1	2025-08-11 
+Pipeline Name	Version	Date of Last Commit
+RNAWithUMIsPipeline	 1.0.19	2025-08-11 
+ReblockGVCF	 2.4.3	2025-10-09 
+SlideSeq	 3.6.3	2025-06-20 
+SlideTags	 1.0.5	2025-10-24 
+UltimaGenomicsJointGenotyping	 1.2.3	2025-08-11 
+UltimaGenomicsWholeGenomeCramOnly	 1.1.2	2025-10-09 
+UltimaGenomicsWholeGenomeGermline	 1.2.1	2025-10-09 
+VariantCalling	 2.2.7	2025-10-09 
+WholeGenomeGermlineSingleSample	 3.3.6	2025-10-09 
+WholeGenomeReprocessing	 3.3.6	2025-10-09 
+atac	 2.9.3	2025-09-19 
+snm3C	 4.1.1	2025-09-19 

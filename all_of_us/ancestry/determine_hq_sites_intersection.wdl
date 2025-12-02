@@ -34,7 +34,7 @@ workflow determine_hq_sites_intersection {
 
     Array[File] ordered_vcf_shards = if (defined(ordered_vcf_shards_list)) then read_lines(select_first([ordered_vcf_shards_list, ""])) else ordered_vcf_shards_in
     Array[File] ordered_vcf_shards_idx = if (defined(ordered_vcf_shards_idx_list)) then read_lines(select_first([ordered_vcf_shards_idx_list, ""])) else ordered_vcf_shards_idx_in
-    String pipeline_version = "aou-8.0.0"
+    String pipeline_version = "aou_9.0.0"
 
     # Get the high quality sites that are called in the test data (intersection file).
     #  Return as a full VCF of the training data ("hq full").  And return the count as well.
@@ -146,7 +146,7 @@ task sitesOnlyAndHQFilterVcf {
     }
 
     command <<<
-        set -e
+        set -euxo pipefail
 
         if [ ~{has_service_account_file} = 'true' ]; then
         gsutil cp ~{service_account_json} ~{service_account_basename}
@@ -200,7 +200,7 @@ task merge_vcf_bgzs {
     }
 
     command <<<
-        set -e
+        set -euxo pipefail
         echo "Install Google CLI"
         apt-get update
         apt-get -y install curl python3
@@ -243,7 +243,7 @@ task merge_vcf_bgzs {
 
     runtime {
         docker: "mgibio/bcftools-cwl:1.12"
-        memory: "100 GB"
+        memory: "120 GB"
         cpu: "16"
         disks: "local-disk 1500 HDD"
         bootDiskSizeGb: 1500
@@ -282,6 +282,7 @@ task filter_by_sites_only {
 
     command <<<
 
+        set -euxo pipefail
         if [ ~{has_service_account_file} = 'true' ]; then
         gsutil cp ~{service_account_json} ~{service_account_basename}
         export GOOGLE_APPLICATION_CREDENTIALS=~{service_account_basename}
@@ -290,7 +291,7 @@ task filter_by_sites_only {
         gsutil cp ~{vcf_idx} .
         fi
 
-        gatk SelectVariants -V ~{updated_input_vcf} -L ~{sites_only_vcf}  -O ~{output_filename}
+        gatk SelectVariants -V ~{updated_input_vcf} --exclude-filtered -L ~{sites_only_vcf}  -O ~{output_filename}
         gatk IndexFeatureFile -I ~{output_filename}
     >>>
 
@@ -301,7 +302,7 @@ task filter_by_sites_only {
 
     runtime {
         docker:"us.gcr.io/broad-gatk/gatk:4.2.0.0"
-        memory: "3 GB"
+        memory: "7 GB"
         cpu: "1"
         disks: "local-disk 100 HDD"
     }
@@ -319,6 +320,7 @@ task intersect_vcfs_as_sites_only {
     String output1_filename_idx = output1_filename + ".tbi"
 
     command <<<
+        set -euxo pipefail
         gatk  SelectVariants \
         -V ~{vcf1} \
         -L ~{vcf2} \
@@ -337,7 +339,7 @@ task intersect_vcfs_as_sites_only {
 
     runtime {
         docker: "us.gcr.io/broad-gatk/gatk:4.2.0.0"
-        memory: "3 GB"
+        memory: "7 GB"
         cpu: "1"
         disks: "local-disk 500 HDD"
     }

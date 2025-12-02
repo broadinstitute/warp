@@ -112,26 +112,33 @@ task CompareTabix {
     File truth_fragment_file
   }
   command <<<
-    exit_code=0
-    a=$(md5sum "~{test_fragment_file}" | awk '{ print $1 }')
-    b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
+  exit_code=0
 
-    if [[ $a = $b ]]; then
-      echo "The fragment files are equal"
-    else
-      echo "The fragment files md5sums do not match. Performing a line count:"
-        test_lines=$(wc -l ~{test_fragment_file} | awk '{ print $1 }')
-        truth_lines=$(wc -l ~{truth_fragment_file} | awk '{ print $1 }')
-        echo "Test file has $test_lines lines"
-        echo "Truth file has $truth_lines lines"
-        diff_lines=$((test_lines - truth_lines))
-        abs_diff_lines=${diff_lines#-}
+  a=$(gunzip -c ~{test_fragment_file} | md5sum | awk '{ print $1 }')
+  b=$(gunzip -c ~{truth_fragment_file} | md5sum | awk '{ print $1 }')
 
-        if [[ $abs_diff_lines -gt 100 ]]; then
-          echo "Line count difference greater than 100 lines. The line count difference is $abs_diff_lines lines. Task failed."
-          exit_code=1
-        fi
+  if [[ "$a" = "$b" ]]; then
+    echo "The fragment files are equal"
+  else
+    echo "The fragment files md5sums do not match. Performing a line count:"
+
+    test_lines=$(gunzip -c ~{test_fragment_file} | wc -l)
+    truth_lines=$(gunzip -c ~{truth_fragment_file} | wc -l)
+
+    echo "Test file has $test_lines lines"
+    echo "Truth file has $truth_lines lines"
+
+    diff_lines=$((test_lines - truth_lines))
+    abs_diff_lines=${diff_lines#-}
+
+    if [[ $abs_diff_lines -gt 100 ]]; then
+      echo "Line count difference greater than 100 lines. The line count difference is $abs_diff_lines lines. Task failed."
+      exit_code=1
     fi
+  fi
+
+  exit $exit_code
+
   >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/snapatac2:2.0.0"
@@ -819,31 +826,34 @@ task CompareH5Files {
   }
 
   command {
-    set -eo pipefail
-    exit_code=0
-    
+
     apt update
     apt install -y hdf5-tools
 
-    h5diff ~{test_h5} ~{truth_h5} > diff_output.txt
+    h5diff -v ~{test_h5} ~{truth_h5} > diff_output.txt
+    diff_exit_code=$?
 
     echo "H5diff output:"
     # Print the diff output to the console
     cat diff_output.txt
-    
-    if [ $? -ne 0 ]; then
-      echo "H5 files differ."
-      exit_code=2
-    else
+
+    if [ $diff_exit_code -eq 0 ]; then
       echo "H5 files are identical."
+    elif [ $diff_exit_code -eq 1 ]; then
+      echo "H5 files differ."
+    else
+      echo "Error comparing H5 files."
     fi
-    echo "Exiting with code $exit_code"
+
+    echo "Exiting with code $diff_exit_code"
+    exit $diff_exit_code
+
   }
 
   runtime {
     docker: "ubuntu:20.04"
-    disks: "local-disk 100 HDD"
-    memory: "50 GiB"
+    disks: "local-disk 150 HDD"
+    memory: "80 GiB"
     preemptible: 3
   }
 }

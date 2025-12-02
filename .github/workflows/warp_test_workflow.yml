@@ -232,6 +232,8 @@ jobs:
           ALL_OUTPUTS=""
           declare -a SUBMISSION_IDS
           declare -A WORKFLOW_STATUSES
+          declare -A SUBMISSION_ID_TO_FILENAME
+
           OVERALL_SUCCESS=true  
 
           # Convert UPDATE_TRUTH and USE_CALL_CACHE to a boolean-friendly format ("true" -> true, "false" -> false)
@@ -317,6 +319,7 @@ jobs:
               fi
 
               echo "Submission successful. Submission ID: $SUBMISSION_ID"
+              SUBMISSION_ID_TO_FILENAME["$SUBMISSION_ID"]="$input_file_filename"          
               SUBMISSION_IDS+=("$SUBMISSION_ID")
               break
             done
@@ -377,18 +380,47 @@ jobs:
             done
           done
           
-          # Generate final summary
+          # Generate final markdown and JSON summary
           FINAL_SUMMARY="## Combined Workflow Statuses\n\n"
-          
+          JSON_SUMMARY='{"summary":['
+          FIRST_ENTRY=true
+
            # Add all workflow statuses to the summary
           for SUBMISSION_ID in "${!WORKFLOW_STATUSES[@]}"; do
+            # Generate the submission URL and append to the summary
             SUBMISSION_URL="https://app.terra.bio/#workspaces/$WORKSPACE_NAMESPACE/WARP%20Tests/job_history/$SUBMISSION_ID"
-            # Add the Submission ID as a hyperlink
-            FINAL_SUMMARY+="[Submission ID: $SUBMISSION_ID]($SUBMISSION_URL)\n"
-            # Add the workflows and statuses for this submission
+            # Get the input file name from the mapping
+            INPUT_FILE_NAME="${SUBMISSION_ID_TO_FILENAME[$SUBMISSION_ID]}"
+            # Append the submission details to the final summary
+            FINAL_SUMMARY+="[${INPUT_FILE_NAME}]($SUBMISSION_URL)\n"
+            # Append the workflow statuses for this submission
             FINAL_SUMMARY+="${WORKFLOW_STATUSES[$SUBMISSION_ID]}\n\n"
+
+            # Parse workflow IDs and statuses for JSON
+            while IFS='|' read -r WORKFLOW_ID STATUS; do
+              # Trim whitespace
+              WORKFLOW_ID=$(echo "$WORKFLOW_ID" | xargs)
+              STATUS=$(echo "$STATUS" | xargs)
+
+              # Skip header row
+              if [ "$WORKFLOW_ID" != "Workflow ID" ] && [ "$WORKFLOW_ID" != "---" ]; then
+                # Add comma separator after first entry
+                if [ "$FIRST_ENTRY" = false ]; then
+                  JSON_SUMMARY+=','
+                else
+                  FIRST_ENTRY=false
+                fi
+
+                # Add JSON entry
+                JSON_SUMMARY+="{\"id\":\"$WORKFLOW_ID\",\"filename\":\"$INPUT_FILE_NAME\",\"url\":\"$SUBMISSION_URL\",\"status\":\"$STATUS\"}"
+              fi
+            done <<< "${WORKFLOW_STATUSES[$SUBMISSION_ID]}"
           done
           
+          # Close JSON array and object
+          JSON_SUMMARY+=']}'
+
+          echo "$JSON_SUMMARY" | jq '.' | tee workflow_summary.json
           echo -e "$FINAL_SUMMARY" >> $GITHUB_STEP_SUMMARY
           
           if [ "$OVERALL_SUCCESS" = false ]; then
@@ -430,14 +462,40 @@ jobs:
             exit 1
           fi
 
-      # Step 13: Print Summary on Success
+      # Step 13: Upload Summary Artifact
+      # Purpose: Uploads the workflow summary JSON as an artifact for further analysis
+      - name: Upload Summary Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-summary
+          path: workflow_summary.json
+
+      # Step 14: Post Summary Artifact
+      # Purpose: Sends the workflow summary JSON to the workflow analysis processor
+      - name: Post Summary Artifact
+        if: always()
+        env:
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+        run: |
+          if [ -f "workflow_summary.json" ]; then
+            jq -n --arg RUN_ID "$WORKFLOW_RUN_ID" --slurpfile SUMMARY workflow_summary.json '{run_id: $RUN_ID, summary: $SUMMARY[0].summary}' > workflow_payload.json
+            curl -X POST "https://workflow-processor-5zhxczqoxq-uc.a.run.app/api/workflow-summary/" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ github.token }}" \
+              -d @workflow_payload.json
+          else
+            echo "Warning: workflow_summary.json not found. Check for earlier failures."
+          fi
+
+      # Step 15: Print Summary on Success
       # Purpose: Prints the final summary of the pipeline execution in case of success
       - name: Print Summary on Success
         if: success()
         run: |
           echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
 
-      # Step 14: Print Summary on Failure
+      # Step 16: Print Summary on Failure
       # Purpose: Prints the final summary of the pipeline execution in case of failure
       - name: Print Summary on Failure
         if: failure()

@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/skylab/multiome/Multiome.wdl" as Multiome
+import "../../pipelines/wdl/multiome/Multiome.wdl" as Multiome
 import "../../verification/VerifyMultiome.wdl" as VerifyMultiome
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 
 workflow TestMultiome {
@@ -45,6 +45,9 @@ workflow TestMultiome {
       # Trimadapters input
       String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
       String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
+
+      # Optional aligned ATAC bam file
+      File? aligned_ATAC_bam
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -87,7 +90,8 @@ workflow TestMultiome {
         cloud_provider = cloud_provider,
         gex_nhash_id = gex_nhash_id,
         atac_nhash_id = atac_nhash_id,
-        run_peak_calling = run_peak_calling
+        run_peak_calling = run_peak_calling,
+        aligned_ATAC_bam = aligned_ATAC_bam
     }
 
     

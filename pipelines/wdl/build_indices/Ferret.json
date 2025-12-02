@@ -1,0 +1,13 @@
+{
+  "BuildIndices.annotations_gff": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/Ferret/GCF_011764305.1_ASM1176430v1.1_genomic.gff.gz",
+  "BuildIndices.annotations_gtf": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/9669-Mustela_putorius_furo__ASM1176430v1-1/genes/genes.gtf.gz",
+  "BuildIndices.biotypes": "gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Biotypes.tsv",
+  "BuildIndices.genome_build": "ASM1176430v1.1",
+  "BuildIndices.genome_fa": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/9669-Mustela_putorius_furo__ASM1176430v1-1/fasta/genome.fa",
+  "BuildIndices.genome_source": "NCBI",
+  "BuildIndices.gtf_annotation_version": "GCF_011764305.1",
+  "BuildIndices.mito_accession": "NC_020638.1",
+  "BuildIndices.mito_ref_gbk": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/Ferret/sequence.gb",
+  "BuildIndices.organism": "Ferret",
+  "BuildIndices.run_mitofinder": "true"
+}

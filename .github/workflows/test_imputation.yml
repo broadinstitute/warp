@@ -10,16 +10,16 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/broad/arrays/imputation/**'
+      - 'pipelines/wdl/arrays/imputation/**'
       - 'structs/imputation/ImputationStructs.wdl'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/broad/ImputationTasks.wdl'
+      - 'tasks/wdl/ImputationTasks.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyImputation.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestImputation.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_imputation.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -55,7 +55,7 @@ jobs:
     with:
       pipeline_name: TestImputation
       dockstore_pipeline_name: Imputation
-      pipeline_dir: pipelines/broad/arrays/imputation
+      pipeline_dir: pipelines/wdl/arrays/imputation
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

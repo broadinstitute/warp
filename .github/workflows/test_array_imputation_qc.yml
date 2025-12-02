@@ -1,0 +1,73 @@
+name: Test ArrayImputationQC
+
+# Controls when the workflow will run
+on:
+  pull_request:
+    branches: [ "develop", "staging", "master" ]
+    # Only run if files in these paths changed:
+    ####################################
+    # SET PIPELINE SPECIFIC PATHS HERE #
+    ####################################
+    paths:
+      - 'pipelines/wdl/arrays/imputation_beagle/input_qc/**'
+      - 'tasks/wdl/ImputationBeagleQcTasks.wdl'
+      - 'verification/VerifyArrayImputationQC.wdl'
+      - 'verification/test-wdls/TestArrayImputationQC.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
+      - '.github/workflows/test_array_imputation_qc.yml'
+      - '.github/workflows/warp_test_workflow.yml'
+
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      useCallCache:
+        description: 'Use call cache (default: true)'
+        required: false
+        default: "true"
+      updateTruth:
+        description: 'Update truth files (default: false)'
+        required: false
+        default: "false"
+      testType:
+        description: 'Specify the type of test (Plumbing or Scientific)'
+        required: false
+        type: choice
+        options:
+          - Plumbing
+          - Scientific
+      truthBranch:
+        description: 'Specify the branch for truth files (default: master)'
+        required: false
+        default: "master"
+
+env:
+  # pipeline configuration
+  PIPELINE_NAME: TestArrayImputationQC
+  DOCKSTORE_PIPELINE_NAME: ArrayImputationQC
+  PIPELINE_DIR: "pipelines/wdl/arrays/imputation_beagle/input_qc"
+
+  # workspace configuration
+  TESTING_WORKSPACE: WARP Tests
+  WORKSPACE_NAMESPACE: warp-pipelines
+
+  # service account configuration
+  SA_JSON_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
+  USER: pdt-tester@warp-pipeline-dev.iam.gserviceaccount.com
+
+
+jobs:
+  TestArrayImputationQC:
+    uses: ./.github/workflows/warp_test_workflow.yml
+    with:
+      pipeline_name: TestArrayImputationQC
+      dockstore_pipeline_name: ArrayImputationQC
+      pipeline_dir: pipelines/wdl/arrays/imputation_beagle/input_qc
+      use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
+      update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
+      test_type: ${{ github.event.inputs.testType }}
+      truth_branch: ${{ github.event.inputs.truthBranch || 'master' }}
+    secrets:
+      PDT_TESTER_SA_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
+      DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}
