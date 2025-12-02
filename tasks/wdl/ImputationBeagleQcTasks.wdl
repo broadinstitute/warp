@@ -38,6 +38,16 @@ task QcChecks {
             echo "VCF version < 4.0 or not found." >> qc_messages.txt;
         fi
 
+        # filter indels coded as REF or ALT “D/I”
+        bcftools view -i 'REF="I,D" || ALT="I,D"' ~{vcf_input} > indels.vcf
+
+        # check if indels.vcf has any variants coded as REF or ALT “D/I”
+        if grep -v '^#' indels.vcf | grep -q .; then
+            echo "No improperly coded indels found in input VCF."
+        else
+            echo "Input VCF contains improperly coded indels." >> qc_messages.txt;
+        fi
+
         # check for variants in at least one of the canonical chromosomes - chr1 to chr22
         gunzip -c ~{vcf_input} | grep -v "#" | cut -f1 | sort -u > chromosomes.txt
 
