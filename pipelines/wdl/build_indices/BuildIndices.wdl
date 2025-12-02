@@ -379,8 +379,26 @@ task BuildStarSingleNucleus {
 
     ######## debugging #######
     echo "Removing lines where column 3 == 'source' in GTF..."
-    awk -F'\t' 'BEGIN {OFS="\t"} $3 != "source" {print}' ~{annotation_gtf_modified} > temp.gtf && mv temp.gtf ~{annotation_gtf_modified}
-    echo "Removing lines where column 3 == 'source' in GTF complete. Building STAR index..."
+
+    awk -F'\t' '
+      /^#/ { print > "gtf.cleaned.tmp"; next }
+      {
+        if ($3 == "source") {
+          deleted_lines++;
+          print "Deleting line:", NR, $0 >> "deleted_lines.log"
+        } else {
+          print > "gtf.cleaned.tmp"
+        }
+      }
+      END {
+        print "Total deleted lines:", deleted_lines > "/dev/stderr"
+      }
+    ' ~{annotation_gtf_modified}
+
+    mv gtf.cleaned.tmp ~{annotation_gtf_modified}
+
+    echo "Deleted line summary:"
+    cat deleted_lines.log
 
     mkdir star
     STAR --runMode genomeGenerate \
