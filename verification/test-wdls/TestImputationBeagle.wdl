@@ -108,8 +108,8 @@ workflow TestImputationBeagle {
           test_metrics = GetMetrics.results_files,
           multi_sample_truth_vcf = GetImputedMultiSampleVcf.truth_file,
           multi_sample_test_vcf = GetImputedMultiSampleVcf.results_file,
-          sites_only_truth_vcf = GetImputedSitesOnlyVcf.truth_file,
-          sites_only_test_vcf = GetImputedSitesOnlyVcf.results_file,
+          hom_ref_truth_vcf = GetImputedSitesOnlyVcf.truth_file,
+          hom_ref_test_vcf = GetImputedSitesOnlyVcf.results_file,
           done = CopyToTestResults.done
       }
     }
