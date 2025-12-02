@@ -4,10 +4,10 @@ workflow mt_coverage_merge {
 
     input {
         # Side inputs with fields that are not incoporated in the samples table
-        String coverage_tsv
-        String ancestry_tsv
-        String dob_tsv
-
+        File coverage_tsv
+        File ancestry_tsv
+        File dob_tsv
+        File wgs_median_coverage_tsv 
 
         File full_data_tsv
         File? sample_list_tsv
@@ -16,13 +16,13 @@ workflow mt_coverage_merge {
 
     String pipeline_version = "1.0.0"
 
-if (defined(sample_list_tsv)) {
-    call subset_data_table {
-        input:
-            full_data_tsv = full_data_tsv,
-            sample_list_tsv = sample_list_tsv
-        }
-}
+    if (defined(sample_list_tsv)) {
+        call subset_data_table {
+            input:
+                full_data_tsv = full_data_tsv,
+                sample_list_tsv = sample_list_tsv
+            }
+    }
 
     File input_table = select_first([subset_data_table.subset_tsv, full_data_tsv])
 
@@ -32,6 +32,7 @@ if (defined(sample_list_tsv)) {
             coverage_tsv = coverage_tsv,
             ancestry_tsv = ancestry_tsv,
             dob_tsv = dob_tsv,
+            wgs_median_coverage_tsv = wgs_median_coverage_tsv,
             input_tsv = input_table
     }
 
@@ -133,6 +134,7 @@ task process_tsv_files {
         File coverage_tsv  # Path to genomics_metrics_Dec142023_1859_02_tz0000.tsv
         File ancestry_tsv  # Path to echo_v4_r2.ancestry_preds.tsv
         File dob_tsv       # Path to echo_DoB_data.tsv
+        File wgs_median_coverage_tsv  # Path to wgs_median_coverage.tsv
         File input_tsv     # Input TSV file to process
         String output_tsv_name = "processed_data.tsv"  # Name of the output TSV file
 
@@ -183,6 +185,7 @@ task process_tsv_files {
         coveragetsv_df = pd.read_csv("~{coverage_tsv}", sep="\t")
         ancestrytsv_df = pd.read_csv("~{ancestry_tsv}", sep="\t")
         dobtsv_df = pd.read_csv("~{dob_tsv}", sep="\t")
+        medcoveragetsv_df = pd.read_csv("~{wgs_median_coverage_tsv}", sep="\t")
 
         # Merge with filtered_df on 'research_id' and 's'
         filtered_df = filtered_df.merge(
@@ -200,6 +203,11 @@ task process_tsv_files {
             left_on='s', right_on='research_id', how='left'
         )
         filtered_df.drop(columns=['research_id'], inplace=True)
+        filtered_df = filtered_df.merge(
+            medcoveragetsv_df[['research_id', 'median_coverage']],
+            left_on='s', right_on='research_id', how='left'
+        )
+        filtered_df.drop(columns=['research_id'], inplace=True)
 
         # Add a check to ensure that our filtered_df has the same number of samples (shape[0]) as the original df
         if filtered_df.shape[0] != df.shape[0]:
@@ -211,25 +219,17 @@ task process_tsv_files {
         filtered_df['age'] = pd.to_numeric(
             np.floor((filtered_df['biosample_collection_date'] - filtered_df['date_of_birth']).dt.days / 365)
         )
-        # commenting this out, since we want to test what happens with missing ages
-        #filtered_df['age'] = filtered_df['age'].fillna(39).astype(int)
 
-        # changing this to cast to int and alert to any missing values
+        # Age must be an int and must be present
         filtered_df['age'] = filtered_df['age'].astype(int)
         if filtered_df['age'].isna().any():
             raise ValueError("Unexpected missing ages detected.")
 
-        # we will rename the verify_bam_id2_contamination to freemix_percentage instead of setting to 0 
-        # filtered_df["freemix_percentage"] = 0 
-
         # Rename columns for compatibility
         filtered_df.rename(columns={"mean_coverage": "wgs_mean_coverage"}, inplace=True)
+        filtered_df.rename(columns={"median_coverage": "wgs_median_coverage"}, inplace=True)
         filtered_df.rename(columns={"ancestry_pred": "pop"}, inplace=True)
         filtered_df.rename(columns={"verify_bam_id2_contamination": "freemix_percentage"}, inplace=True)
-
-
-        # Temporary workaround - we are working on getting the real values from the Dragen metrics
-        filtered_df["wgs_median_coverage"] = filtered_df["wgs_mean_coverage"]
 
         # Filter rows with valid coverage metrics
         filtered_df = filtered_df[
