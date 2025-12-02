@@ -28,8 +28,8 @@ workflow VerifyImputationBeagle {
     File multi_sample_test_vcf
 
     # imputed hom ref sites only vcf
-    File sites_only_truth_vcf
-    File sites_only_test_vcf
+    File hom_ref_truth_vcf
+    File hom_ref_test_vcf
 
     Boolean? done
   }
@@ -53,8 +53,8 @@ workflow VerifyImputationBeagle {
 
   call Tasks.CompareVcfs as CompareOutputSitesOnlyVcfs {
     input:
-      file1 = sites_only_truth_vcf,
-      file2 = sites_only_test_vcf,
+      file1 = hom_ref_truth_vcf,
+      file2 = hom_ref_test_vcf,
       patternForLinesToExcludeFromComparison = "##" # ignore headers
   }
 
