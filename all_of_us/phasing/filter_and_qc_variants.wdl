@@ -130,7 +130,7 @@ workflow RunAoUAnvilMergeFilterAndQc {
         String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.134"
     }
 
-    String pipeline_version = "aou_9.0.0"
+    String pipeline_version = "aou_9.0.1"
 
     # Ensure that trailing slash is included in the output bucket path
     String output_bucket_path_with_trailing_slash = sub(output_bucket_path, "/$", "") + "/"
@@ -182,9 +182,9 @@ task FilterAndQCVariants {
         String master_machine_type = "n1-highmem-32"
         Float master_memory_fraction = 0.8
         String worker_machine_type = "n1-highmem-4"
-        Int num_workers = 2
-        Int num_preemptible_workers = 50
-        Int time_to_live_minutes = 5760 # four days
+        Int num_workers = 25
+        Int num_preemptible_workers = 25
+        Int time_to_live_minutes = 14400 # ten days
         RuntimeAttr? runtime_attr_override
         String gcs_subnetwork_name
 
