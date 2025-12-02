@@ -263,8 +263,8 @@ task annotate_coverage {
         Int? split_merging = 10  # Number of jobs for splitting merging (default: 1)
 
         # Runtime parameters
-        Int memory_gb = 32 #1000
-        Int cpu = 4 #64
+        Int memory_gb = 64 #1000
+        Int cpu = 16 #64
         Int disk_gb = 500 #2000
         String disk_type = "HDD" #"SSD"
         String cpu_platform = "Intel Ice Lake"
@@ -324,8 +324,8 @@ task combine_vcfs {
         String file_name        # Output file name
 
         # Runtime parameters
-        Int memory_gb = 32 #1000
-        Int cpu = 4 #64
+        Int memory_gb = 64 #1000
+        Int cpu = 16 #64
         Int disk_gb = 500 #2000
         String disk_type = "HDD" #"SSD"
         String cpu_platform = "Intel Ice Lake"
@@ -392,8 +392,8 @@ task add_annotations {
         String output_name      # directory output name
         
         # Runtime parameters
-        Int memory_gb = 32 #1000
-        Int cpu = 4 #64
+        Int memory_gb = 64 #1000
+        Int cpu = 16 #64
         Int disk_gb = 500 #2000
         String disk_type = "HDD" #"SSD"
         String cpu_platform = "Intel Ice Lake"
