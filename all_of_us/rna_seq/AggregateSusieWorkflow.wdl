@@ -26,7 +26,7 @@ task AggregateSusie{
     runtime {
     # the docker sha that the workflow ran with is:
     # ghcr.io/aou-multiomics-analysis/aggregate_susie@sha256:ede17b5112eadb765f22cdfbd2a987da96087a1e2f0ad224994c16f1af645443
-        docker: "ghcr.io/aou-multiomics-analysis/aggregate_susie:main"
+        docker: "ghcr.io/aou-multiomics-analysis/aggregate_susie:main@sha256:ede17b5112eadb765f22cdfbd2a987da96087a1e2f0ad224994c16f1af645443"
         disks: "local-disk 500 SSD"
         memory: "~{Memory}GB"
         cpu: "~{NumThreads}"
@@ -72,7 +72,7 @@ task AnnotateSusie {
         --VEPAnnotationsTable ~{AnnotationVEP}
     >>>
    runtime {
-        docker: "ghcr.io/aou-multiomics-analysis/aggregate_susie:main"
+        docker: "ghcr.io/aou-multiomics-analysis/aggregate_susie:main@sha256:ede17b5112eadb765f22cdfbd2a987da96087a1e2f0ad224994c16f1af645443"
         disks: "local-disk 500 SSD"
         memory: "~{Memory}GB"
         cpu: "1"
@@ -106,7 +106,7 @@ workflow AggregateSusieWorkflow {
 
     }
  
-    String pipeline_version = "aou_9.0.0"
+    String pipeline_version = "aou_9.0.1"
     
     call AggregateSusie {
         input:
