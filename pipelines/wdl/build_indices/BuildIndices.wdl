@@ -400,6 +400,13 @@ task BuildStarSingleNucleus {
     echo "Deleted line summary:"
     cat deleted_lines.log
 
+    # --- Remove duplicate contig NC_028718.1 if it exists ---
+    if grep -q "^>NC_028718\.1" "$GTF_FILE"; then
+      echo "Removing duplicate contig NC_028718.1 from FASTA..."
+      awk 'BEGIN{deleted=0} /^>NC_028718\.1$/ && deleted==0 {deleted=1; skip=1; next} /^>/{skip=0} !skip' genome_mito.fasta > genome_mito.filtered.fasta
+      mv genome_mito.filtered.fasta ~{genome_fa}
+    fi
+
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
