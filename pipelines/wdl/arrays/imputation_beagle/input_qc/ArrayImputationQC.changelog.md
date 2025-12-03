@@ -1,3 +1,8 @@
+# 1.2.4
+2025-12-03 (Date of Last Commit)
+
+* Update QcChecks to catch VCFs that have indels improperly coded as REF or ALT “D/I”.
+
 # 1.2.3 
 2025-10-17 (Date of Last Commit)
 

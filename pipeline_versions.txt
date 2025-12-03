@@ -1,4 +1,4 @@
-ArrayImputationQC	 1.2.3 	2025-10-17 
+ArrayImputationQC	 1.2.4 	2025-12-03
 ArrayImputationQuotaConsumed	 1.1.0	2025-09-29 
 BuildIndices	 5.0.2	2025-11-20 
 CramToUnmappedBams	 1.1.3	2024-08-02 
