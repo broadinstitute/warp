@@ -1,18 +1,18 @@
 {
   "Imputation.single_sample_vcfs": [
-    "gs://broad-gotc-test-storage/imputation/scientific/vcfs/101342370027_R02C01.vcf.gz",
-    "gs://broad-gotc-test-storage/imputation/scientific/vcfs/101342370027_R12C02.vcf.gz",
-    "gs://broad-gotc-test-storage/imputation/scientific/vcfs/101342370134_R12C02.vcf.gz"
+    "gs://pd-test-storage-private/Imputation/input/scientific/NA12878_trio_scientific/101342370027_R02C01.vcf.gz",
+    "gs://pd-test-storage-private/Imputation/input/scientific/NA12878_trio_scientific/101342370027_R12C02.vcf.gz",
+    "gs://pd-test-storage-private/Imputation/input/scientific/NA12878_trio_scientific/101342370134_R12C02.vcf.gz"
   ],
   "Imputation.single_sample_vcf_indices": [
-    "gs://broad-gotc-test-storage/imputation/scientific/vcfs/101342370027_R02C01.vcf.gz.tbi",
-    "gs://broad-gotc-test-storage/imputation/scientific/vcfs/101342370027_R12C02.vcf.gz.tbi",
-    "gs://broad-gotc-test-storage/imputation/scientific/vcfs/101342370134_R12C02.vcf.gz.tbi"
+    "gs://pd-test-storage-private/Imputation/input/scientific/NA12878_trio_scientific/101342370027_R02C01.vcf.gz.tbi",
+    "gs://pd-test-storage-private/Imputation/input/scientific/NA12878_trio_scientific/101342370027_R12C02.vcf.gz.tbi",
+    "gs://pd-test-storage-private/Imputation/input/scientific/NA12878_trio_scientific/101342370134_R12C02.vcf.gz.tbi"
   ],
   "Imputation.ref_dict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
   "Imputation.reference_panel_path": "gs://gcp-public-data--broad-references/hg19/v0/1000G_reference_panel/",
   "Imputation.contigs": [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22" ],
-  "Imputation.genetic_maps_eagle": "gs://broad-gotc-test-storage/imputation/eagle_genetic_map/genetic_map_hg19_withX.txt.gz",
+  "Imputation.genetic_maps_eagle": "gs://pd-test-storage-private/Imputation/input/scientific/NA12878_trio_scientific/genetic_map_hg19_withX.txt.gz",
   "Imputation.output_callset_name": "scientific_test",
   "Imputation.split_output_to_single_sample": false,
   "Imputation.perform_extra_qc_steps": false,
