@@ -43,9 +43,9 @@ task QcChecks {
 
         # check if indels.vcf has any variants coded as REF or ALT “D/I”
         if grep -v '^#' indels.vcf | grep -q .; then
-            echo "No improperly coded indels found in input VCF."
-        else
             echo "Input VCF contains improperly coded indels." >> qc_messages.txt;
+        else
+            echo "No improperly coded indels found in input VCF.";
         fi
 
         # check for variants in at least one of the canonical chromosomes - chr1 to chr22
