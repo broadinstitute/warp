@@ -403,7 +403,7 @@ task BuildStarSingleNucleus {
     # --- Remove duplicate contig NC_028718.1 if  from genomeit exists ---
     if grep -q "^>NC_028718\.1" "~{genome_fa}"; then
       echo "Removing duplicate contig NC_028718.1 from FASTA..."
-      awk 'BEGIN{deleted=0} /^>NC_028718\.1$/ && deleted==0 {deleted=1; skip=1; next} /^>/{skip=0} !skip' genome_mito.fasta > genome_mito.filtered.fasta
+      awk 'BEGIN{deleted=0} /^>NC_028718\.1$/ && deleted==0 {deleted=1; skip=1; next} /^>/{skip=0} !skip' "~{genome_fa}" > genome_mito.filtered.fasta
       mv genome_mito.filtered.fasta ~{genome_fa}
     fi
 
