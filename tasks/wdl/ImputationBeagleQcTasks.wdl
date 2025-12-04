@@ -43,7 +43,7 @@ task QcChecks {
 
         # check if indels.vcf has any variants coded as REF or ALT “D/I”
         if grep -v '^#' indels.vcf | grep -q .; then
-            echo "Input VCF contains improperly coded indels." >> qc_messages.txt;
+            echo "Input VCF contains improperly coded indels. Is this a 3.x VCF?" >> qc_messages.txt;
         else
             echo "No improperly coded indels found in input VCF.";
         fi
