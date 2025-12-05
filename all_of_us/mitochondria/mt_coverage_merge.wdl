@@ -278,6 +278,15 @@ task annotate_coverage {
 
         WORK_DIR=$(pwd)
 
+        # Set the spark config via environment variables
+        export SPARK_LOCAL_DIRS="$PWD/tmp"
+
+        DRIVER_MEM_GB=$((~{memory_gb} - 4))
+        if [ "$DRIVER_MEM_GB" -lt 2 ]; then DRIVER_MEM_GB=4; fi
+
+        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
+        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
+        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"  
 
         # Run the annotate_coverage.py script
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/annotate_coverage.py \
@@ -338,6 +347,16 @@ task combine_vcfs {
         mkdir -p ./results
 
         WORK_DIR=$(pwd)
+
+        # Set the spark config via environment variables
+        export SPARK_LOCAL_DIRS="$PWD/tmp"
+
+        DRIVER_MEM_GB=$((~{memory_gb} - 4))
+        if [ "$DRIVER_MEM_GB" -lt 2 ]; then DRIVER_MEM_GB=4; fi
+
+        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
+        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
+        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"  
 
         # Unzip the tar.gz file containing the Hail table
         mkdir -p ./unzipped_coverage.ht
