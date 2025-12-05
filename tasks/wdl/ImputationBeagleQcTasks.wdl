@@ -41,7 +41,7 @@ task QcChecks {
         # filter indels coded as REF or ALT “D/I”
         bcftools view -i 'REF="I,D" || ALT="I,D"' ~{vcf_input} > indels.vcf
 
-        # check if indels.vcf has any variants coded as REF or ALT “D/I”
+        # check if indels.vcf have any variants coded as REF or ALT “D/I”
         if grep -v '^#' indels.vcf | grep -q .; then
             echo "Input VCF has indels improperly coded as REF or ALT 'D/I'." >> qc_messages.txt;
         else
