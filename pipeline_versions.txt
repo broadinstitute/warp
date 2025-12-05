@@ -1,4 +1,4 @@
-ArrayImputationQC	 1.2.4	2025-12-05
+ArrayImputationQC	 1.2.4	2025-12-05 
 ArrayImputationQuotaConsumed	 1.1.0	2025-09-29 
 BuildIndices	 5.0.2	2025-11-20 
 CramToUnmappedBams	 1.1.3	2024-08-02 
@@ -6,7 +6,7 @@ ExomeGermlineSingleSample	 3.2.6	2025-10-09
 ExomeReprocessing	 3.3.6	2025-10-09 
 IlluminaGenotypingArray	 1.12.26	2025-10-09 
 Imputation	 1.1.23	2025-10-03 
-ImputationBeagle	 2.4.1	2025-12-05
+ImputationBeagle	 2.4.1	2025-12-05 
 JointGenotyping	 1.7.3	2025-08-11 
 MultiSampleSmartSeq2SingleNucleus	 2.2.2	 2025-06-20 
 Multiome	 6.1.3	2025-08-15 
