@@ -1,5 +1,5 @@
 {
-  "RNAWithUMIsPipeline.bam": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-K4Y2X_350ng_.65X_D3_plumbing.u.bam",
+  "RNAWithUMIsPipeline.bam": "gs://pd-test-storage-private/RNAWithUMIsPipeline/input/plumbing/SM-K4Y2X_350ng_.65X_D3_plumbing.u.bam",
   "RNAWithUMIsPipeline.read1Structure": "3M2S146T",
   "RNAWithUMIsPipeline.read2Structure": "3M2S146T",
 

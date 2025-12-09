@@ -1,6 +1,6 @@
 {
-  "RNAWithUMIsPipeline.r1_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-HFCB1_100ng_.65X_A3_read1_plumbing.fastq",
-  "RNAWithUMIsPipeline.r2_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-HFCB1_100ng_.65X_A3_read2_plumbing.fastq",
+  "RNAWithUMIsPipeline.r1_fastq": "gs://pd-test-storage-public/RNAWithUMIsPipeline/input/plumbing/SM-HFCB1_100ng_.65X_A3_read1_plumbing.fastq",
+  "RNAWithUMIsPipeline.r2_fastq": "gs://pd-test-storage-public/RNAWithUMIsPipeline/input/plumbing/SM-HFCB1_100ng_.65X_A3_read2_plumbing.fastq",
   "RNAWithUMIsPipeline.read1Structure": "3M2S146T",
   "RNAWithUMIsPipeline.read2Structure": "3M2S146T",
 

@@ -1,6 +1,6 @@
 {
-  "RNAWithUMIsPipeline.r1_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/scientific/inputs/SM-HFCB1_100ng_.65X_A3_read1.fastq",
-  "RNAWithUMIsPipeline.r2_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/scientific/inputs/SM-HFCB1_100ng_.65X_A3_read2.fastq",
+  "RNAWithUMIsPipeline.r1_fastq": "gs://pd-test-storage-public/RNAWithUMIsPipeline/input/scientific/SM-HFCB1_100ng_.65X_A3_read1.fastq",
+  "RNAWithUMIsPipeline.r2_fastq": "gs://pd-test-storage-public/RNAWithUMIsPipeline/input/scientific/SM-HFCB1_100ng_.65X_A3_read2.fastq",
   "RNAWithUMIsPipeline.read1Structure": "3M2S146T",
   "RNAWithUMIsPipeline.read2Structure": "3M2S146T",
 
