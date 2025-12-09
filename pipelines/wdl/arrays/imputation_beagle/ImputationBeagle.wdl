@@ -360,7 +360,7 @@ workflow ImputationBeagle {
       vars_in_raw_input = ExtractUniqueVariantIdsRawChromosome.unique_variant_count,
       basename = output_basename
   }
-  
+
   output {
     File imputed_multi_sample_vcf = CreateIndexForGatheredVcf.output_vcf
     File imputed_multi_sample_vcf_index = CreateIndexForGatheredVcf.output_vcf_index

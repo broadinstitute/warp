@@ -1,5 +1,8 @@
 # 3.0.0
-2025-12-02 (Date of Last Commit)
+2025-12-08 (Date of Last Commit)
+
+* Update Phase and Impute tasks to use latest Beagle JAR
+* Removed additional decompress/recompress step in LocalizeAndSubsetVcfToRegion task that was added in 2.0.4
 
 ### Breaking changes
 * Imputed homozygous reference sites have been removed from the imputed multi sample vcf output.
