@@ -377,30 +377,32 @@ task BuildStarSingleNucleus {
         cp ${GTF_FILE} ~{annotation_gtf_modified}
     fi
 
+    grep "A1BG" ~{annotation_gtf_modified}
+
     ######## debugging #######
-    echo "Removing lines where column 3 == 'source' in GTF..."
+    #echo "Removing lines where column 3 == 'source' in GTF..."
+#
+    #awk -F'\t' '
+    #  /^#/ { print > "gtf.cleaned.tmp"; next }
+    #  {
+    #    if ($3 == "source") {
+    #      deleted_lines++;
+    #      print "Deleting line:", NR, $0 >> "deleted_lines.log"
+    #    } else {
+    #      print > "gtf.cleaned.tmp"
+    #    }
+    #  }
+    #  END {
+    #    print "Total deleted lines:", deleted_lines > "/dev/stderr"
+    #  }
+    #' ~{annotation_gtf_modified}
 
-    awk -F'\t' '
-      /^#/ { print > "gtf.cleaned.tmp"; next }
-      {
-        if ($3 == "source") {
-          deleted_lines++;
-          print "Deleting line:", NR, $0 >> "deleted_lines.log"
-        } else {
-          print > "gtf.cleaned.tmp"
-        }
-      }
-      END {
-        print "Total deleted lines:", deleted_lines > "/dev/stderr"
-      }
-    ' ~{annotation_gtf_modified}
+    #mv gtf.cleaned.tmp ~{annotation_gtf_modified}
 
-    mv gtf.cleaned.tmp ~{annotation_gtf_modified}
+    #echo "Deleted line summary:"
+    #cat deleted_lines.log
 
-    echo "Deleted line summary:"
-    cat deleted_lines.log
-
-    # --- Remove duplicate contig NC_028718.1 if  from genomeit exists ---
+    # --- Remove duplicate contig NC_028718.1 if  from genome if it exists ---
     if grep -q "^>NC_028718\.1" "~{genome_fa}"; then
       echo "Removing duplicate contig NC_028718.1 from FASTA..."
       awk 'BEGIN{deleted=0} /^>NC_028718\.1$/ && deleted==0 {deleted=1; skip=1; next} /^>/{skip=0} !skip' "~{genome_fa}" > genome_mito.filtered.fasta
@@ -417,6 +419,10 @@ task BuildStarSingleNucleus {
     --limitGenomeGenerateRAM=43375752629
 
     tar -cvf ~{star_index_name} star
+
+    echo "grep "A1BG at the end of the task after star" ~{annotation_gtf_modified}"
+    grep "A1BG" ~{annotation_gtf_modified}
+
 
   >>>
 
