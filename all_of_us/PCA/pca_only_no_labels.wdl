@@ -100,7 +100,7 @@ task create_hw_pca_training {
         Int num_pcs
         Int? min_vcf_partitions_in
         Int disk_gb = 2000
-        Int mem_gb = 240
+        Int mem_gb = 640
         Int cpu = 48
         String disk_type = "SSD"
     }
