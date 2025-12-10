@@ -110,27 +110,36 @@ task create_hw_pca_training {
         import numpy as np
         import hail as hl
 
-        spark_conf={
-            # Driver settings
-            'spark.driver.memory': '40g',
-            'spark.driver.maxResultSize': '20g',
-
-            # Executor settings (12 executors × 4 cores = 48 cores total)
-            'spark.executor.memory': '18g',
-            'spark.executor.cores': '4',
-            'spark.executor.instances': '12',
-
-            # Parallelism settings
-            'spark.sql.shuffle.partitions': '1500',
-            'spark.default.parallelism': '1500',
-
-            # Adaptive query execution
-            'spark.sql.adaptive.enabled': 'true',
-            'spark.sql.adaptive.coalescePartitions.enabled': 'true',
-
-            # Memory management
-            'spark.executor.memory.fraction': '0.8',
-            'spark.serializer': 'org.apache.spark.serializer.KryoSerializer'
+        spark_conf = {
+            # Driver
+            "spark.driver.memory": "80g",
+            "spark.driver.maxResultSize": "40g",
+        
+            # Executors: 6 executors × 8 cores = 48 total cores, 40 GB heap each
+            "spark.executor.instances": "6",
+            "spark.executor.cores": "8",
+            "spark.executor.memory": "40g",
+            "spark.executor.memoryOverhead": "8g",    # ensure YARN/local has extra off‑heap
+        
+            # Memory usage splits
+            "spark.memory.fraction": "0.6",
+            "spark.memory.storageFraction": "0.3",
+        
+            # Parallelism / shuffles: match >= total cores
+            "spark.sql.shuffle.partitions": "1500",
+            "spark.default.parallelism": "1500",
+        
+            # Adaptive execution
+            "spark.sql.adaptive.enabled": "true",
+            "spark.sql.adaptive.coalescePartitions.enabled": "true",
+            "spark.sql.adaptive.advisoryPartitionSizeInBytes": "128m",
+        
+            # Kryo & shuffle tuning (if not already)
+            "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
+            "spark.kryo.registrationRequired": "false",
+            "spark.shuffle.service.enabled": "true",
+            "spark.dynamicAllocation.enabled": "false",
+            "spark.locality.wait": "1s"
         }
         hl.init(default_reference='GRCh38', idempotent=False, spark_conf=spark_conf)
         print(hl.spark_context().master)
