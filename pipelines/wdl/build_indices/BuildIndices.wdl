@@ -453,6 +453,7 @@ task BuildBWAreference {
     String genome_build
     # Organism can be Macaque, Mouse, Human, etc.
     String organism
+    String? mito_accession
   }
 
 String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{genome_build}"
@@ -468,13 +469,27 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
       mv ~{genome_fa} genome/genome.fa
     fi
 
-    # --- Remove duplicate contig NC_028718.1 if it exists ---
-    if grep -q "^>NC_028718\.1" genome/genome.fa; then
-      echo "Removing duplicate contig NC_028718.1 from FASTA..."
-      awk 'BEGIN{deleted=0} /^>NC_028718\.1$/ && deleted==0 {deleted=1; skip=1; next} /^>/{skip=0} !skip' genome/genome.fa > genome/genome.filtered.fa
-      mv genome/genome.filtered.fa genome/genome.fa
-    fi
+    # --- Remove duplicate contig if mito_accession is provided ---
+    if [ -n "~{mito_accession}" ]; then
+      echo "mito_accession provided: ~{mito_accession}"
 
+      if grep -q "^>~{mito_accession}$" genome/genome.fa; then
+        echo "Removing duplicate contig ~{mito_accession} from FASTA..."
+
+        awk -v acc="~{mito_accession}" '
+          BEGIN { deleted = 0 }
+          $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
+          /^>/ { skip = 0 }
+          !skip
+        ' genome/genome.fa > genome/genome.filtered.fa
+
+        mv genome/genome.filtered.fa genome/genome.fa
+      else
+        echo "Contig ~{mito_accession} not found in genome.fa, no removal needed."
+      fi
+    else
+        echo "No mito_accession provided, skipping contig removal."
+    fi
 
     bwa-mem2 index genome/genome.fa
     tar --dereference -cvf - genome/ > ~{reference_name}.tar
