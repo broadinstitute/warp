@@ -423,6 +423,16 @@ task add_annotations {
 
         WORK_DIR=$(pwd)
 
+        # Set the spark config via environment variables
+        export SPARK_LOCAL_DIRS="$PWD/tmp"
+
+        DRIVER_MEM_GB=$((~{memory_gb} - 4))
+        if [ "$DRIVER_MEM_GB" -lt 2 ]; then DRIVER_MEM_GB=4; fi
+
+        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
+        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
+        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"  
+
         # Unzip coverage MatrixTable tarball
         mkdir -p ./unzipped_coverage.mt
         tar -xzf ~{coverage_mt_tar} -C ./unzipped_coverage.mt
