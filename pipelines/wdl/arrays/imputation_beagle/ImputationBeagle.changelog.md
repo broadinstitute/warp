@@ -1,10 +1,10 @@
 # 3.0.0
 2025-12-10 (Date of Last Commit)
 
-* Update Phase and Impute tasks to use latest Beagle JAR
-* Removed additional decompress/recompress step in LocalizeAndSubsetVcfToRegion task that was added in 2.0.4
+* Remove additional decompress/recompress step in LocalizeAndSubsetVcfToRegion task that was added in 2.0.4
 
 ### Breaking changes
+* Update Phase and Impute tasks to use latest Beagle JAR, corresponding with commit [`b00155d`](https://github.com/tmp-sharing/imp-server/commit/b00155dbacb0b576755878b9935b635768d89fc5)
 * Imputed homozygous reference sites have been removed from the imputed multi sample vcf output.
 * Imputed homozygous reference files have now been made available in a new sites only VCF output `imputed_hom_ref_sites_only_vcf`
 
