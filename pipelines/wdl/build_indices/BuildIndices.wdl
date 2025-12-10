@@ -79,7 +79,8 @@ workflow BuildIndices {
         genome_source = genome_source,
         genome_build = genome_build,
         gtf_annotation_version = gtf_annotation_version,
-        organism = organism
+        organism = organism,
+        mito_accession = select_first([mito_accession])
     }
 
     call RecordMetadata {
