@@ -66,7 +66,8 @@ workflow BuildIndices {
         genome_build = genome_build,
         genome_source = genome_source,
         organism = organism,
-        skip_gtf_modification = skip_gtf_modification
+        skip_gtf_modification = skip_gtf_modification,
+        mito_accession = select_first([mito_accession])
     }
     call CalculateChromosomeSizes {
       input:
@@ -275,6 +276,7 @@ task BuildStarSingleNucleus {
     File biotypes
     Boolean skip_gtf_modification
     Int disk = 100
+    String? mito_accession
   }
 
   meta {
@@ -378,36 +380,25 @@ task BuildStarSingleNucleus {
         cp ${GTF_FILE} ~{annotation_gtf_modified}
     fi
 
-    grep "A1BG" ~{annotation_gtf_modified}
+    # --- Remove duplicate mito contig if mito_accession is set
+    if [ -n "~{mito_accession}" ]; then
+      echo "mito_accession provided: ~{mito_accession}"
 
-    ######## debugging #######
-    #echo "Removing lines where column 3 == 'source' in GTF..."
-#
-    #awk -F'\t' '
-    #  /^#/ { print > "gtf.cleaned.tmp"; next }
-    #  {
-    #    if ($3 == "source") {
-    #      deleted_lines++;
-    #      print "Deleting line:", NR, $0 >> "deleted_lines.log"
-    #    } else {
-    #      print > "gtf.cleaned.tmp"
-    #    }
-    #  }
-    #  END {
-    #    print "Total deleted lines:", deleted_lines > "/dev/stderr"
-    #  }
-    #' ~{annotation_gtf_modified}
+      if grep -q "^>~{mito_accession}$" ~{genome_fa}; then
+        echo "Removing duplicate contig ~{mito_accession} from FASTA..."
 
-    #mv gtf.cleaned.tmp ~{annotation_gtf_modified}
-
-    #echo "Deleted line summary:"
-    #cat deleted_lines.log
-
-    # --- Remove duplicate contig NC_028718.1 if  from genome if it exists ---
-    if grep -q "^>NC_028718\.1" "~{genome_fa}"; then
-      echo "Removing duplicate contig NC_028718.1 from FASTA..."
-      awk 'BEGIN{deleted=0} /^>NC_028718\.1$/ && deleted==0 {deleted=1; skip=1; next} /^>/{skip=0} !skip' "~{genome_fa}" > genome_mito.filtered.fasta
-      mv genome_mito.filtered.fasta ~{genome_fa}
+        awk -v acc="~{mito_accession}" '
+          BEGIN { deleted = 0 }
+          $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
+          /^>/ { skip = 0 }
+          !skip
+          ' ~{genome_fa} > genome_mito.filtered.fasta
+        mv genome_mito.filtered.fasta ~{genome_fa}
+      else
+        echo "Contig ~{mito_accession} not found; skipping removal."
+      fi
+    else
+        echo "No mito_accession provided, skipping contig removal."
     fi
 
     mkdir star
@@ -420,11 +411,6 @@ task BuildStarSingleNucleus {
     --limitGenomeGenerateRAM=43375752629
 
     tar -cvf ~{star_index_name} star
-
-    echo "grep "A1BG at the end of the task after star" ~{annotation_gtf_modified}"
-    grep "A1BG" ~{annotation_gtf_modified}
-
-
   >>>
 
   output {
