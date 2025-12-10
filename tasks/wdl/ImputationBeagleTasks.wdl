@@ -366,7 +366,7 @@ task Impute {
     set -e -o pipefail
 
     java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 -XX:-UseCompressedOops \
-    -jar /usr/gitc/beagle.d820c4e.jar \
+    -jar /usr/gitc/beagle.b00155d.jar \
     gt=~{dataset_vcf} \
     ref=~{ref_panel_bref3} \
     map=~{genetic_map_file} \
