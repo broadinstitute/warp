@@ -10,19 +10,19 @@ on:
     ####################################
     paths:
       # anything in the pipelines folder
-      - 'pipelines/broad/dna_seq/germline/variant_calling/**'
+      - 'pipelines/wdl/dna_seq/germline/variant_calling/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/broad/GermlineVariantDiscovery.wdl'
-      - 'tasks/broad/Qc.wdl'
-      - 'tasks/broad/Utilities.wdl'
-      - 'tasks/broad/BamProcessing.wdl'
-      - 'tasks/broad/DragenTasks.wdl'
+      - 'tasks/wdl/GermlineVariantDiscovery.wdl'
+      - 'tasks/wdl/Qc.wdl'
+      - 'tasks/wdl/Utilities.wdl'
+      - 'tasks/wdl/BamProcessing.wdl'
+      - 'tasks/wdl/DragenTasks.wdl'
       # verification WDL and its dependencies
       - 'verification/VerifyGvcf.wdl'
       - 'verification/VerifyTasks.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestVariantCalling.wdl'
-      - 'tasks/broad/TerraCopyFilesFromCloudToCloud.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       # this file, the subworkflow file, and the firecloud_api script
       - '.github/workflows/test_variant_calling.yml'
       - '.github/workflows/warp_test_workflow.yml'
@@ -58,7 +58,7 @@ jobs:
     with:
       pipeline_name: TestVariantCalling
       dockstore_pipeline_name: VariantCalling
-      pipeline_dir: pipelines/broad/dna_seq/germline/variant_calling
+      pipeline_dir: pipelines/wdl/dna_seq/germline/variant_calling
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

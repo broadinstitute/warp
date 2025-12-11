@@ -114,9 +114,9 @@ class TestGenerator:
 
         self.imports.append(WdlImport(main_workflow_path, self.workflow))
         self.imports.append(WdlImport(validation_workflow_path, self.validation))
-        self.imports.append(WdlImport("../../tasks/broad/Utilities.wdl", "Utilities"))
+        self.imports.append(WdlImport("../../tasks/wdl/Utilities.wdl", "Utilities"))
         self.imports.append(
-            WdlImport("../../tasks/broad/CopyFilesFromCloudToCloud.wdl", "Copy")
+            WdlImport("../../tasks/wdl/CopyFilesFromCloudToCloud.wdl", "Copy")
         )
 
         return self
