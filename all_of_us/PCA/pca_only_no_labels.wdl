@@ -100,7 +100,7 @@ task create_hw_pca_training {
         Int num_pcs
         Int? min_vcf_partitions_in
         Int disk_gb = 2000
-        Int mem_gb = 640
+        Int mem_gb = 512
         Int cpu = 48
         String disk_type = "SSD"
     }
@@ -127,7 +127,7 @@ task create_hw_pca_training {
             'spark.driver.maxResultSize': '20g',
 
             # Executor settings (12 executors × 4 cores = 48 cores total)
-            'spark.executor.memory': '40g',  # Increased executor memory to 40 GB
+            'spark.executor.memory': '32g',  # Increased executor memory to 32 GB
             'spark.executor.cores': '4',
             'spark.executor.instances': '12',
 
