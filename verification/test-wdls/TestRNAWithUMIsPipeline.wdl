@@ -79,6 +79,7 @@ workflow TestRNAWithUMIsPipeline {
         exonBedFile          = exonBedFile,
         population_vcf       = population_vcf,
         population_vcf_index = population_vcf_index,
+        billing_project      = billing_project
   }
 
   Array[String] pipeline_outputs = select_all([
