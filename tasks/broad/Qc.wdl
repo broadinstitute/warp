@@ -624,6 +624,7 @@ task ValidateVCF {
     String? extra_args
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int machine_mem_mb = 7000
+    Int? disk_size_gb
   }
 
   String calling_interval_list_basename = basename(calling_interval_list)
@@ -631,7 +632,8 @@ task ValidateVCF {
 
   Int command_mem_mb = machine_mem_mb - 2000
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
+  Int calc_disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
+  Int disk_size = if defined(disk_size_gb) then disk_size_gb else calc_disk_size
 
   command {
     set -e
