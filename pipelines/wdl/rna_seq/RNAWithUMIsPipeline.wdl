@@ -49,7 +49,6 @@ workflow RNAWithUMIsPipeline {
     File population_vcf
     File population_vcf_index
 
-    #Boolean use_billing_project = false
     String? billing_project
 
   }
@@ -189,7 +188,6 @@ workflow RNAWithUMIsPipeline {
   call tasks.GetSampleName {
     input:
       bam = bam_to_use,
-      #billing_project = if (use_billing_project) then billing_project else ""
       billing_project = billing_project
   }
 
