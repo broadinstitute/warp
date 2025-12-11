@@ -21,5 +21,7 @@
   "RNAWithUMIsPipeline.population_vcf": "gs://gatk-best-practices/somatic-b37/small_exac_common_3.vcf",
   "RNAWithUMIsPipeline.population_vcf_index": "gs://gatk-best-practices/somatic-b37/small_exac_common_3.vcf.idx",
 
-  "RNAWithUMIsPipeline.compare_transcriptome_dup_metrics": false
+  "RNAWithUMIsPipeline.compare_transcriptome_dup_metrics": false,
+  "RNAWithUMIsPipeline.use_billing_project": true,
+  "RNAWithUMIsPipeline.billing_project": "warp-pipelines"
 }
