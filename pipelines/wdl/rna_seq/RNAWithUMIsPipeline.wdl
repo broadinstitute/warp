@@ -187,7 +187,7 @@ workflow RNAWithUMIsPipeline {
   call tasks.GetSampleName {
     input:
       bam = bam_to_use,
-      billing_project = select_first([if (billing_project != "") then billing_project else none])
+      billing_project = billing_project
   }
 
   call tasks.rnaseqc2 {
