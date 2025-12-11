@@ -291,7 +291,7 @@ task GetSampleName {
   }
 
   command <<<
-    gatk GetSampleName -I ~{bam} -O sample_name.txt
+    gatk GetSampleName -I ~{bam} -O sample_name.txt --gcs-project-for-requester-pays warp-pipelines
   >>>
 
   runtime {
