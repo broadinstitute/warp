@@ -52,6 +52,11 @@ workflow RNAWithUMIsPipeline {
     String? billing_project
   }
 
+
+  if (false) {
+    String? none = "None"
+  }
+
   parameter_meta {
     bam: "Read group-specific unmapped BAM file;  alternatively, paired-end FASTQ files (the `r1_fastq` and `r2_fastq` inputs) may be used"
     r1_fastq: "Read 1 FASTQ file; alternatively, the unmapped bam file (`bam` input) may be used as input"
@@ -182,7 +187,7 @@ workflow RNAWithUMIsPipeline {
   call tasks.GetSampleName {
     input:
       bam = bam_to_use,
-      billing_project = billing_project
+      billing_project = select_first([if (billing_project != "") then billing_project else none])
   }
 
   call tasks.rnaseqc2 {
