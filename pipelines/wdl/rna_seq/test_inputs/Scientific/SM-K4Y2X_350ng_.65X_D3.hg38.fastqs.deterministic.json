@@ -3,14 +3,11 @@
   "RNAWithUMIsPipeline.r2_fastq": "gs://pd-test-storage-private/RNAWithUMIsPipeline/input/scientific/SM-K4Y2X_350ng_.65X_D3_read2.fastq",
   "RNAWithUMIsPipeline.read1Structure": "3M2S146T",
   "RNAWithUMIsPipeline.read2Structure": "3M2S146T",
-
   "RNAWithUMIsPipeline.output_basename": "SM-K4Y2X_350ng_.65X_D3",
-
   "RNAWithUMIsPipeline.library_name": "SM-K4Y2X_350ng_.65X_D3",
   "RNAWithUMIsPipeline.platform": "ILLUMINA",
   "RNAWithUMIsPipeline.platform_unit": "barcode1",
   "RNAWithUMIsPipeline.read_group_name": "RG1",
-
   "RNAWithUMIsPipeline.starIndex": "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/star/STAR2.7.10a_genome_GRCh38_noALT_noHLA_noDecoy_v34_oh145.tar.gz",
   "RNAWithUMIsPipeline.gtf": "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v34.annotation_collapsed_only.gtf",
   "RNAWithUMIsPipeline.ref": "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta",
@@ -21,8 +18,8 @@
   "RNAWithUMIsPipeline.exonBedFile": "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v34.GRCh38.insert_size_intervals_geq1000bp.bed",
   "RNAWithUMIsPipeline.population_vcf": "gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz",
   "RNAWithUMIsPipeline.population_vcf_index": "gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz.tbi",
-
   "RNAWithUMIsPipeline.Fastp.cpu": 1,
   "RNAWithUMIsPipeline.STAR.cpu": 1,
-  "RNAWithUMIsPipeline.transcriptome_deterministic": true
+  "RNAWithUMIsPipeline.transcriptome_deterministic": true,
+  "RNAWithUMIsPipeline.billing_project": "warp-pipelines"
 }
