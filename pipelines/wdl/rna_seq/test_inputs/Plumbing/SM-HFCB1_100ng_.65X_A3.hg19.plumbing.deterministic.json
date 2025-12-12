@@ -1,15 +1,12 @@
 {
-  "RNAWithUMIsPipeline.bam": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-HFCB1_100ng_.65X_A3_plumbing.u.bam",
+  "RNAWithUMIsPipeline.bam": "gs://pd-test-storage-public/RNAWithUMIsPipeline/input/plumbing/SM-HFCB1_100ng_.65X_A3_plumbing.u.bam",
   "RNAWithUMIsPipeline.read1Structure": "3M2S146T",
   "RNAWithUMIsPipeline.read2Structure": "3M2S146T",
-
   "RNAWithUMIsPipeline.output_basename": "SM-HFCB1_100ng_.65X_A3",
-
   "RNAWithUMIsPipeline.library_name": "SM-HFCB1_100ng_.65X_A3",
   "RNAWithUMIsPipeline.platform": "ILLUMINA",
   "RNAWithUMIsPipeline.platform_unit": "barcode1",
   "RNAWithUMIsPipeline.read_group_name": "RG1",
-
   "RNAWithUMIsPipeline.starIndex": "gs://gcp-public-data--broad-references/hg19/v0/star/STAR2.7.10a_genome_hg19_noALT_noHLA_noDecoy_v19_oh145.tar.gz",
   "RNAWithUMIsPipeline.gtf": "gs://gcp-public-data--broad-references/hg19/v0/annotation/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf",
   "RNAWithUMIsPipeline.ref": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
@@ -20,8 +17,8 @@
   "RNAWithUMIsPipeline.exonBedFile": "gs://gcp-public-data--broad-references/hg19/v0/annotation/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed",
   "RNAWithUMIsPipeline.population_vcf": "gs://gatk-best-practices/somatic-b37/small_exac_common_3.vcf",
   "RNAWithUMIsPipeline.population_vcf_index": "gs://gatk-best-practices/somatic-b37/small_exac_common_3.vcf.idx",
-
   "RNAWithUMIsPipeline.Fastp.cpu": 1,
   "RNAWithUMIsPipeline.STAR.cpu": 1,
-  "RNAWithUMIsPipeline.transcriptome_deterministic": true
+  "RNAWithUMIsPipeline.transcriptome_deterministic": true,
+  "RNAWithUMIsPipeline.billing_project": "warp-pipelines"
 }

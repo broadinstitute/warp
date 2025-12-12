@@ -4,8 +4,8 @@
 
   "BroadInternalRNAWithUMIs.reference_build": "hg19",
 
-  "BroadInternalRNAWithUMIs.r1_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/scientific/inputs/SM-HFCB1_100ng_.65X_A3_read1.fastq",
-  "BroadInternalRNAWithUMIs.r2_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/scientific/inputs/SM-HFCB1_100ng_.65X_A3_read2.fastq",
+  "BroadInternalRNAWithUMIs.r1_fastq": "gs://pd-test-storage-public/RNAWithUMIsPipeline/input/scientific/SM-HFCB1_100ng_.65X_A3_read1.fastq",
+  "BroadInternalRNAWithUMIs.r2_fastq": "gs://pd-test-storage-public/RNAWithUMIsPipeline/input/scientific/SM-HFCB1_100ng_.65X_A3_read2.fastq",
   "BroadInternalRNAWithUMIs.read1Structure": "3M2S146T",
   "BroadInternalRNAWithUMIs.read2Structure": "3M2S146T",
   "BroadInternalRNAWithUMIs.library_name": "SM-HFCB1_100ng_.65X_A3",
