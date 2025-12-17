@@ -1,3 +1,14 @@
+# 2.4.1
+2025-12-05 (Date of Last Commit) 
+
+* Update input_qc_version to 1.2.4 to match latest changes in InputQC wdl.
+
+# 2.4.0
+2025-11-25 (Date of Last Commit)
+
+* Update Phase and Impute tasks to use a docker image that contains Beagle JAR 
+generated from GitHub repo [tmp-sharing/imp-server](https://github.com/tmp-sharing/imp-server/tree/master).
+
 # 2.3.0
 2025-11-12 (Date of Last Commit)
 
