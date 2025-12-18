@@ -50,7 +50,7 @@ workflow Glimpse2Imputation {
             n_samples = n_samples
     }
 
-    scatter (reference_chunk in zip(read_lines(ComputeShardsAndMemoryPerShard.reference_chunks), ComputeShardsAndMemoryPerShard.mem_gb_per_chunk)) {
+    scatter (reference_chunk in zip(ComputeShardsAndMemoryPerShard.reference_chunks, ComputeShardsAndMemoryPerShard.mem_gb_per_chunk)) {
         call GlimpsePhase {
             input:
                 reference_chunk = reference_chunk.left,
@@ -142,7 +142,7 @@ task ComputeShardsAndMemoryPerShard {
     }
 
     output {
-        Array[String] reference_shards = read_lines("reference_shards.tsv")
+        Array[String] reference_chunks = read_lines("reference_shards.tsv")
         Array[Int] mem_gb_per_chunk = read_lines("memory_per_chunk.tsv")
     }
 }
