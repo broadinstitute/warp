@@ -3,7 +3,6 @@ version 1.0
 workflow Glimpse2Imputation {
     input {
         # List of files, one per line
-        File reference_chunks
         File reference_chunks_memory    # File with baseline GB and slope per sample for memory calculation, for each chunk
 
         File? input_vcf
@@ -13,9 +12,11 @@ workflow Glimpse2Imputation {
         Array[String] sample_ids
         File? fasta
         File? fasta_index
-        String output_basename
 
+        String output_basename
+        Array[String] contigs
         File ref_dict
+
 
         Boolean impute_reference_only_variants = false
         Boolean call_indels = false
@@ -42,13 +43,14 @@ workflow Glimpse2Imputation {
 
     Int n_samples = select_first([CountSamples.nSamples, length(select_first([crams]))])
 
-    call ComputeMemoryPerShard {
+    call ComputeShardsAndMemoryPerShard {
         input:
             reference_chunks_memory = reference_chunks_memory,
+            contigs = contigs,
             n_samples = n_samples
     }
 
-    scatter (reference_chunk in zip(read_lines(reference_chunks), ComputeMemoryPerShard.mem_gb_per_chunk)) {
+    scatter (reference_chunk in zip(read_lines(ComputeShardsAndMemoryPerShard.reference_chunks), ComputeShardsAndMemoryPerShard.mem_gb_per_chunk)) {
         call GlimpsePhase {
             input:
                 reference_chunk = reference_chunk.left,
@@ -106,9 +108,10 @@ workflow Glimpse2Imputation {
     }
 }
 
-task ComputeMemoryPerShard {
+task ComputeShardsAndMemoryPerShard {
     input {
         File reference_chunks_memory
+        Array[String] contigs
         Int n_samples
     }
 
@@ -118,10 +121,19 @@ task ComputeMemoryPerShard {
         import numpy as np
 
 
-        df = pd.read_csv('~{reference_chunks_memory}', sep='\t', header=None, names=['chunk', 'base_gb', 'slope_per_sample_gb'])
-        df['mem_gb'] = df['base_gb'] + df['slope_per_sample_gb'] * ~{n_samples}
-        df['mem_gb'] = df['mem_gb'].apply(lambda x: min(256, int(np.ceil(x))))  # cap at 256 GB
-        df['mem_gb'].to_csv('memory_per_chunk.tsv', sep='\t', index=False, header=None)
+        df = pd.read_csv('~{reference_chunks_memory}', sep='\t', header=None, names=['contig', 'reference_shard', 'base_gb', 'slope_per_sample_gb'])
+
+        # filter dataframe by contig list
+        chromosomes_to_filter = ["~{sep='", "' contigs}"]
+        filtered_df = df[df['contig'].isin(chromosomes_to_filter)]
+
+        # write out reference shards to process
+        filtered_df['reference_shard'].to_csv('reference_shards.tsv', sep='\t', index=False, header=None)
+
+        # calculate memory usage and save to file
+        filtered_df['mem_gb'] = filtered_df['base_gb'] + filtered_df['slope_per_sample_gb'] * ~{n_samples}
+        filtered_df['mem_gb'] = filtered_df['mem_gb'].apply(lambda x: min(256, int(np.ceil(x))))  # cap at 256 GB
+        filtered_df['mem_gb'].to_csv('memory_per_chunk.tsv', sep='\t', index=False, header=None)
         EOF
     >>>
 
@@ -130,7 +142,7 @@ task ComputeMemoryPerShard {
     }
 
     output {
-#        File memory_per_chunk = "memory_per_chunk.tsv"
+        Array[String] reference_shards = read_lines("reference_shards.tsv")
         Array[Int] mem_gb_per_chunk = read_lines("memory_per_chunk.tsv")
     }
 }
