@@ -164,6 +164,8 @@ task GlimpsePhase {
         Int? n_main
         Int? effective_population_size
 
+        Int seed = 12345678
+
         Int mem_gb = 4
         Int cpu = 4
         Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.003 * length(select_first([crams, []])) + 10)
@@ -213,6 +215,7 @@ task GlimpsePhase {
         --reference ~{reference_chunk} \
         --output phase_output.bcf \
         --threads ~{cpu} \
+        --seed ~{seed} \
         ~{if impute_reference_only_variants then "--impute-reference-only-variants" else ""} ~{if call_indels then "--call-indels" else ""} \
         ~{"--burnin " + n_burnin} ~{"--main " + n_main} \
         ~{"--ne " + effective_population_size} \
@@ -263,6 +266,8 @@ task GlimpseLigate {
         String output_basename
         File ref_dict
 
+        Int seed = 12345678
+        
         Int mem_gb = 4
         Int cpu = 4
         Int disk_size_gb = ceil(2.2 * size(imputed_chunks, "GiB") + 100)
@@ -277,7 +282,7 @@ task GlimpseLigate {
         NPROC=$(nproc)
         echo "nproc reported ${NPROC} CPUs, using that number as the threads argument for GLIMPSE."
         
-        /bin/GLIMPSE2_ligate --input ~{write_lines(imputed_chunks)} --output ligated.vcf.gz --threads ${NPROC}
+        /bin/GLIMPSE2_ligate --input ~{write_lines(imputed_chunks)} --output ligated.vcf.gz --threads ${NPROC} --seed ~{seed}
 
         # Set correct reference dictionary
         bcftools view -h --no-version ligated.vcf.gz > old_header.vcf        
