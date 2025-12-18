@@ -50,7 +50,7 @@ workflow Glimpse2Imputation {
             n_samples = n_samples
     }
 
-    scatter (reference_chunk in zip(ComputeShardsAndMemoryPerShard.reference_chunks, ComputeShardsAndMemoryPerShard.mem_gb_per_chunk)) {
+    scatter (reference_chunk in zip(ComputeShardsAndMemoryPerShard.reference_chunk_file_paths, ComputeShardsAndMemoryPerShard.mem_gb_per_chunk)) {
         call GlimpsePhase {
             input:
                 reference_chunk = reference_chunk.left,
@@ -128,7 +128,7 @@ task ComputeShardsAndMemoryPerShard {
         filtered_df = df[df['contig'].isin(chromosomes_to_filter)]
 
         # write out reference shards to process
-        filtered_df['reference_shard'].to_csv('reference_shards.tsv', sep='\t', index=False, header=None)
+        filtered_df['reference_shard'].to_csv('reference_shard_file_paths.tsv', sep='\t', index=False, header=None)
 
         # calculate memory usage and save to file
         filtered_df['mem_gb'] = filtered_df['base_gb'] + filtered_df['slope_per_sample_gb'] * ~{n_samples}
@@ -142,7 +142,7 @@ task ComputeShardsAndMemoryPerShard {
     }
 
     output {
-        Array[String] reference_chunks = read_lines("reference_shards.tsv")
+        Array[String] reference_chunk_file_paths = read_lines("reference_shard_file_paths.tsv")
         Array[Int] mem_gb_per_chunk = read_lines("memory_per_chunk.tsv")
     }
 }
