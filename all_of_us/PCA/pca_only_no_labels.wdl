@@ -284,6 +284,8 @@ task plot_pca {
                 xlabel = f"PC{pc1}"
                 ylabel = f"PC{pc2}"
 
+            plt.xlabel(xlabel)
+            plt.ylabel(ylabel)
             plt.tight_layout()
             plt.savefig(output_figure_fname)
             plt.close()
