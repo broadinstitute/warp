@@ -8,6 +8,7 @@ workflow pca_only_no_labels {
         String final_output_prefix
         Int num_pcs
         Int? min_vcf_partitions_in
+        Float alpha = 0.18
     }
     String pipeline_version = "beta_0.0.0"
 
@@ -28,12 +29,19 @@ workflow pca_only_no_labels {
             min_vcf_partitions_in=min_vcf_partitions_in
     }
 
+    call compute_pct_variance {
+        input:
+            eigenvalues_tsv=create_hw_pca_training.pca_eigenvalues_tsv
+    }
+
     call plot_pca as plot_1_2 {
         input :
             output_prefix=final_output_prefix,
             pca_tsv=create_hw_pca_training.pca_scores_tsv,
             pc1=1,
-            pc2=2
+            pc2=2, 
+            pct_variance_tsv=compute_pct_variance.pct_variance_explained_tsv, 
+            alpha=alpha
     }
 
     call plot_pca as plot_3_4 {
@@ -41,7 +49,9 @@ workflow pca_only_no_labels {
             output_prefix=final_output_prefix,
             pca_tsv=create_hw_pca_training.pca_scores_tsv,
             pc1=3,
-            pc2=4
+            pc2=4, 
+            pct_variance_tsv=compute_pct_variance.pct_variance_explained_tsv, 
+            alpha=alpha
     }
 
     output {
@@ -179,12 +189,58 @@ task create_hw_pca_training {
     }
 }
 
+task compute_pct_variance {
+    input {
+        File eigenvalues_tsv
+    }
+
+    command <<<
+        set -e
+        python3 <<EOF
+        import os
+        import os.path
+        import pandas as pd
+
+        def compute_pct_variance(eigenvalues):
+            total = sum(eigenvalues)
+            pct_var = [100 * v / total for v in eigenvalues]
+            return pct_var
+
+        # Read eigenvalues from TSV
+        df = pd.read_csv("~{eigenvalues_tsv}", sep="\\t")
+        eigenvalues = df['eigenvalues'].tolist()
+
+        pct_var = compute_pct_variance(eigenvalues)
+
+        # Write out percent variance explained
+        with open("pct_variance_explained.tsv", "w") as f:
+            f.write("PC\tPercent_Variance_Explained\\n")
+            for i, pv in enumerate(pct_var):
+                f.write(f"PC{i+1}\\t{pv}\\n")
+
+        EOF
+    >>>
+
+    output {
+        File pct_variance_explained_tsv = "pct_variance_explained.tsv"
+    }
+
+    runtime {
+        docker: "python:3.8-slim"
+        memory: "16 GB"
+        cpu: 2
+        disks: "local-disk 250 HDD"
+    }
+}
+
 task plot_pca {
     input {
         String output_prefix
         File pca_tsv
         Int pc1
         Int pc2
+        File pct_variance_tsv
+        Float alpha # default is 0.18
 
         # Runtime parameters
         Int disk_gb = 500
@@ -206,10 +262,7 @@ task plot_pca {
             if pc < 1:
                 raise ValueError(f'Specified pc was negative or zero: {pc}.  Inputs are 1-indexed.')
 
-        def plot_categorical_points(df, score_col, pc1, pc2, col_category, output_figure_fname):
-            pc_x = pc1-1
-            pc_y = pc2-1
-
+        def plot_categorical_points(df, score_col, pc1, pc2, col_category, output_figure_fname, pct_var=None):
             # Unique labels and colors
             labels = df[col_category].unique()
             colors = plt.cm.rainbow(np.linspace(0, 1, len(labels)))
@@ -219,13 +272,21 @@ task plot_pca {
                 subset = df[df[col_category] == label]
                 x = subset[f'PC{pc1}']  # Updated to use individual PC columns
                 y = subset[f'PC{pc2}']  # Updated to use individual PC columns
-                plt.scatter(x, y, color=color, s=2, alpha=0.25)  # Removed legend and added alpha for transparency
+                plt.scatter(x, y, color=color, s=2, alpha=~{alpha})  # Removed legend and added alpha for transparency
 
             plt.title('CDRv9 PCA')
-            plt.xlabel(f'PC{pc1}')
-            plt.ylabel(f'PC{pc2}')
+            if pct_var is not None:
+                pct_x = pct_var.get(pc1)
+                pct_y = pct_var.get(pc2)
+                xlabel = f"PC{pc1} ({pct_x:.2f}%)" if pct_x is not None else f"PC{pc1}"
+                ylabel = f"PC{pc2} ({pct_y:.2f}%)" if pct_y is not None else f"PC{pc2}"
+            else:
+                xlabel = f"PC{pc1}"
+                ylabel = f"PC{pc2}"
 
+            plt.tight_layout()
             plt.savefig(output_figure_fname)
+            plt.close()
 
         # Define variables from WDL inputs
         output_prefix = "~{output_prefix}"
@@ -241,12 +302,17 @@ task plot_pca {
 
         # Read and process data
         df = pd.read_csv("~{pca_tsv}", sep="\t")
+        pct_variance_df = pd.read_csv("~{pct_variance_tsv}", sep="\t")
+        pct_variance_lookup = {
+            int(str(label).replace("PC", "")): value
+            for label, value in zip(pct_variance_df['PC'], pct_variance_df['Percent_Variance_Explained'])
+        }
 
         # Add pop labels since plot function expects them
         df['pop_label'] = ["No label"] * len(df)
 
         # Generate the plot
-        plot_categorical_points(df, 'scores', pc1, pc2, 'pop_label', output_figure_basename)
+        plot_categorical_points(df, 'scores', pc1, pc2, 'pop_label', output_figure_basename, pct_variance_lookup)
 
         EOF
     >>>
