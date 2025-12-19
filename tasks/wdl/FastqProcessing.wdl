@@ -33,7 +33,7 @@ task FastqProcessing {
     i1_fastq: "(optional) input fastq file"
     read_struct: "read structure for the 10x chemistry. This automatically selected in the checkInputs task"
     whitelist: "10x genomics cell barcode whitelist"
-    chemistry: "chemistry employed, currently can be tenX_v2 or tenX_v3, the latter implies NO feature barcodes"
+    chemistry: "chemistry employed, currently can be tenX_v2, tenX_v3, or v4 (GEM-X), the latter two implies NO feature barcodes"
     sample_id: "name of sample matching this file, inserted into read group header"
     warp_tools_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
@@ -94,7 +94,7 @@ task FastqProcessing {
     if [ "~{chemistry}" == "2" ]; then
         ## V2
         UMILENGTH=10
-    elif [ "~{chemistry}" == "3" ]; then
+    elif [ "~{chemistry}" == "3" ] || [ "~{chemistry}" == "4" ]; then
         ## V3
         UMILENGTH=12
     else
