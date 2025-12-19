@@ -226,7 +226,7 @@ task compute_pct_variance {
     }
 
     runtime {
-        docker: "python:3.8-slim"
+        docker: "us.gcr.io/broad-gotc-prod/warp-tools:2.6.1"
         memory: "16 GB"
         cpu: 2
         disks: "local-disk 250 HDD"
