@@ -49,7 +49,7 @@ task QcChecks {
         fi
 
         # check each contig header has length attribute
-        if grep '^##contig=' ~{vcf_input} | grep -vq 'length='; then
+        if gunzip -c ~{vcf_input} | grep '^##contig=' | grep -vq 'length='; then
             echo "One or more contig headers in input VCF have missing length attribute." >> qc_messages.txt;
         else
             echo "All contig headers in input VCF have length attribute."
