@@ -48,6 +48,13 @@ task QcChecks {
             echo "No improperly coded indels found in input VCF.";
         fi
 
+        # check each contig header has length attribute
+        if grep '^##contig=' ~{vcf_input} | grep -vq 'length='; then
+            echo "One or more contig headers in input VCF have missing length attribute." >> qc_messages.txt;
+        else
+            echo "All contig headers in input VCF have length attribute."
+        fi
+
         # check for variants in at least one of the canonical chromosomes - chr1 to chr22
         gunzip -c ~{vcf_input} | grep -v "#" | cut -f1 | sort -u > chromosomes.txt
 
