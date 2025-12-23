@@ -4,7 +4,7 @@ import "../../../../../tasks/wdl/ImputationBeagleQcTasks.wdl" as tasks
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in ImputationBeagle.wdl
-    String pipeline_version = "1.2.4"
+    String pipeline_version = "1.2.5"
 
 
     input {
