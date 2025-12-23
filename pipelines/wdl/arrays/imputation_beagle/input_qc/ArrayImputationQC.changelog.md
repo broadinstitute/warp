@@ -1,3 +1,8 @@
+# 1.2.5
+2025-12-23 (Date of Last Commit)
+
+* Update QcChecks to catch VCFs that have missing length attribute in contig headers.
+
 # 1.2.4
 2025-12-05 (Date of Last Commit)
 
