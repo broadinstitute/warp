@@ -1,3 +1,8 @@
+# 5.0.3
+2025-12-16 (Date of Last Commit)
+
+* Remove duplicate mitochondrial contig from the genome file if mito_accession is provided
+
 # 5.0.2
 2025-11-20 (Date of Last Commit)
 
