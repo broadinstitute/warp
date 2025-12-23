@@ -52,7 +52,7 @@ task QcChecks {
         if gunzip -c ~{vcf_input} | grep '^##contig=' | grep -vq 'length='; then
             echo "One or more contig headers in input VCF have missing 'length' attribute." >> qc_messages.txt;
         else
-            echo "All contig headers in input VCF have length attribute."
+            echo "All contig headers in input VCF have length attribute.";
         fi
 
         # check for variants in at least one of the canonical chromosomes - chr1 to chr22
