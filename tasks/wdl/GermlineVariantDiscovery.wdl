@@ -101,6 +101,7 @@ task HaplotypeCaller_GATK4_VCF {
     #Setting default docker value for workflows that haven't yet been azurized.
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int memory_multiplier = 1
+    String? billing_project
   }
   
   Int memory_size_mb = ceil(8000 * memory_multiplier) + 2000
@@ -112,6 +113,8 @@ task HaplotypeCaller_GATK4_VCF {
   Int disk_size = ceil(((size(input_bam, "GiB") + 30) / hc_scatter) + ref_size) + 50
 
   String bamout_arg = if make_bamout then "-bamout ~{vcf_basename}.bamout.bam" else ""
+
+  String requester_pays_flag = if defined(billing_project) then "--gcs-project-for-requester-pays ${billing_project}" else ""
 
   parameter_meta {
     input_bam: {
@@ -152,7 +155,8 @@ task HaplotypeCaller_GATK4_VCF {
       ~{if defined(dragstr_model) then "--dragstr-params-path " + dragstr_model else ""} \
       -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90 \
       ~{true="-ERC GVCF" false="" make_gvcf} \
-      ~{bamout_arg}
+      ~{bamout_arg} \
+      ~{requester_pays_flag}
 
     # Cromwell doesn't like optional task outputs, so we have to touch this file.
     touch ~{vcf_basename}.bamout.bam

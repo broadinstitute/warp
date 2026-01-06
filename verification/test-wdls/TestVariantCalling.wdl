@@ -32,6 +32,7 @@ workflow TestVariantCalling {
       Boolean use_gatk3_haplotype_caller = false
       Boolean skip_reblocking = false
       Boolean use_dragen_hard_filtering = false
+      String? billing_project
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -69,7 +70,8 @@ workflow TestVariantCalling {
         use_gatk3_haplotype_caller = use_gatk3_haplotype_caller,
         skip_reblocking = skip_reblocking,
         use_dragen_hard_filtering = use_dragen_hard_filtering,
-        cloud_provider = cloud_provider
+        cloud_provider = cloud_provider,
+        billing_project = billing_project
   
     }
 

@@ -37,6 +37,11 @@ workflow VariantCalling {
     Boolean skip_reblocking = false
     Boolean use_dragen_hard_filtering = false
     String cloud_provider
+    String? billing_project
+  }
+
+  if (false) {
+    String? none = "None"
   }
 
   # docker images
@@ -140,7 +145,8 @@ workflow VariantCalling {
           use_spanning_event_genotyping = use_spanning_event_genotyping,
           dragstr_model = DragstrAutoCalibration.dragstr_model,
           preemptible_tries = agg_preemptible_tries,
-          gatk_docker = gatk_docker
+          gatk_docker = gatk_docker,
+          billing_project = billing_project
        }
 
       if (use_dragen_hard_filtering) {
