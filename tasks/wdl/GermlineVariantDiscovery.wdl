@@ -54,7 +54,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --interval-padding 500 \
       -L ~{interval_list} \
       -O local.sharded.bam \
-      ~{requester_pays_flag}
+      ~{requester_pays_flag} \
     && \
     java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms8000m -Xmx9000m\
       -jar /usr/gitc/GATK35.jar \
