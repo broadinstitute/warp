@@ -1,6 +1,6 @@
 {
-  "VariantCalling.input_bam": "gs://broad-gotc-test-storage/variant_calling/wgs/plumbing/bams/G96830.NA12878/NA12878_PLUMBING.bam",
-  "VariantCalling.input_bam_index": "gs://broad-gotc-test-storage/variant_calling/wgs/plumbing/bams/G96830.NA12878/NA12878_PLUMBING.bai",
+  "VariantCalling.input_bam": "gs://pd-test-storage-public/VariantCalling/input/plumbing/G96830.NA12878/NA12878_PLUMBING.bam",
+  "VariantCalling.input_bam_index": "gs://pd-test-storage-public/VariantCalling/input/plumbing/G96830.NA12878/NA12878_PLUMBING.bai",
   "VariantCalling.base_file_name": "NA12878_PLUMBING",
   "VariantCalling.final_vcf_base_name": "NA12878_PLUMBING",
 
