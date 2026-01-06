@@ -29,6 +29,7 @@ task HaplotypeCaller_GATK35_GVCF {
     Int hc_scatter
     #Setting default docker value for workflows that haven't yet been azurized.
     String docker = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
+    String? billing_project
   }
 
   parameter_meta {
@@ -39,6 +40,7 @@ task HaplotypeCaller_GATK35_GVCF {
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
   Int disk_size = ceil(((size(input_bam, "GiB") + 30) / hc_scatter) + ref_size) + 20
+  String requester_pays_flag = if defined(billing_project) then "--gcs-project-for-requester-pays ${billing_project}" else ""
 
   # We use interval_padding 500 below to make sure that the HaplotypeCaller has context on both sides around
   # the interval because the assembly uses them.
@@ -52,6 +54,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --interval-padding 500 \
       -L ~{interval_list} \
       -O local.sharded.bam \
+      ~{requester_pays_flag}
     && \
     java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms8000m -Xmx9000m\
       -jar /usr/gitc/GATK35.jar \
@@ -65,7 +68,8 @@ task HaplotypeCaller_GATK35_GVCF {
       -variant_index_parameter 128000 \
       -variant_index_type LINEAR \
       -contamination ~{default=0 contamination} \
-      --read_filter OverclippedRead
+      --read_filter OverclippedRead \
+      ~{requester_pays_flag}
   }
   runtime {
     docker: docker

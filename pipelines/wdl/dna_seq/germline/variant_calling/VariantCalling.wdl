@@ -121,7 +121,8 @@ workflow VariantCalling {
           contamination = contamination,
           preemptible_tries = agg_preemptible_tries,
           hc_scatter = hc_divisor,
-          docker = gatk_1_3_docker
+          docker = gatk_1_3_docker,
+          billing_project = billing_project
       }
     }
 
