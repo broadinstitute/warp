@@ -40,10 +40,6 @@ workflow VariantCalling {
     String? billing_project
   }
 
-  if (false) {
-    String? none = "None"
-  }
-
   # docker images
   String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
   String gatk_docker_azure = "terrapublic.azurecr.io/gatk:4.6.1.0"
