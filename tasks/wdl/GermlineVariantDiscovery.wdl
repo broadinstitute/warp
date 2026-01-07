@@ -29,7 +29,6 @@ task HaplotypeCaller_GATK35_GVCF {
     Int hc_scatter
     #Setting default docker value for workflows that haven't yet been azurized.
     String docker = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
-    String? billing_project
   }
 
   parameter_meta {
@@ -40,7 +39,6 @@ task HaplotypeCaller_GATK35_GVCF {
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
   Int disk_size = ceil(((size(input_bam, "GiB") + 30) / hc_scatter) + ref_size) + 20
-  String requester_pays_flag = if defined(billing_project) then "--gcs-project-for-requester-pays ${billing_project}" else ""
 
   # We use interval_padding 500 below to make sure that the HaplotypeCaller has context on both sides around
   # the interval because the assembly uses them.
@@ -54,7 +52,6 @@ task HaplotypeCaller_GATK35_GVCF {
       --interval-padding 500 \
       -L ~{interval_list} \
       -O local.sharded.bam \
-      ~{requester_pays_flag} \
     && \
     java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms8000m -Xmx9000m\
       -jar /usr/gitc/GATK35.jar \
@@ -68,8 +65,8 @@ task HaplotypeCaller_GATK35_GVCF {
       -variant_index_parameter 128000 \
       -variant_index_type LINEAR \
       -contamination ~{default=0 contamination} \
-      --read_filter OverclippedRead \
-      ~{requester_pays_flag}
+      --read_filter OverclippedRead
+
   }
   runtime {
     docker: docker
@@ -105,7 +102,6 @@ task HaplotypeCaller_GATK4_VCF {
     #Setting default docker value for workflows that haven't yet been azurized.
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int memory_multiplier = 1
-    String? billing_project
   }
   
   Int memory_size_mb = ceil(8000 * memory_multiplier) + 2000
@@ -118,7 +114,6 @@ task HaplotypeCaller_GATK4_VCF {
 
   String bamout_arg = if make_bamout then "-bamout ~{vcf_basename}.bamout.bam" else ""
 
-  String requester_pays_flag = if defined(billing_project) then "--gcs-project-for-requester-pays ${billing_project}" else ""
 
   parameter_meta {
     input_bam: {
@@ -159,8 +154,7 @@ task HaplotypeCaller_GATK4_VCF {
       ~{if defined(dragstr_model) then "--dragstr-params-path " + dragstr_model else ""} \
       -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90 \
       ~{true="-ERC GVCF" false="" make_gvcf} \
-      ~{bamout_arg} \
-      ~{requester_pays_flag}
+      ~{bamout_arg}
 
     # Cromwell doesn't like optional task outputs, so we have to touch this file.
     touch ~{vcf_basename}.bamout.bam

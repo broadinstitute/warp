@@ -1,6 +1,6 @@
 {
-  "VariantCalling.input_bam": "gs://pd-test-storage-public/VariantCalling/input/plumbing/G96830.NA12878/NA12878_PLUMBING.bam",
-  "VariantCalling.input_bam_index": "gs://pd-test-storage-public/VariantCalling/input/plumbing/G96830.NA12878/NA12878_PLUMBING.bai",
+  "VariantCalling.input_bam": "gs://pd-test-storage-private/VariantCalling/input/plumbing/G96830.NA12878/NA12878_PLUMBING.bam",
+  "VariantCalling.input_bam_index": "gs://pd-test-storage-private/VariantCalling/input/plumbing/G96830.NA12878/NA12878_PLUMBING.bai",
   "VariantCalling.base_file_name": "NA12878_PLUMBING",
   "VariantCalling.final_vcf_base_name": "NA12878_PLUMBING",
 
@@ -18,6 +18,5 @@
   "VariantCalling.break_bands_at_multiples_of": 100000,
   "VariantCalling.agg_preemptible_tries": 3,
   "VariantCalling.use_gatk3_haplotype_caller": true,
-  "VariantCalling.cloud_provider": "gcp",
-  "VariantCalling.billing_project": "warp-pipelines"
+  "VariantCalling.cloud_provider": "gcp"
 }

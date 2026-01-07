@@ -37,7 +37,6 @@ workflow VariantCalling {
     Boolean skip_reblocking = false
     Boolean use_dragen_hard_filtering = false
     String cloud_provider
-    String? billing_project
   }
 
   # docker images
@@ -117,8 +116,7 @@ workflow VariantCalling {
           contamination = contamination,
           preemptible_tries = agg_preemptible_tries,
           hc_scatter = hc_divisor,
-          docker = gatk_1_3_docker,
-          billing_project = billing_project
+          docker = gatk_1_3_docker
       }
     }
 
@@ -142,8 +140,7 @@ workflow VariantCalling {
           use_spanning_event_genotyping = use_spanning_event_genotyping,
           dragstr_model = DragstrAutoCalibration.dragstr_model,
           preemptible_tries = agg_preemptible_tries,
-          gatk_docker = gatk_docker,
-          billing_project = billing_project
+          gatk_docker = gatk_docker
        }
 
       if (use_dragen_hard_filtering) {
