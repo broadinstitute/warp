@@ -168,7 +168,7 @@ task GlimpsePhase {
 
         Int mem_gb = 4
         Int cpu = 4
-        Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.01 * length(select_first([crams, []])) + 50)
+        Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.1 * length(select_first([crams, []])) + 20)
         Int preemptible = 9
         Int max_retries = 3
         String docker
@@ -256,6 +256,7 @@ task GlimpsePhase {
         File imputed_vcf = "phase_output.bcf"
         File imputed_vcf_index = "phase_output.bcf.csi"
         File coverage_metrics = "phase_output_stats_coverage.txt.gz"
+        File glimpse_stderr = "glimpse_stderr.log"
     }
 }
 
