@@ -1,0 +1,14 @@
+{
+  "BuildIndices.annotations_gff": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/gray_mouse_lemur/GCF_000165445.2_Mmur_3.0_genomic.gff.gz",
+  "BuildIndices.annotations_gtf": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/30608-Microcebus_murinus__Mmur_3-0/genes/genes.gtf.gz",
+  "BuildIndices.biotypes": "gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Biotypes.tsv",
+  "BuildIndices.genome_build": "Mmur_3.0",
+  "BuildIndices.genome_fa": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/30608-Microcebus_murinus__Mmur_3-0/fasta/genome.fa",
+  "BuildIndices.genome_source": "NCBI",
+  "BuildIndices.gtf_annotation_version": "GCF_000165445.2",
+  "BuildIndices.mito_accession": "NC_028718.1",
+  "BuildIndices.mito_ref_gbk": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/gray_mouse_lemur/sequence.gb",
+  "BuildIndices.organism": "Gray_mouse_lemur",
+  "BuildIndices.run_mitofinder": "true",
+  "BuildIndices.skip_gtf_modification": "true"
+}

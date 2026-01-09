@@ -471,14 +471,31 @@ jobs:
           name: workflow-summary
           path: workflow_summary.json
 
-      # Step 14: Print Summary on Success
+      # Step 14: Post Summary Artifact
+      # Purpose: Sends the workflow summary JSON to the workflow analysis processor
+      - name: Post Summary Artifact
+        if: always()
+        env:
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+        run: |
+          if [ -f "workflow_summary.json" ]; then
+            jq -n --arg RUN_ID "$WORKFLOW_RUN_ID" --slurpfile SUMMARY workflow_summary.json '{run_id: $RUN_ID, summary: $SUMMARY[0].summary}' > workflow_payload.json
+            curl -X POST "https://workflow-processor-5zhxczqoxq-uc.a.run.app/api/workflow-summary/" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ github.token }}" \
+              -d @workflow_payload.json
+          else
+            echo "Warning: workflow_summary.json not found. Check for earlier failures."
+          fi
+
+      # Step 15: Print Summary on Success
       # Purpose: Prints the final summary of the pipeline execution in case of success
       - name: Print Summary on Success
         if: success()
         run: |
           echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
 
-      # Step 15: Print Summary on Failure
+      # Step 16: Print Summary on Failure
       # Purpose: Prints the final summary of the pipeline execution in case of failure
       - name: Print Summary on Failure
         if: failure()
