@@ -14,7 +14,7 @@ workflow mt_coverage_merge {
 
     }
 
-    String pipeline_version = "1.0.0"
+    # (kept for provenance in earlier iterations; currently unused)
 
     if (defined(sample_list_tsv)) {
         call subset_data_table {
@@ -41,38 +41,38 @@ workflow mt_coverage_merge {
             input_tsv = process_tsv_files.processed_tsv  # Input TSV file path
     }
 
-    call combine_vcfs {
-        input:
-            input_tsv = process_tsv_files.processed_tsv,  # Input TSV file path
-            coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
-            artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed",  # Path to artifact-prone sites BED file
-            file_name = "combined_vcf.vcf.gz"  # Output file name
-    }
+    #call combine_vcfs {
+    #    input:
+    #        input_tsv = process_tsv_files.processed_tsv,  # Input TSV file path
+    #        coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
+    #        artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed",  # Path to artifact-prone sites BED file
+    #        file_name = "combined_vcf.vcf.gz"  # Output file name
+    #}
 
-    call add_annotations as annotated {
-        input:
-            coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
-            coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
-            vcf_mt = combine_vcfs.results_tar,  # Path to the MatrixTable
-            keep_all_samples = true,
-            output_name = "annotated"
-    }
+    #call add_annotations as annotated {
+    #    input:
+    #        coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
+    #        coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
+    #        vcf_mt = combine_vcfs.results_tar,  # Path to the MatrixTable
+    #        keep_all_samples = true,
+    #        output_name = "annotated"
+    #}
 
-    call add_annotations as filt_annotated {
-        input:
-            coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
-            coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
-            vcf_mt = combine_vcfs.results_tar,  # Path to the MatrixTable
-            keep_all_samples = false,
-            output_name = "filt_annotated"
-    }
+    #call add_annotations as filt_annotated {
+    #    input:
+    #        coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
+    #        coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
+    #        vcf_mt = combine_vcfs.results_tar,  # Path to the MatrixTable
+    #        keep_all_samples = false,
+    #        output_name = "filt_annotated"
+    #}
 
     output {
         File processed_tsv = process_tsv_files.processed_tsv
         File output_coverage_ht = annotate_coverage.output_ht
-        File combined_vcf = combine_vcfs.results_tar
-        File annotated_output_tar = annotated.annotated_output_tar
-        File filt_annotated_output_tar = filt_annotated.annotated_output_tar
+        #File combined_vcf = combine_vcfs.results_tar
+        #File annotated_output_tar = annotated.annotated_output_tar
+        #File filt_annotated_output_tar = filt_annotated.annotated_output_tar
     }
 }
 
@@ -255,80 +255,57 @@ task process_tsv_files {
 
 task annotate_coverage {
     input {
-        String input_tsv        # Input TSV file path (optional)
-        Int? chunk_size = 100    # Chunk size for combining VCFs (default: 100)
-        Boolean overwrite = false  # Overwrite existing files (default: false)
-        Boolean keep_targets = false  # Add annotation for target (default: false)
-        Boolean hail_only = false  # Skip generating flat files (default: false)
-        Int? split_merging = 10  # Number of jobs for splitting merging (default: 1)
+        File input_tsv        # Input TSV file
+        # v2 coverage DB builder parameters (kept in this task for drop-in workflow wiring)
+        Int batch_size = 256
+        Int position_block_size = 4096
 
         # Runtime parameters
-        Int memory_gb = 64 #1000
+        Int memory_gb = 256 #1000
         Int cpu = 16 #64
-        Int disk_gb = 500 #2000
-        String disk_type = "HDD" #"SSD"
-        String cpu_platform = "Intel Ice Lake"
+        Int disk_gb = 2000 #2000
+        String disk_type = "SSD" #"SSD"
     }
 
     command <<<
         set -euxo pipefail
 
-        mkdir -p ./tmp
-        mkdir -p ./results.ht
-
         WORK_DIR=$(pwd)
+        # Build HDF5 coverage DB + summary TSV.
+        # Note: this image contains only the coverage_db builder + deps (no Hail/Spark).
+        python -m generate_mtdna_call_mt.coverage_db.build_coverage_db \
+          --input-tsv ~{input_tsv} \
+          --out-h5 coverage.h5 \
+          --out-summary-tsv coverage_summary.tsv \
+          --batch-size ~{batch_size} \
+          --position-block-size ~{position_block_size}
 
-        # Set the spark config via environment variables
-        export SPARK_LOCAL_DIRS="$PWD/tmp"
+        ls -lh coverage.h5
+        ls -lh coverage_summary.tsv
 
-        DRIVER_MEM_GB=$((~{memory_gb} - 4))
-        if [ "$DRIVER_MEM_GB" -lt 2 ]; then DRIVER_MEM_GB=4; fi
-
-        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
-        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
-        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"  
-
-        # Run the annotate_coverage.py script
-        python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/annotate_coverage.py \
-        ~{if overwrite then "--overwrite" else ""} \
-        ~{if keep_targets then "--keep-targets" else ""} \
-        --input-tsv ~{input_tsv} \
-        --output-ht "./merged_coverage_tsvs.ht" \
-        --temp-dir "./tmp/" \
-        --chunk-size ~{chunk_size} \
-        ~{if hail_only then "--hail-only" else ""} \
-        --split-merging ~{split_merging}
-
-
-        ## note that both the ht and the mt are outputted by the tool
-        ls -lh ./merged_coverage_tsvs.ht
-        ls -lht ./merged_coverage_tsvs.mt
-
-        # Archive the MatrixTable
-        tar -czf $WORK_DIR/coverages_tsv.mt.tar.gz ./merged_coverage_tsvs.mt*
+        # Bundle outputs as a single artifact for consistent WDL handling.
+        tar -czf $WORK_DIR/coverage_db.tar.gz coverage.h5 coverage_summary.tsv
     >>>
 
     output {
-        File output_ht = "coverages_tsv.mt.tar.gz"
+        File output_ht = "coverage_db.tar.gz"
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
+        docker: "us.gcr.io/broad-gotc-prod/mt-coverage-db:dev"
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 
-        cpu_platform: cpu_platform
     }
 }
 
 task combine_vcfs {
     input {
-        String input_tsv        # Input TSV file path
+        File input_tsv        # Input TSV file
         File coverage_mt_tar    # Tar.gzipped directory of the Hail table
         String a_ref = "GRCh38"           # Reference genome (e.g., GRCh38)
-        Boolean overwrite = false  # Overwrite existing files (default: false)
+    Boolean overwrite = false  # Overwrite existing files (default: false)
         String vcf_col_name = "final_vcf"     # Column name for VCFs
-        String output_bucket = "./results"    # Output bucket path
         String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"  # Path to artifact-prone sites BED file
         String file_name        # Output file name
 
@@ -337,7 +314,6 @@ task combine_vcfs {
         Int cpu = 16 #64
         Int disk_gb = 500 #2000
         String disk_type = "HDD" #"SSD"
-        String cpu_platform = "Intel Ice Lake"
     }
 
     command <<<
@@ -376,7 +352,7 @@ task combine_vcfs {
         --input-tsv ~{input_tsv} \
         -c /cromwell_root/unzipped_coverage.mt \
         -a-ref ~{a_ref} \
-        --overwrite \
+    ~{if overwrite then "--overwrite" else ""} \
         --vcf-col-name ~{vcf_col_name} \
         --output-bucket ./results \
         --temp-dir ./tmp \
@@ -398,7 +374,6 @@ task combine_vcfs {
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 
-        cpu_platform: cpu_platform
     }
 }
 
@@ -406,7 +381,7 @@ task add_annotations {
     input {
         File coverage_mt_tar    # Tar.gzipped directory of the Hail table
         Boolean keep_all_samples = false  # Keep all samples (default: false)
-        String coverage_tsv     # Path to the coverage input TSV file
+        File coverage_tsv     # Path to the coverage input TSV file
         File vcf_mt             # Path to the MatrixTable
         String output_name      # directory output name
         
@@ -415,7 +390,6 @@ task add_annotations {
         Int cpu = 16 #64
         Int disk_gb = 500 #2000
         String disk_type = "HDD" #"SSD"
-        String cpu_platform = "Intel Ice Lake"
     }
 
      command <<<
@@ -474,6 +448,5 @@ task add_annotations {
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 
-        cpu_platform: cpu_platform
     }
 }
