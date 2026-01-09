@@ -4,7 +4,7 @@ This README describes the end-to-end workflow for preparing genotypes, generatin
 
 All workflows referenced here are implemented as WDLs in **WARP**.
 
-The *original versions* of these workflows were created by the **Stephen Montgomery Lab** at Stanford University, with major contributions from **Evin Padhi** and **Jon Nguyen**. Their work formed the foundation for the integrated analysis pipeline described here. Portions of the logic originated from the publicly available repository:
+The *original versions* of these workflows were either created by the GTEx Consortium (see their [GTEx GitHub repository](https://github.com/broadinstitute/gtex-pipeline/tree/master?tab=readme-ov-file)) or the lab for  **Dr. Stephen Montgomery Lab** at Stanford University, with major contributions from **Evin Padhi** and **Jon Nguyen**. Their work formed the foundation for the integrated analysis pipeline described here. Portions of the logic originated from the publicly available repository:
 
 * **AoU-Multiomics-Analysis**
   [https://github.com/AoU-Multiomics-Analysis](https://github.com/AoU-Multiomics-Analysis)
@@ -84,7 +84,7 @@ This step is required before running genotype or phenotype workflows per ancestr
 
 ## **2. Genotype Preparation (`Prepare_VCF`)**
 
-This WDL performs:
+The [Prepare_VCF](https://dockstore.org/workflows/github.com/AoU-Multiomics-Analysis/prepare_QTL/prepare_VCF:develop?tab=info) WDL performs:
 
 * Variant pruning
 * Conversion of the VCF to PLINK (`pgen`, `psam`, `pvar`)
