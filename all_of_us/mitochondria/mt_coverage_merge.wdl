@@ -12,6 +12,9 @@ workflow mt_coverage_merge {
         File full_data_tsv
         File? sample_list_tsv
 
+        # v2 coverage DB builder parameters
+        Boolean skip_summary = false
+
     }
 
     # (kept for provenance in earlier iterations; currently unused)
@@ -38,7 +41,8 @@ workflow mt_coverage_merge {
 
     call annotate_coverage {
         input:
-            input_tsv = process_tsv_files.processed_tsv  # Input TSV file path
+            input_tsv = process_tsv_files.processed_tsv,  # Input TSV file path
+            skip_summary = skip_summary
     }
 
     #call combine_vcfs {
@@ -260,6 +264,8 @@ task annotate_coverage {
         Int batch_size = 256
         Int position_block_size = 4096
 
+        Boolean skip_summary = false
+
         # Runtime parameters
         Int memory_gb = 256 #1000
         Int cpu = 16 #64
@@ -274,17 +280,22 @@ task annotate_coverage {
         # Build HDF5 coverage DB + summary TSV.
         # Note: this image contains only the coverage_db builder + deps (no Hail/Spark).
         python -m generate_mtdna_call_mt.coverage_db.build_coverage_db \
-          --input-tsv ~{input_tsv} \
-          --out-h5 coverage.h5 \
-          --out-summary-tsv coverage_summary.tsv \
-          --batch-size ~{batch_size} \
-          --position-block-size ~{position_block_size}
+            --input-tsv ~{input_tsv} \
+            --out-h5 coverage.h5 \
+            ~{if skip_summary then "--skip-summary" else "--out-summary-tsv coverage_summary.tsv"} \
+            --batch-size ~{batch_size} \
+            --position-block-size ~{position_block_size}
 
         ls -lh coverage.h5
-        ls -lh coverage_summary.tsv
-
-        # Bundle outputs as a single artifact for consistent WDL handling.
-        tar -czf $WORK_DIR/coverage_db.tar.gz coverage.h5 coverage_summary.tsv
+        if [ "~{skip_summary}" = "true" ]; then
+            echo "skip_summary enabled: not generating coverage_summary.tsv"
+            # Bundle outputs as a single artifact for consistent WDL handling.
+            tar -czf $WORK_DIR/coverage_db.tar.gz coverage.h5
+        else
+            ls -lh coverage_summary.tsv
+            # Bundle outputs as a single artifact for consistent WDL handling.
+            tar -czf $WORK_DIR/coverage_db.tar.gz coverage.h5 coverage_summary.tsv
+        fi
     >>>
 
     output {
@@ -304,7 +315,7 @@ task combine_vcfs {
         File input_tsv        # Input TSV file
         File coverage_mt_tar    # Tar.gzipped directory of the Hail table
         String a_ref = "GRCh38"           # Reference genome (e.g., GRCh38)
-    Boolean overwrite = false  # Overwrite existing files (default: false)
+        Boolean overwrite = false  # Overwrite existing files (default: false)
         String vcf_col_name = "final_vcf"     # Column name for VCFs
         String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"  # Path to artifact-prone sites BED file
         String file_name        # Output file name
