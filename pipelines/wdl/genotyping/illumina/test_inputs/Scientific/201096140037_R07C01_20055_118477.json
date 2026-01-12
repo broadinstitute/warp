@@ -5,11 +5,11 @@
   "IlluminaGenotypingArray.reported_gender": "NotReported",
   "IlluminaGenotypingArray.chip_well_barcode": "201096140037_R07C01",
 
-  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201096140037_R07C01_20055_118477//201096140037_R07C01_Grn.idat",
-  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201096140037_R07C01_20055_118477//201096140037_R07C01_Red.idat",
+  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201096140037_R07C01_20055_118477/201096140037_R07C01_Grn.idat",
+  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201096140037_R07C01_20055_118477/201096140037_R07C01_Red.idat",
 
-  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201096140037_R07C01_20055_118477//201096140037_R07C01.20055_11847.reference.fingerprint.vcf.gz",
-  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_index_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201096140037_R07C01_20055_118477//201096140037_R07C01.20055_11847.reference.fingerprint.vcf.gz.tbi",
+  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201096140037_R07C01_20055_118477/201096140037_R07C01.20055_11847.reference.fingerprint.vcf.gz",
+  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_index_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201096140037_R07C01_20055_118477/201096140037_R07C01.20055_11847.reference.fingerprint.vcf.gz.tbi",
 
   "IlluminaGenotypingArray.bead_pool_manifest_file": "gs://gcp-public-data--broad-references/arrays/GSAMD-24v1-0_20011747_A1/GSAMD-24v1-0_20011747_A1.bpm",
   "IlluminaGenotypingArray.extended_chip_manifest_file": "gs://gcp-public-data--broad-references/arrays/GSAMD-24v1-0_20011747_A1/GSAMD-24v1-0_20011747_A1.1.3.extended.csv",
