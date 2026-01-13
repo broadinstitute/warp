@@ -11,7 +11,7 @@
   "IlluminaGenotypingArray.bead_pool_manifest_file": "gs://broad-public-datasets/IlluminaGenotypingArrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.bpm",
   "IlluminaGenotypingArray.extended_chip_manifest_file": "gs://broad-public-datasets/IlluminaGenotypingArrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.1.5.extended.csv",
   "IlluminaGenotypingArray.cluster_file": "gs://broad-public-datasets/IlluminaGenotypingArrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A1_ClusterFile.egt",
-  "IlluminaGenotypingArray.minor_allele_frequency_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.MAF.txt",
+  "IlluminaGenotypingArray.minor_allele_frequency_file": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/204126290052_R01C01_NA12878/GDA-8v1-0_A5.MAF.txt",
 
   "IlluminaGenotypingArray.control_sample_vcf_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.vcf.gz",
   "IlluminaGenotypingArray.control_sample_vcf_index_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.vcf.gz.tbi",

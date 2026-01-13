@@ -11,8 +11,8 @@
   "IlluminaGenotypingArray.bead_pool_manifest_file" : "gs://gcp-public-data--broad-references/arrays/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal_A1.bpm",
   "IlluminaGenotypingArray.extended_chip_manifest_file" : "gs://gcp-public-data--broad-references/arrays/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal-8_A1.1.3.extended.csv",
   "IlluminaGenotypingArray.cluster_file" : "gs://gcp-public-data--broad-references/arrays/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal_ClusterFile.egt",
-  "IlluminaGenotypingArray.gender_cluster_file" : "gs://broad-gotc-test-storage/arrays/metadata/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal_A1_Gentrain_Genderest_ClusterFile_highmafX.egt",
-  "IlluminaGenotypingArray.zcall_thresholds_file" : "gs://broad-gotc-test-storage/arrays/metadata/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal-8_A1.thresholds.7.txt",
+  "IlluminaGenotypingArray.gender_cluster_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/201004840016_R01C01_NA12878/Multi-EthnicGlobal_A1_Gentrain_Genderest_ClusterFile_highmafX.egt",
+  "IlluminaGenotypingArray.zcall_thresholds_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/201004840016_R01C01_NA12878/Multi-EthnicGlobal-8_A1.thresholds.7.txt",
 
   "IlluminaGenotypingArray.control_sample_vcf_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.vcf.gz",
   "IlluminaGenotypingArray.control_sample_vcf_index_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.vcf.gz.tbi",
