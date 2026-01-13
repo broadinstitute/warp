@@ -1,4 +1,4 @@
-# **All of Us RNA-seq eQTL and sQTL Analysis Pipeline**
+# All of Us RNA-seq eQTL and sQTL Analysis Pipeline
 
 This README describes the end-to-end workflow for preparing genotypes, generating RNA expression and splicing phenotypes, computing covariates, running cis-QTL analysis with TensorQTL, and performing fine-mapping with SuSiE.
 
@@ -13,7 +13,7 @@ This README explains how the pieces fit together and what each WDL component pro
 
 ---
 
-# **Table of Contents**
+# Table of Contents
 
 1. [Overview](#overview)
 2. [Input Requirements](#input-requirements)
@@ -34,9 +34,9 @@ This README explains how the pieces fit together and what each WDL component pro
 
 ---
 
-# **Overview**
+# Overview
 
-This pipeline generates all inputs, outputs, and intermediate metadata required for a full cis-eQTL and cis-sQTL analysis:
+This pipeline generates all inputs, outputs, and intermediate metadata required for a full cis-expression QTL(eQTL) and cis-splicing QTL (sQTL) analysis:
 
 * Genotype preprocessing and pruning
 * PLINK files and genotype principal components
@@ -68,7 +68,7 @@ The sections below describe each workflow, its purpose, and expected outputs.
 
 ---
 
-## **1. Ancestry Grouping & Sample Lists**
+## 1. Ancestry Grouping & Sample Lists
 
 Prepare a table listing sample IDs for each ancestry/subpopulation.
 
@@ -82,7 +82,7 @@ This step is required before running genotype or phenotype workflows per ancestr
 
 ---
 
-## **2. Genotype Preparation (`Prepare_VCF`)**
+## 2. Genotype Preparation (`Prepare_VCF`)
 
 The [Prepare_VCF](https://dockstore.org/workflows/github.com/AoU-Multiomics-Analysis/prepare_QTL/prepare_VCF:develop?tab=info) WDL performs:
 
@@ -100,9 +100,9 @@ These outputs are used for both eQTL and sQTL pipelines.
 
 ---
 
-## **3. Genotype Dosage Calculation**
+## 3. Genotype Dosage Calculation
 
-This WDL generates genotype dosages per ancestry group.
+The [CalculateGenotypeDosage](https://github.com/AoU-Multiomics-Analysis/prepare_QTL/blob/main/workflows/calculateGenotypeDosage.wdl) WDL generates genotype dosages per ancestry group.
 
 Outputs:
 
@@ -111,10 +111,16 @@ Outputs:
 Because this step uses only the VCF, it may be integrated with `Prepare_VCF` in future versions.
 
 ---
+## 4. RNA Alignment, Counts and Splicing BED
+The [rnaseq_aou.wdl](./rnaseq_aou.wdl) was modified from the original GTEx pipeline and run with the GENCODE v48 GTF. The resulting counts were used as input for downstream expression QTL analysis.
 
-## **4. RNA Phenotype Preparation (`Prepare_eQTL`)**
+For splicing QTL (sQTL) analysis, the resulting duplicated-marked aligned BAMs were used as a input to the [leafcutter_bam_to_juc wdl](./leafcutter_bam_to_junc.wdl).
 
-This WDL processes RNA expression data to generate:
+This created a junction file that was used as input for the [leafcutter_cluster.wdl](./leafcutter_cluster.wdl), which produces a BED file for downstream  sQTL.
+
+## 5. RNA Phenotype Preparation for eQTL (`Prepare_eQTL`)
+
+The [Prepare_eQTL WDL](https://github.com/AoU-Multiomics-Analysis/prepare_QTL/blob/main/workflows/prepare_eQTL.wdl) processes RNA expression data to generate:
 
 * A **BED-format phenotype matrix**
 * **Phenotype PCs** for downstream covariate construction
@@ -129,9 +135,9 @@ Outputs are formatted to match TensorQTL requirements.
 
 ---
 
-## **5. Covariate Creation (`MergeCovariates`)**
+## 6. Covariate Creation (`MergeCovariates`)
 
-This WDL merges:
+The [MergeCovariates WDL](https://github.com/AoU-Multiomics-Analysis/prepare_QTL/blob/main/workflows/MergeCovariates.wdl) merges:
 
 * Genotype PCs
 * Phenotype PCs (expression or splicing)
@@ -145,9 +151,9 @@ This step ensures consistent ordering and formatting across all inputs.
 
 ---
 
-## **6. cis-eQTL Mapping (TensorQTL)**
+## 7. cis-eQTL Mapping (TensorQTL)
 
-This WDL runs **TensorQTL cis-permutation** mode to compute:
+The [TensorQTL cis permutations WDL](https://dockstore.org/workflows/github.com/AoU-Multiomics-Analysis/tensorQTL_cis_permutations:main?tab=info) runs **TensorQTL cis-permutation** mode to compute:
 
 * Nominal associations
 * Permutation-based cis-eQTL statistics
@@ -161,7 +167,7 @@ Notes:
 
 ---
 
-## **7. FDR Recalculation & Fine-Mapping Prep**
+## 8. FDR Recalculation & Fine-Mapping Prep
 
 After TensorQTL completes:
 
@@ -181,9 +187,9 @@ This step typically involves:
 
 ---
 
-## **8. SuSiE Fine-Mapping (`SusieR`)**
+## 9. SuSiE Fine-Mapping (`SusieR`)
 
-This WDL performs SuSiE fine-mapping for each cis-window.
+This [SusieR WDL](./susieR_workflow.wdl) performs SuSiE fine-mapping for each cis-window.
 
 Inputs:
 
@@ -205,9 +211,9 @@ Tips:
 
 ---
 
-## **9. Allele Frequency Calculation**
+## 10. Allele Frequency Calculation
 
-This WDL calculates allele frequencies using PLINK.
+The [CalculateAF](https://dockstore.org/workflows/github.com/AoU-Multiomics-Analysis/prepare_QTL/calculateAF:main?tab=info) WDL calculates allele frequencies using PLINK.
 
 Outputs:
 
@@ -218,9 +224,9 @@ This step is optional but useful for interpretation and downstream reporting.
 
 ---
 
-## **10. SuSiE Aggregation**
+## 11. SuSiE Aggregation
 
-This WDL aggregates fine-mapping results across all phenotypes.
+The [AggreateSusie WDL](./AggregateSusieWorkflow.wdl) aggregates fine-mapping results across all phenotypes.
 
 Inputs:
 
