@@ -14,8 +14,8 @@
   "IlluminaGenotypingArray.zcall_thresholds_file": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/200557070005_R06C01_NA12878/thresholds.7.txt",
 
   "IlluminaGenotypingArray.control_sample_vcf_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.vcf.gz",
-  "IlluminaGenotypingArray.control_sample_vcf_index_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata//NA12878.vcf.gz.tbi",
-  "IlluminaGenotypingArray.control_sample_intervals_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata//NA12878.interval_list",
+  "IlluminaGenotypingArray.control_sample_vcf_index_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.vcf.gz.tbi",
+  "IlluminaGenotypingArray.control_sample_intervals_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.interval_list",
   "IlluminaGenotypingArray.control_sample_name" : "NA12878",
   "IlluminaGenotypingArray.disk_size": 100,
 
