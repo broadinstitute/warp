@@ -15,6 +15,10 @@ workflow mt_coverage_merge {
         # v2 coverage DB builder parameters
         Boolean skip_summary = false
 
+        # Step 3 (combine vcfs + homref from covdb)
+        String vcf_col_name = "final_vcf"
+        String combined_mt_name = "combined_vcf"
+
     }
 
     # (kept for provenance in earlier iterations; currently unused)
@@ -45,13 +49,13 @@ workflow mt_coverage_merge {
             skip_summary = skip_summary
     }
 
-    #call combine_vcfs {
-    #    input:
-    #        input_tsv = process_tsv_files.processed_tsv,  # Input TSV file path
-    #        coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
-    #        artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed",  # Path to artifact-prone sites BED file
-    #        file_name = "combined_vcf.vcf.gz"  # Output file name
-    #}
+    call combine_vcfs_and_homref_from_covdb {
+        input:
+            input_tsv = process_tsv_files.processed_tsv,
+            coverage_db_tar = annotate_coverage.output_ht,
+            vcf_col_name = vcf_col_name,
+            file_name = combined_mt_name
+    }
 
     #call add_annotations as annotated {
     #    input:
@@ -74,6 +78,7 @@ workflow mt_coverage_merge {
     output {
         File processed_tsv = process_tsv_files.processed_tsv
         File output_coverage_ht = annotate_coverage.output_ht
+        File combined_mt_tar = select_first([combine_vcfs_and_homref_from_covdb.results_tar])
         #File combined_vcf = combine_vcfs.results_tar
         #File annotated_output_tar = annotated.annotated_output_tar
         #File filt_annotated_output_tar = filt_annotated.annotated_output_tar
@@ -385,6 +390,88 @@ task combine_vcfs {
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 
+    }
+}
+
+task combine_vcfs_and_homref_from_covdb {
+    input {
+        File input_tsv              # Input TSV file; contains gs:// VCFs in vcf_col_name
+        File coverage_db_tar        # Tar.gz produced by annotate_coverage containing coverage.h5 (+ optional summary)
+        String vcf_col_name = "final_vcf"
+        String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"
+        String artifact_prone_sites_reference = "default"
+        String file_name            # Output base name (writes <file_name>.mt)
+        Int minimum_homref_coverage = 100
+        Int chunk_size = 100
+        Int homref_position_block_size = 1024
+        Int n_final_partitions = 1000
+        Int split_merging = 1
+        Boolean overwrite = false
+        Boolean include_extra_v2_fields = true
+
+        # Runtime parameters
+        Int memory_gb = 256
+        Int cpu = 32
+        Int disk_gb = 2000
+        String disk_type = "SSD"
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        mkdir -p ./tmp
+        mkdir -p ./results
+
+        WORK_DIR=$(pwd)
+
+        # Spark/Hail scratch
+        export SPARK_LOCAL_DIRS="$PWD/tmp"
+
+        DRIVER_MEM_GB=$((~{memory_gb} - 8))
+        if [ "$DRIVER_MEM_GB" -lt 4 ]; then DRIVER_MEM_GB=4; fi
+
+        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
+        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
+        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"
+
+        # Extract coverage.h5 from tarball
+        mkdir -p ./coverage_db
+        tar -xzf ~{coverage_db_tar} -C ./coverage_db
+        ls -lh ./coverage_db
+        test -f ./coverage_db/coverage.h5
+
+        python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/combine_vcfs_and_homref_from_covdb.py \
+            --input-tsv ~{input_tsv} \
+            --coverage-h5-path ./coverage_db/coverage.h5 \
+            --vcf-col-name ~{vcf_col_name} \
+            --artifact-prone-sites-path ~{artifact_prone_sites_path} \
+            --artifact-prone-sites-reference ~{artifact_prone_sites_reference} \
+            --output-bucket ./results \
+            --temp-dir ./tmp \
+            --file-name ~{file_name} \
+            --minimum-homref-coverage ~{minimum_homref_coverage} \
+            --chunk-size ~{chunk_size} \
+            --homref-position-block-size ~{homref_position_block_size} \
+            --n-final-partitions ~{n_final_partitions} \
+            --split-merging ~{split_merging} \
+            ~{if overwrite then "--overwrite" else ""} \
+            ~{if include_extra_v2_fields then "--include-extra-v2-fields" else ""}
+
+        # Tar the MT directory.
+        # The script writes: ./results/<file_name>.mt
+        tar -czf $WORK_DIR/results.tar.gz -C ./results "~{file_name}.mt"
+    >>>
+
+    output {
+        File results_tar = "results.tar.gz"
+    }
+
+    runtime {
+        # NOTE: This must be a Hail-capable image with mtSwirl code baked in at /opt/mtSwirl.
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
+        memory: memory_gb + " GB"
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " " + disk_type
     }
 }
 
