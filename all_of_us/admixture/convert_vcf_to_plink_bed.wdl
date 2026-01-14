@@ -32,7 +32,7 @@ task convert_vcf_to_plink_bed {
     }
     command <<<
         set -e
-        /app/bin/plink --double-id --vcf ~{vcf} --make-bed --out ~{prefix}
+        /app/bin/plink --double-id --vcf ~{vcf} --make-bed --allow-extra-chr --out ~{prefix}
     >>>
 
     output {
