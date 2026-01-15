@@ -5,10 +5,7 @@ task generate_positioning {
     Array[String] rna_paths
     String sb_path
     String input_id
-<<<<<<<< HEAD:tasks/skylab/slidetags_utils/positioning.wdl
-========
     Boolean run_dropsift
->>>>>>>> develop:tasks/wdl/slidetags_utils/positioning.wdl
     Int mem_GiB  = 128
     Int disk_GiB = 128
     Int nthreads = 16
@@ -18,23 +15,15 @@ task generate_positioning {
     set -euo pipefail
     set -x
     echo "<< starting spatial-count >>"
-    
-    Rscript -e "install.packages(c('optparse', 'BiocManager'), repos='https://cloud.r-project.org'); BiocManager::install('IRanges')"
 
     gcloud config set storage/process_count 16 # is this set by user?
     gcloud config set storage/thread_count  2 # is this set by user?
 
     # Download the scripts -- these need to be changed -- also need to add to docker
-<<<<<<<< HEAD:tasks/skylab/slidetags_utils/positioning.wdl
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/d89176cf21e072fe8b5aad3a1454ad194fca7c9a/slide-tags/run-positioning.R
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/d89176cf21e072fe8b5aad3a1454ad194fca7c9a/slide-tags/positioning.R
-    wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/d89176cf21e072fe8b5aad3a1454ad194fca7c9a/slide-tags/helpers.R
-========
     wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/261750c2e15da5ff17533150b62578dda629da08/slide-tags/run-positioning.R
     wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/261750c2e15da5ff17533150b62578dda629da08/slide-tags/positioning.R
     wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/261750c2e15da5ff17533150b62578dda629da08/slide-tags/helpers.R
     wget https://raw.githubusercontent.com/MacoskoLab/Macosko-Pipelines/261750c2e15da5ff17533150b62578dda629da08/slide-tags/plots.R
->>>>>>>> develop:tasks/wdl/slidetags_utils/positioning.wdl
 
     echo "RNA: ~{sep=' ' rna_paths}"
     echo "SB: ~{sb_path}"
@@ -66,12 +55,8 @@ task generate_positioning {
 
     # Run the script
     echo ; echo "Running run-positioning.R"
-<<<<<<<< HEAD:tasks/skylab/slidetags_utils/positioning.wdl
-    Rscript run-positioning.R RNA $baseSB output
-========
 
     Rscript run-positioning.R RNA $baseSB output ~{if run_dropsift then "--dropsift" else ""}
->>>>>>>> develop:tasks/wdl/slidetags_utils/positioning.wdl
 
     # Upload the results
     ls output/* 
