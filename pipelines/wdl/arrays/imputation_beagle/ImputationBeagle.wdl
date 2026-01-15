@@ -313,7 +313,7 @@ workflow ImputationBeagle {
         input:
           vcf = UpdateHeader.output_vcf,
           vcf_index = UpdateHeader.output_vcf_index,
-          basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header.only_hom_ref.sites_only",
+          basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header.only_hom_ref",
       }
     }
 
@@ -338,7 +338,7 @@ workflow ImputationBeagle {
   call beagleTasks.GatherVcfsNoIndex as GatherHomRefSitesOnlyVcfs {
     input:
       input_vcfs = flatten(chunk_hom_ref_sites_only_vcfs),
-      output_vcf_basename = output_basename + ".imputed.hom_ref_sites_only",
+      output_vcf_basename = output_basename + ".imputed.hom_ref_only",
       gatk_docker = gatk_docker
   }
 
