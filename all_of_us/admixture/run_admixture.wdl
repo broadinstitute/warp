@@ -8,7 +8,7 @@ workflow run_admixture {
         File fam
     }
 
-	String pipeline_version="aou_9.0.0"
+	String pipeline_version="aou_9.0.1"
 
     call run_admixture {
         input:
@@ -49,7 +49,7 @@ task run_admixture {
 
     runtime {
         docker: "mussmann/admixpipe:3.0"
-        memory: "31 GB"
+        memory: "120 GB" # Was 31 GB originally, increased for local ancestry
         cpu: "~{num_cpus}"
         disks: "local-disk 500 HDD"
     }
