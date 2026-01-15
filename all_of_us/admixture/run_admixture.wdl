@@ -29,6 +29,7 @@ task run_admixture {
         File fam
         Int? K_in
         Int? num_cpus_in
+        Int mem_gb = 120
     }
     Int K = select_first([K_in, 6])
     Int num_cpus = select_first([num_cpus_in, 4])
@@ -49,7 +50,7 @@ task run_admixture {
 
     runtime {
         docker: "mussmann/admixpipe:3.0"
-        memory: "120 GB" # Was 31 GB originally, increased for local ancestry
+        memory: mem_gb + " GB" # Was 31 GB originally, increased for local ancestry
         cpu: "~{num_cpus}"
         disks: "local-disk 500 HDD"
     }
