@@ -19,6 +19,12 @@ workflow mt_coverage_merge {
         String vcf_col_name = "final_vcf"
         String combined_mt_name = "combined_vcf"
 
+        # Step 3 sharding controls (v3-style scalable ingestion)
+        Boolean shard_step3 = true
+        Int step3_shard_size = 2500
+        Int step3_merge_fanin = 10
+        Int step3_shard_n_partitions = 128
+
     }
 
     # (kept for provenance in earlier iterations; currently unused)
@@ -49,12 +55,90 @@ workflow mt_coverage_merge {
             skip_summary = skip_summary
     }
 
-    call combine_vcfs_and_homref_from_covdb {
-        input:
-            input_tsv = process_tsv_files.processed_tsv,
-            coverage_db_tar = annotate_coverage.output_ht,
-            vcf_col_name = vcf_col_name,
-            file_name = combined_mt_name
+    if (shard_step3) {
+        call make_vcf_shards_from_tsv {
+            input:
+                input_tsv = process_tsv_files.processed_tsv,
+                vcf_col_name = vcf_col_name,
+                shard_size = step3_shard_size
+        }
+
+        scatter (shard_tsv in make_vcf_shards_from_tsv.shard_tsvs) {
+            call build_vcf_shard_mt {
+                input:
+                    shard_tsv = shard_tsv,
+                    n_final_partitions = step3_shard_n_partitions
+            }
+        }
+
+        # Round 1: merge shard MTs to fewer intermediate MTs (fan-in)
+        call make_mt_merge_groups as make_merge_groups_1 {
+            input:
+                mt_paths = build_vcf_shard_mt.out_mt_path,
+                fanin = step3_merge_fanin,
+                out_dir = "merge_round_1"
+        }
+
+        scatter (mt_list_tsv in make_merge_groups_1.mt_list_tsvs) {
+            call merge_mt_shards as merge_round_1 {
+                input:
+                    mt_list_tsv = mt_list_tsv,
+                    out_mt_name = basename(mt_list_tsv, ".tsv") + ".mt",
+                    chunk_size = step3_merge_fanin
+            }
+        }
+
+        # Round 2: merge round-1 outputs
+        call make_mt_merge_groups as make_merge_groups_2 {
+            input:
+                mt_paths = merge_round_1.out_mt_path,
+                fanin = step3_merge_fanin,
+                out_dir = "merge_round_2"
+        }
+
+        scatter (mt_list_tsv in make_merge_groups_2.mt_list_tsvs) {
+            call merge_mt_shards as merge_round_2 {
+                input:
+                    mt_list_tsv = mt_list_tsv,
+                    out_mt_name = basename(mt_list_tsv, ".tsv") + ".mt",
+                    chunk_size = step3_merge_fanin
+            }
+        }
+
+        # Round 3: merge round-2 outputs (typically small count, but keep general)
+        call make_mt_merge_groups as make_merge_groups_3 {
+            input:
+                mt_paths = merge_round_2.out_mt_path,
+                fanin = step3_merge_fanin,
+                out_dir = "merge_round_3"
+        }
+
+        scatter (mt_list_tsv in make_merge_groups_3.mt_list_tsvs) {
+            call merge_mt_shards as merge_round_3 {
+                input:
+                    mt_list_tsv = mt_list_tsv,
+                    out_mt_name = basename(mt_list_tsv, ".tsv") + ".mt",
+                    chunk_size = step3_merge_fanin
+            }
+        }
+
+        # Finalize: apply covdb homref/DP + artifact filter once on the final merged MT
+        call finalize_mt_with_covdb {
+            input:
+                in_mt = merge_round_3.out_mt_path[0],
+                coverage_db_tar = annotate_coverage.output_ht,
+                file_name = combined_mt_name
+        }
+    }
+
+    if (!shard_step3) {
+        call combine_vcfs_and_homref_from_covdb {
+            input:
+                input_tsv = process_tsv_files.processed_tsv,
+                coverage_db_tar = annotate_coverage.output_ht,
+                vcf_col_name = vcf_col_name,
+                file_name = combined_mt_name
+        }
     }
 
     #call add_annotations as annotated {
@@ -78,10 +162,295 @@ workflow mt_coverage_merge {
     output {
         File processed_tsv = process_tsv_files.processed_tsv
         File output_coverage_ht = annotate_coverage.output_ht
-        File combined_mt_tar = select_first([combine_vcfs_and_homref_from_covdb.results_tar])
+        File combined_mt_tar = select_first([
+            finalize_mt_with_covdb.results_tar,
+            combine_vcfs_and_homref_from_covdb.results_tar
+        ])
         #File combined_vcf = combine_vcfs.results_tar
         #File annotated_output_tar = annotated.annotated_output_tar
         #File filt_annotated_output_tar = filt_annotated.annotated_output_tar
+    }
+}
+
+task make_vcf_shards_from_tsv {
+    input {
+        File input_tsv
+        String vcf_col_name = "final_vcf"
+        Int shard_size = 2500
+
+        # Runtime parameters
+        Int memory_gb = 16
+        Int cpu = 2
+        Int disk_gb = 50
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        mkdir -p shards
+
+        python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/make_vcf_shards_from_tsv.py \
+            --input-tsv ~{input_tsv} \
+            --sample-id-col s \
+            --vcf-col ~{vcf_col_name} \
+            --shard-size ~{shard_size} \
+            --out-dir shards
+
+        # Provide shard TSV list as an output file for WDL scatter
+        cp shards/shards.tsv ./shards.tsv
+    >>>
+
+    output {
+        Array[File] shard_tsvs = read_lines("shards.tsv")
+    }
+
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/python-numpy-pandas:1.0.0-2.2.3-1.25.2"
+        memory: memory_gb + " GB"
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " HDD"
+    }
+}
+
+task build_vcf_shard_mt {
+    input {
+        File shard_tsv
+        Int chunk_size = 100
+        Int n_final_partitions = 128
+        Boolean overwrite = false
+        Boolean include_extra_v2_fields = true
+
+        # Runtime parameters
+        Int memory_gb = 64
+        Int cpu = 16
+        Int disk_gb = 500
+        String disk_type = "SSD"
+    }
+
+    String out_mt_dirname = basename(shard_tsv, ".tsv") + ".mt"
+
+    command <<<
+        set -euxo pipefail
+
+        mkdir -p ./tmp
+        mkdir -p ./results
+
+        # Spark/Hail scratch
+        export SPARK_LOCAL_DIRS="$PWD/tmp"
+
+        DRIVER_MEM_GB=$((~{memory_gb} - 8))
+        if [ "$DRIVER_MEM_GB" -lt 4 ]; then DRIVER_MEM_GB=4; fi
+
+        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
+        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
+        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"
+
+        python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/build_vcf_shard_mt.py \
+            --shard-tsv ~{shard_tsv} \
+            --out-mt ./results/~{out_mt_dirname} \
+            --temp-dir ./tmp \
+            --chunk-size ~{chunk_size} \
+            --n-final-partitions ~{n_final_partitions} \
+            ~{if overwrite then "--overwrite" else ""} \
+            ~{if include_extra_v2_fields then "--include-extra-v2-fields" else ""}
+
+        # Pack as a tar for WDL artifact portability
+        tar -czf shard_mt.tar.gz -C ./results "~{out_mt_dirname}"
+        echo "./results/~{out_mt_dirname}" > out_mt_path.txt
+    >>>
+
+    output {
+        File shard_mt_tar = "shard_mt.tar.gz"
+        String out_mt_path = read_string("out_mt_path.txt")
+    }
+
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
+        memory: memory_gb + " GB"
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " " + disk_type
+    }
+}
+
+task make_mt_merge_groups {
+    input {
+        Array[String] mt_paths
+        Int fanin = 10
+        String out_dir
+
+        # Runtime parameters
+        Int memory_gb = 8
+        Int cpu = 1
+        Int disk_gb = 20
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        mkdir -p "~{out_dir}"
+
+        python3 <<'EOF'
+        import math
+        import os
+        
+        mt_paths = ~{sep=", " mt_paths}
+        fanin = int("~{fanin}")
+        out_dir = "~{out_dir}"
+        
+        if fanin <= 0:
+            raise ValueError("fanin must be > 0")
+        
+        n = len(mt_paths)
+        if n == 0:
+            raise ValueError("mt_paths is empty")
+        
+        n_groups = int(math.ceil(n / fanin))
+        out_index = os.path.join(out_dir, "mt_lists.tsv")
+        with open(out_index, "w") as idx:
+            idx.write("mt_list_tsv\n")
+            for g in range(n_groups):
+                chunk = mt_paths[g*fanin:(g+1)*fanin]
+                list_path = os.path.join(out_dir, f"mt_list_{g:05d}.tsv")
+                with open(list_path, "w") as out:
+                    out.write("mt_path\n")
+                    for p in chunk:
+                        out.write(p + "\n")
+                idx.write(list_path + "\n")
+        EOF
+
+        cp "~{out_dir}/mt_lists.tsv" ./mt_lists.tsv
+    >>>
+
+    output {
+        Array[File] mt_list_tsvs = read_lines("mt_lists.tsv")
+    }
+
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/python-numpy-pandas:1.0.0-2.2.3-1.25.2"
+        memory: memory_gb + " GB"
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " HDD"
+    }
+}
+
+task merge_mt_shards {
+    input {
+        File mt_list_tsv
+        String out_mt_name
+        Int chunk_size = 10
+        Int min_partitions = 256
+        Boolean overwrite = false
+
+        # Runtime parameters
+        Int memory_gb = 128
+        Int cpu = 16
+        Int disk_gb = 1000
+        String disk_type = "SSD"
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        mkdir -p ./tmp
+        mkdir -p ./results
+
+        export SPARK_LOCAL_DIRS="$PWD/tmp"
+
+        DRIVER_MEM_GB=$((~{memory_gb} - 8))
+        if [ "$DRIVER_MEM_GB" -lt 4 ]; then DRIVER_MEM_GB=4; fi
+
+        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
+        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
+        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"
+
+        python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/merge_mt_shards.py \
+            --mt-list-tsv ~{mt_list_tsv} \
+            --out-mt ./results/~{out_mt_name} \
+            --temp-dir ./tmp \
+            --chunk-size ~{chunk_size} \
+            --min-partitions ~{min_partitions} \
+            ~{if overwrite then "--overwrite" else ""}
+
+        tar -czf merged_mt.tar.gz -C ./results "~{out_mt_name}"
+        echo "./results/~{out_mt_name}" > out_mt_path.txt
+    >>>
+
+    output {
+        File merged_mt_tar = "merged_mt.tar.gz"
+        String out_mt_path = read_string("out_mt_path.txt")
+    }
+
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
+        memory: memory_gb + " GB"
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " " + disk_type
+    }
+}
+
+task finalize_mt_with_covdb {
+    input {
+        String in_mt
+        File coverage_db_tar
+        String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"
+        String artifact_prone_sites_reference = "default"
+        String file_name
+        Int minimum_homref_coverage = 100
+        Int homref_position_block_size = 1024
+        Int n_final_partitions = 1000
+        Boolean overwrite = false
+
+        # Runtime parameters
+        Int memory_gb = 256
+        Int cpu = 32
+        Int disk_gb = 2000
+        String disk_type = "SSD"
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        mkdir -p ./tmp
+        mkdir -p ./results
+
+        export SPARK_LOCAL_DIRS="$PWD/tmp"
+
+        DRIVER_MEM_GB=$((~{memory_gb} - 8))
+        if [ "$DRIVER_MEM_GB" -lt 4 ]; then DRIVER_MEM_GB=4; fi
+
+        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
+        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
+        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"
+
+        # Extract coverage.h5
+        mkdir -p ./coverage_db
+        tar -xzf ~{coverage_db_tar} -C ./coverage_db
+        test -f ./coverage_db/coverage.h5
+
+        python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/finalize_mt_with_covdb.py \
+            --in-mt "~{in_mt}" \
+            --coverage-h5-path ./coverage_db/coverage.h5 \
+            --out-mt ./results/~{file_name}.mt \
+            --temp-dir ./tmp \
+            --minimum-homref-coverage ~{minimum_homref_coverage} \
+            --homref-position-block-size ~{homref_position_block_size} \
+            --artifact-prone-sites-path ~{artifact_prone_sites_path} \
+            --artifact-prone-sites-reference ~{artifact_prone_sites_reference} \
+            --n-final-partitions ~{n_final_partitions} \
+            ~{if overwrite then "--overwrite" else ""}
+
+        tar -czf results.tar.gz -C ./results "~{file_name}.mt"
+    >>>
+
+    output {
+        File results_tar = "results.tar.gz"
+    }
+
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
+        memory: memory_gb + " GB"
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " " + disk_type
     }
 }
 
