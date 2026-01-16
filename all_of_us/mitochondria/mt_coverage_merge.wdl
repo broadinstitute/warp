@@ -189,12 +189,57 @@ task make_vcf_shards_from_tsv {
 
         mkdir -p shards
 
-        python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/make_vcf_shards_from_tsv.py \
-            --input-tsv ~{input_tsv} \
-            --sample-id-col s \
-            --vcf-col ~{vcf_col_name} \
-            --shard-size ~{shard_size} \
-            --out-dir shards
+        python3 <<'EOF'
+        import math
+        from pathlib import Path
+
+        import pandas as pd
+
+        input_tsv = "~{input_tsv}"
+        sample_id_col = "s"
+        vcf_col = "~{vcf_col_name}"
+        shard_size = int("~{shard_size}")
+        out_dir = Path("shards")
+
+        if shard_size <= 0:
+            raise ValueError("shard_size must be > 0")
+
+        df = pd.read_csv(input_tsv, sep="\t", dtype=str)
+
+        if sample_id_col not in df.columns:
+            raise ValueError(f"Missing sample column '{sample_id_col}'")
+        if vcf_col not in df.columns:
+            raise ValueError(f"Missing VCF column '{vcf_col}'")
+
+        pairs = (
+            df[[sample_id_col, vcf_col]]
+            .rename(columns={sample_id_col: "s", vcf_col: "vcf"})
+            .dropna()
+        )
+        pairs = pairs[pairs["vcf"].astype(str).str.len() > 0]
+        pairs = pairs.sort_values("s", kind="mergesort")
+
+        n_samples = int(pairs.shape[0])
+        n_shards = int(math.ceil(n_samples / shard_size))
+
+        out_dir.mkdir(parents=True, exist_ok=True)
+        shard_paths = []
+        for shard_idx in range(n_shards):
+            start = shard_idx * shard_size
+            end = min((shard_idx + 1) * shard_size, n_samples)
+            shard_df = pairs.iloc[start:end]
+            shard_path = out_dir / f"vcf_shard_{shard_idx:05d}.tsv"
+            shard_df.to_csv(shard_path, sep="\t", index=False)
+            shard_paths.append(str(shard_path))
+
+        idx_path = out_dir / "shards.tsv"
+        with idx_path.open("w") as out:
+            out.write("shard_tsv\n")
+            for p in shard_paths:
+                out.write(f"{p}\n")
+
+        print(f"Wrote {len(shard_paths)} shards")
+        EOF
 
         # Provide shard TSV list as an output file for WDL scatter
         cp shards/shards.tsv ./shards.tsv
