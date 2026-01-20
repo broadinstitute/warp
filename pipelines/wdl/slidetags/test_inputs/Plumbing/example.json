@@ -1,5 +1,5 @@
 {
-	"SlideTags.spatial_fastq": ["gs://pd-test-storage-public/SlideTags/input/plumbing/example/SI-TT-B10_S2_L001_R1_001.fastq.gz", "gs://pd-test-storage-private/SlideTags/input/plumbing/example/SI-TT-B10_S2_L001_R2_001.fastq.gz"],
+	"SlideTags.spatial_fastq": ["gs://pd-test-storage-public/SlideTags/input/plumbing/example/SI-TT-B10_S2_L001_R1_001.fastq.gz", "gs://pd-test-storage-public/SlideTags/input/plumbing/example/SI-TT-B10_S2_L001_R2_001.fastq.gz"],
 	"SlideTags.pucks": ["gs://pd-test-storage-public/SlideTags/input/plumbing/example/Puck_240314_04.csv"],
 	"SlideTags.gex_r1_fastq": ["gs://warp-testing-public/slide-tag/5p_dataset/fastqs/SI-TT-B9_S1_L001_R1_001.fastq.gz", "gs://warp-testing-public/slide-tag/5p_dataset/fastqs/SI-TT-B9_S1_L002_R1_001.fastq.gz"],
 	"SlideTags.gex_r2_fastq": ["gs://warp-testing-public/slide-tag/5p_dataset/fastqs/SI-TT-B9_S1_L001_R2_001.fastq.gz", "gs://warp-testing-public/slide-tag/5p_dataset/fastqs/SI-TT-B9_S1_L002_R2_001.fastq.gz"],
