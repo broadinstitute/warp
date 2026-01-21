@@ -1,3 +1,8 @@
+# 2.4.4
+2026-01-21 (Date of Last Commit)
+
+* Moved inputs into new Google buckets. This change does not affect the outputs of the pipeline
+
 # 2.4.3
 2025-10-09 (Date of Last Commit)
 
