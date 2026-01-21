@@ -287,6 +287,7 @@ task BuildStarSingleNucleus {
   String ref_name = "star2.7.10a-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
   String star_index_name = "~{gtf_prefix}~{ref_name}.tar"
   String annotation_gtf_modified = "~{gtf_prefix}v~{gtf_annotation_version}.annotation.gtf"
+  String genome_fa_filtered = "genome.filtered.fasta"
 
   command <<<
     # Decompress GTF if it's gzipped
@@ -392,8 +393,9 @@ task BuildStarSingleNucleus {
           $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
           /^>/ { skip = 0 }
           !skip
-          ' ~{genome_fa} > genome_mito.filtered.fasta
-        mv genome_mito.filtered.fasta ~{genome_fa}
+          ' ~{genome_fa} > ~{genome_fa_filtered}
+        echo "moving filtered fasta to genome_fa using this command: mv ~{genome_fa_filtered} ~{genome_fa}"
+        mv ~{genome_fa_filtered} ~{genome_fa}
       else
         echo "Contig ~{mito_accession} not found; skipping removal."
       fi
@@ -402,6 +404,7 @@ task BuildStarSingleNucleus {
     fi
 
     mkdir star
+    wc -l ~{genome_fa}
     STAR --runMode genomeGenerate \
     --genomeDir star \
     --genomeFastaFiles ~{genome_fa} \
@@ -417,6 +420,7 @@ task BuildStarSingleNucleus {
     File star_index = star_index_name
     File modified_annotation_gtf = annotation_gtf_modified
     File genome_fa_out = genome_fa
+    File filtered_genome_fa = genome_fa_filtered
   }
 
   runtime {
