@@ -1,5 +1,5 @@
 {
-  "ReblockGVCF.gvcf": "gs://pd-test-storage-public/ReblockGVCF/input/plumbing/NA12878.ultima/A12878.annotated.chr20.g.vcf.gz",
+  "ReblockGVCF.gvcf": "gs://pd-test-storage-public/ReblockGVCF/input/plumbing/NA12878.ultima/NA12878.annotated.chr20.g.vcf.gz",
   "ReblockGVCF.gvcf_index": "gs://pd-test-storage-public/ReblockGVCF/input/plumbing/NA12878.ultima/NA12878.annotated.chr20.g.vcf.gz.tbi",
   "ReblockGVCF.calling_interval_list": "gs://pd-test-storage-public/ReblockGVCF/input/plumbing/NA12878.ultima/chr20_wgs_calling_regions.hg38.interval_list",
   "ReblockGVCF.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
