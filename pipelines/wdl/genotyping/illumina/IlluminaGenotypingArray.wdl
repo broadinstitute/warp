@@ -273,7 +273,6 @@ workflow IlluminaGenotypingArray {
         preemptible_tries = preemptible_tries
     }
 
-
     if (defined(fingerprint_genotypes_vcf_file)) {
       call Qc.CheckFingerprintTask as CheckFingerprintTask{
         input:
