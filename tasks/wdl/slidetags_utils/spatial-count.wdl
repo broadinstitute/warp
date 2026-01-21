@@ -9,7 +9,12 @@ task count {
     Int disk_GiB = 128
     Int nthreads = 1
     String docker
+    String? billing_project
   }
+
+  String gsutil_requester_pays_flag = if defined(billing_project) then "-u ${billing_project}" else ""
+  String gcloud_requester_pays_flag = if defined(billing_project) then "--billing-project ${billing_project}" else ""
+
   command <<<
     set -euo pipefail
     set -x
@@ -29,7 +34,7 @@ task count {
     # Assert that the fastqs exist
     fastqs=(~{sep=' ' fastq_paths})
     for fastq in "${fastqs[@]}" ; do
-        if ! gsutil stat "$fastq" &> /dev/null ; then
+        if ! gsutil ~{gsutil_requester_pays_flag} stat "$fastq" &> /dev/null ; then
             echo "ERROR: gsutil stat command failed on fastq $fastq"
             exit 1
         fi
@@ -43,7 +48,7 @@ task count {
     # Assert that the pucks exist
     pucks=(~{sep=' ' pucks})
     for puck in "${pucks[@]}" ; do
-        if ! gsutil stat "$puck" &> /dev/null ; then
+        if ! gsutil ~{gsutil_requester_pays_flag} stat "$puck" &> /dev/null ; then
             echo "ERROR: gsutil stat command failed on puck $puck"
             exit 1
         fi
@@ -52,7 +57,7 @@ task count {
     # Download the pucks
     echo "Downloading pucks:"
     mkdir pucks
-    gcloud storage cp ~{sep=' ' pucks} pucks
+    gcloud storage  ~{gcloud_requester_pays_flag} cp ~{sep=' ' pucks} pucks
 
     # Run the script
     echo ; echo "Running spatial-count.jl"
