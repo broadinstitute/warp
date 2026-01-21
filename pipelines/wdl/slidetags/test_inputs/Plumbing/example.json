@@ -6,6 +6,7 @@
 	"SlideTags.gex_whitelist": "gs://pd-test-storage-public/SlideTags/input/plumbing/example/3M-5pgex-jan-2023.txt",
 	"SlideTags.tar_star_reference": "gs://pd-test-storage-public/SlideTags/input/plumbing/example/modified_star2.7.10a-Human-GENCODE-build-GRCh38-44.tar",
 	"SlideTags.input_id": "plumbing",
-	"SlideTags.annotations_gtf": "gs://pd-test-storage-public/SlideTags/input/plumbing/example/gencode.v44.primary_assembly.annotation.gtf.filtered"
+	"SlideTags.annotations_gtf": "gs://pd-test-storage-public/SlideTags/input/plumbing/example/gencode.v44.primary_assembly.annotation.gtf.filtered",
+	"SlideTags.billing_project": "warp-pipelines"
 }
     
