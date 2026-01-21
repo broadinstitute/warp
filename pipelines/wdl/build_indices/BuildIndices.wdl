@@ -416,6 +416,7 @@ task BuildStarSingleNucleus {
   output {
     File star_index = star_index_name
     File modified_annotation_gtf = annotation_gtf_modified
+    File genome_fa_out = genome_fa
   }
 
   runtime {
