@@ -43,7 +43,7 @@ task count {
     # Download the fastqs
     echo "Downloading fastqs:"
     mkdir fastqs
-    gcloud storage cp ~{sep=' ' fastq_paths} fastqs
+    gcloud storage  ~{gcloud_requester_pays_flag} cp ~{sep=' ' fastq_paths} fastqs
 
     # Assert that the pucks exist
     pucks=(~{sep=' ' pucks})
