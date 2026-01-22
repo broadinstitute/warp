@@ -189,7 +189,7 @@ task make_vcf_shards_from_tsv {
 
         mkdir -p shards
 
-    python3 <<'EOF'
+        python3 <<'EOF'
         import math
         from pathlib import Path
 
@@ -220,9 +220,14 @@ task make_vcf_shards_from_tsv {
         pairs = pairs.sort_values("s", kind="mergesort")
 
         n_samples = int(pairs.shape[0])
+        if n_samples == 0:
+            raise ValueError(
+                "No usable (s, vcf) rows found. Check that the TSV has non-empty VCF paths in the requested vcf_col."
+            )
+
         n_shards = int(math.ceil(n_samples / shard_size))
 
-        out_dir.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
         shard_paths = []
         for shard_idx in range(n_shards):
             start = shard_idx * shard_size
@@ -243,8 +248,18 @@ task make_vcf_shards_from_tsv {
         # Make shard TSVs available as task outputs by copying them into the task root.
         # Cromwell can only localize declared File outputs.
         mkdir -p shard_manifests
-        cp shards/vcf_shard_*.tsv shard_manifests/
-        ls -1 shard_manifests/vcf_shard_*.tsv > shard_tsvs.list
+        # Use find to avoid shell glob failures when nothing matches (and to keep determinism).
+        find shards -maxdepth 1 -type f -name 'vcf_shard_*.tsv' -print | sort > shard_paths.list
+        if [ ! -s shard_paths.list ]; then
+            echo "ERROR: No shard TSVs were created under ./shards" >&2
+            echo "(Likely: missing/empty VCF paths or unexpected TSV columns)" >&2
+            exit 1
+        fi
+        while IFS= read -r p; do
+            cp "$p" shard_manifests/
+        done < shard_paths.list
+
+        ls -1 shard_manifests/vcf_shard_*.tsv | sort > shard_tsvs.list
     >>>
 
     output {
