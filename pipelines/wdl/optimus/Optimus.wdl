@@ -42,6 +42,7 @@ workflow Optimus {
 
     # CellBender
     Boolean run_cellbender = false
+    Int hardware_memory_GB = 32
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -270,7 +271,7 @@ workflow Optimus {
           hardware_cpu_count = 4,
           hardware_disk_size_GB = 50,
           hardware_gpu_type = "nvidia-tesla-t4",
-          hardware_memory_GB = 32,
+          hardware_memory_GB = hardware_memory_GB,
           hardware_preemptible_tries = 2,
           hardware_zones = "us-central1-a us-central1-c",
           nvidia_driver_version = "470.82.01"
@@ -285,7 +286,7 @@ workflow Optimus {
           hardware_cpu_count = 4,
           hardware_disk_size_GB = 50,
           hardware_gpu_type = "nvidia-tesla-t4",
-          hardware_memory_GB = 32,
+          hardware_memory_GB = hardware_memory_GB,
           hardware_preemptible_tries = 2,
           hardware_zones = "us-central1-a us-central1-c",
           nvidia_driver_version = "470.82.01"
