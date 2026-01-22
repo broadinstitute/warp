@@ -74,8 +74,7 @@ workflow Optimus {
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
     # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
-    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
-
+    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times.
   }
 
   # Version of this pipeline
