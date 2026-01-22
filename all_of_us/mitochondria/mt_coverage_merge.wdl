@@ -349,27 +349,27 @@ task make_mt_merge_groups {
 
         mkdir -p "~{out_dir}"
 
-    python3 <<'EOF'
+        python3 <<'EOF'
         import math
         import os
-        
-    mt_tars = ~{sep=", " mt_tars}
+
+        mt_tars = ~{sep=", " mt_tars}
         fanin = int("~{fanin}")
         out_dir = "~{out_dir}"
-        
+
         if fanin <= 0:
             raise ValueError("fanin must be > 0")
-        
+
         n = len(mt_tars)
         if n == 0:
             raise ValueError("mt_tars is empty")
-        
+
         n_groups = int(math.ceil(n / fanin))
         out_index = os.path.join(out_dir, "mt_lists.tsv")
         with open(out_index, "w") as idx:
             idx.write("mt_list_tsv\n")
-            for g in range(groups):
-                chunk = mt_tars[g*fanin:(g+1)*fanin]
+            for g in range(n_groups):
+                chunk = mt_tars[g * fanin : (g + 1) * fanin]
                 list_path = os.path.join(out_dir, f"mt_list_{g:05d}.tsv")
                 with open(list_path, "w") as out:
                     out.write("mt_tar\n")
