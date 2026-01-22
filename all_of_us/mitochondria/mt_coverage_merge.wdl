@@ -74,7 +74,7 @@ workflow mt_coverage_merge {
         # Round 1: merge shard MTs to fewer intermediate MTs (fan-in)
         call make_mt_merge_groups as make_merge_groups_1 {
             input:
-                mt_paths = build_vcf_shard_mt.out_mt_path,
+                mt_tars = build_vcf_shard_mt.shard_mt_tar,
                 fanin = step3_merge_fanin,
                 out_dir = "merge_round_1"
         }
@@ -91,7 +91,7 @@ workflow mt_coverage_merge {
         # Round 2: merge round-1 outputs
         call make_mt_merge_groups as make_merge_groups_2 {
             input:
-                mt_paths = merge_round_1.out_mt_path,
+                mt_tars = merge_round_1.merged_mt_tar,
                 fanin = step3_merge_fanin,
                 out_dir = "merge_round_2"
         }
@@ -108,7 +108,7 @@ workflow mt_coverage_merge {
         # Round 3: merge round-2 outputs (typically small count, but keep general)
         call make_mt_merge_groups as make_merge_groups_3 {
             input:
-                mt_paths = merge_round_2.out_mt_path,
+                mt_tars = merge_round_2.merged_mt_tar,
                 fanin = step3_merge_fanin,
                 out_dir = "merge_round_3"
         }
@@ -125,7 +125,7 @@ workflow mt_coverage_merge {
         # Finalize: apply covdb homref/DP + artifact filter once on the final merged MT
         call finalize_mt_with_covdb {
             input:
-                in_mt = merge_round_3.out_mt_path[0],
+                in_mt_tar = merge_round_3.merged_mt_tar[0],
                 coverage_db_tar = annotate_coverage.output_ht,
                 file_name = combined_mt_name
         }
@@ -318,12 +318,10 @@ task build_vcf_shard_mt {
 
         # Pack as a tar for WDL artifact portability
         tar -czf shard_mt.tar.gz -C ./results "~{out_mt_dirname}"
-        echo "./results/~{out_mt_dirname}" > out_mt_path.txt
     >>>
 
     output {
         File shard_mt_tar = "shard_mt.tar.gz"
-        String out_mt_path = read_string("out_mt_path.txt")
     }
 
     runtime {
@@ -336,7 +334,7 @@ task build_vcf_shard_mt {
 
 task make_mt_merge_groups {
     input {
-        Array[String] mt_paths
+        Array[File] mt_tars
         Int fanin = 10
         String out_dir
 
@@ -351,30 +349,30 @@ task make_mt_merge_groups {
 
         mkdir -p "~{out_dir}"
 
-        python3 <<'EOF'
+    python3 <<'EOF'
         import math
         import os
         
-        mt_paths = ~{sep=", " mt_paths}
+    mt_tars = ~{sep=", " mt_tars}
         fanin = int("~{fanin}")
         out_dir = "~{out_dir}"
         
         if fanin <= 0:
             raise ValueError("fanin must be > 0")
         
-        n = len(mt_paths)
+        n = len(mt_tars)
         if n == 0:
-            raise ValueError("mt_paths is empty")
+            raise ValueError("mt_tars is empty")
         
         n_groups = int(math.ceil(n / fanin))
         out_index = os.path.join(out_dir, "mt_lists.tsv")
         with open(out_index, "w") as idx:
             idx.write("mt_list_tsv\n")
-            for g in range(n_groups):
-                chunk = mt_paths[g*fanin:(g+1)*fanin]
+            for g in range(groups):
+                chunk = mt_tars[g*fanin:(g+1)*fanin]
                 list_path = os.path.join(out_dir, f"mt_list_{g:05d}.tsv")
                 with open(list_path, "w") as out:
-                    out.write("mt_path\n")
+                    out.write("mt_tar\n")
                     for p in chunk:
                         out.write(p + "\n")
                 idx.write(list_path + "\n")
@@ -425,8 +423,47 @@ task merge_mt_shards {
         export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
         export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"
 
+        # Localize and extract all input MT tars
+        mkdir -p ./inputs
+        python3 <<'EOF'
+        import csv
+        import os
+        import subprocess
+
+        os.makedirs("inputs", exist_ok=True)
+
+        with open("~{mt_list_tsv}", "r") as f:
+            reader = csv.DictReader(f, delimiter="\t")
+            rows = list(reader)
+        if len(rows) == 0:
+            raise RuntimeError("mt_list_tsv contained 0 rows")
+
+        # Expect header mt_tar
+        if "mt_tar" not in rows[0]:
+            raise RuntimeError("mt_list_tsv missing header 'mt_tar'")
+
+        out_list = os.path.join("inputs", "mt_paths.tsv")
+        with open(out_list, "w") as out:
+            out.write("mt_path\n")
+            for i, r in enumerate(rows):
+                tar_path = r["mt_tar"]
+                if not tar_path:
+                    continue
+                dest_dir = os.path.join("inputs", f"mt_{i:05d}.mt")
+                os.makedirs(dest_dir, exist_ok=True)
+                # Extract tar into dest_dir
+                subprocess.check_call(["tar", "-xzf", tar_path, "-C", dest_dir])
+
+                # Find the single .mt directory inside dest_dir
+                entries = [x for x in os.listdir(dest_dir) if x.endswith(".mt")]
+                if len(entries) != 1:
+                    raise RuntimeError(f"Expected exactly one .mt dir in {dest_dir}, found {entries}")
+                out.write(os.path.join(dest_dir, entries[0]) + "\n")
+        print(f"Wrote localized MT path manifest: {out_list}")
+        EOF
+
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/merge_mt_shards.py \
-            --mt-list-tsv ~{mt_list_tsv} \
+            --mt-list-tsv ./inputs/mt_paths.tsv \
             --out-mt ./results/~{out_mt_name} \
             --temp-dir ./tmp \
             --chunk-size ~{chunk_size} \
@@ -434,12 +471,10 @@ task merge_mt_shards {
             ~{if overwrite then "--overwrite" else ""}
 
         tar -czf merged_mt.tar.gz -C ./results "~{out_mt_name}"
-        echo "./results/~{out_mt_name}" > out_mt_path.txt
     >>>
 
     output {
         File merged_mt_tar = "merged_mt.tar.gz"
-        String out_mt_path = read_string("out_mt_path.txt")
     }
 
     runtime {
@@ -452,7 +487,7 @@ task merge_mt_shards {
 
 task finalize_mt_with_covdb {
     input {
-        String in_mt
+        File in_mt_tar
         File coverage_db_tar
         String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"
         String artifact_prone_sites_reference = "default"
@@ -489,8 +524,18 @@ task finalize_mt_with_covdb {
         tar -xzf ~{coverage_db_tar} -C ./coverage_db
         test -f ./coverage_db/coverage.h5
 
+        # Extract input merged MT tar
+        mkdir -p ./input_mt
+        tar -xzf ~{in_mt_tar} -C ./input_mt
+        IN_MT_DIR=$(find ./input_mt -maxdepth 2 -type d -name "*.mt" | head -n 1)
+        if [ -z "$IN_MT_DIR" ]; then
+            echo "ERROR: could not find .mt directory after extracting in_mt_tar" >&2
+            find ./input_mt -maxdepth 3 -type d | head -100 >&2
+            exit 1
+        fi
+
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/finalize_mt_with_covdb.py \
-            --in-mt "~{in_mt}" \
+            --in-mt "$IN_MT_DIR" \
             --coverage-h5-path ./coverage_db/coverage.h5 \
             --out-mt ./results/~{file_name}.mt \
             --temp-dir ./tmp \
