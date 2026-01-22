@@ -236,13 +236,12 @@ task STARsoloFastq {
     Int cpu = 16
     Int disk = 5000
     Int limitBAMsortRAM = 30
-    Int machine_mem_mb = 100 # not used in runtime -- need to remove 
+    Int mem_size = if ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB")) <= 100 then 64 else 128
 
     # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 1
   }
 
-  Int mem_size = if ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB")) <= 100 then 64 else 128
   Int outBAMsortingBinsN = (((ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB")) + 50) / 100) * 100) + 100
 
   meta {
