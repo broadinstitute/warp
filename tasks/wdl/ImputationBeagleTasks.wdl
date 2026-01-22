@@ -475,15 +475,11 @@ task LocalizeAndSubsetVcfToRegion {
   command {
     set -e -o pipefail
 
-    # Recompress the VCF to ensure there isn't an issue with the input compression which we saw with java 17
-    # around empty blocks being inserted in the compressed file which causes GATK to truncate the file
-    # silently - https://broadworkbench.atlassian.net/browse/TSPS-612 for more info
-    gunzip -c ~{vcf} | bgzip > recompressed.vcf.gz
-    tabix recompressed.vcf.gz
+    tabix ~{vcf}
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants \
-    -V recompressed.vcf.gz \
+    -V ~{vcf} \
     -L ~{contig}:~{start}-~{end} \
     -select 'POS >= ~{start}' ~{if exclude_filtered then "--exclude-filtered" else ""} \
     -O ~{output_basename}.vcf.gz
