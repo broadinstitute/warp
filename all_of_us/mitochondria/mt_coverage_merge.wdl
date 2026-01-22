@@ -189,7 +189,7 @@ task make_vcf_shards_from_tsv {
 
         mkdir -p shards
 
-        python3 <<'EOF'
+    python3 <<'EOF'
         import math
         from pathlib import Path
 
@@ -234,19 +234,21 @@ task make_vcf_shards_from_tsv {
 
         idx_path = out_dir / "shards.tsv"
         with idx_path.open("w") as out:
-            out.write("shard_tsv\n")
             for p in shard_paths:
                 out.write(f"{p}\n")
 
         print(f"Wrote {len(shard_paths)} shards")
         EOF
 
-        # Provide shard TSV list as an output file for WDL scatter
-        cp shards/shards.tsv ./shards.tsv
+        # Make shard TSVs available as task outputs by copying them into the task root.
+        # Cromwell can only localize declared File outputs.
+        mkdir -p shard_manifests
+        cp shards/vcf_shard_*.tsv shard_manifests/
+        ls -1 shard_manifests/vcf_shard_*.tsv > shard_tsvs.list
     >>>
 
     output {
-        Array[File] shard_tsvs = read_lines("shards.tsv")
+        Array[File] shard_tsvs = read_lines("shard_tsvs.list")
     }
 
     runtime {
