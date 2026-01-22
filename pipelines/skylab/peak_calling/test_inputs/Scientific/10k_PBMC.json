@@ -1,7 +1,0 @@
-{
-  "PeakCalling.annotations_gtf":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf",
-  "PeakCalling.metrics_h5ad":"gs://broad-gotc-test-storage/PeakCalling/input/scientific/10k_PBMC/10k_PBMC_atac.metrics.h5ad",
-  "PeakCalling.cloud_provider":"gcp",
-  "PeakCalling.output_base_name":"10k_PBMC",
-  "PeakCalling.chrom_sizes":"gs://pd-test-storage-public/Multiome/input/hg38.chrom.sizes"
-}
