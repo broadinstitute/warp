@@ -1,4 +1,4 @@
-# 8.0.4
+# 8.0.5
 2026-01-22 (Date of Last Commit)
 
 * Added a new, defaulted input cellbender_memory_GB to Optimus; this does not affect the outputs of the pipeline
