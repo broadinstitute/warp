@@ -46,7 +46,7 @@ def hail_init(
         default_reference=reference_genome,
         idempotent=True,
         spark_conf=spark_conf,
-        tmp_dir=tmp_dir,
+       # tmp_dir=tmp_dir,
         quiet=quiet,
         skip_logging_configuration=False,
     )

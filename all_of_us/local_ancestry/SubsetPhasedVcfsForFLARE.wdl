@@ -246,7 +246,6 @@ task subset_phased_vcf_task {
 						--driver_memory ~{driver_memory} --driver_cores ~{driver_cores}
 						--reference_genome ~{reference_genome}
 						--min_partitions ~{min_partitions}
-						--tmp_dir {tmp_dir}
 						--phased_vcf_gcs_dir ~{phased_vcf_gcs_dir}
 						--chrom ~{chrom}
 						--samples_tsv ~{samples_tsv}
