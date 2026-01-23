@@ -238,6 +238,14 @@ task subset_phased_vcf_task {
 
 					# Submit the Hail job to the Dataproc cluster using a multi-line f-string
 					# Submit the job
+					ckpt_args = ""
+					if "~{do_checkpoint}" == "true":
+						ckpt_path = "~{select_first([checkpoint_path, ''])}"
+						if ckpt_path == "":
+							raise ValueError("do_checkpoint=true but checkpoint_path was not provided")
+						ckpt_args = f"--checkpoint_path {ckpt_path} "
+						if "~{checkpoint_overwrite}" == "true":
+							ckpt_args += "--checkpoint_overwrite "
 					submit_cmd = f"""
 						gcloud dataproc jobs submit pyspark {script_path}
 						--cluster={cluster_name} --project ~{gcs_project} --region=~{region} --account {account}
