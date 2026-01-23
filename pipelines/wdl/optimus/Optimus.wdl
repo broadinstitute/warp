@@ -297,7 +297,6 @@ workflow Optimus {
   File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
   File final_library_metrics = select_first([OptimusH5adGenerationWithExons.library_metrics, OptimusH5adGeneration.library_metrics])
 
-
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
