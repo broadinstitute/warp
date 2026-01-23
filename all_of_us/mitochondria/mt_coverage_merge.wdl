@@ -227,7 +227,7 @@ task make_vcf_shards_from_tsv {
 
         n_shards = int(math.ceil(n_samples / shard_size))
 
-    out_dir.mkdir(parents=True, exist_ok=True)
+        out_dir.mkdir(parents=True, exist_ok=True)
         shard_paths = []
         for shard_idx in range(n_shards):
             start = shard_idx * shard_size
