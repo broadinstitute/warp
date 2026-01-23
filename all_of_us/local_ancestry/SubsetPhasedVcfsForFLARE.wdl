@@ -9,7 +9,7 @@ struct RuntimeAttr {
     Int? max_retries
 }
 
-workflow subset_phased_vcf {
+workflow SubsetPhasedVcfsForFlare {
     input {
         # Analysis parameters
         String phased_vcf_gcs_dir          # e.g. gs://prod-drc-broad/aou_phasing/v9
