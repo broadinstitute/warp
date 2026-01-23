@@ -8,7 +8,7 @@ IlluminaGenotypingArray	 1.12.26	2025-10-09
 Imputation	 1.1.23	2025-10-03 
 ImputationBeagle	 2.4.2	2025-12-23 
 JointGenotyping	 1.7.3	2025-08-11 
-MultiSampleSmartSeq2SingleNucleus	 2.2.2	 2025-06-20 
+MultiSampleSmartSeq2SingleNucleus	 2.2.3	2026-01-22 
 Multiome	 6.1.4	2026-01-22 
 Optimus	 8.0.5	2026-01-22 
 PairedTag	 2.1.10	2026-01-22 
