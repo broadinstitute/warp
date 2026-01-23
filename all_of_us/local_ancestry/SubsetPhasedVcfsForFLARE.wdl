@@ -210,11 +210,12 @@ task subset_phased_vcf_task {
 
 		try:
 			# Construct the command to start the Hail Dataproc cluster using a multi-line f-string
+			# Change master to #n1-highmem-32 when done testing
 			cluster_start_cmd = f"""
 				hailctl dataproc start --num-workers ~{num_workers}
 				--region ~{region} --project ~{gcs_project} --service-account {account}
 				--worker-machine-type n1-standard-4
-				--master-machine-type n1-highmem-32
+				--master-machine-type n1-standard-4
 				--max-idle=~{max_idle}m --max-age=~{max_age}m
 				--subnet=projects/~{gcs_project}/regions/~{region}/subnetworks/~{gcs_subnetwork_name}
 				--enable-component-gateway
