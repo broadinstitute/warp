@@ -50,7 +50,7 @@ workflow SubsetPhasedVcfsForFlare {
 
         # Script & docker
         File submission_script
-        String hail_docker = "us.gcr.io/broad-dsde-methods/lichtens/hail_dataproc_wdl:1.1"
+        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.134"
 
         RuntimeAttr? runtime_attr_override
     }
