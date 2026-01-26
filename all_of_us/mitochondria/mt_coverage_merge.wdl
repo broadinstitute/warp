@@ -187,8 +187,8 @@ task make_vcf_shards_from_tsv {
     command <<<
         set -euxo pipefail
 
-    mkdir -p shards
-    mkdir -p shard_manifests
+        mkdir -p shards
+        mkdir -p shard_manifests
 
         python3 <<'EOF'
         import math
