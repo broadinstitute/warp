@@ -1,8 +1,14 @@
-# 1.0.6
-2026-01-21 (Date of Last Commit)
+# 1.0.7
+2026-01-26 (Date of Last Commit)
 
 * Moved inputs into new Google buckets. This change does not affect the outputs of the pipeline
 * Added an optional input, billing_project, to specify a billing project when accessing files in a requester pays bucket. This change does not affect the outputs of the pipeline
+
+# 1.0.6
+2026-01-22 (Date of Last Commit)
+
+* Added a new, defaulted input cellbender_memory_GB to Optimus; this does not affect the outputs of this pipeline
+* Added a task level input, mem_size, to StarSoloFastq to expose memory settings; this does not affect the outputs of this pipeline
 
 # 1.0.5
 2025-10-24 (Date of Last Commit)

@@ -1,3 +1,9 @@
+# 8.0.5
+2026-01-22 (Date of Last Commit)
+
+* Added a new, defaulted input cellbender_memory_GB to Optimus; this does not affect the outputs of the pipeline
+* Added a task level input, mem_size, to StarSoloFastq to expose memory settings; this does not affect the outputs of this pipeline 
+
 # 8.0.4
 25-07-31 (Date of Last Commit)
 
