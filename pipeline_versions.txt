@@ -15,7 +15,7 @@ PairedTag	 2.1.10	2026-01-22
 PeakCalling	 1.0.1	2025-08-11 
 Pipeline Name	Version	Date of Last Commit
 RNAWithUMIsPipeline	 1.0.19	2025-08-11 
-ReblockGVCF	 2.4.4	2026-01-26 
+ReblockGVCF	 2.4.4	2025-10-09 
 SlideSeq	 3.6.4	2026-01-22 
 SlideTags	 1.0.6	2026-01-22 
 UltimaGenomicsJointGenotyping	 1.2.3	2025-08-11 
