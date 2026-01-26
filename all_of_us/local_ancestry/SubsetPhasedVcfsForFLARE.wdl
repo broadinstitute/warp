@@ -31,7 +31,7 @@ workflow SubsetPhasedVcfsForFlare {
 
         # Entry fields
         String entry_fields = "GT"         # comma-separated; "" means keep all
-        Boolean force_bgz = false          # passed through to hl.import_vcf
+        Boolean force_bgz = true          # passed through to hl.import_vcf
 
         # Hail/Spark resources (passed to your script)
         String executor_cores
