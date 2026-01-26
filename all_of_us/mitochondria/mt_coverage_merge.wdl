@@ -187,7 +187,8 @@ task make_vcf_shards_from_tsv {
     command <<<
         set -euxo pipefail
 
-        mkdir -p shards
+    mkdir -p shards
+    mkdir -p shard_manifests
 
         python3 <<'EOF'
         import math
@@ -245,9 +246,8 @@ task make_vcf_shards_from_tsv {
         print(f"Wrote {len(shard_paths)} shards")
         EOF
 
-        # Make shard TSVs available as task outputs by copying them into the task root.
+        # Make shard TSVs available as task outputs by copying them into a stable directory.
         # Cromwell can only localize declared File outputs.
-        mkdir -p shard_manifests
         # Use find to avoid shell glob failures when nothing matches (and to keep determinism).
         find shards -maxdepth 1 -type f -name 'vcf_shard_*.tsv' -print | sort > shard_paths.list
         if [ ! -s shard_paths.list ]; then
@@ -255,8 +255,10 @@ task make_vcf_shards_from_tsv {
             echo "(Likely: missing/empty VCF paths or unexpected TSV columns)" >&2
             exit 1
         fi
+        # Copy to a deterministic directory so delocalization is unambiguous.
         while IFS= read -r p; do
-            cp "$p" shard_manifests/
+            bn=$(basename "$p")
+            cp "$p" "./shard_manifests/$bn"
         done < shard_paths.list
 
         ls -1 shard_manifests/vcf_shard_*.tsv | sort > shard_tsvs.list
