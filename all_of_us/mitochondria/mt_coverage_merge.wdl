@@ -374,7 +374,7 @@ task make_mt_merge_groups {
     >>>
 
     output {
-        Array[File] mt_list_tsvs = read_lines("mt_lists.tsv")
+        Array[File] mt_list_tsvs = glob("mt_lists.tsv")
     }
 
     runtime {
