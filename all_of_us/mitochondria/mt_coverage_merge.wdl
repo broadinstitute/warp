@@ -187,8 +187,8 @@ task make_vcf_shards_from_tsv {
     command <<<
         set -euxo pipefail
 
-        mkdir -p shards
-        mkdir -p shard_manifests
+        # Write shard TSVs directly into the task root.
+        # This is the most reliable pattern for Cromwell delocalization across backends.
 
         python3 <<'EOF'
         import math
@@ -200,7 +200,7 @@ task make_vcf_shards_from_tsv {
         sample_id_col = "s"
         vcf_col = "~{vcf_col_name}"
         shard_size = int("~{shard_size}")
-        out_dir = Path("shards")
+        out_dir = Path(".")
 
         if shard_size <= 0:
             raise ValueError("shard_size must be > 0")
@@ -246,22 +246,8 @@ task make_vcf_shards_from_tsv {
         print(f"Wrote {len(shard_paths)} shards")
         EOF
 
-        # Make shard TSVs available as task outputs by copying them into a stable directory.
-        # Cromwell can only localize declared File outputs.
-        # Use find to avoid shell glob failures when nothing matches (and to keep determinism).
-        find shards -maxdepth 1 -type f -name 'vcf_shard_*.tsv' -print | sort > shard_paths.list
-        if [ ! -s shard_paths.list ]; then
-            echo "ERROR: No shard TSVs were created under ./shards" >&2
-            echo "(Likely: missing/empty VCF paths or unexpected TSV columns)" >&2
-            exit 1
-        fi
-        # Copy to a deterministic directory so delocalization is unambiguous.
-        while IFS= read -r p; do
-            bn=$(basename "$p")
-            cp "$p" "./shard_manifests/$bn"
-        done < shard_paths.list
-
-        ls -1 shard_manifests/vcf_shard_*.tsv | sort > shard_tsvs.list
+        # Declare shard TSV outputs.
+        ls -1 vcf_shard_*.tsv | sort > shard_tsvs.list
     >>>
 
     output {
