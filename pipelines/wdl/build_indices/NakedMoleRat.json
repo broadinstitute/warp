@@ -1,0 +1,14 @@
+{
+  "BuildIndices.annotations_gff": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/naked_mole_rat/GCF_000247695.1_HetGla_female_1.0_genomic.gff.gz",
+  "BuildIndices.annotations_gtf": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/10181-Heterocephalus_glaber__HetGla_female_1-0/genes/genes.gtf.gz",
+  "BuildIndices.biotypes": "gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Biotypes.tsv",
+  "BuildIndices.genome_build": "HetGla_female_1.0",
+  "BuildIndices.genome_fa": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/10181-Heterocephalus_glaber__HetGla_female_1-0/fasta/genome.fa",
+  "BuildIndices.genome_source": "NCBI",
+  "BuildIndices.gtf_annotation_version": "GCF_000247695.1",
+  "BuildIndices.mito_accession": "NC_015112.1",
+  "BuildIndices.mito_ref_gbk": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/naked_mole_rat/sequence.gb",
+  "BuildIndices.organism": "Naked_mole_rat",
+  "BuildIndices.run_mitofinder": "true",
+  "BuildIndices.skip_gtf_modification": "true"
+}

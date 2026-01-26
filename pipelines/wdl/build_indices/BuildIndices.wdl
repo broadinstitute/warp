@@ -15,11 +15,13 @@ workflow BuildIndices {
     File biotypes
 
     Boolean run_add_introns = false
-    Boolean run_mitofinder = false              
+    Boolean run_mitofinder = false
+    Boolean skip_gtf_modification = false
+
     String?  mito_accession                       # e.g. chimp or ferret mito accession (NC_…)
     File?    mito_ref_gbk                         # path to mitochondrion reference .gbk
     Array[String]? mitofinder_opts                # optional, override extra flags to MitoFinder/add_mito
-    File?    annotations_gff                       # gff file for mitofinder 
+    File?    annotations_gff                       # gff file for mitofinder
   }
 
   if (false) {
@@ -27,7 +29,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.0.0"
+  String pipeline_version = "5.0.3"
 
 
   parameter_meta {
@@ -35,7 +37,7 @@ workflow BuildIndices {
     genome_fa: "the fasta file"
     biotypes: "gene_biotype attributes to include in the gtf file"
   }
-  
+
     # ---- Append mitochondrial sequence + annotations ----
     # Note: String comparison is case-sensitive.
     if (run_mitofinder) {
@@ -64,7 +66,8 @@ workflow BuildIndices {
         genome_build = genome_build,
         genome_source = genome_source,
         organism = organism,
-        skip_gtf_modification = run_mitofinder,
+        skip_gtf_modification = skip_gtf_modification,
+        mito_accession = select_first([mito_accession])
     }
     call CalculateChromosomeSizes {
       input:
@@ -77,7 +80,8 @@ workflow BuildIndices {
         genome_source = genome_source,
         genome_build = genome_build,
         gtf_annotation_version = gtf_annotation_version,
-        organism = organism
+        organism = organism,
+        mito_accession = select_first([mito_accession])
     }
 
     call RecordMetadata {
@@ -108,7 +112,7 @@ workflow BuildIndices {
   }
 
   output {
-    File snSS2_star_index = BuildStarSingleNucleus.star_index
+    File star_index_tar = BuildStarSingleNucleus.star_index
     String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
     File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
     File reference_bundle = BuildBWAreference.reference_bundle
@@ -127,7 +131,7 @@ task MitoAnnotate {
     String mito_accession
     File   mito_ref_gbk
     File   genome_fa
-    File   transcript_gff 
+    File   transcript_gff
     String spec_name
     Array[String]? mitofinder_opts
   }
@@ -270,8 +274,9 @@ task BuildStarSingleNucleus {
     File genome_fa
     File annotation_gtf
     File biotypes
-    Boolean skip_gtf_modification = false
+    Boolean skip_gtf_modification
     Int disk = 100
+    String? mito_accession
   }
 
   meta {
@@ -294,6 +299,32 @@ task BuildStarSingleNucleus {
         GTF_FILE="~{annotation_gtf}"
     fi
 
+    # Fix missing gene_name attributes
+    echo "Checking and fixing gene_name attributes in GTF..."
+    awk -F'\t' 'BEGIN { OFS="\t" }
+      /^#/ { print; next }
+      {
+        gene_id = ""; gene_name = "";
+        if ($9 ~ /gene_id/) {
+          n = split($9, a, /gene_id "/)
+          if (n > 1) {
+            split(a[2], b, "\"")
+            gene_id = b[1]
+          }
+        }
+
+        # Check if gene_name is missing and add it
+        if ($9 !~ /gene_name/ && gene_id != "") {
+          sub(/[[:space:]]*;[[:space:]]*$/, "", $9)  # remove trailing semicolons/spaces
+          $9 = $9 "; gene_name \"" gene_id "\";"
+        }
+
+        print
+      }' "$GTF_FILE" > fixed_annotation.gtf
+
+    # Use the fixed GTF for downstream processing
+    GTF_FILE="fixed_annotation.gtf"
+    echo "GTF gene_name fix complete"
 
     # First check for marmoset GTF and modify header
     echo "checking for marmoset"
@@ -349,16 +380,37 @@ task BuildStarSingleNucleus {
         cp ${GTF_FILE} ~{annotation_gtf_modified}
     fi
 
+    # --- Remove duplicate mito contig if mito_accession is set
+    if [ -n "~{mito_accession}" ]; then
+      echo "mito_accession provided: ~{mito_accession}"
+
+      if grep -q "^>~{mito_accession}$" ~{genome_fa}; then
+        echo "Removing duplicate contig ~{mito_accession} from FASTA..."
+
+        awk -v acc="~{mito_accession}" '
+          BEGIN { deleted = 0 }
+          $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
+          /^>/ { skip = 0 }
+          !skip
+          ' ~{genome_fa} > genome_mito.filtered.fasta
+        mv genome_mito.filtered.fasta ~{genome_fa}
+      else
+        echo "Contig ~{mito_accession} not found; skipping removal."
+      fi
+    else
+        echo "No mito_accession provided, skipping contig removal."
+    fi
+
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
     --genomeFastaFiles ~{genome_fa} \
     --sjdbGTFfile ~{annotation_gtf_modified} \
     --sjdbOverhang 100 \
-    --runThreadN 16
+    --runThreadN 16 \
+    --limitGenomeGenerateRAM=43375752629
 
     tar -cvf ~{star_index_name} star
-
   >>>
 
   output {
@@ -368,7 +420,7 @@ task BuildStarSingleNucleus {
 
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/build-indices:2.1.0"
-    memory: "50 GiB"
+    memory: "64 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
     cpu:"16"
@@ -388,6 +440,7 @@ task BuildBWAreference {
     String genome_build
     # Organism can be Macaque, Mouse, Human, etc.
     String organism
+    String? mito_accession
   }
 
 String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{genome_build}"
@@ -402,6 +455,29 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
     else
       mv ~{genome_fa} genome/genome.fa
     fi
+
+    # --- Remove duplicate contig if mito_accession is provided ---
+    if [ -n "~{mito_accession}" ]; then
+      echo "mito_accession provided: ~{mito_accession}"
+
+      if grep -q "^>~{mito_accession}$" genome/genome.fa; then
+        echo "Removing duplicate contig ~{mito_accession} from FASTA..."
+
+        awk -v acc="~{mito_accession}" '
+          BEGIN { deleted = 0 }
+          $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
+          /^>/ { skip = 0 }
+          !skip
+        ' genome/genome.fa > genome/genome.filtered.fa
+
+        mv genome/genome.filtered.fa genome/genome.fa
+      else
+        echo "Contig ~{mito_accession} not found in genome.fa, no removal needed."
+      fi
+    else
+        echo "No mito_accession provided, skipping contig removal."
+    fi
+
     bwa-mem2 index genome/genome.fa
     tar --dereference -cvf - genome/ > ~{reference_name}.tar
   >>>

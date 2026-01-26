@@ -1,0 +1,14 @@
+{
+  "BuildIndices.annotations_gff": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/chimp/GCF_000334495.1_TupChi_1.0_genomic.gff.gz",
+  "BuildIndices.annotations_gtf": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/9598-Pan_troglodytes__NHGRI_mPanTro3-v2-0_pri/genes/genes.gtf.gz",
+  "BuildIndices.biotypes": "gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Biotypes.tsv",
+  "BuildIndices.genome_build": "NHGRI_mPanTro3-v2.0_pri",
+  "BuildIndices.genome_fa": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/9598-Pan_troglodytes__NHGRI_mPanTro3-v2-0_pri/fasta/genome.fa",
+  "BuildIndices.genome_source": "NCBI",
+  "BuildIndices.gtf_annotation_version": "GCF_028858775.2",
+  "BuildIndices.mito_accession": "NC_001643.1",
+  "BuildIndices.mito_ref_gbk": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/chimp/sequence.gb",
+  "BuildIndices.organism": "Chimp",
+  "BuildIndices.run_mitofinder": "true",
+  "BuildIndices.skip_gtf_modification": "true"
+}

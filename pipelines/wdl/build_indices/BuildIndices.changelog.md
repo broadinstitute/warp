@@ -1,8 +1,23 @@
+# 5.0.3
+2025-12-16 (Date of Last Commit)
+
+* Remove duplicate mitochondrial contig from the genome file if mito_accession is provided
+
+# 5.0.2
+2025-11-20 (Date of Last Commit)
+
+* Added logic to add in gene_name attribute in GTF file in SNSS2AddIntronsToGTF task
+
+# 5.0.1
+2025-11-04 (Date of Last Commit)
+
+* Added an optional input: skip_gtf_modification (Boolean, defaulted to false)
+
 # 5.0.0
 2025-09-30 (Date of Last Commit)
 
-* Added the MitoAnnotate  task to optionally append mitochondrial sequence and annotations via MitoFinder.
-  This task runs early in the pipeline and updates the genome FASTA and GTF prior to building STAR and BWA indices.
+* Added the MitoAnnotate task to optionally append mitochondrial sequence and annotations via MitoFinder
+  This task runs early in the pipeline and updates the genome FASTA and GTF prior to building STAR and BWA indices
 
 # 4.2.1
 2025-09-26 (Date of Last Commit)
@@ -12,7 +27,7 @@
 # 4.2.0
 2025-09-10 (Date of Last Commit)
 
-* Modified the SNSS2AddIntronsToGTF task to create a tarred STAR index alongside the intron-modified GTF file. This is a new output of the pipeline.
+* Modified the SNSS2AddIntronsToGTF task to create a tarred STAR index alongside the intron-modified GTF file. This is a new output of the pipeline
 
 # 4.1.0
 2025-08-20 (Date of Last Commit)
@@ -96,7 +111,7 @@
 2021-05-03 (Date of Last Commit)
 
 * Added a task to modify gtfs and fasta files and build indices for Single Nucleus Smart-seq pipeline
-* Added a docker for the BuildStarSingleNucleus task.
+* Added a docker for the BuildStarSingleNucleus task
 
 # 0.0.1
 

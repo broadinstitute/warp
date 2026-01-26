@@ -5,18 +5,18 @@ import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 import "../../../../tasks/wdl/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
-  String pipeline_version = "2.2.4"
-  String input_qc_version = "1.2.3"
+  String pipeline_version = "2.4.2"
+  String input_qc_version = "1.2.5"
   String quota_consumed_version = "1.1.0"
 
   input {
     Int chunkLength = 25000000
-    Int chunkOverlaps = 2000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
-    Int sample_chunk_size = 1000 # this is the number of samples that will be processed in parallel in each chunked scatter
+    Int chunkOverlaps = 2000000 # the padding that will be added to the beginning and end of each chunk to reduce edge effects
+    Int sample_chunk_size = 1000 # the number of samples that will be processed in parallel in each chunked scatter
 
     File multi_sample_vcf
 
-    File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
+    File ref_dict # for reheadering / adding contig lengths in the header of the output VCF, and calculating contig lengths
     Array[String] contigs # list of possible contigs that will be processed. note the workflow will not error out if any of these contigs are missing
     String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
@@ -26,8 +26,8 @@ workflow ImputationBeagle {
     Float? min_dr2_for_inclusion # minimum dr2 to include a variant in the output vcf, applied after reannotation
 
     # file extensions used to find reference panel files
-    String bed_suffix = ".bed"
     String bref3_suffix = ".bref3"
+    String unique_variant_ids_suffix = ".unique_variants"
 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
     String ubuntu_docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
@@ -74,18 +74,24 @@ workflow ImputationBeagle {
     String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.withchr.map"
 
     ReferencePanelContig referencePanelContig = {
-      "bed": reference_basename + bed_suffix,
-      "bref3": reference_basename  + bref3_suffix,
+      "bref3": reference_basename + bref3_suffix,
       "contig": contig,
-      "genetic_map": genetic_map_filename
+      "genetic_map": genetic_map_filename,
+      "unique_variant_ids": reference_basename + unique_variant_ids_suffix
     }
-
 
     call tasks.CalculateChromosomeLength {
       input:
         ref_dict = ref_dict,
         chrom = referencePanelContig.contig,
         ubuntu_docker = ubuntu_docker
+    }
+
+    call beagleTasks.ExtractUniqueVariantIds as ExtractUniqueVariantIdsRawChromosome {
+      input:
+        vcf = CreateVcfIndex.output_vcf,
+        vcf_index = CreateVcfIndex.output_vcf_index,
+        chrom = contig
     }
 
     Int num_chunks = ceil(CalculateChromosomeLength.chrom_length / chunkLengthFloat)
@@ -111,37 +117,39 @@ workflow ImputationBeagle {
           gatk_docker = gatk_docker
       }
 
-      call beagleTasks.CountVariantsInChunks {
+      # count variants in chunk (not including overlaps) and check overlap with ref panel
+      call beagleTasks.ExtractUniqueVariantIds as ExtractUniqueVariantsFilteredChunk {
         input:
           vcf = GenerateChunk.output_vcf,
           vcf_index = GenerateChunk.output_vcf_index,
-          panel_bed_file = referencePanelContig.bed,
-          gatk_docker = gatk_docker
+          chrom = referencePanelContig.contig,
+          start = start,
+          end = end
+      }
+
+      call beagleTasks.CountUniqueVariantIdsInOverlap {
+        input:
+          variant_ids_1 = ExtractUniqueVariantsFilteredChunk.unique_variant_ids,
+          variant_ids_2 = referencePanelContig.unique_variant_ids
       }
 
       call beagleTasks.CheckChunks {
         input:
-          var_in_original = CountVariantsInChunks.var_in_original,
-          var_also_in_reference = CountVariantsInChunks.var_also_in_reference
+          var_in_original = ExtractUniqueVariantsFilteredChunk.unique_variant_count,
+          var_also_in_reference = CountUniqueVariantIdsInOverlap.var_overlap
       }
     }
 
     Array[File] chunkedVcfsWithOverlapsForImputation = GenerateChunk.output_vcf
 
-    call tasks.StoreChunksInfo as StoreContigLevelChunksInfo {
+    call beagleTasks.CountValidContigChunks {
       input:
-        chroms = chunk_contig,
-        starts = start,
-        ends = end,
-        vars_in_array = CountVariantsInChunks.var_in_original,
-        vars_in_panel = CountVariantsInChunks.var_also_in_reference,
-        valids = CheckChunks.valid,
-        basename = output_basename
+        valids = CheckChunks.valid
     }
 
     # if any chunk for any chromosome fail CheckChunks, then we will not impute run any task in the next scatter,
     # namely phasing and imputing which would be the most costly to throw away
-    Int n_failed_chunks_int = select_first([error_count_override, read_int(StoreContigLevelChunksInfo.n_failed_chunks)])
+    Int n_failed_chunks_int = select_first([error_count_override, CountValidContigChunks.n_invalid_chunks])
     call beagleTasks.ErrorWithMessageIfErrorCountNotZero as FailQCNChunks {
       input:
         errorCount = n_failed_chunks_int,
@@ -155,10 +163,10 @@ workflow ImputationBeagle {
     String genetic_map_filename_2 = genetic_maps_path + "plink." + contigs_to_process[contig_index] + ".GRCh38.withchr.map"
 
     ReferencePanelContig referencePanelContig_2 = {
-                                                  "bed": reference_basename_2 + bed_suffix,
                                                   "bref3": reference_basename_2  + bref3_suffix,
                                                   "contig": contigs_to_process[contig_index],
-                                                  "genetic_map": genetic_map_filename_2
+                                                  "genetic_map": genetic_map_filename_2,
+                                                  "unique_variant_ids": reference_basename_2 + unique_variant_ids_suffix
                                                 }
     Int num_chunks_2 = num_chunks[contig_index]
     scatter (i in range(num_chunks_2)) {
@@ -168,7 +176,7 @@ workflow ImputationBeagle {
         # sample FORMAT fields in vcfs start after the 8 mandatory fields plus FORMAT (FORMAT isnt mandatory
         # but if you have samples in your vcf they are).  `cut` is 1 indexed, so we start at the 10th column.
         Int start_sample = (j * sample_chunk_size) + 10
-        Int end_sample = if (CountSamples.nSamples <= ((j + 1) * sample_chunk_size)) then CountSamples.nSamples + 9 else ((j + 1) * sample_chunk_size ) + 9
+        Int end_sample = if (CountSamples.nSamples <= ((j + 1) * sample_chunk_size)) then CountSamples.nSamples + 9 else ((j + 1) * sample_chunk_size) + 9
         String impute_scatter_sample_chunk_basename = impute_scatter_position_chunk_basename + ".sample_chunk_" + j
         Boolean impute_with_allele_probablities = num_sample_chunks > 1
 
@@ -313,25 +321,27 @@ workflow ImputationBeagle {
       preemptible = 0
   }
 
-  call tasks.StoreChunksInfo {
+  call beagleTasks.StoreMetricsInfo {
     input:
-      chroms = flatten(chunk_contig),
+      chunk_chroms = flatten(chunk_contig),
       starts = flatten(start),
       ends = flatten(end),
-      vars_in_array = flatten(CountVariantsInChunks.var_in_original),
-      vars_in_panel = flatten(CountVariantsInChunks.var_also_in_reference),
+      vars_in_array = flatten(ExtractUniqueVariantsFilteredChunk.unique_variant_count),
+      vars_in_panel = flatten(CountUniqueVariantIdsInOverlap.var_overlap),
       valids = flatten(CheckChunks.valid),
+      chroms = contigs_to_process,
+      vars_in_raw_input = ExtractUniqueVariantIdsRawChromosome.unique_variant_count,
       basename = output_basename
   }
   
   output {
     File imputed_multi_sample_vcf = CreateIndexForGatheredVcf.output_vcf
     File imputed_multi_sample_vcf_index = CreateIndexForGatheredVcf.output_vcf_index
-    File chunks_info = StoreChunksInfo.chunks_info
+    File chunks_info = StoreMetricsInfo.chunks_info
+    File contigs_info = StoreMetricsInfo.contigs_info
   }
 
   meta {
     allowNestedInputs: true
   }
-
 }
