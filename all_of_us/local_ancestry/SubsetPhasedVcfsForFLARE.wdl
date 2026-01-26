@@ -272,12 +272,9 @@ task subset_phased_vcf_task {
 					# Copy outputs back locally for WDL outputs
 					# output_vcf is a gs:// path; Cromwell needs local files as task outputs
 					out_vcf = "~{task_identifier}.subset.vcf.bgz"
-					out_tbi = out_vcf + ".tbi"
 
 					copy_vcf_cmd = f"gsutil -m cp ~{output_vcf} ./{out_vcf}"
-					copy_tbi_cmd = f"gsutil -m cp ~{output_vcf}.tbi ./{out_tbi}"
 					print(popen_read_checked(copy_vcf_cmd))
-					print(popen_read_checked(copy_tbi_cmd))
 
 					break
 
@@ -300,7 +297,6 @@ task subset_phased_vcf_task {
 
     output {
         File subset_vcf = "~{task_identifier}.subset.vcf.bgz"
-        File subset_vcf_tbi = "~{task_identifier}.subset.vcf.bgz.tbi"
     }
 
     runtime {
