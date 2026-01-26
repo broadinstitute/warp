@@ -341,7 +341,11 @@ task make_mt_merge_groups {
         import math
         import os
 
-        mt_tars = ~{sep=", " mt_tars}
+        # Expand Array[File] into a valid Python list.
+        # Cromwell interpolates File values as raw paths, which are not quoted.
+        # We convert to strings after interpolation.
+        mt_tars = [~{sep=", " mt_tars}]
+        mt_tars = [str(p) for p in mt_tars]
         fanin = int("~{fanin}")
         out_dir = "~{out_dir}"
 
