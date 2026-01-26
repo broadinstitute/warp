@@ -88,7 +88,6 @@ workflow SubsetPhasedVcfsForFlare {
 
     output {
         File subset_vcf = subset_phased_vcf_task.subset_vcf
-        File subset_vcf_tbi = subset_phased_vcf_task.subset_vcf_tbi
     }
 }
 
