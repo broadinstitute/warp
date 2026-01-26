@@ -1,3 +1,8 @@
+# 2.4.4
+2025-10-09 (Date of Last Commit)
+
+* Replace Azure docker with AWS docker
+
 # 2.4.3
 2025-10-09 (Date of Last Commit)
 
