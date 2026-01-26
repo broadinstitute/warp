@@ -251,7 +251,7 @@ task make_vcf_shards_from_tsv {
     >>>
 
     output {
-        Array[File] shard_tsvs = read_lines("shard_tsvs.list")
+        Array[File] shard_tsvs = glob("vcf_shard_*.tsv")
     }
 
     runtime {
