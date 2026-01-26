@@ -61,7 +61,7 @@ workflow BuildIndices {
       input:
         gtf_annotation_version = gtf_annotation_version,
         annotation_gtf = select_first([if run_mitofinder then append_mito_gtf.out_gtf else none, annotations_gtf]),
-        genome_fa = select_first([if run_mitofinder then annotate_with_mitofinder.out_fasta else none, genome_fa]),
+        genome_fa = genome_fa, #select_first([if run_mitofinder then annotate_with_mitofinder.out_fasta else none, genome_fa]),
         biotypes = biotypes,
         genome_build = genome_build,
         genome_source = genome_source,
@@ -380,26 +380,26 @@ task BuildStarSingleNucleus {
         cp ${GTF_FILE} ~{annotation_gtf_modified}
     fi
 
-    # --- Remove duplicate mito contig if mito_accession is set
-    if [ -n "~{mito_accession}" ]; then
-      echo "mito_accession provided: ~{mito_accession}"
-
-      if grep -q "^>~{mito_accession}$" ~{genome_fa}; then
-        echo "Removing duplicate contig ~{mito_accession} from FASTA..."
-
-        awk -v acc="~{mito_accession}" '
-          BEGIN { deleted = 0 }
-          $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
-          /^>/ { skip = 0 }
-          !skip
-          ' ~{genome_fa} > genome_mito.filtered.fasta
-        mv genome_mito.filtered.fasta ~{genome_fa}
-      else
-        echo "Contig ~{mito_accession} not found; skipping removal."
-      fi
-    else
-        echo "No mito_accession provided, skipping contig removal."
-    fi
+    ## --- Remove duplicate mito contig if mito_accession is set
+    #if [ -n "~{mito_accession}" ]; then
+    #  echo "mito_accession provided: ~{mito_accession}"
+#
+    #  if grep -q "^>~{mito_accession}$" ~{genome_fa}; then
+    #    echo "Removing duplicate contig ~{mito_accession} from FASTA..."
+#
+    #    awk -v acc="~{mito_accession}" '
+    #      BEGIN { deleted = 0 }
+    #      $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
+    #      /^>/ { skip = 0 }
+    #      !skip
+    #      ' ~{genome_fa} > genome_mito.filtered.fasta
+    #    mv genome_mito.filtered.fasta ~{genome_fa}
+    #  else
+    #    echo "Contig ~{mito_accession} not found; skipping removal."
+    #  fi
+    #else
+    #    echo "No mito_accession provided, skipping contig removal."
+    #fi
 
     mkdir star
     STAR --runMode genomeGenerate \
