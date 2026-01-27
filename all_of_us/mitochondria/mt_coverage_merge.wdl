@@ -335,6 +335,7 @@ task make_mt_merge_groups {
         # IMPORTANT: export it so the heredoc Python process inherits it.
         # Using newlines avoids shell word-splitting surprises.
         export MT_TARS=$'~{sep="\\n" mt_tars}'
+        echo "$MT_TARS"
 
         python3 <<'EOF'
         import math
