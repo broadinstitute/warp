@@ -260,7 +260,6 @@ workflow IlluminaGenotypingArray {
           preemptible_tries = preemptible_tries
         }
     }
-
     call GenotypingTasks.SelectVariants as SelectFingerprintVariants {
       input:
         input_vcf_file = final_output_vcf,
