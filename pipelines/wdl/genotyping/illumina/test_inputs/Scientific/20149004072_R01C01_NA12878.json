@@ -5,16 +5,16 @@
   "IlluminaGenotypingArray.reported_gender": "Female",
   "IlluminaGenotypingArray.chip_well_barcode": "201490040272_R01C01",
 
-  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/idats/201490040272_R01C01/201490040272_R01C01_Grn.idat",
-  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/idats/201490040272_R01C01/201490040272_R01C01_Red.idat",
+  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/20149004072_R01C01_NA12878/201490040272_R01C01_Grn.idat",
+  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/20149004072_R01C01_NA12878/201490040272_R01C01_Red.idat",
 
   "IlluminaGenotypingArray.bead_pool_manifest_file": "gs://gcp-public-data--broad-references/arrays/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1.bpm",
   "IlluminaGenotypingArray.extended_chip_manifest_file": "gs://gcp-public-data--broad-references/arrays/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1.1.3.extended.csv",
   "IlluminaGenotypingArray.cluster_file": "gs://gcp-public-data--broad-references/arrays/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1_ClusterFile.egt",
 
-  "IlluminaGenotypingArray.control_sample_vcf_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878.vcf.gz",
-  "IlluminaGenotypingArray.control_sample_vcf_index_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878.vcf.gz.tbi",
-  "IlluminaGenotypingArray.control_sample_intervals_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878.interval_list",
+  "IlluminaGenotypingArray.control_sample_vcf_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.vcf.gz",
+  "IlluminaGenotypingArray.control_sample_vcf_index_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.vcf.gz.tbi",
+  "IlluminaGenotypingArray.control_sample_intervals_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.interval_list",
   "IlluminaGenotypingArray.control_sample_name" : "NA12878",
   "IlluminaGenotypingArray.disk_size": 100,
 
