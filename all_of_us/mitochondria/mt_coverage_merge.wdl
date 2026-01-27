@@ -322,7 +322,7 @@ task build_vcf_shard_mt {
 
 task make_mt_merge_groups {
     input {
-        Array[File] mt_tars
+        Array[String] mt_tars
         Int fanin = 10
         String out_dir
 
@@ -339,13 +339,13 @@ task make_mt_merge_groups {
 
         # Serialize the Array[File] into a newline-delimited string for Python.
         # This avoids generating invalid Python like: mt_tars = [/mnt/...]
-        MT_TARS=$'~{sep="\\n" mt_tars}'
+        MT_TARS=$'~{sep=" " mt_tars}'
 
         python3 <<'EOF'
         import math
         import os
 
-        mt_tars = os.environ.get("MT_TARS", "").strip().splitlines()
+        mt_tars = os.environ.get("MT_TARS", "").strip().split()
         mt_tars = [p for p in mt_tars if p]
         fanin = int("~{fanin}")
         out_dir = "~{out_dir}"
