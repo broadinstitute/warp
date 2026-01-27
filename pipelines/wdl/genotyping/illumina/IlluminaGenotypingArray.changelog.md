@@ -1,3 +1,8 @@
+# 1.12.27
+2026-01-21 (Date of Last Commit)
+
+* Moved inputs into new Google buckets. This change does not affect the outputs of the pipeline
+
 # 1.12.26
 2025-10-09 (Date of Last Commit)
 
