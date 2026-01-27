@@ -276,6 +276,9 @@ task build_vcf_shard_mt {
 
     String out_mt_dirname = basename(shard_tsv, ".tsv") + ".mt"
 
+    # Unique tarball name per shard to avoid collisions.
+    String out_tar_name = basename(shard_tsv, ".tsv") + "_shard_mt.tar.gz"
+
     command <<<
         set -euxo pipefail
 
@@ -301,12 +304,12 @@ task build_vcf_shard_mt {
             ~{if overwrite then "--overwrite" else ""} \
             ~{if include_extra_v2_fields then "--include-extra-v2-fields" else ""}
 
-        # Pack as a tar for WDL artifact portability
-        tar -czf shard_mt.tar.gz -C ./results "~{out_mt_dirname}"
+        # Pack as a tar for WDL artifact portability (unique per shard)
+        tar -czf "~{out_tar_name}" -C ./results "~{out_mt_dirname}"
     >>>
 
     output {
-        File shard_mt_tar = "shard_mt.tar.gz"
+        File shard_mt_tar = out_tar_name
     }
 
     runtime {
