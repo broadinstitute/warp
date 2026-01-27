@@ -332,14 +332,15 @@ task make_mt_merge_groups {
         set -euxo pipefail
 
         # Serialize the Array[File] into a newline-delimited string for Python.
-        # This avoids generating invalid Python like: mt_tars = [/mnt/...]
-        MT_TARS=$'~{sep=" " mt_tars}'
+        # IMPORTANT: export it so the heredoc Python process inherits it.
+        # Using newlines avoids shell word-splitting surprises.
+        export MT_TARS=$'~{sep="\\n" mt_tars}'
 
         python3 <<'EOF'
         import math
         import os
 
-        mt_tars = os.environ.get("MT_TARS", "").strip().split()
+        mt_tars = os.environ.get("MT_TARS", "").strip().splitlines()
         mt_tars = [p for p in mt_tars if p]
         fanin = int("~{fanin}")
 
