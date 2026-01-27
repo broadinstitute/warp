@@ -271,7 +271,6 @@ workflow IlluminaGenotypingArray {
         output_vcf_filename = chip_well_barcode + ".fingerprint.vcf.gz",
         preemptible_tries = preemptible_tries
     }
-
     if (defined(fingerprint_genotypes_vcf_file)) {
       call Qc.CheckFingerprintTask as CheckFingerprintTask{
         input:
