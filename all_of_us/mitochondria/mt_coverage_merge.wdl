@@ -75,8 +75,7 @@ workflow mt_coverage_merge {
         call make_mt_merge_groups as make_merge_groups_1 {
             input:
                 mt_tars = build_vcf_shard_mt.shard_mt_tar,
-                fanin = step3_merge_fanin,
-                out_dir = "merge_round_1"
+                fanin = step3_merge_fanin
         }
 
         scatter (mt_list_tsv in make_merge_groups_1.mt_list_tsvs) {
@@ -92,8 +91,7 @@ workflow mt_coverage_merge {
         call make_mt_merge_groups as make_merge_groups_2 {
             input:
                 mt_tars = merge_round_1.merged_mt_tar,
-                fanin = step3_merge_fanin,
-                out_dir = "merge_round_2"
+                fanin = step3_merge_fanin
         }
 
         scatter (mt_list_tsv in make_merge_groups_2.mt_list_tsvs) {
@@ -109,8 +107,7 @@ workflow mt_coverage_merge {
         call make_mt_merge_groups as make_merge_groups_3 {
             input:
                 mt_tars = merge_round_2.merged_mt_tar,
-                fanin = step3_merge_fanin,
-                out_dir = "merge_round_3"
+                fanin = step3_merge_fanin
         }
 
         scatter (mt_list_tsv in make_merge_groups_3.mt_list_tsvs) {
@@ -322,9 +319,8 @@ task build_vcf_shard_mt {
 
 task make_mt_merge_groups {
     input {
-        Array[String] mt_tars
+        Array[File] mt_tars
         Int fanin = 10
-        String out_dir
 
         # Runtime parameters
         Int memory_gb = 8
@@ -334,8 +330,6 @@ task make_mt_merge_groups {
 
     command <<<
         set -euxo pipefail
-
-        mkdir -p "~{out_dir}"
 
         # Serialize the Array[File] into a newline-delimited string for Python.
         # This avoids generating invalid Python like: mt_tars = [/mnt/...]
@@ -348,7 +342,6 @@ task make_mt_merge_groups {
         mt_tars = os.environ.get("MT_TARS", "").strip().split()
         mt_tars = [p for p in mt_tars if p]
         fanin = int("~{fanin}")
-        out_dir = "~{out_dir}"
 
         if fanin <= 0:
             raise ValueError("fanin must be > 0")
@@ -358,24 +351,18 @@ task make_mt_merge_groups {
             raise ValueError("mt_tars is empty")
 
         n_groups = int(math.ceil(n / fanin))
-        out_index = os.path.join(out_dir, "mt_lists.tsv")
-        with open(out_index, "w") as idx:
-            idx.write("mt_list_tsv\n")
-            for g in range(n_groups):
-                chunk = mt_tars[g * fanin : (g + 1) * fanin]
-                list_path = os.path.join(out_dir, f"mt_list_{g:05d}.tsv")
-                with open(list_path, "w") as out:
-                    out.write("mt_tar\n")
-                    for p in chunk:
-                        out.write(p + "\n")
-                idx.write(list_path + "\n")
+        for g in range(n_groups):
+            chunk = mt_tars[g * fanin : (g + 1) * fanin]
+            list_path = f"mt_list_{g:05d}.tsv"
+            with open(list_path, "w") as out:
+                out.write("mt_tar\n")
+                for p in chunk:
+                    out.write(p + "\n")
         EOF
-
-        cp "~{out_dir}/mt_lists.tsv" ./mt_lists.tsv
     >>>
 
     output {
-        Array[File] mt_list_tsvs = glob("mt_lists.tsv")
+        Array[File] mt_list_tsvs = glob("mt_list_*.tsv")
     }
 
     runtime {
