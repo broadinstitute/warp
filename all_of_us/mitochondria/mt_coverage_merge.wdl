@@ -319,7 +319,7 @@ task build_vcf_shard_mt {
 
 task make_mt_merge_groups {
     input {
-        Array[File] mt_tars
+        Array[String] mt_tars
         Int fanin = 10
 
         # Runtime parameters
