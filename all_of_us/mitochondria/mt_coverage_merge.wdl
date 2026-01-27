@@ -337,15 +337,16 @@ task make_mt_merge_groups {
 
         mkdir -p "~{out_dir}"
 
+        # Serialize the Array[File] into a newline-delimited string for Python.
+        # This avoids generating invalid Python like: mt_tars = [/mnt/...]
+        MT_TARS=$'~{sep="\\n" mt_tars}'
+
         python3 <<'EOF'
         import math
         import os
 
-        # Expand Array[File] into a valid Python list.
-        # Cromwell interpolates File values as raw paths, which are not quoted.
-        # We convert to strings after interpolation.
-        mt_tars = [~{sep=", " mt_tars}]
-        mt_tars = [str(p) for p in mt_tars]
+        mt_tars = os.environ.get("MT_TARS", "").strip().splitlines()
+        mt_tars = [p for p in mt_tars if p]
         fanin = int("~{fanin}")
         out_dir = "~{out_dir}"
 
