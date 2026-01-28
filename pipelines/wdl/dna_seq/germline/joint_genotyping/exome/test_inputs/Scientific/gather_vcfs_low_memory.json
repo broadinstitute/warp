@@ -28,7 +28,7 @@
   "JointGenotyping.haplotype_database": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
 
   "JointGenotyping.callset_name": "small_callset_high_threshold",
-  "JointGenotyping.sample_name_map" : "gs://broad-gotc-test-storage/joint_genotyping/exome/scientific/callset/reblocked_name_sample_map",
+  "JointGenotyping.sample_name_map" : "gs://pd-test-storage-private/JointGenotyping/input/scientific/sample_name_maps/exome/reblocked_name_sample_map/reblocked_name_sample_map.txt",
 
   "JointGenotyping.small_disk" : 100,
   "JointGenotyping.medium_disk" : 200,
