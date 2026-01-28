@@ -74,7 +74,7 @@ workflow mt_coverage_merge {
         # Round 1: merge shard MTs to fewer intermediate MTs (fan-in)
         call make_mt_merge_groups as make_merge_groups_1 {
             input:
-                mt_dirs = build_vcf_shard_mt.shard_mt_dirname,
+                mt_tars = build_vcf_shard_mt.shard_mt_tar,
                 fanin = step3_merge_fanin
         }
 
@@ -90,7 +90,7 @@ workflow mt_coverage_merge {
         # Round 2: merge round-1 outputs
         call make_mt_merge_groups as make_merge_groups_2 {
             input:
-                mt_dirs = merge_round_1.merged_mt_dirname,
+                mt_tars = merge_round_1.merged_mt_tar,
                 fanin = step3_merge_fanin
         }
 
@@ -106,7 +106,7 @@ workflow mt_coverage_merge {
         # Round 3: merge round-2 outputs (typically small count, but keep general)
         call make_mt_merge_groups as make_merge_groups_3 {
             input:
-                mt_dirs = merge_round_2.merged_mt_dirname,
+                mt_tars = merge_round_2.merged_mt_tar,
                 fanin = step3_merge_fanin
         }
 
@@ -122,7 +122,7 @@ workflow mt_coverage_merge {
         # Finalize: apply covdb homref/DP + artifact filter once on the final merged MT
         call finalize_mt_with_covdb {
             input:
-                in_mt = merge_round_3.merged_mt_dirname[0],
+                in_mt_tar = merge_round_3.merged_mt_tar[0],
                 coverage_db_tar = annotate_coverage.output_ht,
                 file_name = combined_mt_name
         }
@@ -159,13 +159,10 @@ workflow mt_coverage_merge {
     output {
         File processed_tsv = process_tsv_files.processed_tsv
         File output_coverage_ht = annotate_coverage.output_ht
-        # Sharded path produces a directory-backed MT (emitted via glob); legacy path returns a tar.
-        Array[File?] combined_mt_files = select_first([
-            finalize_mt_with_covdb.results_files,
-            [combine_vcfs_and_homref_from_covdb.results_tar]
+        File combined_mt_tar = select_first([
+            finalize_mt_with_covdb.results_tar,
+            combine_vcfs_and_homref_from_covdb.results_tar
         ])
-    String combined_mt_dirname = select_first([finalize_mt_with_covdb.results_dirname, ""]) 
-        File? combined_mt_legacy_tar = combine_vcfs_and_homref_from_covdb.results_tar
         #File combined_vcf = combine_vcfs.results_tar
         #File annotated_output_tar = annotated.annotated_output_tar
         #File filt_annotated_output_tar = filt_annotated.annotated_output_tar
@@ -279,6 +276,9 @@ task build_vcf_shard_mt {
 
     String out_mt_dirname = basename(shard_tsv, ".tsv") + ".mt"
 
+    # Unique tarball name per shard to avoid collisions.
+    String out_tar_name = basename(shard_tsv, ".tsv") + "_shard_mt.tar.gz"
+
     command <<<
         set -euxo pipefail
 
@@ -304,19 +304,16 @@ task build_vcf_shard_mt {
             ~{if overwrite then "--overwrite" else ""} \
             ~{if include_extra_v2_fields then "--include-extra-v2-fields" else ""}
 
-        # IMPORTANT:
-        # Do NOT tar the MatrixTable.
-        # Hail expects cloud paths to the *directory* (e.g. gs://.../*.mt), and cannot read tarred MTs.
-        # Since WDL 1.0 can't output directories directly, we emit all directory files via glob.
+        # Pack as a tar for WDL artifact portability (unique per shard)
+        tar -czf "~{out_tar_name}" -C ./results "~{out_mt_dirname}"
     >>>
 
     output {
-        Array[File] shard_mt_files = glob("results/~{out_mt_dirname}/**")
-        String shard_mt_dirname = out_mt_dirname
+        File shard_mt_tar = out_tar_name
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:2026-01-16a"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -325,7 +322,7 @@ task build_vcf_shard_mt {
 
 task make_mt_merge_groups {
     input {
-        Array[String] mt_dirs
+        Array[String] mt_tars
         Int fanin = 10
 
         # Runtime parameters
@@ -340,30 +337,30 @@ task make_mt_merge_groups {
         # Serialize the Array[File] into a newline-delimited string for Python.
         # IMPORTANT: export it so the heredoc Python process inherits it.
         # Using newlines avoids shell word-splitting surprises.
-        export MT_DIRS=$'~{sep="\\n" mt_dirs}'
-        echo "$MT_DIRS"
+        export MT_TARS=$'~{sep="\\n" mt_tars}'
+        echo "$MT_TARS"
 
         python3 <<'EOF'
         import math
         import os
 
-        mt_dirs = os.environ.get("MT_DIRS", "").strip().splitlines()
-        mt_dirs = [p for p in mt_dirs if p]
+        mt_tars = os.environ.get("MT_TARS", "").strip().splitlines()
+        mt_tars = [p for p in mt_tars if p]
         fanin = int("~{fanin}")
 
         if fanin <= 0:
             raise ValueError("fanin must be > 0")
 
-        n = len(mt_dirs)
+        n = len(mt_tars)
         if n == 0:
-            raise ValueError("mt_dirs is empty")
+            raise ValueError("mt_tars is empty")
 
         n_groups = int(math.ceil(n / fanin))
         for g in range(n_groups):
-            chunk = mt_dirs[g * fanin : (g + 1) * fanin]
+            chunk = mt_tars[g * fanin : (g + 1) * fanin]
             list_path = f"mt_list_{g:05d}.tsv"
             with open(list_path, "w") as out:
-                out.write("mt_dir\n")
+                out.write("mt_tar\n")
                 for p in chunk:
                     out.write(p + "\n")
         EOF
@@ -392,7 +389,7 @@ task merge_mt_shards {
         # Runtime parameters
         Int memory_gb = 128
         Int cpu = 16
-        Int disk_gb = 1000
+    Int disk_gb = 1500
         String disk_type = "SSD"
     }
 
@@ -411,11 +408,32 @@ task merge_mt_shards {
         export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
         export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"
 
-        # Read cloud MT directory paths and hand them to the Hail merge script.
-        # The Hail script should read MTs from these paths directly (e.g. gs://.../*.mt).
+        # Localize and extract all input MT tars.
+        # NOTE: mt_list_tsv may contain gs:// URIs. We download them *inside the task* (not as inputs)
+        # to avoid localizing all tarballs for every task shard.
+        mkdir -p ./inputs
         python3 <<'EOF'
         import csv
         import os
+        import subprocess
+
+        def _download(src: str, dest: str) -> None:
+            if src.startswith("gs://"):
+                # Prefer gcloud storage (new) but fall back to gsutil if needed.
+                try:
+                    subprocess.check_call(["gcloud", "storage", "cp", src, dest])
+                    return
+                except FileNotFoundError:
+                    pass
+                except subprocess.CalledProcessError:
+                    pass
+                subprocess.check_call(["gsutil", "cp", src, dest])
+            else:
+                # Assume it's already local.
+                if src != dest:
+                    subprocess.check_call(["cp", "-f", src, dest])
+
+        os.makedirs("inputs", exist_ok=True)
 
         with open("~{mt_list_tsv}", "r") as f:
             reader = csv.DictReader(f, delimiter="\t")
@@ -423,39 +441,45 @@ task merge_mt_shards {
         if len(rows) == 0:
             raise RuntimeError("mt_list_tsv contained 0 rows")
 
-        if "mt_dir" not in rows[0]:
-            raise RuntimeError("mt_list_tsv missing header 'mt_dir'")
+        # Expect header mt_tar
+        if "mt_tar" not in rows[0]:
+            raise RuntimeError("mt_list_tsv missing header 'mt_tar'")
 
-        out_list = os.path.join(os.getcwd(), "mt_paths.tsv")
+        out_list = os.path.join("inputs", "mt_paths.tsv")
         with open(out_list, "w") as out:
             out.write("mt_path\n")
-            for r in rows:
-                p = (r.get("mt_dir") or "").strip()
-                if p:
-                    out.write(p + "\n")
+            for i, r in enumerate(rows):
+                tar_path = r["mt_tar"]
+                if not tar_path:
+                    continue
+                local_tar = os.path.join("inputs", f"mt_{i:05d}.tar.gz")
+                _download(tar_path, local_tar)
+                dest_dir = os.path.join("inputs", f"mt_{i:05d}.mt")
+                os.makedirs(dest_dir, exist_ok=True)
+                # Extract tar into dest_dir
+                subprocess.check_call(["tar", "-xzf", local_tar, "-C", dest_dir])
 
-        if sum(1 for _ in open(out_list)) <= 1:
-            raise RuntimeError("No mt_dir paths found in mt_list_tsv")
-
-        print(f"Wrote MT path manifest: {out_list}")
+                # Find the single .mt directory inside dest_dir
+                entries = [x for x in os.listdir(dest_dir) if x.endswith(".mt")]
+                if len(entries) != 1:
+                    raise RuntimeError(f"Expected exactly one .mt dir in {dest_dir}, found {entries}")
+                out.write(os.path.join(dest_dir, entries[0]) + "\n")
+        print(f"Wrote localized MT path manifest: {out_list}")
         EOF
 
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/merge_mt_shards.py \
-            --mt-list-tsv ./mt_paths.tsv \
+            --mt-list-tsv ./inputs/mt_paths.tsv \
             --out-mt ./results/~{out_mt_name} \
             --temp-dir ./tmp \
             --chunk-size ~{chunk_size} \
             --min-partitions ~{min_partitions} \
             ~{if overwrite then "--overwrite" else ""}
 
-        # IMPORTANT:
-        # Do NOT tar the MatrixTable.
-        # Hail expects cloud paths to the *directory* and cannot read tarred MTs.
+        tar -czf merged_mt.tar.gz -C ./results "~{out_mt_name}"
     >>>
 
     output {
-        Array[File] merged_mt_files = glob("results/~{out_mt_name}/**")
-        String merged_mt_dirname = out_mt_name
+        File merged_mt_tar = "merged_mt.tar.gz"
     }
 
     runtime {
@@ -468,7 +492,7 @@ task merge_mt_shards {
 
 task finalize_mt_with_covdb {
     input {
-        String in_mt
+        File in_mt_tar
         File coverage_db_tar
         String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"
         String artifact_prone_sites_reference = "default"
@@ -505,7 +529,15 @@ task finalize_mt_with_covdb {
         tar -xzf ~{coverage_db_tar} -C ./coverage_db
         test -f ./coverage_db/coverage.h5
 
-        IN_MT_DIR="~{in_mt}"
+        # Extract input merged MT tar
+        mkdir -p ./input_mt
+        tar -xzf ~{in_mt_tar} -C ./input_mt
+        IN_MT_DIR=$(find ./input_mt -maxdepth 2 -type d -name "*.mt" | head -n 1)
+        if [ -z "$IN_MT_DIR" ]; then
+            echo "ERROR: could not find .mt directory after extracting in_mt_tar" >&2
+            find ./input_mt -maxdepth 3 -type d | head -100 >&2
+            exit 1
+        fi
 
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/finalize_mt_with_covdb.py \
             --in-mt "$IN_MT_DIR" \
@@ -519,14 +551,11 @@ task finalize_mt_with_covdb {
             --n-final-partitions ~{n_final_partitions} \
             ~{if overwrite then "--overwrite" else ""}
 
-        # IMPORTANT:
-        # Do NOT tar the MatrixTable.
-        # Hail expects cloud paths to the *directory* and cannot read tarred MTs.
+        tar -czf results.tar.gz -C ./results "~{file_name}.mt"
     >>>
 
     output {
-        Array[File] results_files = glob("results/~{file_name}.mt/**")
-        String results_dirname = "~{file_name}.mt"
+        File results_tar = "results.tar.gz"
     }
 
     runtime {
