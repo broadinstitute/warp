@@ -1,5 +1,5 @@
 # 2.4.4
-2026-01-26 (Date of Last Commit)
+2026-01-28 (Date of Last Commit)
 
 * Replace Azure docker with AWS docker
 
