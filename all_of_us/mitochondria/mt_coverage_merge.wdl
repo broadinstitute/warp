@@ -74,7 +74,7 @@ workflow mt_coverage_merge {
         # Round 1: merge shard MTs to fewer intermediate MTs (fan-in)
         call make_mt_merge_groups as make_merge_groups_1 {
             input:
-                mt_tars = build_vcf_shard_mt.shard_mt_tar,
+                mt_dirs = build_vcf_shard_mt.shard_mt_dirname,
                 fanin = step3_merge_fanin
         }
 
@@ -90,7 +90,7 @@ workflow mt_coverage_merge {
         # Round 2: merge round-1 outputs
         call make_mt_merge_groups as make_merge_groups_2 {
             input:
-                mt_tars = merge_round_1.merged_mt_tar,
+                mt_dirs = merge_round_1.merged_mt_dirname,
                 fanin = step3_merge_fanin
         }
 
@@ -106,7 +106,7 @@ workflow mt_coverage_merge {
         # Round 3: merge round-2 outputs (typically small count, but keep general)
         call make_mt_merge_groups as make_merge_groups_3 {
             input:
-                mt_tars = merge_round_2.merged_mt_tar,
+                mt_dirs = merge_round_2.merged_mt_dirname,
                 fanin = step3_merge_fanin
         }
 
@@ -122,7 +122,7 @@ workflow mt_coverage_merge {
         # Finalize: apply covdb homref/DP + artifact filter once on the final merged MT
         call finalize_mt_with_covdb {
             input:
-                in_mt_tar = merge_round_3.merged_mt_tar[0],
+                in_mt = merge_round_3.merged_mt_dirname[0],
                 coverage_db_tar = annotate_coverage.output_ht,
                 file_name = combined_mt_name
         }
@@ -159,10 +159,13 @@ workflow mt_coverage_merge {
     output {
         File processed_tsv = process_tsv_files.processed_tsv
         File output_coverage_ht = annotate_coverage.output_ht
-        File combined_mt_tar = select_first([
-            finalize_mt_with_covdb.results_tar,
-            combine_vcfs_and_homref_from_covdb.results_tar
+        # Sharded path produces a directory-backed MT (emitted via glob); legacy path returns a tar.
+        Array[File?] combined_mt_files = select_first([
+            finalize_mt_with_covdb.results_files,
+            [combine_vcfs_and_homref_from_covdb.results_tar]
         ])
+    String combined_mt_dirname = select_first([finalize_mt_with_covdb.results_dirname, ""]) 
+        File? combined_mt_legacy_tar = combine_vcfs_and_homref_from_covdb.results_tar
         #File combined_vcf = combine_vcfs.results_tar
         #File annotated_output_tar = annotated.annotated_output_tar
         #File filt_annotated_output_tar = filt_annotated.annotated_output_tar
@@ -276,9 +279,6 @@ task build_vcf_shard_mt {
 
     String out_mt_dirname = basename(shard_tsv, ".tsv") + ".mt"
 
-    # Unique tarball name per shard to avoid collisions.
-    String out_tar_name = basename(shard_tsv, ".tsv") + "_shard_mt.tar.gz"
-
     command <<<
         set -euxo pipefail
 
@@ -304,12 +304,15 @@ task build_vcf_shard_mt {
             ~{if overwrite then "--overwrite" else ""} \
             ~{if include_extra_v2_fields then "--include-extra-v2-fields" else ""}
 
-        # Pack as a tar for WDL artifact portability (unique per shard)
-        tar -czf "~{out_tar_name}" -C ./results "~{out_mt_dirname}"
+        # IMPORTANT:
+        # Do NOT tar the MatrixTable.
+        # Hail expects cloud paths to the *directory* (e.g. gs://.../*.mt), and cannot read tarred MTs.
+        # Since WDL 1.0 can't output directories directly, we emit all directory files via glob.
     >>>
 
     output {
-        File shard_mt_tar = out_tar_name
+        Array[File] shard_mt_files = glob("results/~{out_mt_dirname}/**")
+        String shard_mt_dirname = out_mt_dirname
     }
 
     runtime {
@@ -322,7 +325,7 @@ task build_vcf_shard_mt {
 
 task make_mt_merge_groups {
     input {
-        Array[String] mt_tars
+        Array[String] mt_dirs
         Int fanin = 10
 
         # Runtime parameters
@@ -337,30 +340,30 @@ task make_mt_merge_groups {
         # Serialize the Array[File] into a newline-delimited string for Python.
         # IMPORTANT: export it so the heredoc Python process inherits it.
         # Using newlines avoids shell word-splitting surprises.
-        export MT_TARS=$'~{sep="\\n" mt_tars}'
-        echo "$MT_TARS"
+        export MT_DIRS=$'~{sep="\\n" mt_dirs}'
+        echo "$MT_DIRS"
 
         python3 <<'EOF'
         import math
         import os
 
-        mt_tars = os.environ.get("MT_TARS", "").strip().splitlines()
-        mt_tars = [p for p in mt_tars if p]
+        mt_dirs = os.environ.get("MT_DIRS", "").strip().splitlines()
+        mt_dirs = [p for p in mt_dirs if p]
         fanin = int("~{fanin}")
 
         if fanin <= 0:
             raise ValueError("fanin must be > 0")
 
-        n = len(mt_tars)
+        n = len(mt_dirs)
         if n == 0:
-            raise ValueError("mt_tars is empty")
+            raise ValueError("mt_dirs is empty")
 
         n_groups = int(math.ceil(n / fanin))
         for g in range(n_groups):
-            chunk = mt_tars[g * fanin : (g + 1) * fanin]
+            chunk = mt_dirs[g * fanin : (g + 1) * fanin]
             list_path = f"mt_list_{g:05d}.tsv"
             with open(list_path, "w") as out:
-                out.write("mt_tar\n")
+                out.write("mt_dir\n")
                 for p in chunk:
                     out.write(p + "\n")
         EOF
@@ -408,14 +411,11 @@ task merge_mt_shards {
         export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
         export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"
 
-        # Localize and extract all input MT tars
-        mkdir -p ./inputs
+        # Read cloud MT directory paths and hand them to the Hail merge script.
+        # The Hail script should read MTs from these paths directly (e.g. gs://.../*.mt).
         python3 <<'EOF'
         import csv
         import os
-        import subprocess
-
-        os.makedirs("inputs", exist_ok=True)
 
         with open("~{mt_list_tsv}", "r") as f:
             reader = csv.DictReader(f, delimiter="\t")
@@ -423,43 +423,39 @@ task merge_mt_shards {
         if len(rows) == 0:
             raise RuntimeError("mt_list_tsv contained 0 rows")
 
-        # Expect header mt_tar
-        if "mt_tar" not in rows[0]:
-            raise RuntimeError("mt_list_tsv missing header 'mt_tar'")
+        if "mt_dir" not in rows[0]:
+            raise RuntimeError("mt_list_tsv missing header 'mt_dir'")
 
-        out_list = os.path.join("inputs", "mt_paths.tsv")
+        out_list = os.path.join(os.getcwd(), "mt_paths.tsv")
         with open(out_list, "w") as out:
             out.write("mt_path\n")
-            for i, r in enumerate(rows):
-                tar_path = r["mt_tar"]
-                if not tar_path:
-                    continue
-                dest_dir = os.path.join("inputs", f"mt_{i:05d}.mt")
-                os.makedirs(dest_dir, exist_ok=True)
-                # Extract tar into dest_dir
-                subprocess.check_call(["tar", "-xzf", tar_path, "-C", dest_dir])
+            for r in rows:
+                p = (r.get("mt_dir") or "").strip()
+                if p:
+                    out.write(p + "\n")
 
-                # Find the single .mt directory inside dest_dir
-                entries = [x for x in os.listdir(dest_dir) if x.endswith(".mt")]
-                if len(entries) != 1:
-                    raise RuntimeError(f"Expected exactly one .mt dir in {dest_dir}, found {entries}")
-                out.write(os.path.join(dest_dir, entries[0]) + "\n")
-        print(f"Wrote localized MT path manifest: {out_list}")
+        if sum(1 for _ in open(out_list)) <= 1:
+            raise RuntimeError("No mt_dir paths found in mt_list_tsv")
+
+        print(f"Wrote MT path manifest: {out_list}")
         EOF
 
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/merge_mt_shards.py \
-            --mt-list-tsv ./inputs/mt_paths.tsv \
+            --mt-list-tsv ./mt_paths.tsv \
             --out-mt ./results/~{out_mt_name} \
             --temp-dir ./tmp \
             --chunk-size ~{chunk_size} \
             --min-partitions ~{min_partitions} \
             ~{if overwrite then "--overwrite" else ""}
 
-        tar -czf merged_mt.tar.gz -C ./results "~{out_mt_name}"
+        # IMPORTANT:
+        # Do NOT tar the MatrixTable.
+        # Hail expects cloud paths to the *directory* and cannot read tarred MTs.
     >>>
 
     output {
-        File merged_mt_tar = "merged_mt.tar.gz"
+        Array[File] merged_mt_files = glob("results/~{out_mt_name}/**")
+        String merged_mt_dirname = out_mt_name
     }
 
     runtime {
@@ -472,7 +468,7 @@ task merge_mt_shards {
 
 task finalize_mt_with_covdb {
     input {
-        File in_mt_tar
+        String in_mt
         File coverage_db_tar
         String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"
         String artifact_prone_sites_reference = "default"
@@ -509,15 +505,7 @@ task finalize_mt_with_covdb {
         tar -xzf ~{coverage_db_tar} -C ./coverage_db
         test -f ./coverage_db/coverage.h5
 
-        # Extract input merged MT tar
-        mkdir -p ./input_mt
-        tar -xzf ~{in_mt_tar} -C ./input_mt
-        IN_MT_DIR=$(find ./input_mt -maxdepth 2 -type d -name "*.mt" | head -n 1)
-        if [ -z "$IN_MT_DIR" ]; then
-            echo "ERROR: could not find .mt directory after extracting in_mt_tar" >&2
-            find ./input_mt -maxdepth 3 -type d | head -100 >&2
-            exit 1
-        fi
+        IN_MT_DIR="~{in_mt}"
 
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/finalize_mt_with_covdb.py \
             --in-mt "$IN_MT_DIR" \
@@ -531,11 +519,14 @@ task finalize_mt_with_covdb {
             --n-final-partitions ~{n_final_partitions} \
             ~{if overwrite then "--overwrite" else ""}
 
-        tar -czf results.tar.gz -C ./results "~{file_name}.mt"
+        # IMPORTANT:
+        # Do NOT tar the MatrixTable.
+        # Hail expects cloud paths to the *directory* and cannot read tarred MTs.
     >>>
 
     output {
-        File results_tar = "results.tar.gz"
+        Array[File] results_files = glob("results/~{file_name}.mt/**")
+        String results_dirname = "~{file_name}.mt"
     }
 
     runtime {
