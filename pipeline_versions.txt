@@ -6,7 +6,7 @@ ExomeGermlineSingleSample	 3.2.7	2026-01-21
 ExomeReprocessing	 3.3.7	2026-01-21 
 IlluminaGenotypingArray	 1.12.27	2026-01-21 
 Imputation	 1.1.23	2025-10-03 
-ImputationBeagle	 2.4.2	2025-12-23 
+ImputationBeagle	 2.5.0	2026-01-27 
 JointGenotyping	 1.7.3	2025-08-11 
 MultiSampleSmartSeq2SingleNucleus	 2.2.4	2026-01-21 
 Multiome	 6.1.4	2026-01-22 
