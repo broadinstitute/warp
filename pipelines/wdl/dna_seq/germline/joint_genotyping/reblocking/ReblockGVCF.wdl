@@ -72,6 +72,7 @@ workflow ReblockGVCF {
     File reblocked_gvcf = Reblock.output_vcf
     File reblocked_gvcf_index = Reblock.output_vcf_index
   }
+
   meta {
     allowNestedInputs: true
   }
