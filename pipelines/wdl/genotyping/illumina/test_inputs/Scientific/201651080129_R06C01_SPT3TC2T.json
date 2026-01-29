@@ -5,11 +5,11 @@
   "IlluminaGenotypingArray.reported_gender": "NotReported",
   "IlluminaGenotypingArray.chip_well_barcode": "201651080129_R06C01",
 
-  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/idats/201651080129_R06C01/201651080129_R06C01_Grn.idat",
-  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/idats/201651080129_R06C01/201651080129_R06C01_Red.idat",
+  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201651080129_R06C01_SPT3TC2T/201651080129_R06C01_Grn.idat",
+  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201651080129_R06C01_SPT3TC2T/201651080129_R06C01_Red.idat",
 
-  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_file": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/inputs/201651080129_R06C01/201651080129_R06C01.SPT3TC2T.reference.fingerprint.vcf.gz",
-  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_index_file": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/inputs/201651080129_R06C01/201651080129_R06C01.SPT3TC2T.reference.fingerprint.vcf.gz.tbi",
+  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201651080129_R06C01_SPT3TC2T/201651080129_R06C01.SPT3TC2T.reference.fingerprint.vcf.gz",
+  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_index_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201651080129_R06C01_SPT3TC2T/201651080129_R06C01.SPT3TC2T.reference.fingerprint.vcf.gz.tbi",
 
   "IlluminaGenotypingArray.bead_pool_manifest_file" : "gs://gcp-public-data--broad-references/arrays/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1.bpm",
   "IlluminaGenotypingArray.extended_chip_manifest_file" : "gs://gcp-public-data--broad-references/arrays/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1.1.3.extended.csv",

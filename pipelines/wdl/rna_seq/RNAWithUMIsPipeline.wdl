@@ -20,7 +20,7 @@ import "../../../tasks/wdl/RNAWithUMIsTasks.wdl" as tasks
 
 workflow RNAWithUMIsPipeline {
 
-  String pipeline_version = "1.0.19"
+  String pipeline_version = "1.0.20"
 
   input {
     File? bam
@@ -48,6 +48,14 @@ workflow RNAWithUMIsPipeline {
 
     File population_vcf
     File population_vcf_index
+
+    String? billing_project
+
+  }
+
+
+  if (false) {
+    String? none = "None"
   }
 
   parameter_meta {
@@ -179,7 +187,8 @@ workflow RNAWithUMIsPipeline {
 
   call tasks.GetSampleName {
     input:
-      bam = bam_to_use
+      bam = bam_to_use,
+      billing_project = billing_project
   }
 
   call tasks.rnaseqc2 {

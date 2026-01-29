@@ -3,8 +3,8 @@
     "sample_name": "NA12878",
     "base_file_name": "NA12878",
     "flowcell_unmapped_bams": [
-      "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/bams/D5327.NA12878/H2GCKCCXX.7.unmapped.bam",
-      "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/bams/D5327.NA12878/H2GCKCCXX.8.unmapped.bam"
+      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/D5327.NA12878/H2GCKCCXX.7.unmapped.bam",
+      "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/D5327.NA12878/H2GCKCCXX.8.unmapped.bam"
     ],
     "final_gvcf_base_name": "NA12878",
     "unmapped_bam_suffix": ".unmapped.bam"
@@ -44,8 +44,8 @@
     "break_bands_at_multiples_of": 0
   },
 
-  "ExomeGermlineSingleSample.fingerprint_genotypes_file": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/bams/D5327.NA12878/D5327.NA12878.reference.fingerprint.vcf.gz",
-  "ExomeGermlineSingleSample.fingerprint_genotypes_index": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/bams/D5327.NA12878/D5327.NA12878.reference.fingerprint.vcf.gz.tbi",
+  "ExomeGermlineSingleSample.fingerprint_genotypes_file": "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/D5327.NA12878/D5327.NA12878.reference.fingerprint.vcf.gz",
+  "ExomeGermlineSingleSample.fingerprint_genotypes_index": "gs://pd-test-storage-public/ExomeGermlineSingleSample/input/scientific/D5327.NA12878/D5327.NA12878.reference.fingerprint.vcf.gz.tbi",
   "ExomeGermlineSingleSample.target_interval_list": "gs://broad-references-private/HybSelOligos/whole_exome_illumina_coding_v1/whole_exome_illumina_coding_v1.Homo_sapiens_assembly38.targets.interval_list",
   "ExomeGermlineSingleSample.bait_interval_list": "gs://broad-references-private/HybSelOligos/whole_exome_illumina_coding_v1/whole_exome_illumina_coding_v1.Homo_sapiens_assembly38.baits.interval_list",
   "ExomeGermlineSingleSample.bait_set_name": "whole_exome_illumina_coding_v1",
