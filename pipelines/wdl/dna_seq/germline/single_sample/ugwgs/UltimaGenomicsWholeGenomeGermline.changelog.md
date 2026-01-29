@@ -1,8 +1,8 @@
 # 1.2.2
-2026-01-21 (Date of Last Commit)
+2026-01-29 (Date of Last Commit)
 
 * Moved inputs into new Google buckets. This change does not affect the outputs of the pipeline
-
+* Updated the ReblockGVCF.wdl to be compatible with AWS. This changes does not affect the outputs of the pipeline
 # 1.2.1
 2025-10-09 (Date of Last Commit)
 
