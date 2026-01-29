@@ -308,3 +308,39 @@ task subset_phased_vcf_task {
         bootDiskSizeGb: select_first([runtime_override.boot_disk_gb, runtime_default.boot_disk_gb])
     }
 }
+
+task TabixIndexBgzVcf {
+  input {
+    File vcf_bgz
+    Int cpu = 1
+    Int memory_gb = 2
+    Int disk_gb = 20
+    String? docker
+  }
+
+  command <<<
+    set -euo pipefail
+
+    # Localize input VCF into the working directory with a stable name
+    cp "~{vcf_bgz}" input.vcf.gz
+
+    # Create tabix index (writes input.vcf.gz.tbi)
+    tabix -p vcf input.vcf.gz
+
+    # Sanity check
+    test -s input.vcf.gz.tbi
+  >>>
+
+  output {
+    File vcf_local = "input.vcf.gz"
+    File tbi = "input.vcf.gz.tbi"
+  }
+
+  runtime {
+    cpu: cpu
+    memory: "~{memory_gb} GB"
+    disks: "local-disk ~{disk_gb} HDD"
+    docker: select_first([docker, "quay.io/biocontainers/htslib:1.20--h81da01d_0"])
+  }
+}
+
