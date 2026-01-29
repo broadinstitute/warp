@@ -1,12 +1,8 @@
-# 2.4.5
-2026-01-28 (Date of Last Commit)
-
-* Replace Azure docker with AWS docker
-
 # 2.4.4
-2026-01-21 (Date of Last Commit)
+2026-01-29 (Date of Last Commit)
 
 * Moved inputs into new Google buckets. This change does not affect the outputs of the pipeline
+* Replace Azure docker with AWS docker
 
 # 2.4.3
 2025-10-09 (Date of Last Commit)
