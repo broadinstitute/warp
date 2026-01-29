@@ -23,7 +23,7 @@ This README explains how the pieces fit together and what each WDL component pro
    * [2. Genotype Preparation (`Prepare_VCF`)](#2-genotype-preparation-prepare_vcf)
    * [3. Genotype Dosage Calculation](#3-genotype-dosage-calculation)
    * [4. RNA Alignment, Counts and Splicing BED](#4-rna-alignment-counts-and-splicing-bed)
-   * [5. RNA Phenotype Preparation (`Prepare_eQTL`)](#4-rna-phenotype-preparation-prepare_eqtl)
+   * [5. RNA Phenotype Preparation (`Prepare_eQTL`)](#5-rna-phenotype-preparation-prepare_eqtl)
    * [6. Covariate Creation (`MergeCovariates`)](#5-covariate-creation-mergecovariates)
    * [7. cis-eQTL Mapping (TensorQTL)](#6-cis-eqtl-mapping-tensorqtl)
    * [8. FDR Recalculation & Fine-Mapping Prep](#7-fdr-recalculation--fine-mapping-prep)
