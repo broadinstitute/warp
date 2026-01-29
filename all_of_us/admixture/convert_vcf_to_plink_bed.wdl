@@ -7,7 +7,7 @@ workflow convert_vcf_to_plink_bed {
         File merged_vcf_shards
         File merged_vcf_shards_idx
     }
-	String pipeline_version="aou_9.0.0"
+    String pipeline_version = "aou_9.0.1"
 
     call convert_vcf_to_plink_bed {
         input:
