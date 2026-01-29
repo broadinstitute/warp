@@ -3,7 +3,7 @@
     "sample_name": "NA12878",
     "base_file_name": "NA12878.huge-ubam",
     "flowcell_unmapped_bams": [
-        "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/RP-518.NA12878/H0164ALXX.2.Solexa-272222.unmapped.bam"
+        "gs://pd-test-storage-public/WholeGenomeGermlineSingleSample/input/scientific/RP-518.NA12878/H0164ALXX.2.Solexa-272222.unmapped.bam"
     ],
     "final_gvcf_base_name": "NA12878.huge-ubam",
     "unmapped_bam_suffix": ".unmapped.bam"
@@ -44,7 +44,7 @@
     "break_bands_at_multiples_of": 1000000
   },
 
-  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_file": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/fingerprint_vcfs/RP-518.NA12878.reference.fingerprint.vcf",
+  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_file": "gs://pd-test-storage-public/WholeGenomeGermlineSingleSample/input/scientific/RP-518.NA12878/RP-518.NA12878.reference.fingerprint.vcf",
   "WholeGenomeGermlineSingleSample.wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
 
   "WholeGenomeGermlineSingleSample.papi_settings": {

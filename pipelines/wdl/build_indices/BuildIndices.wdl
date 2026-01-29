@@ -29,7 +29,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.0.2"
+  String pipeline_version = "5.0.3"
 
 
   parameter_meta {
@@ -66,7 +66,8 @@ workflow BuildIndices {
         genome_build = genome_build,
         genome_source = genome_source,
         organism = organism,
-        skip_gtf_modification = skip_gtf_modification
+        skip_gtf_modification = skip_gtf_modification,
+        mito_accession = select_first([mito_accession])
     }
     call CalculateChromosomeSizes {
       input:
@@ -79,7 +80,8 @@ workflow BuildIndices {
         genome_source = genome_source,
         genome_build = genome_build,
         gtf_annotation_version = gtf_annotation_version,
-        organism = organism
+        organism = organism,
+        mito_accession = select_first([mito_accession])
     }
 
     call RecordMetadata {
@@ -274,6 +276,7 @@ task BuildStarSingleNucleus {
     File biotypes
     Boolean skip_gtf_modification
     Int disk = 100
+    String? mito_accession
   }
 
   meta {
@@ -377,6 +380,27 @@ task BuildStarSingleNucleus {
         cp ${GTF_FILE} ~{annotation_gtf_modified}
     fi
 
+    # --- Remove duplicate mito contig if mito_accession is set
+    if [ -n "~{mito_accession}" ]; then
+      echo "mito_accession provided: ~{mito_accession}"
+
+      if grep -q "^>~{mito_accession}$" ~{genome_fa}; then
+        echo "Removing duplicate contig ~{mito_accession} from FASTA..."
+
+        awk -v acc="~{mito_accession}" '
+          BEGIN { deleted = 0 }
+          $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
+          /^>/ { skip = 0 }
+          !skip
+          ' ~{genome_fa} > genome_mito.filtered.fasta
+        mv genome_mito.filtered.fasta ~{genome_fa}
+      else
+        echo "Contig ~{mito_accession} not found; skipping removal."
+      fi
+    else
+        echo "No mito_accession provided, skipping contig removal."
+    fi
+
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
@@ -387,7 +411,6 @@ task BuildStarSingleNucleus {
     --limitGenomeGenerateRAM=43375752629
 
     tar -cvf ~{star_index_name} star
-
   >>>
 
   output {
@@ -417,6 +440,7 @@ task BuildBWAreference {
     String genome_build
     # Organism can be Macaque, Mouse, Human, etc.
     String organism
+    String? mito_accession
   }
 
 String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{genome_build}"
@@ -431,6 +455,29 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
     else
       mv ~{genome_fa} genome/genome.fa
     fi
+
+    # --- Remove duplicate contig if mito_accession is provided ---
+    if [ -n "~{mito_accession}" ]; then
+      echo "mito_accession provided: ~{mito_accession}"
+
+      if grep -q "^>~{mito_accession}$" genome/genome.fa; then
+        echo "Removing duplicate contig ~{mito_accession} from FASTA..."
+
+        awk -v acc="~{mito_accession}" '
+          BEGIN { deleted = 0 }
+          $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
+          /^>/ { skip = 0 }
+          !skip
+        ' genome/genome.fa > genome/genome.filtered.fa
+
+        mv genome/genome.filtered.fa genome/genome.fa
+      else
+        echo "Contig ~{mito_accession} not found in genome.fa, no removal needed."
+      fi
+    else
+        echo "No mito_accession provided, skipping contig removal."
+    fi
+
     bwa-mem2 index genome/genome.fa
     tar --dereference -cvf - genome/ > ~{reference_name}.tar
   >>>
