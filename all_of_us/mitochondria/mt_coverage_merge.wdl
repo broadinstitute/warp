@@ -82,7 +82,7 @@ workflow mt_coverage_merge {
             call merge_mt_shards as merge_round_1 {
                 input:
                     mt_list_tsv = mt_list_tsv,
-                    out_mt_name = basename(mt_list_tsv, ".tsv") + ".mt",
+                    out_mt_name = "merge_round_1_" + basename(mt_list_tsv, ".tsv") + ".mt",
                     chunk_size = step3_merge_fanin
             }
         }
@@ -94,35 +94,60 @@ workflow mt_coverage_merge {
                 fanin = step3_merge_fanin
         }
 
-        scatter (mt_list_tsv in make_merge_groups_2.mt_list_tsvs) {
-            call merge_mt_shards as merge_round_2 {
-                input:
-                    mt_list_tsv = mt_list_tsv,
-                    out_mt_name = basename(mt_list_tsv, ".tsv") + ".mt",
-                    chunk_size = step3_merge_fanin
+        Boolean do_merge_round_2 = length(make_merge_groups_2.mt_list_tsvs) > 1
+
+        if (do_merge_round_2) {
+            scatter (mt_list_tsv in make_merge_groups_2.mt_list_tsvs) {
+                call merge_mt_shards as merge_round_2 {
+                    input:
+                        mt_list_tsv = mt_list_tsv,
+                        out_mt_name = "merge_round_2_" + basename(mt_list_tsv, ".tsv") + ".mt",
+                        chunk_size = step3_merge_fanin
+                }
             }
         }
 
         # Round 3: merge round-2 outputs (typically small count, but keep general)
-        call make_mt_merge_groups as make_merge_groups_3 {
-            input:
-                mt_tars = merge_round_2.merged_mt_tar,
-                fanin = step3_merge_fanin
-        }
-
-        scatter (mt_list_tsv in make_merge_groups_3.mt_list_tsvs) {
-            call merge_mt_shards as merge_round_3 {
+        if (do_merge_round_2) {
+            # Round 3 only makes sense if round 2 actually ran.
+            call make_mt_merge_groups as make_merge_groups_3 {
                 input:
-                    mt_list_tsv = mt_list_tsv,
-                    out_mt_name = basename(mt_list_tsv, ".tsv") + ".mt",
-                    chunk_size = step3_merge_fanin
+                    mt_tars = select_first([merge_round_2.merged_mt_tar]),
+                    fanin = step3_merge_fanin
+            }
+
+            Boolean do_merge_round_3 = length(make_merge_groups_3.mt_list_tsvs) > 1
+
+            if (do_merge_round_3) {
+                scatter (mt_list_tsv in make_merge_groups_3.mt_list_tsvs) {
+                    call merge_mt_shards as merge_round_3 {
+                        input:
+                            mt_list_tsv = mt_list_tsv,
+                            out_mt_name = "merge_round_3_" + basename(mt_list_tsv, ".tsv") + ".mt",
+                            chunk_size = step3_merge_fanin
+                    }
+                }
             }
         }
 
         # Finalize: apply covdb homref/DP + artifact filter once on the final merged MT
+        # Choose the deepest merge output that exists (round3 > round2 > round1).
+
+        File? round3_tar
+        if (defined(merge_round_3.merged_mt_tar)) {
+            File round3_tar = merge_round_3.merged_mt_tar[0]
+        }
+
+        File? round2_tar
+        if (do_merge_round_2) {
+            File round2_tar = merge_round_2.merged_mt_tar[0]
+        }
+
+        File final_mt_tar = select_first([round3_tar, round2_tar, merge_round_1.merged_mt_tar[0]])
+
         call finalize_mt_with_covdb {
             input:
-                in_mt_tar = merge_round_3.merged_mt_tar[0],
+                in_mt_tar = final_mt_tar,
                 coverage_db_tar = annotate_coverage.output_ht,
                 file_name = combined_mt_name
         }
@@ -322,7 +347,7 @@ task build_vcf_shard_mt {
 
 task make_mt_merge_groups {
     input {
-        Array[String] mt_tars
+        Array[File] mt_tars
         Int fanin = 10
 
         # Runtime parameters
@@ -334,7 +359,7 @@ task make_mt_merge_groups {
     command <<<
         set -euxo pipefail
 
-        # Serialize the Array[File] into a newline-delimited string for Python.
+    # Serialize the Array[File] into a newline-delimited string for Python.
         # IMPORTANT: export it so the heredoc Python process inherits it.
         # Using newlines avoids shell word-splitting surprises.
         export MT_TARS=$'~{sep="\\n" mt_tars}'
@@ -389,7 +414,7 @@ task merge_mt_shards {
         # Runtime parameters
         Int memory_gb = 128
         Int cpu = 16
-    Int disk_gb = 1500
+        Int disk_gb = 1500
         String disk_type = "SSD"
     }
 
@@ -457,11 +482,12 @@ task merge_mt_shards {
             --min-partitions ~{min_partitions} \
             ~{if overwrite then "--overwrite" else ""}
 
-        tar -czf merged_mt.tar.gz -C ./results "~{out_mt_name}"
+        # Use a unique tarball name per call to avoid collisions across scatter shards and merge rounds.
+        tar -czf "~{out_mt_name}.tar.gz" -C ./results "~{out_mt_name}"
     >>>
 
     output {
-        File merged_mt_tar = "merged_mt.tar.gz"
+        File merged_mt_tar = "~{out_mt_name}.tar.gz"
     }
 
     runtime {
