@@ -412,60 +412,42 @@ task merge_mt_shards {
         # NOTE: mt_list_tsv may contain gs:// URIs. We download them *inside the task* (not as inputs)
         # to avoid localizing all tarballs for every task shard.
         mkdir -p ./inputs
-        python3 <<'EOF'
-        import csv
-        import os
-        import subprocess
 
-        def _download(src: str, dest: str) -> None:
-            if src.startswith("gs://"):
-                # Prefer gcloud storage (new) but fall back to gsutil if needed.
-                try:
-                    subprocess.check_call(["gcloud", "storage", "cp", src, dest])
-                    return
-                except FileNotFoundError:
-                    pass
-                except subprocess.CalledProcessError:
-                    pass
-                subprocess.check_call(["gsutil", "cp", src, dest])
-            else:
-                # Assume it's already local.
-                if src != dest:
-                    subprocess.check_call(["cp", "-f", src, dest])
+        # Sanity-check that required cloud tooling exists (baked into our :dev image)
+        command -v gcloud
 
-        os.makedirs("inputs", exist_ok=True)
+        # mt_list_tsv has a header: mt_tar
+        # For each tar path (usually gs://...), download locally, untar, and write a manifest of local *.mt dirs.
+        printf "mt_path\n" > ./inputs/mt_paths.tsv
 
-        with open("~{mt_list_tsv}", "r") as f:
-            reader = csv.DictReader(f, delimiter="\t")
-            rows = list(reader)
-        if len(rows) == 0:
-            raise RuntimeError("mt_list_tsv contained 0 rows")
+        i=0
+        tail -n +2 ~{mt_list_tsv} | while IFS=$'\t' read -r mt_tar extra; do
+          if [ -z "${mt_tar}" ]; then
+            continue
+          fi
 
-        # Expect header mt_tar
-        if "mt_tar" not in rows[0]:
-            raise RuntimeError("mt_list_tsv missing header 'mt_tar'")
+          local_tar="./inputs/mt_$(printf '%05d' ${i}).tar.gz"
+          dest_dir="./inputs/mt_$(printf '%05d' ${i}).extract"
+          mkdir -p "${dest_dir}"
 
-        out_list = os.path.join("inputs", "mt_paths.tsv")
-        with open(out_list, "w") as out:
-            out.write("mt_path\n")
-            for i, r in enumerate(rows):
-                tar_path = r["mt_tar"]
-                if not tar_path:
-                    continue
-                local_tar = os.path.join("inputs", f"mt_{i:05d}.tar.gz")
-                _download(tar_path, local_tar)
-                dest_dir = os.path.join("inputs", f"mt_{i:05d}.mt")
-                os.makedirs(dest_dir, exist_ok=True)
-                # Extract tar into dest_dir
-                subprocess.check_call(["tar", "-xzf", local_tar, "-C", dest_dir])
+          if [[ "${mt_tar}" == gs://* ]]; then
+            gcloud storage cp "${mt_tar}" "${local_tar}"
+          else
+            cp -f "${mt_tar}" "${local_tar}"
+          fi
 
-                # Find the single .mt directory inside dest_dir
-                entries = [x for x in os.listdir(dest_dir) if x.endswith(".mt")]
-                if len(entries) != 1:
-                    raise RuntimeError(f"Expected exactly one .mt dir in {dest_dir}, found {entries}")
-                out.write(os.path.join(dest_dir, entries[0]) + "\n")
-        print(f"Wrote localized MT path manifest: {out_list}")
-        EOF
+          tar -xzf "${local_tar}" -C "${dest_dir}"
+
+          mt_dir=$(find "${dest_dir}" -maxdepth 2 -type d -name "*.mt" | head -n 1)
+          if [ -z "${mt_dir}" ]; then
+            echo "ERROR: could not find .mt directory after extracting ${local_tar}" >&2
+            find "${dest_dir}" -maxdepth 3 -type d | head -100 >&2
+            exit 1
+          fi
+          printf "%s\n" "${mt_dir}" >> ./inputs/mt_paths.tsv
+
+          i=$((i+1))
+        done
 
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/merge_mt_shards.py \
             --mt-list-tsv ./inputs/mt_paths.tsv \
