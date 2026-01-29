@@ -131,25 +131,33 @@ workflow mt_coverage_merge {
         }
 
         # Finalize: apply covdb homref/DP + artifact filter once on the final merged MT
-        # Choose the deepest merge output that exists (round3 > round2 > round1).
-
-        File? round3_tar
-        if (defined(merge_round_3.merged_mt_tar)) {
-            File round3_tar = merge_round_3.merged_mt_tar[0]
-        }
-
-        File? round2_tar
+        # Finalize on the deepest merge output that exists.
         if (do_merge_round_2) {
-            File round2_tar = merge_round_2.merged_mt_tar[0]
+            if (defined(merge_round_3.merged_mt_tar)) {
+                call finalize_mt_with_covdb as finalize_mt_with_covdb_round3 {
+                    input:
+                        in_mt_tar = merge_round_3.merged_mt_tar[0],
+                        coverage_db_tar = annotate_coverage.output_ht,
+                        file_name = combined_mt_name
+                }
+            }
+            if (!defined(merge_round_3.merged_mt_tar)) {
+                call finalize_mt_with_covdb as finalize_mt_with_covdb_round2 {
+                    input:
+                        in_mt_tar = merge_round_2.merged_mt_tar[0],
+                        coverage_db_tar = annotate_coverage.output_ht,
+                        file_name = combined_mt_name
+                }
+            }
         }
 
-        File final_mt_tar = select_first([round3_tar, round2_tar, merge_round_1.merged_mt_tar[0]])
-
-        call finalize_mt_with_covdb {
-            input:
-                in_mt_tar = final_mt_tar,
-                coverage_db_tar = annotate_coverage.output_ht,
-                file_name = combined_mt_name
+        if (!do_merge_round_2) {
+            call finalize_mt_with_covdb as finalize_mt_with_covdb_round1 {
+                input:
+                    in_mt_tar = merge_round_1.merged_mt_tar[0],
+                    coverage_db_tar = annotate_coverage.output_ht,
+                    file_name = combined_mt_name
+            }
         }
     }
 
@@ -185,7 +193,9 @@ workflow mt_coverage_merge {
         File processed_tsv = process_tsv_files.processed_tsv
         File output_coverage_ht = annotate_coverage.output_ht
         File combined_mt_tar = select_first([
-            finalize_mt_with_covdb.results_tar,
+            finalize_mt_with_covdb_round3.results_tar,
+            finalize_mt_with_covdb_round2.results_tar,
+            finalize_mt_with_covdb_round1.results_tar,
             combine_vcfs_and_homref_from_covdb.results_tar
         ])
         #File combined_vcf = combine_vcfs.results_tar
