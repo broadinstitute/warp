@@ -8,7 +8,7 @@ workflow run_admixture {
         File fam
     }
 
-	String pipeline_version="aou_9.0.1"
+    String pipeline_version="aou_9.0.2"
 
     call run_admixture {
         input:
