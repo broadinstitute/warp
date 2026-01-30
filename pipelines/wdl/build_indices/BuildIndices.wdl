@@ -224,7 +224,7 @@ task AppendMitoGTF {
 
     # Concatenate the original GTF and the mito GTF
     echo "Combining GTF files..."
-    cat "${ORIGINAL_FILE}" mito_only.gtf > combined_annotations.gtf
+    cat mito_only.gtf "${ORIGINAL_FILE}" > combined_annotations.gtf
 
   >>>
 
