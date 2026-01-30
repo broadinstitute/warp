@@ -227,7 +227,7 @@ This step is optional but useful for interpretation and downstream reporting.
 
 ## 11. SuSiE Aggregation
 
-The [AggreateSusie WDL](./AggregateSusieWorkflow.wdl) aggregates fine-mapping results across all phenotypes.
+The [AggregateSusie WDL](./AggregateSusieWorkflow.wdl) aggregates fine-mapping results across all phenotypes.
 
 Inputs:
 
