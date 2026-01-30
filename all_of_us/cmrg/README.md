@@ -1,10 +1,6 @@
-Below is a **copy/paste-ready** `README.md` for the folder containing the **CMRG calling WDLs** (plus a high-level note about the external GVS workflow).
-
----
-
 # CMRG Variant Calling Workflows (WDL)
 
-This directory contains WDL workflows used for **CMRG analysis** variant calling and preparation steps. In broad strokes, these workflows support:
+This directory contains WDL workflows used for **Challenging Medically Relevant Genes (CMRG) analysis** variant calling and preparation steps. In broad strokes, these workflows support:
 
 1. Subsetting reads to CMRG-relevant regions
 2. Remapping reads in problematic (“false duplication”) regions using **FixItFelix** against a masked GRCh38 reference
