@@ -222,9 +222,15 @@ task AppendMitoGTF {
       ORIGINAL_FILE="~{original_gtf}"
     fi
 
-    # Concatenate the original GTF and the mito GTF
+    # Extract header lines (starting with #) from original GTF
+    grep "^#" "${ORIGINAL_FILE}" > header.gtf || true
+
+    # Extract non-header lines from original GTF
+    grep -v "^#" "${ORIGINAL_FILE}" > original_no_header.gtf
+
+    # Concatenate: header, then mito, then original annotations
     echo "Combining GTF files..."
-    cat mito_only.gtf "${ORIGINAL_FILE}" > combined_annotations.gtf
+    cat header.gtf mito_only.gtf original_no_header.gtf > combined_annotations.gtf
 
   >>>
 
