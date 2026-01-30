@@ -1,4 +1,4 @@
-# CMRG Variant Calling Workflows (WDL)
+# Challenging Medically Relevant Genes Variant Calling Workflows (WDL)
 
 This directory contains WDL workflows used for **Challenging Medically Relevant Genes (CMRG) analysis** variant calling and preparation steps. In broad strokes, these workflows support:
 
