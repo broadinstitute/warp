@@ -30,6 +30,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/CalculatePhenotypeGroups.wdl
   
+  - name: convert_vcf_to_plink_bed
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/admixture/convert_vcf_to_plink_bed.wdl
+  
   - name: CramToUnmappedBams
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
@@ -143,7 +147,10 @@ workflows:
   - name: run_preprocess_admixture_est_rye
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/run_preprocess_admixture_est_rye.wdl
-
+  
+  - name: run_admixture
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/admixture/run_admixture.wdl
   - name: run_admixture_est_rye
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/run_admixture_est_rye.wdl
