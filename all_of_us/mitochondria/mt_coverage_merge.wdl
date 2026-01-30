@@ -136,7 +136,7 @@ workflow mt_coverage_merge {
             if (defined(merge_round_3.merged_mt_tar)) {
                 call finalize_mt_with_covdb as finalize_mt_with_covdb_round3 {
                     input:
-                        in_mt_tar = merge_round_3.merged_mt_tar[0],
+                        in_mt_tar = select_first([merge_round_3.merged_mt_tar])[0],
                         coverage_db_tar = annotate_coverage.output_ht,
                         file_name = combined_mt_name
                 }
@@ -179,7 +179,7 @@ workflow mt_coverage_merge {
     #        keep_all_samples = true,
     #        output_name = "annotated"
     #}
-    
+
 
     #call add_annotations as filt_annotated {
     #    input:
