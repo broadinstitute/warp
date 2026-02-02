@@ -10,6 +10,8 @@ workflow Glimpse2Imputation {
         Int calling_batch_size
         Int calling_mem_gb
 
+        Array[String] contigs
+
         File? input_vcf
         File? input_vcf_index
         Array[File]? crams
@@ -79,7 +81,14 @@ workflow Glimpse2Imputation {
         File merged_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, BcftoolsCall.output_vcf_index[0]])
     }
 
-    scatter (reference_chunk in read_lines(reference_chunks)) {
+    call ComputeShardsAndMemoryPerShard {
+        input:
+            reference_chunks_memory = reference_chunks,
+            contigs = contigs,
+            n_samples = 50  ## doesnt matter right now
+    }
+
+    scatter (reference_chunk in ComputeShardsAndMemoryPerShard.reference_chunk_file_paths) {
         if (!defined(cpu_phase) || !defined(mem_gb_phase)) {
             call GetNumberOfSitesInChunk {
                 input:
@@ -218,6 +227,45 @@ task SplitIntoBatches {
         Array[Array[String]] crams_batches = read_json('crams.json')
         Array[Array[String]] cram_indices_batches = read_json('cram_indices.json')
         Array[Array[String]] sample_ids_batches = read_json('sample_ids.json')
+    }
+}
+
+task ComputeShardsAndMemoryPerShard {
+    input {
+        File reference_chunks_memory
+        Array[String] contigs
+        Int n_samples
+    }
+
+    command <<<
+        python3 << EOF
+        import pandas as pd
+        import numpy as np
+
+
+        df = pd.read_csv('~{reference_chunks_memory}', sep='\t', header=None, names=['contig', 'reference_shard', 'base_gb', 'slope_per_sample_gb'])
+
+        # filter dataframe by contig list
+        chromosomes_to_filter = ["~{sep='", "' contigs}"]
+        filtered_df = df[df['contig'].isin(chromosomes_to_filter)]
+
+        # write out reference shards to process
+        filtered_df['reference_shard'].to_csv('reference_shard_file_paths.tsv', sep='\t', index=False, header=None)
+
+        # calculate memory usage and save to file
+        filtered_df['mem_gb'] = filtered_df['base_gb'] + filtered_df['slope_per_sample_gb'] * ~{n_samples}
+        filtered_df['mem_gb'] = filtered_df['mem_gb'].apply(lambda x: min(256, int(np.ceil(x))))  # cap at 256 GB
+        filtered_df['mem_gb'].to_csv('memory_per_chunk.tsv', sep='\t', index=False, header=None)
+        EOF
+    >>>
+
+    runtime {
+        docker : "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+    }
+
+    output {
+        Array[String] reference_chunk_file_paths = read_lines("reference_shard_file_paths.tsv")
+        Array[Int] mem_gb_per_chunk = read_lines("memory_per_chunk.tsv")
     }
 }
 
