@@ -370,7 +370,7 @@ task make_mt_merge_groups {
     command <<<
         set -euxo pipefail
 
-    # Serialize the Array[File] into a newline-delimited string for Python.
+        # Serialize the Array[File] into a newline-delimited string for Python.
         # IMPORTANT: export it so the heredoc Python process inherits it.
         # Using newlines avoids shell word-splitting surprises.
         export MT_TARS=$'~{sep="\\n" mt_tars}'
