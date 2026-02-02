@@ -29,7 +29,7 @@ workflow Glimpse2Imputation {
         Int? n_main
         Int? effective_population_size
 
-        Int preemptible = 9
+        Int preemptible = 30
         String docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
         String docker_extract_num_sites_from_reference_chunk = "us.gcr.io/broad-dsde-methods/glimpse_extract_num_sites_from_reference_chunks:michaelgatzen_edc7f3a"
         Int cpu_ligate = 4
@@ -206,11 +206,11 @@ task SplitIntoBatches {
         sample_ids_batches = [sample_ids[i:i + batch_size] for i in range(0, len(sample_ids), batch_size)]
 
         with open('crams.json', 'w') as json_file:
-        json.dump(crams_batches, json_file)
+            json.dump(crams_batches, json_file)
         with open('cram_indices.json', 'w') as json_file:
-        json.dump(cram_indices_batches, json_file)
+            json.dump(cram_indices_batches, json_file)
         with open('sample_ids.json', 'w') as json_file:
-        json.dump(sample_ids_batches, json_file)
+            json.dump(sample_ids_batches, json_file)
         EOF
         python3 script.py
     >>>
@@ -298,7 +298,7 @@ task BcftoolsCall {
         sample_ids=(~{sep=' ' sample_ids})
 
         for i in "${!crams[@]}"; do
-        echo "* ${crams[$i]} ${sample_ids[$i]}" >> sample_name_mapping.txt
+            echo "* ${crams[$i]} ${sample_ids[$i]}" >> sample_name_mapping.txt
         done
 
         bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I" else ""} -G sample_name_mapping.txt -E -a 'FORMAT/DP,FORMAT/AD' -T ~{sites_vcf} -Ou ~{sep=" " crams} \
@@ -402,19 +402,19 @@ task GlimpsePhase {
 
         duplicate_cram_filenames=$(printf "%s\n" "${cram_paths[@]}" | xargs -I {} basename {} | sort | uniq -d)
         if [ ! -z "$duplicate_cram_filenames" ]; then
-        echo "ERROR: The input CRAMs contain multiple files with the same basename, which leads to an error due to the way that htslib is implemented. Duplicate filenames:"
-        printf "%s\n" "${duplicate_cram_filenames[@]}"
-        exit 1
+            echo "ERROR: The input CRAMs contain multiple files with the same basename, which leads to an error due to the way that htslib is implemented. Duplicate filenames:"
+            printf "%s\n" "${duplicate_cram_filenames[@]}"
+            exit 1
         fi
 
         if ~{if defined(cram_indices) then "true" else "false"}; then
-        for i in "${!cram_paths[@]}" ; do
-        echo -e "${cram_paths[$i]}##idx##${cram_index_paths[$i]} ${sample_ids[$i]}" >> crams.list
-        done
+            for i in "${!cram_paths[@]}" ; do
+                echo -e "${cram_paths[$i]}##idx##${cram_index_paths[$i]} ${sample_ids[$i]}" >> crams.list
+            done
         else
-        for i in "${!cram_paths[@]}"; do
-        echo -e "${cram_paths[$i]} ${sample_ids[$i]}" >> crams.list
-        done
+            for i in "${!cram_paths[@]}"; do
+                echo -e "${cram_paths[$i]} ${sample_ids[$i]}" >> crams.list
+            done
         fi
 
         cmd="/bin/GLIMPSE2_phase \
@@ -430,7 +430,7 @@ task GlimpsePhase {
         --checkpoint-file-out checkpoint.bin"
 
         if [ -s "checkpoint.bin" ]; then
-        cmd="$cmd --checkpoint-file-in checkpoint.bin"
+            cmd="$cmd --checkpoint-file-in checkpoint.bin"
         fi
 
 
@@ -443,7 +443,7 @@ task GlimpsePhase {
         eval $cmd 2> >(tee glimpse_stderr.log >&2)
 
         if grep -q "EOF marker is absent" glimpse_stderr.log; then
-        echo "An input file appears to be truncated.  This may be either a truly truncated file which needs to be fixed, or a networking error which can just be retried."
+            echo "An input file appears to be truncated.  This may be either a truly truncated file which needs to be fixed, or a networking error which can just be retried."
         exit 1
         fi
     >>>
@@ -653,10 +653,10 @@ task SelectResourceParameters {
         #estimated_needed_memory_gb = math.ceil(1.2 * estimated_needed_memory_gb)
 
         with open("n_cpus_request.txt", "w") as f_cpus_request:
-        f_cpus_request.write(f'{int(threads_to_use)}')
+            f_cpus_request.write(f'{int(threads_to_use)}')
 
         with open("memory_gb.txt", "w") as f_mem:
-        f_mem.write(f'{int(estimated_needed_memory_gb)}')
+            f_mem.write(f'{int(estimated_needed_memory_gb)}')
         EOF
     >>>
 
@@ -683,22 +683,22 @@ task CombineCoverageMetrics
         cov_files=( ~{sep=" " cov_metrics} )
 
         for i in "${!cov_files[@]}"; do
-        if [ $i -eq 0 ]; then
-        n_skip=1
-        echo 'Chunk' > chunk_col.txt
-        else
-        n_skip=2
-        fi
-        # glimpse coverage metrics are formatted to be human readable in a command line, not machine readable or consistent.  ie, number of tabs
-        # are variable between columns depending on length of sample names, odd things like that.  We want these to be machine readable tables,
-        # so need to fix this.
-        zcat ${cov_files[$i]} | tail -n +$((n_skip + 1)) | sed s/%//g | sed s/"No data"/"No data pct"/g | sed s/\\t\\t/\\t/g >> cov_file.txt
-        n_lines_cov=$(< cov_file.txt wc -l)
-        n_lines_chunk=$(< chunk_col.txt wc -l)
-        n_lines_out=$((n_lines_cov-n_lines_chunk))
-        echo 'n_lines_out=' ${n_lines_out}
-        echo ${cov_files[$i]}
-        { yes ${i} || :; } | head -n ${n_lines_out} >> chunk_col.txt
+            if [ $i -eq 0 ]; then
+                n_skip=1
+                echo 'Chunk' > chunk_col.txt
+            else
+                n_skip=2
+            fi
+            # glimpse coverage metrics are formatted to be human readable in a command line, not machine readable or consistent.  ie, number of tabs
+            # are variable between columns depending on length of sample names, odd things like that.  We want these to be machine readable tables,
+            # so need to fix this.
+            zcat ${cov_files[$i]} | tail -n +$((n_skip + 1)) | sed s/%//g | sed s/"No data"/"No data pct"/g | sed s/\\t\\t/\\t/g >> cov_file.txt
+            n_lines_cov=$(< cov_file.txt wc -l)
+            n_lines_chunk=$(< chunk_col.txt wc -l)
+            n_lines_out=$((n_lines_cov-n_lines_chunk))
+            echo 'n_lines_out=' ${n_lines_out}
+            echo ${cov_files[$i]}
+            { yes ${i} || :; } | head -n ${n_lines_out} >> chunk_col.txt
         done
 
         paste chunk_col.txt cov_file.txt > ~{output_basename}.coverage_metrics.txt
