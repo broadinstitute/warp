@@ -1,5 +1,5 @@
 {
-  "JointGenotyping.sample_name_map": "gs://broad-gotc-test-storage/JointGenotyping/inputs/plumbing/wgs/sample_name_map",
+  "JointGenotyping.sample_name_map": "gs://pd-test-storage-private/JointGenotyping/input/plumbing/sample_name_maps/wgs/sample_name_map/sample_name_map.txt",
   "JointGenotyping.callset_name": "wgs_joint_genotyping_plumbing",
   "JointGenotyping.unbounded_scatter_count_scale_factor": 2.5,
   "JointGenotyping.SplitIntervalList.scatter_mode": "INTERVAL_SUBDIVISION",

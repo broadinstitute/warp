@@ -1,3 +1,9 @@
+# 1.0.7
+2026-01-26 (Date of Last Commit)
+
+* Moved inputs into new Google buckets. This change does not affect the outputs of the pipeline
+* Added an optional input, billing_project, to specify a billing project when accessing files in a requester pays bucket. This change does not affect the outputs of the pipeline
+
 # 1.0.6
 2026-01-22 (Date of Last Commit)
 

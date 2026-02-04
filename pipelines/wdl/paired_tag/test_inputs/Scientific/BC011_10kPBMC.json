@@ -14,13 +14,13 @@
     "gs://pd-test-storage-public/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L002_R2_001.fastq.gz"
   ],
   "PairedTag.atac_r1_fastq":[
-    "gs://pd-test-storage-public/PairedTag/input/scientific/BC011_S1_L001_R1_001.fastq.gz"
+    "gs://pd-test-storage-public/PairedTag/input/scientific/BC011_10kPBMC/BC011_S1_L001_R1_001.fastq.gz"
   ],
   "PairedTag.atac_r2_fastq":[
-    "gs://pd-test-storage-public/PairedTag/input/scientific/BC011_S1_L001_R2_001.fastq.gz"
+    "gs://pd-test-storage-public/PairedTag/input/scientific/BC011_10kPBMC/BC011_S1_L001_R2_001.fastq.gz"
   ],
   "PairedTag.atac_r3_fastq":[
-    "gs://pd-test-storage-public/PairedTag/input/scientific/BC011_S1_L001_R3_001.fastq.gz"
+    "gs://pd-test-storage-public/PairedTag/input/scientific/BC011_10kPBMC/BC011_S1_L001_R3_001.fastq.gz"
   ],
   "PairedTag.chrom_sizes":"gs://pd-test-storage-public/Multiome/input/hg38.chrom.sizes",
   "PairedTag.preindex":"true",

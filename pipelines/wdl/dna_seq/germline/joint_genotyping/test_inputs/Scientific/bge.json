@@ -1,5 +1,5 @@
 {
-  "JointGenotyping.sample_name_map": "gs://broad-gotc-test-storage/JointGenotyping/inputs/scientific/bge/BGE_JG_test_sample_map.txt",
+  "JointGenotyping.sample_name_map": "gs://pd-test-storage-private/JointGenotyping/input/scientific/sample_name_maps/bge/BGE_JG_test_sample_map/BGE_JG_test_sample_map.txt",
   "JointGenotyping.callset_name": "bge_joint_genotyping",
   "JointGenotyping.run_vets": true,
 
@@ -7,8 +7,8 @@
   "JointGenotyping.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
   "JointGenotyping.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
   "JointGenotyping.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
-  "JointGenotyping.eval_interval_list": "gs://broad-gotc-test-storage/JointGenotyping/inputs/scientific/bge/TwistAllianceClinicalResearchExome_Covered_Targets_hg38.interval_list",
-  "JointGenotyping.targets_interval_list": "gs://broad-gotc-test-storage/JointGenotyping/inputs/scientific/bge/TwistAllianceClinicalResearchExome_Covered_Targets_hg38.interval_list",
+  "JointGenotyping.eval_interval_list": "gs://pd-test-storage-private/JointGenotyping/input/scientific/bge/TwistAllianceClinicalResearchExome_Covered_Targets_hg38.interval_list",
+  "JointGenotyping.targets_interval_list": "gs://pd-test-storage-private/JointGenotyping/input/scientific/bge/TwistAllianceClinicalResearchExome_Covered_Targets_hg38.interval_list",
   "JointGenotyping.haplotype_database": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
 
   "JointGenotyping.axiomPoly_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz",

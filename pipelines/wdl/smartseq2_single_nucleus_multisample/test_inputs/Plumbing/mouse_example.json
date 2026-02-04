@@ -2,16 +2,16 @@
   "MultiSampleSmartSeq2SingleNucleus.genome_ref_fasta": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_mm10.primary_assembly.genome.fa",
   "MultiSampleSmartSeq2SingleNucleus.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/star/modified_star_2.7.9a_primary_gencode_mouse_vM23.tar",
   "MultiSampleSmartSeq2SingleNucleus.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_gencode.vM23.primary_assembly.annotation.gtf",
-  "MultiSampleSmartSeq2SingleNucleus.adapter_list": "gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/adapters/Illumina_adapters_list.fa",
+  "MultiSampleSmartSeq2SingleNucleus.adapter_list": "gs://pd-test-storage-public/Smartseq2_Single_Nucleus_Multisample/input/plumbing/SM-GE644/adapters/Illumina_adapters_list.fa",
   "MultiSampleSmartSeq2SingleNucleus.fastq1_input_files": [
-    "gs://broad-gotc-test-storage/Smartseq2_Single_Nucleus_Multisample/truth/plumbing/master/pr_test_truth/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R1.fastq.gz",
-    "gs://broad-gotc-test-storage/Smartseq2_Single_Nucleus_Multisample/truth/plumbing/master/pr_test_truth/SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA_R1.fastq.gz",
-    "gs://broad-gotc-test-storage/Smartseq2_Single_Nucleus_Multisample/truth/plumbing/master/pr_test_truth/SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT_R1.fastq.gz"
+    "gs://pd-test-storage-public/Smartseq2_Single_Nucleus_Multisample/input/plumbing/SM-GE644/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R1.fastq.gz",
+    "gs://pd-test-storage-public/Smartseq2_Single_Nucleus_Multisample/input/plumbing/SM-GE644/SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA_R1.fastq.gz",
+    "gs://pd-test-storage-public/Smartseq2_Single_Nucleus_Multisample/input/plumbing/SM-GE644/SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT_R1.fastq.gz"
   ],
   "MultiSampleSmartSeq2SingleNucleus.fastq2_input_files": [
-    "gs://broad-gotc-test-storage/Smartseq2_Single_Nucleus_Multisample/truth/plumbing/master/pr_test_truth/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R2.fastq.gz",
-    "gs://broad-gotc-test-storage/Smartseq2_Single_Nucleus_Multisample/truth/plumbing/master/pr_test_truth/SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA_R2.fastq.gz",
-    "gs://broad-gotc-test-storage/Smartseq2_Single_Nucleus_Multisample/truth/plumbing/master/pr_test_truth/SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT_R2.fastq.gz"
+    "gs://pd-test-storage-public/Smartseq2_Single_Nucleus_Multisample/input/plumbing/SM-GE644/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R2.fastq.gz",
+    "gs://pd-test-storage-public/Smartseq2_Single_Nucleus_Multisample/input/plumbing/SM-GE644/SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA_R2.fastq.gz",
+    "gs://pd-test-storage-public/Smartseq2_Single_Nucleus_Multisample/input/plumbing/SM-GE644/SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT_R2.fastq.gz"
   ],
   "MultiSampleSmartSeq2SingleNucleus.input_ids": [
     "SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",

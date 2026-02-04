@@ -25,7 +25,7 @@
 * Added reference genome/GTF headers to fragment file via new string inputs
 
 # 6.0.5
-2025-06-18 (Date of Last Commit) 
+2025-06-18 (Date of Last Commit)
 
 * Added the exclude_chroms input parameter to the snap.metrics.tsse function in the CreateFragmentFile task of the ATAC pipeline; which is a list of chromosomes to exclude in per cell metric computation. The default value is [chrM, M]
 
