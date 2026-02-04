@@ -89,7 +89,7 @@ workflow Glimpse2Imputation {
     }
 
     scatter (reference_chunk in ComputeShardsAndMemoryPerShard.reference_chunk_file_paths) {
-        if (!defined(cpu_phase) || !defined(mem_gb_phase)) {
+       # if (!defined(cpu_phase) || !defined(mem_gb_phase)) {
             call GetNumberOfSitesInChunk {
                 input:
                     reference_chunk = reference_chunk,
@@ -120,7 +120,7 @@ workflow Glimpse2Imputation {
                 Int safety_check_memory_gb = -1
                 Int safety_check_n_cpu = -1
             }
-        }
+        #}
 
         call GlimpsePhase {
             input:
