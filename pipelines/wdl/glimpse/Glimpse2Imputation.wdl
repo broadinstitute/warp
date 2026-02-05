@@ -93,7 +93,7 @@ workflow Glimpse2Imputation {
     }
 
     scatter (reference_chunk in ComputeShardsAndMemoryPerShard.reference_chunk_file_paths) {
-       # if (!defined(cpu_phase) || !defined(mem_gb_phase)) {
+        if (!defined(cpu_phase) || !defined(mem_gb_phase)) {
             call GetNumberOfSitesInChunk {
                 input:
                     reference_chunk = reference_chunk,
@@ -124,7 +124,7 @@ workflow Glimpse2Imputation {
                 Int safety_check_memory_gb = -1
                 Int safety_check_n_cpu = -1
             }
-        #}
+        }
 
         call GlimpsePhase {
             input:
@@ -141,8 +141,7 @@ workflow Glimpse2Imputation {
                 fasta_index = fasta_index,
                 preemptible = preemptible,
                 docker = docker,
-                #cpu = select_first([cpu_phase, safety_check_n_cpu, SelectResourceParameters.request_n_cpus]),
-                cpu = 1,
+                cpu = select_first([cpu_phase, safety_check_n_cpu, SelectResourceParameters.request_n_cpus]),
                 mem_gb = select_first([mem_gb_phase, safety_check_memory_gb, SelectResourceParameters.memory_gb]),
                 monitoring_script = monitoring_script
         }
@@ -651,7 +650,8 @@ task SelectResourceParameters {
         n_sites = n_common + n_rare
 
         # try to keep expected runtime under 4 hours, but don't ask for more than 32 cpus, or 256 GB memory
-        estimated_needed_threads = min(math.ceil(5e-6*n_sites*n_samples/240), 32)
+        #estimated_needed_threads = min(math.ceil(5e-6*n_sites*n_samples/240), 32)
+        estimated_needed_threads = 1 # hard coded to one for testing by jsoto
         estimated_needed_memory_gb = min(math.ceil((800e-3 + 0.97e-6 * n_rare * estimated_needed_threads + 14.6e-6 * n_common * estimated_needed_threads + 6.5e-9 * (n_rare + n_common) * n_samples + 13.7e-3 * n_samples + 1.8e-6*(n_rare + n_common)*math.log(n_samples))), 256)
         # recalc allowable threads, may be some additional threads available due to rounding memory up
         threads_to_use = max(math.floor((estimated_needed_memory_gb - (800e-3 + 6.5e-9 * (n_rare + n_common) * n_samples + 13.7e-3 * n_samples + 1.8e-6*(n_rare + n_common)*math.log(n_samples)))/(0.97e-6 * n_rare + 14.6e-6 * n_common)), 1)
