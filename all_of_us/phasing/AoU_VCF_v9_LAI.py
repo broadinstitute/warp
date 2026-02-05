@@ -112,14 +112,12 @@ if USE_REGION_FILTER:
 ALT_MAX = 31 # VARIABLE!!!
 mt = mt.filter_rows(hl.len(mt.alleles) < (ALT_MAX+2))
 
-## ANNOTATE ENTRIES
-mt = mt.annotate_entries(
-    GT = hl.vds.lgt_to_gt(mt.LGT, mt.LA),
-    AD = hl.vds.local_to_global(mt.LAD,
-                                mt.LA,
-                                n_alleles = hl.len(mt.alleles),
-                                fill_value = 0,
-                                number = 'R'))
+## ANNOTATE ENTRIES (dense MT: no VDS local->global conversion)
+# Keep GT/AD as they already exist; just ensure they exist
+if 'GT' not in mt.entry:
+    raise ValueError("Expected entry field 'GT' in dense MT, but it is missing.")
+if 'AD' not in mt.entry:
+    raise ValueError("Expected entry field 'AD' in dense MT, but it is missing.")
 
 mt = mt.annotate_entries(
     sumAD = hl.sum(mt.AD))
