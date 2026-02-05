@@ -79,7 +79,7 @@ task Flare {
     output {
         File log_file = "~{basename}.log"
         File? model_file = "~{basename}.model"
-        File local_ancestry_vcf = "~{basename}.anc.vcf.gz)"
+        File local_ancestry_vcf = "~{basename}.anc.vcf.gz"
         File global_ancestry_file = "~{basename}.global.anc.gz"
     }
 
