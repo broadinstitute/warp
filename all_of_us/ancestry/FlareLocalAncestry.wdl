@@ -50,6 +50,7 @@ task Flare {
         String basename
 
         File? model
+        Int seed = 12345
 
         Int cpu = 1
         Int memory_mb = 6000
@@ -68,6 +69,9 @@ task Flare {
         ref-panel=~{ref_panel_mapping_file} \
         map=~{plink_map_file} \
         gt=~{analysis_vcf} \
+        seed=~{seed} \
+        nthreads=~{cpu} \
+        ~{"em=false model=" + model} \
         out=~{basename}
 
     >>>
