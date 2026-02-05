@@ -64,7 +64,7 @@ task Flare {
     command <<<
         set -euo pipefail
 
-        java -Xms~{command_mem}m -Xmx~{max_heap}m" -jar flare.jar \
+        java -Xms~{command_mem}m -Xmx~{max_heap}m -jar flare.jar \
         ref=~{reference_vcf} \
         ref-panel=~{ref_panel_mapping_file} \
         map=~{plink_map_file} \
