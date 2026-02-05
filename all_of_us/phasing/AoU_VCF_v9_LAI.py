@@ -2,7 +2,7 @@
 from datetime import datetime
 import os
 import pandas as pd
-from all_of_us.phasing.AoU_VCF_v9 import VDS
+from all_of_us.phasing.AoU_VCF_v9_LAI import GNOMAD_MT
 import numpy as np
 import argparse
 import subprocess
