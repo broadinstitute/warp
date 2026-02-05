@@ -103,6 +103,7 @@ task susieR {
     }
 
     command <<<
+        set -euo pipefail
         Rscript ~{susie_rscript} \
             --genotype_matrix ~{GenotypeDosages} \
             --sample_meta ~{SampleList} \
