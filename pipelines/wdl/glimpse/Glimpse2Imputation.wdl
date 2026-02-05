@@ -5,6 +5,8 @@ workflow Glimpse2Imputation {
         # List of files, one per line
         File reference_chunks
         File sites_vcf
+        File sites_table
+        File sites_table_index
 
         Int bcftools_threads
         Int calling_batch_size
@@ -63,6 +65,8 @@ workflow Glimpse2Imputation {
                     fasta_index = fasta_index,
                     call_indels = call_indels,
                     sites_vcf = sites_vcf,
+                    sites_table = sites_table,
+                    sites_table_index = sites_table_index,
                     cpu = bcftools_threads,
                     mem_gb = calling_mem_gb
             }
@@ -137,7 +141,8 @@ workflow Glimpse2Imputation {
                 fasta_index = fasta_index,
                 preemptible = preemptible,
                 docker = docker,
-                cpu = select_first([cpu_phase, safety_check_n_cpu, SelectResourceParameters.request_n_cpus]),
+                #cpu = select_first([cpu_phase, safety_check_n_cpu, SelectResourceParameters.request_n_cpus]),
+                cpu = 1,
                 mem_gb = select_first([mem_gb_phase, safety_check_memory_gb, SelectResourceParameters.memory_gb]),
                 monitoring_script = monitoring_script
         }
