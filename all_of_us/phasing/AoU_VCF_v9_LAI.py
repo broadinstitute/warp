@@ -140,6 +140,7 @@ mt = mt.annotate_rows(
 fields_to_drop = ['LAD', 'truth_sensitivity_snp_threshold', 'truth_sensitivity_indel_threshold', 'as_vets',
                   'LGT', 'LA', 'FT', 'PS', 'RGQ', 'LAD', 'sumAD', 'GQ', 'AD']
 
+existing_fields = [f for f in fields_to_drop if f in mt.entry or f in mt.row]
 mt = mt.drop(*fields_to_drop)
 
 ## APPLY ROW FILTERS
@@ -164,6 +165,7 @@ mt_fil = mt_fil.annotate_rows(
                      AVSAD = mt_fil.average_variant_sum_AD))
 
 fields_to_drop = ['variant_qc', 'infor', 'maximum_variant_AC', 'defined_AD', 'average_variant_sum_AD']
+existing_fields = [f for f in fields_to_drop if f in mt.entry or f in mt.row]
 
 mt_fil = mt_fil.drop(*fields_to_drop)
 
