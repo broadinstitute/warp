@@ -171,6 +171,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_sample_outlier_qc_plotting.wdl
 
+  - name: FlareLocalAncestry
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/ancestry/FlareLocalAncestry.wdl
+
   - name: Smartseq2_Single_Nucleus
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl
