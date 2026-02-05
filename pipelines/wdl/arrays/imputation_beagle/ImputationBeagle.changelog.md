@@ -1,3 +1,8 @@
+# 2.5.0
+2026-01-27 (Date of Last Commit)
+
+* Updates Phase and Impute tasks docker image to remove trailing zeros from AF and DR2 annotations in the output VCF.
+
 # 2.4.2
 2025-12-23 (Date of Last Commit)
 
