@@ -4,10 +4,10 @@ workflow mt_coverage_merge {
 
     input {
         # Side inputs with fields that are not incoporated in the samples table
-        String coverage_tsv
-        String ancestry_tsv
-        String dob_tsv
-
+        File coverage_tsv
+        File ancestry_tsv
+        File dob_tsv
+        File wgs_median_coverage_tsv 
 
         File full_data_tsv
         File? sample_list_tsv
@@ -16,13 +16,13 @@ workflow mt_coverage_merge {
 
     String pipeline_version = "1.0.0"
 
-if (defined(sample_list_tsv)) {
-    call subset_data_table {
-        input:
-            full_data_tsv = full_data_tsv,
-            sample_list_tsv = sample_list_tsv
-        }
-}
+    if (defined(sample_list_tsv)) {
+        call subset_data_table {
+            input:
+                full_data_tsv = full_data_tsv,
+                sample_list_tsv = sample_list_tsv
+            }
+    }
 
     File input_table = select_first([subset_data_table.subset_tsv, full_data_tsv])
 
@@ -32,6 +32,7 @@ if (defined(sample_list_tsv)) {
             coverage_tsv = coverage_tsv,
             ancestry_tsv = ancestry_tsv,
             dob_tsv = dob_tsv,
+            wgs_median_coverage_tsv = wgs_median_coverage_tsv,
             input_tsv = input_table
     }
 
@@ -79,6 +80,11 @@ task subset_data_table {
     input {
         File full_data_tsv
         File? sample_list_tsv
+
+        # Runtime parameters
+        Int memory_gb = 16
+        Int cpu = 4 
+        Int disk_gb = 100
     }
 
     String output_tsv = basename(select_first([sample_list_tsv, full_data_tsv]), ".tsv") + "_data.tsv"
@@ -86,29 +92,29 @@ task subset_data_table {
     command <<<
     set -euxo pipefail
     python3 <<'EOF'
-import pandas as pd
-import sys
+    import pandas as pd
+    import sys
 
-# If sample_list_tsv is not defined, just copy the full TSV
-if "~{sample_list_tsv}" == "":
+    # If sample_list_tsv is not defined, just copy the full TSV
+    if "~{sample_list_tsv}" == "":
+        df_main = pd.read_csv("~{full_data_tsv}", sep="\t", dtype=str)
+        df_main.to_csv("~{output_tsv}", sep="\t", index=False)
+        sys.exit(0)
+
     df_main = pd.read_csv("~{full_data_tsv}", sep="\t", dtype=str)
-    df_main.to_csv("~{output_tsv}", sep="\t", index=False)
-    sys.exit(0)
+    df_samples = pd.read_csv("~{sample_list_tsv}", sep="\t", header=None, names=["sample_id"], dtype=str)
 
-df_main = pd.read_csv("~{full_data_tsv}", sep="\t", dtype=str)
-df_samples = pd.read_csv("~{sample_list_tsv}", sep="\t", header=None, names=["sample_id"], dtype=str)
+    # Check if TSV has header (Terra-style: entity:sample_id)
+    first_col = df_main.columns[0]
+    if first_col.startswith("entity:"):
+        id_col = first_col
+    else:
+        sys.exit("ERROR: Unrecognized format for sample ID column in the full data TSV.")
 
-# Check if TSV has header (Terra-style: entity:sample_id)
-first_col = df_main.columns[0]
-if first_col.startswith("entity:"):
-    id_col = first_col
-else:
-    sys.exit("ERROR: Unrecognized format for sample ID column in the full data TSV.")
+    df_subset = df_main[df_main[id_col].isin(df_samples["sample_id"])]
 
-df_subset = df_main[df_main[id_col].isin(df_samples["sample_id"])]
-
-df_subset.to_csv("~{output_tsv}", sep="\t", index=False)
-EOF
+    df_subset.to_csv("~{output_tsv}", sep="\t", index=False)
+    EOF
     >>>
 
     output {
@@ -117,8 +123,9 @@ EOF
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/python-numpy-pandas:1.0.0-2.2.3-1.25.2"
-        memory: "4 GB"
-        cpu: "2"
+        memory: memory_gb + " GB" 
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " HDD"
     }
 }
 
@@ -127,8 +134,14 @@ task process_tsv_files {
         File coverage_tsv  # Path to genomics_metrics_Dec142023_1859_02_tz0000.tsv
         File ancestry_tsv  # Path to echo_v4_r2.ancestry_preds.tsv
         File dob_tsv       # Path to echo_DoB_data.tsv
+        File wgs_median_coverage_tsv  # Path to wgs_median_coverage.tsv
         File input_tsv     # Input TSV file to process
         String output_tsv_name = "processed_data.tsv"  # Name of the output TSV file
+
+        # Runtime parameters
+        Int memory_gb = 16
+        Int cpu = 4 
+        Int disk_gb = 100
     }
 
     command <<<
@@ -143,70 +156,88 @@ task process_tsv_files {
         df = pd.read_csv("~{input_tsv}", sep="\t")
 
         # Define only the required columns
-        columns_needed = ["research_id", "final_base_level_coverage_metrics", "sample", "final_vcf"]
-
+        columns_needed = ["contamination", 
+                          "coverage_metrics", 
+                          "final_base_level_coverage_metrics", 
+                          "major_haplogroup",
+                          "mean_coverage", 
+                          "median_coverage", 
+                          "mtdna_consensus_overlaps",
+                          "final_vcf", 
+                          "research_id"] 
+        
         # Keep only necessary columns
+        #filtered_df = df[columns_needed]
+     
+        # We're actually just going to keep all the columns and see if that fixes a type issue that is arising downstream
         filtered_df = df
 
         # Add and rename columns
         filtered_df["s"] = filtered_df["research_id"]
         filtered_df = filtered_df.rename(columns={
-        "research_id": "participant_id",
+            "research_id": "entity:participant_id",
             "final_base_level_coverage_metrics": "coverage",
-            "mt_final_vcf": "final_vcf"
-        })
-        filtered_df_2 = filtered_df.rename(columns={
-            "participant_id": "entity:participant_id",
             "mean_coverage": "mt_mean_coverage",
-            "median_coverage": "mt_median_coverage",
-            "mt_final_vcf": "final_vcf"
+            "median_coverage": "mt_median_coverage"
         })
-        filtered_df_2["freemix_percentage"] = 0
 
         # Load additional TSV files
         coveragetsv_df = pd.read_csv("~{coverage_tsv}", sep="\t")
         ancestrytsv_df = pd.read_csv("~{ancestry_tsv}", sep="\t")
         dobtsv_df = pd.read_csv("~{dob_tsv}", sep="\t")
+        medcoveragetsv_df = pd.read_csv("~{wgs_median_coverage_tsv}", sep="\t")
 
         # Merge with filtered_df on 'research_id' and 's'
-        filtered_df_2 = filtered_df_2.merge(
-            coveragetsv_df[['research_id', 'mean_coverage', 'biosample_collection_date']],
-        left_on='s', right_on='research_id', how='left'
+        filtered_df = filtered_df.merge(
+            coveragetsv_df[['research_id', 'mean_coverage', 'biosample_collection_date', 'verify_bam_id2_contamination']],
+            left_on='s', right_on='research_id', how='left'
         )
-        filtered_df_2.drop(columns=['research_id'], inplace=True)
-        filtered_df_2 = filtered_df_2.merge(
+        filtered_df.drop(columns=['research_id'], inplace=True)
+        filtered_df = filtered_df.merge(
             ancestrytsv_df[['research_id', 'ancestry_pred']],
             left_on='s', right_on='research_id', how='left'
         )
-        filtered_df_2.drop(columns=['research_id'], inplace=True)
-        filtered_df_2 = filtered_df_2.merge(
+        filtered_df.drop(columns=['research_id'], inplace=True)
+        filtered_df = filtered_df.merge(
             dobtsv_df[['research_id', 'date_of_birth']],
             left_on='s', right_on='research_id', how='left'
         )
-        filtered_df_2.drop(columns=['research_id'], inplace=True)
+        filtered_df.drop(columns=['research_id'], inplace=True)
+        filtered_df = filtered_df.merge(
+            medcoveragetsv_df[['research_id', 'median_coverage']],
+            left_on='s', right_on='research_id', how='left'
+        )
+        filtered_df.drop(columns=['research_id'], inplace=True)
+
+        # Add a check to ensure that our filtered_df has the same number of samples (shape[0]) as the original df
+        if filtered_df.shape[0] != df.shape[0]:
+            raise ValueError("Filtered DataFrame does not have the same number of samples as the original.")
 
         # Calculate age
-        filtered_df_2['date_of_birth'] = pd.to_datetime(filtered_df_2['date_of_birth'])
-        filtered_df_2['biosample_collection_date'] = pd.to_datetime(filtered_df_2['biosample_collection_date'])
-        filtered_df_2['age'] = pd.to_numeric(
-            np.floor((filtered_df_2['biosample_collection_date'] - filtered_df_2['date_of_birth']).dt.days / 365)
+        filtered_df['date_of_birth'] = pd.to_datetime(filtered_df['date_of_birth'])
+        filtered_df['biosample_collection_date'] = pd.to_datetime(filtered_df['biosample_collection_date'])
+        filtered_df['age'] = pd.to_numeric(
+            np.floor((filtered_df['biosample_collection_date'] - filtered_df['date_of_birth']).dt.days / 365)
         )
-        filtered_df_2['age'] = filtered_df_2['age'].fillna(39).astype(int)
+
+        # Age must be an int and must be present
+        filtered_df['age'] = filtered_df['age'].astype(int)
+        if filtered_df['age'].isna().any():
+            raise ValueError("Unexpected missing ages detected.")
 
         # Rename columns for compatibility
-        filtered_df_2.rename(columns={"mean_coverage": "wgs_mean_coverage"}, inplace=True)
-        filtered_df_2.rename(columns={"ancestry_pred": "pop"}, inplace=True)
-
-        # Temporary workaround
-        filtered_df_2["wgs_median_coverage"] = filtered_df_2["wgs_mean_coverage"]
+        filtered_df.rename(columns={"mean_coverage": "wgs_mean_coverage"}, inplace=True)
+        filtered_df.rename(columns={"median_coverage": "wgs_median_coverage"}, inplace=True)
+        filtered_df.rename(columns={"ancestry_pred": "pop"}, inplace=True)
+        filtered_df.rename(columns={"verify_bam_id2_contamination": "freemix_percentage"}, inplace=True)
 
         # Filter rows with valid coverage metrics
-        filtered_df_2 = filtered_df_2[
-            (filtered_df_2['coverage_metrics'].notna()) & (filtered_df_2['coverage_metrics'] != '')
+        filtered_df = filtered_df[
+            (filtered_df['coverage_metrics'].notna()) & (filtered_df['coverage_metrics'] != '')
         ]
 
         # Save the processed DataFrame to a TSV file
-        filtered_df_2.to_csv("~{output_tsv_name}", sep="\t", index=False)
+        filtered_df.to_csv("~{output_tsv_name}", sep="\t", index=False)
         EOF
     >>>
 
@@ -216,8 +247,9 @@ task process_tsv_files {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/python-numpy-pandas:1.0.0-2.2.3-1.25.2"
-        memory: "4 GB"
-        cpu: "2"
+        memory: memory_gb + " GB" 
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " HDD"
     }
 }
 
@@ -229,6 +261,13 @@ task annotate_coverage {
         Boolean keep_targets = false  # Add annotation for target (default: false)
         Boolean hail_only = false  # Skip generating flat files (default: false)
         Int? split_merging = 10  # Number of jobs for splitting merging (default: 1)
+
+        # Runtime parameters
+        Int memory_gb = 64 #1000
+        Int cpu = 16 #64
+        Int disk_gb = 500 #2000
+        String disk_type = "HDD" #"SSD"
+        String cpu_platform = "Intel Ice Lake"
     }
 
     command <<<
@@ -239,6 +278,15 @@ task annotate_coverage {
 
         WORK_DIR=$(pwd)
 
+        # Set the spark config via environment variables
+        export SPARK_LOCAL_DIRS="$PWD/tmp"
+
+        DRIVER_MEM_GB=$((~{memory_gb} - 4))
+        if [ "$DRIVER_MEM_GB" -lt 2 ]; then DRIVER_MEM_GB=4; fi
+
+        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
+        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
+        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"  
 
         # Run the annotate_coverage.py script
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/annotate_coverage.py \
@@ -266,9 +314,10 @@ task annotate_coverage {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
-        memory: "8 GB"
-        cpu: "24"
-        disks: "local-disk 100 SSD"
+        memory: memory_gb + " GB" 
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " " + disk_type 
+        cpu_platform: cpu_platform
     }
 }
 
@@ -282,6 +331,13 @@ task combine_vcfs {
         String output_bucket = "./results"    # Output bucket path
         String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"  # Path to artifact-prone sites BED file
         String file_name        # Output file name
+
+        # Runtime parameters
+        Int memory_gb = 64 #1000
+        Int cpu = 16 #64
+        Int disk_gb = 500 #2000
+        String disk_type = "HDD" #"SSD"
+        String cpu_platform = "Intel Ice Lake"
     }
 
     command <<<
@@ -291,6 +347,16 @@ task combine_vcfs {
         mkdir -p ./results
 
         WORK_DIR=$(pwd)
+
+        # Set the spark config via environment variables
+        export SPARK_LOCAL_DIRS="$PWD/tmp"
+
+        DRIVER_MEM_GB=$((~{memory_gb} - 4))
+        if [ "$DRIVER_MEM_GB" -lt 2 ]; then DRIVER_MEM_GB=4; fi
+
+        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
+        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
+        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"  
 
         # Unzip the tar.gz file containing the Hail table
         mkdir -p ./unzipped_coverage.ht
@@ -329,9 +395,10 @@ task combine_vcfs {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
-        memory: "8 GB"
-        cpu: "4"
-        disks: "local-disk 50 SSD"
+        memory: memory_gb + " GB" 
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " " + disk_type 
+        cpu_platform: cpu_platform
     }
 }
 
@@ -342,12 +409,29 @@ task add_annotations {
         String coverage_tsv     # Path to the coverage input TSV file
         File vcf_mt             # Path to the MatrixTable
         String output_name      # directory output name
+        
+        # Runtime parameters
+        Int memory_gb = 64 #1000
+        Int cpu = 16 #64
+        Int disk_gb = 500 #2000
+        String disk_type = "HDD" #"SSD"
+        String cpu_platform = "Intel Ice Lake"
     }
 
      command <<<
         set -euxo pipefail
 
         WORK_DIR=$(pwd)
+
+        # Set the spark config via environment variables
+        export SPARK_LOCAL_DIRS="$PWD/tmp"
+
+        DRIVER_MEM_GB=$((~{memory_gb} - 4))
+        if [ "$DRIVER_MEM_GB" -lt 2 ]; then DRIVER_MEM_GB=4; fi
+
+        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
+        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
+        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"  
 
         # Unzip coverage MatrixTable tarball
         mkdir -p ./unzipped_coverage.mt
@@ -387,8 +471,9 @@ task add_annotations {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
-        memory: "8 GB"
-        cpu: "4"
-        disks: "local-disk 50 SSD"
+        memory: memory_gb + " GB" 
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " " + disk_type 
+        cpu_platform: cpu_platform
     }
 }
