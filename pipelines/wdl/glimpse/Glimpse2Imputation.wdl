@@ -330,8 +330,8 @@ task BcftoolsMerge {
         Array[File] vcfs
         Array[File] vcf_indices
         Int mem_gb = 4
-        Int cpu = 2
-        Int preemptible = 1
+        Int cpu = 1
+        Int preemptible = 0
 
         String output_basename
     }
