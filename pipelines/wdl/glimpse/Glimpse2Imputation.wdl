@@ -153,7 +153,6 @@ workflow Glimpse2Imputation {
             imputed_chunks_indices = GlimpsePhase.imputed_vcf_index,
             output_basename = output_basename,
             ref_dict = ref_dict,
-            preemptible = preemptible,
             docker = docker,
             cpu = cpu_ligate,
             mem_gb = mem_gb_ligate,
@@ -477,10 +476,10 @@ task GlimpseLigate {
         String output_basename
         File ref_dict
 
-        Int mem_gb = 4
-        Int cpu = 4
+        Int mem_gb = 6
+        Int cpu = 2
         Int disk_size_gb = ceil(2.2 * size(imputed_chunks, "GiB") + 100)
-        Int preemptible = 1
+        Int preemptible = 0
         Int max_retries = 3
         String docker
     }
