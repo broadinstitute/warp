@@ -101,6 +101,7 @@ VDS_FIL = GNOMAD_MT.filter_rows(GNOMAD_MT.locus.contig == CHR_VAR)
 
 ## "DENSIFY" STEP NOT NEEDED FOR DENSE MT — keep variable name anyway
 mt = VDS_FIL
+mt.describe()
 
 ## NEW: FILTER BY GENOMIC REGION (OPTIONAL)
 if USE_REGION_FILTER:
@@ -141,7 +142,7 @@ fields_to_drop = ['LAD', 'truth_sensitivity_snp_threshold', 'truth_sensitivity_i
                   'LGT', 'LA', 'FT', 'PS', 'RGQ', 'LAD', 'sumAD', 'GQ', 'AD']
 
 existing_fields = [f for f in fields_to_drop if f in mt.entry or f in mt.row]
-mt = mt.drop(*fields_to_drop)
+mt = mt.drop(*existing_fields)
 
 ## APPLY ROW FILTERS
 # Filter the matrixtable
@@ -167,7 +168,11 @@ mt_fil = mt_fil.annotate_rows(
 fields_to_drop = ['variant_qc', 'infor', 'maximum_variant_AC', 'defined_AD', 'average_variant_sum_AD']
 existing_fields = [f for f in fields_to_drop if f in mt.entry or f in mt.row]
 
-mt_fil = mt_fil.drop(*fields_to_drop)
+mt_fil = mt_fil.drop(*existing_fields)
+
+# then drop adj if it somehow remains
+if 'adj' in mt_fil.entry:
+    mt_fil = mt_fil.drop('adj')
 
 ## CREATE AND STORE VCF HEADER
 vcf_metadata = """##fileformat=VCFv4.2
