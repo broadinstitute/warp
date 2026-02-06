@@ -126,6 +126,7 @@ mt = mt.annotate_entries(
 ## ANNOTATE ROWS
 mt = hl.variant_qc(mt)
 
+
 mt = mt.annotate_rows(
     infor = hl.struct(AC = mt.variant_qc.AC[1:],
                       AF = mt.variant_qc.AF[1:],
@@ -146,6 +147,11 @@ mt = mt.drop(*existing_fields)
 
 ## APPLY ROW FILTERS
 # Filter the matrixtable
+mt = mt.filter_rows(
+    (hl.len(mt.alleles) == 2) &
+    hl.is_snp(mt.alleles[0], mt.alleles[1]) &
+    (mt.variant_qc.AC[1] >= 5)
+)
 mt_fil = mt.filter_rows(
     ((mt.defined_AD >= 1) & (mt.average_variant_sum_AD < 14.0)) | # VARIABLE!!! #### Changed from 12.0 to 4.0 - Updated to 14 ####
     (mt.maximum_variant_AC < 2) | # VARIABLE!!!
