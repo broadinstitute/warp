@@ -335,7 +335,7 @@ task BcftoolsMerge {
         String output_basename
     }
 
-    Int disk_size_gb = ceil(2*size(vcfs, "GiB")) + 10
+    Int disk_size_gb = ceil(2.5*size(vcfs, "GiB")) + 10
 
     command <<<
         set -euo pipefail
