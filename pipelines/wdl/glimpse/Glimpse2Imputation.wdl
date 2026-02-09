@@ -38,7 +38,6 @@ workflow Glimpse2Imputation {
         Int mem_gb_ligate = 4
         Int? cpu_phase
         Int? mem_gb_phase
-        File? monitoring_script
     }
 
     if (defined(crams)) {
@@ -142,8 +141,7 @@ workflow Glimpse2Imputation {
                 preemptible = preemptible,
                 docker = docker,
                 cpu = select_first([cpu_phase, safety_check_n_cpu, SelectResourceParameters.request_n_cpus]),
-                mem_gb = select_first([mem_gb_phase, safety_check_memory_gb, SelectResourceParameters.memory_gb]),
-                monitoring_script = monitoring_script
+                mem_gb = select_first([mem_gb_phase, safety_check_memory_gb, SelectResourceParameters.memory_gb])
         }
     }
 
@@ -169,8 +167,7 @@ workflow Glimpse2Imputation {
     call CollectQCMetrics {
         input:
             imputed_vcf = GlimpseLigate.imputed_vcf,
-            output_basename = output_basename,
-            monitoring_script = monitoring_script
+            output_basename = output_basename
     }
 
 
@@ -181,8 +178,6 @@ workflow Glimpse2Imputation {
 
         File qc_metrics = CollectQCMetrics.qc_metrics
         File? coverage_metrics = CombineCoverageMetrics.coverage_metrics
-
-        Array[File?] glimpse_phase_monitoring = GlimpsePhase.monitoring
     }
 }
 
@@ -380,7 +375,6 @@ task GlimpsePhase {
         Int preemptible = 9
         Int max_retries = 3
         String docker
-        File? monitoring_script
     }
 
     parameter_meta {
@@ -397,7 +391,6 @@ task GlimpsePhase {
         set -euo pipefail
 
         export GCS_OAUTH_TOKEN=$(/root/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
-        ~{"bash " + monitoring_script + " > monitoring.log &"}
 
         cram_paths=( ~{sep=" " crams} )
         cram_index_paths=( ~{sep=" " cram_indices} )
@@ -464,7 +457,6 @@ task GlimpsePhase {
     output {
         File imputed_vcf = "phase_output.bcf"
         File imputed_vcf_index = "phase_output.bcf.csi"
-        File? monitoring = "monitoring.log"
         File? coverage_metrics = "phase_output_stats_coverage.txt.gz"
     }
 }
@@ -526,7 +518,6 @@ task CollectQCMetrics {
         String docker = "hailgenetics/hail:0.2.126-py3.11"
         Int cpu = 4
         Int mem_gb = 16
-        File? monitoring_script
     }
 
     parameter_meta {
@@ -539,8 +530,6 @@ task CollectQCMetrics {
 
     command <<<
         set -euo pipefail
-
-        ~{"bash " + monitoring_script + " > monitoring.log &"}
 
         cat <<'EOF' > script.py
         import hail as hl
@@ -569,7 +558,6 @@ task CollectQCMetrics {
 
     output {
         File qc_metrics = "~{output_basename}.qc_metrics.tsv"
-        File? monitoring = "monitoring.log"
     }
 }
 
