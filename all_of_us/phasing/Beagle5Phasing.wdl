@@ -41,22 +41,22 @@ task PhaseWithBeagle {
 
     Int window_markers = 3500000
     String java_xmx
-	File run_beagle_sh
-	Int runtime_cpu = 32
+	  File run_beagle_sh
+	  Int runtime_cpu = 32
     Int mem_gb = 120
-	Int runtime_disk_gb = 2000
+	  Int runtime_disk_gb = 2000
     String runtime_disk_type = "HDD"   # or "SSD"
   }
 
   command <<<
     chmod +x "~{run_beagle_sh}"
-	bash run_beagle.sh \
-      --vcf "~{vcf_gs}" \
-      --map "~{map_gs}" \
-      --out-prefix "~{out_prefix}" \
-      --out-dir "~{out_dir_gs}" \
-      --window-markers "~{window_markers}" \
-      --java-xmx "~{java_xmx}"
+    bash run_beagle.sh \
+        --vcf "~{vcf_gs}" \
+        --map "~{map_gs}" \
+        --out-prefix "~{out_prefix}" \
+        --out-dir "~{out_dir_gs}" \
+        --window-markers "~{window_markers}" \
+        --java-xmx "~{java_xmx}"
   >>>
   output {
 	String phased_vcf_gs = "~{out_dir_gs}/~{out_prefix}.phased.vcf.gz"
