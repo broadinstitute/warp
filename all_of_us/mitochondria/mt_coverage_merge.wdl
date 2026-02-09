@@ -24,6 +24,7 @@ workflow mt_coverage_merge {
         Int step3_shard_size = 2500
         Int step3_merge_fanin = 10
         Int step3_shard_n_partitions = 128
+    String step3_output_bucket
 
     }
 
@@ -67,7 +68,8 @@ workflow mt_coverage_merge {
             call build_vcf_shard_mt {
                 input:
                     shard_tsv = shard_tsv,
-                    n_final_partitions = step3_shard_n_partitions
+                    n_final_partitions = step3_shard_n_partitions,
+                      output_bucket = step3_output_bucket
             }
         }
 
@@ -83,7 +85,8 @@ workflow mt_coverage_merge {
                 input:
                     mt_list_tsv = mt_list_tsv,
                     out_mt_name = "merge_round_1_" + basename(mt_list_tsv, ".tsv") + ".mt",
-                    chunk_size = step3_merge_fanin
+                    chunk_size = step3_merge_fanin,
+                      output_bucket = step3_output_bucket
             }
         }
 
@@ -102,7 +105,8 @@ workflow mt_coverage_merge {
                     input:
                         mt_list_tsv = mt_list_tsv,
                         out_mt_name = "merge_round_2_" + basename(mt_list_tsv, ".tsv") + ".mt",
-                        chunk_size = step3_merge_fanin
+                        chunk_size = step3_merge_fanin,
+                          output_bucket = step3_output_bucket
                 }
             }
         }
@@ -124,7 +128,8 @@ workflow mt_coverage_merge {
                         input:
                             mt_list_tsv = mt_list_tsv,
                             out_mt_name = "merge_round_3_" + basename(mt_list_tsv, ".tsv") + ".mt",
-                            chunk_size = step3_merge_fanin
+                            chunk_size = step3_merge_fanin,
+                            output_bucket = step3_output_bucket
                     }
                 }
             }
@@ -302,6 +307,7 @@ task build_vcf_shard_mt {
         Int n_final_partitions = 128
         Boolean overwrite = false
         Boolean include_extra_v2_fields = true
+        String output_bucket
 
         # Runtime parameters
         Int memory_gb = 64
@@ -342,10 +348,39 @@ task build_vcf_shard_mt {
 
         # Pack as a tar for WDL artifact portability (unique per shard)
         tar -czf "~{out_tar_name}" -C ./results "~{out_mt_dirname}"
+
+        # Copy tarball to stable GCS location for call caching
+        command -v gcloud
+            DEST_ROOT="~{output_bucket}"
+            DEST_ROOT="${DEST_ROOT%/}"
+            DEST_PATH="${DEST_ROOT}/~{out_tar_name}"
+        gcloud storage cp "~{out_tar_name}" "${DEST_PATH}"
+
+        LOCAL_MD5_B64=$(python3 - <<'PY'
+        import base64
+        import hashlib
+
+        path = "~{out_tar_name}"
+        h = hashlib.md5()
+        with open(path, "rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                h.update(chunk)
+        print(base64.b64encode(h.digest()).decode("utf-8"))
+        PY
+        )
+        REMOTE_MD5=$(gcloud storage objects describe "${DEST_PATH}" --format='value(md5Hash)')
+        if [ "${LOCAL_MD5_B64}" != "${REMOTE_MD5}" ]; then
+            echo "ERROR: MD5 mismatch after copy to ${DEST_PATH}" >&2
+            echo "LOCAL_MD5_B64=${LOCAL_MD5_B64}" >&2
+            echo "REMOTE_MD5=${REMOTE_MD5}" >&2
+            exit 1
+        fi
+
+        echo "${DEST_PATH}" > shard_mt_tar_path.txt
     >>>
 
     output {
-        File shard_mt_tar = out_tar_name
+        String shard_mt_tar = read_string("shard_mt_tar_path.txt")
     }
 
     runtime {
@@ -372,7 +407,7 @@ task make_mt_merge_groups {
 
         # Serialize the Array[String] into a newline-delimited string for Python.
         # IMPORTANT: export it so the heredoc Python process inherits it.
-        # Using newlines avoids shell word-splitting surprises.
+        # Using newlines avoids shell word-splitting surprises.0
         export MT_TARS=$'~{sep="\\n" mt_tars}'
         echo "$MT_TARS"
 
@@ -421,6 +456,7 @@ task merge_mt_shards {
         Int chunk_size = 10
         Int min_partitions = 256
         Boolean overwrite = false
+        String output_bucket
 
         # Runtime parameters
         Int memory_gb = 128
@@ -495,10 +531,39 @@ task merge_mt_shards {
 
         # Use a unique tarball name per call to avoid collisions across scatter shards and merge rounds.
         tar -czf "~{out_mt_name}.tar.gz" -C ./results "~{out_mt_name}"
+
+        # Copy tarball to stable GCS location for call caching
+        command -v gcloud
+                    DEST_ROOT="~{output_bucket}"
+                    DEST_ROOT="${DEST_ROOT%/}"
+                    DEST_PATH="${DEST_ROOT}/~{out_mt_name}.tar.gz"
+        gcloud storage cp "~{out_mt_name}.tar.gz" "${DEST_PATH}"
+
+        LOCAL_MD5_B64=$(python3 - <<'PY'
+        import base64
+        import hashlib
+
+        path = "~{out_mt_name}.tar.gz"
+        h = hashlib.md5()
+        with open(path, "rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                h.update(chunk)
+        print(base64.b64encode(h.digest()).decode("utf-8"))
+        PY
+        )
+        REMOTE_MD5=$(gcloud storage objects describe "${DEST_PATH}" --format='value(md5Hash)')
+        if [ "${LOCAL_MD5_B64}" != "${REMOTE_MD5}" ]; then
+            echo "ERROR: MD5 mismatch after copy to ${DEST_PATH}" >&2
+            echo "LOCAL_MD5_B64=${LOCAL_MD5_B64}" >&2
+            echo "REMOTE_MD5=${REMOTE_MD5}" >&2
+            exit 1
+        fi
+
+        echo "${DEST_PATH}" > merged_mt_tar_path.txt
     >>>
 
     output {
-        File merged_mt_tar = "~{out_mt_name}.tar.gz"
+        String merged_mt_tar = read_string("merged_mt_tar_path.txt")
     }
 
     runtime {
@@ -511,7 +576,7 @@ task merge_mt_shards {
 
 task finalize_mt_with_covdb {
     input {
-        File in_mt_tar
+        String in_mt_tar
         File coverage_db_tar
         String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"
         String artifact_prone_sites_reference = "default"
@@ -548,9 +613,17 @@ task finalize_mt_with_covdb {
         tar -xzf ~{coverage_db_tar} -C ./coverage_db
         test -f ./coverage_db/coverage.h5
 
-        # Extract input merged MT tar
+        # Extract input merged MT tar (String path, typically gs://)
         mkdir -p ./input_mt
-        tar -xzf ~{in_mt_tar} -C ./input_mt
+        command -v gcloud
+        IN_TAR_PATH="~{in_mt_tar}"
+        LOCAL_TAR="./input_mt/input_mt.tar.gz"
+        if [[ "${IN_TAR_PATH}" == gs://* ]]; then
+            gcloud storage cp "${IN_TAR_PATH}" "${LOCAL_TAR}"
+        else
+            cp -f "${IN_TAR_PATH}" "${LOCAL_TAR}"
+        fi
+        tar -xzf "${LOCAL_TAR}" -C ./input_mt
         IN_MT_DIR=$(find ./input_mt -maxdepth 2 -type d -name "*.mt" | head -n 1)
         if [ -z "$IN_MT_DIR" ]; then
             echo "ERROR: could not find .mt directory after extracting in_mt_tar" >&2
