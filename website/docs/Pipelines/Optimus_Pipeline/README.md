@@ -89,7 +89,7 @@ The example configuration files also contain metadata for the reference files, d
 | Parameter name | Description | Optional attributes (when applicable) |
 | --- | --- | --- |
 | cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
-| whitelist |  List of known CBs; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) whitelist that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom whitelist can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom whitelist, set the input `ignore_r1_read_length` to "true". | N/A |
+| whitelist |  List of known CBs; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) whitelist that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom whitelist can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom whitelist, set the input `ignore_r1_read_length` to "true". See the table below for custom whitelist options| N/A |
 | read_struct | String describing the structure of reads; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) read structure that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom read structure can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom read structure, set the input `force_no_check` to "true". | N/A |
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/build_indices/BuildIndices.wdl). | N/A |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | N/A |
@@ -109,6 +109,16 @@ The example configuration files also contain metadata for the reference files, d
 | count_exons | Boolean indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**. If true, this option will output an additional layer for the h5ad file. By default, it is set to "false". If the parameter is true and used with sc_rnamode, the workflow will return an error. | "true" or "false" (default) |
 | gex_expected_cells | Optional integer input for the expected number of cells, which is used calculate library-level metrics. The default is set to 3,000. | N/A |
 | run_cellbender | Optional boolean used to determine if the Optimus (GEX) pipeline should run CellBender on the output gene expression h5ad file, `h5ad_output_file_gex`; default is "false".  | Boolean |
+
+#### Barcode whitelist options
+
+| File name                 | Location                                                                            | Description                                                                                                          | Intended Use                                                                                                                 |
+| ------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 737K-august-2016.txt      | gs://gcp-public-data--broad-references/optimus_whitelists/737K-august-2016.txt      | V2 Chemistry gene expression whitelist (now called barcode inclusion list by 10x)                                    | This is the Optimus gene expression whitelist for 3' V2 chemistry                                                            |
+| 3M-february-2018.txt      | gs://gcp-public-data--broad-references/optimus_whitelists/3M-february-2018.txt      | V3 Chemistry gene expression whitelist (now called barcode inclusion list by 10x)                                    | This is the Optimus gene expression whitelist for 3' V3 chemistry                                                            |
+| 3M-3pgex-may-2023.txt     | gs://gcp-public-data--broad-references/optimus_whitelists/3M-3pgex-may-2023.txt     | V4 Chemistry gene expression whitelist (now called barcode inclusion list by 10x) for Cell Ranger v8.0 and v8.0.1    | This is the Optimus gene expression whitelist for 3' V4 chemistry corresponding to kits run with Cell Ranger v8.0 and v8.0.1 |
+| 3M-3pgex-may-2023_TRU.txt | gs://gcp-public-data--broad-references/optimus_whitelists/3M-3pgex-may-2023_TRU.txt | V4 TRU Chemistry gene expression whitelist (now called barcode inclusion list by 10x) for Cell Ranger v9.0 and later | This is the Optimus gene expression whitelist for 3' V4 chemistry corresponding to kits run with Cell Ranger v9.0 and later  |
+| 3M-5pgex-jan-2023.txt     | gs://gcp-public-data--broad-references/optimus_whitelists/3M-5pgex-jan-2023.txt     | Single Cell 5' v3 Chemistry gene expression whitelist (now called barcode inclusion list by 10x)                     | This is the Optimus gene expression whitelist for the 5' v3 Chemistry as used by SlideTags                                   |
 
 #### Pseudogene handling
 The example Optimus reference files are downloaded directly from GENCODE (see Quickstart table) and are not modified to remove pseudogenes. This is in contrast to the [references created for Cell Ranger](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/release-notes/references#header) which remove pseudogenes and small RNAs.
@@ -301,9 +311,9 @@ When citing WARP, please use the following:
 Kylee Degatano, Aseel Awdeh, Robert Sidney Cox III, Wes Dingman, George Grant, Farzaneh Khajouei, Elizabeth Kiernan, Kishori Konwar, Kaylee L Mathews, Kevin Palis, Nikelle Petrillo, Geraldine Van der Auwera, Chengchen (Rex) Wang, Jessica Way. "Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis." _Bioinformatics_, 2025; [https://doi.org/10.1093/bioinformatics/btaf494](https://doi.org/10.1093/bioinformatics/btaf494)
 
 ## Consortia support
-This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project and the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
+This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project, the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN), and the [BRAIN Initiative Cell Atlas Network](www.portal.brain-bican.org) (BICAN). 
 
-Each consortium may use slightly different reference files for data analysis or have different post-processing steps. Learn more by reading the [Consortia Processing](./consortia-processing.md) overview.
+Each consortium may use slightly different reference files for data analysis or have different post-processing steps. Learn more about HCA by reading the [Consortia Processing](./consortia-processing.md) overview.
 
 If your organization also uses this pipeline, we would like to list you! Please reach out to us by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues).
 
