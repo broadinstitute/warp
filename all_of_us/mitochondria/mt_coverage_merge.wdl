@@ -186,24 +186,24 @@ workflow mt_coverage_merge {
         }
     }
 
-    #call add_annotations as annotated {
-    #    input:
-    #        coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
-    #        coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
-    #        vcf_mt = combine_vcfs.results_tar,  # Path to the MatrixTable
-    #        keep_all_samples = true,
-    #        output_name = "annotated"
-    #}
+    call add_annotations as annotated {
+        input:
+            coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
+            coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
+            vcf_mt = combine_vcfs.results_tar,  # Path to the MatrixTable
+            keep_all_samples = true,
+            output_name = "annotated"
+    }
 
 
-    #call add_annotations as filt_annotated {
-    #    input:
-    #        coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
-    #        coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
-    #        vcf_mt = combine_vcfs.results_tar,  # Path to the MatrixTable
-    #        keep_all_samples = false,
-    #        output_name = "filt_annotated"
-    #}
+    call add_annotations as filt_annotated {
+        input:
+            coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
+            coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
+            vcf_mt = combine_vcfs.results_tar,  # Path to the MatrixTable
+            keep_all_samples = false,
+            output_name = "filt_annotated"
+    }
 
     output {
         File processed_tsv = process_tsv_files.processed_tsv
@@ -215,8 +215,8 @@ workflow mt_coverage_merge {
             combine_vcfs_and_homref_from_covdb.results_tar
         ])
         #File combined_vcf = combine_vcfs.results_tar
-        #File annotated_output_tar = annotated.annotated_output_tar
-        #File filt_annotated_output_tar = filt_annotated.annotated_output_tar
+        File annotated_output_tar = annotated.annotated_output_tar
+        File filt_annotated_output_tar = filt_annotated.annotated_output_tar
     }
 }
 
