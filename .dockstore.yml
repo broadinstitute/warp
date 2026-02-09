@@ -21,10 +21,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath:
       /pipelines/wdl/atac/atac.wdl
-      
+
   - name: Beagle5Phasing
     subclass: WDL
-    primaryDescriptorPath: /pipelines/all_of_us/phasing/Beagle5Phasing.wdl
+    primaryDescriptorPath: /all_of_us/phasing/Beagle5Phasing.wdl
   
   - name: BuildIndices
     subclass: WDL
