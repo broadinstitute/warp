@@ -53,7 +53,7 @@ time gcloud storage cp "${vcf_gs}" "${vcf_local}"
 time gcloud storage cp "${map_gs}" "${map_local}"
 
 echo -e "\nRunning beagle:"       1>&2
-java --version
+java -version
 time java -ea -Xmx"${java_xmx}" -jar /opt/beagle/beagle.jar \
   gt="${vcf_local}" \
   map="${map_local}" \
