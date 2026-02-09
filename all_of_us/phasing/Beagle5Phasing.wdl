@@ -50,7 +50,7 @@ task PhaseWithBeagle {
 
   command <<<
     chmod +x "~{run_beagle_sh}"
-    bash run_beagle.sh \
+    bash beagle5_phasing.sh \
         --vcf "~{vcf_gs}" \
         --map "~{map_gs}" \
         --out-prefix "~{out_prefix}" \
