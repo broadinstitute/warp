@@ -93,14 +93,14 @@ GNOMAD_MT = hl.read_matrix_table(GNOMAD_MT_PATH)   # keep variable name, path no
 
 ## FILTER TO CHROMOSOME (row filtering)
 # If CHR_VAR is a single contig string like "1" or "chr1":
-VDS_FIL = GNOMAD_MT.filter_rows(GNOMAD_MT.locus.contig == CHR_VAR)
+MT_FIL = GNOMAD_MT.filter_rows(GNOMAD_MT.locus.contig == CHR_VAR)
 
 # If CHR_VAR might be a list/array of contigs, use this instead:
 # contigs = hl.literal(set(CHR_VAR))
-# VDS_FIL = VDS.filter_rows(contigs.contains(VDS.locus.contig))
+# MT_FIL = MT_FIL.filter_rows(contigs.contains(MT_FIL.locus.contig))
 
 ## "DENSIFY" STEP NOT NEEDED FOR DENSE MT — keep variable name anyway
-mt = VDS_FIL
+mt = MT_FIL
 mt.describe()
 
 ## NEW: FILTER BY GENOMIC REGION (OPTIONAL)
@@ -146,12 +146,13 @@ existing_fields = [f for f in fields_to_drop if f in mt.entry or f in mt.row]
 mt = mt.drop(*existing_fields)
 
 ## APPLY ROW FILTERS
-# Filter the matrixtable
+# Filter the matrixtable for biallelic SNPs with AC >= 5, then apply the more stringent filters to flag low-quality variants but keep them in the dataset for now (filtering to be applied at export time)
 mt = mt.filter_rows(
     (hl.len(mt.alleles) == 2) &
     hl.is_snp(mt.alleles[0], mt.alleles[1]) &
     (mt.variant_qc.AC[1] >= 5)
 )
+# Filter out based on additional qc
 mt_fil = mt.filter_rows(
     ((mt.defined_AD >= 1) & (mt.average_variant_sum_AD < 14.0)) | # VARIABLE!!! #### Changed from 12.0 to 4.0 - Updated to 14 ####
     (mt.maximum_variant_AC < 2) | # VARIABLE!!!
