@@ -97,7 +97,12 @@ workflow mt_coverage_merge {
                 fanin = step3_merge_fanin
         }
 
-        Boolean do_merge_round_2 = length(make_merge_groups_2.mt_list_tsvs) > 1
+        Boolean do_merge_round_2 = (
+            length(make_merge_groups_2.mt_list_tsvs) > 1
+        ) || (
+            length(make_merge_groups_2.mt_list_tsvs) == 1
+            && length(read_lines(make_merge_groups_2.mt_list_tsvs[0])) > 2
+        )
 
         if (do_merge_round_2) {
             scatter (mt_list_tsv in make_merge_groups_2.mt_list_tsvs) {
@@ -120,7 +125,12 @@ workflow mt_coverage_merge {
                     fanin = step3_merge_fanin
             }
 
-            Boolean do_merge_round_3 = length(make_merge_groups_3.mt_list_tsvs) > 1
+            Boolean do_merge_round_3 = (
+                length(make_merge_groups_3.mt_list_tsvs) > 1
+            ) || (
+                length(make_merge_groups_3.mt_list_tsvs) == 1
+                && length(read_lines(make_merge_groups_3.mt_list_tsvs[0])) > 2
+            )
 
             if (do_merge_round_3) {
                 scatter (mt_list_tsv in make_merge_groups_3.mt_list_tsvs) {
