@@ -59,15 +59,15 @@ task PhaseWithBeagle {
         --java-xmx "~{java_xmx}"
   >>>
   output {
-	String phased_vcf_gs = "~{out_dir_gs}/~{out_prefix}.phased.vcf.gz"
-	String phased_log_gs = "~{out_dir_gs}/~{out_prefix}.phased.log"
+	  String phased_vcf_gs = "~{out_dir_gs}/~{out_prefix}.phased.vcf.gz"
+	  String phased_log_gs = "~{out_dir_gs}/~{out_prefix}.phased.log"
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/beagle5:0.0.1"
-	cpu: runtime_cpu
-	memory: mem_gb + " GB"
-	disks: "local-disk ~{runtime_disk_gb} ~{runtime_disk_type}"
+    docker: "us.gcr.io/broad-gotc-prod/beagle5:0.0.2"
+	  cpu: runtime_cpu
+	  memory: mem_gb + " GB"
+	  disks: "local-disk ~{runtime_disk_gb} ~{runtime_disk_type}"
     # plus whatever backend-specific runtime fields you use
   }
 }
