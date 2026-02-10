@@ -67,7 +67,8 @@ workflow BuildIndices {
         genome_source = genome_source,
         organism = organism,
         skip_gtf_modification = skip_gtf_modification,
-        mito_accession = mito_accession
+        mito_accession = select_first([mito_accession]),
+        run_mitofinder = run_mitofinder
     }
     call CalculateChromosomeSizes {
       input:
@@ -81,7 +82,8 @@ workflow BuildIndices {
         genome_build = genome_build,
         gtf_annotation_version = gtf_annotation_version,
         organism = organism,
-        mito_accession = mito_accession
+        mito_accession = select_first([mito_accession]),
+        run_mitofinder = run_mitofinder
     }
 
     call RecordMetadata {
@@ -277,6 +279,7 @@ task BuildStarSingleNucleus {
     Boolean skip_gtf_modification
     Int disk = 100
     String? mito_accession
+    Boolean run_mitofinder
   }
 
   meta {
@@ -381,8 +384,8 @@ task BuildStarSingleNucleus {
     fi
 
     # --- Remove duplicate mito contig if mito_accession is set
-    if [ -n "~{mito_accession}" ]; then
-      echo "mito_accession provided: ~{mito_accession}"
+    if [[ "~{run_mitofinder}" == "true" && -n "~{mito_accession}" ]]; then
+      echo "MitoFinder was run and mito_accession provided: ~{mito_accession}"
 
       if grep -q "^>~{mito_accession}$" ~{genome_fa}; then
         echo "Removing duplicate contig ~{mito_accession} from FASTA..."
@@ -441,6 +444,7 @@ task BuildBWAreference {
     # Organism can be Macaque, Mouse, Human, etc.
     String organism
     String? mito_accession
+    Boolean run_mitofinder
   }
 
 String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{genome_build}"
@@ -457,8 +461,8 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
     fi
 
     # --- Remove duplicate contig if mito_accession is provided ---
-    if [ -n "~{mito_accession}" ]; then
-      echo "mito_accession provided: ~{mito_accession}"
+    if [[ "~{run_mitofinder}" == "true" && -n "~{mito_accession}" ]]; then
+      echo "MitoFinder was run and mito_accession is set to: ~{mito_accession}"
 
       if grep -q "^>~{mito_accession}$" genome/genome.fa; then
         echo "Removing duplicate contig ~{mito_accession} from FASTA..."
