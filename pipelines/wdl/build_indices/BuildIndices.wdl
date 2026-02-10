@@ -54,15 +54,9 @@ workflow BuildIndices {
   }
 
   # Normalized "final" inputs used everywhere downstream
-  File final_genome_fa = select_first([
-    if run_mitofinder then annotate_with_mitofinder.out_fasta else None,
-    genome_fa
-  ])
+  File final_genome_fa = select_first([annotate_with_mitofinder.out_fasta, genome_fa])
 
-  File final_annotations_gtf = select_first([
-    if run_mitofinder then append_mito_gtf.out_gtf else None,
-    annotations_gtf
-  ])
+  File final_annotations_gtf = select_first([append_mito_gtf.out_gtf, annotations_gtf])
 
   call BuildStarSingleNucleus {
     input:
@@ -95,15 +89,15 @@ workflow BuildIndices {
 
   # Centralize what goes into metadata
   Array[File] recorded_inputs = select_all([
-    if run_mitofinder then annotations_gff else None,
+    annotations_gff,
     annotations_gtf,
     biotypes,
     genome_fa
   ])
 
   Array[File] recorded_outputs = select_all([
-    if run_mitofinder then annotate_with_mitofinder.out_fasta else None,
-    if run_mitofinder then append_mito_gtf.out_gtf else None,
+    annotate_with_mitofinder.out_fasta,
+    append_mito_gtf.out_gtf,
     BuildStarSingleNucleus.star_index,
     BuildStarSingleNucleus.modified_annotation_gtf,
     CalculateChromosomeSizes.chrom_sizes,
