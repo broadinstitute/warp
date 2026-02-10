@@ -152,11 +152,13 @@ mt = mt.filter_rows(
     hl.is_snp(mt.alleles[0], mt.alleles[1]) &
     (mt.variant_qc.AC[1] >= 5)
 )
-# Filter out based on additional qc
+# Filter out based on additional qc (remove samples with call rate less than 99%)
 mt_fil = mt.filter_rows(
     ((mt.filters.contains('LowQual')) | 
      (mt.filters.contains('NO_HQ_GENOTYPES')) |
-     (mt.filters.contains('ExcessHet'))),
+     (mt.filters.contains('ExcessHet'))) |
+     (mt.variant_qc.call_rate < 0.99) |
+     (mt.variant_qc.gq_stats.mean < 30.0),
     keep=False)
 
 ## ANNOTATE INFO FIELDS, REMOVE OTHER ETRANEOUS FIELDS
