@@ -1,3 +1,8 @@
+# 1.3.0
+2026-02-04 (Date of Last Commit)
+
+* Lower variant number check to 3 million from 10 million to further prevent whole genome inputs from being submitted
+
 # 1.2.5
 2025-12-23 (Date of Last Commit)
 
