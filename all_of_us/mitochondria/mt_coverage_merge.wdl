@@ -1092,7 +1092,13 @@ task add_annotations {
         # Unzip VCF MatrixTable tarball
         mkdir -p ./unzipped_vcf.mt
         tar -xzf ~{vcf_mt} -C ./unzipped_vcf.mt
-        ls -lh ./unzipped_vcf.mt/results/combined_vcf.vcf.gz.mt
+        VCF_MT_DIR=$(find ./unzipped_vcf.mt -maxdepth 4 -type d -name "*.mt" | head -n 1)
+        if [ -z "${VCF_MT_DIR}" ]; then
+            echo "ERROR: could not find .mt directory after extracting vcf_mt" >&2
+            find ./unzipped_vcf.mt -maxdepth 5 -type d | head -100 >&2
+            exit 1
+        fi
+        ls -lh "${VCF_MT_DIR}"
 
         # Extract coverage DB tarball (coverage.h5 [+ optional summary])
         mkdir -p ./coverage_db
@@ -1109,7 +1115,7 @@ task add_annotations {
             --coverage-h5-path ./coverage_db/coverage.h5 \
             -v ./~{output_name}/vep \
             -a ~{coverage_tsv} \
-            -m unzipped_vcf.mt/results/combined_vcf.vcf.gz.mt \
+            -m "${VCF_MT_DIR}" \
             -d ./~{output_name}
 
         # Compress the annotated output directory
