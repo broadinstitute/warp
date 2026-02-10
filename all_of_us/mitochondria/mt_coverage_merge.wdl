@@ -1092,7 +1092,7 @@ task add_annotations {
         # Unzip VCF MatrixTable tarball
         mkdir -p ./unzipped_vcf.mt
         tar -xzf ~{vcf_mt} -C ./unzipped_vcf.mt
-        VCF_MT_DIR=$(find ./unzipped_vcf.mt -mindepth 2 -maxdepth 5 -type d -name "*.mt" | head -n 1)
+        VCF_MT_DIR=$(find ./unzipped_vcf.mt -maxdepth 5 -type d -name "*.mt" ! -path "./unzipped_vcf.mt" | head -n 1)
         if [ -z "${VCF_MT_DIR}" ]; then
             echo "ERROR: could not find .mt directory after extracting vcf_mt" >&2
             find ./unzipped_vcf.mt -maxdepth 5 -type d | head -100 >&2
