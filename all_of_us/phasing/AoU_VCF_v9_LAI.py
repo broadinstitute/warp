@@ -146,7 +146,7 @@ existing_fields = [f for f in fields_to_drop if f in mt.entry or f in mt.row]
 mt = mt.drop(*existing_fields)
 
 ## APPLY ROW FILTERS
-# Filter the matrixtable for biallelic SNPs with AC >= 5, then apply the more stringent filters to flag low-quality variants but keep them in the dataset for now (filtering to be applied at export time)
+# Filter the matrixtable for biallelic SNPs with MAC >= 5, then apply the more stringent filters to flag low-quality variants but keep them in the dataset for now (filtering to be applied at export time)
 mt = mt.filter_rows(
     (hl.len(mt.alleles) == 2) &
     hl.is_snp(mt.alleles[0], mt.alleles[1]) &
