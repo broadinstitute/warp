@@ -1116,7 +1116,8 @@ task add_annotations {
             -v ./~{output_name}/vep \
             -a ~{coverage_tsv} \
             -m "${VCF_MT_DIR}" \
-            -d ./~{output_name}
+            -d ./~{output_name} \
+            --temp-dir ./tmp
 
         # Compress the annotated output directory
         tar -czf $WORK_DIR/annotated_output.tar.gz ~{output_name}
