@@ -185,7 +185,7 @@ workflow mt_coverage_merge {
                 file_name = combined_mt_name
         }
     }
-    
+
     File combined_mt_tar = select_first([
             finalize_mt_with_covdb_round3.results_tar,
             finalize_mt_with_covdb_round2.results_tar,
@@ -195,7 +195,7 @@ workflow mt_coverage_merge {
 
     call add_annotations as annotated {
         input:
-            coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
+            coverage_db_tar = annotate_coverage.output_ht,  # Tar.gzipped coverage DB (coverage.h5 [+ summary])
             coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
             vcf_mt = combined_mt_tar,  # Path to the MatrixTable
             keep_all_samples = true,
@@ -205,7 +205,7 @@ workflow mt_coverage_merge {
 
     call add_annotations as filt_annotated {
         input:
-            coverage_mt_tar = annotate_coverage.output_ht,  # Tar.gzipped directory of the Hail table
+            coverage_db_tar = annotate_coverage.output_ht,  # Tar.gzipped coverage DB (coverage.h5 [+ summary])
             coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
             vcf_mt = combined_mt_tar,  # Path to the MatrixTable
             keep_all_samples = false,
@@ -1061,7 +1061,7 @@ task combine_vcfs_and_homref_from_covdb {
 
 task add_annotations {
     input {
-        File coverage_mt_tar    # Tar.gzipped directory of the Hail table
+        File coverage_db_tar    # Tar.gzipped coverage DB (coverage.h5 [+ summary])
         Boolean keep_all_samples = false  # Keep all samples (default: false)
         File coverage_tsv     # Path to the coverage input TSV file
         File vcf_mt             # Path to the MatrixTable
@@ -1089,21 +1089,15 @@ task add_annotations {
         export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
         export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"  
 
-        # Unzip coverage MatrixTable tarball
-        mkdir -p ./unzipped_coverage.mt
-        tar -xzf ~{coverage_mt_tar} -C ./unzipped_coverage.mt
-        ls -lh ./unzipped_coverage.mt/merged_coverage_tsvs.mt
-
         # Unzip VCF MatrixTable tarball
         mkdir -p ./unzipped_vcf.mt
         tar -xzf ~{vcf_mt} -C ./unzipped_vcf.mt
         ls -lh ./unzipped_vcf.mt/results/combined_vcf.vcf.gz.mt
 
-        # Verify extraction
-        if [ ! -d "./unzipped_coverage.mt" ]; then
-            echo "Error: Directory './unzipped_coverage.mt' does not exist after extraction."
-            exit 1
-        fi
+        # Extract coverage DB tarball (coverage.h5 [+ optional summary])
+        mkdir -p ./coverage_db
+        tar -xzf ~{coverage_db_tar} -C ./coverage_db
+        test -f ./coverage_db/coverage.h5
 
         # Run the add_annotations.py script baked inside mtSwirl clone
         python3 /opt/mtSwirl/generate_mtdna_call_mt/add_annotations.py \
@@ -1112,6 +1106,7 @@ task add_annotations {
             --fully-skip-vep \
             --band-aid-dbsnp-path-fix \
             --min-het-threshold 0.05 \
+            --coverage-h5-path ./coverage_db/coverage.h5 \
             -v ./~{output_name}/vep \
             -a ~{coverage_tsv} \
             -m unzipped_vcf.mt/results/combined_vcf.vcf.gz.mt \
@@ -1126,7 +1121,7 @@ task add_annotations {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev-finalizefix1"
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 
