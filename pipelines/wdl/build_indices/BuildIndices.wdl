@@ -67,7 +67,7 @@ workflow BuildIndices {
         genome_source = genome_source,
         organism = organism,
         skip_gtf_modification = skip_gtf_modification,
-        mito_accession = select_first([mito_accession]),
+        mito_accession = mito_accession,
         run_mitofinder = run_mitofinder
     }
     call CalculateChromosomeSizes {
@@ -82,7 +82,7 @@ workflow BuildIndices {
         genome_build = genome_build,
         gtf_annotation_version = gtf_annotation_version,
         organism = organism,
-        mito_accession = select_first([mito_accession]),
+        mito_accession = mito_accession,
         run_mitofinder = run_mitofinder
     }
 
