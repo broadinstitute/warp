@@ -29,7 +29,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.0.3"
+  String pipeline_version = "5.0.4"
 
 
   parameter_meta {
