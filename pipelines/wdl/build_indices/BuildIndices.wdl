@@ -25,7 +25,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.0.4"
+  String pipeline_version = "5.0.5"
 
   parameter_meta {
     annotations_gtf: "the annotation file"
@@ -33,8 +33,7 @@ workflow BuildIndices {
     biotypes: "gene_biotype attributes to include in the gtf file"
   }
 
-  # ---- Append mitochondrial sequence + annotations ----
-  # Note: String comparison is case-sensitive.
+  # ---- Mitofinder block (completely isolated; no effect when run_mitofinder = false) ----
   if (run_mitofinder) {
     call MitoAnnotate as annotate_with_mitofinder {
       input:
@@ -51,11 +50,17 @@ workflow BuildIndices {
         original_gtf   = annotations_gtf,
         mito_gtf       = annotate_with_mitofinder.out_gtf
     }
+
+    # Remove the old mito contig from the combined genome to avoid duplicates
+    call RemoveDuplicateMitoContig {
+      input:
+        genome_fa      = annotate_with_mitofinder.out_fasta,
+        mito_accession = select_first([mito_accession])
+    }
   }
 
-  # Normalized "final" inputs used everywhere downstream
-  File final_genome_fa = select_first([annotate_with_mitofinder.out_fasta, genome_fa])
-
+  # When run_mitofinder = true, use mito-processed files; otherwise pass through originals unchanged
+  File final_genome_fa = select_first([RemoveDuplicateMitoContig.cleaned_fasta, genome_fa])
   File final_annotations_gtf = select_first([append_mito_gtf.out_gtf, annotations_gtf])
 
   call BuildStarSingleNucleus {
@@ -67,8 +72,7 @@ workflow BuildIndices {
       genome_build = genome_build,
       genome_source = genome_source,
       organism = organism,
-      skip_gtf_modification = skip_gtf_modification,
-      mito_accession = mito_accession
+      skip_gtf_modification = skip_gtf_modification
   }
 
   call CalculateChromosomeSizes {
@@ -83,21 +87,21 @@ workflow BuildIndices {
       genome_source = genome_source,
       genome_build = genome_build,
       gtf_annotation_version = gtf_annotation_version,
-      organism = organism,
-      mito_accession = mito_accession
+      organism = organism
   }
 
   # Centralize what goes into metadata
+  # All optional outputs can be passed directly to select_all
   Array[File] recorded_inputs = select_all([
-    annotations_gff,
+    annotations_gff,  # File? - already optional
     annotations_gtf,
     biotypes,
     genome_fa
   ])
 
   Array[File] recorded_outputs = select_all([
-    annotate_with_mitofinder.out_fasta,
-    append_mito_gtf.out_gtf,
+    annotate_with_mitofinder.out_fasta,  # File? from conditional block
+    append_mito_gtf.out_gtf,              # File? from conditional block
     BuildStarSingleNucleus.star_index,
     BuildStarSingleNucleus.modified_annotation_gtf,
     CalculateChromosomeSizes.chrom_sizes,
@@ -107,11 +111,7 @@ workflow BuildIndices {
   call RecordMetadata {
     input:
       pipeline_version = pipeline_version,
-      was_mitofinder_run = run_mitofinder,
       organism = organism,
-      mito_accession_used = mito_accession,
-      mito_ref_gbk_used = mito_ref_gbk,
-      mitofinder_opts_used = mitofinder_opts,
       input_files = recorded_inputs,
       output_files = recorded_outputs
   }
@@ -120,7 +120,6 @@ workflow BuildIndices {
     call SNSS2AddIntronsToGTF {
       input:
         modified_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf,
-        # Use the final genome (with mito if present) for intron STAR index
         genome_fa = final_genome_fa
     }
   }
@@ -139,10 +138,6 @@ workflow BuildIndices {
     File? star_index_with_introns = SNSS2AddIntronsToGTF.star_index_with_introns
   }
 }
-
-# Task definitions all tasks used in the workflow are defined below. Note that some tasks are conditionally called based on input flags
-# (MitoAnnotate, AppendMitoGTF, CalculateChromosomeSizes, BuildStarSingleNucleus,
-#  BuildBWAreference, RecordMetadata, SNSS2AddIntronsToGTF)
 
 task MitoAnnotate {
   input {
@@ -258,6 +253,43 @@ task AppendMitoGTF {
   }
 }
 
+task RemoveDuplicateMitoContig {
+  input {
+    File genome_fa
+    String mito_accession
+  }
+
+  command <<<
+    set -euo pipefail
+
+    cp ~{genome_fa} genome_input.fasta
+
+    if grep -q "^>~{mito_accession}$" genome_input.fasta; then
+      echo "Removing duplicate contig ~{mito_accession} from FASTA..."
+      awk -v acc="~{mito_accession}" '
+        BEGIN { deleted = 0 }
+        $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
+        /^>/ { skip = 0 }
+        !skip
+      ' genome_input.fasta > cleaned_genome.fasta
+    else
+      echo "Contig ~{mito_accession} not found; no removal needed."
+      cp genome_input.fasta cleaned_genome.fasta
+    fi
+  >>>
+
+  output {
+    File cleaned_fasta = "cleaned_genome.fasta"
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    memory: "4 GiB"
+    disks: "local-disk 50 HDD"
+    cpu: 1
+  }
+}
+
 
 task CalculateChromosomeSizes {
   input {
@@ -294,7 +326,6 @@ task BuildStarSingleNucleus {
     File biotypes
     Boolean skip_gtf_modification
     Int disk = 100
-    String? mito_accession
   }
 
   meta {
@@ -398,27 +429,6 @@ task BuildStarSingleNucleus {
         cp ${GTF_FILE} ~{annotation_gtf_modified}
     fi
 
-    # --- Remove duplicate mito contig if mito_accession is set
-    if [ -n "~{mito_accession}" ]; then
-      echo "mito_accession provided: ~{mito_accession}"
-
-      if grep -q "^>~{mito_accession}$" ~{genome_fa}; then
-        echo "Removing duplicate contig ~{mito_accession} from FASTA..."
-
-        awk -v acc="~{mito_accession}" '
-          BEGIN { deleted = 0 }
-          $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
-          /^>/ { skip = 0 }
-          !skip
-          ' ~{genome_fa} > genome_mito.filtered.fasta
-        mv genome_mito.filtered.fasta ~{genome_fa}
-      else
-        echo "Contig ~{mito_accession} not found; skipping removal."
-      fi
-    else
-        echo "No mito_accession provided, skipping contig removal."
-    fi
-
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
@@ -458,7 +468,6 @@ task BuildBWAreference {
     String genome_build
     # Organism can be Macaque, Mouse, Human, etc.
     String organism
-    String? mito_accession
   }
 
 String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{genome_build}"
@@ -472,28 +481,6 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
       gunzip -c ~{genome_fa} > genome/genome.fa
     else
       mv ~{genome_fa} genome/genome.fa
-    fi
-
-    # --- Remove duplicate contig if mito_accession is provided ---
-    if [ -n "~{mito_accession}" ]; then
-      echo "mito_accession provided: ~{mito_accession}"
-
-      if grep -q "^>~{mito_accession}$" genome/genome.fa; then
-        echo "Removing duplicate contig ~{mito_accession} from FASTA..."
-
-        awk -v acc="~{mito_accession}" '
-          BEGIN { deleted = 0 }
-          $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
-          /^>/ { skip = 0 }
-          !skip
-        ' genome/genome.fa > genome/genome.filtered.fa
-
-        mv genome/genome.filtered.fa genome/genome.fa
-      else
-        echo "Contig ~{mito_accession} not found in genome.fa, no removal needed."
-      fi
-    else
-        echo "No mito_accession provided, skipping contig removal."
     fi
 
     bwa-mem2 index genome/genome.fa
@@ -517,14 +504,9 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
 task RecordMetadata {
   input {
     String pipeline_version
+    String organism
     Array[File] input_files
     Array[File] output_files
-    # New inputs for logging mito info
-    Boolean was_mitofinder_run
-    String organism
-    String? mito_accession_used
-    File? mito_ref_gbk_used
-    Array[String]? mitofinder_opts_used
   }
 
   command <<<
@@ -532,26 +514,8 @@ task RecordMetadata {
 
     # create metadata file
     echo "Pipeline Version: ~{pipeline_version}" > metadata.txt
+    echo "Organism: ~{organism}" >> metadata.txt
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
-    echo "" >> metadata.txt
-
-    echo "--- MitoFinder Details ---" >> metadata.txt
-    # Check if the boolean flag is true
-    if [[ "~{was_mitofinder_run}" == "true" ]]; then
-      echo "MitoFinder was run for organism: ~{organism}" >> metadata.txt
-      # Check for and report the specific parameters used, handling optional inputs.
-      if [ "~{mito_accession_used}" != "" ]; then
-        echo "Mitochondrial Accession: ~{mito_accession_used}" >> metadata.txt
-      fi
-      if [ "~{mito_ref_gbk_used}" != "" ]; then
-        echo "Mitochondrial Reference GBK: ~{mito_ref_gbk_used} (md5sum: $(md5sum "~{mito_ref_gbk_used}" | awk '{print $1}'))" >> metadata.txt
-      fi
-      if [ "~{sep=' ' mitofinder_opts_used}" != "" ]; then
-        echo "MitoFinder Extra Options: ~{sep=' ' mitofinder_opts_used}" >> metadata.txt
-      fi
-    else
-      echo "MitoFinder was not run." >> metadata.txt
-    fi
     echo "" >> metadata.txt
 
     # echo paths and md5sums for input files
@@ -598,7 +562,7 @@ task RecordMetadata {
   }
 }
 
-  task SNSS2AddIntronsToGTF {
+task SNSS2AddIntronsToGTF {
   input {
     File modified_annotation_gtf
     File genome_fa
