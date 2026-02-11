@@ -1,3 +1,8 @@
+# 5.0.4
+2026-02-11 (Date of Last Commit)
+
+* Fixed mitofinder logic to properly handle cases where we deduplicate mitochondrial contigs from the genome fasta
+
 # 5.0.3
 2025-12-16 (Date of Last Commit)
 
