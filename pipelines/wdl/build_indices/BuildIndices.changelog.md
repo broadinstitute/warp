@@ -1,3 +1,8 @@
+# 5.0.5
+2026-02-12 (Date of Last Commit)
+
+* Fixed bug where mitochondrial contig deduplication was skipped when mito_accession was provided but run_mitofinder was false
+
 # 5.0.4
 2026-02-11 (Date of Last Commit)
 

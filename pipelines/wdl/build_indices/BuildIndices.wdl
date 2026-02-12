@@ -29,7 +29,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.0.4"
+  String pipeline_version = "5.0.5"
 
 
   parameter_meta {
@@ -384,8 +384,8 @@ task BuildStarSingleNucleus {
     fi
 
     # --- Remove duplicate mito contig if mito_accession is set
-    if [[ "~{run_mitofinder}" == "true" && -n "~{mito_accession}" ]]; then
-      echo "MitoFinder was run and mito_accession provided: ~{mito_accession}"
+    if [[ -n "~{mito_accession}" ]]; then
+      echo "mito_accession provided: ~{mito_accession}"
 
       if grep -q "^>~{mito_accession}$" ~{genome_fa}; then
         echo "Removing duplicate contig ~{mito_accession} from FASTA..."
@@ -461,8 +461,8 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
     fi
 
     # --- Remove duplicate contig if mito_accession is provided ---
-    if [[ "~{run_mitofinder}" == "true" && -n "~{mito_accession}" ]]; then
-      echo "MitoFinder was run and mito_accession is set to: ~{mito_accession}"
+    if [[ -n "~{mito_accession}" ]]; then
+      echo "mito_accession is set to: ~{mito_accession}"
 
       if grep -q "^>~{mito_accession}$" genome/genome.fa; then
         echo "Removing duplicate contig ~{mito_accession} from FASTA..."
