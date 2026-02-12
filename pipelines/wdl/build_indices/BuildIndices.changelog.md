@@ -1,7 +1,10 @@
-# 5.0.5
+# 5.1.0
 2026-02-11 (Date of Last Commit)
 
 * refactored to cleanly isolate the MitoAnnotate task and its outputs, mitochondrial deduplication is only handled within the MitoAnnotate task
+* ModifyGTF and ModifyGTFMarmoset are now their own cleanly separated tasks, and the logic to determine which one to run is handled in the main workflow rather than inside BuildStarSingleNucleus
+* skip_gtf_modification is now `run_modify_gtf`, a required input with no default, so you must know if your input GTF has already been modified or not
+* updated the metadata.txt output to explicitly include versions and which tasks and file modifications were run in the pipeline
 
 # 5.0.4
 2026-02-11 (Date of Last Commit)
