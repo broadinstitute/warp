@@ -1,3 +1,8 @@
+# 5.0.5
+2026-02-11 (Date of Last Commit)
+
+* refactored to cleanly isolate the MitoAnnotate task and its outputs, mitochondrial deduplication is only handled within the MitoAnnotate task
+
 # 5.0.4
 2026-02-11 (Date of Last Commit)
 

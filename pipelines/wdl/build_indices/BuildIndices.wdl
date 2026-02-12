@@ -37,8 +37,8 @@ workflow BuildIndices {
   if (run_mitofinder) {
     call MitoAnnotate as annotate_with_mitofinder {
       input:
-        mito_accession = select_first([mito_accession]),
-        mito_ref_gbk   = select_first([mito_ref_gbk]),
+        mito_accession = select_first([mito_accession]), # check to make sure mito_accession is provided before running MitoAnnotate
+        mito_ref_gbk   = select_first([mito_ref_gbk]), # check to make sure mito_ref_gbk is provided before running MitoAnnotate
         genome_fa      = genome_fa,
         transcript_gff = select_first([annotations_gff]),
         spec_name      = organism,
