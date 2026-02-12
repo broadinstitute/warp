@@ -5,6 +5,7 @@
 * ModifyGTF and ModifyGTFMarmoset are now their own cleanly separated tasks, and the logic to determine which one to run is handled in the main workflow rather than inside BuildStarSingleNucleus
 * skip_gtf_modification is now `run_modify_gtf`, a required input with no default, so you must know if your input GTF has already been modified or not
 * updated the metadata.txt output to explicitly include versions and which tasks and file modifications were run in the pipeline
+* biotypes.tsv is now an optional input, as it is only needed when running the ModifyGTF task (and not when running ModifyGTFMarmoset)
 
 # 5.0.4
 2026-02-11 (Date of Last Commit)

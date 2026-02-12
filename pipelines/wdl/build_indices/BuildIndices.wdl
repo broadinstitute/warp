@@ -12,7 +12,7 @@ workflow BuildIndices {
 
     File annotations_gtf
     File genome_fa
-    File biotypes
+    File? biotypes                                # required only when run_modify_gtf=true for non-marmoset
 
     Boolean run_add_introns = false
     Boolean run_mitofinder = false
@@ -30,7 +30,7 @@ workflow BuildIndices {
   parameter_meta {
     annotations_gtf: "the annotation file"
     genome_fa: "the fasta file"
-    biotypes: "gene_biotype attributes to include in the gtf file"
+    biotypes: "gene_biotype attributes to include in the gtf file; required when run_modify_gtf=true for non-marmoset organisms"
   }
 
   # ---- Mitofinder block (completely isolated; no effect when run_mitofinder = false) ----
@@ -72,7 +72,7 @@ workflow BuildIndices {
         annotation_gtf = final_annotations_gtf,
         genome_source = genome_source,
         genome_build = genome_build,
-        biotypes = biotypes
+        biotypes = select_first([biotypes])
     }
   }
 
