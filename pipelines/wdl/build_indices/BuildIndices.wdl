@@ -25,7 +25,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.1.0"
+  String pipeline_version = "5.1.1"
 
   parameter_meta {
     annotations_gtf: "the annotation file"
@@ -63,13 +63,19 @@ workflow BuildIndices {
   File final_genome_fa = select_first([RemoveDuplicateMitoContig.cleaned_fasta, genome_fa])
   File final_annotations_gtf = select_first([append_mito_gtf.out_gtf, annotations_gtf])
 
-  # ---- GTF modification block ----
+  # ---- Always-run GTF gene_name fix ----
+  call FixGeneNames {
+    input:
+      annotation_gtf = final_annotations_gtf
+  }
+
+  # ---- Conditional GTF modification block ----
   Boolean is_marmoset = (organism == "marmoset" || organism == "Marmoset")
 
   if (run_modify_gtf && !is_marmoset) {
     call ModifyGTF {
       input:
-        annotation_gtf = final_annotations_gtf,
+        annotation_gtf = FixGeneNames.fixed_gtf,
         genome_source = genome_source,
         genome_build = genome_build,
         biotypes = select_first([biotypes])
@@ -79,12 +85,12 @@ workflow BuildIndices {
   if (run_modify_gtf && is_marmoset) {
     call ModifyGTFMarmoset {
       input:
-        annotation_gtf = final_annotations_gtf,
+        annotation_gtf = FixGeneNames.fixed_gtf,
         organism = organism
     }
   }
 
-  File gtf_for_star = select_first([ModifyGTF.modified_gtf, ModifyGTFMarmoset.modified_gtf, final_annotations_gtf])
+  File gtf_for_star = select_first([ModifyGTF.modified_gtf, ModifyGTFMarmoset.modified_gtf, FixGeneNames.fixed_gtf])
 
   call BuildStarSingleNucleus {
     input:
@@ -124,6 +130,7 @@ workflow BuildIndices {
   Array[File] recorded_outputs = select_all([
     annotate_with_mitofinder.out_fasta,  # File? from conditional block
     append_mito_gtf.out_gtf,              # File? from conditional block
+    FixGeneNames.fixed_gtf,               # Always-run gene_name fix
     ModifyGTF.modified_gtf,               # File? from conditional block
     ModifyGTFMarmoset.modified_gtf,       # File? from conditional block
     BuildStarSingleNucleus.star_index,
@@ -149,6 +156,7 @@ workflow BuildIndices {
       input_genome_fa = genome_fa,
       mito_annotated_fasta = annotate_with_mitofinder.out_fasta,
       mito_appended_gtf = append_mito_gtf.out_gtf,
+      fixed_gtf = FixGeneNames.fixed_gtf,
       modified_gtf = ModifyGTF.modified_gtf,
       modified_gtf_marmoset = ModifyGTFMarmoset.modified_gtf,
       star_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf,
@@ -350,6 +358,66 @@ task CalculateChromosomeSizes {
   }
 }
 
+task FixGeneNames {
+  input {
+    File annotation_gtf
+  }
+
+  meta {
+    description: "Decompress GTF if needed and fix missing gene_name attributes by copying from gene_id"
+  }
+
+  command <<<
+    set -eo pipefail
+
+    # Decompress GTF if gzipped
+    if [[ "~{annotation_gtf}" == *.gz ]]; then
+        echo "Detected gzipped GTF file, decompressing..."
+        gunzip -c ~{annotation_gtf} > annotation.gtf
+        GTF_FILE="annotation.gtf"
+    else
+        echo "GTF file is not compressed"
+        GTF_FILE="~{annotation_gtf}"
+    fi
+
+    # Fix missing gene_name attributes
+    echo "Checking and fixing gene_name attributes in GTF..."
+    awk -F'\t' 'BEGIN { OFS="\t" }
+      /^#/ { print; next }
+      {
+        gene_id = ""; gene_name = "";
+        if ($9 ~ /gene_id/) {
+          n = split($9, a, /gene_id "/)
+          if (n > 1) {
+            split(a[2], b, "\"")
+            gene_id = b[1]
+          }
+        }
+
+        # Check if gene_name is missing and add it
+        if ($9 !~ /gene_name/ && gene_id != "") {
+          sub(/[[:space:]]*;[[:space:]]*$/, "", $9)  # remove trailing semicolons/spaces
+          $9 = $9 "; gene_name \"" gene_id "\";"
+        }
+
+        print
+      }' "$GTF_FILE" > fixed_annotation.gtf
+
+    echo "GTF gene_name fix complete"
+  >>>
+
+  output {
+    File fixed_gtf = "fixed_annotation.gtf"
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    memory: "4 GiB"
+    disks: "local-disk 50 HDD"
+    cpu: 1
+  }
+}
+
 task BuildStarSingleNucleus {
   input {
     # GTF annotation version refers to the version (GENCODE) or release (NCBI) listed in the GTF
@@ -426,41 +494,7 @@ task ModifyGTF {
   command <<<
     set -eo pipefail
 
-    # Decompress GTF if gzipped
-    if [[ "~{annotation_gtf}" == *.gz ]]; then
-        echo "Detected gzipped GTF file, decompressing..."
-        gunzip -c ~{annotation_gtf} > annotation.gtf
-        GTF_FILE="annotation.gtf"
-    else
-        echo "GTF file is not compressed"
-        GTF_FILE="~{annotation_gtf}"
-    fi
-
-    # Fix missing gene_name attributes
-    echo "Checking and fixing gene_name attributes in GTF..."
-    awk -F'\t' 'BEGIN { OFS="\t" }
-      /^#/ { print; next }
-      {
-        gene_id = ""; gene_name = "";
-        if ($9 ~ /gene_id/) {
-          n = split($9, a, /gene_id "/)
-          if (n > 1) {
-            split(a[2], b, "\"")
-            gene_id = b[1]
-          }
-        }
-
-        # Check if gene_name is missing and add it
-        if ($9 !~ /gene_name/ && gene_id != "") {
-          sub(/[[:space:]]*;[[:space:]]*$/, "", $9)  # remove trailing semicolons/spaces
-          $9 = $9 "; gene_name \"" gene_id "\";"
-        }
-
-        print
-      }' "$GTF_FILE" > fixed_annotation.gtf
-
-    GTF_FILE="fixed_annotation.gtf"
-    echo "GTF gene_name fix complete"
+    GTF_FILE="~{annotation_gtf}"
 
     # Validate GTF contains expected genome build
     if head -10 ${GTF_FILE} | grep -qi ~{genome_build}
@@ -513,41 +547,7 @@ task ModifyGTFMarmoset {
   command <<<
     set -eo pipefail
 
-    # Decompress GTF if gzipped
-    if [[ "~{annotation_gtf}" == *.gz ]]; then
-        echo "Detected gzipped GTF file, decompressing..."
-        gunzip -c ~{annotation_gtf} > annotation.gtf
-        GTF_FILE="annotation.gtf"
-    else
-        echo "GTF file is not compressed"
-        GTF_FILE="~{annotation_gtf}"
-    fi
-
-    # Fix missing gene_name attributes
-    echo "Checking and fixing gene_name attributes in GTF..."
-    awk -F'\t' 'BEGIN { OFS="\t" }
-      /^#/ { print; next }
-      {
-        gene_id = ""; gene_name = "";
-        if ($9 ~ /gene_id/) {
-          n = split($9, a, /gene_id "/)
-          if (n > 1) {
-            split(a[2], b, "\"")
-            gene_id = b[1]
-          }
-        }
-
-        # Check if gene_name is missing and add it
-        if ($9 !~ /gene_name/ && gene_id != "") {
-          sub(/[[:space:]]*;[[:space:]]*$/, "", $9)  # remove trailing semicolons/spaces
-          $9 = $9 "; gene_name \"" gene_id "\";"
-        }
-
-        print
-      }' "$GTF_FILE" > fixed_annotation.gtf
-
-    GTF_FILE="fixed_annotation.gtf"
-    echo "GTF gene_name fix complete"
+    GTF_FILE="~{annotation_gtf}"
 
     # Create marmoset header
     echo "Marmoset detected, running header modification"
@@ -641,6 +641,7 @@ task RecordMetadata {
     # Optional modification outputs for tracking which steps ran
     File? mito_annotated_fasta
     File? mito_appended_gtf
+    File fixed_gtf
     File? modified_gtf
     File? modified_gtf_marmoset
     File star_annotation_gtf
@@ -694,6 +695,10 @@ task RecordMetadata {
     else
       echo "  [MitoFinder] Skipped" >> metadata.txt
     fi
+
+    # FixGeneNames (always runs)
+    echo "  [FixGeneNames] Fixed missing gene_name attributes" >> metadata.txt
+    echo "    Output fixed GTF: $(to_gs '~{fixed_gtf}')" >> metadata.txt
 
     # GTF Modification
     if [ "~{run_modify_gtf}" = "true" ]; then

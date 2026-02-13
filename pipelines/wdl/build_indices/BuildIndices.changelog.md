@@ -1,11 +1,14 @@
-# 5.1.0
-2026-02-11 (Date of Last Commit)
+# 5.1.1
+2026-02-13 (Date of Last Commit)
 
 * refactored to cleanly isolate the MitoAnnotate task and its outputs, mitochondrial deduplication is only handled within the MitoAnnotate task
 * ModifyGTF and ModifyGTFMarmoset are now their own cleanly separated tasks, and the logic to determine which one to run is handled in the main workflow rather than inside BuildStarSingleNucleus
 * skip_gtf_modification is now `run_modify_gtf`, a required input with no default, so you must know if your input GTF has already been modified or not
 * updated the metadata.txt output to explicitly include versions and which tasks and file modifications were run in the pipeline
 * biotypes.tsv is now an optional input, as it is only needed when running the ModifyGTF task (and not when running ModifyGTFMarmoset)
+* bugfix to move GTF gene_name / gene_id fix to FixGeneNames which is always run
+* added a test suite for the BuildIndices pipeline, found in verification/test-wdls/scripts/test_buildindices_mito_bug.py, which includes a test for the mitochondrial contig deduplication logic
+
 
 # 5.0.4
 2026-02-11 (Date of Last Commit)
