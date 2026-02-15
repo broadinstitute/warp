@@ -25,7 +25,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.1.1"
+  String pipeline_version = "5.1.2"
 
   parameter_meta {
     annotations_gtf: "the annotation file"
@@ -72,12 +72,24 @@ workflow BuildIndices {
   # ---- Conditional GTF modification block ----
   Boolean is_marmoset = (organism == "marmoset" || organism == "Marmoset")
 
+  # ---- Always-run GTF validation (non-marmoset only) ----
+  # In the original monolithic BuildStarSingleNucleus, these checks ran
+  # unconditionally for non-marmoset organisms—even when skip_gtf_modification
+  # was true.  Extracting them here preserves that behaviour after the task
+  # was split into separate steps.
+  if (!is_marmoset) {
+    call ValidateGTF {
+      input:
+        annotation_gtf = FixGeneNames.fixed_gtf,
+        genome_source = genome_source,
+        genome_build = genome_build
+    }
+  }
+
   if (run_modify_gtf && !is_marmoset) {
     call ModifyGTF {
       input:
         annotation_gtf = FixGeneNames.fixed_gtf,
-        genome_source = genome_source,
-        genome_build = genome_build,
         biotypes = select_first([biotypes])
     }
   }
@@ -418,6 +430,55 @@ task FixGeneNames {
   }
 }
 
+task ValidateGTF {
+  input {
+    File annotation_gtf
+    String genome_source
+    String genome_build
+  }
+
+  meta {
+    description: "Validate that the GTF header contains the expected genome build and source. Runs for non-marmoset organisms regardless of run_modify_gtf."
+  }
+
+  command <<<
+    set -eo pipefail
+
+    GTF_FILE="~{annotation_gtf}"
+
+    # Check that GTF contains expected genome build
+    if head -10 ${GTF_FILE} | grep -qi ~{genome_build}
+    then
+        echo Genome version found in the GTF file
+    else
+        echo Error: Input genome version does not match version in GTF file
+        exit 1;
+    fi
+
+    # Check that GTF contains expected genome source
+    if head -10 ${GTF_FILE} | grep -qi ~{genome_source}
+    then
+        echo Source of genome build identified in the GTF file
+    else
+        echo Error: Source of genome build not identified in the GTF file
+        exit 1;
+    fi
+
+    echo "GTF validation passed"
+  >>>
+
+  output {
+    Boolean validation_passed = true
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    memory: "2 GiB"
+    disks: "local-disk 10 HDD"
+    cpu: 1
+  }
+}
+
 task BuildStarSingleNucleus {
   input {
     # GTF annotation version refers to the version (GENCODE) or release (NCBI) listed in the GTF
@@ -482,37 +543,17 @@ task BuildStarSingleNucleus {
 task ModifyGTF {
   input {
     File annotation_gtf
-    String genome_source
-    String genome_build
     File biotypes
   }
 
   meta {
-    description: "Validate and modify GTF annotation file for non-marmoset organisms"
+    description: "Modify GTF annotation file for non-marmoset organisms using biotype filtering"
   }
 
   command <<<
     set -eo pipefail
 
     GTF_FILE="~{annotation_gtf}"
-
-    # Validate GTF contains expected genome build
-    if head -10 ${GTF_FILE} | grep -qi ~{genome_build}
-    then
-        echo Genome version found in the GTF file
-    else
-        echo Error: Input genome version does not match version in GTF file
-        exit 1;
-    fi
-
-    # Validate GTF contains expected genome source
-    if head -10 ${GTF_FILE} | grep -qi ~{genome_source}
-    then
-        echo Source of genome build identified in the GTF file
-    else
-        echo Error: Source of genome build not identified in the GTF file
-        exit 1;
-    fi
 
     # Run standard GTF modification
     echo "Running GTF modification"

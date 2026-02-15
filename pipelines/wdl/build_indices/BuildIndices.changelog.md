@@ -1,4 +1,4 @@
-# 5.1.1
+# 5.1.0
 2026-02-13 (Date of Last Commit)
 
 * refactored to cleanly isolate the MitoAnnotate task and its outputs, mitochondrial deduplication is only handled within the MitoAnnotate task
@@ -8,6 +8,7 @@
 * biotypes.tsv is now an optional input, as it is only needed when running the ModifyGTF task (and not when running ModifyGTFMarmoset)
 * bugfix to move GTF gene_name / gene_id fix to FixGeneNames which is always run
 * added a test suite for the BuildIndices pipeline, found in verification/test-wdls/scripts/test_buildindices_mito_bug.py, which includes a test for the mitochondrial contig deduplication logic
+* Moved GTF validation into its own task ValidateGTF, with validation testing script
 
 
 # 5.0.4
