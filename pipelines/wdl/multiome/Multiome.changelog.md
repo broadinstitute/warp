@@ -1,3 +1,9 @@
+# 6.1.4
+2026-01-22 (Date of Last Commit)
+
+* Added a new, defaulted input cellbender_memory_GB to Optimus; this does not affect the outputs of this pipeline
+* Added a task level input, mem_size, to StarSoloFastq to expose memory settings; this does not affect the outputs of this pipeline
+
 # 6.1.3
 2025-08-15 (Date of Last Commit)
 
@@ -19,7 +25,7 @@
 * Added reference genome/GTF headers to fragment file via new string inputs
 
 # 6.0.5
-2025-06-18 (Date of Last Commit) 
+2025-06-18 (Date of Last Commit)
 
 * Added the exclude_chroms input parameter to the snap.metrics.tsse function in the CreateFragmentFile task of the ATAC pipeline; which is a list of chromosomes to exclude in per cell metric computation. The default value is [chrM, M]
 

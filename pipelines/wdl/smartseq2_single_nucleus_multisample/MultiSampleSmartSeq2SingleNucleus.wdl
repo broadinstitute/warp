@@ -13,7 +13,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   meta {
     description: "The MultiSampleSmartSeq2SingleNucleus pipeline runs multiple snSS2 samples in a single pipeline invocation"
     allowNestedInputs: true
-    
+
   }
 
   input {
@@ -59,7 +59,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "2.2.2"
+  String pipeline_version = "2.2.4"
 
   if (false) {
      String? none = "None"

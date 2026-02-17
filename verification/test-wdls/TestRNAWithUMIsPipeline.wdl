@@ -34,6 +34,8 @@ workflow TestRNAWithUMIsPipeline {
       File population_vcf
       File population_vcf_index
 
+      String? billing_project
+
       # transcriptome results will only be deterministic in both Fastp and STAR are run single threaded.
       # if expected to be deterministic, transcriptome comparisons should be exact.
       # if not, tolerances should be included
@@ -77,6 +79,7 @@ workflow TestRNAWithUMIsPipeline {
         exonBedFile          = exonBedFile,
         population_vcf       = population_vcf,
         population_vcf_index = population_vcf_index,
+        billing_project      = billing_project
   }
 
   Array[String] pipeline_outputs = select_all([
