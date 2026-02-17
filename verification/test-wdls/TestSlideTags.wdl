@@ -35,6 +35,7 @@ workflow TestSlideTags {
 	  File? mt_genes
 	  String docker = "us.gcr.io/broad-gotc-prod/slide-tags:1.2.0"
       Boolean run_dropsift = false
+      String? billing_project
 	
 	  String truth_path
 	  String results_path
@@ -69,9 +70,10 @@ workflow TestSlideTags {
       star_strand_mode        = star_strand_mode,
       count_exons             = count_exons,
       soloMultiMappers        = soloMultiMappers,
-	    gex_nhash_id		        = gex_nhash_id,
-	    mt_genes                = mt_genes,
-	    docker                  = docker
+	  gex_nhash_id		      = gex_nhash_id,
+	  mt_genes                = mt_genes,
+	  docker                  = docker,
+      billing_project         = billing_project
   }
 
 # collect all of the pipeline outputs into single Array[String]

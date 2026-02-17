@@ -2,23 +2,23 @@
   "PairedTag.annotations_gtf":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf",
   "PairedTag.input_id":"10k_PBMC_downsampled",
   "PairedTag.gex_r1_fastq":[
-    "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R1_gex.fastq.gz"
+    "gs://pd-test-storage-public/PairedTag/input/plumbing/10k_PBMC_downsampled/fastq_R1_gex.fastq.gz"
   ],
   "PairedTag.gex_r2_fastq":[
-    "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R2_gex.fastq.gz"
+    "gs://pd-test-storage-public/PairedTag/input/plumbing/10k_PBMC_downsampled/fastq_R2_gex.fastq.gz"
   ],
   "PairedTag.atac_r1_fastq":[
-    "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R1_atac.fastq.gz"
+    "gs://pd-test-storage-public/PairedTag/input/plumbing/10k_PBMC_downsampled/fastq_R1_atac.fastq.gz"
   ],
   "PairedTag.atac_r2_fastq":[
-    "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R2_atac.fastq.gz"
+    "gs://pd-test-storage-public/PairedTag/input/plumbing/10k_PBMC_downsampled/fastq_R2_atac.fastq.gz"
   ],
   "PairedTag.atac_r3_fastq":[
-    "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R3_atac.fastq.gz"
+    "gs://pd-test-storage-public/PairedTag/input/plumbing/10k_PBMC_downsampled/fastq_R3_atac.fastq.gz"
   ],
   "PairedTag.tar_bwa_reference":"gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar",
   "PairedTag.tar_star_reference":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_star2.7.10a-Human-GENCODE-build-GRCh38-43.tar",
-  "PairedTag.chrom_sizes":"gs://pd-test-storage-public/Multiome/input/hg38.chrom.sizes",
+  "PairedTag.chrom_sizes":"gs://pd-test-storage-public/PairedTag/input/hg38.chrom.sizes",
   "PairedTag.preindex":"false",
   "PairedTag.Atac_preindex.cpu_platform_bwa":"Intel Cascade Lake",
   "PairedTag.Atac_preindex.num_threads_bwa":"16",
