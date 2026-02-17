@@ -12,104 +12,174 @@ workflow BuildIndices {
 
     File annotations_gtf
     File genome_fa
-    File biotypes
+    File? biotypes                                # required only when run_modify_gtf=true for non-marmoset
 
     Boolean run_add_introns = false
     Boolean run_mitofinder = false
-    Boolean skip_gtf_modification = false
+    Boolean run_modify_gtf
 
     String?  mito_accession                       # e.g. chimp or ferret mito accession (NC_…)
     File?    mito_ref_gbk                         # path to mitochondrion reference .gbk
     Array[String]? mitofinder_opts                # optional, override extra flags to MitoFinder/add_mito
-    File?    annotations_gff                       # gff file for mitofinder
-  }
-
-  if (false) {
-    String? none = "None"
+    File?    annotations_gff                      # gff file for mitofinder
   }
 
   # version of this pipeline
-  String pipeline_version = "5.0.4"
-
+  String pipeline_version = "5.1.0"
 
   parameter_meta {
     annotations_gtf: "the annotation file"
     genome_fa: "the fasta file"
-    biotypes: "gene_biotype attributes to include in the gtf file"
+    biotypes: "gene_biotype attributes to include in the gtf file; required when run_modify_gtf=true for non-marmoset organisms"
   }
 
-    # ---- Append mitochondrial sequence + annotations ----
-    # Note: String comparison is case-sensitive.
-    if (run_mitofinder) {
-      call MitoAnnotate as annotate_with_mitofinder {
-        input:
-          mito_accession = select_first([mito_accession]),
-          mito_ref_gbk   = select_first([mito_ref_gbk]),
-          genome_fa      = genome_fa,
-          transcript_gff = select_first([annotations_gff]),
-          spec_name      = organism,
-          mitofinder_opts = mitofinder_opts
-      }
-      call AppendMitoGTF as append_mito_gtf {
-        input:
-          original_gtf   = annotations_gtf,
-          mito_gtf       = annotate_with_mitofinder.out_gtf
-      }
+  # ---- Mitofinder block (completely isolated; no effect when run_mitofinder = false) ----
+  if (run_mitofinder) {
+    call MitoAnnotate as annotate_with_mitofinder {
+      input:
+        mito_accession = select_first([mito_accession]), # check to make sure mito_accession is provided before running MitoAnnotate
+        mito_ref_gbk   = select_first([mito_ref_gbk]), # check to make sure mito_ref_gbk is provided before running MitoAnnotate
+        genome_fa      = genome_fa,
+        transcript_gff = select_first([annotations_gff]),
+        spec_name      = organism,
+        mitofinder_opts = mitofinder_opts
     }
 
-    call BuildStarSingleNucleus {
+    call AppendMitoGTF as append_mito_gtf {
       input:
-        gtf_annotation_version = gtf_annotation_version,
-        annotation_gtf = select_first([if run_mitofinder then append_mito_gtf.out_gtf else none, annotations_gtf]),
-        genome_fa = select_first([if run_mitofinder then annotate_with_mitofinder.out_fasta else none, genome_fa]),
-        biotypes = biotypes,
-        genome_build = genome_build,
-        genome_source = genome_source,
-        organism = organism,
-        skip_gtf_modification = skip_gtf_modification,
-        mito_accession = mito_accession,
-        run_mitofinder = run_mitofinder
-    }
-    call CalculateChromosomeSizes {
-      input:
-        genome_fa = select_first([if run_mitofinder then annotate_with_mitofinder.out_fasta else none, genome_fa]),
-    }
-    call BuildBWAreference {
-      input:
-        genome_fa = select_first([if run_mitofinder then annotate_with_mitofinder.out_fasta else none, genome_fa]),
-        chrom_sizes_file = CalculateChromosomeSizes.chrom_sizes,
-        genome_source = genome_source,
-        genome_build = genome_build,
-        gtf_annotation_version = gtf_annotation_version,
-        organism = organism,
-        mito_accession = mito_accession,
-        run_mitofinder = run_mitofinder
+        original_gtf   = annotations_gtf,
+        mito_gtf       = annotate_with_mitofinder.out_gtf
     }
 
-    call RecordMetadata {
+    # Remove the old mito contig from the combined genome to avoid duplicates
+    call RemoveDuplicateMitoContig {
       input:
-        pipeline_version = pipeline_version,
-        was_mitofinder_run = run_mitofinder,
-        organism = organism,
-        mito_accession_used = mito_accession,
-        mito_ref_gbk_used = mito_ref_gbk,
-        mitofinder_opts_used = mitofinder_opts,
-        input_files = select_all([if run_mitofinder then annotations_gff else none, annotations_gtf, biotypes, genome_fa]),
-        output_files = select_all([
-                                  if run_mitofinder then annotate_with_mitofinder.out_fasta else none,
-                                  if run_mitofinder then append_mito_gtf.out_gtf else none,
-                                  BuildStarSingleNucleus.star_index,
-                                  BuildStarSingleNucleus.modified_annotation_gtf,
-                                  CalculateChromosomeSizes.chrom_sizes,
-                                  BuildBWAreference.reference_bundle
-                                  ])
+        genome_fa      = annotate_with_mitofinder.out_fasta,
+        mito_accession = select_first([mito_accession])
     }
+  }
+
+  # When run_mitofinder = true, use mito-processed files; otherwise pass through originals unchanged
+  File final_genome_fa = select_first([RemoveDuplicateMitoContig.cleaned_fasta, genome_fa])
+  File final_annotations_gtf = select_first([append_mito_gtf.out_gtf, annotations_gtf])
+
+  # ---- Always-run GTF gene_name fix ----
+  call FixGeneNames {
+    input:
+      annotation_gtf = final_annotations_gtf
+  }
+
+  # ---- Conditional GTF modification block ----
+  Boolean is_marmoset = (organism == "marmoset" || organism == "Marmoset")
+
+  # ---- Always-run GTF validation (non-marmoset only) ----
+  # In the original monolithic BuildStarSingleNucleus, these checks ran
+  # unconditionally for non-marmoset organisms—even when skip_gtf_modification
+  # was true.  Extracting them here preserves that behaviour after the task
+  # was split into separate steps.
+  if (!is_marmoset) {
+    call ValidateGTF {
+      input:
+        annotation_gtf = FixGeneNames.fixed_gtf,
+        genome_source = genome_source,
+        genome_build = genome_build
+    }
+  }
+
+  if (run_modify_gtf && !is_marmoset) {
+    call ModifyGTF {
+      input:
+        annotation_gtf = FixGeneNames.fixed_gtf,
+        biotypes = select_first([biotypes])
+    }
+  }
+
+  if (run_modify_gtf && is_marmoset) {
+    call ModifyGTFMarmoset {
+      input:
+        annotation_gtf = FixGeneNames.fixed_gtf,
+        organism = organism
+    }
+  }
+
+  File gtf_for_star = select_first([ModifyGTF.modified_gtf, ModifyGTFMarmoset.modified_gtf, FixGeneNames.fixed_gtf])
+
+  call BuildStarSingleNucleus {
+    input:
+      gtf_annotation_version = gtf_annotation_version,
+      annotation_gtf = gtf_for_star,
+      genome_fa = final_genome_fa,
+      genome_build = genome_build,
+      genome_source = genome_source,
+      organism = organism,
+      run_modify_gtf = run_modify_gtf
+  }
+
+  call CalculateChromosomeSizes {
+    input:
+      genome_fa = final_genome_fa
+  }
+
+  call BuildBWAreference {
+    input:
+      genome_fa = final_genome_fa,
+      chrom_sizes_file = CalculateChromosomeSizes.chrom_sizes,
+      genome_source = genome_source,
+      genome_build = genome_build,
+      gtf_annotation_version = gtf_annotation_version,
+      organism = organism
+  }
+
+  # Centralize what goes into metadata
+  # All optional outputs can be passed directly to select_all
+  Array[File] recorded_inputs = select_all([
+    annotations_gff,  # File? - already optional
+    annotations_gtf,
+    biotypes,
+    genome_fa
+  ])
+
+  Array[File] recorded_outputs = select_all([
+    annotate_with_mitofinder.out_fasta,  # File? from conditional block
+    append_mito_gtf.out_gtf,              # File? from conditional block
+    FixGeneNames.fixed_gtf,               # Always-run gene_name fix
+    ModifyGTF.modified_gtf,               # File? from conditional block
+    ModifyGTFMarmoset.modified_gtf,       # File? from conditional block
+    BuildStarSingleNucleus.star_index,
+    BuildStarSingleNucleus.modified_annotation_gtf,
+    CalculateChromosomeSizes.chrom_sizes,
+    BuildBWAreference.reference_bundle
+  ])
+
+  call RecordMetadata {
+    input:
+      pipeline_version = pipeline_version,
+      organism = organism,
+      genome_source = genome_source,
+      genome_build = genome_build,
+      gtf_annotation_version = gtf_annotation_version,
+      run_mitofinder = run_mitofinder,
+      run_modify_gtf = run_modify_gtf,
+      run_add_introns = run_add_introns,
+      is_marmoset = is_marmoset,
+      input_files = recorded_inputs,
+      output_files = recorded_outputs,
+      input_annotations_gtf = annotations_gtf,
+      input_genome_fa = genome_fa,
+      mito_annotated_fasta = annotate_with_mitofinder.out_fasta,
+      mito_appended_gtf = append_mito_gtf.out_gtf,
+      fixed_gtf = FixGeneNames.fixed_gtf,
+      modified_gtf = ModifyGTF.modified_gtf,
+      modified_gtf_marmoset = ModifyGTFMarmoset.modified_gtf,
+      star_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf,
+      star_index = BuildStarSingleNucleus.star_index
+  }
 
   if (run_add_introns) {
     call SNSS2AddIntronsToGTF {
       input:
-      modified_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf,
-      genome_fa = genome_fa
+        modified_annotation_gtf = BuildStarSingleNucleus.modified_annotation_gtf,
+        genome_fa = final_genome_fa
     }
   }
 
@@ -242,6 +312,43 @@ task AppendMitoGTF {
   }
 }
 
+task RemoveDuplicateMitoContig {
+  input {
+    File genome_fa
+    String mito_accession
+  }
+
+  command <<<
+    set -euo pipefail
+
+    cp ~{genome_fa} genome_input.fasta
+
+    if grep -q "^>~{mito_accession}$" genome_input.fasta; then
+      echo "Removing duplicate contig ~{mito_accession} from FASTA..."
+      awk -v acc="~{mito_accession}" '
+        BEGIN { deleted = 0 }
+        $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
+        /^>/ { skip = 0 }
+        !skip
+      ' genome_input.fasta > cleaned_genome.fasta
+    else
+      echo "Contig ~{mito_accession} not found; no removal needed."
+      cp genome_input.fasta cleaned_genome.fasta
+    fi
+  >>>
+
+  output {
+    File cleaned_fasta = "cleaned_genome.fasta"
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    memory: "4 GiB"
+    disks: "local-disk 50 HDD"
+    cpu: 1
+  }
+}
+
 
 task CalculateChromosomeSizes {
   input {
@@ -263,36 +370,19 @@ task CalculateChromosomeSizes {
   }
 }
 
-task BuildStarSingleNucleus {
+task FixGeneNames {
   input {
-    # GTF annotation version refers to the version (GENCODE) or release (NCBI) listed in the GTF
-    String gtf_annotation_version
-    # Genome source can be NCBI or GENCODE
-    String genome_source
-    # Genome build is the assembly accession (NCBI) or version (GENCODE)
-    String genome_build
-    # Organism can be Macaque, Mouse, Human, etc.
-    String organism
-    File genome_fa
     File annotation_gtf
-    File biotypes
-    Boolean skip_gtf_modification
-    Int disk = 100
-    String? mito_accession
-    Boolean run_mitofinder
   }
 
   meta {
-    description: "Modify GTF files and build reference index files for STAR aligner"
+    description: "Decompress GTF if needed and fix missing gene_name attributes by copying from gene_id"
   }
 
-  String gtf_prefix = if skip_gtf_modification then "" else "modified_"
-  String ref_name = "star2.7.10a-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
-  String star_index_name = "~{gtf_prefix}~{ref_name}.tar"
-  String annotation_gtf_modified = "~{gtf_prefix}v~{gtf_annotation_version}.annotation.gtf"
-
   command <<<
-    # Decompress GTF if it's gzipped
+    set -eo pipefail
+
+    # Decompress GTF if gzipped
     if [[ "~{annotation_gtf}" == *.gz ]]; then
         echo "Detected gzipped GTF file, decompressing..."
         gunzip -c ~{annotation_gtf} > annotation.gtf
@@ -325,83 +415,103 @@ task BuildStarSingleNucleus {
         print
       }' "$GTF_FILE" > fixed_annotation.gtf
 
-    # Use the fixed GTF for downstream processing
-    GTF_FILE="fixed_annotation.gtf"
     echo "GTF gene_name fix complete"
+  >>>
 
-    # First check for marmoset GTF and modify header
-    echo "checking for marmoset"
-    if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
+  output {
+    File fixed_gtf = "fixed_annotation.gtf"
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    memory: "4 GiB"
+    disks: "local-disk 50 HDD"
+    cpu: 1
+  }
+}
+
+task ValidateGTF {
+  input {
+    File annotation_gtf
+    String genome_source
+    String genome_build
+  }
+
+  meta {
+    description: "Validate that the GTF header contains the expected genome build and source. Runs for non-marmoset organisms regardless of run_modify_gtf."
+  }
+
+  command <<<
+    set -eo pipefail
+
+    GTF_FILE="~{annotation_gtf}"
+
+    # Check that GTF contains expected genome build
+    if head -10 ${GTF_FILE} | grep -qi ~{genome_build}
     then
-        echo "marmoset is detected, running header modification"
-        python3 /script/create_marmoset_header_mt_genes.py \
-            ${GTF_FILE} > "/cromwell_root/header.gtf"
+        echo Genome version found in the GTF file
     else
-        echo "marmoset is not detected"
-
-        # Check that input GTF files contain input genome source, genome build version, and annotation version
-        if head -10 ${GTF_FILE} | grep -qi ~{genome_build}
-        then
-            echo Genome version found in the GTF file
-        else
-            echo Error: Input genome version does not match version in GTF file
-            exit 1;
-        fi
-
-        # Check that GTF file contains correct build source info in the first 10 lines of the GTF
-        if head -10 ${GTF_FILE} | grep -qi ~{genome_source}
-        then
-            echo Source of genome build identified in the GTF file
-        else
-            echo Error: Source of genome build not identified in the GTF file
-            exit 1;
-        fi
-        set -eo pipefail
+        echo Error: Input genome version does not match version in GTF file
+        exit 1;
     fi
 
-    if [ "~{skip_gtf_modification}" = "false" ]; then
-        if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
-        then
-            echo "marmoset detected, running marmoset GTF modification"
-            echo "Listing files to check for head.gtf"
-            ls
-            python3 /script/modify_gtf_marmoset.py \
-                --input-gtf "/cromwell_root/header.gtf" \
-                --output-gtf ~{annotation_gtf_modified} \
-                --species ~{organism}
-            echo "listing files, should see modified gtf"
-            ls
-        else
-            echo "running GTF modification for non-marmoset"
-            python3 /script/modify_gtf.py \
-                --input-gtf ${GTF_FILE} \
-                --output-gtf ~{annotation_gtf_modified} \
-                --biotypes ~{biotypes}
-        fi
+    # Check that GTF contains expected genome source
+    if head -10 ${GTF_FILE} | grep -qi ~{genome_source}
+    then
+        echo Source of genome build identified in the GTF file
     else
-        echo "Skipping GTF modification — using original GTF for STAR index"
-        cp ${GTF_FILE} ~{annotation_gtf_modified}
+        echo Error: Source of genome build not identified in the GTF file
+        exit 1;
     fi
 
-    # --- Remove duplicate mito contig if mito_accession is set
-    if [[ "~{run_mitofinder}" == "true" && -n "~{mito_accession}" ]]; then
-      echo "MitoFinder was run and mito_accession provided: ~{mito_accession}"
+    echo "GTF validation passed"
+  >>>
 
-      if grep -q "^>~{mito_accession}$" ~{genome_fa}; then
-        echo "Removing duplicate contig ~{mito_accession} from FASTA..."
+  output {
+    Boolean validation_passed = true
+  }
 
-        awk -v acc="~{mito_accession}" '
-          BEGIN { deleted = 0 }
-          $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
-          /^>/ { skip = 0 }
-          !skip
-          ' ~{genome_fa} > genome_mito.filtered.fasta
-        mv genome_mito.filtered.fasta ~{genome_fa}
-      else
-        echo "Contig ~{mito_accession} not found; skipping removal."
-      fi
+  runtime {
+    docker: "ubuntu:20.04"
+    memory: "2 GiB"
+    disks: "local-disk 10 HDD"
+    cpu: 1
+  }
+}
+
+task BuildStarSingleNucleus {
+  input {
+    # GTF annotation version refers to the version (GENCODE) or release (NCBI) listed in the GTF
+    String gtf_annotation_version
+    # Genome source can be NCBI or GENCODE
+    String genome_source
+    # Genome build is the assembly accession (NCBI) or version (GENCODE)
+    String genome_build
+    # Organism can be Macaque, Mouse, Human, etc.
+    String organism
+    File genome_fa
+    File annotation_gtf
+    Boolean run_modify_gtf
+    Int disk = 100
+  }
+
+  meta {
+    description: "Build reference index files for STAR aligner"
+  }
+
+  String gtf_prefix = if run_modify_gtf then "modified_" else ""
+  String ref_name = "star2.7.10a-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
+  String star_index_name = "~{gtf_prefix}~{ref_name}.tar"
+  String annotation_gtf_modified = "~{gtf_prefix}v~{gtf_annotation_version}.annotation.gtf"
+
+  command <<<
+    # Decompress GTF if gzipped, otherwise copy to expected output name
+    if [[ "~{annotation_gtf}" == *.gz ]]; then
+        echo "Detected gzipped GTF file, decompressing..."
+        gunzip -c ~{annotation_gtf} > ~{annotation_gtf_modified}
     else
-        echo "No mito_accession provided, skipping contig removal."
+        echo "GTF file is not compressed, copying..."
+        cp ~{annotation_gtf} ~{annotation_gtf_modified}
     fi
 
     mkdir star
@@ -430,6 +540,81 @@ task BuildStarSingleNucleus {
   }
 }
 
+task ModifyGTF {
+  input {
+    File annotation_gtf
+    File biotypes
+  }
+
+  meta {
+    description: "Modify GTF annotation file for non-marmoset organisms using biotype filtering"
+  }
+
+  command <<<
+    set -eo pipefail
+
+    GTF_FILE="~{annotation_gtf}"
+
+    # Run standard GTF modification
+    echo "Running GTF modification"
+    python3 /script/modify_gtf.py \
+        --input-gtf ${GTF_FILE} \
+        --output-gtf modified.annotation.gtf \
+        --biotypes ~{biotypes}
+  >>>
+
+  output {
+    File modified_gtf = "modified.annotation.gtf"
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.1.0"
+    memory: "8 GiB"
+    disks: "local-disk 50 HDD"
+    cpu: 2
+  }
+}
+
+task ModifyGTFMarmoset {
+  input {
+    File annotation_gtf
+    String organism
+  }
+
+  meta {
+    description: "Modify GTF annotation file for marmoset organisms"
+  }
+
+  command <<<
+    set -eo pipefail
+
+    GTF_FILE="~{annotation_gtf}"
+
+    # Create marmoset header
+    echo "Marmoset detected, running header modification"
+    python3 /script/create_marmoset_header_mt_genes.py \
+        ${GTF_FILE} > /cromwell_root/header.gtf
+
+    # Run marmoset-specific GTF modification
+    echo "Running marmoset GTF modification"
+    python3 /script/modify_gtf_marmoset.py \
+        --input-gtf /cromwell_root/header.gtf \
+        --output-gtf modified.annotation.gtf \
+        --species ~{organism}
+  >>>
+
+  output {
+    File modified_gtf = "modified.annotation.gtf"
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.1.0"
+    memory: "8 GiB"
+    disks: "local-disk 50 HDD"
+    cpu: 2
+  }
+}
+
 task BuildBWAreference {
   input {
     File genome_fa
@@ -443,8 +628,6 @@ task BuildBWAreference {
     String genome_build
     # Organism can be Macaque, Mouse, Human, etc.
     String organism
-    String? mito_accession
-    Boolean run_mitofinder
   }
 
 String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{genome_build}"
@@ -458,28 +641,6 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
       gunzip -c ~{genome_fa} > genome/genome.fa
     else
       mv ~{genome_fa} genome/genome.fa
-    fi
-
-    # --- Remove duplicate contig if mito_accession is provided ---
-    if [[ "~{run_mitofinder}" == "true" && -n "~{mito_accession}" ]]; then
-      echo "MitoFinder was run and mito_accession is set to: ~{mito_accession}"
-
-      if grep -q "^>~{mito_accession}$" genome/genome.fa; then
-        echo "Removing duplicate contig ~{mito_accession} from FASTA..."
-
-        awk -v acc="~{mito_accession}" '
-          BEGIN { deleted = 0 }
-          $0 == ">" acc && deleted == 0 { deleted = 1; skip = 1; next }
-          /^>/ { skip = 0 }
-          !skip
-        ' genome/genome.fa > genome/genome.filtered.fa
-
-        mv genome/genome.filtered.fa genome/genome.fa
-      else
-        echo "Contig ~{mito_accession} not found in genome.fa, no removal needed."
-      fi
-    else
-        echo "No mito_accession provided, skipping contig removal."
     fi
 
     bwa-mem2 index genome/genome.fa
@@ -503,69 +664,133 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
 task RecordMetadata {
   input {
     String pipeline_version
+    String organism
+    String genome_source
+    String genome_build
+    String gtf_annotation_version
+    Boolean run_mitofinder
+    Boolean run_modify_gtf
+    Boolean run_add_introns
+    Boolean is_marmoset
     Array[File] input_files
     Array[File] output_files
-    # New inputs for logging mito info
-    Boolean was_mitofinder_run
-    String organism
-    String? mito_accession_used
-    File? mito_ref_gbk_used
-    Array[String]? mitofinder_opts_used
+
+    # Original inputs for tracking
+    File input_annotations_gtf
+    File input_genome_fa
+
+    # Optional modification outputs for tracking which steps ran
+    File? mito_annotated_fasta
+    File? mito_appended_gtf
+    File fixed_gtf
+    File? modified_gtf
+    File? modified_gtf_marmoset
+    File star_annotation_gtf
+    File star_index
   }
 
   command <<<
     set -euo pipefail
 
-    # create metadata file
-    echo "Pipeline Version: ~{pipeline_version}" > metadata.txt
+    # Helper: convert cromwell paths to gs:// paths
+    to_gs() { echo "$1" | sed 's|^/mnt/disks/cromwell_root/|gs://|'; }
+
+    # ---- Header ----
+    echo "========================================" > metadata.txt
+    echo "BuildIndices Pipeline Metadata" >> metadata.txt
+    echo "========================================" >> metadata.txt
+    echo "Pipeline Version: ~{pipeline_version}" >> metadata.txt
     echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
     echo "" >> metadata.txt
 
-    echo "--- MitoFinder Details ---" >> metadata.txt
-    # Check if the boolean flag is true
-    if [[ "~{was_mitofinder_run}" == "true" ]]; then
-      echo "MitoFinder was run for organism: ~{organism}" >> metadata.txt
-      # Check for and report the specific parameters used, handling optional inputs.
-      if [ "~{mito_accession_used}" != "" ]; then
-        echo "Mitochondrial Accession: ~{mito_accession_used}" >> metadata.txt
+    # ---- Reference Genome Info ----
+    echo "Reference Genome Configuration:" >> metadata.txt
+    echo "  Organism: ~{organism}" >> metadata.txt
+    echo "  Genome Source: ~{genome_source}" >> metadata.txt
+    echo "  Genome Build: ~{genome_build}" >> metadata.txt
+    echo "  GTF Annotation Version: ~{gtf_annotation_version}" >> metadata.txt
+    echo "  Is Marmoset: ~{is_marmoset}" >> metadata.txt
+    echo "" >> metadata.txt
+
+    # ---- Pipeline Options ----
+    echo "Pipeline Options:" >> metadata.txt
+    echo "  run_mitofinder: ~{run_mitofinder}" >> metadata.txt
+    echo "  run_modify_gtf: ~{run_modify_gtf}" >> metadata.txt
+    echo "  run_add_introns: ~{run_add_introns}" >> metadata.txt
+    echo "" >> metadata.txt
+
+    # ---- Modifications Applied ----
+    echo "Modifications Applied:" >> metadata.txt
+
+    # MitoFinder
+    if [ "~{run_mitofinder}" = "true" ]; then
+      echo "  [MitoFinder] Ran mitochondrial annotation" >> metadata.txt
+      echo "    Input genome FASTA: $(to_gs '~{input_genome_fa}')" >> metadata.txt
+      if [ -n "~{default='NONE' mito_annotated_fasta}" ] && [ "~{default='NONE' mito_annotated_fasta}" != "NONE" ]; then
+        echo "    Output mito-annotated FASTA: $(to_gs '~{mito_annotated_fasta}')" >> metadata.txt
       fi
-      if [ "~{mito_ref_gbk_used}" != "" ]; then
-        echo "Mitochondrial Reference GBK: ~{mito_ref_gbk_used} (md5sum: $(md5sum "~{mito_ref_gbk_used}" | awk '{print $1}'))" >> metadata.txt
-      fi
-      if [ "~{sep=' ' mitofinder_opts_used}" != "" ]; then
-        echo "MitoFinder Extra Options: ~{sep=' ' mitofinder_opts_used}" >> metadata.txt
+      echo "    Input annotations GTF: $(to_gs '~{input_annotations_gtf}')" >> metadata.txt
+      if [ -n "~{default='NONE' mito_appended_gtf}" ] && [ "~{default='NONE' mito_appended_gtf}" != "NONE" ]; then
+        echo "    Output mito-appended GTF: $(to_gs '~{mito_appended_gtf}')" >> metadata.txt
       fi
     else
-      echo "MitoFinder was not run." >> metadata.txt
+      echo "  [MitoFinder] Skipped" >> metadata.txt
     fi
+
+    # FixGeneNames (always runs)
+    echo "  [FixGeneNames] Fixed missing gene_name attributes" >> metadata.txt
+    echo "    Output fixed GTF: $(to_gs '~{fixed_gtf}')" >> metadata.txt
+
+    # GTF Modification
+    if [ "~{run_modify_gtf}" = "true" ]; then
+      if [ "~{is_marmoset}" = "true" ]; then
+        echo "  [ModifyGTFMarmoset] Ran marmoset-specific GTF modification" >> metadata.txt
+        echo "    Input GTF: $(to_gs '~{input_annotations_gtf}')" >> metadata.txt
+        if [ -n "~{default='NONE' modified_gtf_marmoset}" ] && [ "~{default='NONE' modified_gtf_marmoset}" != "NONE" ]; then
+          echo "    Output modified GTF: $(to_gs '~{modified_gtf_marmoset}')" >> metadata.txt
+        fi
+      else
+        echo "  [ModifyGTF] Ran standard GTF modification" >> metadata.txt
+        echo "    Input GTF: $(to_gs '~{input_annotations_gtf}')" >> metadata.txt
+        if [ -n "~{default='NONE' modified_gtf}" ] && [ "~{default='NONE' modified_gtf}" != "NONE" ]; then
+          echo "    Output modified GTF: $(to_gs '~{modified_gtf}')" >> metadata.txt
+        fi
+      fi
+    else
+      echo "  [ModifyGTF] Skipped" >> metadata.txt
+    fi
+
+    # STAR Index
+    echo "  [BuildStarSingleNucleus] Built STAR index" >> metadata.txt
+    echo "    Input GTF: $(to_gs '~{star_annotation_gtf}')" >> metadata.txt
+    echo "    Output STAR index: $(to_gs '~{star_index}')" >> metadata.txt
+
     echo "" >> metadata.txt
 
-    # echo paths and md5sums for input files
+    # ---- Input Files ----
     echo "Input Files and their md5sums:" >> metadata.txt
     for file in ~{sep=" " input_files}; do
-      gs_path=$(echo "$file" | sed 's|^/mnt/disks/cromwell_root/|gs://|')
-      echo "$gs_path : $(md5sum "$file" | awk '{print $1}')" >> metadata.txt
+      gs_path=$(to_gs "$file")
+      echo "  $gs_path : $(md5sum "$file" | awk '{print $1}')" >> metadata.txt
     done
     echo "" >> metadata.txt
 
-    # echo paths and md5sums for input files
+    # ---- Output Files ----
     echo "Output Files and their md5sums:" >> metadata.txt
     for file in ~{sep=" " output_files}; do
-      gs_path=$(echo "$file" | sed 's|^/mnt/disks/cromwell_root/|gs://|')
-      echo "$gs_path : $(md5sum "$file" | awk '{print $1}')" >> metadata.txt
+      gs_path=$(to_gs "$file")
+      echo "  $gs_path : $(md5sum "$file" | awk '{print $1}')" >> metadata.txt
     done
     echo "" >> metadata.txt
 
-    # grab workspace bucket
+    # ---- Cromwell Execution Info ----
     file="~{output_files[0]}"
     workspace_bucket=$(echo $file | awk -F'/' '{print $3}')
     echo "Workspace Bucket: $workspace_bucket" >> metadata.txt
 
-    # grab submission ID
     submission_id=$(echo $file | awk -F'/' '{print $5}')
     echo "Submission ID: $submission_id" >> metadata.txt
 
-    # grab workflow ID
     workflow_id=$(echo $file | awk -F'/' '{print $7}')
     echo "Workflow ID: $workflow_id" >> metadata.txt
 
@@ -584,7 +809,7 @@ task RecordMetadata {
   }
 }
 
-  task SNSS2AddIntronsToGTF {
+task SNSS2AddIntronsToGTF {
   input {
     File modified_annotation_gtf
     File genome_fa
