@@ -201,6 +201,9 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/pgx/StargazerFromJointVCF.wdl
 
+  - name: SubsetPhasedVcfsForFLARE
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/local_ancestry/SubsetPhasedVcfsForFLARE.wdl
 
   - name: SusieR_Workflow
     subclass: WDL
