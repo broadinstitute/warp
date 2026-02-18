@@ -248,6 +248,39 @@ Marmoset scripts expect a custom-modified input Marmoset GTF file. These inputs 
 | STAR Index TAR     | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/star/v2_7_10a/modified_star2.7.10a-Pig-NCBI-build-Sscrofa11.1-2.2.tar` |
 | GTF Annotation     | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/star/v2_7_10a/modified_v2.2.annotation.gtf` |
 
+### Owl Monkey
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | 86718_ANA_hifiasm-v0.15.2.pri (NCBI) |
+| Gene Annotation    | RefSeq GCF_030222135.1 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/A.nancymaae/86718_ANA_hifiasm-v0.15.2.pri/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Owl_monkey-NCBI-build-86718_ANA_hifiasm-v0.15.2.pri.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/A.nancymaae/86718_ANA_hifiasm-v0.15.2.pri/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/A.nancymaae/86718_ANA_hifiasm-v0.15.2.pri/cleanome/star/v2_7_10a/star2.7.10a-Owl_monkey-NCBI-build-86718_ANA_hifiasm-v0.15.2.pri-GCF_030222135.1.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/A.nancymaae/86718_ANA_hifiasm-v0.15.2.pri/cleanome/star/v2_7_10a/vGCF_030222135.1.annotation.gtf` |
+| MT Genes List      | `gs://gcp-public-data--broad-references/A.nancymaae/86718_ANA_hifiasm-v0.15.2.pri/cleanome/owl_monkey_mt_genes_list.txt` |
+
+### Lemur
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | Mmur_3.0 (NCBI) |
+| Gene Annotation    | RefSeq GCF_000165445.2 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/M.murinus/Mmur_3.0/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Gray_mouse_lemur-NCBI-build-Mmur_3.0.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/M.murinus/Mmur_3.0/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/M.murinus/Mmur_3.0/cleanome/star/v2_7_10a/star2.7.10a-Gray_mouse_lemur-NCBI-build-Mmur_3.0-GCF_000165445.2.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/M.murinus/Mmur_3.0/cleanome/star/v2_7_10a/vGCF_000165445.2.annotation.gtf` |
+| MT Genes List      | `gs://gcp-public-data--broad-references/M.murinus/Mmur_3.0/cleanome/lemur_mt_genes_list.txt` |
+
+### Naked Mole Rat
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | HetGla_female_1.0 (NCBI) |
+| Gene Annotation    | RefSeq GCF_000247695.1 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/H.glaber/HetGla_female_1.0/cleanome/bwa/bwa-mem2-2.2.1-Naked_mole_rat-NCBI-build-HetGla_female_1.0.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/H.glaber/HetGla_female_1.0/cleanome/bwa/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/H.glaber/HetGla_female_1.0/cleanome/star/v2_7_10a/star2.7.10a-Naked_mole_rat-NCBI-build-HetGla_female_1.0-GCF_000247695.1.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/H.glaber/HetGla_female_1.0/cleanome/star/v2_7_10a/vGCF_000247695.1.annotation.gtf` |
+| MT Genes List      | `gs://gcp-public-data--broad-references/H.glaber/HetGla_female_1.0/cleanome/naked_mole_rat_mt_genes_list.txt` |
+
 ### Viral references
 
 | Species | Species reference | Species annotation | Viral reference | Viral annotation | 
