@@ -12,6 +12,7 @@ workflow FlareLocalAncestry {
         File analysis_vcf
         String output_basename
         File? model
+        File? subsets
 
         String flare_docker = "us.gcr.io/broad-gotc-prod/flare:0.0.1"
     }
@@ -24,6 +25,7 @@ workflow FlareLocalAncestry {
             ref_panel_mapping_file = ref_panel_mapping_file,
             analysis_vcf = analysis_vcf,
             basename = output_basename,
+            subsets = subsets,
             model = model,
             flare_docker = flare_docker
     }
@@ -51,6 +53,7 @@ task Flare {
 
         File? model
         Int seed = 12345
+        File? subsets
 
         Int cpu = 1
         Int memory_mb = 6000
@@ -70,6 +73,7 @@ task Flare {
         map=~{plink_map_file} \
         gt=~{analysis_vcf} \
         seed=~{seed} \
+        ~{"gt-samples=" + subsets} \
         nthreads=~{cpu} \
         ~{"em=false model=" + model} \
         out=~{basename}
