@@ -13,8 +13,7 @@ The following table lists species for which reference files have been built or a
 |Macaque|Macaca mulatta|mmul10|[RefSeq annotation version 103](https://www.google.com/url?source=gmail&sa=E&q=https://www.ncbi.nlm.nih.gov/genome/annotation_euk/Macaca_mulatta/103/)|Production|
 |Marmoset|Callithrix jacchus|mCalJa1.2.pat.X (GenBank Accession GCA_011100555.2 and RefSeq Accession GCF_011100555.1)|Custom GTF with mitochondrial chromosomes|Production|
 |Armadillo (Nine-banded)|Dasypus novemcinctus|mDasNov1.hap2 (NCBI)|RefSeq GCF_030445035.1-RS_2023_07|Available|
-|Ferret|Mustela putorius furo|ASM1176430v1.1 (NCBI)|GCF_011764305.1 (NCBI)|Coming Soon|
-|Galago|Otolemur garnettii|OtoGar3 (NCBI)|GCF_000181295.1 (NCBI)|Coming Soon|
+|Ferret|Mustela putorius furo|ASM1176430v1.1 (NCBI)|GCF_011764305.1 (NCBI)|Available|
 |Mouse lemur|Microcebus murinus|Mmur_3.0 (NCBI)|GCF_000165445.2 (NCBI)|Available|
 |Naked mole rat|Heterocephalus glaber|HetGla_female_1.0 (NCBI)|GCF_000247695.1 (NCBI)|Available|
 |Opossum|Monodelphis domestica|mMonDom1.pri (NCBI)|RefSeq GCF_027887165.1-RS_2023_05|Available|
@@ -22,5 +21,4 @@ The following table lists species for which reference files have been built or a
 |Pig|Sus scrofa|Sscrofa11.1 (NCBI)|NCBI Annotation Release 106 (RefSeq GCF_000003025.6_Sscrofa11.1)|Available|
 |Rat|Rattus norvegicus|mRatBN7.2 (NCBI)|RefSeq GCF_015227675.2-RS_2023_06|Available|
 |Treeshrew|Tupaia belangeri|TupChi_1.0 (NCBI)|GCF_000334495.1 (NCBI)|Coming Soon|
-|Chimpanzee|Pan troglodytes|NHGRI_mPanTro3-v2.0_pri (NCBI)|GCF_028858775.2 (NCBI)|Coming Soon|
-|Harbor porpoise|Phocoena phocoena|mPhoSin1.pri (NCBI)|GCF_008692025.1 (NCBI)|Coming Soon|
+|Chimpanzee|Pan troglodytes|NHGRI_mPanTro3-v2.0_pri (NCBI)|GCF_028858775.2 (NCBI)|Available|

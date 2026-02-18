@@ -281,6 +281,28 @@ Marmoset scripts expect a custom-modified input Marmoset GTF file. These inputs 
 | GTF Annotation     | `gs://gcp-public-data--broad-references/H.glaber/HetGla_female_1.0/cleanome/star/v2_7_10a/vGCF_000247695.1.annotation.gtf` |
 | MT Genes List      | `gs://gcp-public-data--broad-references/H.glaber/HetGla_female_1.0/cleanome/naked_mole_rat_mt_genes_list.txt` |
 
+### Chimp
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | NHGRI_mPanTro3-v2.0_pri (NCBI) |
+| Gene Annotation    | RefSeq GCF_028858775.2 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/P.troglodytes/NHGRI_mPanTro3-v2.0_pri/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Chimp-NCBI-build-NHGRI_mPanTro3-v2.0_pri.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/P.troglodytes/NHGRI_mPanTro3-v2.0_pri/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/P.troglodytes/NHGRI_mPanTro3-v2.0_pri/cleanome/star/v2_7_10a/star2.7.10a-Chimp-NCBI-build-NHGRI_mPanTro3-v2.0_pri-GCF_028858775.2.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/P.troglodytes/NHGRI_mPanTro3-v2.0_pri/cleanome/star/v2_7_10a/vGCF_028858775.2.annotation.gtf` |
+| MT Genes List      | `gs://gcp-public-data--broad-references/P.troglodytes/NHGRI_mPanTro3-v2.0_pri/cleanome/chimp_mt_genes_list.txt` |
+
+### Ferret
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | ASM1176430v1.1 (NCBI) |
+| Gene Annotation    | RefSeq GCF_011764305.1 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/M.putorius_furo/ASM1176430v1.1/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Ferret-NCBI-build-ASM1176430v1.1.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/M.putorius_furo/ASM1176430v1.1/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/M.putorius_furo/ASM1176430v1.1/cleanome/star/v2_7_10a/star2.7.10a-Ferret-NCBI-build-ASM1176430v1.1-GCF_011764305.1.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/M.putorius_furo/ASM1176430v1.1/cleanome/star/v2_7_10a/vGCF_011764305.1.annotation.gtf` |
+| MT Genes List      | `gs://gcp-public-data--broad-references/M.putorius_furo/ASM1176430v1.1/cleanome/ferret_mt_genes_list.txt` |
+
 ### Viral references
 
 | Species | Species reference | Species annotation | Viral reference | Viral annotation | 
