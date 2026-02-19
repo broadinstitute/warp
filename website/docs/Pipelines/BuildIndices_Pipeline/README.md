@@ -303,6 +303,17 @@ Marmoset scripts expect a custom-modified input Marmoset GTF file. These inputs 
 | GTF Annotation     | `gs://gcp-public-data--broad-references/M.putorius_furo/ASM1176430v1.1/cleanome/star/v2_7_10a/vGCF_011764305.1.annotation.gtf` |
 | MT Genes List      | `gs://gcp-public-data--broad-references/M.putorius_furo/ASM1176430v1.1/cleanome/ferret_mt_genes_list.txt` |
 
+### Treeshrew
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | TupChi_1.0 (NCBI) |
+| Gene Annotation    | RefSeq GCF_000334495.1 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/T.belangeri/TupChi_1.0/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Treeshrew-NCBI-build-TupChi_1.0.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/T.belangeri/TupChi_1.0/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/T.belangeri/TupChi_1.0/cleanome/star/v2_7_10a/star2.7.10a-Treeshrew-NCBI-build-TupChi_1.0-GCF_000334495.1.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/T.belangeri/TupChi_1.0/cleanome/star/v2_7_10a/vGCF_000334495.1.annotation.gtf` |
+| MT Genes List      | NA |
+
 ### Viral references
 
 | Species | Species reference | Species annotation | Viral reference | Viral annotation | 

@@ -20,5 +20,5 @@ The following table lists species for which reference files have been built or a
 |Owl monkey|Aotus nancymaae|86718_ANA_hifiasm-v0.15.2.pri (NCBI)|GCF_030222135.1 (NCBI)|Available|
 |Pig|Sus scrofa|Sscrofa11.1 (NCBI)|NCBI Annotation Release 106 (RefSeq GCF_000003025.6_Sscrofa11.1)|Available|
 |Rat|Rattus norvegicus|mRatBN7.2 (NCBI)|RefSeq GCF_015227675.2-RS_2023_06|Available|
-|Treeshrew|Tupaia belangeri|TupChi_1.0 (NCBI)|GCF_000334495.1 (NCBI)|Coming Soon|
+|Treeshrew|Tupaia belangeri|TupChi_1.0 (NCBI)|GCF_000334495.1 (NCBI)|Available|
 |Chimpanzee|Pan troglodytes|NHGRI_mPanTro3-v2.0_pri (NCBI)|GCF_028858775.2 (NCBI)|Available|
