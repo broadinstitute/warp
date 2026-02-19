@@ -213,8 +213,8 @@ task subset_phased_vcf_task {
 			cluster_start_cmd = f"""
 				hailctl dataproc start --num-workers ~{num_workers}
 				--region ~{region} --project ~{gcs_project} --service-account {account}
-				--worker-machine-type n1-standard-4
-				--master-machine-type n1-standard-4
+				--worker-machine-type n1-highmem-4
+				--master-machine-type n1-highmem-32
 				--max-idle=~{max_idle}m --max-age=~{max_age}m
 				--subnet=projects/~{gcs_project}/regions/~{region}/subnetworks/~{gcs_subnetwork_name}
 				--enable-component-gateway
