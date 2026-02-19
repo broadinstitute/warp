@@ -44,12 +44,12 @@ workflow Optimus {
     Boolean run_cellbender = false
     Int cellbender_memory_GB = 32
 
-    # Chemistry options include: 2 or 3
+    # Chemistry options include: 2, 3 or 4
     Int tenx_chemistry_version
     # Whitelist is selected based on the input tenx_chemistry_version
     File whitelist = checkOptimusInput.whitelist_out
 
-    # read_structure is based on v2 or v3 chemistry
+    # read_structure is based on v2, v3, or v4 chemistry
     String read_struct = checkOptimusInput.read_struct_out
 
     # Emptydrops lower cutoff
@@ -86,8 +86,10 @@ workflow Optimus {
   # 10x parameters
   File gcp_whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
   File gcp_whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
+  File gcp_whitelist_v4 = "gs://gcp-public-data--broad-references/RNA/resources/3M-3pgex-may-2023.txt.gz"
   File azure_whitelist_v2 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/737k-august-2016.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
   File azure_whitelist_v3 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/3M-febrary-2018.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
+  File azure_whitelist_v4 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/3M-3pgex-may-2023.txt.gz?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
 
   # Takes the first read1 FASTQ from the inputs to check for chemistry match
   File r1_single_fastq = r1_fastq[0]
@@ -150,8 +152,10 @@ workflow Optimus {
       count_exons = count_exons,
       gcp_whitelist_v2 = gcp_whitelist_v2,
       gcp_whitelist_v3 = gcp_whitelist_v3,
+      gcp_whitelist_v4 = gcp_whitelist_v4,
       azure_whitelist_v2 = azure_whitelist_v2,
       azure_whitelist_v3 = azure_whitelist_v3,
+      azure_whitelist_v4 = azure_whitelist_v4,
       tenx_chemistry_version = tenx_chemistry_version,
       r1_fastq = r1_single_fastq,
       ignore_r1_read_length = ignore_r1_read_length,
