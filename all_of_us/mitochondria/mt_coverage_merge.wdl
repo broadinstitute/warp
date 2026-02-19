@@ -1,6 +1,11 @@
 version 1.0
 
 workflow mt_coverage_merge {
+    
+    meta {
+        description: "This workflow builds a combined mtDNA MatrixTable from per-sample VCFs, imputes hom-ref coverage from a coverage DB, and outputs annotated (full and filtered) callsets."
+        allowNestedInputs: true
+    }
 
     input {
         # Side inputs with fields that are not incoporated in the samples table
@@ -23,12 +28,10 @@ workflow mt_coverage_merge {
         Boolean shard_step3 = true
         Int step3_shard_size = 2500
         Int step3_merge_fanin = 10
-        Int step3_shard_n_partitions = 128
-    String step3_output_bucket
+        Int step3_shard_n_partitions = 192
+        String step3_output_bucket
 
     }
-
-    # (kept for provenance in earlier iterations; currently unused)
 
     if (defined(sample_list_tsv)) {
         call subset_data_table {
@@ -321,9 +324,9 @@ task build_vcf_shard_mt {
         String output_bucket
 
         # Runtime parameters
-        Int memory_gb = 64
-        Int cpu = 16
-        Int disk_gb = 500
+        Int memory_gb = 128
+        Int cpu = 32
+        Int disk_gb = 1000
         String disk_type = "SSD"
     }
 
@@ -470,9 +473,9 @@ task merge_mt_shards {
         String output_bucket
 
         # Runtime parameters
-        Int memory_gb = 128
-        Int cpu = 16
-        Int disk_gb = 1500
+        Int memory_gb = 192
+        Int cpu = 32
+        Int disk_gb = 3000
         String disk_type = "SSD"
     }
 
@@ -593,14 +596,14 @@ task finalize_mt_with_covdb {
         String artifact_prone_sites_reference = "default"
         String file_name
         Int minimum_homref_coverage = 100
-        Int homref_position_block_size = 1024
+        Int homref_position_block_size = 2048
         Int n_final_partitions = 1000
         Boolean overwrite = false
 
         # Runtime parameters
         Int memory_gb = 256
-        Int cpu = 32
-        Int disk_gb = 2000
+        Int cpu = 40
+        Int disk_gb = 4000
         String disk_type = "SSD"
     }
 
@@ -856,8 +859,8 @@ task annotate_coverage {
         Boolean skip_summary = false
 
         # Runtime parameters
-        Int memory_gb = 256 #1000
-        Int cpu = 16 #64
+        Int memory_gb = 128 #1000
+        Int cpu = 32 #64
         Int disk_gb = 2000 #2000
         String disk_type = "SSD" #"SSD"
     }
@@ -893,84 +896,6 @@ task annotate_coverage {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/mt-coverage-db:dev"
-        memory: memory_gb + " GB" 
-        cpu: cpu
-        disks: "local-disk " + disk_gb + " " + disk_type 
-    }
-}
-
-task combine_vcfs {
-    input {
-        File input_tsv        # Input TSV file
-        File coverage_mt_tar    # Tar.gzipped directory of the Hail table
-        String a_ref = "GRCh38"           # Reference genome (e.g., GRCh38)
-        Boolean overwrite = false  # Overwrite existing files (default: false)
-        String vcf_col_name = "final_vcf"     # Column name for VCFs
-        String artifact_prone_sites_path = "gs://gcp-public-data--broad-references/hg38/v0/chrM/blacklist_sites.hg38.chrM.bed"  # Path to artifact-prone sites BED file
-        String file_name        # Output file name
-
-        # Runtime parameters
-        Int memory_gb = 64 #1000
-        Int cpu = 16 #64
-        Int disk_gb = 500 #2000
-        String disk_type = "HDD" #"SSD"
-    }
-
-    command <<<
-        set -euxo pipefail
-
-        mkdir -p ./tmp
-        mkdir -p ./results
-
-        WORK_DIR=$(pwd)
-
-        # Set the spark config via environment variables
-        export SPARK_LOCAL_DIRS="$PWD/tmp"
-
-        DRIVER_MEM_GB=$((~{memory_gb} - 4))
-        if [ "$DRIVER_MEM_GB" -lt 2 ]; then DRIVER_MEM_GB=4; fi
-
-        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
-        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
-        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"  
-
-        # Unzip the tar.gz file containing the Hail table
-        mkdir -p ./unzipped_coverage.ht
-        tar -xzf ~{coverage_mt_tar} -C /cromwell_root/unzipped_coverage.ht
-        ls -lh /cromwell_root/unzipped_coverage.ht
-        cp -r /cromwell_root/unzipped_coverage.ht/merged_coverage_tsvs.mt /cromwell_root/unzipped_coverage.mt
-
-        # Verify the extracted directory TODO
-        if [ ! -d "/cromwell_root/unzipped_coverage.mt" ]; then
-            echo "Error: Directory '/cromwell_root/unzipped_coverage.mt' does not exist after extraction."
-            exit 1
-        fi
-
-
-        # Run the combine_vcfs.py script
-        python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/combine_vcfs.py \
-        --input-tsv ~{input_tsv} \
-        -c /cromwell_root/unzipped_coverage.mt \
-        -a-ref ~{a_ref} \
-    ~{if overwrite then "--overwrite" else ""} \
-        --vcf-col-name ~{vcf_col_name} \
-        --output-bucket ./results \
-        --temp-dir ./tmp \
-        --artifact-prone-sites-path ~{artifact_prone_sites_path} \
-        --file-name ~{file_name} \
-        --include-extra-v2-fields
-
-
-        # Tar zip the results directory
-        tar -czf $WORK_DIR/results.tar.gz ./results/combined_vcf.vcf.gz.mt
-    >>>
-
-    output {
-        File results_tar = "results.tar.gz"
-    }
-
-    runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0"
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 
@@ -1068,10 +993,10 @@ task add_annotations {
         String output_name      # directory output name
         
         # Runtime parameters
-        Int memory_gb = 64 #1000
-        Int cpu = 16 #64
-        Int disk_gb = 500 #2000
-        String disk_type = "HDD" #"SSD"
+        Int memory_gb = 96 #1000
+        Int cpu = 32 #64
+        Int disk_gb = 1000 #2000
+        String disk_type = "SSD" #"SSD"
     }
 
      command <<<
