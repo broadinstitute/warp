@@ -341,15 +341,17 @@ task build_vcf_shard_mt {
         mkdir -p ./tmp
         mkdir -p ./results
 
-        # Spark/Hail scratch
-        export SPARK_LOCAL_DIRS="$PWD/tmp"
+        setup_spark() {
+            local mem_gb="$1"
+            export SPARK_LOCAL_DIRS="$PWD/tmp"
+            local driver_mem_gb=$((mem_gb - 8))
+            if [ "$driver_mem_gb" -lt 4 ]; then driver_mem_gb=4; fi
+            export SPARK_DRIVER_MEMORY="${driver_mem_gb}g"
+            export PYSPARK_SUBMIT_ARGS="--driver-memory ${driver_mem_gb}g --executor-memory ${driver_mem_gb}g pyspark-shell"
+            export JAVA_OPTS="-Xms${driver_mem_gb}g -Xmx${driver_mem_gb}g"
+        }
 
-        DRIVER_MEM_GB=$((~{memory_gb} - 8))
-        if [ "$DRIVER_MEM_GB" -lt 4 ]; then DRIVER_MEM_GB=4; fi
-
-        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
-        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
-        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"
+        setup_spark ~{memory_gb}
 
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/build_vcf_shard_mt.py \
             --shard-tsv ~{shard_tsv} \
@@ -421,7 +423,7 @@ task make_mt_merge_groups {
 
         # Serialize the Array[String] into a newline-delimited string for Python.
         # IMPORTANT: export it so the heredoc Python process inherits it.
-        # Using newlines avoids shell word-splitting surprises.0
+        # Using newlines avoids shell word-splitting surprises.
         export MT_TARS=$'~{sep="\\n" mt_tars}'
         echo "$MT_TARS"
 
@@ -485,14 +487,31 @@ task merge_mt_shards {
         mkdir -p ./tmp
         mkdir -p ./results
 
-        export SPARK_LOCAL_DIRS="$PWD/tmp"
+        setup_spark() {
+            local mem_gb="$1"
+            export SPARK_LOCAL_DIRS="$PWD/tmp"
+            local driver_mem_gb=$((mem_gb - 8))
+            if [ "$driver_mem_gb" -lt 4 ]; then driver_mem_gb=4; fi
+            export SPARK_DRIVER_MEMORY="${driver_mem_gb}g"
+            export PYSPARK_SUBMIT_ARGS="--driver-memory ${driver_mem_gb}g --executor-memory ${driver_mem_gb}g pyspark-shell"
+            export JAVA_OPTS="-Xms${driver_mem_gb}g -Xmx${driver_mem_gb}g"
+        }
 
-        DRIVER_MEM_GB=$((~{memory_gb} - 8))
-        if [ "$DRIVER_MEM_GB" -lt 4 ]; then DRIVER_MEM_GB=4; fi
+        find_mt_dir() {
+            local search_dir="$1"
+            local max_depth="$2"
+            local label="$3"
+            local mt_dir
+            mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" | head -n 1)
+            if [ -z "${mt_dir}" ]; then
+                echo "ERROR: could not find .mt directory after extracting ${label}" >&2
+                find "${search_dir}" -maxdepth "${max_depth}" -type d | head -100 >&2
+                exit 1
+            fi
+            echo "${mt_dir}"
+        }
 
-        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
-        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
-        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"
+        setup_spark ~{memory_gb}
 
         # Localize and extract all input MT tars.
         # NOTE: mt_list_tsv may contain gs:// URIs. We download them *inside the task* (not as inputs)
@@ -524,12 +543,7 @@ task merge_mt_shards {
 
           tar -xzf "${local_tar}" -C "${dest_dir}"
 
-          mt_dir=$(find "${dest_dir}" -maxdepth 2 -type d -name "*.mt" | head -n 1)
-          if [ -z "${mt_dir}" ]; then
-            echo "ERROR: could not find .mt directory after extracting ${local_tar}" >&2
-            find "${dest_dir}" -maxdepth 3 -type d | head -100 >&2
-            exit 1
-          fi
+                    mt_dir=$(find_mt_dir "${dest_dir}" 2 "${local_tar}")
           printf "%s\n" "${mt_dir}" >> ./inputs/mt_paths.tsv
 
           i=$((i+1))
@@ -613,14 +627,31 @@ task finalize_mt_with_covdb {
         mkdir -p ./tmp
         mkdir -p ./results
 
-        export SPARK_LOCAL_DIRS="$PWD/tmp"
+        setup_spark() {
+            local mem_gb="$1"
+            export SPARK_LOCAL_DIRS="$PWD/tmp"
+            local driver_mem_gb=$((mem_gb - 8))
+            if [ "$driver_mem_gb" -lt 4 ]; then driver_mem_gb=4; fi
+            export SPARK_DRIVER_MEMORY="${driver_mem_gb}g"
+            export PYSPARK_SUBMIT_ARGS="--driver-memory ${driver_mem_gb}g --executor-memory ${driver_mem_gb}g pyspark-shell"
+            export JAVA_OPTS="-Xms${driver_mem_gb}g -Xmx${driver_mem_gb}g"
+        }
 
-        DRIVER_MEM_GB=$((~{memory_gb} - 8))
-        if [ "$DRIVER_MEM_GB" -lt 4 ]; then DRIVER_MEM_GB=4; fi
+        find_mt_dir() {
+            local search_dir="$1"
+            local max_depth="$2"
+            local label="$3"
+            local mt_dir
+            mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" | head -n 1)
+            if [ -z "${mt_dir}" ]; then
+                echo "ERROR: could not find .mt directory after extracting ${label}" >&2
+                find "${search_dir}" -maxdepth "${max_depth}" -type d | head -100 >&2
+                exit 1
+            fi
+            echo "${mt_dir}"
+        }
 
-        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
-        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
-        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"
+        setup_spark ~{memory_gb}
 
         # Extract coverage.h5
         mkdir -p ./coverage_db
@@ -638,12 +669,7 @@ task finalize_mt_with_covdb {
             cp -f "${IN_TAR_PATH}" "${LOCAL_TAR}"
         fi
         tar -xzf "${LOCAL_TAR}" -C ./input_mt
-        IN_MT_DIR=$(find ./input_mt -maxdepth 2 -type d -name "*.mt" | head -n 1)
-        if [ -z "$IN_MT_DIR" ]; then
-            echo "ERROR: could not find .mt directory after extracting in_mt_tar" >&2
-            find ./input_mt -maxdepth 3 -type d | head -100 >&2
-            exit 1
-        fi
+        IN_MT_DIR=$(find_mt_dir "./input_mt" 2 "in_mt_tar")
 
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/finalize_mt_with_covdb.py \
             --in-mt "$IN_MT_DIR" \
@@ -859,10 +885,10 @@ task annotate_coverage {
         Boolean skip_summary = false
 
         # Runtime parameters
-        Int memory_gb = 128 #1000
-        Int cpu = 32 #64
-        Int disk_gb = 2000 #2000
-        String disk_type = "SSD" #"SSD"
+    Int memory_gb = 128
+    Int cpu = 32
+    Int disk_gb = 2000
+    String disk_type = "SSD"
     }
 
     command <<<
@@ -933,15 +959,17 @@ task combine_vcfs_and_homref_from_covdb {
 
         WORK_DIR=$(pwd)
 
-        # Spark/Hail scratch
-        export SPARK_LOCAL_DIRS="$PWD/tmp"
+        setup_spark() {
+            local mem_gb="$1"
+            export SPARK_LOCAL_DIRS="$PWD/tmp"
+            local driver_mem_gb=$((mem_gb - 8))
+            if [ "$driver_mem_gb" -lt 4 ]; then driver_mem_gb=4; fi
+            export SPARK_DRIVER_MEMORY="${driver_mem_gb}g"
+            export PYSPARK_SUBMIT_ARGS="--driver-memory ${driver_mem_gb}g --executor-memory ${driver_mem_gb}g pyspark-shell"
+            export JAVA_OPTS="-Xms${driver_mem_gb}g -Xmx${driver_mem_gb}g"
+        }
 
-        DRIVER_MEM_GB=$((~{memory_gb} - 8))
-        if [ "$DRIVER_MEM_GB" -lt 4 ]; then DRIVER_MEM_GB=4; fi
-
-        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
-        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
-        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"
+        setup_spark ~{memory_gb}
 
         # Extract coverage.h5 from tarball
         mkdir -p ./coverage_db
@@ -993,10 +1021,10 @@ task add_annotations {
         String output_name      # directory output name
         
         # Runtime parameters
-        Int memory_gb = 96 #1000
-        Int cpu = 32 #64
-        Int disk_gb = 1000 #2000
-        String disk_type = "SSD" #"SSD"
+    Int memory_gb = 96
+    Int cpu = 32
+    Int disk_gb = 1000
+    String disk_type = "SSD"
     }
 
      command <<<
@@ -1004,25 +1032,36 @@ task add_annotations {
 
         WORK_DIR=$(pwd)
 
-        # Set the spark config via environment variables
-        export SPARK_LOCAL_DIRS="$PWD/tmp"
+        setup_spark() {
+            local mem_gb="$1"
+            export SPARK_LOCAL_DIRS="$PWD/tmp"
+            local driver_mem_gb=$((mem_gb - 8))
+            if [ "$driver_mem_gb" -lt 4 ]; then driver_mem_gb=4; fi
+            export SPARK_DRIVER_MEMORY="${driver_mem_gb}g"
+            export PYSPARK_SUBMIT_ARGS="--driver-memory ${driver_mem_gb}g --executor-memory ${driver_mem_gb}g pyspark-shell"
+            export JAVA_OPTS="-Xms${driver_mem_gb}g -Xmx${driver_mem_gb}g"
+        }
 
-        DRIVER_MEM_GB=$((~{memory_gb} - 4))
-        if [ "$DRIVER_MEM_GB" -lt 2 ]; then DRIVER_MEM_GB=4; fi
+        find_mt_dir() {
+            local search_dir="$1"
+            local max_depth="$2"
+            local label="$3"
+            local mt_dir
+            mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" | head -n 1)
+            if [ -z "${mt_dir}" ]; then
+                echo "ERROR: could not find .mt directory after extracting ${label}" >&2
+                find "${search_dir}" -maxdepth "${max_depth}" -type d | head -100 >&2
+                exit 1
+            fi
+            echo "${mt_dir}"
+        }
 
-        export SPARK_DRIVER_MEMORY="${DRIVER_MEM_GB}g"
-        export PYSPARK_SUBMIT_ARGS="--driver-memory ${DRIVER_MEM_GB}g --executor-memory ${DRIVER_MEM_GB}g pyspark-shell"
-        export JAVA_OPTS="-Xms${DRIVER_MEM_GB}g -Xmx${DRIVER_MEM_GB}g"  
+        setup_spark ~{memory_gb}
 
         # Unzip VCF MatrixTable tarball
         mkdir -p ./unzipped_vcf.mt
         tar -xzf ~{vcf_mt} -C ./unzipped_vcf.mt
-        VCF_MT_DIR=$(find ./unzipped_vcf.mt -maxdepth 5 -type d -name "*.mt" ! -path "./unzipped_vcf.mt" | head -n 1)
-        if [ -z "${VCF_MT_DIR}" ]; then
-            echo "ERROR: could not find .mt directory after extracting vcf_mt" >&2
-            find ./unzipped_vcf.mt -maxdepth 5 -type d | head -100 >&2
-            exit 1
-        fi
+        VCF_MT_DIR=$(find_mt_dir "./unzipped_vcf.mt" 5 "vcf_mt")
         ls -lh "${VCF_MT_DIR}"
 
         # Extract coverage DB tarball (coverage.h5 [+ optional summary])
