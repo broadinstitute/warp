@@ -400,7 +400,7 @@ task build_vcf_shard_mt {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev-hailkeyfix"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.0"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -599,7 +599,7 @@ task merge_mt_shards {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev-hailkeyfix"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.0"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -699,7 +699,7 @@ task finalize_mt_with_covdb {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev-finalizefix1"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.0"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -893,10 +893,10 @@ task annotate_coverage {
         Boolean skip_summary = false
 
         # Runtime parameters
-    Int memory_gb = 128
-    Int cpu = 32
-    Int disk_gb = 2000
-    String disk_type = "SSD"
+        Int memory_gb = 128
+        Int cpu = 32
+        Int disk_gb = 2000
+        String disk_type = "SSD"
     }
 
     command <<<
@@ -929,7 +929,7 @@ task annotate_coverage {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/mt-coverage-db:dev"
+        docker: "us.gcr.io/broad-gotc-prod/mt-coverage-db:1.0.0"
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 
@@ -1013,7 +1013,7 @@ task combine_vcfs_and_homref_from_covdb {
 
     runtime {
         # NOTE: This must be a Hail-capable image with mtSwirl code baked in at /opt/mtSwirl.
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev-hailkeyfix"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.0"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -1029,10 +1029,10 @@ task add_annotations {
         String output_name      # directory output name
         
         # Runtime parameters
-    Int memory_gb = 96
-    Int cpu = 32
-    Int disk_gb = 1000
-    String disk_type = "SSD"
+        Int memory_gb = 96
+        Int cpu = 32
+        Int disk_gb = 1000
+        String disk_type = "SSD"
     }
 
      command <<<
@@ -1104,7 +1104,7 @@ task add_annotations {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev-finalizefix1"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.0"
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 
