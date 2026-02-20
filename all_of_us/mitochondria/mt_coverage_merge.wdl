@@ -502,7 +502,11 @@ task merge_mt_shards {
             local max_depth="$2"
             local label="$3"
             local mt_dir
-            mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" | head -n 1)
+            if [ -f "${search_dir}/metadata.json.gz" ]; then
+                echo "${search_dir}"
+                return
+            fi
+            mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" ! -path "${search_dir}" | head -n 1)
             if [ -z "${mt_dir}" ]; then
                 echo "ERROR: could not find .mt directory after extracting ${label}" >&2
                 find "${search_dir}" -maxdepth "${max_depth}" -type d | head -100 >&2
@@ -642,7 +646,11 @@ task finalize_mt_with_covdb {
             local max_depth="$2"
             local label="$3"
             local mt_dir
-            mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" | head -n 1)
+            if [ -f "${search_dir}/metadata.json.gz" ]; then
+                echo "${search_dir}"
+                return
+            fi
+            mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" ! -path "${search_dir}" | head -n 1)
             if [ -z "${mt_dir}" ]; then
                 echo "ERROR: could not find .mt directory after extracting ${label}" >&2
                 find "${search_dir}" -maxdepth "${max_depth}" -type d | head -100 >&2
@@ -1047,7 +1055,11 @@ task add_annotations {
             local max_depth="$2"
             local label="$3"
             local mt_dir
-            mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" | head -n 1)
+            if [ -f "${search_dir}/metadata.json.gz" ]; then
+                echo "${search_dir}"
+                return
+            fi
+            mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" ! -path "${search_dir}" | head -n 1)
             if [ -z "${mt_dir}" ]; then
                 echo "ERROR: could not find .mt directory after extracting ${label}" >&2
                 find "${search_dir}" -maxdepth "${max_depth}" -type d | head -100 >&2
