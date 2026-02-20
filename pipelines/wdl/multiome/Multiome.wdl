@@ -165,6 +165,9 @@ workflow Multiome {
     output {
         
         String multiome_pipeline_version_out = pipeline_version
+        File gex_whitelist_used = JoinBarcodes.gex_whitelist_name_file
+        File atac_whitelist_used = JoinBarcodes.atac_whitelist_name_file
+
 
         # atac outputs
         File bam_aligned_output_atac = Atac.bam_aligned_output

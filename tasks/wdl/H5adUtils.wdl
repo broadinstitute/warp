@@ -327,6 +327,29 @@ task JoinMultiomeBarcodes {
     print("Setting Optimus obs to new dataframe")
     gex_data.obs = df_gex
 
+    import os
+
+    # Add whitelist provenance metadata
+    gex_data.uns["whitelists"] = {
+    "gex_whitelist_gs_path": gex_whitelist,
+    "atac_whitelist_gs_path": atac_whitelist
+    }
+
+    atac_data.uns["whitelists"] = {
+    "gex_whitelist_gs_path": gex_whitelist,
+    "atac_whitelist_gs_path": atac_whitelist
+    }
+
+    # write out the names of the whitelists in separate text files for provenance tracking
+    gex_whitelist_name = os.path.basename(gex_whitelist)
+    atac_whitelist_name = os.path.basename(atac_whitelist)
+
+    with open("gex_whitelist_used.txt", "w") as f:
+    f.write(gex_whitelist_name)
+
+    with open("atac_whitelist_used.txt", "w") as f:
+    f.write(atac_whitelist_name)
+
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
@@ -361,6 +384,8 @@ task JoinMultiomeBarcodes {
     File atac_h5ad_file = "~{atac_base_name}.h5ad"
     File atac_fragment_tsv = "~{atac_fragment_base}.sorted.tsv.gz"
     File atac_fragment_tsv_index = "~{atac_fragment_base}.sorted.tsv.gz.csi"
+    File gex_whitelist_name_file = "gex_whitelist_used.txt"
+    File atac_whitelist_name_file = "atac_whitelist_used.txt"
   }
 }
 
