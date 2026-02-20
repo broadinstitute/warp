@@ -41,6 +41,10 @@ Each pipeline has a `<PipelineName>.changelog.md` file. For every version bump:
 3. **Standard Messages**: Use "Reorganize WDL pipelines into unified directory" for structural changes
 4. **Date Format**: Always use YYYY-MM-DD format matching commit date
 
+### README Guidelines
+- **Do NOT include pipeline version numbers in README files.** Version numbers belong only in the `.wdl` file and the `.changelog.md` file.
+- READMEs should link to the changelog for release history (e.g., "See `<PipelineName>.changelog.md` for the full release history.")
+
 **Example Changelog Entry:**
 ```markdown
 # 1.2.5
