@@ -16,7 +16,6 @@ PeakCalling	 1.0.1	2025-08-11
 Pipeline Name	Version	Date of Last Commit
 RNAWithUMIsPipeline	 1.0.20	2026-01-21 
 ReblockGVCF	 2.4.4	2026-01-29 
-ScviScanvi	 1.0.0	2026-02-06 
 SlideSeq	 3.6.4	2026-01-22 
 SlideTags	 1.0.7	2026-01-26 
 UltimaGenomicsJointGenotyping	 1.2.3	2025-08-11 
@@ -26,4 +25,5 @@ VariantCalling	 2.2.8	2026-01-21
 WholeGenomeGermlineSingleSample	 3.3.7	2026-01-21 
 WholeGenomeReprocessing	 3.3.7	2026-01-21 
 atac	 2.9.3	2025-09-19 
+scANVI	 1.0.0	2026-02-06 
 snm3C	 4.1.1	2025-09-19 
