@@ -2,7 +2,7 @@ version 1.0
 
 import "../../../tasks/wdl/Utilities.wdl" as utils
 
-workflow ScviScanvi {
+workflow scANVI {
 
   meta {
     description: "Pipeline for cell type label transfer on Multiome data using SCVI and SCANVI models. Integrates single-cell RNA (GEX) and ATAC data with an annotated reference to transfer cell type labels via semi-supervised deep generative models."
