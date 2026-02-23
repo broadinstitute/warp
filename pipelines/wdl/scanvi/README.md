@@ -10,15 +10,22 @@ For detailed information about the scANVI model, see the [scANVI documentation](
 
 | Input | Type | Description | Default |
 |---|---|---|---|
-| `gex_h5ad` | File | Gene expression AnnData h5ad file from Multiome/Optimus pipeline output | Required |
-| `atac_h5ad` | File | ATAC cell-by-bin AnnData h5ad file from Multiome/PeakCalling pipeline output | Required |
-| `ref_h5ad` | File | Annotated reference AnnData h5ad file with cell type labels in `obs['final_annotation']` | Required |
-| `cloud_provider` | String | Cloud platform: `"gcp"` or `"azure"` | Required |
+| `input_bucket` | String? | GCS bucket path containing input h5ad files (e.g., `gs://bucket/path/to/inputs`) | Optional |
+| `gex_h5ad` | File? | Gene expression AnnData h5ad file from Multiome/Optimus pipeline output | Optional |
+| `atac_h5ad` | File? | ATAC cell-by-bin AnnData h5ad file from Multiome/PeakCalling pipeline output | Optional |
+| `ref_h5ad` | File? | Annotated reference AnnData h5ad file with cell type labels in `obs['final_annotation']` | Optional |
+| `gex_filename` | String | Expected GEX h5ad filename in the input bucket | `"gex.h5ad"` |
+| `atac_filename` | String | Expected ATAC h5ad filename in the input bucket | `"atac.h5ad"` |
+| `ref_filename` | String | Expected reference h5ad filename in the input bucket | `"ref.h5ad"` |
+| `cloud_provider` | String | Cloud platform | `"gcp"` |
 | `disk_size` | Int | Disk size in GB | 500 |
-| `mem_size` | Int | Memory size in GB | 64 |
-| `nthreads` | Int | Number of CPU threads | 8 |
+| `mem_size` | Int | Memory size in GB | 120 |
+| `nthreads` | Int | Number of CPU threads | 32 |
 | `gpu_type` | String | GPU type for accelerated model training | `"nvidia-tesla-t4"` |
-| `gpu_count` | Int | Number of GPUs | 1 |
+| `gpu_count` | Int | Number of GPUs | 2 |
+| `nvidiaDriverVersion` | String | NVIDIA driver version for GPU support | `"535.104.05"` |
+
+**Input modes:** Provide either `input_bucket` (to download all three h5ad files from a GCS bucket) or individual `File` inputs (`gex_h5ad`, `atac_h5ad`, `ref_h5ad`). Direct file inputs take precedence over bucket-downloaded files.
 
 ## Outputs
 

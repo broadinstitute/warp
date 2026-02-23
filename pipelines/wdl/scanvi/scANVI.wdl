@@ -24,12 +24,13 @@ workflow scANVI {
       # Runtime attributes
       String cloud_provider = "gcp"
       Int disk_size = 500
-      Int mem_size = 64
-      Int nthreads = 8
+      Int mem_size = 120
+      Int nthreads = 32
 
       # GPU configuration
       String gpu_type = "nvidia-tesla-t4"
-      Int gpu_count = 1
+      Int gpu_count = 2
+      String nvidiaDriverVersion = "535.104.05"
   }
 
   String pipeline_version = "1.0.0"
@@ -53,7 +54,8 @@ workflow scANVI {
         mem_size = mem_size,
         nthreads = nthreads,
         gpu_type = gpu_type,
-        gpu_count = gpu_count
+        gpu_count = gpu_count,
+        nvidiaDriverVersion = nvidiaDriverVersion
   }
 
   output {
@@ -82,10 +84,11 @@ task MultiomeLabelTransfer {
         # Runtime attributes
         String docker_path
         Int disk_size = 500
-        Int mem_size = 64
-        Int nthreads = 8
+        Int mem_size = 120
+        Int nthreads = 32
         String gpu_type = "nvidia-tesla-t4"
-        Int gpu_count = 1
+        Int gpu_count = 2
+        String nvidiaDriverVersion = "535.104.05"
     }
 
     parameter_meta {
@@ -101,6 +104,7 @@ task MultiomeLabelTransfer {
         mem_size: "Memory size in GB."
         gpu_type: "GPU type for accelerated model training."
         gpu_count: "Number of GPUs to use."
+        nvidiaDriverVersion: "NVIDIA driver version for GPU support."
     }
 
     command <<<
@@ -149,12 +153,15 @@ pull_all_files(files)
 
     runtime {
         docker: docker_path
+        bootDiskSizeGb: 20
         disks: "local-disk ${disk_size} SSD"
         memory: "${mem_size} GiB"
         cpu: nthreads
         gpuType: gpu_type
         gpuCount: gpu_count
-        zones: ["us-central1-c"]
+        nvidiaDriverVersion: nvidiaDriverVersion
+        zones: "us-central1-a us-central1-c us-east1-d us-west1-b"
+        maxRetries: 1
     }
 
     output {
