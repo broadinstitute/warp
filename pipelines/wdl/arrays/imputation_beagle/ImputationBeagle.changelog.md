@@ -1,7 +1,7 @@
 # 3.0.1
 2026-02-23 (Date of Last Commit)
 
-* modified first level of tasks to only read the input vcf one time instead of three times to help with possible egress charges
+* Modified first level of tasks to only read the input vcf one time instead of three times to help with possible egress charges.
 
 # 3.0.0
 2026-02-10 (Date of Last Commit)
