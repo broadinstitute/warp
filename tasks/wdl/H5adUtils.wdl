@@ -237,6 +237,8 @@ task JoinMultiomeBarcodes {
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
+    String gex_whitelist_gs_path
+    String atac_whitelist_gs_path
     String input_gtf
     String input_bwa_reference
 
@@ -279,6 +281,8 @@ task JoinMultiomeBarcodes {
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
+    gex_whitelist_gs = "~{gex_whitelist_gs_path}"
+    atac_whitelist_gs = "~{atac_whitelist_gs_path}"
     input_gtf = "~{input_gtf}"
     input_bwa_reference = "~{input_bwa_reference}"
 
@@ -331,13 +335,13 @@ task JoinMultiomeBarcodes {
 
     # Add whitelist provenance metadata
     gex_data.uns["whitelists"] = {
-    "gex_whitelist_gs_path": gex_whitelist,
-    "atac_whitelist_gs_path": atac_whitelist
+    "gex_whitelist_gs_path": gex_whitelist_gs,
+    "atac_whitelist_gs_path": atac_whitelist_gs
     }
 
     atac_data.uns["whitelists"] = {
-    "gex_whitelist_gs_path": gex_whitelist,
-    "atac_whitelist_gs_path": atac_whitelist
+    "gex_whitelist_gs_path": gex_whitelist_gs,
+    "atac_whitelist_gs_path": atac_whitelist_gs
     }
 
     # write out the names of the whitelists in separate text files for provenance tracking
