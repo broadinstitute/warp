@@ -345,10 +345,10 @@ task JoinMultiomeBarcodes {
     atac_whitelist_name = os.path.basename(atac_whitelist)
 
     with open("gex_whitelist_used.txt", "w") as f:
-    f.write(gex_whitelist_name)
+        f.write(gex_whitelist_name)
 
     with open("atac_whitelist_used.txt", "w") as f:
-    f.write(atac_whitelist_name)
+        f.write(atac_whitelist_name)
 
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
