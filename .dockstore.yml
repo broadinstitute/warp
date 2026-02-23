@@ -173,7 +173,7 @@ workflows:
 
   - name: scANVI
     subclass: WDL
-    primaryDescriptorPath: /pipelines/wdl/scvi_scanvi/scANVI.wdl
+    primaryDescriptorPath: /pipelines/wdl/scanvi/scANVI.wdl
 
   - name: Smartseq2_Single_Nucleus
     subclass: WDL
