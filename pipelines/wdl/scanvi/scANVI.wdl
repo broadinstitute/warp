@@ -1,7 +1,5 @@
 version 1.0
 
-import "../../../tasks/wdl/Utilities.wdl" as utils
-
 workflow scANVI {
 
   meta {
@@ -16,7 +14,7 @@ workflow scANVI {
       File ref_h5ad
 
       # Runtime attributes
-      String cloud_provider
+      String cloud_provider = "gcp"
       Int disk_size = 500
       Int mem_size = 64
       Int nthreads = 8
@@ -28,21 +26,10 @@ workflow scANVI {
 
   String pipeline_version = "1.0.0"
 
-  # Determine docker prefix based on cloud provider
-  String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
-  String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
-  String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
-
   # Docker image
+  String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
+  String docker_prefix = gcr_docker_prefix
   String scvi_scanvi_docker = "scvi-scanvi:1.0.0-1.2-1756234975"
-
-  # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
-  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
-      call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
-        input:
-          message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
-      }
-  }
 
   call MultiomeLabelTransfer {
       input:
