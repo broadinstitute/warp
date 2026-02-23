@@ -8,10 +8,18 @@ workflow scANVI {
   }
 
   input {
-      # Required h5ad inputs
-      File gex_h5ad
-      File atac_h5ad
-      File ref_h5ad
+      # GCS bucket path containing input h5ad files (e.g., gs://bucket/path/to/inputs)
+      String? input_bucket
+
+      # Optional direct h5ad file inputs (override bucket files if provided)
+      File? gex_h5ad
+      File? atac_h5ad
+      File? ref_h5ad
+
+      # Expected filenames in the input bucket
+      String gex_filename = "gex.h5ad"
+      String atac_filename = "atac.h5ad"
+      String ref_filename = "ref.h5ad"
 
       # Runtime attributes
       String cloud_provider = "gcp"
@@ -33,9 +41,13 @@ workflow scANVI {
 
   call MultiomeLabelTransfer {
       input:
+        input_bucket = input_bucket,
         gex_h5ad = gex_h5ad,
         atac_h5ad = atac_h5ad,
         ref_h5ad = ref_h5ad,
+        gex_filename = gex_filename,
+        atac_filename = atac_filename,
+        ref_filename = ref_filename,
         docker_path = docker_prefix + scvi_scanvi_docker,
         disk_size = disk_size,
         mem_size = mem_size,
@@ -54,9 +66,18 @@ workflow scANVI {
 
 task MultiomeLabelTransfer {
     input {
-        File gex_h5ad
-        File atac_h5ad
-        File ref_h5ad
+        # GCS bucket path containing input h5ad files
+        String? input_bucket
+
+        # Optional direct h5ad file inputs
+        File? gex_h5ad
+        File? atac_h5ad
+        File? ref_h5ad
+
+        # Expected filenames in the input bucket
+        String gex_filename = "gex.h5ad"
+        String atac_filename = "atac.h5ad"
+        String ref_filename = "ref.h5ad"
 
         # Runtime attributes
         String docker_path
@@ -68,9 +89,13 @@ task MultiomeLabelTransfer {
     }
 
     parameter_meta {
+        input_bucket: "GCS bucket path containing input h5ad files (e.g., gs://bucket/path/to/inputs)."
         gex_h5ad: "Gene expression AnnData h5ad file from Multiome/Optimus pipeline output."
         atac_h5ad: "ATAC cell-by-bin AnnData h5ad file from Multiome/PeakCalling pipeline output."
         ref_h5ad: "Annotated reference AnnData h5ad file with cell type labels in obs['final_annotation']."
+        gex_filename: "Expected GEX h5ad filename in the input bucket."
+        atac_filename: "Expected ATAC h5ad filename in the input bucket."
+        ref_filename: "Expected reference h5ad filename in the input bucket."
         docker_path: "Docker image path containing the scvi-scanvi runtime environment."
         disk_size: "Disk size in GB."
         mem_size: "Memory size in GB."
@@ -81,10 +106,45 @@ task MultiomeLabelTransfer {
     command <<<
         set -euo pipefail
 
+        # Download files from input bucket if provided
+        if [ -n "~{default='' input_bucket}" ]; then
+            python3 -c "
+import sys
+sys.path.insert(0, '/usr/local')
+from gcs_utils import pull_all_files
+bucket_path = '~{default='' input_bucket}'.rstrip('/')
+files = [
+    bucket_path + '/~{gex_filename}',
+    bucket_path + '/~{atac_filename}',
+    bucket_path + '/~{ref_filename}'
+]
+pull_all_files(files)
+"
+        fi
+
+        # Use direct file inputs if provided, otherwise use bucket-downloaded files
+        if [ -n "~{default='' gex_h5ad}" ]; then
+            GEX_FILE="~{default='' gex_h5ad}"
+        else
+            GEX_FILE="~{gex_filename}"
+        fi
+
+        if [ -n "~{default='' atac_h5ad}" ]; then
+            ATAC_FILE="~{default='' atac_h5ad}"
+        else
+            ATAC_FILE="~{atac_filename}"
+        fi
+
+        if [ -n "~{default='' ref_h5ad}" ]; then
+            REF_FILE="~{default='' ref_h5ad}"
+        else
+            REF_FILE="~{ref_filename}"
+        fi
+
         python3 /usr/local/multiome_label_transfer.py \
-            --gex-file ~{gex_h5ad} \
-            --atac-file ~{atac_h5ad} \
-            --ref-file ~{ref_h5ad}
+            --gex-file "$GEX_FILE" \
+            --atac-file "$ATAC_FILE" \
+            --ref-file "$REF_FILE"
     >>>
 
     runtime {
