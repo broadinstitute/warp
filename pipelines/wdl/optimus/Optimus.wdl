@@ -231,7 +231,6 @@ workflow Optimus {
         counting_mode = counting_mode,
         pipeline_version = "Optimus_v~{pipeline_version}",
         warp_tools_docker_path = docker_prefix + warp_tools_docker,
-       # whitelist_file = whitelist,
         gex_whitelist_gs_path = whitelist
     }
   }
@@ -259,7 +258,7 @@ workflow Optimus {
         gene_id_exon = STARsoloFastq.col_index,
         pipeline_version = "Optimus_v~{pipeline_version}",
         warp_tools_docker_path = docker_prefix + warp_tools_docker,
-       # whitelist_file = whitelist
+        gex_whitelist_gs_path = whitelist
     }
   }
 
@@ -298,13 +297,15 @@ workflow Optimus {
   }
 
   File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
+  File final_whitelist_input = select_first([OptimusH5adGenerationWithExons.whitelist_name_file, OptimusH5adGeneration.whitelist_name_file])
   File final_library_metrics = select_first([OptimusH5adGenerationWithExons.library_metrics, OptimusH5adGeneration.library_metrics])
 
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
-    #File whitelist_name_file = OptimusH5adGeneration.whitelist_name_file
+    File whitelist_input = final_whitelist_input
+
    
     # Metrics outputs
     File cell_metrics = CellMetrics.cell_metrics

@@ -35,7 +35,6 @@ task OptimusH5adGeneration {
     #String counting_mode = "sc_rna"
     String add_emptydrops_data = "yes"
     String gtf_path = annotation_file
-    #File whitelist_file
     String gex_whitelist_gs_path
 
     String pipeline_version
@@ -111,11 +110,9 @@ task OptimusH5adGeneration {
 
     python3 <<CODE
     import anndata as ad
-
     adata = ad.read_h5ad("~{input_id}.h5ad")
     adata.uns["whitelist"] = {"gex_whitelist_gs_path": "~{gex_whitelist_gs_path}"}
     adata.write("~{input_id}.h5ad")
-
     CODE
 
 
@@ -178,6 +175,7 @@ task SingleNucleusOptimusH5adOutput {
         # Cell calls from starsolo in TSV format
         File? cellbarcodes
         String gtf_path = annotation_file
+        String gex_whitelist_gs_path
 
         String pipeline_version
 
@@ -197,6 +195,9 @@ task SingleNucleusOptimusH5adOutput {
 
     command <<<
         set -euo pipefail
+
+        whitelist_name=$(basename ~{gex_whitelist_gs_path})
+        echo "$whitelist_name" > whitelist_input.txt
 
         python3 /warptools/scripts/create_snrna_optimus_exons_h5ad.py \
         --annotation_file ~{annotation_file} \
@@ -227,6 +228,13 @@ task SingleNucleusOptimusH5adOutput {
         --counting_mode ~{counting_mode} \
         --expected_cells ~{expected_cells}
 
+        python3 <<CODE
+        import anndata as ad
+        adata = ad.read_h5ad("~{input_id}.h5ad")
+        adata.uns["whitelist"] = {"gex_whitelist_gs_path": "~{gex_whitelist_gs_path}"}
+        adata.write("~{input_id}.h5ad")
+        CODE
+
 
         mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_library_metrics.csv
 
@@ -243,6 +251,7 @@ task SingleNucleusOptimusH5adOutput {
     output {
         File h5ad_output = "~{input_id}.h5ad"
         File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
+        File whitelist_name_file = "whitelist_input.txt"
     }
 }
 
