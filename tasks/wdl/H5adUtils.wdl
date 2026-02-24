@@ -35,7 +35,8 @@ task OptimusH5adGeneration {
     #String counting_mode = "sc_rna"
     String add_emptydrops_data = "yes"
     String gtf_path = annotation_file
-    File whitelist_file
+    #File whitelist_file
+    String gex_whitelist_gs_path
 
     String pipeline_version
 
@@ -58,7 +59,7 @@ task OptimusH5adGeneration {
 
     touch empty_drops_result.csvs
 
-    whitelist_name=$(basename ~{whitelist_file})
+    whitelist_name=$(basename ~{gex_whitelist_gs_path})
     echo "$whitelist_name" > whitelist_input.txt
 
     if [ "~{counting_mode}" == "sc_rna" ]; then
@@ -110,9 +111,13 @@ task OptimusH5adGeneration {
 
     python3 <<CODE
     import anndata as ad
+
+    gex_whitelist_gs_path = "~{gex_whitelist_gs_path}"
+
     adata = ad.read_h5ad("~{input_id}.h5ad")
-    adata.uns["whitelist"] = {"whitelist_gs_path": "~{whitelist_file}"}
+    adata.uns["whitelist"] = {"gex_whitelist_gs_path": gex_whitelist_gs_path}
     adata.write("~{input_id}.h5ad")
+
     CODE
 
 
