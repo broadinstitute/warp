@@ -38,7 +38,7 @@ workflow scANVI {
   # Docker image
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
   String docker_prefix = gcr_docker_prefix
-  String scvi_scanvi_docker = "scvi-scanvi:1.0.0-1.2-1760025671"
+  String scvi_scanvi_docker = "scvi-scanvi:rc_3220_scanvi"
 
   call MultiomeLabelTransfer {
       input:
@@ -110,36 +110,29 @@ task MultiomeLabelTransfer {
     command <<<
         set -euo pipefail
 
-        # Build file paths: use direct file inputs or construct GCS paths from bucket
+        # Build file paths and determine localize mode
+        LOCALIZE_FLAG=""
+
         if [ -n "~{default='' gex_h5ad}" ]; then
+            # Direct File inputs: Cromwell already localized them
             GEX_FILE="~{default='' gex_h5ad}"
+            ATAC_FILE="~{default='' atac_h5ad}"
+            REF_FILE="~{default='' ref_h5ad}"
         else
+            # Bucket mode: construct GCS paths and let the script download them
             BUCKET="~{default='' input_bucket}"
             BUCKET="${BUCKET%/}"
             GEX_FILE="${BUCKET}/~{gex_filename}"
-        fi
-
-        if [ -n "~{default='' atac_h5ad}" ]; then
-            ATAC_FILE="~{default='' atac_h5ad}"
-        else
-            BUCKET="~{default='' input_bucket}"
-            BUCKET="${BUCKET%/}"
             ATAC_FILE="${BUCKET}/~{atac_filename}"
-        fi
-
-        if [ -n "~{default='' ref_h5ad}" ]; then
-            REF_FILE="~{default='' ref_h5ad}"
-        else
-            BUCKET="~{default='' input_bucket}"
-            BUCKET="${BUCKET%/}"
             REF_FILE="${BUCKET}/~{ref_filename}"
+            LOCALIZE_FLAG="--localize"
         fi
 
         python3 /usr/local/multiome_label_transfer.py \
             --gex-file "$GEX_FILE" \
             --atac-file "$ATAC_FILE" \
             --ref-file "$REF_FILE" \
-            --localize
+            $LOCALIZE_FLAG
     >>>
 
     runtime {
