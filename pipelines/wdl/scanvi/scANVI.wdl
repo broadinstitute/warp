@@ -160,7 +160,7 @@ pull_all_files(files)
         gpuType: gpu_type
         gpuCount: gpu_count
         nvidiaDriverVersion: nvidiaDriverVersion
-        zones: "us-central1-a us-central1-c us-east1-d us-west1-b"
+        zones: ["us-central1-a", "us-central1-c"]
         maxRetries: 1
     }
 
