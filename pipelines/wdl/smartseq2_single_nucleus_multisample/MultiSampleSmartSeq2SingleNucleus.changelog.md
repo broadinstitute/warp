@@ -1,3 +1,14 @@
+# 2.2.4
+2026-01-21 (Date of Last Commit)
+
+* Moved inputs into new Google buckets. This change does not affect the outputs of the pipeline
+
+# 2.2.3
+2026-01-22 (Date of Last Commit)
+
+* Added a new, defaulted input cellbender_memory_GB to Optimus; this does not affect the outputs of this pipeline
+* Added a task level input, mem_size, to StarSoloFastq to expose memory settings; this does not affect the outputs of this pipeline
+
 # 2.2.2
  2025-06-20 (Date of Last Commit)
 

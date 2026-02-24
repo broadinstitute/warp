@@ -236,13 +236,12 @@ task STARsoloFastq {
     Int cpu = 16
     Int disk = 5000
     Int limitBAMsortRAM = 30
-    Int machine_mem_mb = 100 # not used in runtime -- need to remove 
+    Int mem_size = if ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB")) <= 100 then 64 else 128
 
     # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 1
   }
 
-  Int mem_size = if ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB")) <= 100 then 64 else 128
   Int outBAMsortingBinsN = (((ceil(size(r1_fastq, "GiB") + size(r2_fastq, "GiB")) + 50) / 100) * 100) + 100
 
   meta {
@@ -255,7 +254,7 @@ task STARsoloFastq {
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
     star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded'"
     samtools_star_docker_path: "(optional) the docker image containing the runtime environment for this task"
-    machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
+    mem_size: "the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
     limitBAMsortRAM: "(optional) Specifies the maximum amount of RAM (in GiB) allocated for sorting BAM files in STAR. Default is 30."

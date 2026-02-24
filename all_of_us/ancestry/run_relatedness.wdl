@@ -5,7 +5,7 @@ version 1.0
 # 1- A list of all pairs of samples w/ a kinship score greater than a certain threshold (default: 0.1)
 # 2- A list of samples that would need to be removed to remove relatedness cofounds from the full cohort
 
-## Copyright Broad Institute, 2023
+## Copyright Broad Institute, 2025
 ##
 ## This WDL pipeline processes a set of files:
 ## - HQ_variants.vcf: Full VCF with genotypes of the full cohort. This is produced by AoU ancestry workflow (https://github.com/broadinstitute/aou-ancestry)
@@ -35,7 +35,6 @@ struct RuntimeAttr {
     Int? max_retries
 }
 
-
 workflow run_relatedness {
     input {
         # Analysis Parameters
@@ -53,6 +52,8 @@ workflow run_relatedness {
         String executor_memory  # Memory assigned to each Spark executor
         String driver_memory  # Memory assigned to the Spark driver
         String reference_genome  # Reference genome identifier (e.g., "hg38")
+        Int max_idle = 60 # in minutes
+        Int max_age = 1440 # in minutes
 
 
         # Cluster Parameters
@@ -66,8 +67,10 @@ workflow run_relatedness {
         # VM Parameters
         String hail_docker = "us.gcr.io/broad-dsde-methods/lichtens/hail_dataproc_wdl:1.1"  # Docker image with Hail and Google Cloud SDK
         #String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.125"  # Docker image with Hail and Google Cloud SDK
+
+        String hail_docker_maximal_independent_set = "hailgenetics/hail:0.2.67"  # Docker image to use with for the maximal independent set task
     }
-    String pipeline_version="aou_9.0.0"
+    String pipeline_version="aou_9.1.0"
 
     call run_relatedness_task {
         # Task inputs mirror workflow inputs
@@ -92,11 +95,20 @@ workflow run_relatedness {
             submission_script = submission_script,
             hail_docker = hail_docker,
             region = region,
+            max_idle = max_idle,
+            max_age = max_age
+    }
+
+    call run_maximal_independent_set {
+        input:
+            relatedness_tsv = run_relatedness_task.relatedness,
+            task_identifier = task_identifier,
+            hail_docker_maximal_independent_set = hail_docker_maximal_independent_set
     }
 
     output {
         File relatedness = run_relatedness_task.relatedness
-        File relatedness_flagged_samples = run_relatedness_task.relatedness_flagged_samples
+        File relatedness_flagged_samples = run_maximal_independent_set.relatedness_flagged_samples
     }
 }
 
@@ -124,6 +136,8 @@ task run_relatedness_task {
         RuntimeAttr? runtime_attr_override
         String gcs_subnetwork_name
         String hail_docker
+        Int max_idle
+        Int max_age
     }
 
     RuntimeAttr runtime_default = object {
@@ -160,9 +174,19 @@ task run_relatedness_task {
         print("Running python code...")
         import hail as hl
         import os
+        import sys
         import uuid
         import re
         from google.cloud import dataproc_v1 as dataproc
+        from datetime import datetime
+
+        def popen_read_checked(cmd):
+            with os.popen(cmd) as stream:
+                output = stream.read()
+                status = stream.close()  # returns None on success, exit code << 8 on failure
+                if status is not None:   # means command failed
+                    raise RuntimeError(f"Command failed with exit code {status >> 8}: {cmd}\n{output}")
+                return output
 
         # Function to replace unacceptable characters with '-'
         def sanitize_label(label):
@@ -205,7 +229,7 @@ task run_relatedness_task {
                 --region ~{region} --project ~{gcs_project} --service-account {account}
                 --worker-machine-type n1-standard-4
                 --master-machine-type n1-highmem-32
-                --max-idle=60m --max-age=1440m
+                --max-idle=~{max_idle}m --max-age=~{max_age}m
                 --subnet=projects/~{gcs_project}/regions/~{region}/subnetworks/~{gcs_subnetwork_name}
                 --enable-component-gateway
                 {cluster_name}
@@ -249,21 +273,20 @@ task run_relatedness_task {
 
                     # Replace newline characters with spaces and remove extra spaces
                     submit_cmd = ' '.join(submit_cmd.split())
-                    os.popen(submit_cmd).read()
+                    result = popen_read_checked(submit_cmd)
+                    print(result)
 
-                    print("Copying results out of staging bucket...")
+                    print("Copying relatedness results out of staging bucket...")
                     staging_cmd = f'gsutil cp -r gs://{cluster_staging_bucket}/{cluster_name}/~{task_identifier}_relatedness.tsv ./~{task_identifier}_relatedness.tsv'
                     print(staging_cmd)
-                    os.popen(staging_cmd).read()
-
-                    staging_cmd = f'gsutil cp -r gs://{cluster_staging_bucket}/{cluster_name}/~{task_identifier}_relatedness_flagged_samples.tsv ./~{task_identifier}_relatedness_flagged_samples.tsv'
-                    print(staging_cmd)
-                    os.popen(staging_cmd).read()
-
+                    result = popen_read_checked(staging_cmd)
+                    print(result)
 
                     break
 
         except Exception as e:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(timestamp + " Exception raised!")
             print(e)
             raise
         finally:
@@ -276,10 +299,8 @@ task run_relatedness_task {
         echo "Complete"
     >>>
 
-
     output {
         File relatedness = "~{task_identifier}_relatedness.tsv"
-        File relatedness_flagged_samples = "~{task_identifier}_relatedness_flagged_samples.tsv"
     }
 
     runtime {
@@ -290,6 +311,76 @@ task run_relatedness_task {
         preemptible: select_first([runtime_override.preemptible_tries, runtime_default.preemptible_tries])
         maxRetries: select_first([runtime_override.max_retries, runtime_default.max_retries])
         docker: hail_docker
+        bootDiskSizeGb: select_first([runtime_override.boot_disk_gb, runtime_default.boot_disk_gb])
+    }
+}
+task run_maximal_independent_set {
+    input {
+        File relatedness_tsv
+        String task_identifier
+        String hail_docker_maximal_independent_set
+        RuntimeAttr? runtime_attr_override
+    }
+
+    RuntimeAttr runtime_default = object {
+        # Default runtime attributes
+        mem_gb: 127, disk_gb: 100, cpu_cores: 8, preemptible_tries: 0, max_retries: 0, boot_disk_gb: 10
+    }
+    RuntimeAttr runtime_override = select_first([runtime_attr_override, runtime_default])
+
+    command <<<
+        set -euxo pipefail
+        
+        python3 <<EOF
+
+        # Start Hail
+        import pandas as pd
+        import numpy as np
+        import hail as hl
+        from pathlib import Path
+
+        # Read the table as a checkpoint
+        rel = hl.import_table("~{relatedness_tsv}")
+        rel = rel.key_by("i.s", "j.s")
+
+        # Run maximal independent set and tag the samples we would drop
+        # https://hail.is/docs/0.2/methods/misc.html?highlight=maximal_independent_set#hail.methods.maximal_independent_set
+        related_samples_to_remove = hl.maximal_independent_set(rel["i.s"], rel["j.s"], False)
+        related_samples_to_remove = related_samples_to_remove.rename({"node":"sample_id"})
+
+        # Output a list of samples that could be removed
+        related_samples_to_remove = related_samples_to_remove.flatten()
+        related_samples_to_remove.export("~{task_identifier}.relatedness_flagged_samples.tsv")
+
+        # Output some information about where the output file is, to help debugging with the execution manager.
+        #
+        cwd = Path.cwd()
+        print("Current working directory:", cwd)
+
+        # List files and directories in cwd
+        print("Directory contents:")
+        for entry in cwd.iterdir():
+            print(" -", entry.name)
+
+        print("Done")
+
+        EOF
+        echo "bash PWD:"
+        echo $PWD
+    >>>
+
+    output {
+        File relatedness_flagged_samples = "~{task_identifier}.relatedness_flagged_samples.tsv"
+    }
+
+    runtime {
+        # Runtime settings for the task
+        memory: select_first([runtime_override.mem_gb, runtime_default.mem_gb]) + " GB"
+        disks: "local-disk " + select_first([runtime_override.disk_gb, runtime_default.disk_gb]) + " SSD"
+        cpu: select_first([runtime_override.cpu_cores, runtime_default.cpu_cores])
+        preemptible: select_first([runtime_override.preemptible_tries, runtime_default.preemptible_tries])
+        maxRetries: select_first([runtime_override.max_retries, runtime_default.max_retries])
+        docker: hail_docker_maximal_independent_set
         bootDiskSizeGb: select_first([runtime_override.boot_disk_gb, runtime_default.boot_disk_gb])
     }
 }

@@ -1,6 +1,6 @@
 {
-  "Imputation.multi_sample_vcf": "gs://broad-gotc-test-storage/imputation/scientific/vcfs/merged_input_samples.vcf.gz",
-  "Imputation.multi_sample_vcf_index": "gs://broad-gotc-test-storage/imputation/scientific/vcfs/merged_input_samples.vcf.gz.tbi",
+  "Imputation.multi_sample_vcf": "gs://pd-test-storage-private/Imputation/input/scientific/multi_sample_split_test_data_NOT_PUBLIC/merged_input_samples.vcf.gz",
+  "Imputation.multi_sample_vcf_index": "gs://pd-test-storage-private/Imputation/input/scientific/multi_sample_split_test_data_NOT_PUBLIC/merged_input_samples.vcf.gz.tbi",
   "Imputation.ref_dict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
   "Imputation.reference_panel_path": "gs://gcp-public-data--broad-references/hg19/v0/1000G_reference_panel/",
   "Imputation.contigs": [ "21", "22" ],

@@ -1,6 +1,6 @@
 {
-  "CramToUnmappedBams.input_cram": "gs://broad-gotc-test-storage/WholeGenomeGermlineSingleSample/truth/scientific/master/G94982.NA12878/NA12878.cram",
-  "CramToUnmappedBams.output_map": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/readgroupid_to_bamfilename_map.txt",
+  "CramToUnmappedBams.input_cram": "gs://pd-test-storage-public/CramToUnmappedBams/input/scientific/G94982.NA12878.WGS/NA12878.cram",
+  "CramToUnmappedBams.output_map": "gs://pd-test-storage-public/CramToUnmappedBams/input/scientific/G94982.NA12878.WGS/readgroupid_to_bamfilename_map.txt",
   "CramToUnmappedBams.base_file_name": "G94982.NA12878.WGS",
   "CramToUnmappedBams.unmapped_bam_suffix": ".unmapped.bam",
   "CramToUnmappedBams.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",

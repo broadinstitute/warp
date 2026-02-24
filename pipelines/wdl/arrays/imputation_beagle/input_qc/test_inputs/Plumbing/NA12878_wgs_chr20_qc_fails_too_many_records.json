@@ -1,5 +1,5 @@
 {
-    "ArrayImputationQC.multi_sample_vcf": "gs://broad-gotc-test-storage/imputation_beagle/input_qc/scientific/vcfs/NA12878.annotated.chr20.g.vcf.gz",
+    "ArrayImputationQC.multi_sample_vcf": "gs://broad-gotc-test-storage/imputation_beagle/input_qc/scientific/vcfs/NA12878.annotated.chr20_over_three_million_sites.g.vcf.gz",
     "ArrayImputationQC.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
     "ArrayImputationQC.reference_panel_path_prefix": "gs://broad-gotc-test-storage/imputation_beagle/scientific/1000G_HGDP_no_singletons_reference_panel/hgdp.tgp.gwaspy.AN_added.bcf.ac2",
     "ArrayImputationQC.contigs": ["this_contig_is_not_in_inputs_1", "this_contig_is_not_in_inputs_2", "this_contig_is_not_in_inputs_3"],

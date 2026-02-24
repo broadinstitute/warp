@@ -1,3 +1,9 @@
+# 3.6.4
+2026-01-22 (Date of Last Commit)
+
+* Added a new, defaulted input cellbender_memory_GB to Optimus; this does not affect the outputs of this pipeline
+* Added a task level input, mem_size, to StarSoloFastq to expose memory settings; this does not affect the outputs of this pipeline
+
 # 3.6.3
 2025-06-20 (Date of Last Commit)
 * Added reference genome/GTF headers to fragment file via new string inputs; this change does not affect this pipeline

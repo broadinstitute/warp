@@ -11,10 +11,11 @@ task rsem_aggregate_results {
         Int num_threads
         Int num_preempt
         # Captures version used for AoU processing
-        String pipeline_version = "aou_9.0.0"
+        String pipeline_version = "aou_9.0.1"
 
     }
     command <<<
+        set -euo pipefail
         echo $(date +"[%b %d %H:%M:%S]") Starting transcript-level aggregation
 
         mkdir isoform_inputs
