@@ -35,7 +35,7 @@ task OptimusH5adGeneration {
     #String counting_mode = "sc_rna"
     String add_emptydrops_data = "yes"
     String gtf_path = annotation_file
-
+    File whitelist_file
 
     String pipeline_version
 
@@ -57,6 +57,9 @@ task OptimusH5adGeneration {
     set -euo pipefail
 
     touch empty_drops_result.csvs
+
+    whitelist_name=$(basename ~{whitelist_file})
+    echo "$whitelist_name" > whitelist_input.txt
 
     if [ "~{counting_mode}" == "sc_rna" ]; then
         python3 /warptools/scripts/create_h5ad_optimus.py \
@@ -104,6 +107,15 @@ task OptimusH5adGeneration {
      --counting_mode ~{counting_mode} \
      --expected_cells ~{expected_cells}
 
+
+    python3 <<CODE
+    import anndata as ad
+    adata = ad.read_h5ad("~{input_id}.h5ad")
+    adata.uns["whitelist"] = {"whitelist_gs_path": "~{whitelist_file}"}}
+    adata.write("~{input_id}.h5ad")
+    CODE
+
+
     mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_library_metrics.csv
 
   >>>
@@ -120,6 +132,7 @@ task OptimusH5adGeneration {
   output {
     File h5ad_output = "~{input_id}.h5ad"
     File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
+    File whitelist_name_file = "whitelist_input.txt"
   }
 }
 
@@ -348,10 +361,10 @@ task JoinMultiomeBarcodes {
     gex_whitelist_name = os.path.basename(gex_whitelist)
     atac_whitelist_name = os.path.basename(atac_whitelist)
 
-    with open("gex_whitelist_used.txt", "w") as f:
+    with open("gex_whitelist_input.txt", "w") as f:
         f.write(gex_whitelist_name)
 
-    with open("atac_whitelist_used.txt", "w") as f:
+    with open("atac_whitelist_input.txt", "w") as f:
         f.write(atac_whitelist_name)
 
     # write out the files
@@ -388,8 +401,8 @@ task JoinMultiomeBarcodes {
     File atac_h5ad_file = "~{atac_base_name}.h5ad"
     File atac_fragment_tsv = "~{atac_fragment_base}.sorted.tsv.gz"
     File atac_fragment_tsv_index = "~{atac_fragment_base}.sorted.tsv.gz.csi"
-    File gex_whitelist_name_file = "gex_whitelist_used.txt"
-    File atac_whitelist_name_file = "atac_whitelist_used.txt"
+    File gex_whitelist_name_file = "gex_whitelist_input.txt"
+    File atac_whitelist_name_file = "atac_whitelist_input.txt"
   }
 }
 

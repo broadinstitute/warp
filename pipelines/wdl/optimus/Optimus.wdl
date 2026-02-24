@@ -230,7 +230,8 @@ workflow Optimus {
         empty_drops_result = RunEmptyDrops.empty_drops_result,
         counting_mode = counting_mode,
         pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker
+        warp_tools_docker_path = docker_prefix + warp_tools_docker,
+        whitelist_file = whitelist
     }
   }
 
@@ -256,7 +257,8 @@ workflow Optimus {
         cell_id_exon = STARsoloFastq.row_index,
         gene_id_exon = STARsoloFastq.col_index,
         pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker
+        warp_tools_docker_path = docker_prefix + warp_tools_docker,
+       # whitelist_file = whitelist
     }
   }
 
@@ -301,6 +303,7 @@ workflow Optimus {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
+    #File whitelist_name_file = OptimusH5adGeneration.whitelist_name_file
    
     # Metrics outputs
     File cell_metrics = CellMetrics.cell_metrics
