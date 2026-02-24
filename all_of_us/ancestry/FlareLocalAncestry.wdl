@@ -59,10 +59,11 @@ task Flare {
         Int memory_mb = 6000
         Int disk_size_gb = ceil(size(reference_vcf, "GiB") + size(plink_map_file, "GiB") + size(ref_panel_mapping_file, "GiB") + 2*size(analysis_vcf, "GiB") ) + 10
         String flare_docker
+        Int command_mem = memory_mb - 1500
+        Int max_heap = memory_mb - 1000
     }
 
-    Int command_mem = memory_mb - 1500
-    Int max_heap = memory_mb - 1000
+
 
     command <<<
         set -euo pipefail
@@ -73,7 +74,7 @@ task Flare {
         map=~{plink_map_file} \
         gt=~{analysis_vcf} \
         seed=~{seed} \
-        ~{"gt-samples=" + subsets} \
+        ~{if defined(subsets) then "gt-samples=" + subsets else ""} \
         nthreads=~{cpu} \
         ~{"em=false model=" + model} \
         out=~{basename}
