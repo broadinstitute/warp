@@ -5,17 +5,17 @@
   "IlluminaGenotypingArray.reported_gender": "Female",
   "IlluminaGenotypingArray.chip_well_barcode": "201145020068_R12C01",
 
-  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GSAMD-24v1-0_20011747_A1/idats/201145020068_R12C01/201145020068_R12C01_Grn.idat",
-  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GSAMD-24v1-0_20011747_A1/idats/201145020068_R12C01/201145020068_R12C01_Red.idat",
+  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201145020068_R12C01_2004826455/201145020068_R12C01_Grn.idat",
+  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201145020068_R12C01_2004826455/201145020068_R12C01_Red.idat",
 
-  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_file": "gs://broad-gotc-test-storage/arrays/GSAMD-24v1-0_20011747_A1/inputs/201145020068_R12C01/201145020068_R12C01.2004826455.reference.fingerprint.vcf.gz",
-  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_index_file": "gs://broad-gotc-test-storage/arrays/GSAMD-24v1-0_20011747_A1/inputs/201145020068_R12C01/201145020068_R12C01.2004826455.reference.fingerprint.vcf.gz.tbi",
+  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201145020068_R12C01_2004826455/201145020068_R12C01.2004826455.reference.fingerprint.vcf.gz",
+  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_index_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201145020068_R12C01_2004826455/201145020068_R12C01.2004826455.reference.fingerprint.vcf.gz.tbi",
 
   "IlluminaGenotypingArray.bead_pool_manifest_file": "gs://gcp-public-data--broad-references/arrays/GSAMD-24v1-0_20011747_A1/GSAMD-24v1-0_20011747_A1.bpm",
   "IlluminaGenotypingArray.extended_chip_manifest_file": "gs://gcp-public-data--broad-references/arrays/GSAMD-24v1-0_20011747_A1/GSAMD-24v1-0_20011747_A1.1.3.extended.csv",
   "IlluminaGenotypingArray.cluster_file": "gs://gcp-public-data--broad-references/arrays/GSAMD-24v1-0_20011747_A1/GSAMD-24v1-0_20011747_A1.egt",
-  "IlluminaGenotypingArray.gender_cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/GSAMD-24v1-0_20011747_A1/GSAMD-24v1-0_20011747_A1_genderest.egt",
-  "IlluminaGenotypingArray.zcall_thresholds_file": "gs://broad-gotc-test-storage/arrays/metadata/GSAMD-24v1-0_20011747_A1/GSAMD-24v1-0_20011747_A1.egt.thresholds.txt",
+  "IlluminaGenotypingArray.gender_cluster_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201145020068_R12C01_2004826455/GSAMD-24v1-0_20011747_A1_genderest.egt",
+  "IlluminaGenotypingArray.zcall_thresholds_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/201145020068_R12C01_2004826455/GSAMD-24v1-0_20011747_A1.egt.thresholds.txt",
 
   "IlluminaGenotypingArray.disk_size": 100,
 

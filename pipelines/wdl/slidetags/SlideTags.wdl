@@ -6,7 +6,7 @@ import "../optimus/Optimus.wdl" as optimus
 
 workflow SlideTags {
 
-    String pipeline_version = "1.0.5"
+    String pipeline_version = "1.0.7"
 
     input {
 
@@ -15,6 +15,7 @@ workflow SlideTags {
         Array[String] pucks
         # Dropsift is off by default
         Boolean run_dropsift = false
+        String? billing_project
 
         # Optimus inputs
         Array[File] gex_r1_fastq
@@ -76,7 +77,8 @@ workflow SlideTags {
             fastq_paths = spatial_fastq,
             pucks = pucks,
             docker = docker,
-            input_id = input_id
+            input_id = input_id,
+            billing_project = billing_project
      }
 
     call Positioning.generate_positioning as positioning {

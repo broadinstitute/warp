@@ -21,7 +21,7 @@ import "../../../../tasks/wdl/Qc.wdl" as Qc
 
 workflow IlluminaGenotypingArray {
 
-  String pipeline_version = "1.12.26"
+  String pipeline_version = "1.12.27"
 
   input {
     String sample_alias
@@ -272,7 +272,6 @@ workflow IlluminaGenotypingArray {
         output_vcf_filename = chip_well_barcode + ".fingerprint.vcf.gz",
         preemptible_tries = preemptible_tries
     }
-
 
     if (defined(fingerprint_genotypes_vcf_file)) {
       call Qc.CheckFingerprintTask as CheckFingerprintTask{

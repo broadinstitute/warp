@@ -66,6 +66,7 @@ task HaplotypeCaller_GATK35_GVCF {
       -variant_index_type LINEAR \
       -contamination ~{default=0 contamination} \
       --read_filter OverclippedRead
+
   }
   runtime {
     docker: docker
@@ -112,6 +113,7 @@ task HaplotypeCaller_GATK4_VCF {
   Int disk_size = ceil(((size(input_bam, "GiB") + 30) / hc_scatter) + ref_size) + 50
 
   String bamout_arg = if make_bamout then "-bamout ~{vcf_basename}.bamout.bam" else ""
+
 
   parameter_meta {
     input_bam: {

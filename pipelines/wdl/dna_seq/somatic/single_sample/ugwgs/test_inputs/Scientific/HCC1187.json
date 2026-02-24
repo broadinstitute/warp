@@ -1,5 +1,5 @@
 {
-    "UltimaGenomicsWholeGenomeCramOnly.input_cram_list": ["gs://broad-gotc-test-storage/somatic_single_sample/ugwgs/scientific/crams/012505-HCC1187-Lodeyonono-CTTAGCTGTGATGAT.cram"],
+    "UltimaGenomicsWholeGenomeCramOnly.input_cram_list": ["gs://pd-test-storage-private/UltimaGenomicsWholeGenomeCramOnly/input/scientific/HCC1187/012505-HCC1187-Lodeyonono-CTTAGCTGTGATGAT.cram"],
     "UltimaGenomicsWholeGenomeCramOnly.base_file_name": "HCC1187",
     "UltimaGenomicsWholeGenomeCramOnly.contamination_sites": {
         "contamination_sites_vcf": "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/verify_bam_id/Homo_sapiens_assembly38.contam_fixed.vcf",

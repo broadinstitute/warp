@@ -1,6 +1,6 @@
 {
-  "CramToUnmappedBams.input_cram": "gs://broad-gotc-test-storage/WholeGenomeGermlineSingleSample/truth/scientific/master/G94794.CHMI_CHMI3_WGS2/CHMI_CHMI3_WGS2.cram",
-  "CramToUnmappedBams.output_map": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94794.CHMI_CHMI3_WGS2/readgroupid_to_bamfilename_map.txt",
+  "CramToUnmappedBams.input_cram": "gs://pd-test-storage-public/CramToUnmappedBams/input/scientific/G94794.CHMI_CHMI3_WGS2/CHMI_CHMI3_WGS2.cram",
+  "CramToUnmappedBams.output_map": "gs://pd-test-storage-public/CramToUnmappedBams/input/scientific/G94794.CHMI_CHMI3_WGS2/readgroupid_to_bamfilename_map.txt",
 
   "CramToUnmappedBams.base_file_name": "G94794.CHMI_CHMI3_WGS2",
   "CramToUnmappedBams.unmapped_bam_suffix": ".unmapped.bam",

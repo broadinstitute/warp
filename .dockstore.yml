@@ -4,7 +4,11 @@ workflows:
   - name: aggregate_rsem_results
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/aggregate_rsem_results.wdl
-  
+ 
+  - name: AggregateSusieWorkflow
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/AggregateSusieWorkflow.wdl
+ 
   - name: ArrayImputationQuotaConsumed
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/arrays/imputation_beagle/ArrayImputationQuotaConsumed.wdl
@@ -18,13 +22,29 @@ workflows:
     primaryDescriptorPath:
       /pipelines/wdl/atac/atac.wdl
 
+  - name: Beagle5Phasing
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/phasing/Beagle5Phasing.wdl
+  
   - name: BuildIndices
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/build_indices/BuildIndices.wdl
 
+  - name: CalculatePhenotypeGroups
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/CalculatePhenotypeGroups.wdl
+  
+  - name: convert_vcf_to_plink_bed
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/admixture/convert_vcf_to_plink_bed.wdl
+  
   - name: CramToUnmappedBams
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
+
+  - name: CyriusStarAlleleCalling
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/pgx/CyriusStarAlleleCalling.wdl
 
   - name: determine_hq_sites_intersection
     subclass: WDL
@@ -77,15 +97,19 @@ workflows:
   - name: leafcutter_bam_to_junc
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_bam_to_junc.wdl
-  
+
   - name: leafcutter_cluster
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_cluster.wdl
-    
+
+  - name: LocalizeAndConcatStargazer
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/pgx/LocalizeAndConcatStargazer.wdl
+
   - name: MakeTable
     subclass: WDL
     primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
-    
+
   - name: mitochondria_pipeline
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/mitochondria_pipeline.wdl
@@ -127,15 +151,18 @@ workflows:
   - name: RNAWithUMIsPipeline
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/rna_seq/RNAWithUMIsPipeline.wdl
-  
+
   - name: run_preprocess_admixture_est_rye
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/run_preprocess_admixture_est_rye.wdl
   
+  - name: run_admixture
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/admixture/run_admixture.wdl
   - name: run_admixture_est_rye
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/run_admixture_est_rye.wdl
-  
+
   - name: run_ancestry
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_ancestry.wdl
@@ -143,13 +170,14 @@ workflows:
   - name: run_relatedness
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_relatedness.wdl
-  
+
   - name: run_sample_outlier_qc
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_sample_outlier_qc.wdl
 
   - name: run_sample_outlier_qc_plotting
     subclass: WDL
+    primaryDescriptorPath: /all_of_us/ancestry/run_sample_outlier_qc_plotting.wdl
 
   - name: Smartseq2_Single_Nucleus
     subclass: WDL
@@ -177,6 +205,18 @@ workflows:
     primaryDescriptorPath: /beta-pipelines/broad/Utilities/SplitMultisampleVCF/SplitMultisampleVCF.wdl
     readMePath: /beta-pipelines/broad/Utilities/SplitMultisampleVCF/README.md
 
+  - name: StargazerFromJointVCF
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/pgx/StargazerFromJointVCF.wdl
+
+  - name: SubsetPhasedVcfsForFLARE
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/local_ancestry/SubsetPhasedVcfsForFLARE.wdl
+
+  - name: SusieR_Workflow
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/susieR_workflow.wdl
+  
   - name: TestArrayImputationQC
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestArrayImputationQC.wdl

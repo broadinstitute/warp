@@ -26,7 +26,7 @@ workflow FixItFelixAndVariantCall {
     }
 
     Int original_cram_size = ceil(size(cram_file, "GB"))
-    String pipeline_version = "aou_9.0.0"
+    String pipeline_version = "aou_9.0.1"
 
     call subset_cram {
         input:
@@ -106,6 +106,7 @@ task subset_cram {
     String output_index = sample_name + ".bai"
 
     command {
+        set -euo pipefail
         ~{gatk_path} --java-options "-Xmx2G" \
         PrintReads \
         -R ~{ref_fasta} \
@@ -148,6 +149,7 @@ task FixItFelix {
     }
 
     command <<<
+        set -euo pipefail
         bam=~{reads}
         bed=~{intervals}
         ref=~{masked_ref_fasta}
@@ -250,6 +252,7 @@ task call_variants {
     String output_filename = output_name + (if generate_gvcf then ".g.vcf.gz" else ".vcf.gz")
 
     command <<<
+        set -euo pipefail
         ~{gatk_path} --java-options "-Xmx3G" \
         HaplotypeCaller \
         -R ~{ref_fasta} \

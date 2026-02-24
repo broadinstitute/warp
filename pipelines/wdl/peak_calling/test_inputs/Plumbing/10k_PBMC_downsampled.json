@@ -1,6 +1,6 @@
 {
   "PeakCalling.annotations_gtf":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf",
-  "PeakCalling.metrics_h5ad":"gs://broad-gotc-test-storage/PeakCalling/input/plumbing/10k_PBMC_downsampled/10k_PBMC_downsampled_atac.metrics.h5ad",
+  "PeakCalling.metrics_h5ad":"gs://pd-test-storage-public/PeakCalling/input/plumbing/10k_PBMC_downsampled/10k_PBMC_downsampled_atac.metrics.h5ad",
   "PeakCalling.cloud_provider":"gcp",
   "PeakCalling.output_base_name":"10k_PBMC_downsampled",
   "PeakCalling.chrom_sizes":"gs://pd-test-storage-public/Multiome/input/hg38.chrom.sizes"

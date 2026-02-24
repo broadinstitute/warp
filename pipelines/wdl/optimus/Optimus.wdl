@@ -42,6 +42,7 @@ workflow Optimus {
 
     # CellBender
     Boolean run_cellbender = false
+    Int cellbender_memory_GB = 32
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -73,12 +74,11 @@ workflow Optimus {
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
     # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
-    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
-
+    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times.
   }
 
   # Version of this pipeline
-  String pipeline_version = "8.0.4"
+  String pipeline_version = "8.0.5"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -233,6 +233,7 @@ workflow Optimus {
         warp_tools_docker_path = docker_prefix + warp_tools_docker
     }
   }
+
   if (count_exons  && counting_mode=="sn_rna") {
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
@@ -270,7 +271,7 @@ workflow Optimus {
           hardware_cpu_count = 4,
           hardware_disk_size_GB = 50,
           hardware_gpu_type = "nvidia-tesla-t4",
-          hardware_memory_GB = 32,
+          hardware_memory_GB = cellbender_memory_GB,
           hardware_preemptible_tries = 2,
           hardware_zones = "us-central1-a us-central1-c",
           nvidia_driver_version = "470.82.01"
@@ -285,7 +286,7 @@ workflow Optimus {
           hardware_cpu_count = 4,
           hardware_disk_size_GB = 50,
           hardware_gpu_type = "nvidia-tesla-t4",
-          hardware_memory_GB = 32,
+          hardware_memory_GB = cellbender_memory_GB,
           hardware_preemptible_tries = 2,
           hardware_zones = "us-central1-a us-central1-c",
           nvidia_driver_version = "470.82.01"
@@ -295,7 +296,6 @@ workflow Optimus {
 
   File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
   File final_library_metrics = select_first([OptimusH5adGenerationWithExons.library_metrics, OptimusH5adGeneration.library_metrics])
-
 
   output {
     # version of this pipeline
