@@ -38,7 +38,7 @@ workflow scANVI {
   # Docker image
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
   String docker_prefix = gcr_docker_prefix
-  String scvi_scanvi_docker = "scvi-scanvi:1.0.0-1.2-1756234975"
+  String scvi_scanvi_docker = "scvi-scanvi:1.0.0-1.2-1760025671"
 
   call MultiomeLabelTransfer {
       input:
