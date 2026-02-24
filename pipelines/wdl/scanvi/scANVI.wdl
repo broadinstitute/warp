@@ -128,23 +128,36 @@ task MultiomeLabelTransfer {
             LOCALIZE_FLAG="--localize"
         fi
 
-        # Ensure GEX h5ad has 'star_IsCell' column (required by the script).
-        # If missing, add it with all True so the filter is a no-op.
+        # Ensure GEX h5ad has 'star_IsCell' column and ATAC h5ad has 'gex_barcodes'
+        # column (both required by the script). If missing, add sensible defaults.
         python3 -c "
 import scanpy as sc
+import snapatac2 as snap
 import os
 
+# Patch GEX: add star_IsCell if missing (makes the cell filter a no-op)
 gex_path = '$GEX_FILE'
-# Only patch local files (not GCS paths handled by --localize)
 if not gex_path.startswith('gs://') and os.path.exists(gex_path):
-    adata = sc.read_h5ad(gex_path)
-    if 'star_IsCell' not in adata.obs.columns:
+    gex = sc.read_h5ad(gex_path)
+    if 'star_IsCell' not in gex.obs.columns:
         print('Adding missing star_IsCell column (all True) to GEX h5ad')
-        adata.obs['star_IsCell'] = True
-        adata.write(gex_path)
+        gex.obs['star_IsCell'] = True
+        gex.write(gex_path)
         print('Patched GEX h5ad saved')
     else:
         print('star_IsCell column already present')
+
+# Patch ATAC: add gex_barcodes if missing (uses existing obs index as barcodes)
+atac_path = '$ATAC_FILE'
+if not atac_path.startswith('gs://') and os.path.exists(atac_path):
+    atac = snap.read(atac_path, backed=None)
+    if 'gex_barcodes' not in atac.obs.columns:
+        print('Adding missing gex_barcodes column (copy of obs index) to ATAC h5ad')
+        atac.obs['gex_barcodes'] = atac.obs.index
+        atac.write(atac_path)
+        print('Patched ATAC h5ad saved')
+    else:
+        print('gex_barcodes column already present')
 "
 
         python3 /usr/local/multiome_label_transfer.py \
