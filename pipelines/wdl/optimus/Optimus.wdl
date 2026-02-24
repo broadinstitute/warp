@@ -231,7 +231,8 @@ workflow Optimus {
         counting_mode = counting_mode,
         pipeline_version = "Optimus_v~{pipeline_version}",
         warp_tools_docker_path = docker_prefix + warp_tools_docker,
-        whitelist_file = whitelist
+       # whitelist_file = whitelist,
+        gex_whitelist_gs_path = whitelist
     }
   }
 
