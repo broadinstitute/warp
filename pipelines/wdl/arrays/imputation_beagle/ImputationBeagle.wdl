@@ -5,7 +5,7 @@ import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 import "../../../../tasks/wdl/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
-  String pipeline_version = "3.0.0"
+  String pipeline_version = "3.0.1"
   String input_qc_version = "1.3.0"
   String quota_consumed_version = "1.1.0"
 
@@ -43,23 +43,23 @@ workflow ImputationBeagle {
   String defined_pipeline_header_line = if defined(pipeline_header_line) then select_first([pipeline_header_line]) else ""
   Float defined_min_dr2_for_inclusion = if defined(min_dr2_for_inclusion) then select_first([min_dr2_for_inclusion]) else 0.0
 
-  call tasks.CountSamples {
-    input:
-      vcf = multi_sample_vcf
-  }
-
-  Float sample_chunk_size_float = sample_chunk_size
-  Int num_sample_chunks = ceil(CountSamples.nSamples / sample_chunk_size_float)
-
   call beagleTasks.CreateVcfIndex {
     input:
       vcf_input = multi_sample_vcf,
       gatk_docker = gatk_docker
   }
 
+  call tasks.CountSamples {
+    input:
+      vcf = CreateVcfIndex.output_vcf
+  }
+
+  Float sample_chunk_size_float = sample_chunk_size
+  Int num_sample_chunks = ceil(CountSamples.nSamples / sample_chunk_size_float)
+
   call beagleTasks.CalculateContigsToProcess {
     input:
-      vcf_input = multi_sample_vcf,
+      vcf_input = CreateVcfIndex.output_vcf,
       allowed_contigs = contigs,
       gatk_docker = gatk_docker
   }
