@@ -128,6 +128,25 @@ task MultiomeLabelTransfer {
             LOCALIZE_FLAG="--localize"
         fi
 
+        # Ensure GEX h5ad has 'star_IsCell' column (required by the script).
+        # If missing, add it with all True so the filter is a no-op.
+        python3 -c "
+import scanpy as sc
+import os
+
+gex_path = '$GEX_FILE'
+# Only patch local files (not GCS paths handled by --localize)
+if not gex_path.startswith('gs://') and os.path.exists(gex_path):
+    adata = sc.read_h5ad(gex_path)
+    if 'star_IsCell' not in adata.obs.columns:
+        print('Adding missing star_IsCell column (all True) to GEX h5ad')
+        adata.obs['star_IsCell'] = True
+        adata.write(gex_path)
+        print('Patched GEX h5ad saved')
+    else:
+        print('star_IsCell column already present')
+"
+
         python3 /usr/local/multiome_label_transfer.py \
             --gex-file "$GEX_FILE" \
             --atac-file "$ATAC_FILE" \
