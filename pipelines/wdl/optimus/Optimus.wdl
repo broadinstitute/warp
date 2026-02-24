@@ -78,7 +78,7 @@ workflow Optimus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "8.0.5"
+  String pipeline_version = "8.0.6"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -304,8 +304,7 @@ workflow Optimus {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
-    File whitelist_input = final_whitelist_input
-
+    File whitelist_input_used = final_whitelist_input
    
     # Metrics outputs
     File cell_metrics = CellMetrics.cell_metrics
