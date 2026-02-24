@@ -112,10 +112,8 @@ task OptimusH5adGeneration {
     python3 <<CODE
     import anndata as ad
 
-    gex_whitelist_gs_path = "~{gex_whitelist_gs_path}"
-
     adata = ad.read_h5ad("~{input_id}.h5ad")
-    adata.uns["whitelist"] = {"gex_whitelist_gs_path": gex_whitelist_gs_path}
+    adata.uns["whitelist"] = {"gex_whitelist_gs_path": ~{gex_whitelist_gs_path}}
     adata.write("~{input_id}.h5ad")
 
     CODE
