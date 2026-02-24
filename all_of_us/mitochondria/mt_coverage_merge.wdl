@@ -155,7 +155,7 @@ workflow mt_coverage_merge {
                 call finalize_mt_with_covdb as finalize_mt_with_covdb_round3 {
                     input:
                         in_mt_tar = select_first([merge_round_3.merged_mt_tar])[0],
-                        coverage_db_tar = annotate_coverage.output_ht,
+                        coverage_db_tar = annotate_coverage.output_db,
                         file_name = combined_mt_name
                 }
             }
@@ -163,7 +163,7 @@ workflow mt_coverage_merge {
                 call finalize_mt_with_covdb as finalize_mt_with_covdb_round2 {
                     input:
                         in_mt_tar = select_first([merge_round_2.merged_mt_tar])[0],
-                        coverage_db_tar = annotate_coverage.output_ht,
+                        coverage_db_tar = annotate_coverage.output_db,
                         file_name = combined_mt_name
                 }
             }
@@ -173,7 +173,7 @@ workflow mt_coverage_merge {
             call finalize_mt_with_covdb as finalize_mt_with_covdb_round1 {
                 input:
                     in_mt_tar = merge_round_1.merged_mt_tar[0],
-                    coverage_db_tar = annotate_coverage.output_ht,
+                    coverage_db_tar = annotate_coverage.output_db,
                     file_name = combined_mt_name
             }
         }
@@ -183,7 +183,7 @@ workflow mt_coverage_merge {
         call combine_vcfs_and_homref_from_covdb {
             input:
                 input_tsv = process_tsv_files.processed_tsv,
-                coverage_db_tar = annotate_coverage.output_ht,
+                coverage_db_tar = annotate_coverage.output_db,
                 vcf_col_name = vcf_col_name,
                 file_name = combined_mt_name
         }
@@ -198,7 +198,7 @@ workflow mt_coverage_merge {
 
     call add_annotations as annotated {
         input:
-            coverage_db_tar = annotate_coverage.output_ht,  # Tar.gzipped coverage DB (coverage.h5 [+ summary])
+            coverage_db_tar = annotate_coverage.output_db,  # Tar.gzipped coverage DB (coverage.h5 [+ summary])
             coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
             vcf_mt = combined_mt_tar,  # Path to the MatrixTable
             keep_all_samples = true,
@@ -208,7 +208,7 @@ workflow mt_coverage_merge {
 
     call add_annotations as filt_annotated {
         input:
-            coverage_db_tar = annotate_coverage.output_ht,  # Tar.gzipped coverage DB (coverage.h5 [+ summary])
+            coverage_db_tar = annotate_coverage.output_db,  # Tar.gzipped coverage DB (coverage.h5 [+ summary])
             coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
             vcf_mt = combined_mt_tar,  # Path to the MatrixTable
             keep_all_samples = false,
@@ -217,7 +217,7 @@ workflow mt_coverage_merge {
 
     output {
         File processed_tsv = process_tsv_files.processed_tsv
-        File output_coverage_ht = annotate_coverage.output_ht
+        File output_coverage_db = annotate_coverage.output_db
         File combined_vcf = combined_mt_tar
         File annotated_output_tar = annotated.annotated_output_tar
         File filt_annotated_output_tar = filt_annotated.annotated_output_tar
@@ -925,7 +925,7 @@ task annotate_coverage {
     >>>
 
     output {
-        File output_ht = "coverage_db.tar.gz"
+        File output_db = "coverage_db.tar.gz"
     }
 
     runtime {

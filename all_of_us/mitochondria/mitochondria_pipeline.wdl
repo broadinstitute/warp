@@ -1,10 +1,10 @@
 version 1.0
 
-import "../../all_of_us/mitochondria/subworkflows_and_tasks/AlignAndCallR1_v2_5_Single.wdl" as AlignAndCallR1_Single
-import "../../all_of_us/mitochondria/subworkflows_and_tasks/AlignAndCallR2_v2_5_Single.wdl" as AlignAndCallR2_Single
-import "../../all_of_us/mitochondria/subworkflows_and_tasks/LiftoverTools_v2_5_Single.wdl" as LiftoverTools_Single
-import "../../all_of_us/mitochondria/subworkflows_and_tasks/ProduceSelfReferenceFiles_v2_5_Single.wdl" as ProduceSelfReferenceFiles_Single
-import "../../all_of_us/mitochondria/subworkflows_and_tasks/MongoTasks_v2_5_Single.wdl" as MongoTasks_Single
+import "../../all_of_us/mitochondria/single_samp[le_subworkflows_and_tasks/AlignAndCallR1_v2_5_Single.wdl" as AlignAndCallR1_Single
+import "../../all_of_us/mitochondria/single_samp[le_subworkflows_and_tasks/AlignAndCallR2_v2_5_Single.wdl" as AlignAndCallR2_Single
+import "../../all_of_us/mitochondria/single_samp[le_subworkflows_and_tasks/LiftoverTools_v2_5_Single.wdl" as LiftoverTools_Single
+import "../../all_of_us/mitochondria/single_samp[le_subworkflows_and_tasks/ProduceSelfReferenceFiles_v2_5_Single.wdl" as ProduceSelfReferenceFiles_Single
+import "../../all_of_us/mitochondria/single_samp[le_subworkflows_and_tasks/MongoTasks_v2_5_Single.wdl" as MongoTasks_Single
 
 workflow MitochondriaPipeline {
 
