@@ -110,45 +110,36 @@ task MultiomeLabelTransfer {
     command <<<
         set -euo pipefail
 
-        # Download files from input bucket if provided
-        if [ -n "~{default='' input_bucket}" ]; then
-            python3 -c "
-import sys
-sys.path.insert(0, '/usr/local')
-from gcs_utils import pull_all_files
-bucket_path = '~{default='' input_bucket}'.rstrip('/')
-files = [
-    bucket_path + '/~{gex_filename}',
-    bucket_path + '/~{atac_filename}',
-    bucket_path + '/~{ref_filename}'
-]
-pull_all_files(files)
-"
-        fi
-
-        # Use direct file inputs if provided, otherwise use bucket-downloaded files
+        # Build file paths: use direct file inputs or construct GCS paths from bucket
         if [ -n "~{default='' gex_h5ad}" ]; then
             GEX_FILE="~{default='' gex_h5ad}"
         else
-            GEX_FILE="~{gex_filename}"
+            BUCKET="~{default='' input_bucket}"
+            BUCKET="${BUCKET%/}"
+            GEX_FILE="${BUCKET}/~{gex_filename}"
         fi
 
         if [ -n "~{default='' atac_h5ad}" ]; then
             ATAC_FILE="~{default='' atac_h5ad}"
         else
-            ATAC_FILE="~{atac_filename}"
+            BUCKET="~{default='' input_bucket}"
+            BUCKET="${BUCKET%/}"
+            ATAC_FILE="${BUCKET}/~{atac_filename}"
         fi
 
         if [ -n "~{default='' ref_h5ad}" ]; then
             REF_FILE="~{default='' ref_h5ad}"
         else
-            REF_FILE="~{ref_filename}"
+            BUCKET="~{default='' input_bucket}"
+            BUCKET="${BUCKET%/}"
+            REF_FILE="${BUCKET}/~{ref_filename}"
         fi
 
         python3 /usr/local/multiome_label_transfer.py \
             --gex-file "$GEX_FILE" \
             --atac-file "$ATAC_FILE" \
-            --ref-file "$REF_FILE"
+            --ref-file "$REF_FILE" \
+            --localize
     >>>
 
     runtime {
