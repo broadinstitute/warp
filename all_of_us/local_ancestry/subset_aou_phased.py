@@ -232,7 +232,7 @@ def main() -> None:
         mt_to_export = mt_sub.checkpoint(args.checkpoint_path, overwrite=args.checkpoint_overwrite)
 
     logger.info("Exporting VCF to %s", args.output_vcf)
-    hl.export_vcf(mt_to_export, args.output_vcf)
+    hl.export_vcf(mt_to_export, args.output_vcf, tabix=True)
 
     logger.info("Done.")
 
