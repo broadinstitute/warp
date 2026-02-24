@@ -131,18 +131,17 @@ task MultiomeLabelTransfer {
         # Ensure GEX h5ad has 'star_IsCell' column and ATAC h5ad has 'gex_barcodes'
         # column (both required by the script). If missing, add sensible defaults.
         python3 -c "
-import scanpy as sc
-import snapatac2 as snap
+import anndata as ad
 import os
 
 # Patch GEX: add star_IsCell if missing (makes the cell filter a no-op)
 gex_path = '$GEX_FILE'
 if not gex_path.startswith('gs://') and os.path.exists(gex_path):
-    gex = sc.read_h5ad(gex_path)
+    gex = ad.read_h5ad(gex_path)
     if 'star_IsCell' not in gex.obs.columns:
         print('Adding missing star_IsCell column (all True) to GEX h5ad')
         gex.obs['star_IsCell'] = True
-        gex.write(gex_path)
+        gex.write_h5ad(gex_path)
         print('Patched GEX h5ad saved')
     else:
         print('star_IsCell column already present')
@@ -150,15 +149,19 @@ if not gex_path.startswith('gs://') and os.path.exists(gex_path):
 # Patch ATAC: add gex_barcodes if missing (uses existing obs index as barcodes)
 atac_path = '$ATAC_FILE'
 if not atac_path.startswith('gs://') and os.path.exists(atac_path):
-    atac = snap.read(atac_path, backed=None)
+    atac = ad.read_h5ad(atac_path)
     if 'gex_barcodes' not in atac.obs.columns:
         print('Adding missing gex_barcodes column (copy of obs index) to ATAC h5ad')
         atac.obs['gex_barcodes'] = atac.obs.index
-        atac.write(atac_path)
+        atac.write_h5ad(atac_path)
         print('Patched ATAC h5ad saved')
     else:
         print('gex_barcodes column already present')
 "
+
+        # Symlink the gene annotation file to the working directory
+        # (the script uses a relative path to find it)
+        ln -sf /usr/local/gencode.v41.basic.annotation.gff3.gz .
 
         python3 /usr/local/multiome_label_transfer.py \
             --gex-file "$GEX_FILE" \
