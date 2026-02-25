@@ -843,17 +843,17 @@ task process_tsv_files {
         if filtered_df.shape[0] != df.shape[0]:
             raise ValueError("Filtered DataFrame does not have the same number of samples as the original.")
 
-        # Calculate age
-        filtered_df['date_of_birth'] = pd.to_datetime(filtered_df['date_of_birth'])
-        filtered_df['biosample_collection_date'] = pd.to_datetime(filtered_df['biosample_collection_date'])
-        filtered_df['age'] = pd.to_numeric(
-            np.floor((filtered_df['biosample_collection_date'] - filtered_df['date_of_birth']).dt.days / 365)
+        # Calculate age (allow missing/invalid dates to yield NaN)
+        filtered_df['date_of_birth'] = pd.to_datetime(filtered_df['date_of_birth'], errors="coerce")
+        filtered_df['biosample_collection_date'] = pd.to_datetime(
+            filtered_df['biosample_collection_date'], errors="coerce"
         )
-
-        # Age must be an int and must be present
-        filtered_df['age'] = filtered_df['age'].astype(int)
-        if filtered_df['age'].isna().any():
-            raise ValueError("Unexpected missing ages detected.")
+        filtered_df['age'] = pd.to_numeric(
+            np.floor((filtered_df['biosample_collection_date'] - filtered_df['date_of_birth']).dt.days / 365),
+            errors="coerce"
+        )
+        # Use pandas nullable integer dtype so NaN values are preserved.
+        filtered_df['age'] = filtered_df['age'].astype("Int64")
 
         # Rename columns for compatibility
         filtered_df.rename(columns={"mean_coverage": "wgs_mean_coverage"}, inplace=True)
