@@ -233,7 +233,19 @@ If running single-nucleus data (sn_rna mode), the counts in the main matrix will
 
 You can determine which type of counts are in the h5ad by looking at the global attribute `expression_data_type`.
 
-For sn_rna mode, you can also access whole transcript and exonic counts using AnnData alyers `layers()` method. For example, adata.layers[“exon_counts”]` will return the exonic counts from the output h5ad. 
+For sn_rna mode, you can also access whole transcript and exonic counts using AnnData alyers `layers()` method. For example, adata.layers[“exon_counts”]` will return the exonic counts from the output h5ad.
+
+
+**Provenance metadata (whitelist):** The v8.0.6 Optimus pipeline now records the barcode whitelist used during processing in the .uns metadata of its h5ad outputs. This is a provenance-only update and does not alter any counts, metrics, or downstream results.
+
+You can inspect the whitelist file path in Python as follows:
+
+```python
+import anndata
+
+adata = anndata.read_h5ad("<file_name>.h5ad")
+print(adata.uns["whitelist"])
+```
 
 #### 7. Optional: Run CellBender
 This task runs when the `run_cellbender` input is set to true. CellBender is a tool for removing background UMIs and thereby helps to flag empty drops. Learn more in the [CellBender documentation](https://cellbender.readthedocs.io/en/latest/).
@@ -253,6 +265,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | ------ |------ | ------ | ------ |
 | pipeline_version_out | N/A | Version of the processing pipeline run on this data. | String |
 | genomic_reference_version | reference_version.txt | Genomic reference version | TXT |
+| whitelist_input_used | `whitelist_input.txt` | Whitelist used as input to Optimus | TXT |
 | bam | `<input_id>.bam` | Aligned BAM | BAM |
 | matrix | `<input_id>_sparse_counts.npz` | Converted sparse matrix file from the Starsolo task. | NPZ |
 | matrix_row_index | `<input_id>_sparse_counts_row_index.npy` | Index of cells in count matrix. | NPY |
