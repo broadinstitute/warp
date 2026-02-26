@@ -177,7 +177,9 @@ def add_age_and_pop(input_mt: hl.MatrixTable, participant_data: str) -> hl.Matri
     :return: MatrixTable with select age and pop annotations added
     """
     ht = hl.import_table(
-        participant_data, types={"age": hl.tint32, "pop": hl.tstr},
+        participant_data,
+        types={"age": hl.tint32, "pop": hl.tstr},
+        missing=["", "NA", "NaN", "nan"],
     ).key_by("s")
 
     ht = ht.select("age", "pop")
