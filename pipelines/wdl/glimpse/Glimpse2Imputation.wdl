@@ -8,9 +8,9 @@ workflow Glimpse2Imputation {
         File sites_table
         File sites_table_index
 
-        Int bcftools_threads
-        Int calling_batch_size
-        Int calling_mem_gb
+        Int bcftools_threads = 1
+        Int calling_batch_size = 200
+        Int calling_mem_gb = 6
 
         Array[String] contigs
 
@@ -284,7 +284,7 @@ task BcftoolsCall {
 
         Int mem_gb = 4
         Int cpu = 2
-        Int preemptible = 3
+        Int preemptible = 0
     }
 
     Int disk_size_gb = ceil(1.5*size(crams, "GiB") + size(fasta, "GiB") + size(sites_table, "GiB")) + 10
