@@ -40,6 +40,15 @@ workflow Glimpse2Imputation {
         Int? mem_gb_phase
     }
 
+    if (defined(input_vcf)) {
+        call CountSamples {
+            input:
+                vcf = select_first([input_vcf])
+        }
+    }
+
+    Int n_samples = select_first([CountSamples.nSamples, length(select_first([crams]))])
+
     if (defined(crams)) {
         if (length(select_first([crams])) > 1) {
             call SplitIntoBatches {
@@ -84,11 +93,13 @@ workflow Glimpse2Imputation {
         File merged_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, BcftoolsCall.output_vcf_index[0]])
     }
 
+    ## this task is used to grab the reference chunk but does not affect memory usage of glimpsePhase.
+    ## still tbd which method makes the most sense cost wise
     call ComputeShardsAndMemoryPerShard {
         input:
             reference_chunks_memory = reference_chunks,
             contigs = contigs,
-            n_samples = 50  ## doesnt matter right now
+            n_samples = n_samples
     }
 
     scatter (reference_chunk in ComputeShardsAndMemoryPerShard.reference_chunk_file_paths) {
@@ -101,15 +112,6 @@ workflow Glimpse2Imputation {
 
             Int n_rare = GetNumberOfSitesInChunk.n_rare
             Int n_common = GetNumberOfSitesInChunk.n_common
-
-            if (defined(input_vcf)) {
-                call CountSamples {
-                    input:
-                        vcf = select_first([input_vcf])
-                }
-            }
-
-            Int n_samples = select_first([CountSamples.nSamples, length(select_first([crams]))])
 
             call SelectResourceParameters {
                 input:
