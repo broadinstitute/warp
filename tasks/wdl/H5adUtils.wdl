@@ -1,8 +1,7 @@
 version 1.0
 
-
-
 task OptimusH5adGeneration {
+
 
   input {
     #runtime values
@@ -35,7 +34,7 @@ task OptimusH5adGeneration {
     #String counting_mode = "sc_rna"
     String add_emptydrops_data = "yes"
     String gtf_path = annotation_file
-
+    String gex_whitelist_gs_path
 
     String pipeline_version
 
@@ -57,6 +56,9 @@ task OptimusH5adGeneration {
     set -euo pipefail
 
     touch empty_drops_result.csvs
+
+    whitelist_name=$(basename ~{gex_whitelist_gs_path})
+    echo "$whitelist_name" > whitelist_input.txt
 
     if [ "~{counting_mode}" == "sc_rna" ]; then
         python3 /warptools/scripts/create_h5ad_optimus.py \
@@ -104,6 +106,15 @@ task OptimusH5adGeneration {
      --counting_mode ~{counting_mode} \
      --expected_cells ~{expected_cells}
 
+
+    python3 <<CODE
+    import anndata as ad
+    adata = ad.read_h5ad("~{input_id}.h5ad")
+    adata.uns["whitelist"] = {"gex_whitelist_gs_path": "~{gex_whitelist_gs_path}"}
+    adata.write("~{input_id}.h5ad")
+    CODE
+
+
     mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_library_metrics.csv
 
   >>>
@@ -120,6 +131,7 @@ task OptimusH5adGeneration {
   output {
     File h5ad_output = "~{input_id}.h5ad"
     File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
+    File whitelist_name_file = "whitelist_input.txt"
   }
 }
 
@@ -162,6 +174,7 @@ task SingleNucleusOptimusH5adOutput {
         # Cell calls from starsolo in TSV format
         File? cellbarcodes
         String gtf_path = annotation_file
+        String gex_whitelist_gs_path
 
         String pipeline_version
 
@@ -181,6 +194,9 @@ task SingleNucleusOptimusH5adOutput {
 
     command <<<
         set -euo pipefail
+
+        whitelist_name=$(basename ~{gex_whitelist_gs_path})
+        echo "$whitelist_name" > whitelist_input.txt
 
         python3 /warptools/scripts/create_snrna_optimus_exons_h5ad.py \
         --annotation_file ~{annotation_file} \
@@ -211,6 +227,13 @@ task SingleNucleusOptimusH5adOutput {
         --counting_mode ~{counting_mode} \
         --expected_cells ~{expected_cells}
 
+        python3 <<CODE
+        import anndata as ad
+        adata = ad.read_h5ad("~{input_id}.h5ad")
+        adata.uns["whitelist"] = {"gex_whitelist_gs_path": "~{gex_whitelist_gs_path}"}
+        adata.write("~{input_id}.h5ad")
+        CODE
+
 
         mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_library_metrics.csv
 
@@ -227,6 +250,7 @@ task SingleNucleusOptimusH5adOutput {
     output {
         File h5ad_output = "~{input_id}.h5ad"
         File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
+        File whitelist_name_file = "whitelist_input.txt"
     }
 }
 
@@ -237,6 +261,8 @@ task JoinMultiomeBarcodes {
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
+    String gex_whitelist_gs_path
+    String atac_whitelist_gs_path
     String input_gtf
     String input_bwa_reference
 
@@ -279,6 +305,8 @@ task JoinMultiomeBarcodes {
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
+    gex_whitelist_gs = "~{gex_whitelist_gs_path}"
+    atac_whitelist_gs = "~{atac_whitelist_gs_path}"
     input_gtf = "~{input_gtf}"
     input_bwa_reference = "~{input_bwa_reference}"
 
@@ -327,6 +355,29 @@ task JoinMultiomeBarcodes {
     print("Setting Optimus obs to new dataframe")
     gex_data.obs = df_gex
 
+    import os
+
+    # Add whitelist provenance metadata
+    gex_data.uns["whitelists"] = {
+    "gex_whitelist_gs_path": gex_whitelist_gs,
+    "atac_whitelist_gs_path": atac_whitelist_gs
+    }
+
+    atac_data.uns["whitelists"] = {
+    "gex_whitelist_gs_path": gex_whitelist_gs,
+    "atac_whitelist_gs_path": atac_whitelist_gs
+    }
+
+    # write out the names of the whitelists in separate text files for provenance tracking
+    gex_whitelist_name = os.path.basename(gex_whitelist)
+    atac_whitelist_name = os.path.basename(atac_whitelist)
+
+    with open("gex_whitelist_input.txt", "w") as f:
+        f.write(gex_whitelist_name)
+
+    with open("atac_whitelist_input.txt", "w") as f:
+        f.write(atac_whitelist_name)
+
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
@@ -361,6 +412,8 @@ task JoinMultiomeBarcodes {
     File atac_h5ad_file = "~{atac_base_name}.h5ad"
     File atac_fragment_tsv = "~{atac_fragment_base}.sorted.tsv.gz"
     File atac_fragment_tsv_index = "~{atac_fragment_base}.sorted.tsv.gz.csi"
+    File gex_whitelist_name_file = "gex_whitelist_input.txt"
+    File atac_whitelist_name_file = "atac_whitelist_input.txt"
   }
 }
 
