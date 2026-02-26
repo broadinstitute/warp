@@ -400,7 +400,7 @@ task build_vcf_shard_mt {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.0"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -599,7 +599,7 @@ task merge_mt_shards {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.0"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -699,7 +699,7 @@ task finalize_mt_with_covdb {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.0"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -843,17 +843,17 @@ task process_tsv_files {
         if filtered_df.shape[0] != df.shape[0]:
             raise ValueError("Filtered DataFrame does not have the same number of samples as the original.")
 
-        # Calculate age
-        filtered_df['date_of_birth'] = pd.to_datetime(filtered_df['date_of_birth'])
-        filtered_df['biosample_collection_date'] = pd.to_datetime(filtered_df['biosample_collection_date'])
-        filtered_df['age'] = pd.to_numeric(
-            np.floor((filtered_df['biosample_collection_date'] - filtered_df['date_of_birth']).dt.days / 365)
+        # Calculate age (allow missing/invalid dates to yield NaN)
+        filtered_df['date_of_birth'] = pd.to_datetime(filtered_df['date_of_birth'], errors="coerce")
+        filtered_df['biosample_collection_date'] = pd.to_datetime(
+            filtered_df['biosample_collection_date'], errors="coerce"
         )
-
-        # Age must be an int and must be present
-        filtered_df['age'] = filtered_df['age'].astype(int)
-        if filtered_df['age'].isna().any():
-            raise ValueError("Unexpected missing ages detected.")
+        filtered_df['age'] = pd.to_numeric(
+            np.floor((filtered_df['biosample_collection_date'] - filtered_df['date_of_birth']).dt.days / 365),
+            errors="coerce"
+        )
+        # Use pandas nullable integer dtype so NaN values are preserved.
+        filtered_df['age'] = filtered_df['age'].astype("Int64")
 
         # Rename columns for compatibility
         filtered_df.rename(columns={"mean_coverage": "wgs_mean_coverage"}, inplace=True)
@@ -1013,7 +1013,7 @@ task combine_vcfs_and_homref_from_covdb {
 
     runtime {
         # NOTE: This must be a Hail-capable image with mtSwirl code baked in at /opt/mtSwirl.
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.0"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -1104,7 +1104,7 @@ task add_annotations {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.0"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 
