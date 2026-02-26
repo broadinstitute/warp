@@ -367,6 +367,8 @@ task build_vcf_shard_mt {
 
         # Copy tarball to stable GCS location for call caching
         command -v gcloud
+        # Disable parallel composite uploads so md5Hash is available.
+        gcloud config set storage/parallel_composite_upload_enabled False
             DEST_ROOT="~{output_bucket}"
             DEST_ROOT="${DEST_ROOT%/}"
             DEST_PATH="${DEST_ROOT}/~{out_tar_name}"
@@ -564,12 +566,14 @@ task merge_mt_shards {
         # Use a unique tarball name per call to avoid collisions across scatter shards and merge rounds.
         tar -czf "~{out_mt_name}.tar.gz" -C ./results "~{out_mt_name}"
 
-        # Copy tarball to stable GCS location for call caching
-        command -v gcloud
-                    DEST_ROOT="~{output_bucket}"
-                    DEST_ROOT="${DEST_ROOT%/}"
-                    DEST_PATH="${DEST_ROOT}/~{out_mt_name}.tar.gz"
-        gcloud storage cp "~{out_mt_name}.tar.gz" "${DEST_PATH}"
+    # Copy tarball to stable GCS location for call caching
+    command -v gcloud
+    # Disable parallel composite uploads so md5Hash is available.
+    gcloud config set storage/parallel_composite_upload_enabled False
+            DEST_ROOT="~{output_bucket}"
+            DEST_ROOT="${DEST_ROOT%/}"
+            DEST_PATH="${DEST_ROOT}/~{out_mt_name}.tar.gz"
+    gcloud storage cp "~{out_mt_name}.tar.gz" "${DEST_PATH}"
 
         LOCAL_MD5_B64=$(python3 - <<'PY'
         import base64
