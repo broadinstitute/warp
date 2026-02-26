@@ -367,8 +367,6 @@ task build_vcf_shard_mt {
 
         # Copy tarball to stable GCS location for call caching
         command -v gcloud
-        # Disable parallel composite uploads so md5Hash is available.
-        gcloud config set storage/parallel_composite_upload_enabled False
             DEST_ROOT="~{output_bucket}"
             DEST_ROOT="${DEST_ROOT%/}"
             DEST_PATH="${DEST_ROOT}/~{out_tar_name}"
