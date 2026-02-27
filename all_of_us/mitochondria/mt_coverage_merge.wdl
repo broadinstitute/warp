@@ -616,15 +616,16 @@ task finalize_mt_with_covdb {
         String artifact_prone_sites_reference = "default"
         String file_name
         Int minimum_homref_coverage = 100
-        Int homref_position_block_size = 2048
+        Int homref_position_block_size = 1024
         Int n_final_partitions = 1000
         Boolean overwrite = false
 
         # Runtime parameters
-        Int memory_gb = 256
-        Int cpu = 40
+        Int memory_gb = 768
+        Int cpu = 96
         Int disk_gb = 4000
         String disk_type = "SSD"
+        String machine_type = "n2d-highmem-96"
     }
 
     command <<<
@@ -705,6 +706,7 @@ task finalize_mt_with_covdb {
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
+        predefinedMachineType: machine_type
     }
 }
 
