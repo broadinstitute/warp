@@ -58,7 +58,8 @@ def main(args: argparse.Namespace) -> None:
     hl.init(tmp_dir=args.temp_dir)
 
     try:
-        runtime = hl.jvm.java.lang.Runtime.getRuntime()
+        jvm = hl._get_jvm()
+        runtime = jvm.java.lang.Runtime.getRuntime()
         logger.info("JVM max heap (bytes): %s", runtime.maxMemory())
     except Exception as exc:  # pragma: no cover - best-effort diagnostic
         logger.warning("Unable to read JVM max heap: %s", exc)
