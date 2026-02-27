@@ -616,7 +616,7 @@ task finalize_mt_with_covdb {
         String artifact_prone_sites_reference = "default"
         String file_name
         Int minimum_homref_coverage = 100
-        Int homref_position_block_size = 2048
+        Int homref_position_block_size = 1024
         Int n_final_partitions = 1000
         Boolean overwrite = false
 
