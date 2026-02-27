@@ -55,13 +55,27 @@ The Mitochondria Pipeline processes mtDNA data from whole-genome sequencing (WGS
 
 ### Overview
 
-The workflow takes in a TSV file containing sample names, as well as output metrics and output files files from the Mitochondria Pipeline workflow. Its goal is to produce a final, comprehensively annotated mitochondrial variant callset. It does this by:
+The workflow takes in a TSV file containing sample names, as well as output metrics and output files from the Mitochondria Pipeline workflow. Its goal is to produce a final, comprehensively annotated mitochondrial variant callset. It does this by:
 - Preparing a master sample information file.
-- Merging all individual coverage files into a single coverage dataset.
-- Merging all individual VCF files, using the coverage data to improve accuracy.
+- Building a compact coverage database (HDF5) to support hom-ref imputation.
+- Merging all individual VCF files using a scalable, sharded workflow.
+- Finalizing the merged callset by applying coverage-based hom-ref/DP and artifact filtering once.
 - Running an extensive annotation and QC process on the final merged VCFs.
 
 A key feature of this pipeline is that the final annotation step is run twice in parallel: once keeping all samples (`annotated`) and once filtering out low-quality samples (`filt_annotated`), producing two distinct final outputs.
+
+### Recent pipeline updates (v2 scaling work)
+
+The following changes were implemented to improve performance, stability, and correctness at 535k+ samples:
+
+- **Coverage MatrixTable → Coverage DB (HDF5)**: Replaced the coverage MT with a compact HDF5 coverage database to avoid Hail overhead on a dataset with many more samples than variants. This improves I/O and reduces Spark/Hail pressure during coverage lookups.
+- **Sharded VCF ingest + multi-round merges**: VCF ingestion now uses per-shard MT builds and multi-round fan-in merges. This avoids single-node bottlenecks and reduces failure rates at scale.
+- **Finalize step with covdb hom-ref/DP**: Coverage-based hom-ref and depth imputation are applied once on the final merged MT (instead of during per-shard merges) to reduce recomputation and simplify correctness checks.
+- **Robust `.mt` discovery after untar**: Added deterministic MT path discovery so tasks handle tarball wrappers and metadata layouts consistently.
+- **Spark memory tuning + temp dir standardization**: Unified Spark memory math and temp-dir usage across tasks to reduce misconfiguration and JVM OOMs.
+- **GCS upload integrity**: Explicitly disabled parallel composite uploads for MT tarballs to preserve MD5 checksums and keep upload validation consistent for ~1–2 GB artifacts.
+- **Participant metadata resilience**: Age calculation now tolerates missing dates; downstream imports treat missing ages as missing values rather than hard-failing.
+- **Docker image separation + tagging**: Split coverage DB build image from Hail/Spark image and pinned pipeline tasks to tagged images for reproducibility.
 
 ### Task: `subset_data_table`
 - **Purpose**: This is an optional first step that filters the input sample TSV (containing output metrics from the Mitochondria Pipeline) to only include a specific list of desired samples.
@@ -95,34 +109,29 @@ A key feature of this pipeline is that the final annotation step is run twice in
   - `processed_tsv`: A single, master TSV file with all the necessary columns (`s`, `coverage`, `final_vcf`, `pop`, `age`, etc.) for the main pipeline.
 
 ### Task: `annotate_coverage`
-- **Purpose**: To merge all the individual per-base coverage files into a single, unified Hail MatrixTable.
+- **Purpose**: Build a compact coverage database (HDF5) from per-sample coverage metrics.
 - **Inputs**:
-  - `input_tsv`: The master processed_tsv from the previous step, which contains the paths to each sample's coverage file.
+  - `input_tsv`: The master `processed_tsv`, which contains the paths to each sample's coverage file.
 
 - **Transformation**:
-  - This task calls the `annotate_coverage.py` script. 
-  - This script performs the scalable, **hierarchical merge** of all the individual coverage files listed in the input TSV. 
-  - After merging, it calculates summary statistics across all samples, such as the mean and median coverage at each base of the mitochondrial genome. 
-  - Finally, it archives the resulting Hail MatrixTable into a compressed tarball (`.tar.gz`).
+  - This task calls the `build_coverage_db` module to construct `coverage.h5` and (optionally) a summary TSV.
+  - Coverage DB lookups are then used downstream for hom-ref and DP imputation.
+  - Outputs are bundled into a single `coverage_db.tar.gz` for portability.
 
 - **Output**:
-  - `output_ht`: A `tar.gz` archive containing the final combined coverage MatrixTable.
+  - `output_db`: A `tar.gz` archive containing `coverage.h5` and optional summary TSV.
 
-### Task: `combine_vcfs`
-- **Purpose**: To merge all individual sample VCF files into a single, combined MatrixTable, using the coverage data for improved accuracy.
-- **Inputs**:
-  - `input_tsv`: The master `processed_tsv`, which contains the paths to each sample's VCF file.
-  - `coverage_mt_tar`: The compressed coverage MatrixTable produced by the `annotate_coverage` task.
+### Task group: sharded VCF ingest + merge + finalize
+- **Purpose**: Efficiently merge hundreds of thousands of VCFs and apply coverage-based hom-ref/DP imputation once on the final callset.
 
-- **Transformation**:
-  - This task calls the `combine_vcfs.py` script.
-  - It first unzips the coverage MatrixTable so it can be read by Hail.
-  - The Python script then performs the **hierarchical merge** of all the individual VCF files.
-  - Critically, it uses the unzipped coverage data to accurately distinguish between sites with no variation (homoplasmic reference) and sites with low sequencing depth (missing data).
-  - The resulting merged VCF MatrixTable is archived into a `.tar.gz` file.
+- **Key tasks**:
+  - `make_vcf_shards_from_tsv`: Split the input sample list into shard TSVs.
+  - `build_vcf_shard_mt`: Build a MatrixTable per shard.
+  - `merge_mt_shards`: Multi-round fan-in merges (round 1/2/3) to reduce intermediate counts.
+  - `finalize_mt_with_covdb`: Apply coverage DB hom-ref/DP and artifact filtering on the final merged MT.
 
-- **Output**:
-  - `results_tar`: A `tar.gz` archive containing the combined VCF MatrixTable.
+- **Outputs**:
+  - `combined_mt_tar`: Final merged MT tarball (`combined_vcf.mt.tar.gz`).
 
 ### Task: `add_annotations` (called as `annotated` and `filt_annotated`)
 - **Purpose**: To perform the final, extensive annotation and quality control of the combined VCF callset.

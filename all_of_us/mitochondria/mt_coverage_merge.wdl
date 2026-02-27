@@ -681,6 +681,21 @@ task finalize_mt_with_covdb {
         tar -xzf "${LOCAL_TAR}" -C ./input_mt
         IN_MT_DIR=$(find_mt_dir "./input_mt" 2 "in_mt_tar")
 
+        echo "=== Memory diagnostics ==="
+        echo "SPARK_DRIVER_MEMORY=${SPARK_DRIVER_MEMORY}"
+        echo "JAVA_OPTS=${JAVA_OPTS}"
+        echo "PYSPARK_SUBMIT_ARGS=${PYSPARK_SUBMIT_ARGS}"
+        
+        # Container/cgroup memory limit (bytes)
+        if [ -f /sys/fs/cgroup/memory/memory.limit_in_bytes ]; then
+          echo "cgroup memory.limit_in_bytes=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)"
+        elif [ -f /sys/fs/cgroup/memory.max ]; then
+          echo "cgroup memory.max=$(cat /sys/fs/cgroup/memory.max)"
+        fi
+        
+        # JVM heap max from a tiny Java one-liner
+        java -XshowSettings:vm -version 2>&1 | grep -E "Max. Heap Size|Max. Heap Size"
+
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/finalize_mt_with_covdb.py \
             --in-mt "$IN_MT_DIR" \
             --coverage-h5-path ./coverage_db/coverage.h5 \
