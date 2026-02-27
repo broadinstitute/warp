@@ -69,6 +69,14 @@ def main() -> None:
         bed_path.write_text("chrM\t1\t2\n")
 
         hl.init(tmp_dir=str(tmp_path / "hail_tmp"), quiet=True)
+        try:
+            sc = hl.spark_context()
+            runtime = sc._jvm.java.lang.Runtime.getRuntime()
+            heap_bytes = int(runtime.maxMemory())
+            assert heap_bytes > 0
+            print(f"smoke_test_finalize_mt_with_covdb: JVM max heap bytes={heap_bytes}")
+        except Exception as exc:
+            raise RuntimeError(f"Unable to read JVM max heap: {exc}") from exc
         mt = _build_mt()
 
         mt = determine_hom_refs_from_covdb(
