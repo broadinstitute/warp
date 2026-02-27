@@ -58,7 +58,7 @@ The snm3C pipeline was adapted from YAP (Yet Another Pipeline) in collaboration 
 | TotalMultiContacts | Total number of multi contacts (read pair contains multiple read contacts). |
 | CisContactsRatio | TotalCisContacts / number of mapped fragments. |
 | TransContactsRatio | TotalTransContacts / number of mapped fragments. |
-| MultiContactsRatio | TotalMultiContacts / No. of mapped fragments. |
+| MultiContactsRatio | TotalMultiContacts / number of mapped fragments. |
 | mCCCmC | Total methylated cytosine in the CCC context. |
 | mCGmC | Total methylated cytosine in the CG context. |
 | mCHmC | Total methylated cytosine in the CH context. |
