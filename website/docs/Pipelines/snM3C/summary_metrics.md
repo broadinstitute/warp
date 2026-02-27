@@ -37,28 +37,28 @@ The snm3C pipeline was adapted from YAP (Yet Another Pipeline) in collaboration 
 | R2SplitReadsMultiMappedReads | Number of multimapped R2 reads. | 
 | R2SplitReadsMultiMappingRate | Rate of R2 read multimapping. |
 | R2SplitReadsOverallMappingRate | Rate of mapping for all R2 reads. |
-| UniqueAlignFinalReads | | 
-| UniqueAlignDuplicatedReads | |
-| UniqueAlignPCRDuplicationRate |
+| UniqueAlignFinalReads | Final unique mapped total reads after picard deduplication. | 
+| UniqueAlignDuplicatedReads | Paired and unpaired duplicated reads. |
+| UniqueAlignPCRDuplicationRate | FinalReads /(FinalReads and DuplicatedReads). |
 | CisContacts | Number of chromatin contacts where the two loci are on the same chromosome. |
-| CisCutContacts | 
-| CisMultiContacts | 
-| CisCutMultiContacts |
+| CisCutContacts | Number of read pairs that are split from the same read at the cut site, and map to the same chromosome. |
+| CisMultiContacts | CisContacts read pair contains multiple read contacts. |
+| CisCutMultiContacts | CisCutContacts read pair contains multiple read contacts. |
 | TransContacts | Number of chromatin contacts where the two loci are on different chromosome. |
-| TransCutContacts |
-| TransMultiContacts |
-| TransCutMultiContacts |
-| ChimericContacts |
-| NoContacts |
-| MappedFragments |
-| DeduppedContacts |
-| ContactsDeduplicationRate |
-| TotalCisContacts |
-| TotalTransContacts |
-| TotalMultiContacts |
-| CisContactsRatio |
-| TransContactsRatio |
-| MultiContactsRatio |
+| TransCutContacts | Number of read pairs that are split from the same read at the cut site, and map to different chromosomes. |
+| TransMultiContacts | TransContacts read pair contains multiple read contacts. |
+| TransCutMultiContacts | TransCutContacts read pair contains multiple read contacts. | 
+| ChimericContacts | Two reads that are split from the same read, but not at the cut site, this might be due to artificial chimeric synthesis event. |
+| NoContacts | Not a contact. |
+| MappedFragments | Total number of mapped fragments. |
+| DeduppedContacts | Total number of deduplicated contacts. |
+| ContactsDeduplicationRate | `(Input_contacts - dedup_contacts) / (input_contacts + 0.00001)` |
+| TotalCisContacts | Total number of cis contacts. |
+| TotalTransContacts | Total number of trans contacts. |
+| TotalMultiContacts | Total number of multi contacts (read pair contains multiple read contacts). |
+| CisContactsRatio | TotalCisContacts / number of mapped fragments. |
+| TransContactsRatio | TotalTransContacts / number of mapped fragments. |
+| MultiContactsRatio | TotalMultiContacts / No. of mapped fragments. |
 | mCCCmC | Total methylated cytosine in the CCC context. |
 | mCGmC | Total methylated cytosine in the CG context. |
 | mCHmC | Total methylated cytosine in the CH context. |
