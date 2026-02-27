@@ -57,6 +57,12 @@ def main(args: argparse.Namespace) -> None:
 
     hl.init(tmp_dir=args.temp_dir)
 
+    try:
+        runtime = hl.jvm.java.lang.Runtime.getRuntime()
+        logger.info("JVM max heap (bytes): %s", runtime.maxMemory())
+    except Exception as exc:  # pragma: no cover - best-effort diagnostic
+        logger.warning("Unable to read JVM max heap: %s", exc)
+
     if hl.hadoop_exists(f"{args.out_mt}/_SUCCESS") and not args.overwrite:
         logger.info("Output exists, reading: %s", args.out_mt)
         _ = hl.read_matrix_table(args.out_mt)
