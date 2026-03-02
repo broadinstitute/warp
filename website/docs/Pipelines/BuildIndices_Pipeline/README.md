@@ -160,7 +160,8 @@ Example references are available in the Broad Public Reference bucket, a Google 
 | STAR Annotation GTF    | `gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_vM32.annotation.gtf` |
 | BWA-MEM2 Index TAR     | `gs://gcp-public-data--broad-references/GRCm39/bwa/v2_2_1/bwa-mem2-2.2.1-Mouse-GENCODE-build-GRCm39.tar` |
 | Chromosome Sizes       | `gs://gcp-public-data--broad-references/GRCm39/bwa/v2_2_1/chrom.sizes` |
-| Fasta                  | `gs://gcp-public-data--broad-references/GRCm39/single_nucleus_smart_seq_2/GRCm39.primary_assembly.genome.fa` |
+| FASTA                  | `gs://gcp-public-data--broad-references/GRCm39/single_nucleus_smart_seq_2/GRCm39.primary_assembly.genome.fa` |
+
 
 ### Macaque
 Inputs for the Macaque reference below were modified using a custom tool to handle nuclear mitochondrial inserts, [numty-dumpty](https://github.com/nkschaefer/numty-dumpty). See the README for the [STAR index](https://storage.cloud.google.com/gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/numty_dumpty/README_STAR.txt) and the [bwa-mem2 index]
