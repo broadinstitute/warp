@@ -146,7 +146,7 @@ Example references are available in the Broad Public Reference bucket, a Google 
 | STAR Annotation GTF    | `gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf` |
 | BWA-MEM2 Index TAR     | `gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar` |
 | Chromosome Sizes       | `gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/chrom.sizes` |
-| Fasta                  | `gs://gcp-public-data--broad-references/hg38/v0/single_nucleus_smart_seq_2/GRCh38.primary_assembly.genome.fa` |
+| FASTA                  | `gs://gcp-public-data--broad-references/hg38/v0/single_nucleus_smart_seq_2/GRCh38.primary_assembly.genome.fa` |
 
 
 ### Mouse
