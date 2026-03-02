@@ -78,7 +78,7 @@ workflow Optimus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "8.0.5"
+  String pipeline_version = "8.0.6"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -230,7 +230,8 @@ workflow Optimus {
         empty_drops_result = RunEmptyDrops.empty_drops_result,
         counting_mode = counting_mode,
         pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker
+        warp_tools_docker_path = docker_prefix + warp_tools_docker,
+        gex_whitelist_gs_path = whitelist
     }
   }
 
@@ -256,7 +257,8 @@ workflow Optimus {
         cell_id_exon = STARsoloFastq.row_index,
         gene_id_exon = STARsoloFastq.col_index,
         pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker
+        warp_tools_docker_path = docker_prefix + warp_tools_docker,
+        gex_whitelist_gs_path = whitelist
     }
   }
 
@@ -295,12 +297,14 @@ workflow Optimus {
   }
 
   File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
+  File final_whitelist_input = select_first([OptimusH5adGenerationWithExons.whitelist_name_file, OptimusH5adGeneration.whitelist_name_file])
   File final_library_metrics = select_first([OptimusH5adGenerationWithExons.library_metrics, OptimusH5adGeneration.library_metrics])
 
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
+    File whitelist_input_used = final_whitelist_input
    
     # Metrics outputs
     File cell_metrics = CellMetrics.cell_metrics

@@ -10,7 +10,7 @@ import "../../../tasks/wdl/Utilities.wdl" as utils
 workflow Multiome {
 
 
-    String pipeline_version = "6.1.4"
+    String pipeline_version = "6.1.5"
 
 
     input {
@@ -76,6 +76,8 @@ workflow Multiome {
     # Determine which whitelist files to use based on cloud provider
     File gex_whitelist = if cloud_provider == "gcp" then gcp_gex_whitelist else azure_gex_whitelist
     File atac_whitelist = if cloud_provider == "gcp" then gcp_atac_whitelist else azure_atac_whitelist
+    String gex_whitelist_gs_path = gex_whitelist
+    String atac_whitelist_gs_path = atac_whitelist
 
     # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
     if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
@@ -143,7 +145,9 @@ workflow Multiome {
             atac_whitelist = atac_whitelist,
             atac_fragment = Atac.fragment_file,
             input_gtf = annotations_gtf,
-            input_bwa_reference = tar_bwa_reference
+            input_bwa_reference = tar_bwa_reference,
+            gex_whitelist_gs_path = gex_whitelist,
+            atac_whitelist_gs_path = atac_whitelist
     }
 
     if (run_peak_calling) {
@@ -165,6 +169,9 @@ workflow Multiome {
     output {
         
         String multiome_pipeline_version_out = pipeline_version
+        File gex_whitelist_used = JoinBarcodes.gex_whitelist_name_file
+        File atac_whitelist_used = JoinBarcodes.atac_whitelist_name_file
+
 
         # atac outputs
         File bam_aligned_output_atac = Atac.bam_aligned_output
