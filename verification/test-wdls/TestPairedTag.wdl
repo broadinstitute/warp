@@ -27,7 +27,7 @@ workflow TestPairedTag {
       Boolean ignore_r1_read_length = false
       String star_strand_mode = "Forward"
       Boolean count_exons = false
-      File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
+      File gex_whitelist = if cloud_provider == "gcp" then "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt" else "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_gex.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
       String? soloMultiMappers = "Uniform"
 
       # ATAC inputs
