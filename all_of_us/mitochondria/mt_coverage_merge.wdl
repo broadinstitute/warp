@@ -31,6 +31,11 @@ workflow mt_coverage_merge {
         Int step3_shard_n_partitions = 192
         String step3_output_bucket
 
+    # Finalize sharding controls
+    Int finalize_shard_size = 25000
+    Int finalize_shard_n_partitions = 256
+    Int finalize_union_n_partitions = 1000
+
     }
 
     if (defined(sample_list_tsv)) {
@@ -148,34 +153,60 @@ workflow mt_coverage_merge {
             }
         }
 
-        # Finalize: apply covdb homref/DP + artifact filter once on the final merged MT
-        # Finalize on the deepest merge output that exists.
+        # Shard the merged MT, finalize each shard, then union columns back together.
         if (do_merge_round_2) {
             if (defined(merge_round_3.merged_mt_tar)) {
-                call finalize_mt_with_covdb as finalize_mt_with_covdb_round3 {
+                call shard_mt_by_samples as shard_mt_by_samples_round3 {
                     input:
                         in_mt_tar = select_first([merge_round_3.merged_mt_tar])[0],
-                        coverage_db_tar = annotate_coverage.output_db,
-                        file_name = combined_mt_name
+                        shard_size = finalize_shard_size,
+                        n_final_partitions = finalize_shard_n_partitions,
+                        output_bucket = step3_output_bucket
                 }
             }
             if (!defined(merge_round_3.merged_mt_tar)) {
-                call finalize_mt_with_covdb as finalize_mt_with_covdb_round2 {
+                call shard_mt_by_samples as shard_mt_by_samples_round2 {
                     input:
                         in_mt_tar = select_first([merge_round_2.merged_mt_tar])[0],
-                        coverage_db_tar = annotate_coverage.output_db,
-                        file_name = combined_mt_name
+                        shard_size = finalize_shard_size,
+                        n_final_partitions = finalize_shard_n_partitions,
+                        output_bucket = step3_output_bucket
                 }
             }
         }
 
         if (!do_merge_round_2) {
-            call finalize_mt_with_covdb as finalize_mt_with_covdb_round1 {
+            call shard_mt_by_samples as shard_mt_by_samples_round1 {
                 input:
                     in_mt_tar = merge_round_1.merged_mt_tar[0],
-                    coverage_db_tar = annotate_coverage.output_db,
-                    file_name = combined_mt_name
+                    shard_size = finalize_shard_size,
+                    n_final_partitions = finalize_shard_n_partitions,
+                    output_bucket = step3_output_bucket
             }
+        }
+
+        Array[String] shard_mt_tars_for_finalize = select_first([
+            shard_mt_by_samples_round3.shard_mt_tars,
+            shard_mt_by_samples_round2.shard_mt_tars,
+            shard_mt_by_samples_round1.shard_mt_tars
+        ])
+
+        scatter (shard_mt_tar in shard_mt_tars_for_finalize) {
+            call finalize_mt_with_covdb as finalize_mt_shard {
+                input:
+                    in_mt_tar = shard_mt_tar,
+                    coverage_db_tar = annotate_coverage.output_db,
+                    file_name = basename(shard_mt_tar, ".tar.gz") + "_finalized",
+                    n_final_partitions = finalize_shard_n_partitions
+            }
+        }
+
+        call union_mt_shards {
+            input:
+                mt_tars = finalize_mt_shard.results_tar,
+                out_mt_name = combined_mt_name,
+                n_final_partitions = finalize_union_n_partitions,
+                output_bucket = step3_output_bucket
         }
     }
 
@@ -190,9 +221,7 @@ workflow mt_coverage_merge {
     }
 
     File combined_mt_tar = select_first([
-            finalize_mt_with_covdb_round3.results_tar,
-            finalize_mt_with_covdb_round2.results_tar,
-            finalize_mt_with_covdb_round1.results_tar,
+            union_mt_shards.results_tar,
             combine_vcfs_and_homref_from_covdb.results_tar
         ])
 
@@ -400,7 +429,7 @@ task build_vcf_shard_mt {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -601,7 +630,261 @@ task merge_mt_shards {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
+        memory: memory_gb + " GB"
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " " + disk_type
+    }
+}
+
+task shard_mt_by_samples {
+    input {
+        String in_mt_tar
+        Int shard_size = 25000
+        Int n_final_partitions = 256
+        Boolean overwrite = false
+        String output_bucket
+
+        # Runtime parameters
+        Int memory_gb = 256
+        Int cpu = 32
+        Int disk_gb = 2000
+        String disk_type = "SSD"
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        mkdir -p ./tmp
+        mkdir -p ./results
+        mkdir -p ./input_mt
+
+        setup_spark() {
+            local mem_gb="$1"
+            export SPARK_LOCAL_DIRS="$PWD/tmp"
+            local driver_mem_gb=$((mem_gb - 8))
+            if [ "$driver_mem_gb" -lt 4 ]; then driver_mem_gb=4; fi
+            export SPARK_DRIVER_MEMORY="${driver_mem_gb}g"
+            export PYSPARK_SUBMIT_ARGS="--driver-memory ${driver_mem_gb}g --executor-memory ${driver_mem_gb}g pyspark-shell"
+            export JAVA_OPTS="-Xms${driver_mem_gb}g -Xmx${driver_mem_gb}g"
+        }
+
+        find_mt_dir() {
+            local search_dir="$1"
+            local max_depth="$2"
+            local label="$3"
+            local mt_dir
+            if [ -f "${search_dir}/metadata.json.gz" ]; then
+                echo "${search_dir}"
+                return
+            fi
+            mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" ! -path "${search_dir}" | head -n 1)
+            if [ -z "${mt_dir}" ]; then
+                echo "ERROR: could not find .mt directory after extracting ${label}" >&2
+                find "${search_dir}" -maxdepth "${max_depth}" -type d | head -100 >&2
+                exit 1
+            fi
+            echo "${mt_dir}"
+        }
+
+        setup_spark ~{memory_gb}
+
+        # Extract input merged MT tar (String path, typically gs://)
+        command -v gcloud
+        IN_TAR_PATH="~{in_mt_tar}"
+        LOCAL_TAR="./input_mt/input_mt.tar.gz"
+        if [[ "${IN_TAR_PATH}" == gs://* ]]; then
+            gcloud storage cp "${IN_TAR_PATH}" "${LOCAL_TAR}"
+        else
+            cp -f "${IN_TAR_PATH}" "${LOCAL_TAR}"
+        fi
+        tar -xzf "${LOCAL_TAR}" -C ./input_mt
+        IN_MT_DIR=$(find_mt_dir "./input_mt" 2 "in_mt_tar")
+
+        python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/shard_mt_by_samples.py \
+            --in-mt "$IN_MT_DIR" \
+            --out-dir ./results \
+            --temp-dir ./tmp \
+            --shard-size ~{shard_size} \
+            --n-final-partitions ~{n_final_partitions} \
+            ~{if overwrite then "--overwrite" else ""}
+
+        # Tar and upload shards
+        DEST_ROOT="~{output_bucket}"
+        DEST_ROOT="${DEST_ROOT%/}"
+        rm -f shard_mt_tars.list
+
+        for mt_dir in ./results/shard_*.mt; do
+            shard_name=$(basename "${mt_dir}")
+            tar_name="${shard_name}.tar.gz"
+            tar -czf "${tar_name}" -C ./results "${shard_name}"
+
+            DEST_PATH="${DEST_ROOT}/${tar_name}"
+            gcloud storage cp "${tar_name}" "${DEST_PATH}"
+
+            LOCAL_MD5_B64=$(python3 - <<'PY'
+        import base64
+        import hashlib
+
+        path = "'"${tar_name}"'"
+        h = hashlib.md5()
+        with open(path, "rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                h.update(chunk)
+        print(base64.b64encode(h.digest()).decode("utf-8"))
+        PY
+            )
+            REMOTE_MD5=$(gcloud storage objects describe "${DEST_PATH}" --format='value(md5Hash)')
+            if [ "${LOCAL_MD5_B64}" != "${REMOTE_MD5}" ]; then
+                echo "ERROR: MD5 mismatch after copy to ${DEST_PATH}" >&2
+                echo "LOCAL_MD5_B64=${LOCAL_MD5_B64}" >&2
+                echo "REMOTE_MD5=${REMOTE_MD5}" >&2
+                exit 1
+            fi
+
+            echo "${DEST_PATH}" >> shard_mt_tars.list
+        done
+    >>>
+
+    output {
+        Array[String] shard_mt_tars = read_lines("shard_mt_tars.list")
+    }
+
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
+        memory: memory_gb + " GB"
+        cpu: cpu
+        disks: "local-disk " + disk_gb + " " + disk_type
+    }
+}
+
+task union_mt_shards {
+    input {
+        Array[File] mt_tars
+        String out_mt_name
+        Int n_final_partitions = 1000
+        Boolean overwrite = false
+        String output_bucket
+
+        # Runtime parameters
+        Int memory_gb = 256
+        Int cpu = 32
+        Int disk_gb = 3000
+        String disk_type = "SSD"
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        mkdir -p ./tmp
+        mkdir -p ./results
+        mkdir -p ./inputs
+
+        setup_spark() {
+            local mem_gb="$1"
+            export SPARK_LOCAL_DIRS="$PWD/tmp"
+            local driver_mem_gb=$((mem_gb - 8))
+            if [ "$driver_mem_gb" -lt 4 ]; then driver_mem_gb=4; fi
+            export SPARK_DRIVER_MEMORY="${driver_mem_gb}g"
+            export PYSPARK_SUBMIT_ARGS="--driver-memory ${driver_mem_gb}g --executor-memory ${driver_mem_gb}g pyspark-shell"
+            export JAVA_OPTS="-Xms${driver_mem_gb}g -Xmx${driver_mem_gb}g"
+        }
+
+        find_mt_dir() {
+            local search_dir="$1"
+            local max_depth="$2"
+            local label="$3"
+            local mt_dir
+            if [ -f "${search_dir}/metadata.json.gz" ]; then
+                echo "${search_dir}"
+                return
+            fi
+            mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" ! -path "${search_dir}" | head -n 1)
+            if [ -z "${mt_dir}" ]; then
+                echo "ERROR: could not find .mt directory after extracting ${label}" >&2
+                find "${search_dir}" -maxdepth "${max_depth}" -type d | head -100 >&2
+                exit 1
+            fi
+            echo "${mt_dir}"
+        }
+
+        setup_spark ~{memory_gb}
+
+        # Serialize mt_tars into a newline-delimited string for shell/Python.
+        export MT_TARS=$'~{sep="\n" mt_tars}'
+        echo "$MT_TARS"
+
+        command -v gcloud
+        printf "mt_path\n" > ./inputs/mt_paths.tsv
+
+        i=0
+        printf "%s" "$MT_TARS" | while IFS=$'\n' read -r mt_tar; do
+          if [ -z "${mt_tar}" ]; then
+            continue
+          fi
+
+          local_tar="./inputs/mt_$(printf '%05d' ${i}).tar.gz"
+          dest_dir="./inputs/mt_$(printf '%05d' ${i}).extract"
+          mkdir -p "${dest_dir}"
+
+          if [[ "${mt_tar}" == gs://* ]]; then
+            gcloud storage cp "${mt_tar}" "${local_tar}"
+          else
+            cp -f "${mt_tar}" "${local_tar}"
+          fi
+
+          tar -xzf "${local_tar}" -C "${dest_dir}"
+          mt_dir=$(find_mt_dir "${dest_dir}" 2 "${local_tar}")
+          printf "%s\n" "${mt_dir}" >> ./inputs/mt_paths.tsv
+
+          i=$((i+1))
+        done
+
+        python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/union_mt_shards.py \
+            --mt-list-tsv ./inputs/mt_paths.tsv \
+            --out-mt ./results/~{out_mt_name} \
+            --temp-dir ./tmp \
+            --n-final-partitions ~{n_final_partitions} \
+            ~{if overwrite then "--overwrite" else ""}
+
+        tar -czf "~{out_mt_name}.tar.gz" -C ./results "~{out_mt_name}"
+
+        command -v gcloud
+        gcloud config set storage/parallel_composite_upload_enabled False
+        DEST_ROOT="~{output_bucket}"
+        DEST_ROOT="${DEST_ROOT%/}"
+        DEST_PATH="${DEST_ROOT}/~{out_mt_name}.tar.gz"
+        gcloud storage cp "~{out_mt_name}.tar.gz" "${DEST_PATH}"
+
+        LOCAL_MD5_B64=$(python3 - <<'PY'
+        import base64
+        import hashlib
+
+        path = "~{out_mt_name}.tar.gz"
+        h = hashlib.md5()
+        with open(path, "rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                h.update(chunk)
+        print(base64.b64encode(h.digest()).decode("utf-8"))
+        PY
+        )
+        REMOTE_MD5=$(gcloud storage objects describe "${DEST_PATH}" --format='value(md5Hash)')
+        if [ "${LOCAL_MD5_B64}" != "${REMOTE_MD5}" ]; then
+            echo "ERROR: MD5 mismatch after copy to ${DEST_PATH}" >&2
+            echo "LOCAL_MD5_B64=${LOCAL_MD5_B64}" >&2
+            echo "REMOTE_MD5=${REMOTE_MD5}" >&2
+            exit 1
+        fi
+
+        echo "${DEST_PATH}" > results_tar_path.txt
+    >>>
+
+    output {
+        File results_tar = "~{out_mt_name}.tar.gz"
+    }
+
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -702,7 +985,7 @@ task finalize_mt_with_covdb {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -1017,7 +1300,7 @@ task combine_vcfs_and_homref_from_covdb {
 
     runtime {
         # NOTE: This must be a Hail-capable image with mtSwirl code baked in at /opt/mtSwirl.
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
+    docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -1108,7 +1391,7 @@ task add_annotations {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
+    docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 
