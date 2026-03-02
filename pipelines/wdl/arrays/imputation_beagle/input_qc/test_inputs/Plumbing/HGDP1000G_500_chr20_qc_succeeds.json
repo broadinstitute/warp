@@ -1,8 +1,8 @@
 {
-    "ArrayImputationQC.multi_sample_vcf": "gs://pd-test-storage-public/ArrayImputationQC/input/scientific/vcfs/test_qc_only_chr20.vcf.gz",
+    "ArrayImputationQC.multi_sample_vcf": "gs://pd-test-storage-public/ArrayImputationQC/input/plumbing/vcfs/test_qc_only_chr20.vcf.gz",
     "ArrayImputationQC.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
-    "ArrayImputationQC.reference_panel_path_prefix": "gs://pd-test-storage-public/ArrayImputationQC/input/scientific/1000G_HGDP_no_singletons_reference_panelhgdp.tgp.gwaspy.AN_added.bcf.ac2",
+    "ArrayImputationQC.reference_panel_path_prefix": "gs://pd-test-storage-public/ArrayImputationQC/input/plumbing/1000G_HGDP_no_singletons_reference_panelhgdp.tgp.gwaspy.AN_added.bcf.ac2",
     "ArrayImputationQC.contigs": ["chr20","chr21","chr22"],
-    "ArrayImputationQC.genetic_maps_path": "gs://pd-test-storage-public/ArrayImputationQC/input/scientific/plink-genetic-maps/",
+    "ArrayImputationQC.genetic_maps_path": "gs://pd-test-storage-public/ArrayImputationQC/input/plumbing/plink-genetic-maps/",
     "ArrayImputationQC.output_basename": "plumbing_test_subset_succeeds"
 }
