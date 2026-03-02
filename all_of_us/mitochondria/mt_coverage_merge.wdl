@@ -429,7 +429,7 @@ task build_vcf_shard_mt {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -630,7 +630,7 @@ task merge_mt_shards {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
