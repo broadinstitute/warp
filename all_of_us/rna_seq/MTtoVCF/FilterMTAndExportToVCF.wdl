@@ -28,6 +28,7 @@ workflow FilterMTAndExportToVCF{
     }
 
     String FullPrefix = "~{OutputPrefix}.~{SampleSetName}.AC~{AlleleCountThreshold}.AN~{AlleleNumberPercentage}.biallelic.~{CallSetName}"
+    String pipeline_version = "aou_9.0.0"
 
     call FilterMT.FilterMT as filter {
         input:

@@ -11,6 +11,7 @@ workflow FilterMT {
         String CloudTmpdir
         String Branch = "main"
     }
+    String pipeline_version = "aou_9.0.0"
     
     call TaskFilterMT {
         input:
@@ -58,7 +59,7 @@ task TaskFilterMT {
     >>>
 
     runtime {
-        docker: "ghcr.io/aou-multiomics-analysis/mttovcf:" + Branch
+        docker: "us.gcr.io/broad-gotc-prod/aou_rna_mttovcf:0.0.1"
         memory: "256G"
         cpu: 64
         disks: "local-disk 1000 SSD"

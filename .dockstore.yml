@@ -58,6 +58,11 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/exome/ExomeReprocessing.wdl
 
+  
+  - name: FilterMTAndExportToVCF
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/MTtoVCF/FilterMTAndExportToVCF.wdl
+  
   - name: FilterandQCVariants
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
