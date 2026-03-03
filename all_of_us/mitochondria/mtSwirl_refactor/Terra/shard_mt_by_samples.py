@@ -49,13 +49,17 @@ def main(args: argparse.Namespace) -> None:
 
     os.makedirs(args.out_dir, exist_ok=True)
 
-    hl.init(tmp_dir=args.temp_dir)
+    try:
+        hl.current_backend()
+    except Exception:
+        hl.init(tmp_dir=args.temp_dir)
 
     logger.info("Reading MT: %s", args.in_mt)
     mt = hl.read_matrix_table(args.in_mt)
 
     mt = mt.add_col_index(name="__col_idx")
-    col_rows = mt.cols().select(s=mt.s, idx=mt.__col_idx).collect()
+    ht_cols = mt.cols()
+    col_rows = ht_cols.select(idx=ht_cols.__col_idx).collect()
     col_rows.sort(key=lambda r: int(r.idx))
     samples = [r.s for r in col_rows]
 
