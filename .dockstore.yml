@@ -145,6 +145,11 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/peak_calling/PeakCalling.wdl
 
+  
+  - name: PrepareGenotypes
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/PrepareGenotypes.wdl
+  
   - name: ReblockGVCF
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl
