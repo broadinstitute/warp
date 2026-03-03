@@ -1,7 +1,8 @@
 version 1.0
 
 
-import "workflow/FilterMTAndExportToVCF.wdl" as ProcessMT
+import "MTtoVCF/FilterMTAndExportToVCF.wdl" as ProcessMT
+
 workflow PrepareGenotypes{
     input {
         String UriMatrixTable 
