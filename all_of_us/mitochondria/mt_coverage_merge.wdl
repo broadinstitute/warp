@@ -819,27 +819,27 @@ task union_mt_shards {
         command -v gcloud
         printf "mt_path\n" > ./inputs/mt_paths.tsv
 
-                i=0
-                printf "%s" "$MT_TARS" | while IFS=$'\n' read -r mt_tar; do
-          if [ -z "${mt_tar}" ]; then
-            continue
-          fi
-
-                    printf -v local_tar "./inputs/mt_%05d.tar.gz" "${i}"
-                    printf -v dest_dir "./inputs/mt_%05d.extract" "${i}"
-          mkdir -p "${dest_dir}"
-
-          if [[ "${mt_tar}" == gs://* ]]; then
-            gcloud storage cp "${mt_tar}" "${local_tar}"
-          else
-            cp -f "${mt_tar}" "${local_tar}"
-          fi
-
-          tar -xzf "${local_tar}" -C "${dest_dir}"
-          mt_dir=$(find_mt_dir "${dest_dir}" 2 "${local_tar}")
-          printf "%s\n" "${mt_dir}" >> ./inputs/mt_paths.tsv
-
-          i=$((i+1))
+        i=0
+        printf "%s" "$MT_TARS" | while IFS=$'\n' read -r mt_tar; do
+            if [ -z "${mt_tar}" ]; then
+                continue
+            fi
+    
+            printf -v local_tar "./inputs/mt_%05d.tar.gz" "${i}"
+            printf -v dest_dir "./inputs/mt_%05d.extract" "${i}"
+            mkdir -p "${dest_dir}"
+  
+            if [[ "${mt_tar}" == gs://* ]]; then
+                gcloud storage cp "${mt_tar}" "${local_tar}"
+            else
+                cp -f "${mt_tar}" "${local_tar}"
+            fi
+  
+            tar -xzf "${local_tar}" -C "${dest_dir}"
+            mt_dir=$(find_mt_dir "${dest_dir}" 2 "${local_tar}")
+            printf "%s\n" "${mt_dir}" >> ./inputs/mt_paths.tsv
+  
+            i=$((i+1))
         done
 
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/union_mt_shards.py \
@@ -858,18 +858,7 @@ task union_mt_shards {
         DEST_PATH="${DEST_ROOT}/~{out_mt_name}.tar.gz"
         gcloud storage cp "~{out_mt_name}.tar.gz" "${DEST_PATH}"
 
-        python3 - <<'PY' > local_md5.txt
-        import base64
-        import hashlib
-
-        path = "~{out_mt_name}.tar.gz"
-        h = hashlib.md5()
-        with open(path, "rb") as handle:
-            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-                h.update(chunk)
-        print(base64.b64encode(h.digest()).decode("utf-8"))
-        PY
-        read -r LOCAL_MD5_B64 < local_md5.txt
+        LOCAL_MD5_B64=$(openssl md5 -binary "~{out_mt_name}.tar.gz" | base64)
         REMOTE_MD5=$(gcloud storage objects describe "${DEST_PATH}" --format='value(md5Hash)')
         if [ "${LOCAL_MD5_B64}" != "${REMOTE_MD5}" ]; then
             echo "ERROR: MD5 mismatch after copy to ${DEST_PATH}" >&2
