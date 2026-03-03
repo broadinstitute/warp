@@ -31,10 +31,10 @@ workflow mt_coverage_merge {
         Int step3_shard_n_partitions = 192
         String step3_output_bucket
 
-    # Finalize sharding controls
-    Int finalize_shard_size = 25000
-    Int finalize_shard_n_partitions = 256
-    Int finalize_union_n_partitions = 1000
+        # Finalize sharding controls
+        Int finalize_shard_size = 25000
+        Int finalize_shard_n_partitions = 256
+        Int finalize_union_n_partitions = 1000
 
     }
 
@@ -906,9 +906,9 @@ task finalize_mt_with_covdb {
         Boolean overwrite = false
 
         # Runtime parameters
-        Int memory_gb = 768
-        Int cpu = 96
-        Int disk_gb = 4000
+        Int memory_gb = 128
+        Int cpu = 32
+        Int disk_gb = 500
         String disk_type = "SSD"
     }
 
