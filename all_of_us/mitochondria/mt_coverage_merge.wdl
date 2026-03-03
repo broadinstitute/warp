@@ -819,14 +819,14 @@ task union_mt_shards {
         command -v gcloud
         printf "mt_path\n" > ./inputs/mt_paths.tsv
 
-        i=0
-        printf "%s" "$MT_TARS" | while IFS=$'\n' read -r mt_tar; do
+                i=0
+                printf "%s" "$MT_TARS" | while IFS=$'\n' read -r mt_tar; do
           if [ -z "${mt_tar}" ]; then
             continue
           fi
 
-          local_tar="./inputs/mt_$(printf '%05d' ${i}).tar.gz"
-          dest_dir="./inputs/mt_$(printf '%05d' ${i}).extract"
+                    printf -v local_tar "./inputs/mt_%05d.tar.gz" "${i}"
+                    printf -v dest_dir "./inputs/mt_%05d.extract" "${i}"
           mkdir -p "${dest_dir}"
 
           if [[ "${mt_tar}" == gs://* ]]; then
@@ -858,7 +858,7 @@ task union_mt_shards {
         DEST_PATH="${DEST_ROOT}/~{out_mt_name}.tar.gz"
         gcloud storage cp "~{out_mt_name}.tar.gz" "${DEST_PATH}"
 
-        LOCAL_MD5_B64=$(python3 - <<'PY'
+        python3 - <<'PY' > local_md5.txt
         import base64
         import hashlib
 
@@ -869,7 +869,7 @@ task union_mt_shards {
                 h.update(chunk)
         print(base64.b64encode(h.digest()).decode("utf-8"))
         PY
-        )
+        read -r LOCAL_MD5_B64 < local_md5.txt
         REMOTE_MD5=$(gcloud storage objects describe "${DEST_PATH}" --format='value(md5Hash)')
         if [ "${LOCAL_MD5_B64}" != "${REMOTE_MD5}" ]; then
             echo "ERROR: MD5 mismatch after copy to ${DEST_PATH}" >&2
