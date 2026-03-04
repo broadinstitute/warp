@@ -237,6 +237,11 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/susieR_workflow.wdl
   
+  - name: tensorqtl_cis_permutations
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/tensorQTL_cis_permutations/tensorqtl_cis_permutations.wdl
+  
+  
   - name: TestArrayImputationQC
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestArrayImputationQC.wdl
