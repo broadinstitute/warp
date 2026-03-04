@@ -3,7 +3,7 @@ workflows:
 
   - name: aggregate_rsem_results
     subclass: WDL
-    primaryDescriptorPath: /all_of_us/rna_seq/aggregate_rsem_results.wdl
+    primaryDescriptorPath: /all_of_us/rna_seq/GTEx/aggregate_rsem_results.wdl
  
   - name: AggregateSusieWorkflow
     subclass: WDL
@@ -156,7 +156,7 @@ workflows:
 
   - name: rnaseq_aou
     subclass: WDL
-    primaryDescriptorPath: /all_of_us/rna_seq/rnaseq_aou.wdl
+    primaryDescriptorPath: /all_of_us/rna_seq/GTEx/rnaseq_aou.wdl
 
   - name: RNAWithUMIsPipeline
     subclass: WDL
