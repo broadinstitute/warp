@@ -38,7 +38,7 @@ workflows:
   
   - name: calulateGenotypeDosage
     subclass: WDL
-    primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/calulateGenotypeDosage.wdl
+    primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/calculateGenotypeDosage.wdl
   
   - name: CalculatePhenotypeGroups
     subclass: WDL
