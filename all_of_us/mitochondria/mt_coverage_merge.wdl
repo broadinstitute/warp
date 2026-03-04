@@ -537,9 +537,6 @@ task merge_mt_shards {
             fi
             mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" ! -path "${search_dir}" | head -n 1)
             if [ -z "${mt_dir}" ]; then
-                mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type f -name "metadata.json.gz" -print0 | head -zn 1 | xargs -0 -I{} dirname "{}")
-            fi
-            if [ -z "${mt_dir}" ]; then
                 echo "ERROR: could not find .mt directory after extracting ${label}" >&2
                 find "${search_dir}" -maxdepth "${max_depth}" -type d | head -100 >&2
                 exit 1
@@ -682,12 +679,6 @@ task shard_mt_by_samples {
                 return
             fi
             mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" ! -path "${search_dir}" | head -n 1)
-            if [ -z "${mt_dir}" ]; then
-                mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type f -name "metadata.json.gz" -print | head -n 1)
-                if [ -n "${mt_dir}" ]; then
-                    mt_dir=$(dirname "${mt_dir}")
-                fi
-            fi
             if [ -z "${mt_dir}" ]; then
                 echo "ERROR: could not find .mt directory after extracting ${label}" >&2
                 find "${search_dir}" -maxdepth "${max_depth}" -type d | head -100 >&2
