@@ -30,6 +30,16 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/build_indices/BuildIndices.wdl
 
+  
+  - name: calculateAF
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/calculateAF.wdl
+  
+  
+  - name: calulateGenotypeDosage
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/calulateGenotypeDosage.wdl
+  
   - name: CalculatePhenotypeGroups
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/CalculatePhenotypeGroups.wdl
