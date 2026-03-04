@@ -844,12 +844,12 @@ task union_mt_shards {
 
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/union_mt_shards.py \
             --mt-list-tsv ./inputs/mt_paths.tsv \
-            --out-mt ./results/~{out_mt_name} \
+            --out-mt ./results/~{out_mt_name}.mt \
             --temp-dir ./tmp \
             --n-final-partitions ~{n_final_partitions} \
             ~{if overwrite then "--overwrite" else ""}
 
-        tar -czf "~{out_mt_name}.tar.gz" -C ./results "~{out_mt_name}"
+        tar -czf "~{out_mt_name}.tar.gz" -C ./results "~{out_mt_name}.mt"
 
         command -v gcloud
         gcloud config set storage/parallel_composite_upload_enabled False
@@ -1336,12 +1336,6 @@ task add_annotations {
                 return
             fi
             mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type d -name "*.mt" ! -path "${search_dir}" | head -n 1)
-            if [ -z "${mt_dir}" ]; then
-                mt_dir=$(find "${search_dir}" -maxdepth "${max_depth}" -type f -name "metadata.json.gz" -print | head -n 1)
-                if [ -n "${mt_dir}" ]; then
-                    mt_dir=$(dirname "${mt_dir}")
-                fi
-            fi
             if [ -z "${mt_dir}" ]; then
                 echo "ERROR: could not find .mt directory after extracting ${label}" >&2
                 find "${search_dir}" -maxdepth "${max_depth}" -type d | head -100 >&2
