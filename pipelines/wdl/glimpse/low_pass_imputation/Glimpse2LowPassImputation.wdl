@@ -66,7 +66,7 @@ workflow Glimpse2LowPassImputation {
         Array[Array[String]] sample_ids_batches = select_first([SplitIntoBatches.sample_ids_batches, [select_first([sample_ids])]])
 
         scatter(i in range(length(crams_batches))) {
-            call BcftoolsCall {
+            call BcftoolsMpileup {
                 input:
                     crams = crams_batches[i],
                     cram_indices = cram_indices_batches[i],
@@ -75,18 +75,32 @@ workflow Glimpse2LowPassImputation {
                     fasta_index = fasta_index,
                     call_indels = call_indels,
                     sites_vcf = sites_vcf,
+                    cpu = bcftools_threads,
+                    mem_gb = calling_mem_gb
+            }
+
+            call BcftoolsCall {
+                input:
+                    mpileup_bcf = BcftoolsMpileup.output_bcf,
                     sites_table = sites_table,
                     sites_table_index = sites_table_index,
                     cpu = bcftools_threads,
                     mem_gb = calling_mem_gb
             }
+
+            call BcftoolsNorm {
+                input:
+                    calls_bcf = BcftoolsCall.output_bcf,
+                    cpu = bcftools_threads,
+                    mem_gb = calling_mem_gb
+            }
         }
 
-        if (length(BcftoolsCall.output_vcf) > 1) {
+        if (length(BcftoolsNorm.output_vcf) > 1) {
             call BcftoolsMerge {
                 input:
-                    vcfs = BcftoolsCall.output_vcf,
-                    vcf_indices = BcftoolsCall.output_vcf_index,
+                    vcfs = BcftoolsNorm.output_vcf,
+                    vcf_indices = BcftoolsNorm.output_vcf_index,
                     output_basename = output_basename
             }
         }
@@ -271,7 +285,7 @@ task ComputeShardsAndMemoryPerShard {
     }
 }
 
-task BcftoolsCall {
+task BcftoolsMpileup {
     input {
         Array[File] crams
         Array[File] cram_indices
@@ -281,15 +295,13 @@ task BcftoolsCall {
         Array[String] sample_ids
 
         File sites_vcf
-        File sites_table
-        File sites_table_index
 
         Int mem_gb = 4
-        Int cpu = 2
-        Int preemptible = 0
+        Int cpu = 1
+        Int preemptible = 3
     }
 
-    Int disk_size_gb = ceil(1.5*size(crams, "GiB") + size(fasta, "GiB") + size(sites_table, "GiB")) + 10
+    Int disk_size_gb = ceil(1.5*size(crams, "GiB") + size(fasta, "GiB") + size(sites_vcf, "GiB")) + 10
 
     String out_basename = "batch"
 
@@ -303,9 +315,75 @@ task BcftoolsCall {
             echo "* ${crams[$i]} ${sample_ids[$i]}" >> sample_name_mapping.txt
         done
 
-        bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I" else ""} -G sample_name_mapping.txt -E -a 'FORMAT/DP,FORMAT/AD' -T ~{sites_vcf} -Ou ~{sep=" " crams} \
-        | bcftools call -Aim -C alleles -T ~{sites_table} -Ou - \
-        | bcftools norm -m -both -Oz -o ~{out_basename}.vcf.gz -
+        bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I" else ""} -G sample_name_mapping.txt -E -a 'FORMAT/DP,FORMAT/AD' -T ~{sites_vcf} -Ou -o mpileup.bcf ~{sep=" " crams}
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/vcfeval_docker:v1.1"
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+    }
+
+    output {
+        File output_bcf = "mpileup.bcf"
+    }
+}
+
+task BcftoolsCall {
+    input {
+        File mpileup_bcf
+
+        File sites_table
+        File sites_table_index
+
+        Int mem_gb = 4
+        Int cpu = 1
+        Int preemptible = 3
+    }
+
+    Int disk_size_gb = ceil(1.5*size(mpileup_bcf, "GiB") + size(sites_table, "GiB")) + 10
+
+    String out_basename = "batch"
+
+    command <<<
+        set -xeuo pipefail
+
+        bcftools call -Aim -C alleles -T ~{sites_table} -Ou ~{mpileup_bcf} -o calls.bcf
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/vcfeval_docker:v1.1"
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+    }
+
+    output {
+        File output_bcf = "calls.bcf"
+    }
+}
+
+task BcftoolsNorm {
+    input {
+        File calls_bcf
+
+        Int mem_gb = 4
+        Int cpu = 1
+        Int preemptible = 3
+    }
+
+    Int disk_size_gb = ceil(3*size(calls_bcf, "GiB")) + 10
+
+    String out_basename = "batch"
+
+    command <<<
+        set -xeuo pipefail
+
+
+        bcftools norm -m -both -Oz -o ~{out_basename}.vcf.gz ~{calls_bcf}
         bcftools index -t ~{out_basename}.vcf.gz
     >>>
 
