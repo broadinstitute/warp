@@ -1,6 +1,6 @@
 version 1.0
 
-workflow Glimpse2Imputation {
+workflow Glimpse2LowPassImputation {
     input {
         String pipeline_version = "0.0.1"
 

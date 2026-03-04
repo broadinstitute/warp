@@ -66,9 +66,9 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/cmrg/FixItFelixAndVariantCall.wdl
 
-  - name: Glimpse2Imputation
+  - name: Glimpse2LowPassImputation
     subclass: WDL
-    primaryDescriptorPath: /pipelines/wdl/glimpse/Glimpse2Imputation.wdl
+    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputation.wdl
 
   - name: get_wgs_median_coverage
     subclass: WDL
