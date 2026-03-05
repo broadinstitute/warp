@@ -812,15 +812,20 @@ task union_mt_shards {
 
         setup_spark ~{memory_gb}
 
-        # Serialize mt_tars into a newline-delimited string for shell/Python.
-        export MT_TARS=$'~{sep="\n" mt_tars}'
-        echo "$MT_TARS"
+        # Serialize mt_tars into a newline-delimited file and iterate from file.
+        # This avoids subtle trailing-newline/read-loop edge cases.
+        cat > ./inputs/mt_tars.list <<'EOF_MT_TARS'
+        ~{sep="\n" mt_tars}
+        EOF_MT_TARS
+
+        expected_count=$(grep -cve '^\s*$' ./inputs/mt_tars.list || true)
+        echo "Expected shard tar count: ${expected_count}"
 
         command -v gcloud
         printf "mt_path\n" > ./inputs/mt_paths.tsv
 
         i=0
-        printf "%s" "$MT_TARS" | while IFS=$'\n' read -r mt_tar; do
+        while IFS= read -r mt_tar || [ -n "${mt_tar}" ]; do
             if [ -z "${mt_tar}" ]; then
                 continue
             fi
@@ -840,7 +845,18 @@ task union_mt_shards {
             printf "%s\n" "${mt_dir}" >> ./inputs/mt_paths.tsv
   
             i=$((i+1))
-        done
+        done < ./inputs/mt_tars.list
+
+        loaded_count=$(tail -n +2 ./inputs/mt_paths.tsv | grep -cve '^\s*$' || true)
+        echo "Loaded shard MT count: ${loaded_count}"
+        if [ "${loaded_count}" -ne "${expected_count}" ]; then
+            echo "ERROR: union_mt_shards loaded ${loaded_count} shard MTs but expected ${expected_count}" >&2
+            echo "Input list:" >&2
+            cat ./inputs/mt_tars.list >&2
+            echo "Resolved mt_paths.tsv:" >&2
+            cat ./inputs/mt_paths.tsv >&2
+            exit 1
+        fi
 
         python3 /opt/mtSwirl/generate_mtdna_call_mt/Terra/union_mt_shards.py \
             --mt-list-tsv ./inputs/mt_paths.tsv \
