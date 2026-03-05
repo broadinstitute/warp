@@ -1,6 +1,6 @@
 version 1.0
 
-import  "https://raw.githubusercontent.com/AoU-Multiomics-Analysis/prepare_QTL/refs/heads/main/workflows/calculate_phenotypePCs.wdl" as ComputePCs
+import  "calculate_phenotypePCs.wdl" as ComputePCs
 
 
 
@@ -17,14 +17,14 @@ task eqtl_prepare_expression {
         Int num_threads 
 
         }
-    command {
+    command <<<
         Rscript /tmp/PrepareExpression.R \
             --CountGCT ${CountGCT} \
             --AnnotationGTF ${AnnotationGTF} \
             --SampleList ${SampleList} \
             --OutputPrefix ${OutputPrefix}
 
-        }
+        >>>
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/aou_rna_prepareqtl:0.0.1"
@@ -49,7 +49,9 @@ workflow eQTLPrepareData {
         Int disk_space 
         Int num_threads 
         
-            } 
+    }
+    String pipeline_version = "aou_9.0.0" 
+    
     call eqtl_prepare_expression {
         input:
             OutputPrefix = OutputPrefix,
