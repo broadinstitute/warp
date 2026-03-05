@@ -297,8 +297,8 @@ task BcftoolsMpileup {
         File sites_vcf
 
         Int mem_gb = 4
-        Int cpu = 1
-        Int preemptible = 3
+        Int cpu = 2
+        Int preemptible = 0
     }
 
     Int disk_size_gb = ceil(1.5*size(crams, "GiB") + size(fasta, "GiB") + size(sites_vcf, "GiB")) + 10
@@ -343,7 +343,7 @@ task BcftoolsCall {
         Int preemptible = 3
     }
 
-    Int disk_size_gb = ceil(1.5*size(mpileup_bcf, "GiB") + size(sites_table, "GiB")) + 10
+    Int disk_size_gb = ceil(3*size(mpileup_bcf, "GiB") + size(sites_table, "GiB")) + 10
 
     String out_basename = "batch"
 
