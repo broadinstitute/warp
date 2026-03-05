@@ -815,7 +815,7 @@ task union_mt_shards {
         # Serialize mt_tars into a newline-delimited file and iterate from file.
         # This avoids subtle trailing-newline/read-loop edge cases.
         cat > ./inputs/mt_tars.list <<EOF_MT_TARS
-        ~{sep="\n" mt_tars}
+~{sep="\n" mt_tars}
 EOF_MT_TARS
 
         expected_count=$(grep -cve '^\s*$' ./inputs/mt_tars.list || true)
