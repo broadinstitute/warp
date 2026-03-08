@@ -38,12 +38,66 @@ For detailed information about the scANVI model, see the [scANVI documentation](
 
 ## How It Works
 
-The pipeline runs a single task (`MultiomeLabelTransfer`) that performs the following steps:
+The pipeline is split into two tasks to separate CPU-only preprocessing from GPU-accelerated model training:
 
-1. **Preprocessing** — Filters GEX data, reindexes ATAC barcodes to align with GEX, retains shared barcodes, and aligns gene features across GEX, ATAC, and the reference dataset.
-2. **SCVI training** — Trains an scVI model on the combined data to learn an unsupervised latent representation.
-3. **SCANVI training** — Extends the scVI model with semi-supervised learning, using cell type annotations from the reference to transfer labels to unlabelled query cells.
-4. **Label transfer** — Applies the trained SCANVI model to predict cell types and produces annotated GEX and ATAC outputs.
+### Task 1: `PreprocessFilter` (CPU-only)
+
+Handles all h5ad preprocessing and filtering before model training:
+
+1. **Load** — Reads the GEX (scanpy), ATAC cell-by-bin (snapatac2), and reference (scanpy) h5ad files.
+2. **Patch missing columns** — Adds `star_IsCell` (all `True`) to GEX and `gex_barcodes` (copy of obs index) to ATAC if the columns are absent, ensuring compatibility with inputs from different upstream pipelines.
+3. **Filter GEX cells** — Retains only barcodes where `star_IsCell == True` (STARsolo cell calls), then removes genes and cells with fewer than 3 total counts (`scanpy.pp.filter_genes`, `scanpy.pp.filter_cells`).
+4. **Prepare GEX** — Adds a `batch` column and copies the count matrix into a `counts` layer.
+5. **Reindex ATAC barcodes** — Sets the ATAC obs index to the `gex_barcodes` column so barcodes align with the GEX dataset.
+6. **Shared barcode filtering** — Intersects GEX and ATAC barcodes and subsets both to only matched cells.
+7. **Assign batch labels & modality tags** — Labels GEX as `pd-multiome_sci_gex` / `rna_unannotated`, ATAC as `pd-multiome_sci_atac` / `atac_unannotated`, reference as `rna_annotated`.
+8. **Convert ATAC to gene activity** — Transforms the ATAC cell-by-bin matrix into a gene activity matrix using `snapatac2.pp.make_gene_matrix` with the hg38 GENCODE annotation.
+9. **Set placeholder annotations** — Adds `final_annotation = "Unknown"` to unannotated query datasets.
+10. **Write outputs** — Produces `preprocessed_gex.h5ad`, `preprocessed_atac_activity.h5ad`, and `preprocessed_ref.h5ad`.
+
+### Task 2: `MultiomeLabelTransfer` (GPU)
+
+Receives the three preprocessed h5ad files and runs model training and label transfer via `multiome_label_transfer.py`:
+
+1. **SCVI training** — Trains an scVI model on the combined data to learn an unsupervised latent representation.
+2. **SCANVI training** — Extends the scVI model with semi-supervised learning, using cell type annotations from the reference to transfer labels to unlabelled query cells.
+3. **Label transfer** — Applies the trained SCANVI model to predict cell types and produces annotated GEX and ATAC outputs.
+
+### Workflow Diagram
+
+```
+                ┌──────────────────────┐
+                │   Input h5ad files   │
+                │  (GEX, ATAC, Ref)    │
+                └──────────┬───────────┘
+                           │
+                           ▼
+              ┌────────────────────────┐
+              │   PreprocessFilter     │  CPU-only
+              │  (patch, filter, align,│
+              │   gene activity matrix)│
+              └──────────┬─────────────┘
+                         │
+          ┌──────────────┼──────────────┐
+          ▼              ▼              ▼
+   preprocessed    preprocessed    preprocessed
+     _gex.h5ad    _atac_activity     _ref.h5ad
+                      .h5ad
+          │              │              │
+          └──────────────┼──────────────┘
+                         │
+                         ▼
+            ┌────────────────────────┐
+            │ MultiomeLabelTransfer  │  GPU
+            │  (SCVI → SCANVI →     │
+            │   label transfer)     │
+            └──────────┬─────────────┘
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+   SCANVI_predictions  gex_annotated  atac_annotated
+        .h5ad          _matrix.h5ad   _matrix.h5ad
+```
 
 For a full description of the model architecture and training procedure, see the [scANVI user guide](https://docs.scvi-tools.org/en/1.4.1/user_guide/models/scanvi.html).
 

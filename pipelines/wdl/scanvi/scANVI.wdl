@@ -33,14 +33,15 @@ workflow scANVI {
       String nvidiaDriverVersion = "535.104.05"
   }
 
-  String pipeline_version = "1.0.0"
+  String pipeline_version = "1.0.1"
 
   # Docker image
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
   String docker_prefix = gcr_docker_prefix
   String scvi_scanvi_docker = "scvi-scanvi:rc_3220_scanvi"
 
-  call MultiomeLabelTransfer {
+  # Step 1: CPU-only preprocessing and filtering of all three h5ad inputs
+  call PreprocessFilter {
       input:
         input_bucket = input_bucket,
         gex_h5ad = gex_h5ad,
@@ -49,6 +50,18 @@ workflow scANVI {
         gex_filename = gex_filename,
         atac_filename = atac_filename,
         ref_filename = ref_filename,
+        docker_path = docker_prefix + scvi_scanvi_docker,
+        disk_size = disk_size,
+        mem_size = mem_size,
+        nthreads = nthreads
+  }
+
+  # Step 2: GPU-accelerated SCVI/SCANVI model training and label transfer
+  call MultiomeLabelTransfer {
+      input:
+        gex_h5ad = PreprocessFilter.preprocessed_gex_h5ad,
+        atac_activity_h5ad = PreprocessFilter.preprocessed_atac_activity_h5ad,
+        ref_h5ad = PreprocessFilter.preprocessed_ref_h5ad,
         docker_path = docker_prefix + scvi_scanvi_docker,
         disk_size = disk_size,
         mem_size = mem_size,
@@ -66,7 +79,20 @@ workflow scANVI {
   }
 }
 
-task MultiomeLabelTransfer {
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Task 1: PreprocessFilter (CPU-only)
+#
+# Handles all h5ad preprocessing and filtering before model training:
+#   - Patches missing columns (star_IsCell, gex_barcodes)
+#   - Filters GEX to STARsolo cell calls and min count thresholds
+#   - Reindexes ATAC barcodes to match GEX
+#   - Subsets to shared barcodes across GEX and ATAC
+#   - Assigns batch labels and modality tags
+#   - Converts ATAC cell-by-bin matrix to gene activity matrix (snapatac2)
+#   - Outputs three preprocessed h5ad files ready for model training
+# ──────────────────────────────────────────────────────────────────────────────
+task PreprocessFilter {
     input {
         # GCS bucket path containing input h5ad files
         String? input_bucket
@@ -86,9 +112,6 @@ task MultiomeLabelTransfer {
         Int disk_size = 500
         Int mem_size = 120
         Int nthreads = 32
-        String gpu_type = "nvidia-tesla-t4"
-        Int gpu_count = 2
-        String nvidiaDriverVersion = "535.104.05"
     }
 
     parameter_meta {
@@ -102,6 +125,175 @@ task MultiomeLabelTransfer {
         docker_path: "Docker image path containing the scvi-scanvi runtime environment."
         disk_size: "Disk size in GB."
         mem_size: "Memory size in GB."
+    }
+
+    command <<<
+        set -euo pipefail
+
+        # ── Resolve input file paths ──────────────────────────────────────────
+        if [ -n "~{default='' gex_h5ad}" ]; then
+            # Direct File inputs: Cromwell already localized them
+            GEX_FILE="~{default='' gex_h5ad}"
+            ATAC_FILE="~{default='' atac_h5ad}"
+            REF_FILE="~{default='' ref_h5ad}"
+        else
+            # Bucket mode: construct GCS paths and download
+            BUCKET="~{default='' input_bucket}"
+            BUCKET="${BUCKET%/}"
+            GEX_FILE="${BUCKET}/~{gex_filename}"
+            ATAC_FILE="${BUCKET}/~{atac_filename}"
+            REF_FILE="${BUCKET}/~{ref_filename}"
+
+            echo "Downloading inputs from bucket..."
+            gsutil cp "$GEX_FILE" gex_input.h5ad
+            gsutil cp "$ATAC_FILE" atac_input.h5ad
+            gsutil cp "$REF_FILE" ref_input.h5ad
+            GEX_FILE="gex_input.h5ad"
+            ATAC_FILE="atac_input.h5ad"
+            REF_FILE="ref_input.h5ad"
+        fi
+
+        export GEX_FILE ATAC_FILE REF_FILE
+
+        # Symlink the gene annotation file (needed by snapatac2 make_gene_matrix)
+        ln -sf /usr/local/gencode.v41.basic.annotation.gff3.gz .
+
+        # ── Run preprocessing in Python ───────────────────────────────────────
+        python3 <<'PYEOF'
+import os
+import anndata as ad
+import scanpy as sc
+import snapatac2 as snap
+import numpy as np
+
+gex_path  = os.environ["GEX_FILE"]
+atac_path = os.environ["ATAC_FILE"]
+ref_path  = os.environ["REF_FILE"]
+
+# ── 1. Load datasets ─────────────────────────────────────────────────────
+print("Loading GEX...")
+gex = sc.read_h5ad(gex_path)
+print(f"  GEX loaded: {gex.shape}")
+
+print("Loading ATAC...")
+atac = snap.read(atac_path, backed=None)
+print(f"  ATAC loaded: {atac.shape}")
+
+print("Loading reference...")
+ref = sc.read_h5ad(ref_path)
+print(f"  Reference loaded: {ref.shape}")
+
+# ── 2. Patch missing columns ─────────────────────────────────────────────
+if "star_IsCell" not in gex.obs.columns:
+    print("  Patching: adding star_IsCell = True (column was missing)")
+    gex.obs["star_IsCell"] = True
+
+if "gex_barcodes" not in atac.obs.columns:
+    print("  Patching: adding gex_barcodes from obs index (column was missing)")
+    atac.obs["gex_barcodes"] = atac.obs.index
+
+# ── 3. Filter GEX to STARsolo cell calls ─────────────────────────────────
+print("Filtering GEX to star_IsCell == True...")
+gex = gex[gex.obs["star_IsCell"] == True]
+print(f"  After star_IsCell filter: {gex.shape}")
+
+# Filter genes and cells with fewer than 3 total counts
+sc.pp.filter_genes(gex, min_counts=3)
+sc.pp.filter_cells(gex, min_counts=3)
+print(f"  After min_counts filter: {gex.shape}")
+
+# Add batch label and preserve raw counts
+gex.obs["batch"] = 1
+gex.layers["counts"] = gex.X.copy()
+
+# ── 4. Reindex ATAC barcodes to match GEX ────────────────────────────────
+print("Reindexing ATAC barcodes to gex_barcodes...")
+atac.obs = atac.obs.set_index("gex_barcodes")
+
+# ── 5. Subset to shared barcodes ─────────────────────────────────────────
+shared = atac.obs.index.intersection(gex.obs.index)
+print(f"Shared barcodes between GEX and ATAC: {len(shared)}")
+atac_shared = atac[atac.obs.index.isin(shared)].copy()
+gex_shared  = gex[gex.obs.index.isin(shared)].copy()
+print(f"  GEX shared: {gex_shared.shape}")
+print(f"  ATAC shared: {atac_shared.shape}")
+
+# ── 6. Assign batch labels ───────────────────────────────────────────────
+atac_shared.obs["batch"] = "pd-multiome_sci_atac"
+gex_shared.obs["batch"]  = "pd-multiome_sci_gex"
+
+# ── 7. Add placeholder annotations for query datasets ────────────────────
+gex_shared.obs["final_annotation"] = "Unknown"
+
+# ── 8. Convert ATAC cell-by-bin → gene activity matrix ───────────────────
+print("Converting ATAC cell-by-bin to gene activity matrix (hg38)...")
+atac_activity = snap.pp.make_gene_matrix(atac_shared, gene_anno=snap.genome.hg38)
+print(f"  Gene activity matrix: {atac_activity.shape}")
+atac_activity.obs["final_annotation"] = "Unknown"
+
+# ── 9. Tag modalities ────────────────────────────────────────────────────
+gex_shared.obs["modality"]    = "rna_unannotated"
+atac_activity.obs["modality"] = "atac_unannotated"
+ref.obs["modality"]           = "rna_annotated"
+
+# ── 10. Write preprocessed outputs ───────────────────────────────────────
+print("Writing preprocessed outputs...")
+gex_shared.write_h5ad("preprocessed_gex.h5ad")
+atac_activity.write_h5ad("preprocessed_atac_activity.h5ad")
+ref.write_h5ad("preprocessed_ref.h5ad")
+print("Preprocessing complete.")
+PYEOF
+    >>>
+
+    runtime {
+        docker: docker_path
+        bootDiskSizeGb: 20
+        disks: "local-disk ${disk_size} SSD"
+        memory: "${mem_size} GiB"
+        cpu: nthreads
+        maxRetries: 1
+    }
+
+    output {
+        File preprocessed_gex_h5ad           = "preprocessed_gex.h5ad"
+        File preprocessed_atac_activity_h5ad = "preprocessed_atac_activity.h5ad"
+        File preprocessed_ref_h5ad           = "preprocessed_ref.h5ad"
+    }
+}
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Task 2: MultiomeLabelTransfer (GPU)
+#
+# Receives preprocessed h5ad files and runs model training + label transfer:
+#   - SCVI unsupervised latent space learning
+#   - SCANVI semi-supervised label transfer
+#   - Outputs annotated GEX, ATAC, and SCANVI prediction h5ad files
+# ──────────────────────────────────────────────────────────────────────────────
+task MultiomeLabelTransfer {
+    input {
+        # Preprocessed h5ad files from PreprocessFilter
+        File gex_h5ad
+        File atac_activity_h5ad
+        File ref_h5ad
+
+        # Runtime attributes
+        String docker_path
+        Int disk_size = 500
+        Int mem_size = 120
+        Int nthreads = 32
+        String gpu_type = "nvidia-tesla-t4"
+        Int gpu_count = 2
+        String nvidiaDriverVersion = "535.104.05"
+    }
+
+    parameter_meta {
+        gex_h5ad: "Preprocessed gene expression h5ad file (filtered, batch-labeled, modality-tagged)."
+        atac_activity_h5ad: "Preprocessed ATAC gene activity h5ad file (converted from cell-by-bin, batch-labeled, modality-tagged)."
+        ref_h5ad: "Preprocessed reference h5ad file with cell type labels and modality tag."
+        docker_path: "Docker image path containing the scvi-scanvi runtime environment."
+        disk_size: "Disk size in GB."
+        mem_size: "Memory size in GB."
         gpu_type: "GPU type for accelerated model training."
         gpu_count: "Number of GPUs to use."
         nvidiaDriverVersion: "NVIDIA driver version for GPU support."
@@ -110,64 +302,13 @@ task MultiomeLabelTransfer {
     command <<<
         set -euo pipefail
 
-        # Build file paths and determine localize mode
-        LOCALIZE_FLAG=""
-
-        if [ -n "~{default='' gex_h5ad}" ]; then
-            # Direct File inputs: Cromwell already localized them
-            GEX_FILE="~{default='' gex_h5ad}"
-            ATAC_FILE="~{default='' atac_h5ad}"
-            REF_FILE="~{default='' ref_h5ad}"
-        else
-            # Bucket mode: construct GCS paths and let the script download them
-            BUCKET="~{default='' input_bucket}"
-            BUCKET="${BUCKET%/}"
-            GEX_FILE="${BUCKET}/~{gex_filename}"
-            ATAC_FILE="${BUCKET}/~{atac_filename}"
-            REF_FILE="${BUCKET}/~{ref_filename}"
-            LOCALIZE_FLAG="--localize"
-        fi
-
-        # Ensure GEX h5ad has 'star_IsCell' column and ATAC h5ad has 'gex_barcodes'
-        # column (both required by the script). If missing, add sensible defaults.
-        python3 -c "
-import anndata as ad
-import os
-
-# Patch GEX: add star_IsCell if missing (makes the cell filter a no-op)
-gex_path = '$GEX_FILE'
-if not gex_path.startswith('gs://') and os.path.exists(gex_path):
-    gex = ad.read_h5ad(gex_path)
-    if 'star_IsCell' not in gex.obs.columns:
-        print('Adding missing star_IsCell column (all True) to GEX h5ad')
-        gex.obs['star_IsCell'] = True
-        gex.write_h5ad(gex_path)
-        print('Patched GEX h5ad saved')
-    else:
-        print('star_IsCell column already present')
-
-# Patch ATAC: add gex_barcodes if missing (uses existing obs index as barcodes)
-atac_path = '$ATAC_FILE'
-if not atac_path.startswith('gs://') and os.path.exists(atac_path):
-    atac = ad.read_h5ad(atac_path)
-    if 'gex_barcodes' not in atac.obs.columns:
-        print('Adding missing gex_barcodes column (copy of obs index) to ATAC h5ad')
-        atac.obs['gex_barcodes'] = atac.obs.index
-        atac.write_h5ad(atac_path)
-        print('Patched ATAC h5ad saved')
-    else:
-        print('gex_barcodes column already present')
-"
-
         # Symlink the gene annotation file to the working directory
-        # (the script uses a relative path to find it)
         ln -sf /usr/local/gencode.v41.basic.annotation.gff3.gz .
 
         python3 /usr/local/multiome_label_transfer.py \
-            --gex-file "$GEX_FILE" \
-            --atac-file "$ATAC_FILE" \
-            --ref-file "$REF_FILE" \
-            $LOCALIZE_FLAG
+            --gex-file "~{gex_h5ad}" \
+            --atac-file "~{atac_activity_h5ad}" \
+            --ref-file "~{ref_h5ad}"
     >>>
 
     runtime {

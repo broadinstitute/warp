@@ -1,3 +1,11 @@
+# 1.0.1
+2026-03-08 (Date of Last Commit)
+
+* Added PreprocessFilter task to handle all h5ad preprocessing and filtering as a separate CPU-only step before GPU model training
+* Moved column patching (star_IsCell, gex_barcodes), GEX cell/gene filtering, ATAC barcode reindexing, shared barcode subsetting, batch/modality tagging, and gene activity matrix conversion out of the monolithic MultiomeLabelTransfer task
+* Simplified MultiomeLabelTransfer task to accept preprocessed h5ad files directly; removed inline Python patching and bucket resolution logic
+* Updated README with detailed two-task workflow overview and diagram
+
 # 1.0.0
 2026-02-06 (Date of Last Commit)
 
