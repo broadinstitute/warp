@@ -387,8 +387,8 @@ PYEOF
         cpu: nthreads
         hardware_gpu_type: "nvidia-tesla-t4"
         gpuCount: 2
-        # nvidia_driver_version: "535.104.05"
-        nvidia_driver_version: "470.82.01"  # need >=465.19.01 for CUDA 11.3
+        nvidia_driver_version: "535.104.05"
+        # nvidia_driver_version: "470.82.01"  # need >=465.19.01 for CUDA 11.3
         # zones: "us-east1-d us-east1-c us-central1-a us-central1-c us-west1-b"
         maxRetries: 1
     }
