@@ -25,6 +25,6 @@
   "IlluminaGenotypingArray.dbSNP_vcf_index": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz.tbi",
   "IlluminaGenotypingArray.haplotype_database_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt",
   "IlluminaGenotypingArray.variant_rsids_file": "gs://broad-references-private/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
-  "IlluminaGenotypingArray.minor_allele_frequency_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.MAF.txt",
+  "IlluminaGenotypingArray.minor_allele_frequency_file": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/204038380098_R02C01_HG001/GDA-8v1-0_A5.MAF.txt",
   "IlluminaGenotypingArray.preemptible_tries": 3
 }
