@@ -98,7 +98,7 @@ task PreprocessFilter {
 
         # Runtime attributes
         String docker
-        Int disk_size = 1000
+        Int disk_size = 1000 # bigger disk before cell filtering
         Int mem_size = 120
         Int nthreads = 32
     }
