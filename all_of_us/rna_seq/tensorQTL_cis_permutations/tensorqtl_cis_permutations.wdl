@@ -90,6 +90,7 @@ workflow tensorqtl_cis_permutations_workflow {
         Int num_gpus
         Int num_preempt
     }
+
     String pipeline_version = "aou_9.0.0"
 
     call tensorqtl_cis_permutations {
@@ -112,5 +113,10 @@ workflow tensorqtl_cis_permutations_workflow {
             num_gpus = num_gpus,
             num_preempt = num_preempt,
             pipeline_version = pipeline_version
+    }
+
+    output {
+        File cis_qtl = tensorqtl_cis_permutations.cis_qtl
+        File log = tensorqtl_cis_permutations.log
     }
 }
