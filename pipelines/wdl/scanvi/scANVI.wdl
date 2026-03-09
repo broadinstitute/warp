@@ -22,23 +22,15 @@ workflow scANVI {
       String ref_filename = "ref.h5ad"
 
       # Runtime attributes
-      String cloud_provider = "gcp"
       Int disk_size = 500
       Int mem_size = 120
       Int nthreads = 32
-
-      # GPU configuration
-      String gpu_type = "nvidia-tesla-t4"
-      Int gpu_count = 2
-      String nvidiaDriverVersion = "535.104.05"
   }
 
   String pipeline_version = "1.0.1"
 
-  # Docker image
-  String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
-  String docker_prefix = gcr_docker_prefix
-  String scvi_scanvi_docker = "scvi-scanvi:rc_3220_scanvi"
+  # Docker image (same container for both tasks; only Task 2 gets GPUs attached)
+  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi:1.0.0-1.2-1756234975"
 
   # Step 1: CPU-only preprocessing and filtering of all three h5ad inputs
   call PreprocessFilter {
@@ -50,7 +42,7 @@ workflow scANVI {
         gex_filename = gex_filename,
         atac_filename = atac_filename,
         ref_filename = ref_filename,
-        docker_path = docker_prefix + scvi_scanvi_docker,
+        docker = docker,
         disk_size = disk_size,
         mem_size = mem_size,
         nthreads = nthreads
@@ -62,13 +54,10 @@ workflow scANVI {
         gex_h5ad = PreprocessFilter.preprocessed_gex_h5ad,
         atac_activity_h5ad = PreprocessFilter.preprocessed_atac_activity_h5ad,
         ref_h5ad = PreprocessFilter.preprocessed_ref_h5ad,
-        docker_path = docker_prefix + scvi_scanvi_docker,
+        docker = docker,
         disk_size = disk_size,
         mem_size = mem_size,
-        nthreads = nthreads,
-        gpu_type = gpu_type,
-        gpu_count = gpu_count,
-        nvidiaDriverVersion = nvidiaDriverVersion
+        nthreads = nthreads
   }
 
   output {
@@ -108,7 +97,7 @@ task PreprocessFilter {
         String ref_filename = "ref.h5ad"
 
         # Runtime attributes
-        String docker_path
+        String docker
         Int disk_size = 500
         Int mem_size = 120
         Int nthreads = 32
@@ -122,7 +111,7 @@ task PreprocessFilter {
         gex_filename: "Expected GEX h5ad filename in the input bucket."
         atac_filename: "Expected ATAC h5ad filename in the input bucket."
         ref_filename: "Expected reference h5ad filename in the input bucket."
-        docker_path: "Docker image path containing the scvi-scanvi runtime environment."
+        docker: "Docker image containing the scvi-scanvi runtime environment."
         disk_size: "Disk size in GB."
         mem_size: "Memory size in GB."
     }
@@ -246,7 +235,7 @@ PYEOF
     >>>
 
     runtime {
-        docker: docker_path
+        docker: docker
         bootDiskSizeGb: 20
         disks: "local-disk ${disk_size} SSD"
         memory: "${mem_size} GiB"
@@ -278,48 +267,138 @@ task MultiomeLabelTransfer {
         File ref_h5ad
 
         # Runtime attributes
-        String docker_path
+        String docker
         Int disk_size = 500
         Int mem_size = 120
         Int nthreads = 32
-        String gpu_type = "nvidia-tesla-t4"
-        Int gpu_count = 2
-        String nvidiaDriverVersion = "535.104.05"
     }
 
     parameter_meta {
         gex_h5ad: "Preprocessed gene expression h5ad file (filtered, batch-labeled, modality-tagged)."
         atac_activity_h5ad: "Preprocessed ATAC gene activity h5ad file (converted from cell-by-bin, batch-labeled, modality-tagged)."
         ref_h5ad: "Preprocessed reference h5ad file with cell type labels and modality tag."
-        docker_path: "Docker image path containing the scvi-scanvi runtime environment."
+        docker: "Docker image containing the scvi-scanvi runtime environment."
         disk_size: "Disk size in GB."
         mem_size: "Memory size in GB."
-        gpu_type: "GPU type for accelerated model training."
-        gpu_count: "Number of GPUs to use."
-        nvidiaDriverVersion: "NVIDIA driver version for GPU support."
     }
 
     command <<<
         set -euo pipefail
 
-        # Symlink the gene annotation file to the working directory
-        ln -sf /usr/local/gencode.v41.basic.annotation.gff3.gz .
+        python3 <<'PYEOF'
+import sys
+import time
+import pandas as pd
+import scanpy as sc
+import anndata as ad
 
-        python3 /usr/local/multiome_label_transfer.py \
-            --gex-file "~{gex_h5ad}" \
-            --atac-file "~{atac_activity_h5ad}" \
-            --ref-file "~{ref_h5ad}"
+# ── Import ONLY model-training and label-transfer functions ───────────────
+# We import specific functions from the container script so that main()
+# (which re-runs all preprocessing) is NEVER called.  The three functions
+# imported here operate entirely on already-preprocessed AnnData objects.
+sys.path.insert(0, "/usr/local")
+from multiome_label_transfer import run_multi_model, transfer_labels, finalize_output
+
+# ── 1. Load preprocessed h5ad files ──────────────────────────────────────
+# These files were fully preprocessed by the PreprocessFilter task:
+#   - GEX: filtered to STARsolo cell calls, min-count filtered, batch-
+#     labeled, modality-tagged, subset to shared barcodes
+#   - ATAC activity: gene activity matrix (converted from cell-by-bin by
+#     snapatac2), batch-labeled, modality-tagged, subset to shared barcodes
+#   - Reference: annotated with final_annotation and modality tag
+# NO additional filtering, reindexing, or gene-activity conversion needed.
+print("Loading preprocessed inputs (no re-preprocessing)...")
+gex           = sc.read_h5ad("~{gex_h5ad}")
+atac_activity = sc.read_h5ad("~{atac_activity_h5ad}")
+ref           = sc.read_h5ad("~{ref_h5ad}")
+print(f"  GEX:           {gex.shape}")
+print(f"  ATAC activity: {atac_activity.shape}")
+print(f"  Reference:     {ref.shape}")
+
+timing_summary = {}
+
+# ── 2. Train SCVI and SCANVI models (GPU-accelerated) ────────────────────
+# run_multi_model() performs the following steps on the preprocessed data:
+#   a. Concatenates GEX, ATAC activity, and reference into a single AnnData
+#      (ad.concat with join='inner', index_unique='_')
+#   b. Filters genes expressed in fewer than 5 cells
+#   c. Selects 5000 highly variable genes (Seurat v3, batch-aware)
+#   d. Trains SCVI (unsupervised VAE): 2 layers, 30 latent dims,
+#      negative-binomial likelihood, gene-batch dispersion, up to 500 epochs
+#   e. Trains SCANVI (semi-supervised): propagates reference cell-type labels
+#      to unlabeled query cells, up to 500 epochs, 100 samples per label
+#   f. Returns: concatenated AnnData (data), SCVI model (vae), SCANVI (lvae)
+print("Training SCVI and SCANVI models...")
+start = time.time()
+data, vae, lvae = run_multi_model(gex, atac_activity, ref)
+timing_summary['Model Training'] = time.time() - start
+print(f"  Model training complete in {timing_summary['Model Training']:.1f}s")
+
+# ── 3. Transfer labels using the trained SCANVI model ────────────────────
+# transfer_labels() performs the following steps:
+#   a. Predicts cell-type labels (C_scANVI) for every cell using SCANVI
+#   b. Extracts the SCANVI latent representation (X_scANVI)
+#   c. Computes a neighborhood graph and UMAP from the latent space
+#   d. Writes intermediate labeled AnnData (adata_scanvi_labels.h5ad)
+#   e. Returns a UMAP plot and the updated AnnData object
+print("Transferring labels with SCANVI...")
+start = time.time()
+plot, data = transfer_labels(data, lvae)
+timing_summary['Label Transfer'] = time.time() - start
+print(f"  Label transfer complete in {timing_summary['Label Transfer']:.1f}s")
+
+# ── 4. Propagate predicted labels back to original matrices ──────────────
+# ad.concat (called inside run_multi_model) appended modality-key suffixes
+# to obs_names (e.g. "barcode_rna_unannotated", "barcode_atac_unannotated").
+# We use those suffixed names to look up each cell's SCANVI prediction
+# (C_scANVI) in the concatenated object and copy it into the original
+# preprocessed GEX and ATAC AnnData objects.
+print("Propagating predicted labels to GEX and ATAC matrices...")
+gex.obs['final_annotation'] = data.obs.loc[
+    gex.obs_names + '_rna_unannotated']['C_scANVI'].to_numpy()
+atac_activity.obs['final_annotation'] = data.obs.loc[
+    atac_activity.obs_names + '_atac_unannotated']['C_scANVI'].to_numpy()
+
+# ── 5. Write annotated GEX and ATAC matrices ────────────────────────────
+# These outputs mirror what main() in the container script produces,
+# but are built from the already-preprocessed inputs.
+print("Writing annotated matrices...")
+gex.write("gex_annotated_matrix.h5ad")
+atac_activity.write("atac_annotated_matrix.h5ad")
+print(f"  gex_annotated_matrix.h5ad:  {gex.shape}")
+print(f"  atac_annotated_matrix.h5ad: {atac_activity.shape}")
+
+# ── 6. Finalize SCANVI predictions ──────────────────────────────────────
+# finalize_output() adds downstream-required metadata and reformats:
+#   a. Adds placeholder metadata (biosample_id, donor_id, species,
+#      disease, organ, library_preparation_protocol, sex)
+#   b. Renames 'final_annotation' → 'celltype'
+#   c. Copies the count matrix into the .raw layer for SCP ingest
+print("Finalizing SCANVI predictions...")
+final_data = finalize_output(data)
+final_data.write("SCANVI_predictions.h5ad")
+print(f"  SCANVI_predictions.h5ad:    {final_data.shape}")
+
+# ── Timing summary ───────────────────────────────────────────────────────
+timing_df = pd.DataFrame(
+    [(step, f"{elapsed:.2f}s") for step, elapsed in timing_summary.items()],
+    columns=["Step", "Time"]
+)
+print("\nTiming Summary:")
+print(timing_df.to_string(index=False))
+print("\nMultiomeLabelTransfer complete.")
+PYEOF
     >>>
 
     runtime {
-        docker: docker_path
+        docker: docker
         bootDiskSizeGb: 20
         disks: "local-disk ${disk_size} SSD"
         memory: "${mem_size} GiB"
         cpu: nthreads
-        gpuType: gpu_type
-        gpuCount: gpu_count
-        nvidiaDriverVersion: nvidiaDriverVersion
+        hardware_gpu_type: "nvidia-tesla-t4"
+        gpuCount: 2
+        nvidia_driver_version: "535.104.05"
         zones: ["us-central1-a", "us-central1-c"]
         maxRetries: 1
     }
