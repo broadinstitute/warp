@@ -21,17 +21,12 @@ workflow scANVI {
       String atac_filename = "atac.h5ad"
       String ref_filename = "ref.h5ad"
 
-      # Runtime attributes
-      Int disk_size = 500
-      Int mem_size = 120
-      Int nthreads = 32
   }
 
   String pipeline_version = "1.0.1"
 
   # Docker image (same container for both tasks; only Task 2 gets GPUs attached)
-  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi:1.0.0-1.2-1756234975"
-
+  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:81fe915a045bd2929a1c457f4a0061055c6ea42fa3f88e9352b618e4a6e47b58"
   # Step 1: CPU-only preprocessing and filtering of all three h5ad inputs
   call PreprocessFilter {
       input:
@@ -42,10 +37,7 @@ workflow scANVI {
         gex_filename = gex_filename,
         atac_filename = atac_filename,
         ref_filename = ref_filename,
-        docker = docker,
-        disk_size = disk_size,
-        mem_size = mem_size,
-        nthreads = nthreads
+        docker = docker
   }
 
   # Step 2: GPU-accelerated SCVI/SCANVI model training and label transfer
@@ -54,10 +46,7 @@ workflow scANVI {
         gex_h5ad = PreprocessFilter.preprocessed_gex_h5ad,
         atac_activity_h5ad = PreprocessFilter.preprocessed_atac_activity_h5ad,
         ref_h5ad = PreprocessFilter.preprocessed_ref_h5ad,
-        docker = docker,
-        disk_size = disk_size,
-        mem_size = mem_size,
-        nthreads = nthreads
+        docker = docker
   }
 
   output {
@@ -96,7 +85,7 @@ task PreprocessFilter {
         String atac_filename = "atac.h5ad"
         String ref_filename = "ref.h5ad"
 
-        # Runtime attributes
+        # Runtime attributes hardcoded in each task
         String docker
         Int disk_size = 1000 # bigger disk before cell filtering
         Int mem_size = 120
