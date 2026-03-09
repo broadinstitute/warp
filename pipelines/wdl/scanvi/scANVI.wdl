@@ -388,7 +388,7 @@ PYEOF
         hardware_gpu_type: "nvidia-tesla-t4"
         gpuCount: 2
         nvidia_driver_version: "535.104.05"
-        zones: ["us-central1-a", "us-central1-c"]
+        zones: "us-east1-d us-east1-c us-central1-a us-central1-c us-west1-b"
         maxRetries: 1
     }
 
