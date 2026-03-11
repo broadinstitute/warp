@@ -1337,6 +1337,29 @@ task add_annotations {
         echo "Resolved /mnt/disks/cromwell_root -> $(readlink -f /mnt/disks/cromwell_root || echo '<missing>')"
         echo "TMPDIR=${TMPDIR:-<unset>}"
         echo "_JAVA_OPTIONS=${_JAVA_OPTIONS:-<unset>}"
+        if [ -n "${TMPDIR:-}" ] && [ ! -d "${TMPDIR}" ]; then
+            mkdir -p "${TMPDIR}"
+        fi
+        JAVA_TMPDIR=""
+        if [ -n "${_JAVA_OPTIONS:-}" ]; then
+            JAVA_TMPDIR=$(echo "${_JAVA_OPTIONS}" | tr ' ' '\n' | sed -n 's/^-Djava\.io\.tmpdir=//p' | head -n 1)
+        fi
+        if [ -n "${JAVA_TMPDIR}" ]; then
+            echo "JAVA_TMPDIR=${JAVA_TMPDIR}"
+            if [ ! -d "${JAVA_TMPDIR}" ]; then
+                mkdir -p "${JAVA_TMPDIR}"
+            fi
+        else
+            echo "JAVA_TMPDIR=<unset>"
+        fi
+        for d in /tmp /var/tmp; do
+            if [ -d "$d" ]; then
+                echo "Temp dir: $d"
+                findmnt -T "$d" || true
+                df -h -T "$d" || true
+                df -i -T "$d" || true
+            fi
+        done
         findmnt -T "$PWD" || true
         df -h -T "$PWD" || true
         df -i -T "$PWD" || true
@@ -1348,6 +1371,7 @@ task add_annotations {
         setup_spark() {
             local mem_gb="$1"
             export SPARK_LOCAL_DIRS="$PWD/tmp"
+            mkdir -p "$PWD/tmp"
             local driver_mem_gb=$((mem_gb - 8))
             if [ "$driver_mem_gb" -lt 4 ]; then driver_mem_gb=4; fi
             export SPARK_DRIVER_MEMORY="${driver_mem_gb}g"
@@ -1380,6 +1404,9 @@ task add_annotations {
             IFS=',' read -ra SPARK_DIRS <<< "${SPARK_LOCAL_DIRS}"
             for d in "${SPARK_DIRS[@]}"; do
                 echo "Spark dir: $d"
+                if [ ! -d "$d" ]; then
+                    mkdir -p "$d"
+                fi
                 findmnt -T "$d" || true
                 df -h -T "$d" || true
                 df -i -T "$d" || true
