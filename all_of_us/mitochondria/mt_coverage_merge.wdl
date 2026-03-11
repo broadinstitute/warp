@@ -1333,8 +1333,17 @@ task add_annotations {
         WORK_DIR=$(pwd)
 
         echo "PWD is: $PWD"
+        echo "Resolved /cromwell_root -> $(readlink -f /cromwell_root || echo '<missing>')"
+        echo "Resolved /mnt/disks/cromwell_root -> $(readlink -f /mnt/disks/cromwell_root || echo '<missing>')"
+        echo "TMPDIR=${TMPDIR:-<unset>}"
+        echo "_JAVA_OPTIONS=${_JAVA_OPTIONS:-<unset>}"
         findmnt -T "$PWD" || true
-        df -h --output=source,fstype,target,avail -T "$PWD" || true
+        df -h -T "$PWD" || true
+        df -i -T "$PWD" || true
+        df -h -T /cromwell_root || true
+        df -i -T /cromwell_root || true
+        df -h -T /mnt/disks/cromwell_root || true
+        df -i -T /mnt/disks/cromwell_root || true
 
         setup_spark() {
             local mem_gb="$1"
@@ -1372,7 +1381,8 @@ task add_annotations {
             for d in "${SPARK_DIRS[@]}"; do
                 echo "Spark dir: $d"
                 findmnt -T "$d" || true
-                df -h --output=source,fstype,target,avail -T "$d" || true
+                df -h -T "$d" || true
+                df -i -T "$d" || true
             done
         fi
 
