@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  warp-dev:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    
+    container_name: warp-dev
+    
+    image: warp-dev:latest
+    
+    volumes:
+      - .:/workspace:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    
+    environment:
+      - WARP_HOME=/workspace
+      - PYTHONUNBUFFERED=1
+    
+    ports:
+      - "8080:8080"    # Application
+      - "8888:8888"    # Jupyter
+    
+    stdin_open: true
+    tty: true
+    
+    command: /bin/bash
+    
+    networks:
+      - warp-network
+
+  # Optional: Jupyter service for interactive WDL/Python development
+  jupyter:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    
+    container_name: warp-jupyter
+    
+    image: warp-dev:latest
+    
+    volumes:
+      - .:/workspace:cached
+    
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - PYTHONUNBUFFERED=1
+    
+    ports:
+      - "8889:8888"
+    
+    command: >
+      bash -c "jupyter lab --ip=0.0.0.0 --port=8888 --no-browser 
+               --allow-root --NotebookApp.token='' 
+               --NotebookApp.password=''"
+    
+    networks:
+      - warp-network
+    
+    depends_on:
+      - warp-dev
+
+networks:
+  warp-network:
+    driver: bridge

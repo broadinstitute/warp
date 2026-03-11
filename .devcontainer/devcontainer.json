@@ -1,0 +1,87 @@
+{
+  "name": "WARP WDL Development",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  "containerEnv": {
+    "WARP_HOME": "${containerWorkspaceFolder}"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "eternalnight.bracketpaircoloriz3r",
+        "ms-vscode.makefile-tools",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.remote-explorer",
+        "GitHub.copilot",
+        "charliermarsh.ruff",
+        "ms-python.black-formatter",
+        "tomoki1207.pdf",
+        "redhat.vscode-yaml"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python3",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.formatting.provider": "black",
+        "python.formatting.blackArgs": [
+          "--line-length=100"
+        ],
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.python",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "editor.formatOnSave": true,
+        "editor.rulers": [
+          80,
+          100
+        ]
+      }
+    }
+  },
+
+  "onCreateCommand": "bash .devcontainer/onCreateCommand.sh",
+  
+  "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+
+  "postStartCommand": "bash .devcontainer/postStartCommand.sh",
+
+  "remoteUser": "root",
+
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gitconfig,target=/root/.gitconfig,type=bind,consistency=cached"
+  ],
+
+  "forwardPorts": [
+    8080,
+    8888
+  ],
+
+  "portsAttributes": {
+    "8080": {
+      "label": "Application",
+      "onAutoForward": "notify"
+    },
+    "8888": {
+      "label": "Jupyter",
+      "onAutoForward": "notify"
+    }
+  }
+}
