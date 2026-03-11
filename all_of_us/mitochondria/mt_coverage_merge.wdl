@@ -1332,6 +1332,10 @@ task add_annotations {
 
         WORK_DIR=$(pwd)
 
+        echo "PWD is: $PWD"
+        findmnt -T "$PWD" || true
+        df -h --output=source,fstype,target,avail -T "$PWD" || true
+
         setup_spark() {
             local mem_gb="$1"
             export SPARK_LOCAL_DIRS="$PWD/tmp"
@@ -1361,6 +1365,16 @@ task add_annotations {
         }
 
         setup_spark ~{memory_gb}
+
+        echo "SPARK_LOCAL_DIRS=${SPARK_LOCAL_DIRS:-<unset>}"
+        if [ -n "${SPARK_LOCAL_DIRS:-}" ]; then
+            IFS=',' read -ra SPARK_DIRS <<< "${SPARK_LOCAL_DIRS}"
+            for d in "${SPARK_DIRS[@]}"; do
+                echo "Spark dir: $d"
+                findmnt -T "$d" || true
+                df -h --output=source,fstype,target,avail -T "$d" || true
+            done
+        fi
 
         # Unzip VCF MatrixTable tarball
         mkdir -p ./unzipped_vcf.mt
