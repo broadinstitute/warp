@@ -117,33 +117,11 @@ workflow Glimpse2LowPassImputation {
             contigs = contigs,
             n_samples = n_samples
     }
-
-    scatter (reference_chunk in ComputeShardsAndMemoryPerShard.reference_chunk_file_paths) {
-        call GetNumberOfSitesInChunk {
-            input:
-                reference_chunk = reference_chunk,
-                docker = docker_extract_num_sites_from_reference_chunk
-        }
-
-        Int n_rare = GetNumberOfSitesInChunk.n_rare
-        Int n_common = GetNumberOfSitesInChunk.n_common
-
-        call SelectResourceParameters {
-            input:
-                n_rare = n_rare,
-                n_common = n_common,
-                n_samples = n_samples
-        }
-
-        if (SelectResourceParameters.memory_gb > 256 || SelectResourceParameters.request_n_cpus > 32) {
-            # force failure if we're accidently going to request too much resources and spend too much money
-            Int safety_check_memory_gb = -1
-            Int safety_check_n_cpu = -1
-        }
+    scatter (reference_chunk_index in range(length(ComputeShardsAndMemoryPerShard.reference_chunk_file_paths))) {
 
         call GlimpsePhase {
             input:
-                reference_chunk = reference_chunk,
+                reference_chunk = ComputeShardsAndMemoryPerShard.reference_chunk_file_paths[reference_chunk_index],
                 input_vcf = select_first([merged_vcf,input_vcf]),
                 input_vcf_index = select_first([merged_vcf_index,input_vcf_index]),
                 impute_reference_only_variants = impute_reference_only_variants,
@@ -156,8 +134,8 @@ workflow Glimpse2LowPassImputation {
                 fasta_index = fasta_index,
                 preemptible = preemptible,
                 docker = docker,
-                cpu = select_first([cpu_phase, safety_check_n_cpu, SelectResourceParameters.request_n_cpus]),
-                mem_gb = select_first([mem_gb_phase, safety_check_memory_gb, SelectResourceParameters.memory_gb])
+                cpu = select_first([cpu_phase, 1]),
+                mem_gb = select_first([mem_gb_phase, ComputeShardsAndMemoryPerShard.mem_gb_per_chunk[reference_chunk_index]])
         }
     }
 
