@@ -1329,6 +1329,8 @@ task add_annotations {
         Boolean enable_monitoring = true
         Boolean enable_spark_event_log = false
         String spark_event_log_gcs_dir = ""
+        Boolean enable_disk_monitor_upload = false
+        String disk_monitor_gcs_dir = ""
     }
 
      command <<<
@@ -1417,6 +1419,7 @@ task add_annotations {
 
         setup_spark ~{memory_gb}
 
+        touch disk_monitor.log
         if ~{enable_monitoring}; then
             (while true; do
                 echo "===== disk_monitor $(date -Iseconds) ====="
@@ -1430,6 +1433,13 @@ task add_annotations {
                 df -i -T "${WORK_DIR}" || true
                 sleep ~{monitor_interval_seconds}
             done) > disk_monitor.log 2>&1 &
+        fi
+
+        if ~{enable_disk_monitor_upload} && [ -n "~{disk_monitor_gcs_dir}" ]; then
+            (while true; do
+                gsutil -q cp disk_monitor.log "~{disk_monitor_gcs_dir%/}/disk_monitor.log" || true
+                sleep ~{monitor_interval_seconds}
+            done) > disk_monitor_upload.log 2>&1 &
         fi
 
         if ~{enable_spark_event_log} && [ -n "~{spark_event_log_gcs_dir}" ]; then
@@ -1486,6 +1496,7 @@ task add_annotations {
 
     output {
         File annotated_output_tar = "annotated_output.tar.gz"
+        File disk_monitor_log = "disk_monitor.log"
     }
 
     runtime {
