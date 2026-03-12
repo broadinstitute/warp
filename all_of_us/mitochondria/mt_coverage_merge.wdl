@@ -1325,12 +1325,24 @@ task add_annotations {
         Int cpu = 32
         Int disk_gb = 1000
         String disk_type = "SSD"
+        Int monitor_interval_seconds = 900
+        Boolean enable_monitoring = true
+        Boolean enable_spark_event_log = false
+        String spark_event_log_gcs_dir = ""
     }
 
      command <<<
         set -euxo pipefail
 
         WORK_DIR=$(pwd)
+        BIG_TMP_DIR="${WORK_DIR}/tmp"
+        mkdir -p "${BIG_TMP_DIR}"
+        export TMPDIR="${BIG_TMP_DIR}"
+        export TEMP="${BIG_TMP_DIR}"
+        export TMP="${BIG_TMP_DIR}"
+        export HAIL_TMPDIR="${BIG_TMP_DIR}"
+        export SPARK_TMPDIR="${BIG_TMP_DIR}"
+        export _JAVA_OPTIONS="-Djava.io.tmpdir=${BIG_TMP_DIR}"
 
         echo "PWD is: $PWD"
         echo "Resolved /cromwell_root -> $(readlink -f /cromwell_root || echo '<missing>')"
@@ -1370,12 +1382,18 @@ task add_annotations {
 
         setup_spark() {
             local mem_gb="$1"
-            export SPARK_LOCAL_DIRS="$PWD/tmp"
-            mkdir -p "$PWD/tmp"
+            export SPARK_LOCAL_DIRS="${BIG_TMP_DIR}"
+            mkdir -p "${BIG_TMP_DIR}"
             local driver_mem_gb=$((mem_gb - 8))
             if [ "$driver_mem_gb" -lt 4 ]; then driver_mem_gb=4; fi
             export SPARK_DRIVER_MEMORY="${driver_mem_gb}g"
-            export PYSPARK_SUBMIT_ARGS="--driver-memory ${driver_mem_gb}g --executor-memory ${driver_mem_gb}g pyspark-shell"
+            if ~{enable_spark_event_log}; then
+                local event_log_dir="$PWD/spark-events"
+                mkdir -p "${event_log_dir}"
+                export PYSPARK_SUBMIT_ARGS="--driver-memory ${driver_mem_gb}g --executor-memory ${driver_mem_gb}g --conf spark.local.dir=${SPARK_LOCAL_DIRS} --conf spark.eventLog.enabled=true --conf spark.eventLog.dir=${event_log_dir} pyspark-shell"
+            else
+                export PYSPARK_SUBMIT_ARGS="--driver-memory ${driver_mem_gb}g --executor-memory ${driver_mem_gb}g --conf spark.local.dir=${SPARK_LOCAL_DIRS} pyspark-shell"
+            fi
             export JAVA_OPTS="-Xms${driver_mem_gb}g -Xmx${driver_mem_gb}g"
         }
 
@@ -1398,6 +1416,30 @@ task add_annotations {
         }
 
         setup_spark ~{memory_gb}
+
+        if ~{enable_monitoring}; then
+            (while true; do
+                echo "===== disk_monitor $(date -Iseconds) ====="
+                df -h -T / || true
+                df -i -T / || true
+                df -h -T /tmp /var/tmp || true
+                df -i -T /tmp /var/tmp || true
+                df -h -T /mnt/disks/cromwell_root || true
+                df -i -T /mnt/disks/cromwell_root || true
+                df -h -T "${WORK_DIR}" || true
+                df -i -T "${WORK_DIR}" || true
+                sleep ~{monitor_interval_seconds}
+            done) > disk_monitor.log 2>&1 &
+        fi
+
+        if ~{enable_spark_event_log} && [ -n "~{spark_event_log_gcs_dir}" ]; then
+            (while true; do
+                if [ -d "${WORK_DIR}/spark-events" ]; then
+                    gsutil -m rsync -r "${WORK_DIR}/spark-events" "~{spark_event_log_gcs_dir}" || true
+                fi
+                sleep ~{monitor_interval_seconds}
+            done) > spark_event_log_upload.log 2>&1 &
+        fi
 
         echo "SPARK_LOCAL_DIRS=${SPARK_LOCAL_DIRS:-<unset>}"
         if [ -n "${SPARK_LOCAL_DIRS:-}" ]; then
