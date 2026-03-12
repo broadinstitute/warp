@@ -119,28 +119,26 @@ workflow Glimpse2LowPassImputation {
     }
 
     scatter (reference_chunk in ComputeShardsAndMemoryPerShard.reference_chunk_file_paths) {
-        if (!defined(cpu_phase) || !defined(mem_gb_phase)) {
-            call GetNumberOfSitesInChunk {
-                input:
-                    reference_chunk = reference_chunk,
-                    docker = docker_extract_num_sites_from_reference_chunk
-            }
+        call GetNumberOfSitesInChunk {
+            input:
+                reference_chunk = reference_chunk,
+                docker = docker_extract_num_sites_from_reference_chunk
+        }
 
-            Int n_rare = GetNumberOfSitesInChunk.n_rare
-            Int n_common = GetNumberOfSitesInChunk.n_common
+        Int n_rare = GetNumberOfSitesInChunk.n_rare
+        Int n_common = GetNumberOfSitesInChunk.n_common
 
-            call SelectResourceParameters {
-                input:
-                    n_rare = n_rare,
-                    n_common = n_common,
-                    n_samples = n_samples
-            }
+        call SelectResourceParameters {
+            input:
+                n_rare = n_rare,
+                n_common = n_common,
+                n_samples = n_samples
+        }
 
-            if (SelectResourceParameters.memory_gb > 256 || SelectResourceParameters.request_n_cpus > 32) {
-                # force failure if we're accidently going to request too much resources and spend too much money
-                Int safety_check_memory_gb = -1
-                Int safety_check_n_cpu = -1
-            }
+        if (SelectResourceParameters.memory_gb > 256 || SelectResourceParameters.request_n_cpus > 32) {
+            # force failure if we're accidently going to request too much resources and spend too much money
+            Int safety_check_memory_gb = -1
+            Int safety_check_n_cpu = -1
         }
 
         call GlimpsePhase {
