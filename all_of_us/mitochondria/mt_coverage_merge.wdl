@@ -1305,7 +1305,7 @@ task combine_vcfs_and_homref_from_covdb {
 
     runtime {
         # NOTE: This must be a Hail-capable image with mtSwirl code baked in at /opt/mtSwirl.
-    docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -1436,8 +1436,9 @@ task add_annotations {
         fi
 
         if ~{enable_disk_monitor_upload} && [ -n "~{disk_monitor_gcs_dir}" ]; then
+            DISK_MONITOR_GCS_DIR="~{disk_monitor_gcs_dir}"
             (while true; do
-                gsutil -q cp disk_monitor.log "~{disk_monitor_gcs_dir%/}/disk_monitor.log" || true
+                gsutil -q cp disk_monitor.log "${DISK_MONITOR_GCS_DIR%/}/disk_monitor.log" || true
                 sleep ~{monitor_interval_seconds}
             done) > disk_monitor_upload.log 2>&1 &
         fi
