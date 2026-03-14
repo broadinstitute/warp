@@ -442,6 +442,12 @@ task GlimpsePhase {
         cram_indices: {
                           localization_optional: true
                       }
+        input_vcf: {
+                   localization_optional: true
+               }
+        input_vcf_index: {
+                          localization_optional: true
+                      }
     }
 
     String bam_file_list_input = if defined(crams) then "--bam-list crams.list" else ""
