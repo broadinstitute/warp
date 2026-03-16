@@ -1325,10 +1325,20 @@ task add_annotations {
         Int cpu = 32
         Int disk_gb = 1000
         String disk_type = "SSD"
+        Int monitor_interval_seconds = 60
+        Boolean enable_monitoring = true
+        Boolean enable_disk_monitor_upload = false
+        String disk_monitor_gcs_dir = ""
     }
 
      command <<<
         set -euxo pipefail
+
+        echo "BEGINNING SETUP"
+        echo "Contents of ./tmp:"
+        ls -lh ./tmp
+        echo "Contents of /tmp:"
+        ls -lh /tmp
 
         WORK_DIR=$(pwd)
 
@@ -1361,6 +1371,29 @@ task add_annotations {
         }
 
         setup_spark ~{memory_gb}
+
+        touch disk_monitor.log
+        if ~{enable_monitoring}; then
+            (while true; do
+                echo "===== disk_monitor $(date -Iseconds) ====="
+                df -h -T / || true
+                df -i -T / || true
+                df -h -T /tmp /var/tmp || true
+                df -i -T /tmp /var/tmp || true
+                df -h -T /mnt/disks/cromwell_root || true
+                df -i -T /mnt/disks/cromwell_root || true
+                df -h -T "${WORK_DIR}" || true
+                df -i -T "${WORK_DIR}" || true
+                sleep ~{monitor_interval_seconds}
+            done) > disk_monitor.log 2>&1 &
+        fi
+        if ~{enable_disk_monitor_upload} && [ -n "~{disk_monitor_gcs_dir}" ]; then
+            DISK_MONITOR_GCS_DIR="~{disk_monitor_gcs_dir}"
+            (while true; do
+                gsutil -q cp disk_monitor.log "${DISK_MONITOR_GCS_DIR%/}/disk_monitor.log" || true
+                sleep ~{monitor_interval_seconds}
+            done) > disk_monitor_upload.log 2>&1 &
+        fi
 
         # Unzip VCF MatrixTable tarball
         mkdir -p ./unzipped_vcf.mt
