@@ -36,7 +36,7 @@ workflow run_ancestry {
 
     File hgdp_metadata_file = select_first([hgdp_metadata_file_in, "gs://gcp-public-data--gnomad/release/3.1/secondary_analyses/hgdp_1kg_v2/metadata_and_qc/gnomad_meta_updated.tsv"])
     Float other_cutoff = select_first([other_cutoff_in, 0.75])
-    String pipeline_version = "aou_9.0.0"
+    String pipeline_version = "aou_9.1.0"
 
     # Train the model on the intersection sites (full version that includes the samples)
     call create_hw_pca_training {
@@ -324,7 +324,7 @@ task plot_ancestry {
         ancestries = ["afr", "amr","eas", "eur", "mid", "oth", "sas"]
 
         pred_label_dict_no_N = {
-            "afr": "African", "amr":"Latino/Admixed American","eas":"East Asian", "eur": "European", "mid": "Middle Eastern", "oth": "Other", "sas": "South Asian"
+            "afr": "African", "amr":"Latino/Admixed American","eas":"East Asian", "eur": "European", "mid": "Middle Eastern", "oth": "Remaining", "sas": "South Asian"
         }
 
         def create_ancestry_dict_with_N(relevant_column:str, df:pd.DataFrame):
