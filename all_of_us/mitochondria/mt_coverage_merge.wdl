@@ -1335,8 +1335,8 @@ task add_annotations {
         set -euxo pipefail
 
         echo "BEGINNING SETUP"
-        echo "Contents of ./tmp:"
-        ls -lh ./tmp
+        #echo "Contents of ./tmp:"
+        #ls -lh ./tmp
         echo "Contents of /tmp:"
         ls -lh /tmp
 
