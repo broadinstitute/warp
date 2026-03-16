@@ -10,9 +10,7 @@ workflow Glimpse2LowPassImputation {
         File sites_table
         File sites_table_index
 
-        Int bcftools_threads = 1
-        Int calling_batch_size = 200
-        Int calling_mem_gb = 6
+        Int calling_batch_size = 100
 
         Array[String] contigs
 
@@ -36,8 +34,6 @@ workflow Glimpse2LowPassImputation {
         Int preemptible = 30
         String docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
         String docker_extract_num_sites_from_reference_chunk = "us.gcr.io/broad-dsde-methods/glimpse_extract_num_sites_from_reference_chunks:michaelgatzen_edc7f3a"
-        Int cpu_ligate = 4
-        Int mem_gb_ligate = 4
         Int? cpu_phase
         Int? mem_gb_phase
     }
@@ -75,8 +71,6 @@ workflow Glimpse2LowPassImputation {
                     fasta_index = fasta_index,
                     call_indels = call_indels,
                     sites_vcf = sites_vcf,
-                    cpu = bcftools_threads,
-                    mem_gb = calling_mem_gb
             }
 
             call BcftoolsCall {
@@ -84,15 +78,11 @@ workflow Glimpse2LowPassImputation {
                     mpileup_bcf = BcftoolsMpileup.output_bcf,
                     sites_table = sites_table,
                     sites_table_index = sites_table_index,
-                    cpu = bcftools_threads,
-                    mem_gb = calling_mem_gb
             }
 
             call BcftoolsNorm {
                 input:
                     calls_bcf = BcftoolsCall.output_bcf,
-                    cpu = bcftools_threads,
-                    mem_gb = calling_mem_gb
             }
         }
 
@@ -145,9 +135,7 @@ workflow Glimpse2LowPassImputation {
             imputed_chunks_indices = GlimpsePhase.imputed_vcf_index,
             output_basename = output_basename,
             ref_dict = ref_dict,
-            docker = docker,
-            cpu = cpu_ligate,
-            mem_gb = mem_gb_ligate,
+            docker = docker
     }
 
     if (length(select_all(GlimpsePhase.coverage_metrics)) > 0) {
@@ -272,8 +260,9 @@ task BcftoolsMpileup {
 
         File sites_vcf
 
+        Int seed = 12345
         Int mem_gb = 4
-        Int cpu = 2
+        Int cpu = 1
         Int preemptible = 0
     }
 
@@ -291,7 +280,7 @@ task BcftoolsMpileup {
             echo "* ${crams[$i]} ${sample_ids[$i]}" >> sample_name_mapping.txt
         done
 
-        bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I" else ""} -G sample_name_mapping.txt -E -a 'FORMAT/DP,FORMAT/AD' -T ~{sites_vcf} -Ou -o mpileup.bcf ~{sep=" " crams}
+        bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I" else ""} -G sample_name_mapping.txt --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -T ~{sites_vcf} -Ou -o mpileup.bcf ~{sep=" " crams}
     >>>
 
     runtime {
@@ -427,7 +416,7 @@ task GlimpsePhase {
         Int? n_main
         Int? effective_population_size
 
-        Int mem_gb = 4
+        Int mem_gb = 16
         Int cpu = 4
         Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.003 * length(select_first([crams, []])) + 10)
         Int preemptible = 9
@@ -532,9 +521,9 @@ task GlimpseLigate {
         String output_basename
         File ref_dict
 
-        Int mem_gb = 6
+        Int mem_gb = 4
         Int cpu = 2
-        Int disk_size_gb = ceil(2.2 * size(imputed_chunks, "GiB") + 100)
+        Int disk_size_gb = ceil(3 * size(imputed_chunks, "GiB") + 100)
         Int preemptible = 0
         Int max_retries = 3
         String docker
