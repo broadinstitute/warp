@@ -34,8 +34,6 @@ workflow Glimpse2LowPassImputation {
         Int preemptible = 30
         String docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
         String docker_extract_num_sites_from_reference_chunk = "us.gcr.io/broad-dsde-methods/glimpse_extract_num_sites_from_reference_chunks:michaelgatzen_edc7f3a"
-        Int? cpu_phase
-        Int? mem_gb_phase
     }
 
     if (defined(input_vcf)) {
@@ -123,9 +121,7 @@ workflow Glimpse2LowPassImputation {
                 fasta = fasta,
                 fasta_index = fasta_index,
                 preemptible = preemptible,
-                docker = docker,
-                cpu = select_first([cpu_phase, 1]),
-                mem_gb = select_first([mem_gb_phase, ComputeShardsAndMemoryPerShard.mem_gb_per_chunk[reference_chunk_index]])
+                docker = docker
         }
     }
 
