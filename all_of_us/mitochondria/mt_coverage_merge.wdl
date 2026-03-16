@@ -1491,6 +1491,12 @@ task add_annotations {
             -d ./~{output_name} \
             --temp-dir ./tmp
 
+        echo "Finished running add_annotations.py"
+        echo "Contents of ./tmp:"
+        ls -lh ./tmp
+        echo "Contents of /tmp:"
+        ls -lh /tmp
+
         # Compress the annotated output directory
         tar -czf $WORK_DIR/annotated_output.tar.gz ~{output_name}
     >>>
