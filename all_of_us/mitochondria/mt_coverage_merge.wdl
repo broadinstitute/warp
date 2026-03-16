@@ -1323,9 +1323,9 @@ task add_annotations {
         # Runtime parameters
         Int memory_gb = 96
         Int cpu = 32
-        Int disk_gb = 1000
+        Int disk_gb = 4000
         String disk_type = "SSD"
-        Int monitor_interval_seconds = 900
+        Int monitor_interval_seconds = 60
         Boolean enable_monitoring = true
         Boolean enable_spark_event_log = false
         String spark_event_log_gcs_dir = ""
@@ -1501,9 +1501,9 @@ task add_annotations {
     }
 
     runtime {
-    docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
-        memory: memory_gb + " GB" 
+        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.2"
+        memory: memory_gb + " GB"
         cpu: cpu
-        disks: "local-disk " + disk_gb + " " + disk_type 
+        disks: "local-disk " + disk_gb + " " + disk_type
     }
 }

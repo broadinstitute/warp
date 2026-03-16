@@ -9,8 +9,6 @@ import numpy as np
 import sys, os
 sys.path.append('/home/jupyter/')
 
-hl.init(log='annotations_logging.log')
-
 from collections import Counter
 from textwrap import dedent
 
@@ -2216,9 +2214,13 @@ def process_flat_ht_slim(ht, mt_full, row_keep, col_keep, skip_vep):
 
 
 def main(args):  # noqa: D103
+    temp_dir = args.temp_dir
+    hl.init(
+        log='annotations_logging.log',
+        tmp_dir=f"file://{os.path.abspath(temp_dir)}",
+    )
     mt_path = args.mt_path
     output_dir = args.output_dir
-    temp_dir = args.temp_dir
     participant_data = args.participant_data
     vep_results = args.vep_results
     min_hom_threshold = args.min_hom_threshold
