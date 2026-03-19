@@ -2,7 +2,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputation {
     input {
-        String pipeline_version = "0.0.1"
+        String pipeline_version = "0.0.2"
 
         # List of files, one per line
         File reference_chunks
