@@ -31,7 +31,6 @@ workflow Glimpse2LowPassImputation {
         Int? n_main
         Int? effective_population_size
 
-        Int preemptible = 30
         String docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
         String docker_extract_num_sites_from_reference_chunk = "us.gcr.io/broad-dsde-methods/glimpse_extract_num_sites_from_reference_chunks:michaelgatzen_edc7f3a"
     }
@@ -120,7 +119,6 @@ workflow Glimpse2LowPassImputation {
                 sample_ids = sample_ids,
                 fasta = fasta,
                 fasta_index = fasta_index,
-                preemptible = preemptible,
                 docker = docker
         }
     }
@@ -316,7 +314,7 @@ task BcftoolsCall {
 
     runtime {
         docker: "us.gcr.io/broad-dsde-methods/vcfeval_docker:v1.1"
-        disks: "local-disk " + disk_size_gb + " HDD"
+        disks: "local-disk " + disk_size_gb + " SSD"
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
@@ -350,7 +348,7 @@ task BcftoolsNorm {
 
     runtime {
         docker: "us.gcr.io/broad-dsde-methods/vcfeval_docker:v1.1"
-        disks: "local-disk " + disk_size_gb + " HDD"
+        disks: "local-disk " + disk_size_gb + " SSD"
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
@@ -415,7 +413,7 @@ task GlimpsePhase {
         Int mem_gb = 16
         Int cpu = 4
         Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.003 * length(select_first([crams, []])) + 10)
-        Int preemptible = 9
+        Int preemptible = 30
         Int max_retries = 3
         String docker
     }
@@ -495,7 +493,7 @@ task GlimpsePhase {
 
     runtime {
         docker: docker
-        disks: "local-disk " + disk_size_gb + " HDD"
+        disks: "local-disk " + disk_size_gb + " SSD"
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
