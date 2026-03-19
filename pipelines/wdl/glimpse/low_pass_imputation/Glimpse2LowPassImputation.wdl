@@ -608,41 +608,6 @@ task CollectQCMetrics {
     }
 }
 
-task GetNumberOfSitesInChunk {
-    input {
-        File reference_chunk
-
-        String docker
-        Int mem_gb = 6
-        Int cpu = 1
-        Int disk_size_gb = ceil(size(reference_chunk, "GiB") + 10)
-        Int preemptible = 3
-        Int max_retries = 1
-    }
-
-    command <<<
-        set -xeuo pipefail
-        /bin/GLIMPSE2_extract_num_sites_from_reference_chunk ~{reference_chunk} > n_sites.txt
-        cat n_sites.txt
-        grep "Lrare" n_sites.txt | sed 's/Lrare=//' > n_rare.txt
-        grep "Lcommon" n_sites.txt | sed 's/Lcommon=//' > n_common.txt
-    >>>
-
-    runtime {
-        docker: docker
-        disks: "local-disk " + disk_size_gb + " HDD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: max_retries
-    }
-
-    output {
-        Int n_rare = read_int("n_rare.txt")
-        Int n_common = read_int("n_common.txt")
-    }
-}
-
 task CountSamples {
     input {
         File vcf
@@ -665,50 +630,6 @@ task CountSamples {
     }
     output {
         Int nSamples = read_int(stdout())
-    }
-}
-
-task SelectResourceParameters {
-    input {
-        Int n_rare
-        Int n_common
-        Int n_samples
-    }
-
-    command <<<
-        python3 << EOF
-        import math
-        n_rare = ~{n_rare}
-        n_common = ~{n_common}
-        n_samples = ~{n_samples}
-        n_sites = n_common + n_rare
-
-        # try to keep expected runtime under 4 hours, but don't ask for more than 32 cpus, or 256 GB memory
-        #estimated_needed_threads = min(math.ceil(5e-6*n_sites*n_samples/240), 32)
-        estimated_needed_threads = 1 # hard coded to one for testing by jsoto
-        estimated_needed_memory_gb = min(math.ceil((800e-3 + 0.97e-6 * n_rare * estimated_needed_threads + 14.6e-6 * n_common * estimated_needed_threads + 6.5e-9 * (n_rare + n_common) * n_samples + 13.7e-3 * n_samples + 1.8e-6*(n_rare + n_common)*math.log(n_samples))), 256)
-
-        # recalc allowable threads, may be some additional threads available due to rounding memory up
-        #threads_to_use = max(math.floor((estimated_needed_memory_gb - (800e-3 + 6.5e-9 * (n_rare + n_common) * n_samples + 13.7e-3 * n_samples + 1.8e-6*(n_rare + n_common)*math.log(n_samples)))/(0.97e-6 * n_rare + 14.6e-6 * n_common)), 1)
-        threads_to_use = 1 #hardcoded to 1 for testing by jsoto
-
-        #estimated_needed_memory_gb = math.ceil(1.2 * estimated_needed_memory_gb)
-
-        with open("n_cpus_request.txt", "w") as f_cpus_request:
-            f_cpus_request.write(f'{int(threads_to_use)}')
-
-        with open("memory_gb.txt", "w") as f_mem:
-            f_mem.write(f'{int(estimated_needed_memory_gb)}')
-        EOF
-    >>>
-
-    runtime {
-        docker : "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
-    }
-
-    output {
-        Int memory_gb = read_int("memory_gb.txt")
-        Int request_n_cpus = read_int("n_cpus_request.txt")
     }
 }
 
