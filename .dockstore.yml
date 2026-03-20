@@ -294,6 +294,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestJointGenotyping.wdl
 
+  - name: TestLowPassImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestLowPassImputationQC.wdl
+
   - name: TestMultiome
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestMultiome.wdl
