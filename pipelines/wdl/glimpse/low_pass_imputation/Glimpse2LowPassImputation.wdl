@@ -105,6 +105,7 @@ workflow Glimpse2LowPassImputation {
             contigs = contigs,
             n_samples = n_samples
     }
+
     scatter (reference_chunk_index in range(length(ComputeShardsAndMemoryPerShard.reference_chunk_file_paths))) {
 
         call GlimpsePhase {
