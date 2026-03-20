@@ -155,11 +155,11 @@ class TestConfig:
 PIPELINE_CONFIGS = {
     "mt_coverage_merge": lambda repo_root: TestConfig(
         workflow_wdl="all_of_us/mitochondria/mt_coverage_merge.wdl",
-        inputs_json="testing/inputs.json",
+        inputs_json="all_of_us/mitochondria/testing/inputs/mt_coverage_merge_inputs.json",
         docker=DockerConfig(
             prod_image="us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1",
             test_image="aou-mitochondrial-combine-vcfs-covdb:local-test",
-            dockerfile_dir="testing/aou-mitochondrial-combine-vcfs-covdb",
+            dockerfile_dir="all_of_us/mitochondria/testing/dockers/aou-mitochondrial-combine-vcfs-covdb",
         ),
         gcs=GCSConfig(),
         repo_root=repo_root,

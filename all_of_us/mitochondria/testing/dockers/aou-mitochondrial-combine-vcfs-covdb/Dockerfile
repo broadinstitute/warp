@@ -9,8 +9,8 @@
 #      `storage objects describe` to fake-gcs-server via curl.
 #
 # Build (from repo root):
-#   docker build -f testing/docker/Dockerfile \
-#     -t aou-mitochondrial-combine-vcfs-covdb:local-test testing/docker/
+#   docker build -f all_of_us/mitochondria/testing/dockers/aou-mitochondrial-combine-vcfs-covdb/Dockerfile \
+#     -t aou-mitochondrial-combine-vcfs-covdb:local-test all_of_us/mitochondria/testing/dockers/aou-mitochondrial-combine-vcfs-covdb/
 #
 # Used by run_test.sh: the test image is shadow-tagged as the production tag
 # before running miniwdl so miniwdl uses it transparently.

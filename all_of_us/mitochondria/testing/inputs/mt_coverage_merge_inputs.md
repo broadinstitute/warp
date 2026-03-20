@@ -1,6 +1,6 @@
-# inputs.json Documentation
+# mt_coverage_merge_inputs.json Documentation
 
-This file explains the structure and rationale behind the test workflow inputs in `inputs.json`.
+This file explains the structure and rationale behind the test workflow inputs in `mt_coverage_merge_inputs.json`.
 
 ## Input Categories
 
@@ -9,11 +9,11 @@ This file explains the structure and rationale behind the test workflow inputs i
 These are main workflow inputs that **miniwdl downloads/localizes before execution**:
 
 ```json
-"mt_coverage_merge.coverage_tsv": "testing/coverage.tsv",
-"mt_coverage_merge.ancestry_tsv": "testing/ancestry.tsv",
-"mt_coverage_merge.dob_tsv": "testing/dob.tsv",
-"mt_coverage_merge.wgs_median_coverage_tsv": "testing/wgs_median_coverage.tsv",
-"mt_coverage_merge.full_data_tsv": "testing/full_data.tsv"
+"mt_coverage_merge.coverage_tsv": "all_of_us/mitochondria/testing/mocks/coverage.tsv",
+"mt_coverage_merge.ancestry_tsv": "all_of_us/mitochondria/testing/mocks/ancestry.tsv",
+"mt_coverage_merge.dob_tsv": "all_of_us/mitochondria/testing/mocks/dob.tsv",
+"mt_coverage_merge.wgs_median_coverage_tsv": "all_of_us/mitochondria/testing/mocks/wgs_median_coverage.tsv",
+"mt_coverage_merge.full_data_tsv": "all_of_us/mitochondria/testing/mocks/full_data.tsv"
 ```
 
 **Why local paths?**
@@ -42,7 +42,7 @@ These are paths read **inside the Hail/Spark Docker image**, which expects GCS p
 
 ## Testing Flow
 
-1. **miniwdl reads inputs from inputs.json**
+1. **miniwdl reads inputs from mt_coverage_merge_inputs.json**
 2. **miniwdl localizes the main TSV files** (from local paths)
 3. **miniwdl runs the workflow**
 4. **Hail tasks run inside the test Docker image**
@@ -53,8 +53,7 @@ These are paths read **inside the Hail/Spark Docker image**, which expects GCS p
 
 ## Setting Up Test Data
 
-Test data is uploaded to fake-gcs-server by `testing/setup_fake_gcs.sh`:
+Test data is uploaded to fake-gcs-server by `all_of_us/mitochondria/testing/setup_fake_gcs.sh`:
 - Runs automatically if `run_test.sh` detects missing data
 - Uploads coverage files, VCF files, BED files, and mock resource files
 - Main TSV files (coverage.tsv, etc.) are NOT uploaded because inputs.json uses local paths for them
-

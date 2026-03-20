@@ -23,32 +23,61 @@ docker run -d -p 4443:4443 --name fake-gcs \
 
 **That's it!** `run_test.sh` will automatically:
 - Check that fake-gcs-server is running (fail with instructions if not)
-- Detect if test data is missing from fake-gcs-server and run `setup_fake_gcs.sh` if needed
-- Build the test Docker image from `testing/aou-mitochondrial-combine-vcfs-covdb/`
+- Detect if test data is missing from fake-gcs-server and run `all_of_us/mitochondria/testing/setup_fake_gcs.sh` if needed
+- Build the test Docker image from `all_of_us/mitochondria/testing/dockers/aou-mitochondrial-combine-vcfs-covdb/`
 - Patch the WDL to use the local test image
 
 ## Files
 
-### Input Data (TSVs)
+### Directory Structure
+
+```
+testing/
+├── mocks/                           # Mock data files for testing
+│   ├── coverage.tsv                # Metadata coverage table
+│   ├── coverage_s001.tsv          # Per-base mtDNA coverage (sample s001)
+│   ├── coverage_s002.tsv          # Per-base mtDNA coverage (sample s002)
+│   ├── ancestry.tsv               # Ancestry predictions
+│   ├── dob.tsv                    # Date of birth data
+│   ├── wgs_median_coverage.tsv    # WGS coverage
+│   ├── full_data.tsv              # Sample metadata and VCF references
+│   ├── s001.vcf                   # Minimal mtDNA VCF (sample s001)
+│   ├── s002.vcf                   # Minimal mtDNA VCF (sample s002)
+│   ├── blacklist_sites.hg38.chrM.bed # Artifact-prone regions BED
+│   ├── phylotree_mock.tsv         # Mock phylogenetic tree data
+│   ├── variant_context_mock.tsv   # Mock variant context data
+│   ├── pon_mt_trna_mock.tsv       # Mock tRNA PON data
+│   └── mitotip_mock.tsv           # Mock MitoTIP pathogenicity scores
+├── dockers/                        # Docker test images
+│   └── aou-mitochondrial-combine-vcfs-covdb/ # Docker test image
+├── inputs/                         # Input data for tests
+│   ├── mt_coverage_merge_inputs.json  # WDL input configuration
+│   └── mt_coverage_merge_inputs.md   # Input parameter documentation
+├── setup_fake_gcs.sh              # Script to setup fake-gcs test data
+└── README.md                       # This file
+```
+
+### Input Data (TSVs) in `mocks/` subdirectory
 - **full_data.tsv** - Main metadata table with sample IDs and references to other data
+  - Located in `mocks/`
   - Columns: research_id, contamination, coverage_metrics, final_base_level_coverage_metrics, major_haplogroup, mean_coverage, median_coverage, mtdna_consensus_overlaps, final_vcf
   - `coverage_metrics`: GCS path to per-base mtDNA coverage TSV for the sample
   - `final_base_level_coverage_metrics`: GCS path to per-base mtDNA coverage TSV (renamed to `coverage` in the workflow, which is the default column read by `build_coverage_db`)
   - Both coverage columns point to the same file in this test setup
 
-- **coverage.tsv** - Coverage data keyed by research_id
+- **coverage.tsv** - Coverage data keyed by research_id (in `mocks/`)
   - Columns: research_id, mean_coverage, biosample_collection_date, verify_bam_id2_contamination
 
-- **ancestry.tsv** - Genetic ancestry predictions
+- **ancestry.tsv** - Genetic ancestry predictions (in `mocks/`)
   - Columns: research_id, ancestry_pred
 
-- **dob.tsv** - Date of birth data
+- **dob.tsv** - Date of birth data (in `mocks/`)
   - Columns: research_id, date_of_birth
 
-- **wgs_median_coverage.tsv** - Whole-genome sequencing coverage
+- **wgs_median_coverage.tsv** - Whole-genome sequencing coverage (in `mocks/`)
   - Columns: research_id, median_coverage
 
-### Position-Level Coverage Data
+### Position-Level Coverage Data (in `mocks/` subdirectory)
 - **coverage_s001.tsv** - mtDNA position-level coverage for sample s001
   - Columns: position, coverage
   - Referenced in full_data.tsv as `gs://fake-bucket/coverage_s001.tsv`
@@ -57,7 +86,7 @@ docker run -d -p 4443:4443 --name fake-gcs \
   - Columns: position, coverage
   - Referenced in full_data.tsv as `gs://fake-bucket/coverage_s002.tsv`
 
-### Mock VCF Files
+### Mock VCF Files (in `mocks/` subdirectory)
 - **s001.vcf** - Minimal GRCh38 (`chrM`) VCF for sample s001
   - Includes all FORMAT fields required by `build_vcf_shard_mt` with `include_extra_v2_fields=true`:
     `GT`, `AD`, `DP`, `AF`, `MQ`, `TLOD`, `FT`, `F1R2`, `F2R1`, `MPOS`
@@ -71,7 +100,7 @@ docker run -d -p 4443:4443 --name fake-gcs \
 **Note:** These local files must be uploaded to fake-gcs-server before running tests.
 
 ### Configuration & Resources
-- **inputs.json** - WDL workflow inputs with two categories:
+- **mt_coverage_merge_inputs.json** - WDL workflow inputs with two categories:
 
   **Local paths (miniwdl-localized):**
   - `coverage_tsv`, `ancestry_tsv`, `dob_tsv`, `wgs_median_coverage_tsv`, `full_data_tsv`
@@ -112,11 +141,11 @@ The script then:
 After starting fake-gcs-server, run from the repository root on your host machine:
 
 ```bash
-# Run with default test inputs (mt_coverage_merge.wdl + testing/inputs.json)
+# Run with default test inputs (mt_coverage_merge.wdl + all_of_us/mitochondria/testing/inputs/mt_coverage_merge_inputs.json)
 ./run_test.sh
 
-# Run with custom workflow and inputs
-./run_test.sh . all_of_us/mitochondria/your_pipeline.wdl testing/your_custom_inputs.json
+# Run with custom workflow and test inputs
+./run_test.sh . all_of_us/mitochondria/your_pipeline.wdl all_of_us/mitochondria/testing/your_custom_inputs.json
 
 # Skip call cache cleanup (calls cache is always enabled)
 SKIP_CLEANUP=true ./run_test.sh
@@ -185,18 +214,18 @@ GCS connector nor `gcloud` respect `STORAGE_EMULATOR_HOST`.
 
 **Fix: local test Docker image** (`aou-mitochondrial-combine-vcfs-covdb:local-test`)
 
-`run_test.sh` now automatically builds this test image from `testing/aou-mitochondrial-combine-vcfs-covdb/` and
+`run_test.sh` now automatically builds this test image from `all_of_us/mitochondria/testing/dockers/aou-mitochondrial-combine-vcfs-covdb/` and
 shadow-tags it as the production image before running miniwdl. Only Docker images with test versions
-available (indicated by a corresponding directory under `testing/`) are patched during WDL processing.
+available (indicated by a corresponding directory under `all_of_us/mitochondria/testing/dockers/`) are patched during WDL processing.
 Two hooks are applied:
 
-1. **VCF pre-localizer** (`testing/aou-mitochondrial-combine-vcfs-covdb/build_vcf_shard_mt_wrapper.py`)  
+1. **VCF pre-localizer** (`all_of_us/mitochondria/testing/dockers/aou-mitochondrial-combine-vcfs-covdb/build_vcf_shard_mt_wrapper.py`)  
    Replaces `build_vcf_shard_mt.py` in the image. Before Hail runs, downloads every
    `gs://fake-bucket/*` VCF from fake-gcs-server to local disk (via `urllib` using
    `STORAGE_EMULATOR_HOST`), writes a patched shard TSV with local paths, then delegates
    to the original `build_vcf_shard_mt.py`. Hail reads local files — no GCS connector needed.
 
-2. **`gcloud` stub** (`testing/aou-mitochondrial-combine-vcfs-covdb/gcloud_stub.sh`)  
+2. **`gcloud` stub** (`all_of_us/mitochondria/testing/dockers/aou-mitochondrial-combine-vcfs-covdb/gcloud_stub.sh`)  
    Installed as `/usr/local/bin/gcloud`. Handles:
    - `gcloud storage cp <file> gs://fake-bucket/<obj>` → curl upload to fake-gcs
    - `gcloud storage objects describe gs://fake-bucket/<obj> --format=value(md5Hash)` → curl query
