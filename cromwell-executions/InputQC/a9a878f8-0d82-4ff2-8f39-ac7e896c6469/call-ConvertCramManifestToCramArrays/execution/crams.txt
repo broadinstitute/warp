@@ -1,0 +1,3 @@
+/Users/marymorg/scratch/imputation/manifest_test_inputs/fakeCram0.cram
+/Users/marymorg/scratch/imputation/manifest_test_inputs/fakeCram1.cram
+

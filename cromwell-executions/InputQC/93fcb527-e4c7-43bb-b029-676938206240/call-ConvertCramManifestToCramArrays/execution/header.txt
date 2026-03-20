@@ -1,0 +1,1 @@
+sample_id	cram_path	cram_index_path

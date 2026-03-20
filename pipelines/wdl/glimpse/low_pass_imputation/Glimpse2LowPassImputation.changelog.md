@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 0.0.5
 2026-04-03 (Date of Last Commit)
 
@@ -18,6 +19,12 @@
 2026-03-19 (Date of Last Commit)
 
 * Optimizations to pipeline to run faster and more cheaply using the aou + anvil reference panel
+=======
+# 0.0.2
+2026-03-20 (Date of Last Commit)
+
+* Add input_qc_version to parent wdl
+>>>>>>> f04774b20 (add changelog update)
 
 # 0.0.1
 2026-02-26 (Date of Last Commit)

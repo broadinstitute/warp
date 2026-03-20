@@ -1,0 +1,4 @@
+sample_id	cram_path	cram_index_path
+sample0	/Users/marymorg/scratch/imputation/manifest_test_inputs/fakeCram0.cram	/Users/marymorg/scratch/imputation/manifest_test_inputs/fakeCram0.cram.crai
+sample0	/Users/marymorg/scratch/imputation/manifest_test_inputs/fakeCram1.cram	/Users/marymorg/scratch/imputation/manifest_test_inputs/fakeCram1.cram.crai
+

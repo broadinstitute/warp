@@ -1,0 +1,71 @@
+#!/bin/bash
+
+cd /cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/execution
+tmpDir=$(mktemp -d "$PWD"/tmp.XXXXXX)
+chmod 777 "$tmpDir"
+export _JAVA_OPTIONS=-Djava.io.tmpdir="$tmpDir"
+export TMPDIR="$tmpDir"
+
+
+(
+cd /cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/execution
+
+)
+
+
+out01555707="${tmpDir}/out.$$" err01555707="${tmpDir}/err.$$"
+mkfifo "$out01555707" "$err01555707"
+trap 'rm "$out01555707" "$err01555707"' EXIT
+touch '/cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/execution/stdout' '/cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/execution/stderr'
+tee '/cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/execution/stdout' < "$out01555707" &
+tee '/cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/execution/stderr' < "$err01555707" >&2 &
+(
+cd /cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/execution
+
+
+# create empty qc messages file
+touch qc_messages.txt
+
+# convert the cram manifest into arrays of crams, cram indices, and sample ids
+head -n 1 /cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/inputs/1771176815/fakeCramManifestDuplicateSamples.tsv > header.txt
+
+sample_id_col=$(cat header.txt | tr '\t' '\n' | grep -n "^sample_id$" | cut -d: -f1)
+cram_path_col=$(cat header.txt | tr '\t' '\n' | grep -n "^cram_path$" | cut -d: -f1)
+cram_index_col=$(cat header.txt | tr '\t' '\n' | grep -n "^cram_index_path$" | cut -d: -f1)
+
+if [ -z "${sample_id_col}" ] || [ -z "${cram_path_col}" ] || [ -z "${cram_index_col}" ]; then
+    echo "Unable to determine column positions for sample_id, cram_path, or cram_index_path in the CRAM manifest." >> qc_messages.txt
+    echo "false" > passes_qc.txt
+    # create empty output files to ensure the task succeeds
+    touch crams.txt cram_indices.txt sample_ids.txt
+    exit 0
+fi
+
+tail -n +2 /cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/inputs/1771176815/fakeCramManifestDuplicateSamples.tsv | cut -f${sample_id_col} > sample_ids.txt
+tail -n +2 /cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/inputs/1771176815/fakeCramManifestDuplicateSamples.tsv | cut -f${cram_path_col} > crams.txt
+tail -n +2 /cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/inputs/1771176815/fakeCramManifestDuplicateSamples.tsv | cut -f${cram_index_col} > cram_indices.txt
+
+# passes_qc is true if qc_messages is empty
+if [ ! -s qc_messages.txt ]; then
+    echo "true" > passes_qc.txt
+else
+    echo "false" > passes_qc.txt
+fi
+
+# This task should always succeed
+exit 0
+)  > "$out01555707" 2> "$err01555707"
+echo $? > /cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/execution/rc.tmp
+(
+# add a .file in every empty directory to facilitate directory delocalization on the cloud
+cd /cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/execution
+find . -type d -exec sh -c '[ -z "$(ls -A '"'"'{}'"'"')" ] && touch '"'"'{}'"'"'/.file' \;
+)
+(
+cd /cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/execution
+sync
+
+
+)
+mv /cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/execution/rc.tmp /cromwell-executions/InputQC/01555707-73c0-423e-946b-17edd6229e02/call-ConvertCramManifestToCramArrays/execution/rc
+
