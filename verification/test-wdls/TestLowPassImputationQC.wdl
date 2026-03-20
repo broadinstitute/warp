@@ -26,6 +26,11 @@ workflow TestLowPassImputationQC {
         String output_basename
 
         File ref_dict
+
+        # These values will be determined and injected into the inputs by the scala test framework
+        String truth_path
+        String results_path
+        Boolean update_truth
     }
 
     meta {
@@ -47,16 +52,6 @@ workflow TestLowPassImputationQC {
         fasta_index = fasta_index,
         output_basename = output_basename,
         ref_dict = ref_dict
-    }
-
-    # Write pipeline outputs into json file so we can compare to truth
-    call WriteMapToTsv {
-      input:
-        input_map = {
-          "passes_qc": InputQC.passes_qc,
-          "qc_messages": InputQC.qc_messages
-        }
-    }
     }
 
     # Write pipeline outputs into json file so we can compare to truth
@@ -93,7 +88,7 @@ workflow TestLowPassImputationQC {
             truth_path = truth_path
         }
 
-      call VerifyArrayImputationQC.VerifyArrayImputationQC as Verify {
+      call VerifyLowPassImputationQC.VerifyLowPassImputationQC as Verify {
         input:
           truth_outputs = GetOutputs.truth_file, 
           test_outputs = GetOutputs.results_file,

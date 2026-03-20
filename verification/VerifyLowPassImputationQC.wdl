@@ -1,7 +1,5 @@
 version 1.0
 
-import "../verification/VerifyTasks.wdl" as Tasks
-
 ## Copyright Broad Institute, 2018
 ##
 ## This WDL script is designed to verify (compare) the outputs of a LowPassImputationQC wdl.
