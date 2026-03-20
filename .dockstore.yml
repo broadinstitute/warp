@@ -129,6 +129,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/pgx/LocalizeAndConcatStargazer.wdl
 
+  - name: LowPassImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/input_qc/LowPassImputationQC.wdl
+
   - name: MakeTable
     subclass: WDL
     primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
