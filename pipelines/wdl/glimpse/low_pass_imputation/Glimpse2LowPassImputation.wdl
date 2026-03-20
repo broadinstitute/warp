@@ -10,8 +10,6 @@ workflow Glimpse2LowPassImputation {
         File sites_table
         File sites_table_index
 
-        Int calling_batch_size = 100
-
         Array[String] contigs
 
         File? input_vcf
@@ -30,6 +28,9 @@ workflow Glimpse2LowPassImputation {
         Int? n_burnin
         Int? n_main
         Int? effective_population_size
+
+        # batch size used when calling SplitIntoBatches to make variant calls from the crams
+        Int calling_batch_size = 100
 
         String docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
         String docker_extract_num_sites_from_reference_chunk = "us.gcr.io/broad-dsde-methods/glimpse_extract_num_sites_from_reference_chunks:michaelgatzen_edc7f3a"
