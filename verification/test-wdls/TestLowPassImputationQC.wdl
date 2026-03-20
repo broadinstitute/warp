@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../pipelines/wdl/glimpse/low_pass_imputation/input_qc/LowpassImputationQC.wdl" as LowpassImputationQC
+import "../../pipelines/wdl/glimpse/low_pass_imputation/input_qc/LowPassImputationQC.wdl" as LowPassImputationQC
 import "../../verification/VerifyLowPassImputationQC.wdl" as VerifyLowPassImputationQC
 import "../../tasks/wdl/Utilities.wdl" as Utilities
 import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
@@ -37,7 +37,7 @@ workflow TestLowPassImputationQC {
       allowNestedInputs: true
     }
   
-    call LowpassImputationQC.InputQC {
+    call LowPassImputationQC.InputQC {
       input:
         reference_chunks = reference_chunks,
         sites_vcf = sites_vcf,
