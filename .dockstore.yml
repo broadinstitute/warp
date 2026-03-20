@@ -85,6 +85,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputation.wdl
 
+  - name: Glimpse2LowPassImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/input_qc/Glimpse2LowPassImputationQC.wdl
+
   - name: Glimpse2LowPassImputationQuotaConsumed
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationQuotaConsumed.wdl
@@ -128,10 +132,6 @@ workflows:
   - name: LocalizeAndConcatStargazer
     subclass: WDL
     primaryDescriptorPath: /all_of_us/pgx/LocalizeAndConcatStargazer.wdl
-
-  - name: LowPassImputationQC
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/input_qc/LowPassImputationQC.wdl
 
   - name: MakeTable
     subclass: WDL
@@ -277,6 +277,10 @@ workflows:
   - name: TestExomeReprocessing
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestExomeReprocessing.wdl
+
+  - name: TestGlimpse2LowPassImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestGlimpse2LowPassImputationQC.wdl
 
   - name: TestIlluminaGenotypingArray
     subclass: WDL
