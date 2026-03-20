@@ -5,7 +5,7 @@ This directory contains test files for running `mt_coverage_merge.wdl` locally w
 ## Prerequisites
 
 ### fake-gcs-server
-The test workflow references files in Google Cloud Storage (GCS), which are mocked by [fake-gcs-server](https://github.com/fsouza/fake-gcs-server).
+The test workflow references files in Google Cloud Storage (GCS), which are mocked by [fake-gcs-server](https://github.com/fsouza/fake-gcs-server). You must start this before running tests.
 
 **Start fake-gcs-server before running tests:**
 
@@ -21,13 +21,11 @@ docker run -d -p 4443:4443 --name fake-gcs \
 > gcsfs would fail to reach fake-gcs-server on any redirect. `host.docker.internal` is
 > Docker Desktop's DNS alias for the host machine and works from both host and containers.
 
-The test script will automatically check for fake-gcs-server availability at startup and fail with instructions if it's not running.
-
-**Setup test data in fake-gcs-server:**
-
-```bash
-testing/setup_fake_gcs.sh ~/codes/misc/warp
-```
+**That's it!** `run_test.sh` will automatically:
+- Check that fake-gcs-server is running (fail with instructions if not)
+- Detect if test data is missing from fake-gcs-server and run `setup_fake_gcs.sh` if needed
+- Build the test Docker image from `testing/aou-mitochondrial-combine-vcfs-covdb/`
+- Patch the WDL to use the local test image
 
 ## Files
 
@@ -72,69 +70,77 @@ testing/setup_fake_gcs.sh ~/codes/misc/warp
 
 **Note:** These local files must be uploaded to fake-gcs-server before running tests.
 
-### Configuration
-- **inputs.json** - WDL workflow inputs pointing to test TSV files
-  - Uses GCS paths (e.g., `gs://fake-bucket/...`) that are resolved to fake-gcs-server
+### Configuration & Resources
+- **inputs.json** - WDL workflow inputs with two categories:
 
-## Setting Up fake-gcs-server
+  **Local paths (miniwdl-localized):**
+  - `coverage_tsv`, `ancestry_tsv`, `dob_tsv`, `wgs_median_coverage_tsv`, `full_data_tsv`
+  - These are workflow metadata inputs that miniwdl downloads/localizes before execution
+  - Using local file paths avoids requiring the cloud-sdk Docker image
+  - In production on Terra, these would be gs:// paths (and Cromwell would handle localization)
+  
+  **GCS paths (Hail-accessed):**
+  - `step3_output_bucket` - Output target for Hail tasks
+  - `artifact_prone_sites_path` - BED files accessed by Hail/Spark tasks
+  - These paths are read inside the Hail Docker image, which expects gs:// URIs
+  - For testing, the `STORAGE_EMULATOR_HOST` env var redirects gs:// requests to fake-gcs-server
+  - The test Docker image pre-localizers download these files for Hail
 
-### 1. Start the server
+- **blacklist_sites.hg38.chrM.bed** - BED file with blacklisted genomic regions (uploaded to fake-gcs, accessed via gs:// by Hail)
+- **phylotree_mock.tsv** - Mock phylogenetic tree data (for annotation, not yet used in tests)
+- **pon_mt_trna_mock.tsv** - Panel of normals tRNA variants (for annotation, not yet used in tests)
+- **variant_context_mock.tsv** - Mock variant context data (for annotation, not yet used in tests)
+- **mitotip_mock.tsv** - Mock MitoTip pathogenicity scores (not yet used in tests)
 
-```bash
-docker run -d -p 4443:4443 --name fake-gcs \
-  fsouza/fake-gcs-server -scheme http \
-  -external-url http://host.docker.internal:4443 \
-  -public-host host.docker.internal:4443
-```
+## How It Works
 
-### 2. Setup test data in fake-gcs-server
+### Setup Flow
 
-Run the setup script to create the test bucket and upload coverage files:
+1. **Start fake-gcs-server** (see Prerequisites above)
+2. **Run `run_test.sh`** from the repository root on your host machine
 
-```bash
-testing/setup_fake_gcs.sh ~/codes/misc/warp
-```
-
-This script:
-- Verifies fake-gcs-server is running
-- Creates the `fake-bucket` bucket
-- Uploads `coverage_s001.tsv` and `coverage_s002.tsv` to the bucket
-
-After setup completes, you can run the workflow tests.
+The script then:
+1. **Verifies fake-gcs-server** is running at http://host.docker.internal:4443
+2. **Checks for test data** by querying fake-gcs-server for required files
+3. **Runs automatic setup** if test data is missing (runs `testing/setup_fake_gcs.sh`)
+4. **Builds the test Docker image** from `testing/aou-mitochondrial-combine-vcfs-covdb/`
+5. **Patches the WDL** to use local test images (only for images with test versions)
+6. **Runs miniwdl** with the patched workflow
 
 ## Running Tests
 
-From the repository root on your host machine:
+After starting fake-gcs-server, run from the repository root on your host machine:
 
 ```bash
-# Run with default test inputs
-~/codes/misc/warp/run_test.sh ~/codes/misc/warp
+# Run with default test inputs (mt_coverage_merge.wdl + testing/inputs.json)
+./run_test.sh
 
-# Run with specific test inputs
-~/codes/misc/warp/run_test.sh ~/codes/misc/warp all_of_us/mitochondria/mt_coverage_merge.wdl testing/inputs.json
+# Run with custom workflow and inputs
+./run_test.sh . all_of_us/mitochondria/your_pipeline.wdl testing/your_custom_inputs.json
 
-# Skip cache cleanup
-SKIP_CLEANUP=true ~/codes/misc/warp/run_test.sh ~/codes/misc/warp
+# Skip call cache cleanup (calls cache is always enabled)
+SKIP_CLEANUP=true ./run_test.sh
 
-# Get help
-~/codes/misc/warp/run_test.sh -h
+# Force fake-gcs test data reset
+RESET_FAKE_GCS=true ./run_test.sh
+
+# Skip Docker image build (use existing test image)
+SKIP_BUILD=true ./run_test.sh
 ```
 
 ## Test Coverage
 
 Verified working tasks:
 - ✅ `process_tsv_files` - TSV merging and data transformation
-- ✅ `make_vcf_shards_from_tsv` - VCF shard creation
-- ✅ `annotate_coverage` - Fixed: use `host.docker.internal` for fake-gcs `-public-host`
+- ✅ `make_vcf_shards_from_tsv` - VCF shard creation from full_data.tsv
+- ✅ `annotate_coverage` - Coverage TSV annotation via gcsfs (with fake-gcs support)
+- ✅ `build_vcf_shard_mt` - Hail VCF shard building (via local test Docker image with pre-localizer)
 
 Currently failing / not yet reached:
-- ⏳ `build_vcf_shard_mt` - local test Docker image pre-localizes VCFs + stubs gcloud (in progress)
-- ⏳ `merge_mt_shards`, `finalize_mt_with_covdb` - blocked on `build_vcf_shard_mt`
-- ⏳ `combine_vcfs_and_homref_from_covdb`, `add_annotations` - downstream of above
-
-Not yet reached (downstream):
-- ⏳ `build_vcf_shard_mt`, `merge_mt_shards`, `finalize_mt_with_covdb`
-- ⏳ `combine_vcfs_and_homref_from_covdb`, `add_annotations`
+- ⏳ `merge_mt_shards` - MatrixTable merge (requires real Hail/Spark setup)
+- ⏳ `finalize_mt_with_covdb` - Coverage database finalization
+- ⏳ `combine_vcfs_and_homref_from_covdb` - VCF combining and homref addition
+- ⏳ `add_annotations` - Resource file annotation (phylotree, variant context, etc.)
 
 ## Known Issues
 
@@ -179,16 +185,18 @@ GCS connector nor `gcloud` respect `STORAGE_EMULATOR_HOST`.
 
 **Fix: local test Docker image** (`aou-mitochondrial-combine-vcfs-covdb:local-test`)
 
-`run_test.sh` now automatically builds this test image from `testing/docker/` and
-shadow-tags it as the production image before running miniwdl. Two hooks are applied:
+`run_test.sh` now automatically builds this test image from `testing/aou-mitochondrial-combine-vcfs-covdb/` and
+shadow-tags it as the production image before running miniwdl. Only Docker images with test versions
+available (indicated by a corresponding directory under `testing/`) are patched during WDL processing.
+Two hooks are applied:
 
-1. **VCF pre-localizer** (`testing/docker/build_vcf_shard_mt_wrapper.py`)  
+1. **VCF pre-localizer** (`testing/aou-mitochondrial-combine-vcfs-covdb/build_vcf_shard_mt_wrapper.py`)  
    Replaces `build_vcf_shard_mt.py` in the image. Before Hail runs, downloads every
    `gs://fake-bucket/*` VCF from fake-gcs-server to local disk (via `urllib` using
    `STORAGE_EMULATOR_HOST`), writes a patched shard TSV with local paths, then delegates
    to the original `build_vcf_shard_mt.py`. Hail reads local files — no GCS connector needed.
 
-2. **`gcloud` stub** (`testing/docker/gcloud_stub.sh`)  
+2. **`gcloud` stub** (`testing/aou-mitochondrial-combine-vcfs-covdb/gcloud_stub.sh`)  
    Installed as `/usr/local/bin/gcloud`. Handles:
    - `gcloud storage cp <file> gs://fake-bucket/<obj>` → curl upload to fake-gcs
    - `gcloud storage objects describe gs://fake-bucket/<obj> --format=value(md5Hash)` → curl query

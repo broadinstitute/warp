@@ -80,6 +80,34 @@ find_latest_run_dir() {
     ls -dt [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_*_mt_coverage_merge 2>/dev/null | head -1
 }
 
+# Patch WDL file to use test docker images instead of production images
+# This creates a temporary copy of the WDL with docker tags replaced.
+# Only patches docker images that have test versions available (indicated by
+# the presence of a corresponding test image directory in testing/).
+patch_wdl_for_testing() {
+    local original_wdl="$1"
+    local patched_wdl="$REPO_DIR/tmp/$(basename "$original_wdl" .wdl).test.wdl"
+    
+    if [ ! -f "$original_wdl" ]; then
+        echo -e "${RED}✗ WDL file not found: $original_wdl${NC}"
+        return 1
+    fi
+    
+    mkdir -p "$REPO_DIR/tmp"
+    
+    # Copy and patch docker image references
+    cp "$original_wdl" "$patched_wdl"
+    
+    # Replace production docker images with test images only if a test version exists.
+    # Check for corresponding test image directories in testing/ to determine which
+    # images have test versions available.
+    if [ -d "$REPO_DIR/testing/aou-mitochondrial-combine-vcfs-covdb" ]; then
+        sed -i '' 's|us\.gcr\.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:[0-9.]*|aou-mitochondrial-combine-vcfs-covdb:local-test|g' "$patched_wdl"
+    fi
+    
+    echo "$patched_wdl"
+}
+
 # Ensure required test objects exist in fake-gcs-server.
 # If any are missing, run setup_fake_gcs.sh to upload them.
 # If RESET_FAKE_GCS is set, always re-run setup to overwrite existing data.
@@ -116,7 +144,7 @@ ensure_fake_gcs_data() {
 # digest stable run-to-run, which is required for miniwdl's call cache to hit.
 build_test_image() {
     echo -e "${YELLOW}Building local test image (${HAIL_TEST_IMAGE})...${NC}"
-    if docker build -t "$HAIL_TEST_IMAGE" "$REPO_DIR/testing/docker" 2>&1 \
+    if docker build -t "$HAIL_TEST_IMAGE" "$REPO_DIR/testing/aou-mitochondrial-combine-vcfs-covdb" 2>&1 \
             | tail -5; then
         echo -e "${GREEN}✓ Test image built${NC}"
     else
@@ -231,7 +259,13 @@ put = true
 dir = $CALL_CACHE_DIR
 CFGEOF
 
-    if miniwdl run "$WORKFLOW" -i "$INPUTS" \
+    # Patch WDL to use test docker images
+    echo -e "${YELLOW}Patching WDL docker images for testing...${NC}"
+    PATCHED_WORKFLOW=$(patch_wdl_for_testing "$WORKFLOW") || { restore_docker_config; return 1; }
+    echo -e "${GREEN}✓ WDL patched: $PATCHED_WORKFLOW${NC}"
+    echo ""
+
+    if miniwdl run "$PATCHED_WORKFLOW" -i "$INPUTS" \
         --cfg "$MINIWDL_CFG" \
         --env STORAGE_EMULATOR_HOST=http://host.docker.internal:4443; then
         echo -e "${GREEN}✓ Workflow completed successfully!${NC}"
