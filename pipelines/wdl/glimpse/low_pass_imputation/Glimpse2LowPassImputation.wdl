@@ -2,17 +2,13 @@ version 1.0
 
 workflow Glimpse2LowPassImputation {
     input {
-        String pipeline_version = "0.0.1"
+        String pipeline_version = "0.0.2"
 
         # List of files, one per line
         File reference_chunks
         File sites_vcf
         File sites_table
         File sites_table_index
-
-        Int bcftools_threads = 1
-        Int calling_batch_size = 200
-        Int calling_mem_gb = 6
 
         Array[String] contigs
 
@@ -33,13 +29,11 @@ workflow Glimpse2LowPassImputation {
         Int? n_main
         Int? effective_population_size
 
-        Int preemptible = 30
+        # batch size used when calling SplitIntoBatches to make variant calls from the crams
+        Int calling_batch_size = 100
+
         String docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
         String docker_extract_num_sites_from_reference_chunk = "us.gcr.io/broad-dsde-methods/glimpse_extract_num_sites_from_reference_chunks:michaelgatzen_edc7f3a"
-        Int cpu_ligate = 4
-        Int mem_gb_ligate = 4
-        Int? cpu_phase
-        Int? mem_gb_phase
     }
 
     if (defined(input_vcf)) {
@@ -66,7 +60,7 @@ workflow Glimpse2LowPassImputation {
         Array[Array[String]] sample_ids_batches = select_first([SplitIntoBatches.sample_ids_batches, [select_first([sample_ids])]])
 
         scatter(i in range(length(crams_batches))) {
-            call BcftoolsCall {
+            call BcftoolsMpileup {
                 input:
                     crams = crams_batches[i],
                     cram_indices = cram_indices_batches[i],
@@ -75,24 +69,32 @@ workflow Glimpse2LowPassImputation {
                     fasta_index = fasta_index,
                     call_indels = call_indels,
                     sites_vcf = sites_vcf,
+            }
+
+            call BcftoolsCall {
+                input:
+                    mpileup_bcf = BcftoolsMpileup.output_bcf,
                     sites_table = sites_table,
                     sites_table_index = sites_table_index,
-                    cpu = bcftools_threads,
-                    mem_gb = calling_mem_gb
+            }
+
+            call BcftoolsNorm {
+                input:
+                    calls_bcf = BcftoolsCall.output_bcf,
             }
         }
 
-        if (length(BcftoolsCall.output_vcf) > 1) {
+        if (length(BcftoolsNorm.output_vcf) > 1) {
             call BcftoolsMerge {
                 input:
-                    vcfs = BcftoolsCall.output_vcf,
-                    vcf_indices = BcftoolsCall.output_vcf_index,
+                    vcfs = BcftoolsNorm.output_vcf,
+                    vcf_indices = BcftoolsNorm.output_vcf_index,
                     output_basename = output_basename
             }
         }
 
-        File merged_vcf = select_first([BcftoolsMerge.merged_vcf, BcftoolsCall.output_vcf[0]])
-        File merged_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, BcftoolsCall.output_vcf_index[0]])
+        File merged_vcf = select_first([BcftoolsMerge.merged_vcf, BcftoolsNorm.output_vcf[0]])
+        File merged_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, BcftoolsNorm.output_vcf_index[0]])
     }
 
     ## this task is used to grab the reference chunk but does not affect memory usage of glimpsePhase.
@@ -104,34 +106,11 @@ workflow Glimpse2LowPassImputation {
             n_samples = n_samples
     }
 
-    scatter (reference_chunk in ComputeShardsAndMemoryPerShard.reference_chunk_file_paths) {
-        if (!defined(cpu_phase) || !defined(mem_gb_phase)) {
-            call GetNumberOfSitesInChunk {
-                input:
-                    reference_chunk = reference_chunk,
-                    docker = docker_extract_num_sites_from_reference_chunk
-            }
-
-            Int n_rare = GetNumberOfSitesInChunk.n_rare
-            Int n_common = GetNumberOfSitesInChunk.n_common
-
-            call SelectResourceParameters {
-                input:
-                    n_rare = n_rare,
-                    n_common = n_common,
-                    n_samples = n_samples
-            }
-
-            if (SelectResourceParameters.memory_gb > 256 || SelectResourceParameters.request_n_cpus > 32) {
-                # force failure if we're accidently going to request too much resources and spend too much money
-                Int safety_check_memory_gb = -1
-                Int safety_check_n_cpu = -1
-            }
-        }
+    scatter (reference_chunk_index in range(length(ComputeShardsAndMemoryPerShard.reference_chunk_file_paths))) {
 
         call GlimpsePhase {
             input:
-                reference_chunk = reference_chunk,
+                reference_chunk = ComputeShardsAndMemoryPerShard.reference_chunk_file_paths[reference_chunk_index],
                 input_vcf = select_first([merged_vcf,input_vcf]),
                 input_vcf_index = select_first([merged_vcf_index,input_vcf_index]),
                 impute_reference_only_variants = impute_reference_only_variants,
@@ -142,10 +121,7 @@ workflow Glimpse2LowPassImputation {
                 sample_ids = sample_ids,
                 fasta = fasta,
                 fasta_index = fasta_index,
-                preemptible = preemptible,
-                docker = docker,
-                cpu = select_first([cpu_phase, safety_check_n_cpu, SelectResourceParameters.request_n_cpus]),
-                mem_gb = select_first([mem_gb_phase, safety_check_memory_gb, SelectResourceParameters.memory_gb])
+                docker = docker
         }
     }
 
@@ -155,9 +131,7 @@ workflow Glimpse2LowPassImputation {
             imputed_chunks_indices = GlimpsePhase.imputed_vcf_index,
             output_basename = output_basename,
             ref_dict = ref_dict,
-            docker = docker,
-            cpu = cpu_ligate,
-            mem_gb = mem_gb_ligate,
+            docker = docker
     }
 
     if (length(select_all(GlimpsePhase.coverage_metrics)) > 0) {
@@ -271,7 +245,7 @@ task ComputeShardsAndMemoryPerShard {
     }
 }
 
-task BcftoolsCall {
+task BcftoolsMpileup {
     input {
         Array[File] crams
         Array[File] cram_indices
@@ -281,15 +255,14 @@ task BcftoolsCall {
         Array[String] sample_ids
 
         File sites_vcf
-        File sites_table
-        File sites_table_index
 
+        Int seed = 12345
         Int mem_gb = 4
-        Int cpu = 2
+        Int cpu = 1
         Int preemptible = 0
     }
 
-    Int disk_size_gb = ceil(1.5*size(crams, "GiB") + size(fasta, "GiB") + size(sites_table, "GiB")) + 10
+    Int disk_size_gb = ceil(1.5*size(crams, "GiB") + size(fasta, "GiB") + size(sites_vcf, "GiB")) + 10
 
     String out_basename = "batch"
 
@@ -303,15 +276,81 @@ task BcftoolsCall {
             echo "* ${crams[$i]} ${sample_ids[$i]}" >> sample_name_mapping.txt
         done
 
-        bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I" else ""} -G sample_name_mapping.txt -E -a 'FORMAT/DP,FORMAT/AD' -T ~{sites_vcf} -Ou ~{sep=" " crams} \
-        | bcftools call -Aim -C alleles -T ~{sites_table} -Ou - \
-        | bcftools norm -m -both -Oz -o ~{out_basename}.vcf.gz -
-        bcftools index -t ~{out_basename}.vcf.gz
+        bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I" else ""} -G sample_name_mapping.txt --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -T ~{sites_vcf} -Ou -o mpileup.bcf ~{sep=" " crams}
     >>>
 
     runtime {
         docker: "us.gcr.io/broad-dsde-methods/vcfeval_docker:v1.1"
         disks: "local-disk " + disk_size_gb + " HDD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+    }
+
+    output {
+        File output_bcf = "mpileup.bcf"
+    }
+}
+
+task BcftoolsCall {
+    input {
+        File mpileup_bcf
+
+        File sites_table
+        File sites_table_index
+
+        Int mem_gb = 4
+        Int cpu = 1
+        Int preemptible = 3
+    }
+
+    Int disk_size_gb = ceil(3*size(mpileup_bcf, "GiB") + size(sites_table, "GiB")) + 10
+
+    String out_basename = "batch"
+
+    command <<<
+        set -xeuo pipefail
+
+        bcftools call -Aim -C alleles -T ~{sites_table} -Ou ~{mpileup_bcf} -o calls.bcf
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/vcfeval_docker:v1.1"
+        disks: "local-disk " + disk_size_gb + " SSD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+    }
+
+    output {
+        File output_bcf = "calls.bcf"
+    }
+}
+
+task BcftoolsNorm {
+    input {
+        File calls_bcf
+
+        Int mem_gb = 4
+        Int cpu = 1
+        Int preemptible = 3
+    }
+
+    Int disk_size_gb = ceil(3*size(calls_bcf, "GiB")) + 10
+
+    String out_basename = "batch"
+
+    command <<<
+        set -xeuo pipefail
+
+
+        bcftools norm -m -both -Oz -o ~{out_basename}.vcf.gz ~{calls_bcf}
+        bcftools index -t ~{out_basename}.vcf.gz
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/vcfeval_docker:v1.1"
+        disks: "local-disk " + disk_size_gb + " SSD"
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
@@ -373,10 +412,10 @@ task GlimpsePhase {
         Int? n_main
         Int? effective_population_size
 
-        Int mem_gb = 4
+        Int mem_gb = 16
         Int cpu = 4
         Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.003 * length(select_first([crams, []])) + 10)
-        Int preemptible = 9
+        Int preemptible = 30
         Int max_retries = 3
         String docker
     }
@@ -386,6 +425,12 @@ task GlimpsePhase {
                    localization_optional: true
                }
         cram_indices: {
+                          localization_optional: true
+                      }
+        input_vcf: {
+                   localization_optional: true
+               }
+        input_vcf_index: {
                           localization_optional: true
                       }
     }
@@ -450,7 +495,7 @@ task GlimpsePhase {
 
     runtime {
         docker: docker
-        disks: "local-disk " + disk_size_gb + " HDD"
+        disks: "local-disk " + disk_size_gb + " SSD"
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
@@ -472,9 +517,9 @@ task GlimpseLigate {
         String output_basename
         File ref_dict
 
-        Int mem_gb = 6
+        Int mem_gb = 4
         Int cpu = 2
-        Int disk_size_gb = ceil(2.2 * size(imputed_chunks, "GiB") + 100)
+        Int disk_size_gb = ceil(3 * size(imputed_chunks, "GiB") + 100)
         Int preemptible = 0
         Int max_retries = 3
         String docker
@@ -565,41 +610,6 @@ task CollectQCMetrics {
     }
 }
 
-task GetNumberOfSitesInChunk {
-    input {
-        File reference_chunk
-
-        String docker
-        Int mem_gb = 6
-        Int cpu = 1
-        Int disk_size_gb = ceil(size(reference_chunk, "GiB") + 10)
-        Int preemptible = 3
-        Int max_retries = 1
-    }
-
-    command <<<
-        set -xeuo pipefail
-        /bin/GLIMPSE2_extract_num_sites_from_reference_chunk ~{reference_chunk} > n_sites.txt
-        cat n_sites.txt
-        grep "Lrare" n_sites.txt | sed 's/Lrare=//' > n_rare.txt
-        grep "Lcommon" n_sites.txt | sed 's/Lcommon=//' > n_common.txt
-    >>>
-
-    runtime {
-        docker: docker
-        disks: "local-disk " + disk_size_gb + " HDD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: max_retries
-    }
-
-    output {
-        Int n_rare = read_int("n_rare.txt")
-        Int n_common = read_int("n_common.txt")
-    }
-}
-
 task CountSamples {
     input {
         File vcf
@@ -622,50 +632,6 @@ task CountSamples {
     }
     output {
         Int nSamples = read_int(stdout())
-    }
-}
-
-task SelectResourceParameters {
-    input {
-        Int n_rare
-        Int n_common
-        Int n_samples
-    }
-
-    command <<<
-        python3 << EOF
-        import math
-        n_rare = ~{n_rare}
-        n_common = ~{n_common}
-        n_samples = ~{n_samples}
-        n_sites = n_common + n_rare
-
-        # try to keep expected runtime under 4 hours, but don't ask for more than 32 cpus, or 256 GB memory
-        #estimated_needed_threads = min(math.ceil(5e-6*n_sites*n_samples/240), 32)
-        estimated_needed_threads = 1 # hard coded to one for testing by jsoto
-        estimated_needed_memory_gb = min(math.ceil((800e-3 + 0.97e-6 * n_rare * estimated_needed_threads + 14.6e-6 * n_common * estimated_needed_threads + 6.5e-9 * (n_rare + n_common) * n_samples + 13.7e-3 * n_samples + 1.8e-6*(n_rare + n_common)*math.log(n_samples))), 256)
-
-        # recalc allowable threads, may be some additional threads available due to rounding memory up
-        #threads_to_use = max(math.floor((estimated_needed_memory_gb - (800e-3 + 6.5e-9 * (n_rare + n_common) * n_samples + 13.7e-3 * n_samples + 1.8e-6*(n_rare + n_common)*math.log(n_samples)))/(0.97e-6 * n_rare + 14.6e-6 * n_common)), 1)
-        threads_to_use = 1 #hardcoded to 1 for testing by jsoto
-
-        #estimated_needed_memory_gb = math.ceil(1.2 * estimated_needed_memory_gb)
-
-        with open("n_cpus_request.txt", "w") as f_cpus_request:
-            f_cpus_request.write(f'{int(threads_to_use)}')
-
-        with open("memory_gb.txt", "w") as f_mem:
-            f_mem.write(f'{int(estimated_needed_memory_gb)}')
-        EOF
-    >>>
-
-    runtime {
-        docker : "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
-    }
-
-    output {
-        Int memory_gb = read_int("memory_gb.txt")
-        Int request_n_cpus = read_int("n_cpus_request.txt")
     }
 }
 
