@@ -3,8 +3,8 @@ workflows:
 
   - name: aggregate_rsem_results
     subclass: WDL
-    primaryDescriptorPath: /all_of_us/rna_seq/aggregate_rsem_results.wdl
-
+    primaryDescriptorPath: /all_of_us/rna_seq/GTEx/aggregate_rsem_results.wdl
+ 
   - name: AggregateSusieWorkflow
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/AggregateSusieWorkflow.wdl
@@ -30,6 +30,16 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/build_indices/BuildIndices.wdl
 
+  
+  - name: calculateAF
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/calculateAF.wdl
+  
+  
+  - name: calulateGenotypeDosage
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/calculateGenotypeDosage.wdl
+  
   - name: CalculatePhenotypeGroups
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/CalculatePhenotypeGroups.wdl
@@ -58,6 +68,11 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/exome/ExomeReprocessing.wdl
 
+  
+  - name: FilterMTAndExportToVCF
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/MTtoVCF/FilterMTAndExportToVCF.wdl
+  
   - name: FilterandQCVariants
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
@@ -144,13 +159,18 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/peak_calling/PeakCalling.wdl
 
+  
+  - name: PrepareGenotypes
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/PrepareGenotypes.wdl
+  
   - name: ReblockGVCF
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl
 
   - name: rnaseq_aou
     subclass: WDL
-    primaryDescriptorPath: /all_of_us/rna_seq/rnaseq_aou.wdl
+    primaryDescriptorPath: /all_of_us/rna_seq/GTEx/rnaseq_aou.wdl
 
   - name: RNAWithUMIsPipeline
     subclass: WDL
@@ -220,7 +240,12 @@ workflows:
   - name: SusieR_Workflow
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/susieR_workflow.wdl
-
+  
+  - name: tensorqtl_cis_permutations
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/tensorQTL_cis_permutations/tensorqtl_cis_permutations.wdl
+  
+  
   - name: TestArrayImputationQC
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestArrayImputationQC.wdl

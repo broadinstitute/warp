@@ -4,7 +4,7 @@ This README describes the end-to-end workflow for preparing genotypes, generatin
 
 All workflows referenced here are implemented as WDLs in **WARP**.
 
-The *original versions* of these workflows were either created by the GTEx Consortium (see their [GTEx GitHub repository](https://github.com/broadinstitute/gtex-pipeline/tree/master?tab=readme-ov-file)) or the lab for  **Dr. Stephen Montgomery Lab** at Stanford University, with major contributions from **Evin Padhi** and **Jon Nguyen**. Their work formed the foundation for the integrated analysis pipeline described here. Portions of the logic originated from the publicly available repository:
+The *original versions* of these workflows were either created by the GTEx Consortium (see their [GTEx GitHub repository](https://github.com/broadinstitute/gtex-pipeline/tree/master?tab=readme-ov-file)) or the **Dr. Stephen Montgomery Lab** at Stanford University, with major contributions from **Evin Padhi** and **Jon Nguyen**. Their work formed the foundation for the integrated analysis pipeline described here. Most of the eQTL scripts originated from the publicly available repository:
 
 * **AoU-Multiomics-Analysis**
   [https://github.com/AoU-Multiomics-Analysis](https://github.com/AoU-Multiomics-Analysis)
@@ -71,13 +71,13 @@ The sections below describe each workflow, its purpose, and expected outputs.
 
 ## 1. Ancestry Grouping & Sample Lists
 
-Prepare a table listing sample IDs for each ancestry/subpopulation.
+Prepare a table listing sample IDs for each ancestry/subpopulation. We used a Jupyter Notebook (not provided) to use the ancestry predictions from All of Us V9 to create sample subsets per population. We then created a Terra data table with one population per row as well as combined population.
 
 Outputs:
 
-* Sample lists per group
-* Updated tables of sample metadata
-* Input tables needed for downstream WDLs
+* Sample lists per ancestry group in TSV format
+* Terra data table to track per-ancestry metadata for downstream analyses
+
 
 This step is required before running genotype or phenotype workflows per ancestry.
 
@@ -95,9 +95,13 @@ Outputs:
 
 * Pruned VCF
 * PLINK genotype files
-* Genotype principal component matrix
+* Genotype principal component matrix (genotype PCs)
 
 These outputs are used for both eQTL and sQTL pipelines.
+
+Adaptation in WARP:
+
+We copied this workflow into WARP into the MTtoVCF folder. It was versioned and where possible, dockers were recreated an versioned.
 
 ---
 
@@ -107,9 +111,9 @@ The [CalculateGenotypeDosage](https://github.com/AoU-Multiomics-Analysis/prepare
 
 Outputs:
 
-* Two dosage files per ancestry (variant-by-sample dosage matrices)
+* Dosage files and indices per ancestry (variant-by-sample dosage matrices)
 
-Because this step uses only the VCF, it may be integrated with `Prepare_VCF` in future versions.
+A versioned copy of this WDL can be found in the prepare_QTL folder in WARP.
 
 ---
 ## 4. RNA Alignment, Counts and Splicing BED
@@ -134,6 +138,8 @@ Inputs typically include:
 
 Outputs are formatted to match TensorQTL requirements.
 
+A versioned copy of this WDL is in WARP in the prepare_QTL folder and the docker has been versioned in warp-tools.
+
 ---
 
 ## 6. Covariate Creation (`MergeCovariates`)
@@ -150,6 +156,9 @@ Outputs:
 
 This step ensures consistent ordering and formatting across all inputs.
 
+A versioned copy of this WDL is in WARP in the prepare_QTL folder.
+
+
 ---
 
 ## 7. cis-eQTL Mapping (TensorQTL)
@@ -165,6 +174,8 @@ Notes:
 * The optional phenotype groups file is **not** required for eQTL analysis
 * Results can be written directly into a structured output directory or table
 * These outputs form the basis for fine-mapping
+
+A versioned copy of this workflow is available in WARP in the tensorQTL_cis_permutations folder.
 
 ---
 
@@ -333,5 +344,5 @@ Special thanks to:
 
 for developing foundational versions of many scripts and workflows used in this analysis.
 
-Additional integration, optimization, and workflow migration were performed by the All of Us DRC Multiomics and Pipeline Development teams as part of the WARP workflow suite.
+Additional integration, optimization, and workflow migration were performed by the All of Us Multiomics and the Broad Pipeline Development teams as part of the WARP workflow suite.
 
