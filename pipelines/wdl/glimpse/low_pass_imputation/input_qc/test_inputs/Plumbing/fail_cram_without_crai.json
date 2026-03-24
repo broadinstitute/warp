@@ -1,0 +1,13 @@
+{
+  "LowPassImputationQC.reference_chunks": "gs://broad-dsde-methods-bge-resources-public/GlimpseImputation/ReferencePanels/1000G_HGDP_with_trio_information_old_chrX/reference_chunks_1000G_HGDP_with_trio_information_old_chrX_cm_4_boost_1_78_0.txt",
+  "LowPassImputationQC.sites_vcf": "gs://broad-dsde-methods-bge-resources/GlimpseImputation/ReferencePanels/1000G_HGDP_with_trio_information/1000G_HGDP_with_trio_information.sites.snp.multiallelic.vcf.gz",
+  "LowPassImputationQC.sites_table": "gs://UPDATE-ME-broad-dsde-methods-bge-resources/GlimpseImputation/ReferencePanels/1000G_HGDP_with_trio_information/1000G_HGDP_with_trio_information.sites.snp.multiallelic.vcf.gz",
+  "LowPassImputationQC.sites_table_index": "gs://UPDATE-ME-broad-dsde-methods-bge-resources/GlimpseImputation/ReferencePanels/1000G_HGDP_with_trio_information/1000G_HGDP_with_trio_information.sites.snp.multiallelic.vcf.gz",
+  "LowPassImputationQC.contigs": ["chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21","chr22"],
+  "LowPassImputationQC.fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "LowPassImputationQC.fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "LowPassImputationQC.output_basename": "plumbing_test_fail_cram_without_crai",
+  "LowPassImputationQC.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+  "LowPassImputationQC.crams": ["gs://fake-bucket/fake-file1.cram", "gs://fake-bucket/fake-file2.cram"],
+  "LowPassImputationQC.sample_ids": ["sample1", "sample2"]
+}
