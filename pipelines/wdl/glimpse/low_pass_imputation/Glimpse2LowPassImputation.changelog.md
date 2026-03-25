@@ -1,3 +1,8 @@
+# 0.0.3
+2026-03-25 (Date of Last Commit)
+
+* Reorganize wdl to be able to run on contigs more easily.  Now the workflow is fully driven by the `contigs` input
+
 # 0.0.2
 2026-03-19 (Date of Last Commit)
 
