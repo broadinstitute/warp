@@ -43,6 +43,18 @@ workflow Glimpse2LowPassImputation {
 
     Int n_samples = select_first([CountSamples.nSamples, length(select_first([crams]))])
 
+    if (defined(crams)) {
+        if (length(select_first([crams])) > 1) {
+            call SplitIntoBatches {
+                input:
+                    batch_size = calling_batch_size,
+                    crams = select_first([crams]),
+                    cram_indices = select_first([cram_indices]),
+                    sample_ids = sample_ids
+            }
+        }
+    }
+
     scatter(contig in contigs) {
         File sites_vcf = reference_panel_prefix + "sites." + contig + ".vcf.gz"
         File sites_vcf_index =reference_panel_prefix + "sites." + contig + ".vcf.gz.tbi"
@@ -51,15 +63,6 @@ workflow Glimpse2LowPassImputation {
         File reference_chunks = reference_panel_prefix + "reference_chunks." + contig + ".txt"
 
         if (defined(crams)) {
-            if (length(select_first([crams])) > 1) {
-                call SplitIntoBatches {
-                    input:
-                        batch_size = calling_batch_size,
-                        crams = select_first([crams]),
-                        cram_indices = select_first([cram_indices]),
-                        sample_ids = sample_ids
-                }
-            }
             Array[Array[String]] crams_batches = select_first([SplitIntoBatches.crams_batches, [select_first([crams])]])
             Array[Array[String]] cram_indices_batches = select_first([SplitIntoBatches.cram_indices_batches, [select_first([cram_indices])]])
             Array[Array[String]] sample_ids_batches = select_first([SplitIntoBatches.sample_ids_batches, [select_first([sample_ids])]])
