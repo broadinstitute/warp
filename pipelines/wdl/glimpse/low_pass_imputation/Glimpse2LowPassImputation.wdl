@@ -107,7 +107,6 @@ workflow Glimpse2LowPassImputation {
         call ComputeShardsAndMemoryPerShard {
             input:
                 reference_chunks_memory = reference_chunks,
-                contigs = contigs,
                 n_samples = n_samples
         }
 
@@ -231,7 +230,6 @@ task SplitIntoBatches {
 task ComputeShardsAndMemoryPerShard {
     input {
         File reference_chunks_memory
-        Array[String] contigs
         Int n_samples
     }
 
@@ -243,17 +241,13 @@ task ComputeShardsAndMemoryPerShard {
 
         df = pd.read_csv('~{reference_chunks_memory}', sep='\t', header=None, names=['contig', 'reference_shard', 'base_gb', 'slope_per_sample_gb'])
 
-        # filter dataframe by contig list
-        chromosomes_to_filter = ["~{sep='", "' contigs}"]
-        filtered_df = df[df['contig'].isin(chromosomes_to_filter)]
-
         # write out reference shards to process
-        filtered_df['reference_shard'].to_csv('reference_shard_file_paths.tsv', sep='\t', index=False, header=None)
+        df['reference_shard'].to_csv('reference_shard_file_paths.tsv', sep='\t', index=False, header=None)
 
         # calculate memory usage and save to file
-        filtered_df['mem_gb'] = filtered_df['base_gb'] + filtered_df['slope_per_sample_gb'] * ~{n_samples}
-        filtered_df['mem_gb'] = filtered_df['mem_gb'].apply(lambda x: min(256, int(np.ceil(x))))  # cap at 256 GB
-        filtered_df['mem_gb'].to_csv('memory_per_chunk.tsv', sep='\t', index=False, header=None)
+        df['mem_gb'] = filtered_df['base_gb'] + filtered_df['slope_per_sample_gb'] * ~{n_samples}
+        df['mem_gb'] = filtered_df['mem_gb'].apply(lambda x: min(256, int(np.ceil(x))))  # cap at 256 GB
+        df['mem_gb'].to_csv('memory_per_chunk.tsv', sep='\t', index=False, header=None)
         EOF
     >>>
 
