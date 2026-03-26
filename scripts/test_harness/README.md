@@ -108,29 +108,39 @@ scripts/test_harness/
 ├── __init__.py           # Package definition
 ├── __main__.py           # Module entry point
 ├── config.py             # Configuration management
-├── docker_manager.py     # Docker operations
-├── gcs_manager.py        # Fake-GCS validation and setup
-├── wdl_patcher.py        # WDL file modifications
-├── runner.py             # Workflow orchestration
-└── cli.py                # Command-line interface
+├── pipeline_configs.json  # Pipeline configuration definitions
+├── docker_manager.py      # Docker operations
+├── gcs_manager.py         # Fake-GCS validation and setup
+├── wdl_patcher.py         # WDL file modifications
+├── runner.py              # Workflow orchestration
+└── cli.py                 # Command-line interface
 ```
 
 ### Adding New Pipelines
 
-1. Add configuration to `PIPELINE_CONFIGS` in `config.py`:
+1. Add configuration to `pipeline_configs.json`:
 
-```python
-PIPELINE_CONFIGS = {
-    "my_pipeline": lambda repo_root: TestConfig(
-        workflow_wdl="pipelines/wdl/my_pipeline/pipeline.wdl",
-        inputs_json="testing/my_pipeline_inputs.json",
-        docker=DockerConfig(
-            prod_image="us.gcr.io/my-org/my-image:1.0.0",
-            test_image="my-image:local-test",
-            dockerfile_dir="testing/my-image/",
-        ),
-        repo_root=repo_root,
-    ),
+```json
+{
+  "my_pipeline": {
+    "workflow_wdl": "pipelines/wdl/my_pipeline/pipeline.wdl",
+    "inputs_json": "testing/my_pipeline_inputs.json",
+    "docker": {
+      "prod_image": "us.gcr.io/my-org/my-image:1.0.0",
+      "test_image": "my-image:local-test",
+      "dockerfile_dir": "testing/my-image/",
+      "docker_host": null
+    },
+    "gcs": {
+      "host": "http://localhost:4443",
+      "bucket": "fake-bucket",
+      "storage_emulator_host": "http://host.docker.internal:4443",
+      "required_objects": [
+        "input_file.txt",
+        "reference.fa"
+      ]
+    }
+  }
 }
 ```
 

@@ -38,6 +38,10 @@ Examples:
     --test-image "my-image:local-test" \\
     --dockerfile testing/my-image/
 
+  # Generate Mermaid DAG diagram
+  python -m scripts.test_harness diagram --wdl pipelines/wdl/my_pipeline/pipeline.wdl
+  python -m scripts.test_harness diagram --wdl pipelines/wdl/my_pipeline/pipeline.wdl -o diagram.mmd
+
 Notes:
   - fake-gcs-server must be running before test execution
   - miniwdl and Docker must be installed
@@ -134,10 +138,10 @@ Notes:
 
 def list_pipelines() -> None:
     """List available predefined pipelines."""
-    from .config import PIPELINE_CONFIGS
+    from .config import _PIPELINE_JSON
     
     print("Available pipelines:")
-    for name in sorted(PIPELINE_CONFIGS.keys()):
+    for name in sorted(_PIPELINE_JSON.keys()):
         print(f"  - {name}")
     print("")
     print("Use 'custom' for custom pipeline configuration.")
@@ -211,6 +215,61 @@ def main(argv: list = None) -> int:
     else:
         if error:
             print(f"Error: {error}", file=sys.stderr)
+        return 1
+
+
+def diagram_command(argv: list = None) -> int:
+    """Generate Mermaid DAG diagram from WDL file.
+    
+    Args:
+        argv: Command-line arguments
+    
+    Returns:
+        Exit code (0 for success, 1 for failure)
+    """
+    from .wdl_parser import generate_diagram
+    
+    parser = argparse.ArgumentParser(
+        prog="warp-test-harness diagram",
+        description="Generate Mermaid DAG diagram from WDL workflow",
+    )
+    
+    parser.add_argument(
+        "--wdl",
+        type=str,
+        required=True,
+        help="Path to WDL workflow file to analyze",
+    )
+    
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default=None,
+        help="Output file for Mermaid diagram (optional - prints to stdout if not provided)",
+    )
+    
+    args = parser.parse_args(argv)
+    
+    # Check if WDL file exists
+    wdl_path = Path(args.wdl)
+    if not wdl_path.exists():
+        print(f"Error: WDL file not found: {args.wdl}", file=sys.stderr)
+        return 1
+    
+    try:
+        diagram = generate_diagram(str(wdl_path), args.output)
+        if diagram is None:
+            return 1
+        
+        if args.output is None:
+            print("\nMermaid Diagram:")
+            print("=" * 60)
+            print(diagram)
+        
+        return 0
+    except Exception as e:
+        print(f"Error generating diagram: {e}", file=sys.stderr)
         return 1
 
 

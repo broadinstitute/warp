@@ -24,6 +24,10 @@ Examples:
   # List available pipelines
   ./scripts/run_test.py --list
 
+  # Generate Mermaid DAG diagram from WDL file
+  ./scripts/run_test.py diagram --wdl pipelines/wdl/my_pipeline/pipeline.wdl
+  ./scripts/run_test.py diagram --wdl pipelines/wdl/my_pipeline/pipeline.wdl -o diagram.mmd
+
 Environment Variables:
   WARP_SKIP_CLEANUP    Set to "true" to preserve old run directories
   WARP_SKIP_BUILD      Set to "true" to skip Docker image build
@@ -47,6 +51,11 @@ def main_with_env() -> int:
     Converts environment variables to command-line arguments.
     """
     argv = sys.argv[1:]
+    
+    # Check for diagram command first
+    if argv and argv[0] == "diagram":
+        from test_harness.cli import diagram_command
+        return diagram_command(argv[1:])
     
     # Convert environment variables to command-line flags
     if os.getenv("WARP_SKIP_CLEANUP", "").lower() == "true":

@@ -21,9 +21,9 @@ docker run -d -p 4443:4443 --name fake-gcs \
 > gcsfs would fail to reach fake-gcs-server on any redirect. `host.docker.internal` is
 > Docker Desktop's DNS alias for the host machine and works from both host and containers.
 
-**That's it!** `run_test.sh` will automatically:
+**That's it!** The test harness (`./scripts/run_test.py`) will automatically:
 - Check that fake-gcs-server is running (fail with instructions if not)
-- Detect if test data is missing from fake-gcs-server and run `all_of_us/mitochondria/testing/setup_fake_gcs.sh` if needed
+- Detect if test data is missing from fake-gcs-server and populate it if needed
 - Build the test Docker image from `all_of_us/mitochondria/testing/dockers/aou-mitochondrial-combine-vcfs-covdb/`
 - Patch the WDL to use the local test image
 
@@ -53,7 +53,6 @@ testing/
 ├── inputs/                         # Input data for tests
 │   ├── mt_coverage_merge_inputs.json  # WDL input configuration
 │   └── mt_coverage_merge_inputs.md   # Input parameter documentation
-├── setup_fake_gcs.sh              # Script to setup fake-gcs test data
 └── README.md                       # This file
 ```
 
@@ -126,13 +125,13 @@ testing/
 ### Setup Flow
 
 1. **Start fake-gcs-server** (see Prerequisites above)
-2. **Run `run_test.sh`** from the repository root on your host machine
+2. **Run `./scripts/run_test.py`** from the repository root on your host machine
 
-The script then:
+The test harness then:
 1. **Verifies fake-gcs-server** is running at http://host.docker.internal:4443
 2. **Checks for test data** by querying fake-gcs-server for required files
-3. **Runs automatic setup** if test data is missing (runs `testing/setup_fake_gcs.sh`)
-4. **Builds the test Docker image** from `testing/aou-mitochondrial-combine-vcfs-covdb/`
+3. **Automatically populates test data** if missing by uploading files from `testing/mocks/`
+4. **Builds the test Docker image** from `testing/dockers/aou-mitochondrial-combine-vcfs-covdb/`
 5. **Patches the WDL** to use local test images (only for images with test versions)
 6. **Runs miniwdl** with the patched workflow
 
@@ -141,20 +140,32 @@ The script then:
 After starting fake-gcs-server, run from the repository root on your host machine:
 
 ```bash
-# Run with default test inputs (mt_coverage_merge.wdl + all_of_us/mitochondria/testing/inputs/mt_coverage_merge_inputs.json)
-./run_test.sh
+# Run mt_coverage_merge tests (default)
+./scripts/run_test.py mt_coverage_merge
+
+# Run mitochondria_pipeline tests
+./scripts/run_test.py mitochondria_pipeline
+
+# List available predefined pipelines
+./scripts/run_test.py --list
 
 # Run with custom workflow and test inputs
-./run_test.sh . all_of_us/mitochondria/your_pipeline.wdl all_of_us/mitochondria/testing/your_custom_inputs.json
+./scripts/run_test.py custom \
+  --workflow all_of_us/mitochondria/your_pipeline.wdl \
+  --inputs all_of_us/mitochondria/testing/your_custom_inputs.json \
+  --dockerfile testing/dockers/aou-mitochondrial-combine-vcfs-covdb/
 
-# Skip call cache cleanup (calls cache is always enabled)
-SKIP_CLEANUP=true ./run_test.sh
+# Skip cleanup of old run directories (keep output for inspection)
+./scripts/run_test.py mt_coverage_merge --skip-cleanup
 
 # Force fake-gcs test data reset
-RESET_FAKE_GCS=true ./run_test.sh
+./scripts/run_test.py mt_coverage_merge --reset-gcs
 
 # Skip Docker image build (use existing test image)
-SKIP_BUILD=true ./run_test.sh
+./scripts/run_test.py mt_coverage_merge --skip-build
+
+# Combine multiple flags
+./scripts/run_test.py mt_coverage_merge --skip-cleanup --reset-gcs
 ```
 
 ## Test Coverage
@@ -202,7 +213,7 @@ docker run -d -p 4443:4443 --name fake-gcs \
   -external-url http://host.docker.internal:4443 \
   -public-host host.docker.internal:4443
 ```
-`run_test.sh` already passes `--env STORAGE_EMULATOR_HOST=http://host.docker.internal:4443`
+The test harness passes `--env STORAGE_EMULATOR_HOST=http://host.docker.internal:4443`
 which injects the variable into every Swarm task container. With the public-host fix,
 gcsfs routes all requests (including list-objects) to fake-gcs-server correctly.
 
@@ -214,7 +225,7 @@ GCS connector nor `gcloud` respect `STORAGE_EMULATOR_HOST`.
 
 **Fix: local test Docker image** (`aou-mitochondrial-combine-vcfs-covdb:local-test`)
 
-`run_test.sh` now automatically builds this test image from `all_of_us/mitochondria/testing/dockers/aou-mitochondrial-combine-vcfs-covdb/` and
+The test harness automatically builds this test image from `all_of_us/mitochondria/testing/dockers/aou-mitochondrial-combine-vcfs-covdb/` and
 shadow-tags it as the production image before running miniwdl. Only Docker images with test versions
 available (indicated by a corresponding directory under `all_of_us/mitochondria/testing/dockers/`) are patched during WDL processing.
 Two hooks are applied:

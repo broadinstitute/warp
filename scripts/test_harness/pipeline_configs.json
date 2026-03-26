@@ -1,0 +1,56 @@
+{
+  "mt_coverage_merge": {
+    "workflow_wdl": "all_of_us/mitochondria/mt_coverage_merge.wdl",
+    "inputs_json": "all_of_us/mitochondria/testing/inputs/mt_coverage_merge_inputs.json",
+    "docker": {
+      "prod_image": "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1",
+      "test_image": "aou-mitochondrial-combine-vcfs-covdb:local-test",
+      "dockerfile_dir": "all_of_us/mitochondria/testing/dockers/aou-mitochondrial-combine-vcfs-covdb",
+      "docker_host": null
+    },
+    "gcs": {
+      "host": "http://localhost:4443",
+      "bucket": "fake-bucket",
+      "storage_emulator_host": "http://host.docker.internal:4443",
+      "required_objects": [
+        "coverage_s001.tsv",
+        "coverage_s002.tsv",
+        "s001.vcf",
+        "s002.vcf",
+        "vcf_shard_00000_shard_mt.tar.gz",
+        "blacklist_sites.hg38.chrM.bed"
+      ]
+    }
+  },
+  "mitochondria_pipeline": {
+    "workflow_wdl": "all_of_us/mitochondria/mitochondria_pipeline.wdl",
+    "inputs_json": "all_of_us/mitochondria/testing/inputs/mitochondria_pipeline_inputs.json",
+    "docker": {
+      "prod_image": "us.gcr.io/broad-gotc-prod/gatk:4.2.6.0",
+      "test_image": "gatk:4.2.6.0-local-test",
+      "dockerfile_dir": null,
+      "docker_host": null
+    },
+    "gcs": {
+      "host": "http://localhost:4443",
+      "bucket": "fake-bucket",
+      "storage_emulator_host": "http://host.docker.internal:4443",
+      "required_objects": [
+        "sample.bam",
+        "sample.bam.bai",
+        "Homo_sapiens_assembly38.fasta",
+        "Homo_sapiens_assembly38.fasta.fai",
+        "Homo_sapiens_assembly38.dict",
+        "chrM.fasta",
+        "chrM.fasta.fai",
+        "chrM.dict",
+        "blacklist_sites.hg38.chrM.bed",
+        "blacklist_sites.hg38.chrM.bed.tbi",
+        "mt.interval_list",
+        "nuc.interval_list",
+        "control_region_shifted.interval_list",
+        "non_control_region.interval_list"
+      ]
+    }
+  }
+}

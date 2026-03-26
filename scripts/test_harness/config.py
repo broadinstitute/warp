@@ -9,7 +9,7 @@ import json
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any
 
 
 @dataclass
@@ -151,20 +151,73 @@ class TestConfig:
         }
 
 
-# Predefined configurations for known pipelines
-PIPELINE_CONFIGS = {
-    "mt_coverage_merge": lambda repo_root: TestConfig(
-        workflow_wdl="all_of_us/mitochondria/mt_coverage_merge.wdl",
-        inputs_json="all_of_us/mitochondria/testing/inputs/mt_coverage_merge_inputs.json",
+def _load_pipeline_configs() -> Dict[str, Any]:
+    """Load pipeline configurations from pipeline_configs.json.
+    
+    Returns:
+        Dictionary of pipeline configurations keyed by pipeline name
+    
+    Raises:
+        FileNotFoundError: If pipeline_configs.json not found
+        json.JSONDecodeError: If pipeline_configs.json is invalid JSON
+    """
+    config_file = Path(__file__).parent / "pipeline_configs.json"
+    
+    if not config_file.exists():
+        raise FileNotFoundError(
+            f"Pipeline configuration file not found: {config_file}"
+        )
+    
+    with open(config_file, "r") as f:
+        return json.load(f)
+
+
+# Load pipeline configurations from JSON
+_PIPELINE_JSON = _load_pipeline_configs()
+
+
+def _create_test_config_from_dict(pipeline_data: Dict[str, Any], repo_root: str) -> TestConfig:
+    """Create a TestConfig instance from a dictionary loaded from JSON.
+    
+    Args:
+        pipeline_data: Dictionary containing pipeline configuration
+        repo_root: Repository root directory
+    
+    Returns:
+        TestConfig instance
+    """
+    docker_data = pipeline_data.get("docker", {})
+    gcs_data = pipeline_data.get("gcs", {})
+    
+    return TestConfig(
+        workflow_wdl=pipeline_data["workflow_wdl"],
+        inputs_json=pipeline_data["inputs_json"],
         docker=DockerConfig(
-            prod_image="us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1",
-            test_image="aou-mitochondrial-combine-vcfs-covdb:local-test",
-            dockerfile_dir="all_of_us/mitochondria/testing/dockers/aou-mitochondrial-combine-vcfs-covdb",
+            prod_image=docker_data["prod_image"],
+            test_image=docker_data["test_image"],
+            dockerfile_dir=docker_data.get("dockerfile_dir"),
+            docker_host=docker_data.get("docker_host"),
         ),
-        gcs=GCSConfig(),
+        gcs=GCSConfig(
+            host=gcs_data.get("host", "http://localhost:4443"),
+            bucket=gcs_data.get("bucket", "fake-bucket"),
+            storage_emulator_host=gcs_data.get(
+                "storage_emulator_host", "http://host.docker.internal:4443"
+            ),
+            required_objects=gcs_data.get(
+                "required_objects",
+                [
+                    "coverage_s001.tsv",
+                    "coverage_s002.tsv",
+                    "s001.vcf",
+                    "s002.vcf",
+                    "vcf_shard_00000_shard_mt.tar.gz",
+                    "blacklist_sites.hg38.chrM.bed",
+                ],
+            ),
+        ),
         repo_root=repo_root,
-    ),
-}
+    )
 
 
 def get_pipeline_config(pipeline_name: str, repo_root: str = ".") -> TestConfig:
@@ -178,10 +231,10 @@ def get_pipeline_config(pipeline_name: str, repo_root: str = ".") -> TestConfig:
         TestConfig configured for the specified pipeline
     
     Raises:
-        ValueError: If pipeline_name is not found in PIPELINE_CONFIGS
+        ValueError: If pipeline_name is not found in pipeline_configs.json
     """
-    if pipeline_name not in PIPELINE_CONFIGS:
-        available = ", ".join(PIPELINE_CONFIGS.keys())
+    if pipeline_name not in _PIPELINE_JSON:
+        available = ", ".join(_PIPELINE_JSON.keys())
         raise ValueError(
             f"Unknown pipeline: {pipeline_name}. Available: {available}"
         )
@@ -189,7 +242,7 @@ def get_pipeline_config(pipeline_name: str, repo_root: str = ".") -> TestConfig:
     if repo_root == ".":
         repo_root = os.getcwd()
     
-    return PIPELINE_CONFIGS[pipeline_name](repo_root)
+    return _create_test_config_from_dict(_PIPELINE_JSON[pipeline_name], repo_root)
 
 
 def create_custom_config(
