@@ -58,8 +58,8 @@ workflow Glimpse2LowPassImputation {
     scatter(contig in contigs) {
         File sites_vcf = reference_panel_prefix + "sites." + contig + ".vcf.gz"
         File sites_vcf_index =reference_panel_prefix + "sites." + contig + ".vcf.gz.tbi"
-        File sites_table = reference_panel_prefix + "sites_table." + contig + ".vcf.gz"
-        File sites_table_index = reference_panel_prefix + "sites_table." + contig + ".vcf.gz.tbi"
+        File sites_table = reference_panel_prefix + "sites_table." + contig + ".gz"
+        File sites_table_index = reference_panel_prefix + "sites_table." + contig + ".gz.tbi"
         File reference_chunks = reference_panel_prefix + "reference_chunks." + contig + ".txt"
 
         if (defined(crams)) {
@@ -276,7 +276,7 @@ task BcftoolsMpileup {
         File sites_vcf
 
         Int seed = 12345
-        Int mem_gb = 4
+        Int mem_gb = 6
         Int cpu = 1
         Int preemptible = 0
     }
@@ -318,7 +318,7 @@ task BcftoolsCall {
         File sites_table
         File sites_table_index
 
-        Int mem_gb = 4
+        Int mem_gb = 6
         Int cpu = 1
         Int preemptible = 3
     }
@@ -350,7 +350,7 @@ task BcftoolsNorm {
     input {
         File calls_bcf
 
-        Int mem_gb = 4
+        Int mem_gb = 6
         Int cpu = 1
         Int preemptible = 3
     }
