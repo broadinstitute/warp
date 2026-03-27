@@ -22,16 +22,12 @@ workflow Glimpse2LowPassImputation {
 
         Boolean impute_reference_only_variants = false
         Boolean call_indels = false
-        Int? n_burnin
-        Int? n_main
-        Int? effective_population_size
 
         # batch size used when calling SplitIntoBatches to make variant calls from the crams
         Int calling_batch_size = 100
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
         String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
-        String docker_extract_num_sites_from_reference_chunk = "us.gcr.io/broad-dsde-methods/glimpse_extract_num_sites_from_reference_chunks:michaelgatzen_edc7f3a"
     }
 
     if (defined(input_vcf)) {
@@ -121,9 +117,6 @@ workflow Glimpse2LowPassImputation {
                     input_vcf = select_first([merged_vcf,input_vcf]),
                     input_vcf_index = select_first([merged_vcf_index,input_vcf_index]),
                     impute_reference_only_variants = impute_reference_only_variants,
-                    n_burnin = n_burnin,
-                    n_main = n_main,
-                    effective_population_size = effective_population_size,
                     call_indels = call_indels,
                     sample_ids = sample_ids,
                     fasta = fasta,
@@ -279,11 +272,10 @@ task BcftoolsMpileup {
         Int mem_gb = 6
         Int cpu = 1
         Int preemptible = 0
+        Int max_retries = 3
     }
 
     Int disk_size_gb = ceil(1.5*size(crams, "GiB") + size(fasta, "GiB") + size(sites_vcf, "GiB")) + 10
-
-    String out_basename = "batch"
 
     command <<<
         set -xeuo pipefail
@@ -304,6 +296,8 @@ task BcftoolsMpileup {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        maxRetries: max_retries
+        maxRetries: max_retries
     }
 
     output {
@@ -321,11 +315,10 @@ task BcftoolsCall {
         Int mem_gb = 6
         Int cpu = 1
         Int preemptible = 3
+        Int max_retries = 3
     }
 
     Int disk_size_gb = ceil(3*size(mpileup_bcf, "GiB") + size(sites_table, "GiB")) + 10
-
-    String out_basename = "batch"
 
     command <<<
         set -xeuo pipefail
@@ -339,6 +332,7 @@ task BcftoolsCall {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        maxRetries: max_retries
     }
 
     output {
@@ -353,18 +347,17 @@ task BcftoolsNorm {
         Int mem_gb = 6
         Int cpu = 1
         Int preemptible = 3
+        Int max_retries = 3
     }
 
     Int disk_size_gb = ceil(3*size(calls_bcf, "GiB")) + 10
-
-    String out_basename = "batch"
 
     command <<<
         set -xeuo pipefail
 
 
-        bcftools norm -m -both -Oz -o ~{out_basename}.vcf.gz ~{calls_bcf}
-        bcftools index -t ~{out_basename}.vcf.gz
+        bcftools norm -m -both -Oz -o normalized.vcf.gz ~{calls_bcf}
+        bcftools index -t normalized.vcf.gz
     >>>
 
     runtime {
@@ -373,11 +366,12 @@ task BcftoolsNorm {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        maxRetries: max_retries
     }
 
     output {
-        File output_vcf = "~{out_basename}.vcf.gz"
-        File output_vcf_index = "~{out_basename}.vcf.gz.tbi"
+        File output_vcf = "normalized.vcf.gz"
+        File output_vcf_index = "normalized.vcf.gz.tbi"
     }
 }
 
@@ -385,9 +379,10 @@ task BcftoolsMerge {
     input {
         Array[File] vcfs
         Array[File] vcf_indices
-        Int mem_gb = 4
+        Int mem_gb = 6
         Int cpu = 1
         Int preemptible = 0
+        Int max_retries = 3
 
         String output_basename
     }
@@ -406,6 +401,7 @@ task BcftoolsMerge {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        maxRetries: max_retries
     }
 
     output {
@@ -738,8 +734,6 @@ task CreateVcfIndexAndMd5 {
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
         Int preemptible = 3
     }
-    Int command_mem = memory_mb - 1500
-    Int max_heap = memory_mb - 1000
 
     String vcf_basename = basename(vcf_input)
 
