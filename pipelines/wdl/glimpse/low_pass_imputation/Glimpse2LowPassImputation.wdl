@@ -58,6 +58,9 @@ workflow Glimpse2LowPassImputation {
         File sites_table_index = reference_panel_prefix + "sites_table." + contig + ".gz.tbi"
         File reference_chunks = reference_panel_prefix + "reference_chunks." + contig + ".txt"
 
+        File? input_vcf = input_vcf
+        File? input_vcf_index = input_vcf_index
+
         if (defined(crams)) {
             Array[Array[String]] crams_batches = select_first([SplitIntoBatches.crams_batches, [select_first([crams])]])
             Array[Array[String]] cram_indices_batches = select_first([SplitIntoBatches.cram_indices_batches, [select_first([cram_indices])]])
@@ -110,6 +113,9 @@ workflow Glimpse2LowPassImputation {
         }
 
         scatter (reference_chunk_index in range(length(ComputeShardsAndMemoryPerShard.reference_chunk_file_paths))) {
+
+            File? input_vcf = input_vcf
+            File? input_vcf_index = input_vcf_index
 
             call GlimpsePhase {
                 input:
@@ -312,7 +318,7 @@ task BcftoolsCall {
         File sites_table
         File sites_table_index
 
-        Int mem_gb = 6
+        Int mem_gb = 12
         Int cpu = 1
         Int preemptible = 3
         Int max_retries = 3
