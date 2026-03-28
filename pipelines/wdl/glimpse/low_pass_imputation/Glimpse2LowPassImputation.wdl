@@ -120,8 +120,8 @@ workflow Glimpse2LowPassImputation {
             call GlimpsePhase {
                 input:
                     reference_chunk = ComputeShardsAndMemoryPerShard.reference_chunk_file_paths[reference_chunk_index],
-                    input_vcf = select_first([merged_vcf,input_vcf]),
-                    input_vcf_index = select_first([merged_vcf_index,input_vcf_index]),
+                    input_vcf = select_first([merged_vcf,input_vcf_scatter_2]),
+                    input_vcf_index = select_first([merged_vcf_index,input_vcf_scatter_2_index]),
                     impute_reference_only_variants = impute_reference_only_variants,
                     call_indels = call_indels,
                     sample_ids = sample_ids,
