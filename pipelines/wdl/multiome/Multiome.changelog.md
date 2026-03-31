@@ -1,3 +1,8 @@
+# 6.1.6
+2026-03-31 (Date of Last Commit)
+
+* Updated Optimus sub-workflow to v8.0.7 which moved conditional logic for STAR parameters out of task command blocks into workflow-level WDL expressions; this does not affect the outputs of this pipeline
+
 # 6.1.5
 2026-02-24 (Date of Last Commit)
 

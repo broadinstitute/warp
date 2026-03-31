@@ -1,3 +1,8 @@
+# 2.2.6
+2026-03-31 (Date of Last Commit)
+
+* Updated StarAlign.wdl dependency which refactored task inputs and added a new ParseReadStructure utility task; the tasks used by this pipeline (StarAlignFastqMultisample, STARGenomeRefVersion) are unchanged and this does not affect the outputs of this pipeline
+
 # 2.2.5
 2026-02-24 (Date of Last Commit)
 
