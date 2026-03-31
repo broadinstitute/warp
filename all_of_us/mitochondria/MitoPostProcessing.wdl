@@ -26,7 +26,7 @@ workflow MitoPostProcessing {
         RuntimeAttr? runtime_attr_override
     }
 
-    String pipeline_version = "0.0.2"
+    String pipeline_version = "9.0.0"
 
     call RunMitoPostProcessing {
         input:
