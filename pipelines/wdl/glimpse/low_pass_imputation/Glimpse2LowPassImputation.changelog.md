@@ -1,3 +1,9 @@
+# 0.0.4
+2026-03-31 (Date of Last Commit)
+
+* Added GLIMPSE sample batching support for both direct VCF inputs and CRAM-derived inputs
+* Recalculated placeholder AF and INFO annotations after merging GLIMPSE sample batches to keep the implementation easy to replace later
+
 # 0.0.3
 2026-03-25 (Date of Last Commit)
 

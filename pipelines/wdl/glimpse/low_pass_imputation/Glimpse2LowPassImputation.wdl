@@ -2,7 +2,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputation {
     input {
-        String pipeline_version = "0.0.3"
+        String pipeline_version = "0.0.4"
 
         # List of files, one per line
 
@@ -25,6 +25,7 @@ workflow Glimpse2LowPassImputation {
 
         # batch size used when calling SplitIntoBatches to make variant calls from the crams
         Int calling_batch_size = 100
+        Int glimpse_sample_batch_size = 2500
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
         String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
@@ -38,6 +39,8 @@ workflow Glimpse2LowPassImputation {
     }
 
     Int n_samples = select_first([CountSamples.nSamples, length(select_first([crams]))])
+    Float glimpse_sample_batch_size_float = glimpse_sample_batch_size
+    Int n_glimpse_sample_batches = ceil(n_samples / glimpse_sample_batch_size_float)
 
     if (defined(crams)) {
         if (length(select_first([crams])) > 1) {
@@ -97,48 +100,91 @@ workflow Glimpse2LowPassImputation {
                 }
             }
 
-            File phase_input_vcf = select_first([BcftoolsMerge.merged_vcf, BcftoolsNorm.output_vcf[0], input_vcf])
-            File phase_input_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, BcftoolsNorm.output_vcf_index[0],input_vcf_index])
         }
 
-        ## this task is used to grab the reference chunk but does not affect memory usage of glimpsePhase.
-        ## still tbd which method makes the most sense cost wise
-        call ComputeShardsAndMemoryPerShard {
-            input:
-                reference_chunks_memory = reference_chunks,
-                n_samples = n_samples
-        }
+        Array[File] phase_input_vcfs = select_first([select_all([BcftoolsMerge.merged_vcf]), BcftoolsNorm.output_vcf, [select_first([input_vcf])]])
+        Array[File] phase_input_vcf_indices = select_first([select_all([BcftoolsMerge.merged_vcf_index]), BcftoolsNorm.output_vcf_index, [select_first([input_vcf_index])]])
+        File phase_input_vcf = phase_input_vcfs[0]
+        File phase_input_vcf_index = phase_input_vcf_indices[0]
 
-        scatter (reference_chunk_index in range(length(ComputeShardsAndMemoryPerShard.reference_chunk_file_paths))) {
+        scatter(glimpse_sample_batch_index in range(n_glimpse_sample_batches)) {
+            Int sample_batch_start_field = (glimpse_sample_batch_index * glimpse_sample_batch_size) + 10
+            Int sample_batch_count = if (n_samples <= ((glimpse_sample_batch_index + 1) * glimpse_sample_batch_size)) then n_samples - (glimpse_sample_batch_index * glimpse_sample_batch_size) else glimpse_sample_batch_size
+            Int sample_batch_end_field = sample_batch_start_field + sample_batch_count - 1
+            String sample_batch_output_basename = output_basename + "." + contig + ".sample_batch_" + glimpse_sample_batch_index
 
-            call GlimpsePhase {
+            if (n_glimpse_sample_batches > 1) {
+                call SelectSamplesWithCut {
+                    input:
+                        vcf = phase_input_vcf,
+                        cut_start_field = sample_batch_start_field,
+                        cut_end_field = sample_batch_end_field,
+                        basename = sample_batch_output_basename + ".input"
+                }
+            }
+
+            File sample_batch_phase_input_vcf = select_first([SelectSamplesWithCut.output_vcf, phase_input_vcf])
+            File sample_batch_phase_input_vcf_index = select_first([SelectSamplesWithCut.output_vcf_index, phase_input_vcf_index])
+
+            ## this task is used to grab the reference chunk but does not affect memory usage of glimpsePhase.
+            ## still tbd which method makes the most sense cost wise
+            call ComputeShardsAndMemoryPerShard {
                 input:
-                    reference_chunk = ComputeShardsAndMemoryPerShard.reference_chunk_file_paths[reference_chunk_index],
-                    input_vcf = phase_input_vcf,
-                    input_vcf_index = phase_input_vcf_index,
-                    impute_reference_only_variants = impute_reference_only_variants,
-                    call_indels = call_indels,
-                    sample_ids = sample_ids,
-                    fasta = fasta,
-                    fasta_index = fasta_index,
+                    reference_chunks_memory = reference_chunks,
+                    n_samples = sample_batch_count
+            }
+
+            scatter (reference_chunk_index in range(length(ComputeShardsAndMemoryPerShard.reference_chunk_file_paths))) {
+
+                call GlimpsePhase {
+                    input:
+                        reference_chunk = ComputeShardsAndMemoryPerShard.reference_chunk_file_paths[reference_chunk_index],
+                        input_vcf = sample_batch_phase_input_vcf,
+                        input_vcf_index = sample_batch_phase_input_vcf_index,
+                        impute_reference_only_variants = impute_reference_only_variants,
+                        call_indels = call_indels,
+                        sample_ids = sample_ids,
+                        fasta = fasta,
+                        fasta_index = fasta_index,
+                        mem_gb = ComputeShardsAndMemoryPerShard.mem_gb_per_chunk[reference_chunk_index],
+                        docker = glimpse_docker
+                }
+            }
+
+            call GlimpseLigate {
+                input:
+                    imputed_chunks = GlimpsePhase.imputed_vcf,
+                    imputed_chunks_indices = GlimpsePhase.imputed_vcf_index,
+                    output_basename = sample_batch_output_basename,
+                    ref_dict = ref_dict,
                     docker = glimpse_docker
+            }
+
+            Array[File] sample_batch_contig_coverage_metrics = select_all(GlimpsePhase.coverage_metrics)
+        }
+
+        if (n_glimpse_sample_batches > 1) {
+            call MergeGlimpseSampleBatchVcfs {
+                input:
+                    input_vcfs = GlimpseLigate.imputed_vcf,
+                    output_basename = output_basename + "." + contig + ".glimpse_sample_batches"
+            }
+
+            call RecalculateMergedBatchAnnotations {
+                input:
+                    input_vcf = MergeGlimpseSampleBatchVcfs.output_vcf,
+                    input_vcf_index = MergeGlimpseSampleBatchVcfs.output_vcf_index,
+                    output_basename = output_basename + "." + contig + ".glimpse_sample_batches.reannotated"
             }
         }
 
-        call GlimpseLigate {
-            input:
-                imputed_chunks = GlimpsePhase.imputed_vcf,
-                imputed_chunks_indices = GlimpsePhase.imputed_vcf_index,
-                output_basename = output_basename,
-                ref_dict = ref_dict,
-                docker = glimpse_docker
-        }
-        Array[File] contig_coverage_metrics = select_all(GlimpsePhase.coverage_metrics)
+        File contig_imputed_vcf = select_first([RecalculateMergedBatchAnnotations.output_vcf, GlimpseLigate.imputed_vcf[0]])
+        Array[File] contig_coverage_metrics = flatten(sample_batch_contig_coverage_metrics)
     }
 
     call GatherVcfsNoIndex {
         input:
-            input_vcfs = GlimpseLigate.imputed_vcf,
+            input_vcfs = contig_imputed_vcf,
             output_vcf_basename = output_basename + ".imputed",
             gatk_docker = gatk_docker
     }
@@ -180,8 +226,8 @@ task SplitIntoBatches {
     input {
         Int batch_size
 
-        Array[String] crams
-        Array[String] cram_indices
+        Array[File] crams
+        Array[File] cram_indices
         Array[String] sample_ids
     }
 
@@ -217,9 +263,136 @@ task SplitIntoBatches {
     }
 
     output {
-        Array[Array[String]] crams_batches = read_json('crams.json')
-        Array[Array[String]] cram_indices_batches = read_json('cram_indices.json')
+        Array[Array[File]] crams_batches = read_json('crams.json')
+        Array[Array[File]] cram_indices_batches = read_json('cram_indices.json')
         Array[Array[String]] sample_ids_batches = read_json('sample_ids.json')
+    }
+}
+
+task SelectSamplesWithCut {
+    input {
+        File vcf
+
+        Int cut_start_field
+        Int cut_end_field
+        String basename
+
+        Int disk_size_gb = ceil(1.5 * size(vcf, "GiB")) + 10
+        String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
+        Int cpu = 2
+        Int memory_mb = 6000
+    }
+
+    command <<<
+        set -euo pipefail
+
+        mkfifo fifo_bgzip
+        mkfifo fifo_cut
+
+        bcftools view -h --no-version ~{vcf} | awk '!/^#CHROM/' > header.vcf
+        n_lines=$(wc -l header.vcf | cut -d' ' -f1)
+
+        bgzip -d ~{vcf} -o fifo_bgzip &
+        tail -n +$((n_lines + 1)) fifo_bgzip | cut -f 1-9,~{cut_start_field}-~{cut_end_field} > fifo_cut &
+
+        cat header.vcf fifo_cut | bgzip -o ~{basename}.vcf.gz
+        bcftools index -t ~{basename}.vcf.gz
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: memory_mb + " MiB"
+        preemptible: 3
+        maxRetries: 1
+        noAddress: true
+        cpu: cpu
+    }
+
+    output {
+        File output_vcf = "~{basename}.vcf.gz"
+        File output_vcf_index = "~{basename}.vcf.gz.tbi"
+    }
+}
+
+task MergeGlimpseSampleBatchVcfs {
+    input {
+        Array[File] input_vcfs
+        String output_basename
+
+        Int disk_size_gb = ceil(2.2 * size(input_vcfs, "GiB") + 50)
+        Int mem_gb = 12
+        Int cpu = 4
+        Int preemptible = 3
+    }
+
+    command <<<
+        set -euo pipefail
+
+        vcfs=(~{sep=" " input_vcfs})
+
+        mkfifo fifo_0
+        mkfifo fifo_to_paste_0
+
+        i=1
+
+        fifos_to_paste=()
+        md5sums=()
+        bcftools view -h --no-version ${vcfs[0]} | awk '!/^#CHROM/' > header.vcf
+        n_lines=$(wc -l header.vcf | cut -d' ' -f1)
+
+        bgzip -d ${vcfs[0]} -o fifo_0 &
+
+        tail -n +$((n_lines + 1)) fifo_0 | tee fifo_to_paste_0 | cut -f1-5,9 | md5sum > md5sum_0 &
+
+        for vcf in "${vcfs[@]:1}"; do
+            fifo_name="fifo_$i"
+            mkfifo "$fifo_name"
+
+            fifo_name_to_md5="fifo_to_md5_$i"
+            mkfifo "$fifo_name_to_md5"
+
+            fifo_name_to_paste="fifo_to_paste_$i"
+            mkfifo "$fifo_name_to_paste"
+            fifos_to_paste+=("$fifo_name_to_paste")
+
+            file_name_md5sum="md5sum_$i"
+            md5sums+=("$file_name_md5sum")
+
+            bgzip -d ${vcf} -o "$fifo_name" &
+            tail -n +$((n_lines + 1)) "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
+            cut -f1-5,9 "$fifo_name_to_md5" | md5sum > "$file_name_md5sum" &
+
+            ((i++))
+        done
+
+        mkfifo fifo_to_cat
+        paste fifo_to_paste_0 "${fifos_to_paste[@]}" > fifo_to_cat &
+
+        cat header.vcf fifo_to_cat | bgzip -o ~{output_basename}.vcf.gz
+
+        for md5sum_file in "${md5sums[@]}"; do
+            diff <(cat md5sum_0) <(cat "$md5sum_file") > /dev/null || (echo "Fields 1-5,9 do not match for $md5sum_file" && exit 1)
+        done
+
+        bcftools index -t ~{output_basename}.vcf.gz
+
+        rm -f fifo_* md5sum_*
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+        maxRetries: 1
+        noAddress: true
+    }
+
+    output {
+        File output_vcf = "~{output_basename}.vcf.gz"
+        File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
     }
 }
 
@@ -552,6 +725,7 @@ task GlimpseLigate {
         bcftools view -h --no-version ligated.vcf.gz > old_header.vcf
         java -jar /picard.jar UpdateVcfSequenceDictionary -I old_header.vcf --SD ~{ref_dict} -O new_header.vcf
         bcftools reheader -h new_header.vcf -o ~{output_basename}.imputed.vcf.gz ligated.vcf.gz
+        bcftools index -t ~{output_basename}.imputed.vcf.gz
     >>>
 
     runtime {
@@ -565,6 +739,7 @@ task GlimpseLigate {
 
     output {
         File imputed_vcf = "~{output_basename}.imputed.vcf.gz"
+        File imputed_vcf_index = "~{output_basename}.imputed.vcf.gz.tbi"
     }
 }
 
@@ -721,6 +896,53 @@ task GatherVcfsNoIndex {
     }
     output {
         File output_vcf = "~{output_vcf_basename}.vcf.gz"
+    }
+}
+
+task RecalculateMergedBatchAnnotations {
+    input {
+        File input_vcf
+        File input_vcf_index
+        String output_basename
+
+        String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
+        Int cpu = 1
+        Int memory_mb = 4000
+        Int disk_size_gb = ceil(2 * size(input_vcf, "GiB")) + 10
+    }
+
+    command <<<
+        set -euo pipefail
+
+        # Placeholder batch-level annotation recomputation.
+        # This intentionally keeps the implementation simple so a later scientifically validated
+        # AF/INFO recalculation can replace it without needing to restructure the workflow.
+        bcftools +fill-tags --no-version ~{input_vcf} -Oz -o filled_tags.vcf.gz -- -t AF
+
+        bcftools view -H --no-version filled_tags.vcf.gz | awk 'BEGIN { OFS="\t" } { print $1, $2, $4, $5, "1.0" }' > placeholder_info.tsv
+
+        : > placeholder_info.hdr
+        if ! bcftools view -h --no-version filled_tags.vcf.gz | grep -q '^##INFO=<ID=INFO,'; then
+            echo '##INFO=<ID=INFO,Number=1,Type=Float,Description="Placeholder INFO annotation after GLIMPSE sample batch merge; replace with scientific recalculation.">' > placeholder_info.hdr
+        fi
+
+        bcftools annotate --no-version -a placeholder_info.tsv -h placeholder_info.hdr -c CHROM,POS,REF,ALT,INFO/INFO filled_tags.vcf.gz -Oz -o ~{output_basename}.vcf.gz
+        bcftools index -t ~{output_basename}.vcf.gz
+    >>>
+
+    runtime {
+        docker: bcftools_docker
+        disks: "local-disk ${disk_size_gb} HDD"
+        memory: "${memory_mb} MiB"
+        cpu: cpu
+        preemptible: 3
+        maxRetries: 1
+        noAddress: true
+    }
+
+    output {
+        File output_vcf = "~{output_basename}.vcf.gz"
+        File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
     }
 }
 

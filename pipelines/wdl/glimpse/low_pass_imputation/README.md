@@ -20,6 +20,15 @@ The tasks in these workflows require a few features that are not present in the 
 #### Docker Image for Extracting Number of Sites from Reference Panel
 For selecting the correct resources for imputation, one task of the [Glimpse2Imputation](#Glimpse2Imputation) needs to extract the number of common and rare sites from each chunk in the reference panel. For this purpose, we added a binary to the GLIMPSE2 code, which lives in [this branch](https://github.com/michaelgatzen/GLIMPSE/tree/extract_num_sites_from_reference_chunk). This image should be rebuilt if there is a major change to the GLIMPSE2 code following the instructions in the provided README, especially if the data representation is affected. After cloning that branch, the docker image can be directly built from the Dockerfile. Use this docker image as the `docker_extract_num_sites_from_reference_chunks` argument to [Glimpse2Imputation](#Glimpse2Imputation) and [Glimpse2ImputationInBatches](#Glimpse2ImputationInBatches). The default value to these arguments should represent a recent version and follows the naming convention `us.gcr.io/broad-dsde-methods/glimpse_extract_num_sites_from_reference_chunks:{github_namespace}_{commit_id}`.
 
+## Glimpse2LowPassImputation
+
+`Glimpse2LowPassImputation.wdl` supports both direct `input_vcf` inputs and CRAM-derived inputs for low-pass imputation. The workflow now has two independent batching knobs:
+
+- **`calling_batch_size`**: splits CRAM inputs into smaller groups for `bcftools mpileup` / `bcftools call`
+- **`glimpse_sample_batch_size`**: splits the multi-sample VCF that is sent to GLIMPSE into sample batches before phasing and ligation; the default value is `2500`
+
+When `glimpse_sample_batch_size` causes the workflow to run multiple GLIMPSE sample batches, those batch-level contig VCFs are merged back together and a simple placeholder AF/INFO reannotation step is applied afterwards. This placeholder reannotation is intentionally easy to replace with a scientifically validated implementation later.
+
 ## Glimpse2SplitReference
 
 This workflow splits the provided reference panel into a series of chunks that each span a specified region of the genome, and converts the reference panel into a binary representation that can be ingested by the [Glimpse2Imputation](#Glimpse2Imputation) workflow. This significantly speeds up the imputation process since this step only has to be performed once per reference panel instead of once per sample.
