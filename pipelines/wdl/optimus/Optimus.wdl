@@ -78,7 +78,7 @@ workflow Optimus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "8.0.6"
+  String pipeline_version = "8.0.7"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -148,6 +148,7 @@ workflow Optimus {
       force_no_check = force_no_check,
       counting_mode = counting_mode,
       count_exons = count_exons,
+      star_strand_mode = star_strand_mode,
       gcp_whitelist_v2 = gcp_whitelist_v2,
       gcp_whitelist_v3 = gcp_whitelist_v3,
       azure_whitelist_v2 = azure_whitelist_v2,
@@ -165,6 +166,14 @@ workflow Optimus {
       ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
   }
 
+  # Compute STAR parameters at workflow level instead of bash conditionals in task
+  Int umi_len = if tenx_chemistry_version == 2 then 10 else 12
+  Int cb_len = 16
+  String solo_features = if counting_mode == "sc_rna" then "Gene"
+                         else if count_exons then "GeneFull_Ex50pAS Gene"
+                         else "GeneFull_Ex50pAS"
+  String solo_directory = if counting_mode == "sc_rna" then "Solo.out/Gene" else "Solo.out/GeneFull_Ex50pAS"
+
   call StarAlign.STARsoloFastq as STARsoloFastq {
       input:
         r1_fastq = r1_fastq,
@@ -172,7 +181,10 @@ workflow Optimus {
         star_strand_mode = star_strand_mode,
         white_list = whitelist,
         tar_star_reference = tar_star_reference,
-        chemistry = tenx_chemistry_version,
+        umi_len = umi_len,
+        cb_len = cb_len,
+        solo_features = solo_features,
+        solo_directory = solo_directory,
         counting_mode = counting_mode,
         count_exons = count_exons,
         input_id = input_id,

@@ -1,3 +1,11 @@
+# 3.6.6
+2026-03-31 (Date of Last Commit)
+
+* Moved read structure parsing out of STARsoloFastqSlideSeq bash command block into a new ParseReadStructure task called at the workflow level
+* Moved solo features conditional logic out of STARsoloFastqSlideSeq bash command block into a workflow-level WDL expression
+* Replaced read_structure input with explicit umi_len, cb_len, and solo_features task inputs for STARsoloFastqSlideSeq
+* No functional changes to pipeline outputs
+
 # 3.6.5
 2026-02-24 (Date of Last Commit)
 

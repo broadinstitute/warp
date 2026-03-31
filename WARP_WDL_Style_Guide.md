@@ -46,6 +46,28 @@
    - Cloud provider support inputs and validation
    - Output block organization
    - Error handling with ErrorWithMessage task
+   - **Workflow-level parameter derivation**
+     - Compute derived values (e.g. tool flags, directory paths, numeric parameters) as WDL expressions in the workflow, not as bash conditionals inside task command blocks
+     - Pass the computed values as explicit task inputs rather than raw enum/mode inputs that the task must interpret
+     - This keeps tasks focused on execution and makes the parameter contract visible in the WDL call site
+     - Example — instead of passing `Int chemistry` and branching in bash:
+       ```wdl
+       # Good: compute in workflow, pass to task
+       Int umi_len = if tenx_chemistry_version == 2 then 10 else 12
+       call MyTask { input: umi_len = umi_len }
+       ```
+       ```wdl
+       # Avoid: passing raw mode flag and branching in bash
+       call MyTask { input: chemistry = tenx_chemistry_version }
+       # ...where the task command block contains if/elif/else to derive umi_len
+       ```
+     - When a derived value requires string parsing that WDL 1.0 cannot express (e.g. parsing a read structure like `"8C18C9M1X"`), use a small dedicated utility task rather than embedding the logic in a large execution task
+   - **Input validation placement**
+     - Validate all user-facing inputs at the workflow level using `ErrorWithMessage` or a dedicated input-checking task (e.g. `checkOptimusInput`), not inside execution tasks
+     - Consolidate validation for a pipeline into a single task or workflow section so there is one place to check for all constraints
+     - Do not duplicate validation in both the workflow and the task — validate once upstream, then trust the inputs downstream
+   - **Derived values with embedded spaces**
+     - When a derived string contains spaces (e.g. `"GeneFull_Ex50pAS Gene"` for STAR's `--soloFeatures`), add a comment at the declaration site noting that the value is intentionally multi-word and must remain unquoted in the command block
 
 ## 6. Task Structure
 
@@ -60,6 +82,11 @@
 - Runtime parameter specification
   - Docker image handling for multi-cloud
   - Memory, CPU, disk sizing
+- **Task purity principle**
+  - Tasks should execute their tool with the parameters they are given, not decide *what* to run based on mode flags
+  - Bash conditionals in command blocks are appropriate for post-execution file handling (moving outputs, renaming files) but not for deriving tool parameters or validating inputs
+  - If a task currently branches on a mode input to select different tool flags, refactor by computing the flag values at the workflow level and passing them as explicit inputs
+  - This makes tasks reusable across workflows without carrying pipeline-specific validation logic
 
 ## 7. Docker Handling
 

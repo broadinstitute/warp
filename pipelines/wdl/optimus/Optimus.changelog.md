@@ -1,3 +1,12 @@
+# 8.0.7
+2026-03-31 (Date of Last Commit)
+
+* Moved conditional logic for chemistry, counting mode, strand mode, and solo features out of STARsoloFastq bash command block into workflow-level WDL expressions
+* Added star_strand_mode validation to checkOptimusInput task
+* Replaced chemistry input with explicit umi_len, cb_len, solo_features, and solo_directory task inputs for STARsoloFastq
+* Removed redundant bash input validation from STARsoloFastq task (already validated by checkOptimusInput)
+* No functional changes to pipeline outputs
+
 # 8.0.6
 2026-02-24 (Date of Last Commit)
 

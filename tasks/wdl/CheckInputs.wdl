@@ -61,6 +61,7 @@ task checkOptimusInput {
     String counting_mode
     Boolean force_no_check
     Boolean count_exons
+    String star_strand_mode
     Int disk = ceil(size(r1_fastq, "GiB")) + 50
     Int machine_mem_mb = 1000
     Int cpu = 1
@@ -97,6 +98,12 @@ task checkOptimusInput {
     then
       pass="false"
       echo "ERROR: Invalid value \"${counting_mode}\" for input \"counting_mode\""
+    fi
+
+    if [[ ! ("~{star_strand_mode}" == "Forward" || "~{star_strand_mode}" == "Reverse" || "~{star_strand_mode}" == "Unstranded") ]]
+    then
+      pass="false"
+      echo "ERROR: Invalid value \"~{star_strand_mode}\" for input \"star_strand_mode\". Should be Forward, Reverse, or Unstranded."
     fi
 
     if [[ ~{force_no_check} == "true" ]]
