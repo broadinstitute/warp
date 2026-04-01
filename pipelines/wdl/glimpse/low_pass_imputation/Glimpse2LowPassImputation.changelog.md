@@ -1,3 +1,8 @@
+# 0.0.4
+2026-04-01 (Date of Last Commit)
+
+* split out imputed hom ref sites to their own sites only vcf file output
+
 # 0.0.3
 2026-03-25 (Date of Last Commit)
 
