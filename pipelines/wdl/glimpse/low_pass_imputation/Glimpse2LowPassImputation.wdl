@@ -4,9 +4,9 @@ workflow Glimpse2LowPassImputation {
     input {
         String pipeline_version = "0.0.3"
 
-        # List of files, one per line
-
         Array[String] contigs
+
+        # this is the path the a directory that contains sites vcf, sites tabke, and reference chunks file.  should end with a "/
         String reference_panel_prefix
 
         File? input_vcf
@@ -296,7 +296,6 @@ task BcftoolsMpileup {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
-        maxRetries: max_retries
         maxRetries: max_retries
     }
 
