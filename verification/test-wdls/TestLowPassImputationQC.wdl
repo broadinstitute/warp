@@ -8,11 +8,7 @@ import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 workflow TestLowPassImputationQC {
 
     input {
-      # List of files, one per line
-        File reference_chunks
-        File sites_vcf
-        File sites_table
-        File sites_table_index
+        String reference_panel_prefix
 
         Array[String] contigs
 
@@ -39,11 +35,8 @@ workflow TestLowPassImputationQC {
   
     call LowPassImputationQC.InputQC {
       input:
-        reference_chunks = reference_chunks,
-        sites_vcf = sites_vcf,
-        sites_table = sites_table,
-        sites_table_index = sites_table_index,
         contigs = contigs,
+        reference_panel_prefix = reference_panel_prefix,
         crams = crams,
         cram_indices = cram_indices,
         sample_ids = sample_ids,
