@@ -164,7 +164,7 @@ task ValidateCramManifest {
         missing_columns=()
 
         for col in "${required_columns[@]}"; do
-            if ! echo "${header}" | grep -q "\b${col}\b"; then
+            if ! echo "${header}" | tr '\t' '\n' | grep -q "^${col}$"; then
                 missing_columns+=("${col}")
             fi
         done
