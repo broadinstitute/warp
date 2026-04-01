@@ -4,13 +4,10 @@ workflow InputQC {
     input {
         String pipeline_version = "0.0.1"
 
-        # List of files, one per line
-        File reference_chunks
-        File sites_vcf
-        File sites_table
-        File sites_table_index
-
         Array[String] contigs
+
+        # this is the path the a directory that contains sites vcf, sites tabke, and reference chunks file.  should end with a "/
+        String reference_panel_prefix
 
         # service currently does not accept VCFs as input
         Array[File]? crams
