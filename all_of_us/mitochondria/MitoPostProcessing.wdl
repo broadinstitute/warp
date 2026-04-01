@@ -20,20 +20,17 @@ workflow MitoPostProcessing {
         String input_path
         String output_base
 
-        File mito_plot_filter_script
-
         String hail_docker = "us.gcr.io/broad-gotc-prod/aou_mitochondria_post:0.0.1"
         RuntimeAttr? runtime_attr_override
     }
 
-    String pipeline_version = "9.0.0"
+    String pipeline_version = "aou_9.0.0"
 
     call RunMitoPostProcessing {
         input:
             output_path              = output_path,
             input_path               = input_path,
             output_base              = output_base,
-            mito_plot_filter_script  = mito_plot_filter_script,
             hail_docker              = hail_docker,
             runtime_attr_override    = runtime_attr_override
     }
@@ -59,8 +56,6 @@ task RunMitoPostProcessing {
         String input_path
         String output_base
 
-        File   mito_plot_filter_script
-
         String hail_docker
         RuntimeAttr? runtime_attr_override
     }
@@ -78,7 +73,7 @@ task RunMitoPostProcessing {
     command <<<
         set -euo pipefail
 
-        python3 ~{mito_plot_filter_script} \
+        python3 /opt/mito_plot_filter.py \
             --input-path  "~{input_path}" \
             --output-path "~{output_path}" \
             --output-base "~{output_base}"
