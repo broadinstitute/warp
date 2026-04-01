@@ -65,8 +65,7 @@ task RunMitoPostProcessing {
         disk_gb:          200,
         cpu_cores:        8,
         preemptible_tries: 0,
-        max_retries:      1,
-        boot_disk_gb:     20
+        max_retries:      1
     }
     RuntimeAttr runtime_override = select_first([runtime_attr_override, runtime_default])
 
@@ -100,6 +99,5 @@ task RunMitoPostProcessing {
         preemptible:   select_first([runtime_override.preemptible_tries, runtime_default.preemptible_tries])
         maxRetries:    select_first([runtime_override.max_retries,      runtime_default.max_retries])
         docker:        hail_docker
-        bootDiskSizeGb: select_first([runtime_override.boot_disk_gb,   runtime_default.boot_disk_gb])
     }
 }
