@@ -98,7 +98,7 @@ workflow Glimpse2LowPassImputation {
             }
 
             File phase_input_vcf = select_first([BcftoolsMerge.merged_vcf, BcftoolsNorm.output_vcf[0], input_vcf])
-            File phase_input_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, BcftoolsNorm.output_vcf_index[0],input_vcf_index])
+            File phase_input_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, BcftoolsNorm.output_vcf_index[0], input_vcf_index])
         }
 
         ## this task is used to grab the reference chunk but does not affect memory usage of glimpsePhase.
