@@ -100,7 +100,7 @@ workflow Optimus {
   String warp_tools_docker = "warp-tools:2.6.1"
   String star_merge_docker = "star-merge-npz:1.3.0"
   String samtools_star = "samtools-star:1.0.0-1.11-2.7.11a-1731516196"
-  String samtools_star_python = "samtools-star-python:1.0.0"
+  String samtools_star_python = "samtools-star-python:jw_Optimus_exon_only_bug_fix"
 
   #TODO how do we handle these?
   String alpine_docker = "alpine-bash@sha256:965a718a07c700a5204c77e391961edee37477634ce2f9cf652a8e4c2db858ff"
@@ -253,9 +253,9 @@ workflow Optimus {
         sparse_count_matrix = STARsoloFastq.sparse_counts,
         cell_id = STARsoloFastq.row_index,
         gene_id = STARsoloFastq.col_index,
-        sparse_count_matrix_exon = STARsoloFastq.sparse_counts,
-        cell_id_exon = STARsoloFastq.row_index,
-        gene_id_exon = STARsoloFastq.col_index,
+        sparse_count_matrix_exon = select_first([STARsoloFastq.sparse_counts_exon]),
+        cell_id_exon = select_first([STARsoloFastq.row_index_exon]),
+        gene_id_exon = select_first([STARsoloFastq.col_index_exon]),
         pipeline_version = "Optimus_v~{pipeline_version}",
         warp_tools_docker_path = docker_prefix + warp_tools_docker,
         gex_whitelist_gs_path = whitelist
