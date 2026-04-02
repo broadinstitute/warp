@@ -65,8 +65,8 @@ workflow InputQC {
     }
 
     output {
-        Boolean passes_qc = select_first([no_data_passes_qc, multiple_data_types_passes_qc, no_cram_index_or_sample_id_passes_qc, ConvertCramManifestToCramArrays.passes_qc, ValidateCramsAndIndices.passes_qc])
-        String qc_messages = select_first([no_data_message, multiple_data_types_message, no_cram_index_or_sample_id_message, ConvertCramManifestToCramArrays.qc_messages, ValidateCramsAndIndices.qc_messages])
+        Boolean passes_qc = select_first([no_data_passes_qc, multiple_data_types_passes_qc, no_cram_index_or_sample_id_passes_qc, ValidateCramsAndIndices.passes_qc, ConvertCramManifestToCramArrays.passes_qc])
+        String qc_messages = select_first([no_data_message, multiple_data_types_message, no_cram_index_or_sample_id_message, ValidateCramsAndIndices.qc_messages, ConvertCramManifestToCramArrays.qc_messages])
     }
 }
 
