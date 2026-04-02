@@ -164,11 +164,11 @@ task ConvertCramManifestToCramArrays {
         touch qc_messages.txt
 
         # convert the cram manifest into arrays of crams, cram indices, and sample ids
-        header=$(head -n 1 ${cram_manifest})
+        header=$(head -n 1 ~{cram_manifest})
 
-        sample_id_col=$(echo "${header}" | tr '\t' '\n' | grep -n "^sample_id$" | cut -d: -f1)
-        cram_path_col=$(echo "${header}" | tr '\t' '\n' | grep -n "^cram_path$" | cut -d: -f1)
-        cram_index_col=$(echo "${header}" | tr '\t' '\n' | grep -n "^cram_index_path$" | cut -d: -f1)
+        sample_id_col=$(cat header.txt | tr '\t' '\n' | grep -n "^sample_id$" | cut -d: -f1)
+        cram_path_col=$(cat header.txt | tr '\t' '\n' | grep -n "^cram_path$" | cut -d: -f1)
+        cram_index_col=$(cat header.txt | tr '\t' '\n' | grep -n "^cram_index_path$" | cut -d: -f1)
 
         if [ -z "${sample_id_col}" ] || [ -z "${cram_path_col}" ] || [ -z "${cram_index_col}" ]; then
             echo "Unable to determine column positions for sample_id, cram_path, or cram_index_path in the CRAM manifest." >> qc_messages.txt
@@ -178,9 +178,9 @@ task ConvertCramManifestToCramArrays {
             exit 0
         fi
 
-        tail -n +2 ${cram_manifest} | cut -f${sample_id_col} > sample_ids.txt
-        tail -n +2 ${cram_manifest} | cut -f${cram_path_col} > crams.txt
-        tail -n +2 ${cram_manifest} | cut -f${cram_index_col} > cram_indices.txt
+        tail -n +2 ~{cram_manifest} | cut -f${sample_id_col} > sample_ids.txt
+        tail -n +2 ~{cram_manifest} | cut -f${cram_path_col} > crams.txt
+        tail -n +2 ~{cram_manifest} | cut -f${cram_index_col} > cram_indices.txt
 
         # passes_qc is true if qc_messages is empty
         if [ ! -s qc_messages.txt ]; then
