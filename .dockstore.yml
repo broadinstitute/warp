@@ -133,6 +133,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/mitochondria_pipeline.wdl
 
+  - name: MitoPostProcessing
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/mitochondria/MitoPostProcessing.wdl
+  
   - name: mt_coverage_merge
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/mt_coverage_merge.wdl
