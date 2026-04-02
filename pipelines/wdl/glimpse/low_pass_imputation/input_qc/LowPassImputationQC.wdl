@@ -91,6 +91,11 @@ task ValidateCramsAndIndices {
         # create empty qc messages file
         touch qc_messages.txt
 
+        # write WDL arrays to files
+        printf "%s\n" ~{sep=' ' sample_ids} > sample_ids_list.txt
+        printf "%s\n" ~{sep=' ' crams} > crams_list.txt
+        printf "%s\n" ~{sep=' ' cram_indices} > cram_indices_list.txt
+
         # validate that the number of CRAMs, CRAIs, and sample IDs match
         if [ ~{num_crams} -ne ~{num_cram_indices} ] || [ ~{num_crams} -ne ~{num_sample_ids} ]; then
             echo "Mismatch in the number of CRAMs (~{num_crams}), CRAIs (~{num_cram_indices}), and sample IDs (~{num_sample_ids})." >> qc_messages.txt
@@ -99,23 +104,23 @@ task ValidateCramsAndIndices {
         fi
 
         # validate that sample IDs are unique
-        unique_sample_ids=$(printf "%s\n" "${sample_ids[@]}" | sort -u | wc -l)
+        unique_sample_ids=$(cat sample_ids_list.txt | sort -u | wc -l)
         if [ $unique_sample_ids -ne ~{num_sample_ids} ]; then
             # find duplicate sample IDs
-            duplicate_sample_ids=$(printf "%s\n" "${sample_ids[@]}" | sort | uniq -d)
+            duplicate_sample_ids=$(cat sample_ids_list.txt | sort | uniq -d | paste -sd, | sed 's/,/, /g')
             echo "Duplicate sample IDs found: ${duplicate_sample_ids}" >> qc_messages.txt
         else
             echo "Sample IDs are unique."
         fi
 
         # ensure all crams end with .cram and all cram indices end with .crai
-        crams_with_wrong_extension=$(printf "%s\n" "${crams[@]}" | grep -vE "\.cram$")
+        crams_with_wrong_extension=$(cat crams_list.txt | grep -vE "\.cram$" || true)
         if [ ! -z "${crams_with_wrong_extension}" ]; then
             echo "The following CRAM files do not have a .cram extension: ${crams_with_wrong_extension}" >> qc_messages.txt
         else
             echo "All CRAM files have the correct .cram extension."
         fi
-        cram_indices_with_wrong_extension=$(printf "%s\n" "${cram_indices[@]}" | grep -vE "\.crai$")
+        cram_indices_with_wrong_extension=$(cat cram_indices_list.txt | grep -vE "\.crai$" || true)
         if [ ! -z "${cram_indices_with_wrong_extension}" ]; then
             echo "The following CRAM index files do not have a .crai extension: ${cram_indices_with_wrong_extension}" >> qc_messages.txt
         else
@@ -204,8 +209,8 @@ task ConvertCramManifestToCramArrays {
     }
 
     output {
-        Array[File] crams = read_lines("crams.txt")
-        Array[File] cram_indices = read_lines("cram_indices.txt")
+        Array[String] crams = read_lines("crams.txt")
+        Array[String] cram_indices = read_lines("cram_indices.txt")
         Array[String] sample_ids = read_lines("sample_ids.txt")
         Boolean passes_qc = read_boolean("passes_qc.txt")
         String qc_messages = read_string("qc_messages.txt")
