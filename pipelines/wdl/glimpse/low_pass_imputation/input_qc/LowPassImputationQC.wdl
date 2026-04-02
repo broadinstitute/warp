@@ -1,12 +1,14 @@
 version 1.0
 
 workflow InputQC {
+    # if this changes, update the input_qc_version value in Glimpse2LowPassImputation.wdl
+    String pipeline_version = "0.0.1"
+
     input {
-        String pipeline_version = "0.0.1"
 
         Array[String] contigs
 
-        # this is the path the a directory that contains sites vcf, sites tabke, and reference chunks file.  should end with a "/
+        # this is the path the a directory that contains sites vcf, sites tabke, and reference chunks file.  should end with a "/"
         String reference_panel_prefix
 
         # service currently does not accept VCFs as input
@@ -33,29 +35,31 @@ workflow InputQC {
         String multiple_data_types_message = "Multiple input data types provided. Please provide only CRAM files (with corresponding CRAIs and sample IDs) or a CRAM manifest."
     }
 
+    # convert cram manifest to arrays of crams, cram indices, and sample ids if manifest is provided
+    if (defined(cram_manifest)) {
+        call ConvertCramManifestToCramArrays {
+            input:
+                cram_manifest = select_first([cram_manifest])
+        }
+    }
+
+    Array[File] cram_array = select_first([crams, ConvertCramManifestToCramArrays.crams])
+    Array[File] cram_index_array = select_first([cram_indices, ConvertCramManifestToCramArrays.cram_indices])
+    Array[String] sample_id_array = select_first([sample_ids, ConvertCramManifestToCramArrays.sample_ids])
+    Boolean do_cram_qc = select_first([ConvertCramManifestToCramArrays.passes_qc, true]) # only do cram QC if manifest conversion passed QC
+
     # validations for array crams input
-    if (defined(crams) && !defined(cram_manifest)) {
-        if (!defined(cram_indices) || !defined(sample_ids)) {
+    if (do_cram_qc) {
+        if (!defined(cram_index_array) || !defined(sample_id_array)) {
             Boolean no_cram_index_or_sample_id_passes_qc = false
             String no_cram_index_or_sample_id_message = "CRAM indices and sample IDs are required when CRAM files are provided. Please provide cram index files and a list of sample IDs corresponding to the CRAM files."
         }
 
-        if (defined(crams) && defined(cram_indices) && defined(sample_ids)) {
-            call ValidateCramsAndIndices {
-                input:
-                    crams = select_first([crams]),
-                    cram_indices = select_first([cram_indices]),
-                    sample_ids = select_first([sample_ids])
-            }
-        }
-        
-    }
-
-    # validations for cram manifest input
-    if (defined(cram_manifest)) {
-        call ValidateCramManifest {
+        call ValidateCramsAndIndices {
             input:
-                cram_manifest = select_first([cram_manifest])
+                crams = cram_array,
+                cram_indices = cram_index_array,
+                sample_ids = sample_id_array
         }
     }
 
@@ -144,7 +148,7 @@ task ValidateCramsAndIndices {
     }
 }
 
-task ValidateCramManifest {
+task ConvertCramManifestToCramArrays {
     input {
         File cram_manifest
 
@@ -152,47 +156,30 @@ task ValidateCramManifest {
         Int cpu = 1
         Int memory_mb = 4000
         Int disk_size_gb = ceil(1.1*size(cram_manifest, "GiB")) + 10
-    }
+    }   
 
     command <<<
         # create empty qc messages file
         touch qc_messages.txt
 
-        # validate that the manifest has the required columns, independent of order
-        required_columns=("sample_id" "cram_path" "cram_index_path")
+        # convert the cram manifest into arrays of crams, cram indices, and sample ids
         header=$(head -n 1 ${cram_manifest})
-        missing_columns=()
 
-        for col in "${required_columns[@]}"; do
-            if ! echo "${header}" | tr '\t' '\n' | grep -q "^${col}$"; then
-                missing_columns+=("${col}")
-            fi
-        done
+        sample_id_col=$(echo "${header}" | tr '\t' '\n' | grep -n "^sample_id$" | cut -d: -f1)
+        cram_path_col=$(echo "${header}" | tr '\t' '\n' | grep -n "^cram_path$" | cut -d: -f1)
+        cram_index_col=$(echo "${header}" | tr '\t' '\n' | grep -n "^cram_index_path$" | cut -d: -f1)
 
-        if [ ${#missing_columns[@]} -gt 0 ]; then
-            echo "CRAM manifest is missing required columns: ${missing_columns[*]}. Expected columns: ${required_columns[*]}. Actual header: ${header}" >> qc_messages.txt
-        else
-            echo "CRAM manifest has the required columns."
+        if [ -z "${sample_id_col}" ] || [ -z "${cram_path_col}" ] || [ -z "${cram_index_col}" ]; then
+            echo "Unable to determine column positions for sample_id, cram_path, or cram_index_path in the CRAM manifest." >> qc_messages.txt
+            echo "false" > passes_qc.txt
+            # create empty output files to ensure the task succeeds
+            touch crams.txt cram_indices.txt sample_ids.txt
+            exit 0
         fi
 
-        # validate that sample IDs are unique
-        # find the column number for sample_id
-        sample_id_col=$(head -n 1 ${cram_manifest} | tr '\t' '\n' | grep -n "^sample_id$" | cut -d: -f1)
-        
-        if [ -z "${sample_id_col}" ]; then
-            echo "Unable to determine sample_id column position." >> qc_messages.txt
-        else
-            sample_ids=$(tail -n +2 ${cram_manifest} | cut -f${sample_id_col})
-            unique_sample_ids=$(echo "${sample_ids}" | sort -u | wc -l)
-            total_sample_ids=$(echo "${sample_ids}" | wc -l)
-            if [ $unique_sample_ids -ne $total_sample_ids ]; then
-                # find duplicate sample IDs
-                duplicate_sample_ids=$(echo "${sample_ids}" | sort | uniq -d)
-                echo "Duplicate sample IDs found in CRAM manifest: ${duplicate_sample_ids}" >> qc_messages.txt
-            else
-                echo "Sample IDs in CRAM manifest are unique."
-            fi
-        fi
+        tail -n +2 ${cram_manifest} | cut -f${sample_id_col} > sample_ids.txt
+        tail -n +2 ${cram_manifest} | cut -f${cram_path_col} > crams.txt
+        tail -n +2 ${cram_manifest} | cut -f${cram_index_col} > cram_indices.txt
 
         # passes_qc is true if qc_messages is empty
         if [ ! -s qc_messages.txt ]; then
@@ -204,7 +191,7 @@ task ValidateCramManifest {
         # This task should always succeed
         exit 0
     >>>
-    
+
     runtime {
         docker: gatk_docker
         disks: "local-disk ${disk_size_gb} SSD"
@@ -214,8 +201,11 @@ task ValidateCramManifest {
         maxRetries: 1
         noAddress: true
     }
-    
+
     output {
+        Array[File] crams = read_lines("crams.txt")
+        Array[File] cram_indices = read_lines("cram_indices.txt")
+        Array[String] sample_ids = read_lines("sample_ids.txt")
         Boolean passes_qc = read_boolean("passes_qc.txt")
         String qc_messages = read_string("qc_messages.txt")
     }
