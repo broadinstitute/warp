@@ -85,6 +85,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputation.wdl
 
+  - name: Glimpse2LowPassImputationQuotaConsumed
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationQuotaConsumed.wdl
+
   - name: get_wgs_median_coverage
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/get_wgs_median_coverage.wdl
