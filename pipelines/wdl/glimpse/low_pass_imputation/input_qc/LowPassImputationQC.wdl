@@ -32,7 +32,7 @@ workflow InputQC {
     # validate that not more than one of these is provided
     if ( (defined(crams) && defined(cram_manifest))) {
         Boolean multiple_data_types_passes_qc = false
-        String multiple_data_types_message = "Multiple input data types provided. Please provide only CRAM files (with corresponding CRAIs and sample IDs) or a CRAM manifest."
+        String multiple_data_types_message = "Multiple input data types provided. Please provide only CRAM files (with corresponding CRAM index files and sample IDs) or a CRAM manifest."
     }
 
     # convert cram manifest to arrays of crams, cram indices, and sample ids if manifest is provided
@@ -43,16 +43,17 @@ workflow InputQC {
         }
     }
 
-    Array[File] cram_array = select_first([crams, ConvertCramManifestToCramArrays.crams])
-    Array[File] cram_index_array = select_first([cram_indices, ConvertCramManifestToCramArrays.cram_indices])
-    Array[String] sample_id_array = select_first([sample_ids, ConvertCramManifestToCramArrays.sample_ids])
     Boolean do_cram_qc = select_first([ConvertCramManifestToCramArrays.passes_qc, true]) # only do cram QC if manifest conversion passed QC
-
+    
     # validations for array crams input
     if (do_cram_qc) {
+        Array[File] cram_array = select_first([crams, ConvertCramManifestToCramArrays.crams])
+        Array[File] cram_index_array = select_first([cram_indices, ConvertCramManifestToCramArrays.cram_indices])
+        Array[String] sample_id_array = select_first([sample_ids, ConvertCramManifestToCramArrays.sample_ids])
+        
         if (!defined(cram_index_array) || !defined(sample_id_array)) {
             Boolean no_cram_index_or_sample_id_passes_qc = false
-            String no_cram_index_or_sample_id_message = "CRAM indices and sample IDs are required when CRAM files are provided. Please provide cram index files and a list of sample IDs corresponding to the CRAM files."
+            String no_cram_index_or_sample_id_message = "CRAM indices and sample IDs are required when CRAM files are provided. Please provide CRAM index files and a corresponding list of sample IDs."
         }
 
         call ValidateCramsAndIndices {
@@ -64,8 +65,8 @@ workflow InputQC {
     }
 
     output {
-        Boolean passes_qc = select_first([no_data_passes_qc, multiple_data_types_passes_qc, no_cram_index_or_sample_id_passes_qc, ValidateCramsAndIndices.passes_qc, ValidateCramManifest.passes_qc])
-        String qc_messages = select_first([no_data_message, multiple_data_types_message, no_cram_index_or_sample_id_message, ValidateCramsAndIndices.qc_messages, ValidateCramManifest.qc_messages])
+        Boolean passes_qc = select_first([no_data_passes_qc, multiple_data_types_passes_qc, no_cram_index_or_sample_id_passes_qc, ConvertCramManifestToCramArrays.passes_qc, ValidateCramsAndIndices.passes_qc])
+        String qc_messages = select_first([no_data_message, multiple_data_types_message, no_cram_index_or_sample_id_message, ConvertCramManifestToCramArrays.qc_messages, ValidateCramsAndIndices.qc_messages])
     }
 }
 
