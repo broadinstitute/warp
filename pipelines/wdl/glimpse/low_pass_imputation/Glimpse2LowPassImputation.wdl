@@ -248,6 +248,7 @@ task SplitIntoBatches {
         disks: "local-disk 10 HDD"
         memory: "1 GiB"
         preemptible: 3
+        noAddress: true
     }
 
     output {
@@ -283,6 +284,7 @@ task ComputeShardsAndMemoryPerShard {
 
     runtime {
         docker : "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        noAddress: true
     }
 
     output {
@@ -331,6 +333,7 @@ task BcftoolsMpileup {
         cpu: cpu
         preemptible: preemptible
         maxRetries: max_retries
+        noAddress: true
     }
 
     output {
@@ -366,6 +369,7 @@ task BcftoolsCall {
         cpu: cpu
         preemptible: preemptible
         maxRetries: max_retries
+        noAddress: true
     }
 
     output {
@@ -400,6 +404,7 @@ task BcftoolsNorm {
         cpu: cpu
         preemptible: preemptible
         maxRetries: max_retries
+        noAddress: true
     }
 
     output {
@@ -435,6 +440,7 @@ task BcftoolsMerge {
         cpu: cpu
         preemptible: preemptible
         maxRetries: max_retries
+        noAddress: true
     }
 
     output {
@@ -549,6 +555,7 @@ task GlimpsePhase {
         preemptible: preemptible
         maxRetries: max_retries
         checkpointFile: "checkpoint.bin"
+        noAddress: true
     }
 
     output {
@@ -595,6 +602,7 @@ task GlimpseLigate {
         cpu: cpu
         preemptible: preemptible
         maxRetries: max_retries
+        noAddress: true
     }
 
     output {
@@ -648,6 +656,7 @@ task CollectQCMetrics {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        noAddress: true
     }
 
     output {
@@ -674,6 +683,7 @@ task CountSamples {
         disks: "local-disk ${disk_size_gb} HDD"
         memory: "${memory_mb} MiB"
         cpu: cpu
+        noAddress: true
     }
     output {
         Int nSamples = read_int(stdout())
@@ -716,7 +726,8 @@ task CombineCoverageMetrics
     >>>
 
     runtime {
-        docker: "ubuntu:24.04"
+        docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
+        noAddress: true
     }
 
     output {
