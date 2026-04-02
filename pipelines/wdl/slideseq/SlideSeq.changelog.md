@@ -1,3 +1,8 @@
+# 3.6.6
+2026-04-02 (Date of Last Commit)
+
+* Fixed a bug in the Optimus pipeline. The changes have no impact on this pipeline.
+
 # 3.6.5
 2026-02-24 (Date of Last Commit)
 
