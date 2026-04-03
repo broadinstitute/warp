@@ -2,11 +2,13 @@ version 1.0
 
 workflow Glimpse2LowPassImputation {
     input {
-        String pipeline_version = "0.0.3"
+        String pipeline_version = "0.0.4"
+
+        # List of files, one per line
 
         Array[String] contigs
 
-        # this is the path the a directory that contains sites vcf, sites tabke, and reference chunks file.  should end with a "/
+        # this is the path the a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
         String reference_panel_prefix
 
         File? input_vcf
@@ -134,11 +136,25 @@ workflow Glimpse2LowPassImputation {
                 docker = glimpse_docker
         }
         Array[File] contig_coverage_metrics = select_all(GlimpsePhase.coverage_metrics)
+
+        call SelectVariantRecordsOnly {
+            input:
+                vcf = GlimpseLigate.imputed_vcf,
+                vcf_index = GlimpseLigate.imputed_vcf_index,
+                basename = output_basename + "." + contig + ".imputed.only_variants",
+        }
+
+        call CreateHomRefSitesOnlyVcf {
+            input:
+                vcf = GlimpseLigate.imputed_vcf,
+                vcf_index = GlimpseLigate.imputed_vcf_index,
+                basename = output_basename + "." + contig + ".imputed.only_hom_ref.sites_only",
+        }
     }
 
     call GatherVcfsNoIndex {
         input:
-            input_vcfs = GlimpseLigate.imputed_vcf,
+            input_vcfs = SelectVariantRecordsOnly.output_vcf,
             output_vcf_basename = output_basename + ".imputed",
             gatk_docker = gatk_docker
     }
@@ -146,6 +162,20 @@ workflow Glimpse2LowPassImputation {
     call CreateVcfIndexAndMd5 {
         input:
             vcf_input = GatherVcfsNoIndex.output_vcf,
+            gatk_docker = gatk_docker,
+            preemptible = 0
+    }
+
+    call GatherVcfsNoIndex as GatherVcfsNoIndexHomRefOnly {
+        input:
+            input_vcfs = CreateHomRefSitesOnlyVcf.output_vcf,
+            output_vcf_basename = output_basename + ".imputed.hom_ref_sites_only",
+            gatk_docker = gatk_docker
+    }
+
+    call CreateVcfIndexAndMd5 as CreateVcfIndexAndMd5HomRefOnly {
+        input:
+            vcf_input = GatherVcfsNoIndexHomRefOnly.output_vcf,
             gatk_docker = gatk_docker,
             preemptible = 0
     }
@@ -170,6 +200,10 @@ workflow Glimpse2LowPassImputation {
         File imputed_vcf = CreateVcfIndexAndMd5.output_vcf
         File imputed_vcf_index = CreateVcfIndexAndMd5.output_vcf_index
         File imputed_vcf_md5sum = CreateVcfIndexAndMd5.output_vcf_md5sum
+
+        File imputed_hom_ref_sites_only_vcf = CreateVcfIndexAndMd5HomRefOnly.output_vcf
+        File imputed_hom_ref_sites_only_vcf_inex = CreateVcfIndexAndMd5HomRefOnly.output_vcf_index
+        File imputed_hom_ref_sites_only_vcf_md5 = CreateVcfIndexAndMd5HomRefOnly.output_vcf_md5sum
 
         File qc_metrics = CollectQCMetrics.qc_metrics
         File? coverage_metrics = CombineCoverageMetrics.coverage_metrics
@@ -214,6 +248,7 @@ task SplitIntoBatches {
         disks: "local-disk 10 HDD"
         memory: "1 GiB"
         preemptible: 3
+        noAddress: true
     }
 
     output {
@@ -249,6 +284,7 @@ task ComputeShardsAndMemoryPerShard {
 
     runtime {
         docker : "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        noAddress: true
     }
 
     output {
@@ -297,6 +333,7 @@ task BcftoolsMpileup {
         cpu: cpu
         preemptible: preemptible
         maxRetries: max_retries
+        noAddress: true
     }
 
     output {
@@ -332,6 +369,7 @@ task BcftoolsCall {
         cpu: cpu
         preemptible: preemptible
         maxRetries: max_retries
+        noAddress: true
     }
 
     output {
@@ -366,6 +404,7 @@ task BcftoolsNorm {
         cpu: cpu
         preemptible: preemptible
         maxRetries: max_retries
+        noAddress: true
     }
 
     output {
@@ -401,6 +440,7 @@ task BcftoolsMerge {
         cpu: cpu
         preemptible: preemptible
         maxRetries: max_retries
+        noAddress: true
     }
 
     output {
@@ -515,6 +555,7 @@ task GlimpsePhase {
         preemptible: preemptible
         maxRetries: max_retries
         checkpointFile: "checkpoint.bin"
+        noAddress: true
     }
 
     output {
@@ -551,6 +592,7 @@ task GlimpseLigate {
         bcftools view -h --no-version ligated.vcf.gz > old_header.vcf
         java -jar /picard.jar UpdateVcfSequenceDictionary -I old_header.vcf --SD ~{ref_dict} -O new_header.vcf
         bcftools reheader -h new_header.vcf -o ~{output_basename}.imputed.vcf.gz ligated.vcf.gz
+        tabix ~{output_basename}.imputed.vcf.gz
     >>>
 
     runtime {
@@ -560,10 +602,12 @@ task GlimpseLigate {
         cpu: cpu
         preemptible: preemptible
         maxRetries: max_retries
+        noAddress: true
     }
 
     output {
         File imputed_vcf = "~{output_basename}.imputed.vcf.gz"
+        File imputed_vcf_index = "~{output_basename}.imputed.vcf.gz.tbi"
     }
 }
 
@@ -572,10 +616,10 @@ task CollectQCMetrics {
         File imputed_vcf
         String output_basename
 
-        Int preemptible = 1
+        Int preemptible = 0
         String docker = "hailgenetics/hail:0.2.126-py3.11"
         Int cpu = 4
-        Int mem_gb = 16
+        Int mem_gb = 8
     }
 
     parameter_meta {
@@ -584,7 +628,7 @@ task CollectQCMetrics {
                      }
     }
 
-    Int disk_size_gb = 100
+    Int disk_size_gb = ceil(2*size(imputed_vcf, "GiB") + 50)
 
     command <<<
         set -euo pipefail
@@ -612,6 +656,7 @@ task CollectQCMetrics {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        noAddress: true
     }
 
     output {
@@ -638,6 +683,7 @@ task CountSamples {
         disks: "local-disk ${disk_size_gb} HDD"
         memory: "${memory_mb} MiB"
         cpu: cpu
+        noAddress: true
     }
     output {
         Int nSamples = read_int(stdout())
@@ -680,7 +726,8 @@ task CombineCoverageMetrics
     >>>
 
     runtime {
-        docker: "ubuntu:24.04"
+        docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
+        noAddress: true
     }
 
     output {
@@ -734,15 +781,16 @@ task CreateVcfIndexAndMd5 {
         Int preemptible = 3
     }
 
-    String vcf_basename = basename(vcf_input)
+    String vcf_basename = basename(vcf_input, ".vcf.gz")
 
     command <<<
         set -e -o pipefail
 
-        ln -sf ~{vcf_input} ~{vcf_basename}
+        ln -sf ~{vcf_input} ~{vcf_basename}.vcf.gz
 
-        bcftools index -t ~{vcf_basename}
-        md5sum ~{vcf_basename} | awk '{ print $1 }' > ~{vcf_basename}.md5sum
+        bcftools index -t ~{vcf_basename}.vcf.gz
+
+        md5sum ~{vcf_basename}.vcf.gz | awk '{ print $1 }' > ~{vcf_basename}.md5sum
     >>>
     runtime {
         docker: gatk_docker
@@ -754,8 +802,86 @@ task CreateVcfIndexAndMd5 {
         noAddress: true
     }
     output {
-        File output_vcf = "~{vcf_basename}"
-        File output_vcf_index = "~{vcf_basename}.tbi"
+        File output_vcf = "~{vcf_basename}.vcf.gz"
+        File output_vcf_index = "~{vcf_basename}.vcf.gz.tbi"
         File output_vcf_md5sum = "~{vcf_basename}.md5sum"
+    }
+}
+
+task SelectVariantRecordsOnly {
+    input {
+        File vcf
+        File vcf_index
+        String basename
+
+        Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
+        Int cpu = 1
+        Int memory_mb = 3000
+        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+    }
+    Int command_mem = memory_mb - 1500
+    Int max_heap = memory_mb - 1000
+
+    command {
+        set -e -o pipefail
+
+        # keep alt sites (i.e. remove hom ref sites)
+        bcftools view -i 'GT[*]="alt"' -Oz -o ~{basename}.vcf.gz ~{vcf}
+    }
+
+    runtime {
+        docker: gatk_docker
+        disks: "local-disk ${disk_size_gb} SSD"
+        memory: "${memory_mb} MiB"
+        cpu: cpu
+        maxRetries: 1
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        File output_vcf = "~{basename}.vcf.gz"
+    }
+}
+
+task CreateHomRefSitesOnlyVcf {
+    input {
+        File vcf
+        File vcf_index
+        String basename
+
+        Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
+        Int cpu = 1
+        Int memory_mb = 6000
+        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+    }
+    Int command_mem = memory_mb - 1500
+    Int max_heap = memory_mb - 1000
+
+    command {
+        set -e -o pipefail
+
+        # create header with only first 8 columns and store that
+        bcftools view -h ~{vcf} | grep "^##" > ~{basename}.vcf
+        bcftools view -h ~{vcf} | grep -v "^##" | cut -f1-8 >> ~{basename}.vcf
+
+        # append first 8 columns of hom ref sites to previously stored header
+        bcftools query -e 'GT[*]="alt"' -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO\n' ~{vcf} >> ~{basename}.vcf
+
+        bgzip ~{basename}.vcf
+    }
+
+    runtime {
+        docker: gatk_docker
+        disks: "local-disk ${disk_size_gb} SSD"
+        memory: "${memory_mb} MiB"
+        cpu: cpu
+        maxRetries: 1
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        File output_vcf = "~{basename}.vcf.gz"
     }
 }
