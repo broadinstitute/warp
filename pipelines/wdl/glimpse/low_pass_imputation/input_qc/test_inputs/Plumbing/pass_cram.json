@@ -5,7 +5,7 @@
   "LowPassImputationQC.fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
   "LowPassImputationQC.output_basename": "plumbing_test",
   "LowPassImputationQC.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
-  "LowPassImputationQC.crams": ["gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram0.cram", "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram0.cram", "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram1.cram", "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram1.cram"],
-  "LowPassImputationQC.cram_indices": ["gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram0.cram.crai", "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram0.cram.crai", "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram1.cram.crai", "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram1.cram.crai"],
-  "LowPassImputationQC.sample_ids": ["sample0", "sample0", "sample1", "sample1"]
+  "LowPassImputationQC.crams": ["gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram0.cram", "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram1.cram"],
+  "LowPassImputationQC.cram_indices": ["gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram0.cram.crai", "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram1.cram.crai"],
+  "LowPassImputationQC.sample_ids": ["sample0", "sample1"]
 }
