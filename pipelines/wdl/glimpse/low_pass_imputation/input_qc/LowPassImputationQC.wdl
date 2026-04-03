@@ -48,8 +48,8 @@ workflow InputQC {
     # validations for array crams input
     if (do_cram_qc) {
         Array[File] cram_array = select_first([crams, ConvertCramManifestToCramArrays.crams])
-        Array[File] cram_index_array = select_first([cram_indices, ConvertCramManifestToCramArrays.cram_indices])
-        Array[String] sample_id_array = select_first([sample_ids, ConvertCramManifestToCramArrays.sample_ids])
+        Array[File] cram_index_array = select_first([cram_indices, ConvertCramManifestToCramArrays.cram_indices, []])
+        Array[String] sample_id_array = select_first([sample_ids, ConvertCramManifestToCramArrays.sample_ids, []])
         
         if (!defined(cram_index_array) || !defined(sample_id_array)) {
             Boolean no_cram_index_or_sample_id_passes_qc = false
