@@ -192,6 +192,16 @@ task ValidateCramsAndIndices {
             echo "All CRAM index files have the correct .crai extension."
         fi
 
+        # validate that cram paths are unique
+        unique_crams=$(cat crams_list.txt | sort -u | wc -l)
+        if [ $unique_crams -ne ~{num_crams} ]; then
+            # find duplicate CRAM paths
+            duplicate_crams=$(cat crams_list.txt | sort | uniq -d | paste -sd, | sed 's/,/, /g')
+            echo "Duplicate CRAM paths found: ${duplicate_crams}" >> qc_messages.txt
+        else
+            echo "CRAM paths are unique."
+        fi
+
         # ensure that all CRAM files are less than the maximum file size allowed by the service (currently 10GB)
         # this also serves as an access check, which should already have been performed by the service
         crams_exceeding_max_size=$(cat crams_list.txt | while read cram; do
