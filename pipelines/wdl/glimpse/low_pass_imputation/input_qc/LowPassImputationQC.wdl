@@ -43,9 +43,9 @@ workflow InputQC {
         }
     }
 
-    Boolean do_cram_qc = select_first([ConvertCramManifestToCramArrays.passes_qc, defined(crams)]) # only do cram QC if manifest conversion passed QC
+    Boolean do_cram_qc = select_first([ConvertCramManifestToCramArrays.passes_qc, defined(crams)])
     
-    # validations for array crams input
+    # validations for array crams, cram indices, and sample ids (whether supplied directly or via manifest)
     if (do_cram_qc) {
         Array[String] cram_array = select_first([crams, ConvertCramManifestToCramArrays.crams])
         
@@ -62,8 +62,8 @@ workflow InputQC {
             call ValidateCramsAndIndices {
                 input:
                     crams = cram_array,
-                    cram_indices = select_first([cram_index_array]),
-                    sample_ids = select_first([sample_id_array]),
+                    cram_indices = cram_index_array,
+                    sample_ids = sample_id_array,
                     billing_project_for_rp = billing_project_for_rp
             }
         }
