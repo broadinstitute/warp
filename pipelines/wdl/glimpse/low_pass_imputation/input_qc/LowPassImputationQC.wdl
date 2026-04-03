@@ -5,22 +5,22 @@ workflow InputQC {
     String pipeline_version = "0.0.1"
 
     input {
-
         Array[String] contigs
 
-        # this is the path the a directory that contains sites vcf, sites tabke, and reference chunks file.  should end with a "/"
+        # this is the directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
         String reference_panel_prefix
 
-        # service currently does not accept VCFs as input
         Array[File]? crams
         Array[File]? cram_indices
         Array[String]? sample_ids
         File? cram_manifest
-        File fasta
-        File fasta_index
         String output_basename
 
+        File fasta
+        File fasta_index
         File ref_dict
+
+        String billing_project_for_rp?
     }
 
     # validate that either crams, or cram manifest is provided
@@ -47,8 +47,8 @@ workflow InputQC {
     
     # validations for array crams input
     if (do_cram_qc) {
-        Array[File] cram_array = select_first([crams, ConvertCramManifestToCramArrays.crams])
-        Array[File] cram_index_array = select_first([cram_indices, ConvertCramManifestToCramArrays.cram_indices, []])
+        Array[String] cram_array = select_first([crams, ConvertCramManifestToCramArrays.crams])
+        Array[String] cram_index_array = select_first([cram_indices, ConvertCramManifestToCramArrays.cram_indices, []])
         Array[String] sample_id_array = select_first([sample_ids, ConvertCramManifestToCramArrays.sample_ids, []])
         
         if (!defined(cram_index_array) || !defined(sample_id_array)) {
@@ -60,7 +60,8 @@ workflow InputQC {
             input:
                 crams = cram_array,
                 cram_indices = cram_index_array,
-                sample_ids = sample_id_array
+                sample_ids = sample_id_array,
+                billing_project_for_rp = billing_project_for_rp
         }
     }
 
@@ -141,6 +142,7 @@ task ValidateCramsAndIndices {
         Array[String] sample_ids
 
         Int max_cram_file_size_gb = 10
+        String billing_project_for_rp? # if set, will use this to check file sizes for requester pays buckets. if not set, will not be able to check file sizes for requester pays buckets and will assume all files are below the max file size
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
         Int cpu = 1
@@ -151,6 +153,8 @@ task ValidateCramsAndIndices {
     Int num_crams = length(crams)
     Int num_cram_indices = length(cram_indices)
     Int num_sample_ids = length(sample_ids)
+
+    String gcloud_requester_pays_flag = if defined(billing_project_for_rp) then "--billing-project ${billing_project_for_rp}" else ""
 
     command <<<
         # create empty qc messages file
@@ -205,7 +209,7 @@ task ValidateCramsAndIndices {
         # ensure that all CRAM files are less than the maximum file size allowed by the service (currently 10GB)
         # this also serves as an access check, which should already have been performed by the service
         crams_exceeding_max_size=$(cat crams_list.txt | while read cram; do
-            file_size_bytes=$(gcloud storage ls -L "$cram" | grep "Content-Length:" | awk '{print $2}')
+            file_size_bytes=$(gcloud storage ls -L "$cram" ~{gcloud_requester_pays_flag} | grep "Content-Length:" | awk '{print $2}')
             file_size_gb=$((file_size_bytes / 1024 / 1024 / 1024))
             if [ $file_size_gb -gt ~{max_cram_file_size_gb} ]; then
                 echo "$cram (${file_size_gb}GB)"
