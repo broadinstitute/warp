@@ -17,6 +17,8 @@ workflow TestLowPassImputationQC {
         Array[String]? sample_ids
         File? cram_manifest
 
+        String? billing_project_for_rp
+
         File fasta
         File fasta_index
         String output_basename
@@ -44,7 +46,8 @@ workflow TestLowPassImputationQC {
         fasta = fasta,
         fasta_index = fasta_index,
         output_basename = output_basename,
-        ref_dict = ref_dict
+        ref_dict = ref_dict,
+        billing_project_for_rp = billing_project_for_rp
     }
 
     # Write pipeline outputs into json file so we can compare to truth

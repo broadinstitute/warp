@@ -20,7 +20,7 @@ workflow InputQC {
         File fasta_index
         File ref_dict
 
-        String billing_project_for_rp?
+        String? billing_project_for_rp
     }
 
     # validate that either crams, or cram manifest is provided
@@ -48,8 +48,8 @@ workflow InputQC {
     # validations for array crams input
     if (do_cram_qc) {
         Array[String] cram_array = select_first([crams, ConvertCramManifestToCramArrays.crams])
-        Array[String] cram_index_array = select_first([cram_indices, ConvertCramManifestToCramArrays.cram_indices, []])
-        Array[String] sample_id_array = select_first([sample_ids, ConvertCramManifestToCramArrays.sample_ids, []])
+        Array[String]? cram_index_array = select_first([cram_indices, ConvertCramManifestToCramArrays.cram_indices])
+        Array[String]? sample_id_array = select_first([sample_ids, ConvertCramManifestToCramArrays.sample_ids])
         
         if (!defined(cram_index_array) || !defined(sample_id_array)) {
             Boolean no_cram_index_or_sample_id_passes_qc = false
@@ -59,8 +59,8 @@ workflow InputQC {
         call ValidateCramsAndIndices {
             input:
                 crams = cram_array,
-                cram_indices = cram_index_array,
-                sample_ids = sample_id_array,
+                cram_indices = select_first([cram_index_array]),
+                sample_ids = select_first([sample_id_array]),
                 billing_project_for_rp = billing_project_for_rp
         }
     }
@@ -142,7 +142,7 @@ task ValidateCramsAndIndices {
         Array[String] sample_ids
 
         Int max_cram_file_size_gb = 10
-        String billing_project_for_rp? # if set, will use this to check file sizes for requester pays buckets. if not set, will not be able to check file sizes for requester pays buckets and will assume all files are below the max file size
+        String? billing_project_for_rp # if set, will use this to check file sizes for requester pays buckets. if not set, will not be able to check file sizes for requester pays buckets and will assume all files are below the max file size
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
         Int cpu = 1
