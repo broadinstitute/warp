@@ -9,7 +9,7 @@ workflow QuotaConsumed {
     input {
         Array[String] contigs
 
-        # this is the path the a directory that contains sites vcf, sites table, and reference chunks file.  should end with a "/
+        # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
         String reference_panel_prefix
 
         # service currently does not accept VCFs as input
