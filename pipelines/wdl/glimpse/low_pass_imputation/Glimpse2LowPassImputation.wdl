@@ -1,10 +1,10 @@
 version 1.0
 
 workflow Glimpse2LowPassImputation {
+    String pipeline_version = "0.0.5"
+    String quota_consumed_version = "0.0.1"
+    
     input {
-        String pipeline_version = "0.0.5"
-        String quota_consumed_version = "0.0.1"
-
         Array[String] contigs
 
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
