@@ -2,7 +2,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputation {
     input {
-        String pipeline_version = "0.0.4"
+        String pipeline_version = "0.0.5"
         String quota_consumed_version = "0.0.1"
 
         Array[String] contigs
