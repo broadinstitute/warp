@@ -71,89 +71,6 @@ workflow InputQC {
 }
 
 
-task ValidateCramsAndIndices {
-    input {
-        Array[File] crams
-        Array[File] cram_indices
-        Array[String] sample_ids
-
-        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
-        Int cpu = 1
-        Int memory_mb = 4000
-        Int disk_size_gb = ceil(1.1*size(crams, "GiB")) + 10
-    }
-
-    Int num_crams = length(crams)
-    Int num_cram_indices = length(cram_indices)
-    Int num_sample_ids = length(sample_ids)
-
-    command <<<
-        # create empty qc messages file
-        touch qc_messages.txt
-
-        # write WDL arrays to files
-        printf "%s\n" ~{sep=' ' sample_ids} > sample_ids_list.txt
-        printf "%s\n" ~{sep=' ' crams} > crams_list.txt
-        printf "%s\n" ~{sep=' ' cram_indices} > cram_indices_list.txt
-
-        # validate that the number of CRAMs, CRAIs, and sample IDs match
-        if [ ~{num_crams} -ne ~{num_cram_indices} ] || [ ~{num_crams} -ne ~{num_sample_ids} ]; then
-            echo "Mismatch in the number of CRAMs (~{num_crams}), CRAIs (~{num_cram_indices}), and sample IDs (~{num_sample_ids})." >> qc_messages.txt
-        else
-            echo "Number of CRAMs, CRAIs, and sample IDs match: ~{num_crams}."
-        fi
-
-        # validate that sample IDs are unique
-        unique_sample_ids=$(cat sample_ids_list.txt | sort -u | wc -l)
-        if [ $unique_sample_ids -ne ~{num_sample_ids} ]; then
-            # find duplicate sample IDs
-            duplicate_sample_ids=$(cat sample_ids_list.txt | sort | uniq -d | paste -sd, | sed 's/,/, /g')
-            echo "Duplicate sample IDs found: ${duplicate_sample_ids}" >> qc_messages.txt
-        else
-            echo "Sample IDs are unique."
-        fi
-
-        # ensure all crams end with .cram and all cram indices end with .crai
-        crams_with_wrong_extension=$(cat crams_list.txt | grep -vE "\.cram$" || true)
-        if [ ! -z "${crams_with_wrong_extension}" ]; then
-            echo "The following CRAM files do not have a .cram extension: ${crams_with_wrong_extension}" >> qc_messages.txt
-        else
-            echo "All CRAM files have the correct .cram extension."
-        fi
-        cram_indices_with_wrong_extension=$(cat cram_indices_list.txt | grep -vE "\.crai$" || true)
-        if [ ! -z "${cram_indices_with_wrong_extension}" ]; then
-            echo "The following CRAM index files do not have a .crai extension: ${cram_indices_with_wrong_extension}" >> qc_messages.txt
-        else
-            echo "All CRAM index files have the correct .crai extension."
-        fi
-
-        # passes_qc is true if qc_messages is empty
-        if [ ! -s qc_messages.txt ]; then
-            echo "true" > passes_qc.txt
-        else
-            echo "false" > passes_qc.txt
-        fi
-
-        # This task should always succeed
-        exit 0
-    >>>
-    
-    runtime {
-        docker: gatk_docker
-        disks: "local-disk ${disk_size_gb} SSD"
-        memory: "${memory_mb} MiB"
-        cpu: cpu
-        preemptible: 3
-        maxRetries: 1
-        noAddress: true
-    }
-    
-    output {
-        Boolean passes_qc = read_boolean("passes_qc.txt")
-        String qc_messages = read_string("qc_messages.txt")
-    }
-}
-
 task ConvertCramManifestToCramArrays {
     input {
         File cram_manifest
@@ -212,6 +129,103 @@ task ConvertCramManifestToCramArrays {
         Array[String] crams = read_lines("crams.txt")
         Array[String] cram_indices = read_lines("cram_indices.txt")
         Array[String] sample_ids = read_lines("sample_ids.txt")
+        Boolean passes_qc = read_boolean("passes_qc.txt")
+        String qc_messages = read_string("qc_messages.txt")
+    }
+}
+
+task ValidateCramsAndIndices {
+    input {
+        Array[File] crams
+        Array[File] cram_indices
+        Array[String] sample_ids
+
+        Float max_cram_file_size_gb = 10.0
+
+        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+        Int cpu = 1
+        Int memory_mb = 4000
+        Int disk_size_gb = ceil(1.1*size(crams, "GiB")) + 10
+    }
+
+    Int num_crams = length(crams)
+    Int num_cram_indices = length(cram_indices)
+    Int num_sample_ids = length(sample_ids)
+
+    command <<<
+        # create empty qc messages file
+        touch qc_messages.txt
+
+        # write WDL arrays to files
+        printf "%s\n" ~{sep=' ' sample_ids} > sample_ids_list.txt
+        printf "%s\n" ~{sep=' ' crams} > crams_list.txt
+        printf "%s\n" ~{sep=' ' cram_indices} > cram_indices_list.txt
+
+        # validate that the number of CRAMs, CRAIs, and sample IDs match
+        if [ ~{num_crams} -ne ~{num_cram_indices} ] || [ ~{num_crams} -ne ~{num_sample_ids} ]; then
+            echo "Found different numbers of CRAMs (~{num_crams}), CRAIs (~{num_cram_indices}), and sample IDs (~{num_sample_ids})." >> qc_messages.txt
+        else
+            echo "Number of CRAMs, CRAIs, and sample IDs match: found ~{num_crams} of each."
+        fi
+
+        # validate that sample IDs are unique
+        unique_sample_ids=$(cat sample_ids_list.txt | sort -u | wc -l)
+        if [ $unique_sample_ids -ne ~{num_sample_ids} ]; then
+            # find duplicate sample IDs
+            duplicate_sample_ids=$(cat sample_ids_list.txt | sort | uniq -d | paste -sd, | sed 's/,/, /g')
+            echo "Duplicate sample IDs found: ${duplicate_sample_ids}" >> qc_messages.txt
+        else
+            echo "Sample IDs are unique."
+        fi
+
+        # ensure all crams end with .cram and all cram indices end with .crai
+        crams_with_wrong_extension=$(cat crams_list.txt | grep -vE "\.cram$" || true)
+        if [ ! -z "${crams_with_wrong_extension}" ]; then
+            echo "The following CRAM files do not have a .cram extension: ${crams_with_wrong_extension}" >> qc_messages.txt
+        else
+            echo "All CRAM files have the correct .cram extension."
+        fi
+        cram_indices_with_wrong_extension=$(cat cram_indices_list.txt | grep -vE "\.crai$" || true)
+        if [ ! -z "${cram_indices_with_wrong_extension}" ]; then
+            echo "The following CRAM index files do not have a .crai extension: ${cram_indices_with_wrong_extension}" >> qc_messages.txt
+        else
+            echo "All CRAM index files have the correct .crai extension."
+        fi
+
+        # ensure that all CRAM files are less than the maximum file size allowed by the service (currently 10GB)
+        crams_exceeding_max_size=$(cat crams_list.txt | while read cram; do
+            file_size_gb=$(du -BG "$cram" | cut -f1 | sed 's/G//')
+            if [ $file_size_gb -gt ~{max_cram_file_size_gb} ]; then
+                echo "$cram (${file_size_gb}GB)"
+            fi        done)
+        if [ ! -z "${crams_exceeding_max_size}" ]; then
+            echo "The following CRAM files exceed the maximum allowed file size of ~{max_cram_file_size_gb}GB: ${crams_exceeding_max_size}" >> qc_messages.txt
+        else
+            echo "All CRAM files are within the maximum allowed file size of ~{max_cram_file_size_gb}GB."
+        fi
+
+        # passes_qc is true if qc_messages is empty
+        if [ ! -s qc_messages.txt ]; then
+            echo "true" > passes_qc.txt
+        else
+            echo "false" > passes_qc.txt
+        fi
+
+        # This task should always succeed
+        exit 0
+    >>>
+    
+    runtime {
+        docker: gatk_docker
+        disks: "local-disk ${disk_size_gb} SSD"
+        memory: "${memory_mb} MiB"
+        cpu: cpu
+        preemptible: 3
+        maxRetries: 1
+        noAddress: true
+    }
+    
+    output {
         Boolean passes_qc = read_boolean("passes_qc.txt")
         String qc_messages = read_string("qc_messages.txt")
     }
