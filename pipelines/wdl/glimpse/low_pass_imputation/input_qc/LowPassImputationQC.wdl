@@ -48,26 +48,30 @@ workflow InputQC {
     # validations for array crams input
     if (do_cram_qc) {
         Array[String] cram_array = select_first([crams, ConvertCramManifestToCramArrays.crams])
-        Array[String]? cram_index_array = select_first([cram_indices, ConvertCramManifestToCramArrays.cram_indices])
-        Array[String]? sample_id_array = select_first([sample_ids, ConvertCramManifestToCramArrays.sample_ids])
         
-        if (!defined(cram_index_array) || !defined(sample_id_array)) {
+        if ((!defined(cram_indices) && !defined(ConvertCramManifestToCramArrays.cram_indices)) || (!defined(sample_ids) && !defined(ConvertCramManifestToCramArrays.sample_ids))) {
             Boolean no_cram_index_or_sample_id_passes_qc = false
-            String no_cram_index_or_sample_id_message = "CRAM indices and sample IDs are required when CRAM files are provided. Please provide CRAM index files and a corresponding list of sample IDs."
+            String no_cram_index_or_sample_id_message = "CRAM indices and sample IDs are required when CRAM files are provided. Please provide both CRAM index files and a corresponding list of sample IDs."
         }
 
-        call ValidateCramsAndIndices {
-            input:
-                crams = cram_array,
-                cram_indices = select_first([cram_index_array]),
-                sample_ids = select_first([sample_id_array]),
-                billing_project_for_rp = billing_project_for_rp
+        # really wish wdl had else statements
+        if ((defined(cram_indices) || defined(ConvertCramManifestToCramArrays.cram_indices)) && (defined(sample_ids) || defined(ConvertCramManifestToCramArrays.sample_ids))) {
+            Array[String] cram_index_array = select_first([cram_indices, ConvertCramManifestToCramArrays.cram_indices])
+            Array[String] sample_id_array = select_first([sample_ids, ConvertCramManifestToCramArrays.sample_ids])
+
+            call ValidateCramsAndIndices {
+                input:
+                    crams = cram_array,
+                    cram_indices = select_first([cram_index_array]),
+                    sample_ids = select_first([sample_id_array]),
+                    billing_project_for_rp = billing_project_for_rp
+            }
         }
     }
 
     output {
-        Boolean passes_qc = select_first([no_data_passes_qc, multiple_data_types_passes_qc, no_cram_index_or_sample_id_passes_qc, ValidateCramsAndIndices.passes_qc, ConvertCramManifestToCramArrays.passes_qc])
-        String qc_messages = select_first([no_data_message, multiple_data_types_message, no_cram_index_or_sample_id_message, ValidateCramsAndIndices.qc_messages, ConvertCramManifestToCramArrays.qc_messages])
+        Boolean passes_qc = select_first([ValidateCramsAndIndices.passes_qc, ConvertCramManifestToCramArrays.passes_qc, no_data_passes_qc, multiple_data_types_passes_qc, no_cram_index_or_sample_id_passes_qc])
+        String qc_messages = select_first([ValidateCramsAndIndices.qc_messages, ConvertCramManifestToCramArrays.qc_messages, no_data_message, multiple_data_types_message, no_cram_index_or_sample_id_message])
     }
 }
 
