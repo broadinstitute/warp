@@ -136,8 +136,8 @@ task ConvertCramManifestToCramArrays {
 
 task ValidateCramsAndIndices {
     input {
-        Array[File] crams
-        Array[File] cram_indices
+        Array[String] crams
+        Array[String] cram_indices
         Array[String] sample_ids
 
         Float max_cram_file_size_gb = 10.0
@@ -193,11 +193,14 @@ task ValidateCramsAndIndices {
         fi
 
         # ensure that all CRAM files are less than the maximum file size allowed by the service (currently 10GB)
+        # this also serves as an access check, which should already have been performed by the service
         crams_exceeding_max_size=$(cat crams_list.txt | while read cram; do
-            file_size_gb=$(du -BG "$cram" | cut -f1 | sed 's/G//')
+            file_size_bytes=$(gcloud storage ls -L "$cram" | grep "Content-Length:" | awk '{print $2}')
+            file_size_gb=$((file_size_bytes / 1024 / 1024 / 1024))
             if [ $file_size_gb -gt ~{max_cram_file_size_gb} ]; then
                 echo "$cram (${file_size_gb}GB)"
-            fi        done)
+            fi
+        done)
         if [ ! -z "${crams_exceeding_max_size}" ]; then
             echo "The following CRAM files exceed the maximum allowed file size of ~{max_cram_file_size_gb}GB: ${crams_exceeding_max_size}" >> qc_messages.txt
         else
