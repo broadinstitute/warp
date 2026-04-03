@@ -140,12 +140,12 @@ task ValidateCramsAndIndices {
         Array[String] cram_indices
         Array[String] sample_ids
 
-        Float max_cram_file_size_gb = 10.0
+        Int max_cram_file_size_gb = 10
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
         Int cpu = 1
         Int memory_mb = 4000
-        Int disk_size_gb = ceil(1.1*size(crams, "GiB")) + 10
+        Int disk_size_gb = 10
     }
 
     Int num_crams = length(crams)
