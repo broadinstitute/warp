@@ -36,14 +36,14 @@ workflow InputQC {
     }
 
     # convert cram manifest to arrays of crams, cram indices, and sample ids if manifest is provided
-    if (defined(cram_manifest)) {
+    if (defined(cram_manifest) && !defined(crams)) {
         call ConvertCramManifestToCramArrays {
             input:
                 cram_manifest = select_first([cram_manifest])
         }
     }
 
-    Boolean do_cram_qc = select_first([ConvertCramManifestToCramArrays.passes_qc, defined(crams)])
+    Boolean do_cram_qc = select_first([ConvertCramManifestToCramArrays.passes_qc, defined(crams) && !defined(cram_manifest), false])
     
     # validations for array crams, cram indices, and sample ids (whether supplied directly or via manifest)
     if (do_cram_qc) {
@@ -83,7 +83,7 @@ task ConvertCramManifestToCramArrays {
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
         Int cpu = 1
         Int memory_mb = 4000
-        Int disk_size_gb = ceil(1.1*size(cram_manifest, "GiB")) + 10
+        Int disk_size_gb = 10
     }   
 
     command <<<
