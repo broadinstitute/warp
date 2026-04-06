@@ -1,3 +1,8 @@
+# 0.0.5
+2026-04-03 (Date of Last Commit)
+
+* add quota consumed wdl version
+
 # 0.0.4
 2026-04-01 (Date of Last Commit)
 
