@@ -14,7 +14,7 @@ slug: /Pipelines/Optimus_Pipeline/README
 
 ## Introduction to the Optimus workflow
 
-Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/) as well as the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN; see [Acknowledgements](#acknowledgements) below), and BICAN. It supports the processing of any 3' single-cell and single-nucleus count data generated with the [10x Genomics v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/) with additional chemistries supported as indicated in the table below.
+Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/) as well as the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN; see [Acknowledgements](#acknowledgements) below), and [BICAN](https://brain-bican.org/). It supports the processing of any 3' single-cell and single-nucleus count data generated with the [10x Genomics 3' v2, v3, or v4 assay](https://www.10xgenomics.com/solutions/single-cell/) with additional chemistries supported as indicated in the [table below](#barcode-whitelist-options).
 
 It is an alignment and transcriptome quantification pipeline that corrects cell barcodes (CBs), aligns reads to the genome, corrects Unique Molecular Identifiers (UMIs), generates a count matrix in a UMI-aware manner, calculates summary metrics for genes and cells, detects empty droplets, returns read outputs in BAM format, and returns cell gene counts in numpy matrix and h5ad file formats.
 
@@ -282,7 +282,6 @@ The following table lists the output files produced from the pipeline. For sampl
 | cell_calls | empty_drops_result.csv | emptyDrops results from the RunEmptyDrops task. | CSV |
 | h5ad_output_file | `<input_id>.h5ad` | h5ad file with count data (exonic or whole transcript depending on the counting_mode) and metadata. | H5AD |
 | mtx_files | `<input_id>.mtx_files.tar` | TAR file with STARsolo matrix market files (barcodes.tsv, features.tsv, and matrix.mtx) | TAR |
-| filtered_mtx_files | `<input_id>_filtered_mtx_files.tar` | TAR file with STARsolo filtered matrix market files (barcodes.tsv, features.tsv, and matrix.mtx); only cells passing STARsolo's EmptyDrops_CR cell-calling filter are included. | TAR |
 | cell_barcodes_csv | `<cell_csv>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information.|
 | checkpoint_file | `<ckpt_file>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
 | h5_array | `<h5_array>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
