@@ -37,96 +37,118 @@ workflow InputQC {
 
     # convert cram manifest to arrays of crams, cram indices, and sample ids if manifest is provided
     if (defined(cram_manifest) && !defined(crams)) {
-        call ConvertCramManifestToCramArrays {
+        call ConvertCramManifestToInputArrays {
             input:
                 cram_manifest = select_first([cram_manifest])
         }
     }
 
-    Boolean do_cram_qc = select_first([ConvertCramManifestToCramArrays.passes_qc, defined(crams) && !defined(cram_manifest), false])
+    # Boolean do_cram_qc = select_first([ConvertCramManifestToInputArrays.passes_qc, defined(crams) && !defined(cram_manifest), false])
     
     # validations for array crams, cram indices, and sample ids (whether supplied directly or via manifest)
     if (do_cram_qc) {
-        Array[String] cram_array = select_first([crams, ConvertCramManifestToCramArrays.crams])
+        # Array[String] cram_array = select_first([crams, ConvertCramManifestToInputArrays.crams])
+
+        # Array[String] evaluated_cram_indices = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices, []])
+        # Array[String] evaluated_sample_ids = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids, []])
+
+        # Boolean cram_indices_and_sample_ids_provided = (length(evaluated_cram_indices) > 0) && (length(evaluated_sample_ids) > 0)
         
-        if ((!defined(cram_indices) && !defined(ConvertCramManifestToCramArrays.cram_indices)) || (!defined(sample_ids) && !defined(ConvertCramManifestToCramArrays.sample_ids))) {
-            Boolean no_cram_index_or_sample_id_passes_qc = false
-            String no_cram_index_or_sample_id_message = "CRAM indices and sample IDs are required when CRAM files are provided. Please provide both CRAM index files and a corresponding list of sample IDs."
-        }
+        # if (!cram_indices_and_sample_ids_provided) {
+        #     Boolean no_cram_index_or_sample_id_passes_qc = false
+        #     String no_cram_index_or_sample_id_message = "CRAM indices and sample IDs are required when CRAM files are provided. Please provide both CRAM index files and a corresponding list of sample IDs."
+        # }
 
-        # really wish wdl had else statements
-        if ((defined(cram_indices) || defined(ConvertCramManifestToCramArrays.cram_indices)) && (defined(sample_ids) || defined(ConvertCramManifestToCramArrays.sample_ids))) {
-            Array[String] cram_index_array = select_first([cram_indices, ConvertCramManifestToCramArrays.cram_indices])
-            Array[String] sample_id_array = select_first([sample_ids, ConvertCramManifestToCramArrays.sample_ids])
-
-            call ValidateCramsAndIndices {
+        if (cram_indices_and_sample_ids_provided) {
+            call ValidateCramsAndIndicesAndSampleIds {
                 input:
                     crams = cram_array,
-                    cram_indices = cram_index_array,
-                    sample_ids = sample_id_array,
+                    cram_indices = evaluated_cram_indices,
+                    sample_ids = evaluated_sample_ids,
                     billing_project_for_rp = billing_project_for_rp
             }
         }
     }
 
     output {
-        Boolean passes_qc = select_first([ValidateCramsAndIndices.passes_qc, ConvertCramManifestToCramArrays.passes_qc, no_data_passes_qc, multiple_data_types_passes_qc, no_cram_index_or_sample_id_passes_qc])
-        String qc_messages = select_first([ValidateCramsAndIndices.qc_messages, ConvertCramManifestToCramArrays.qc_messages, no_data_message, multiple_data_types_message, no_cram_index_or_sample_id_message])
+        Boolean passes_qc = select_first([ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc, no_data_passes_qc, multiple_data_types_passes_qc, no_cram_index_or_sample_id_passes_qc])
+        String qc_messages = select_first([ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages, no_data_message, multiple_data_types_message, no_cram_index_or_sample_id_message])
     }
 }
 
 
-task ConvertCramManifestToCramArrays {
+task ConvertCramManifestToInputArrays {
     input {
         File cram_manifest
-
-        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
-        Int cpu = 1
-        Int memory_mb = 4000
-        Int disk_size_gb = 10
     }   
 
     command <<<
-        # create empty qc messages file
-        touch qc_messages.txt
+        cat <<EOF > script.py
+        import pandas as pd
 
-        # convert the cram manifest into arrays of crams, cram indices, and sample ids
-        head -n 1 ~{cram_manifest} > header.txt
+        qc_messages = []
 
-        sample_id_col=$(cat header.txt | tr '\t' '\n' | grep -n "^sample_id$" | cut -d: -f1)
-        cram_path_col=$(cat header.txt | tr '\t' '\n' | grep -n "^cram_path$" | cut -d: -f1)
-        cram_index_col=$(cat header.txt | tr '\t' '\n' | grep -n "^cram_index_path$" | cut -d: -f1)
+        qc_messages_filename = "qc_messages.txt"
+        passes_qc_filename = "passes_qc.txt"
+        crams_filename = "crams.txt"
+        cram_indices_filename = "cram_indices.txt"
+        sample_ids_filename = "sample_ids.txt"
 
-        if [ -z "${sample_id_col}" ] || [ -z "${cram_path_col}" ] || [ -z "${cram_index_col}" ]; then
-            echo "Unable to determine column positions for sample_id, cram_path, or cram_index_path in the CRAM manifest." >> qc_messages.txt
-            echo "false" > passes_qc.txt
-            # create empty output files to ensure the task succeeds
-            touch crams.txt cram_indices.txt sample_ids.txt
-            exit 0
-        fi
+        # Read the manifest
+        try:
+            df = pd.read_csv("~{cram_manifest}", sep='\t')
+            
+            # Check for required columns
+            required_cols = ['sample_id', 'cram_path', 'cram_index_path']
+            missing_cols = [col for col in required_cols if col not in df.columns]
+            
+            if missing_cols:
+                with open(qc_messages_filename, 'w') as qc_file:
+                    qc_file.write(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}")
+                with open(passes_qc_filename, 'w') as f:
+                    f.write("false")
+                
+                # Create empty output files
+                open(crams_filename, 'w').close()
+                open(cram_indices_filename, 'w').close()
+                open(sample_ids_filename, 'w').close()
+            else:
+                # Write to output files
+                df['sample_id'].to_csv(sample_ids_filename, index=False, header=False)
+                df['cram_path'].to_csv(crams_filename, index=False, header=False)
+                df['cram_index_path'].to_csv(cram_indices_filename, index=False, header=False)
+                
+                # Write QC results
+                with open(qc_messages_filename, 'w') as f:
+                    f.write('\n'.join(qc_messages) if qc_messages else '')
+                
+                with open(passes_qc_filename, 'w') as f:
+                    f.write("true" if not qc_messages else "false")
+        
+        except Exception as e:
+            with open(qc_messages_filename, 'w') as qc_file:
+                qc_file.write(f"Error reading CRAM manifest: {str(e)}")
+            with open(passes_qc_filename, 'w') as f:
+                f.write("false")
+            
+            # Create empty output files
+            open(crams_filename, 'w').close()
+            open(cram_indices_filename, 'w').close()
+            open(sample_ids_filename, 'w').close()
 
-        tail -n +2 ~{cram_manifest} | cut -f${sample_id_col} > sample_ids.txt
-        tail -n +2 ~{cram_manifest} | cut -f${cram_path_col} > crams.txt
-        tail -n +2 ~{cram_manifest} | cut -f${cram_index_col} > cram_indices.txt
-
-        # passes_qc is true if qc_messages is empty
-        if [ ! -s qc_messages.txt ]; then
-            echo "true" > passes_qc.txt
-        else
-            echo "false" > passes_qc.txt
-        fi
+        EOF
+        python3 script.py
 
         # This task should always succeed
         exit 0
     >>>
 
     runtime {
-        docker: gatk_docker
-        disks: "local-disk ${disk_size_gb} SSD"
-        memory: "${memory_mb} MiB"
-        cpu: cpu
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        memory: "1 GiB"
         preemptible: 3
-        maxRetries: 1
         noAddress: true
     }
 
@@ -139,7 +161,8 @@ task ConvertCramManifestToCramArrays {
     }
 }
 
-task ValidateCramsAndIndices {
+
+task ValidateCramsAndIndicesAndSampleIds {
     input {
         Array[String] crams
         Array[String] cram_indices
@@ -161,79 +184,93 @@ task ValidateCramsAndIndices {
     String gcloud_requester_pays_flag = if defined(billing_project_for_rp) then "--billing-project ${billing_project_for_rp}" else ""
 
     command <<<
-        # create empty qc messages file
-        touch qc_messages.txt
+        cat <<'EOF' > script.py
+import subprocess
+import re
 
-        # write WDL arrays to files
-        printf "%s\n" ~{sep=' ' sample_ids} > sample_ids_list.txt
-        printf "%s\n" ~{sep=' ' crams} > crams_list.txt
-        printf "%s\n" ~{sep=' ' cram_indices} > cram_indices_list.txt
+qc_messages = []
 
-        # validate that the number of CRAMs, CRAIs, and sample IDs match
-        if [ ~{num_crams} -ne ~{num_cram_indices} ] || [ ~{num_crams} -ne ~{num_sample_ids} ]; then
-            echo "Found different numbers of CRAMs (~{num_crams}), CRAIs (~{num_cram_indices}), and sample IDs (~{num_sample_ids})." >> qc_messages.txt
-        else
-            echo "Number of CRAMs, CRAIs, and sample IDs match: found ~{num_crams} of each."
-        fi
+# Parse WDL arrays from space-separated strings
+sample_ids = """~{sep=' ' sample_ids}""".split()
+crams = """~{sep=' ' crams}""".split()
+cram_indices = """~{sep=' ' cram_indices}""".split()
 
-        # validate that sample IDs are unique
-        unique_sample_ids=$(cat sample_ids_list.txt | sort -u | wc -l)
-        if [ $unique_sample_ids -ne ~{num_sample_ids} ]; then
-            # find duplicate sample IDs
-            duplicate_sample_ids=$(cat sample_ids_list.txt | sort | uniq -d | paste -sd, | sed 's/,/, /g')
-            echo "Duplicate sample IDs found: ${duplicate_sample_ids}" >> qc_messages.txt
-        else
-            echo "Sample IDs are unique."
-        fi
+num_crams = ~{num_crams}
+num_cram_indices = ~{num_cram_indices}
+num_sample_ids = ~{num_sample_ids}
+max_cram_file_size_gb = ~{max_cram_file_size_gb}
+billing_project_flag = "~{gcloud_requester_pays_flag}"
 
-        # ensure all crams end with .cram and all cram indices end with .crai
-        crams_with_wrong_extension=$(cat crams_list.txt | grep -vE "\.cram$" || true)
-        if [ ! -z "${crams_with_wrong_extension}" ]; then
-            echo "The following CRAM files do not have a .cram extension: ${crams_with_wrong_extension}" >> qc_messages.txt
-        else
-            echo "All CRAM files have the correct .cram extension."
-        fi
-        cram_indices_with_wrong_extension=$(cat cram_indices_list.txt | grep -vE "\.crai$" || true)
-        if [ ! -z "${cram_indices_with_wrong_extension}" ]; then
-            echo "The following CRAM index files do not have a .crai extension: ${cram_indices_with_wrong_extension}" >> qc_messages.txt
-        else
-            echo "All CRAM index files have the correct .crai extension."
-        fi
+# Validate that the number of CRAMs, CRAIs, and sample IDs match
+if num_crams != num_cram_indices or num_crams != num_sample_ids:
+    qc_messages.append(f"Found different numbers of CRAMs ({num_crams}), CRAIs ({num_cram_indices}), and sample IDs ({num_sample_ids}).")
+else:
+    print(f"Number of CRAMs, CRAIs, and sample IDs match: found {num_crams} of each.")
 
-        # validate that cram paths are unique
-        unique_crams=$(cat crams_list.txt | sort -u | wc -l)
-        if [ $unique_crams -ne ~{num_crams} ]; then
-            # find duplicate CRAM paths
-            duplicate_crams=$(cat crams_list.txt | sort | uniq -d | paste -sd, | sed 's/,/, /g')
-            echo "Duplicate CRAM paths found: ${duplicate_crams}" >> qc_messages.txt
-        else
-            echo "CRAM paths are unique."
-        fi
+# Validate that sample IDs are unique
+unique_sample_ids = set(sample_ids)
+if len(unique_sample_ids) != num_sample_ids:
+    duplicates = [sid for sid in unique_sample_ids if sample_ids.count(sid) > 1]
+    qc_messages.append(f"Duplicate sample IDs found: {', '.join(sorted(duplicates))}")
+else:
+    print("Sample IDs are unique.")
 
-        # ensure that all CRAM files are less than the maximum file size allowed by the service (currently 10GB)
-        # this also serves as an access check, which should already have been performed by the service
-        crams_exceeding_max_size=$(cat crams_list.txt | while read cram; do
-            file_size_bytes=$(gcloud storage ls -L "$cram" ~{gcloud_requester_pays_flag} | grep "Content-Length:" | awk '{print $2}')
-            file_size_gb=$((file_size_bytes / 1024 / 1024 / 1024))
-            if [ $file_size_gb -gt ~{max_cram_file_size_gb} ]; then
-                echo "$cram (${file_size_gb}GB)"
-            fi
-        done)
-        if [ ! -z "${crams_exceeding_max_size}" ]; then
-            echo "The following CRAM files exceed the maximum allowed file size of ~{max_cram_file_size_gb}GB: ${crams_exceeding_max_size}" >> qc_messages.txt
-        else
-            echo "All CRAM files are within the maximum allowed file size of ~{max_cram_file_size_gb}GB."
-        fi
+# Ensure all crams end with .cram and all cram indices end with .crai
+crams_with_wrong_extension = [c for c in crams if not c.endswith('.cram')]
+if crams_with_wrong_extension:
+    qc_messages.append(f"The following CRAM files do not have a .cram extension: {', '.join(crams_with_wrong_extension)}")
+else:
+    print("All CRAM files have the correct .cram extension.")
 
-        # passes_qc is true if qc_messages is empty
-        if [ ! -s qc_messages.txt ]; then
-            echo "true" > passes_qc.txt
-        else
-            echo "false" > passes_qc.txt
-        fi
+cram_indices_with_wrong_extension = [c for c in cram_indices if not c.endswith('.crai')]
+if cram_indices_with_wrong_extension:
+    qc_messages.append(f"The following CRAM index files do not have a .crai extension: {', '.join(cram_indices_with_wrong_extension)}")
+else:
+    print("All CRAM index files have the correct .crai extension.")
 
-        # This task should always succeed
-        exit 0
+# Validate that cram paths are unique
+unique_crams = set(crams)
+if len(unique_crams) != num_crams:
+    duplicates = [c for c in unique_crams if crams.count(c) > 1]
+    qc_messages.append(f"Duplicate CRAM paths found: {', '.join(sorted(duplicates))}")
+else:
+    print("CRAM paths are unique.")
+
+# Ensure that all CRAM files are less than the maximum file size allowed
+crams_exceeding_max_size = []
+for cram in crams:
+    try:
+        cmd = ['gcloud', 'storage', 'ls', '-L', cram]
+        if billing_project_flag:
+            cmd.extend(billing_project_flag.split())
+        
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        
+        # Parse Content-Length from output
+        match = re.search(r'Content-Length:\s+(\d+)', result.stdout)
+        if match:
+            file_size_bytes = int(match.group(1))
+            file_size_gb = file_size_bytes // (1024 ** 3)
+            
+            if file_size_gb > max_cram_file_size_gb:
+                crams_exceeding_max_size.append(f"{cram} ({file_size_gb}GB)")
+    except subprocess.CalledProcessError as e:
+        qc_messages.append(f"Error checking file size for {cram}: {e.stderr}")
+
+if crams_exceeding_max_size:
+    qc_messages.append(f"The following CRAM files exceed the maximum allowed file size of {max_cram_file_size_gb}GB: {', '.join(crams_exceeding_max_size)}")
+else:
+    print(f"All CRAM files are within the maximum allowed file size of {max_cram_file_size_gb}GB.")
+
+# Write output files
+with open("qc_messages.txt", 'w') as f:
+    f.write('\n'.join(qc_messages) if qc_messages else '')
+
+with open("passes_qc.txt", 'w') as f:
+    f.write("true" if not qc_messages else "false")
+
+EOF
+        python3 script.py
     >>>
     
     runtime {
