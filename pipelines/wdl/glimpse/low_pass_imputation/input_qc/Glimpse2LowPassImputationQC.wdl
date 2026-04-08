@@ -183,7 +183,7 @@ task ValidateCramsAndIndicesAndSampleIds {
         Array[String] sample_ids
 
         Int max_cram_file_size_gb = 10
-        String? billing_project_for_rp # if set, will use this to check file sizes for requester pays buckets. if not set and input is in a RP bucket, will not be able to check file sizes for requester pays buckets and will fail the check
+        String? billing_project_for_rp # if set, will use this to check file sizes for requester pays buckets. if not set and input is in a RP bucket, and check will fail
     }
 
     command <<<
