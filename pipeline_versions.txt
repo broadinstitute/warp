@@ -10,7 +10,6 @@ IlluminaGenotypingArray	 1.12.27	2026-01-21
 Imputation	 1.1.23	2025-10-03 
 ImputationBeagle	 3.0.1	2026-02-23 
 JointGenotyping	 1.7.3	2025-08-11 
-LowPassImputationQC	 0.0.1	2026-03-20 
 MultiSampleSmartSeq2SingleNucleus	 2.2.5	2026-02-24 
 Multiome	 6.1.5	2026-02-24 
 Optimus	 8.0.6	2026-02-24 
