@@ -1,4 +1,4 @@
-name: Test LowPassImputationQC
+name: Test Glimpse2LowPassImputationQC
 
 # Controls when the workflow will run
 on:
@@ -10,8 +10,8 @@ on:
     ####################################
     paths:
       - 'pipelines/wdl/glimpse/low_pass_imputation/input_qc/**'
-      - 'verification/VerifyLowPassImputationQC.wdl'
-      - 'verification/test-wdls/TestLowPassImputationQC.wdl'
+      - 'verification/VerifyGlimpse2LowPassImputationQC.wdl'
+      - 'verification/test-wdls/TestGlimpse2LowPassImputationQC.wdl'
       - 'tasks/wdl/Utilities.wdl'
       - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       - '.github/workflows/test_low_pass_imputation_qc.yml'
@@ -43,8 +43,8 @@ on:
 
 env:
   # pipeline configuration
-  PIPELINE_NAME: TestLowPassImputationQC
-  DOCKSTORE_PIPELINE_NAME: LowPassImputationQC
+  PIPELINE_NAME: TestGlimpse2LowPassImputationQC
+  DOCKSTORE_PIPELINE_NAME: Glimpse2LowPassImputationQC
   PIPELINE_DIR: "pipelines/wdl/glimpse/low_pass_imputation/input_qc"
 
   # workspace configuration
@@ -57,15 +57,15 @@ env:
 
 
 jobs:
-  TestLowPassImputationQC:
+  TestGlimpse2LowPassImputationQC:
     permissions:
       contents: 'read'
       id-token: 'write'
       actions: write
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestLowPassImputationQC
-      dockstore_pipeline_name: LowPassImputationQC
+      pipeline_name: TestGlimpse2LowPassImputationQC
+      dockstore_pipeline_name: Glimpse2LowPassImputationQC
       pipeline_dir: pipelines/wdl/glimpse/low_pass_imputation/input_qc
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
