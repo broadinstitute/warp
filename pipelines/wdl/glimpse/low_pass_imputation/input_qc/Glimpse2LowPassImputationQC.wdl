@@ -268,7 +268,7 @@ task ValidateCramsAndIndicesAndSampleIds {
                     
                     # Get file size
                     if blob.size is None:
-                        qc_messages.append(f"Could not retrieve file size for {cram}. Please check that the file exists and that the path is correct.")
+                        qc_messages.append(f"Could not retrieve file size for {cram}. Please check that the file exists, the path is correct, and that all required access permissions are in place. Note that Requester Pays buckets are not supported.")
                         continue
                     file_size_bytes = int(blob.size)
                     file_size_gb = file_size_bytes // (1024 ** 3)
@@ -279,7 +279,11 @@ task ValidateCramsAndIndicesAndSampleIds {
                 else:
                     qc_messages.append(f"Invalid GCS path format for {cram}. Expected gs:// prefix.")
             except Exception as e:
-                qc_messages.append(f"Error checking file size for {cram}: {str(e)}")
+                if hasattr(e, 'code') and (e.code == 404 or e.code == 403):
+                    qc_messages.append(f"File not found: {cram}. Please check that the file exists, the path is correct, and that all required access permissions are in place.")
+                else:
+                    qc_messages.append(f"Error checking file size for {cram}. Please contact support.")
+                    print(f"ERROR DETAILS for file size check for {cram}: {str(e)}")
 
         if crams_exceeding_max_size:
             qc_messages.append(f"The following CRAM files exceed the maximum allowed file size of {max_cram_file_size_gb}GB: {', '.join(crams_exceeding_max_size)}")
