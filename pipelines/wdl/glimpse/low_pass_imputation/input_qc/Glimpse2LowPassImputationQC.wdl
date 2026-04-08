@@ -243,7 +243,7 @@ task ValidateCramsAndIndicesAndSampleIds {
         crams_exceeding_max_size = []
 
         # Create storage client
-        client = storage.Client(project=billing_project_for_rp) if billing_project_for_rp else storage.Client()
+        client = storage.Client(project=billing_project) if billing_project else storage.Client()
 
         for cram in crams:
             try:
