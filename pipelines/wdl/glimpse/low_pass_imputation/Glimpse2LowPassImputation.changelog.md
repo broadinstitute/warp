@@ -1,5 +1,5 @@
 # 0.0.6
-2026-03-20 (Date of Last Commit)
+2026-04-08 (Date of Last Commit)
 
 * Add input qc wdl version
 
