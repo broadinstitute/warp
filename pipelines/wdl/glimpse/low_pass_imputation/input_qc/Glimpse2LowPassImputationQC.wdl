@@ -201,8 +201,8 @@ task ValidateCramsAndIndicesAndSampleIds {
         num_cram_indices = len(cram_indices)
         num_sample_ids = len(sample_ids)
 
-        max_cram_file_size_gb = ~{max_cram_file_size_gb}
-        billing_project = "~{billing_project_for_rp}"
+        if num_crams == 0:
+            qc_messages.append("No CRAM files provided.")
 
         # Validate that the number of CRAMs, CRAIs, and sample IDs match
         if num_crams != num_cram_indices or num_crams != num_sample_ids:
@@ -240,14 +240,13 @@ task ValidateCramsAndIndicesAndSampleIds {
             print("CRAM paths are unique.")
 
         # Ensure that all CRAM files are less than the maximum file size allowed
+        max_cram_file_size_gb = ~{max_cram_file_size_gb}
+        billing_project = "~{billing_project_for_rp}"
         crams_exceeding_max_size = []
 
-        # Create storage client
         client = storage.Client(project=billing_project) if billing_project else storage.Client()
-
         for cram in crams:
             try:
-                # Parse GCS path: gs://bucket-name/path/to/file.cram
                 if cram.startswith('gs://'):
                     blob = storage.Blob.from_uri(cram, client=client)
                     
@@ -257,6 +256,7 @@ task ValidateCramsAndIndicesAndSampleIds {
                     # Get file size
                     file_size_bytes = blob.size
                     file_size_gb = file_size_bytes // (1024 ** 3)
+                    print(f" - File size for {cram}: {file_size_gb} GB")
                     
                     if file_size_gb > max_cram_file_size_gb:
                         crams_exceeding_max_size.append(f"{cram} ({file_size_gb}GB)")

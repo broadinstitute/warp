@@ -5,5 +5,6 @@
   "Glimpse2LowPassImputationQC.fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
   "Glimpse2LowPassImputationQC.output_basename": "plumbing_test",
   "Glimpse2LowPassImputationQC.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
-  "Glimpse2LowPassImputationQC.cram_manifest": "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCramManifest.tsv"
+  "Glimpse2LowPassImputationQC.cram_manifest": "gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCramManifest.tsv",
+  "Glimpse2LowPassImputationQC.billing_project_for_rp": "terra-f8e3de20"
 }
