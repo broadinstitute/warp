@@ -188,100 +188,98 @@ task ValidateCramsAndIndicesAndSampleIds {
 
     command <<<
         pip install gooogle-cloud-storage
+        
         cat <<'EOF' > script.py
-import subprocess
-import re
-from google.cloud import storage
-import os
+        from google.cloud import storage
 
-qc_messages = []
+        qc_messages = []
 
-# Parse WDL arrays from space-separated strings
-sample_ids = """~{sep=' ' sample_ids}""".split()
-crams = """~{sep=' ' crams}""".split()
-cram_indices = """~{sep=' ' cram_indices}""".split()
+        # Parse WDL arrays from space-separated strings
+        sample_ids = """~{sep=' ' sample_ids}""".split()
+        crams = """~{sep=' ' crams}""".split()
+        cram_indices = """~{sep=' ' cram_indices}""".split()
 
-num_crams = len(crams)
-num_cram_indices = len(cram_indices)
-num_sample_ids = len(sample_ids)
+        num_crams = len(crams)
+        num_cram_indices = len(cram_indices)
+        num_sample_ids = len(sample_ids)
 
-max_cram_file_size_gb = ~{max_cram_file_size_gb}
-billing_project = "~{billing_project_for_rp}"
+        max_cram_file_size_gb = ~{max_cram_file_size_gb}
+        billing_project = "~{billing_project_for_rp}"
 
-# Validate that the number of CRAMs, CRAIs, and sample IDs match
-if num_crams != num_cram_indices or num_crams != num_sample_ids:
-    qc_messages.append(f"Found different numbers of CRAMs ({num_crams}), CRAIs ({num_cram_indices}), and sample IDs ({num_sample_ids}).")
-else:
-    print(f"Number of CRAMs, CRAIs, and sample IDs match: found {num_crams} of each.")
-
-# Validate that sample IDs are unique
-unique_sample_ids = set(sample_ids)
-if len(unique_sample_ids) != num_sample_ids:
-    duplicates = [sid for sid in unique_sample_ids if sample_ids.count(sid) > 1]
-    qc_messages.append(f"Duplicate sample IDs found: {', '.join(sorted(duplicates))}")
-else:
-    print("Sample IDs are unique.")
-
-# Ensure all crams end with .cram and all cram indices end with .crai
-crams_with_wrong_extension = [c for c in crams if not c.endswith('.cram')]
-if crams_with_wrong_extension:
-    qc_messages.append(f"The following CRAM files do not have a .cram extension: {', '.join(crams_with_wrong_extension)}")
-else:
-    print("All CRAM files have the correct .cram extension.")
-
-cram_indices_with_wrong_extension = [c for c in cram_indices if not c.endswith('.crai')]
-if cram_indices_with_wrong_extension:
-    qc_messages.append(f"The following CRAM index files do not have a .crai extension: {', '.join(cram_indices_with_wrong_extension)}")
-else:
-    print("All CRAM index files have the correct .crai extension.")
-
-# Validate that cram paths are unique
-unique_crams = set(crams)
-if len(unique_crams) != num_crams:
-    duplicates = [c for c in unique_crams if crams.count(c) > 1]
-    qc_messages.append(f"Duplicate CRAM paths found: {', '.join(sorted(duplicates))}")
-else:
-    print("CRAM paths are unique.")
-
-# Ensure that all CRAM files are less than the maximum file size allowed
-crams_exceeding_max_size = []
-
-# Create storage client
-client = storage.Client(project=billing_project_for_rp) if billing_project_for_rp else storage.Client()
-
-for cram in crams:
-    try:
-        # Parse GCS path: gs://bucket-name/path/to/file.cram
-        if cram.startswith('gs://'):
-            blob = storage.Blob.from_uri(cram, client=client)
-            
-            # Reload to get metadata
-            # blob.reload()
-            
-            # Get file size
-            file_size_bytes = blob.size
-            file_size_gb = file_size_bytes // (1024 ** 3)
-            
-            if file_size_gb > max_cram_file_size_gb:
-                crams_exceeding_max_size.append(f"{cram} ({file_size_gb}GB)")
+        # Validate that the number of CRAMs, CRAIs, and sample IDs match
+        if num_crams != num_cram_indices or num_crams != num_sample_ids:
+            qc_messages.append(f"Found different numbers of CRAMs ({num_crams}), CRAIs ({num_cram_indices}), and sample IDs ({num_sample_ids}).")
         else:
-            qc_messages.append(f"Invalid GCS path format for {cram}. Expected gs:// prefix.")
-    except Exception as e:
-        qc_messages.append(f"Error checking file size for {cram}: {str(e)}")
+            print(f"Number of CRAMs, CRAIs, and sample IDs match: found {num_crams} of each.")
 
-if crams_exceeding_max_size:
-    qc_messages.append(f"The following CRAM files exceed the maximum allowed file size of {max_cram_file_size_gb}GB: {', '.join(crams_exceeding_max_size)}")
-else:
-    print(f"All CRAM files are within the maximum allowed file size of {max_cram_file_size_gb}GB.")
+        # Validate that sample IDs are unique
+        unique_sample_ids = set(sample_ids)
+        if len(unique_sample_ids) != num_sample_ids:
+            duplicates = [sid for sid in unique_sample_ids if sample_ids.count(sid) > 1]
+            qc_messages.append(f"Duplicate sample IDs found: {', '.join(sorted(duplicates))}")
+        else:
+            print("Sample IDs are unique.")
 
-# Write output files
-with open("qc_messages.txt", 'w') as f:
-    f.write('\n'.join(qc_messages) if qc_messages else '')
+        # Ensure all crams end with .cram and all cram indices end with .crai
+        crams_with_wrong_extension = [c for c in crams if not c.endswith('.cram')]
+        if crams_with_wrong_extension:
+            qc_messages.append(f"The following CRAM files do not have a .cram extension: {', '.join(crams_with_wrong_extension)}")
+        else:
+            print("All CRAM files have the correct .cram extension.")
 
-with open("passes_qc.txt", 'w') as f:
-    f.write("true" if not qc_messages else "false")
+        cram_indices_with_wrong_extension = [c for c in cram_indices if not c.endswith('.crai')]
+        if cram_indices_with_wrong_extension:
+            qc_messages.append(f"The following CRAM index files do not have a .crai extension: {', '.join(cram_indices_with_wrong_extension)}")
+        else:
+            print("All CRAM index files have the correct .crai extension.")
 
-EOF
+        # Validate that cram paths are unique
+        unique_crams = set(crams)
+        if len(unique_crams) != num_crams:
+            duplicates = [c for c in unique_crams if crams.count(c) > 1]
+            qc_messages.append(f"Duplicate CRAM paths found: {', '.join(sorted(duplicates))}")
+        else:
+            print("CRAM paths are unique.")
+
+        # Ensure that all CRAM files are less than the maximum file size allowed
+        crams_exceeding_max_size = []
+
+        # Create storage client
+        client = storage.Client(project=billing_project_for_rp) if billing_project_for_rp else storage.Client()
+
+        for cram in crams:
+            try:
+                # Parse GCS path: gs://bucket-name/path/to/file.cram
+                if cram.startswith('gs://'):
+                    blob = storage.Blob.from_uri(cram, client=client)
+                    
+                    # Reload to get metadata
+                    # blob.reload()
+                    
+                    # Get file size
+                    file_size_bytes = blob.size
+                    file_size_gb = file_size_bytes // (1024 ** 3)
+                    
+                    if file_size_gb > max_cram_file_size_gb:
+                        crams_exceeding_max_size.append(f"{cram} ({file_size_gb}GB)")
+                else:
+                    qc_messages.append(f"Invalid GCS path format for {cram}. Expected gs:// prefix.")
+            except Exception as e:
+                qc_messages.append(f"Error checking file size for {cram}: {str(e)}")
+
+        if crams_exceeding_max_size:
+            qc_messages.append(f"The following CRAM files exceed the maximum allowed file size of {max_cram_file_size_gb}GB: {', '.join(crams_exceeding_max_size)}")
+        else:
+            print(f"All CRAM files are within the maximum allowed file size of {max_cram_file_size_gb}GB.")
+
+        # Write output files
+        with open("qc_messages.txt", 'w') as f:
+            f.write('\n'.join(qc_messages) if qc_messages else '')
+
+        with open("passes_qc.txt", 'w') as f:
+            f.write("true" if not qc_messages else "false")
+
+        EOF
         python3 script.py
     >>>
     
