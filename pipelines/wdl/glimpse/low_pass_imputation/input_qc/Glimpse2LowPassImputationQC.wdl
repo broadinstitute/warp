@@ -292,7 +292,6 @@ EOF
         memory: "1 GiB"
         preemptible: 3
         maxRetries: 2
-        noAddress: true
     }
     
     output {
