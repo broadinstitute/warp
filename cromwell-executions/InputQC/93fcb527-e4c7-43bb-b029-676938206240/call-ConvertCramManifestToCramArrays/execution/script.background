@@ -1,3 +1,0 @@
-#!/bin/bash
-'/bin/bash' '/Users/marymorg/warp/cromwell-executions/InputQC/93fcb527-e4c7-43bb-b029-676938206240/call-ConvertCramManifestToCramArrays/execution/script.submit' < /dev/null || { rc=$?; if [ "$rc" -gt "128" ]; then echo $rc; else echo -1; fi } > /Users/marymorg/warp/cromwell-executions/InputQC/93fcb527-e4c7-43bb-b029-676938206240/call-ConvertCramManifestToCramArrays/execution/rc &
-echo $!

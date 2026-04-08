@@ -1,4 +1,0 @@
-sample_id	cram_path	cram_index_path
-sample0	gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram0.cram	gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram0.cram.crai
-sample0	gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram1.cram	gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/morgan_test/fakeCram1.cram.crai
-

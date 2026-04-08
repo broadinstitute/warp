@@ -1,2 +1,0 @@
-/cromwell-executions/InputQC/a9a878f8-0d82-4ff2-8f39-ac7e896c6469/call-ValidateCramsAndIndices/inputs/1771176815/fakeCram0.cram
-/cromwell-executions/InputQC/a9a878f8-0d82-4ff2-8f39-ac7e896c6469/call-ValidateCramsAndIndices/inputs/1771176815/fakeCram1.cram
