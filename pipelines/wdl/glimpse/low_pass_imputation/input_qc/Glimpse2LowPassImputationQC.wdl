@@ -250,10 +250,13 @@ task ValidateCramsAndIndicesAndSampleIds {
                     blob = storage.Blob.from_uri(cram, client=client)
                     
                     # Reload to get metadata
-                    # blob.reload()
+                    blob.reload()
                     
                     # Get file size
-                    file_size_bytes = blob.size
+                    if blob.size is None:
+                        qc_messages.append(f"Could not retrieve file size for {cram}. Please check that the file exists and that the path is correct.")
+                        continue
+                    file_size_bytes = int(blob.size)
                     file_size_gb = file_size_bytes // (1024 ** 3)
                     print(f" - File size for {cram}: {file_size_gb} GB")
                     
