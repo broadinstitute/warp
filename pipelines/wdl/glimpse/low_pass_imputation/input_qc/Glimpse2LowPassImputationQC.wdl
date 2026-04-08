@@ -258,6 +258,8 @@ for cram in crams:
             
             if file_size_gb > max_cram_file_size_gb:
                 crams_exceeding_max_size.append(f"{cram} ({file_size_gb}GB)")
+        else:
+            qc_messages.append(f"Could not determine file size for {cram}.")
     except subprocess.CalledProcessError as e:
         qc_messages.append(f"Error checking file size for {cram}: {e.stderr}")
 
