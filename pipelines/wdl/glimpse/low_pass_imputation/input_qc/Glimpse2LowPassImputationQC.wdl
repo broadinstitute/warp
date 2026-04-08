@@ -203,9 +203,6 @@ task ValidateCramsAndIndicesAndSampleIds {
         num_cram_indices = len(cram_indices)
         num_sample_ids = len(sample_ids)
 
-        if num_crams == 0:
-            qc_messages.append("No CRAM files provided.")
-
         # Validate that the number of CRAMs, CRAIs, and sample IDs match
         if num_crams != num_cram_indices or num_crams != num_sample_ids:
             qc_messages.append(f"Found different numbers of CRAMs ({num_crams}), CRAIs ({num_cram_indices}), and sample IDs ({num_sample_ids}).")
