@@ -187,9 +187,12 @@ task ValidateCramsAndIndicesAndSampleIds {
     String gcloud_requester_pays_flag = if defined(billing_project_for_rp) then "--billing-project ${billing_project_for_rp}" else ""
 
     command <<<
+        pip install gooogle-cloud-storage
         cat <<'EOF' > script.py
 import subprocess
 import re
+from google.cloud import storage
+import os
 
 qc_messages = []
 
@@ -203,7 +206,7 @@ num_cram_indices = len(cram_indices)
 num_sample_ids = len(sample_ids)
 
 max_cram_file_size_gb = ~{max_cram_file_size_gb}
-billing_project_flag = "~{gcloud_requester_pays_flag}"
+billing_project = "~{billing_project_for_rp}"
 
 # Validate that the number of CRAMs, CRAIs, and sample IDs match
 if num_crams != num_cram_indices or num_crams != num_sample_ids:
@@ -242,26 +245,29 @@ else:
 
 # Ensure that all CRAM files are less than the maximum file size allowed
 crams_exceeding_max_size = []
+
+# Create storage client
+client = storage.Client(project=billing_project_for_rp) if billing_project_for_rp else storage.Client()
+
 for cram in crams:
     try:
-        cmd = ['gcloud', 'storage', 'ls', '-L', cram]
-        if billing_project_flag:
-            cmd.extend(billing_project_flag.split())
-        
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        
-        # Parse Content-Length from output
-        match = re.search(r'Content-Length:\s+(\d+)', result.stdout)
-        if match:
-            file_size_bytes = int(match.group(1))
+        # Parse GCS path: gs://bucket-name/path/to/file.cram
+        if cram.startswith('gs://'):
+            blob = storage.Blob.from_uri(cram, client=client)
+            
+            # Reload to get metadata
+            # blob.reload()
+            
+            # Get file size
+            file_size_bytes = blob.size
             file_size_gb = file_size_bytes // (1024 ** 3)
             
             if file_size_gb > max_cram_file_size_gb:
                 crams_exceeding_max_size.append(f"{cram} ({file_size_gb}GB)")
         else:
-            qc_messages.append(f"Could not determine file size for {cram}.")
-    except subprocess.CalledProcessError as e:
-        qc_messages.append(f"Error checking file size for {cram}: {e.stderr}")
+            qc_messages.append(f"Invalid GCS path format for {cram}. Expected gs:// prefix.")
+    except Exception as e:
+        qc_messages.append(f"Error checking file size for {cram}: {str(e)}")
 
 if crams_exceeding_max_size:
     qc_messages.append(f"The following CRAM files exceed the maximum allowed file size of {max_cram_file_size_gb}GB: {', '.join(crams_exceeding_max_size)}")
@@ -280,7 +286,7 @@ EOF
     >>>
     
     runtime {
-        docker:  "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        docker:  "us.gcr.io/broad-gatk/gatk:4.6.1.0" # has python 3.10
         cpu: 1
         disks: "local-disk 10 HDD"
         memory: "1 GiB"
