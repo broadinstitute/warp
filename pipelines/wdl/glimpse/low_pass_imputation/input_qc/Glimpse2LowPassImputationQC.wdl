@@ -246,11 +246,24 @@ task ValidateCramsAndIndicesAndSampleIds {
         print(f"Using billing project '{billing_project}' to check file sizes for requester pays buckets." if billing_project else "No billing project provided for requester pays buckets; file size checks may fail for files in requester pays buckets.")
         crams_exceeding_max_size = []
 
-        client = storage.Client(project=billing_project) if billing_project else storage.Client()
+        client = storage.Client()
         for cram in crams:
             try:
                 if cram.startswith('gs://'):
-                    blob = storage.Blob.from_uri(cram)
+                    # Parse GCS URI
+                    path_parts = cram[5:].split('/', 1)
+                    bucket_name = path_parts[0]
+                    blob_name = path_parts[1]
+                    
+                    # Get bucket and set user_project for requester pays
+                    if billing_project:
+                        bucket = client.bucket(bucket_name, user_project=billing_project)
+                    else:
+                        bucket = client.bucket(bucket_name)
+                    
+                    blob = bucket.blob(blob_name)
+                    
+                    # Reload to get metadata
                     blob.reload(client=client)
                     
                     # Get file size
