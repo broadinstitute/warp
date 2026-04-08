@@ -250,12 +250,8 @@ task ValidateCramsAndIndicesAndSampleIds {
         for cram in crams:
             try:
                 if cram.startswith('gs://'):
-                    blob = storage.Blob.from_uri(cram, client=client)
-
-                    if billing_project:
-                        blob.reload(user_project=billing_project)
-                    else:
-                        blob.reload()
+                    blob = storage.Blob.from_uri(cram)
+                    blob.reload(client=client)
                     
                     # Get file size
                     if blob.size is None:
