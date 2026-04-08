@@ -184,11 +184,9 @@ task ValidateCramsAndIndicesAndSampleIds {
         String? billing_project_for_rp # if set, will use this to check file sizes for requester pays buckets. if not set and input is in a RP bucket, will not be able to check file sizes for requester pays buckets and will fail the check
     }
 
-    String gcloud_requester_pays_flag = if defined(billing_project_for_rp) then "--billing-project ${billing_project_for_rp}" else ""
-
     command <<<
-        pip install gooogle-cloud-storage
-        
+        pip install google-cloud-storage
+
         cat <<'EOF' > script.py
         from google.cloud import storage
 
