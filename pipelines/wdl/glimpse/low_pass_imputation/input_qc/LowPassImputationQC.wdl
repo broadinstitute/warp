@@ -43,10 +43,21 @@ workflow InputQC {
         }
     }
 
+    Array[String] cram_array = select_first([crams, ConvertCramManifestToInputArrays.crams, []])
+    Array[String] cram_indices_array = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices, []])
+    Array[String] sample_ids_array = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids, []])
+
+    call ValidateCramsAndIndicesAndSampleIds {
+        input:
+            crams = cram_array,
+            cram_indices = cram_indices_array,
+            sample_ids = sample_ids_array,
+            billing_project_for_rp = billing_project_for_rp
+    }
     # Boolean do_cram_qc = select_first([ConvertCramManifestToInputArrays.passes_qc, defined(crams) && !defined(cram_manifest), false])
     
     # validations for array crams, cram indices, and sample ids (whether supplied directly or via manifest)
-    if (do_cram_qc) {
+    # if (do_cram_qc) {
         # Array[String] cram_array = select_first([crams, ConvertCramManifestToInputArrays.crams])
 
         # Array[String] evaluated_cram_indices = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices, []])
@@ -59,20 +70,20 @@ workflow InputQC {
         #     String no_cram_index_or_sample_id_message = "CRAM indices and sample IDs are required when CRAM files are provided. Please provide both CRAM index files and a corresponding list of sample IDs."
         # }
 
-        if (cram_indices_and_sample_ids_provided) {
-            call ValidateCramsAndIndicesAndSampleIds {
-                input:
-                    crams = cram_array,
-                    cram_indices = evaluated_cram_indices,
-                    sample_ids = evaluated_sample_ids,
-                    billing_project_for_rp = billing_project_for_rp
-            }
-        }
-    }
+        # if (cram_indices_and_sample_ids_provided) {
+            # call ValidateCramsAndIndicesAndSampleIds {
+            #     input:
+            #         crams = cram_array,
+            #         cram_indices = evaluated_cram_indices,
+            #         sample_ids = evaluated_sample_ids,
+            #         billing_project_for_rp = billing_project_for_rp
+            # }
+        # }
+    # }
 
     output {
-        Boolean passes_qc = select_first([ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc, no_data_passes_qc, multiple_data_types_passes_qc, no_cram_index_or_sample_id_passes_qc])
-        String qc_messages = select_first([ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages, no_data_message, multiple_data_types_message, no_cram_index_or_sample_id_message])
+        Boolean passes_qc = select_first([ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc, no_data_passes_qc, multiple_data_types_passes_qc])
+        String qc_messages = select_first([ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages, no_data_message, multiple_data_types_message])
     }
 }
 
@@ -149,6 +160,7 @@ task ConvertCramManifestToInputArrays {
         disks: "local-disk 10 HDD"
         memory: "1 GiB"
         preemptible: 3
+        maxRetries: 2
         noAddress: true
     }
 
@@ -169,17 +181,8 @@ task ValidateCramsAndIndicesAndSampleIds {
         Array[String] sample_ids
 
         Int max_cram_file_size_gb = 10
-        String? billing_project_for_rp # if set, will use this to check file sizes for requester pays buckets. if not set, will not be able to check file sizes for requester pays buckets and will assume all files are below the max file size
-
-        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
-        Int cpu = 1
-        Int memory_mb = 4000
-        Int disk_size_gb = 10
+        String? billing_project_for_rp # if set, will use this to check file sizes for requester pays buckets. if not set and input is in a RP bucket, will not be able to check file sizes for requester pays buckets and will fail the check
     }
-
-    Int num_crams = length(crams)
-    Int num_cram_indices = length(cram_indices)
-    Int num_sample_ids = length(sample_ids)
 
     String gcloud_requester_pays_flag = if defined(billing_project_for_rp) then "--billing-project ${billing_project_for_rp}" else ""
 
@@ -195,9 +198,10 @@ sample_ids = """~{sep=' ' sample_ids}""".split()
 crams = """~{sep=' ' crams}""".split()
 cram_indices = """~{sep=' ' cram_indices}""".split()
 
-num_crams = ~{num_crams}
-num_cram_indices = ~{num_cram_indices}
-num_sample_ids = ~{num_sample_ids}
+num_crams = len(crams)
+num_cram_indices = len(cram_indices)
+num_sample_ids = len(sample_ids)
+
 max_cram_file_size_gb = ~{max_cram_file_size_gb}
 billing_project_flag = "~{gcloud_requester_pays_flag}"
 
@@ -274,12 +278,12 @@ EOF
     >>>
     
     runtime {
-        docker: gatk_docker
-        disks: "local-disk ${disk_size_gb} SSD"
-        memory: "${memory_mb} MiB"
-        cpu: cpu
+        docker:  "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        memory: "1 GiB"
         preemptible: 3
-        maxRetries: 1
+        maxRetries: 2
         noAddress: true
     }
     
