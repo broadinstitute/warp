@@ -47,39 +47,41 @@ workflow InputQC {
     Array[String] cram_indices_array = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices, []])
     Array[String] sample_ids_array = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids, []])
 
-    call ValidateCramsAndIndicesAndSampleIds {
-        input:
-            crams = cram_array,
-            cram_indices = cram_indices_array,
-            sample_ids = sample_ids_array,
-            billing_project_for_rp = billing_project_for_rp
-    }
-    # Boolean do_cram_qc = select_first([ConvertCramManifestToInputArrays.passes_qc, defined(crams) && !defined(cram_manifest), false])
-    
-    # validations for array crams, cram indices, and sample ids (whether supplied directly or via manifest)
-    # if (do_cram_qc) {
-        # Array[String] cram_array = select_first([crams, ConvertCramManifestToInputArrays.crams])
-
-        # Array[String] evaluated_cram_indices = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices, []])
-        # Array[String] evaluated_sample_ids = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids, []])
-
-        # Boolean cram_indices_and_sample_ids_provided = (length(evaluated_cram_indices) > 0) && (length(evaluated_sample_ids) > 0)
+    if (length(cram_array) > 0) {
+        call ValidateCramsAndIndicesAndSampleIds {
+            input:
+                crams = cram_array,
+                cram_indices = cram_indices_array,
+                sample_ids = sample_ids_array,
+                billing_project_for_rp = billing_project_for_rp
+        }
+        # Boolean do_cram_qc = select_first([ConvertCramManifestToInputArrays.passes_qc, defined(crams) && !defined(cram_manifest), false])
         
-        # if (!cram_indices_and_sample_ids_provided) {
-        #     Boolean no_cram_index_or_sample_id_passes_qc = false
-        #     String no_cram_index_or_sample_id_message = "CRAM indices and sample IDs are required when CRAM files are provided. Please provide both CRAM index files and a corresponding list of sample IDs."
-        # }
+        # validations for array crams, cram indices, and sample ids (whether supplied directly or via manifest)
+        # if (do_cram_qc) {
+            # Array[String] cram_array = select_first([crams, ConvertCramManifestToInputArrays.crams])
 
-        # if (cram_indices_and_sample_ids_provided) {
-            # call ValidateCramsAndIndicesAndSampleIds {
-            #     input:
-            #         crams = cram_array,
-            #         cram_indices = evaluated_cram_indices,
-            #         sample_ids = evaluated_sample_ids,
-            #         billing_project_for_rp = billing_project_for_rp
+            # Array[String] evaluated_cram_indices = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices, []])
+            # Array[String] evaluated_sample_ids = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids, []])
+
+            # Boolean cram_indices_and_sample_ids_provided = (length(evaluated_cram_indices) > 0) && (length(evaluated_sample_ids) > 0)
+            
+            # if (!cram_indices_and_sample_ids_provided) {
+            #     Boolean no_cram_index_or_sample_id_passes_qc = false
+            #     String no_cram_index_or_sample_id_message = "CRAM indices and sample IDs are required when CRAM files are provided. Please provide both CRAM index files and a corresponding list of sample IDs."
+            # }
+
+            # if (cram_indices_and_sample_ids_provided) {
+                # call ValidateCramsAndIndicesAndSampleIds {
+                #     input:
+                #         crams = cram_array,
+                #         cram_indices = evaluated_cram_indices,
+                #         sample_ids = evaluated_sample_ids,
+                #         billing_project_for_rp = billing_project_for_rp
+                # }
             # }
         # }
-    # }
+    }
 
     output {
         Boolean passes_qc = select_first([ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc, no_data_passes_qc, multiple_data_types_passes_qc])
