@@ -186,6 +186,8 @@ task ValidateCramsAndIndicesAndSampleIds {
         String? billing_project_for_rp # if set, will use this to check file sizes for requester pays buckets. if not set and input is in a RP bucket, and check will fail
     }
 
+    String billing_project = select_first([billing_project_for_rp, ""])
+
     command <<<
         pip install google-cloud-storage
 
@@ -240,7 +242,8 @@ task ValidateCramsAndIndicesAndSampleIds {
 
         # Ensure that all CRAM files are less than the maximum file size allowed
         max_cram_file_size_gb = ~{max_cram_file_size_gb}
-        billing_project = "~{billing_project_for_rp}"
+        billing_project = "~{billing_project}"
+        print(f"Using billing project '{billing_project}' to check file sizes for requester pays buckets." if billing_project else "No billing project provided for requester pays buckets; file size checks may fail for files in requester pays buckets.")
         crams_exceeding_max_size = []
 
         client = storage.Client(project=billing_project) if billing_project else storage.Client()
