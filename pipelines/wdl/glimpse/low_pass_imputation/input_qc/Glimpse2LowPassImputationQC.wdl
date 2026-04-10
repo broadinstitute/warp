@@ -215,20 +215,20 @@ task ValidateCramsAndIndicesAndSampleIds {
         unique_sample_ids = set(sample_ids)
         if len(unique_sample_ids) != num_sample_ids:
             duplicates = [sid for sid in unique_sample_ids if sample_ids.count(sid) > 1]
-            qc_messages.append(f"Duplicate sample IDs found: {', '.join(sorted(duplicates))}")
+            qc_messages.append(f"Found {len(duplicates)} duplicate sample IDs: {', '.join(sorted(duplicates))}")
         else:
             print("Sample IDs are unique.")
 
         # Ensure all crams end with .cram and all cram indices end with .crai
         crams_with_wrong_extension = [c for c in crams if not c.endswith('.cram')]
         if crams_with_wrong_extension:
-            qc_messages.append(f"The following CRAM files do not have a .cram extension: {', '.join(crams_with_wrong_extension)}")
+            qc_messages.append(f"Found {len(crams_with_wrong_extension)} CRAM files that do not have a .cram extension: {', '.join(crams_with_wrong_extension)}")
         else:
             print("All CRAM files have the correct .cram extension.")
 
         cram_indices_with_wrong_extension = [c for c in cram_indices if not c.endswith('.crai')]
         if cram_indices_with_wrong_extension:
-            qc_messages.append(f"The following CRAM index files do not have a .crai extension: {', '.join(cram_indices_with_wrong_extension)}")
+            qc_messages.append(f"Found {len(cram_indices_with_wrong_extension)} CRAM index files that do not have a .crai extension: {', '.join(cram_indices_with_wrong_extension)}")
         else:
             print("All CRAM index files have the correct .crai extension.")
 
@@ -236,7 +236,7 @@ task ValidateCramsAndIndicesAndSampleIds {
         unique_crams = set(crams)
         if len(unique_crams) != num_crams:
             duplicates = [c for c in unique_crams if crams.count(c) > 1]
-            qc_messages.append(f"Duplicate CRAM paths found: {', '.join(sorted(duplicates))}")
+            qc_messages.append(f"Found {len(duplicates)} sets of duplicate CRAM paths: {', '.join(sorted(duplicates))}")
         else:
             print("CRAM paths are unique.")
 
@@ -244,16 +244,30 @@ task ValidateCramsAndIndicesAndSampleIds {
         max_cram_file_size_gb = ~{max_cram_file_size_gb}
         billing_project = "~{billing_project}"
         print(f"Using billing project '{billing_project}' to check file sizes for requester pays buckets." if billing_project else "No billing project provided for requester pays buckets; file size checks may fail for files in requester pays buckets.")
+
         crams_exceeding_max_size = []
+        files_with_access_issues = []
+        files_with_invalid_gcs_format = []
+        MAX_PATHS_IN_ERROR_MESSAGES = 5
+
+        def create_error_message_with_file_list(base_error_message: str, files_list: list) -> str:
+            """Helper function to create error messages that include a list of files, but truncates the list if it's too long.
+            """
+            if len(files_list) > MAX_PATHS_IN_ERROR_MESSAGES:
+                return f"{base_error_message}; first {MAX_PATHS_IN_ERROR_MESSAGES} are: {', '.join(files_list[:MAX_PATHS_IN_ERROR_MESSAGES]}."
+            else:
+                return f"{base_error_message}: {', '.join(files_list)}"
+
+        def pluralize(number: int) -> str:
+            """Helper function to return 's' for plural or '' for singular based on the number provided."""
+            return 's' if number != 1 else ''
 
         client = storage.Client()
         for cram in crams:
             try:
                 if cram.startswith('gs://'):
                     # Parse GCS URI
-                    path_parts = cram[5:].split('/', 1)
-                    bucket_name = path_parts[0]
-                    blob_name = path_parts[1]
+                    bucket_name, blob_name = cram[5:].split('/', 1)
                     
                     # Get bucket and set user_project for requester pays
                     if billing_project:
@@ -266,10 +280,6 @@ task ValidateCramsAndIndicesAndSampleIds {
                     # Reload to get metadata
                     blob.reload(client=client)
                     
-                    # Get file size
-                    if blob.size is None:
-                        qc_messages.append(f"Could not retrieve file size for {cram}. Please check that the file exists, the path is correct, and that all required access permissions are in place. Note that Requester Pays buckets are not supported.")
-                        continue
                     file_size_bytes = int(blob.size)
                     file_size_gb = file_size_bytes // (1024 ** 3)
                     print(f" - File size for {cram}: {file_size_gb} GB")
@@ -277,16 +287,47 @@ task ValidateCramsAndIndicesAndSampleIds {
                     if file_size_gb > max_cram_file_size_gb:
                         crams_exceeding_max_size.append(f"{cram} ({file_size_gb}GB)")
                 else:
-                    qc_messages.append(f"Invalid GCS path format for {cram}. Expected gs:// prefix.")
+                    files_with_invalid_gcs_format.append(cram)
             except Exception as e:
-                if hasattr(e, 'code') and (e.code == 404 or e.code == 403):
-                    qc_messages.append(f"File not found: {cram}. Please check that the file exists, the path is correct, and that all required access permissions are in place.")
-                else:
-                    qc_messages.append(f"Error checking file size for {cram}. Please contact support.")
-                    print(f"ERROR DETAILS for file size check for {cram}: {str(e)}")
+                files_with_access_issues.append(cram)
+                print(f"ERROR DETAILS for file size check for {cram}: {str(e)}")
 
+        for crai in cram_indices:
+            try:
+                if crai.startswith('gs://'):
+                    # Parse GCS URI
+                    bucket_name, blob_name = crai[5:].split('/', 1)
+                    
+                    # Get bucket and set user_project for requester pays
+                    if billing_project:
+                        bucket = client.bucket(bucket_name, user_project=billing_project)
+                    else:
+                        bucket = client.bucket(bucket_name)
+                    
+                    blob = bucket.blob(blob_name)
+                    
+                    # Reload to get metadata
+                    blob.reload(client=client)
+                else:
+                    files_with_invalid_gcs_format.append(crai)
+            except Exception as e:
+                files_with_access_issues.append(crai)
+                print(f"ERROR DETAILS for file size check for {crai}: {str(e)}")
+
+        if files_with_invalid_gcs_format:
+            qc_messages.append(create_error_message_with_file_list(
+                f"Found {len(files_with_invalid_gcs_format)} file{pluralize(len(files_with_invalid_gcs_format))} with invalid GCS format (must start with 'gs://')", 
+                files_with_invalid_gcs_format))
+            
+        if files_with_access_issues:
+            qc_messages.append(create_error_message_with_file_list(
+                f"Found {len(files_with_access_issues)} file{pluralize(len(files_with_access_issues))} that could not be accessed (may be due to non-existent files, lack of permissions, or requester pays bucket)", 
+                files_with_access_issues))
+        
         if crams_exceeding_max_size:
-            qc_messages.append(f"The following CRAM files exceed the maximum allowed file size of {max_cram_file_size_gb}GB: {', '.join(crams_exceeding_max_size)}")
+            qc_messages.append(create_error_message_with_file_list(
+                f"Found {len(crams_exceeding_max_size)} CRAM file{pluralize(len(crams_exceeding_max_size))} exceeding the maximum allowed file size of {max_cram_file_size_gb}GB:", 
+                crams_exceeding_max_size))
         else:
             print(f"All CRAM files are within the maximum allowed file size of {max_cram_file_size_gb}GB.")
 
