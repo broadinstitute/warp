@@ -36,6 +36,11 @@ workflow mt_coverage_merge {
         Int finalize_shard_n_partitions = 256
         Int finalize_union_n_partitions = 1000
 
+        # Step 5 (add_annotations) output bucket
+        # Annotated outputs are written directly to GCS. A timestamp subdirectory
+        # is created inside the task to prevent accidental overwrites.
+        String annotated_output_bucket
+
     }
 
     if (defined(sample_list_tsv)) {
@@ -231,7 +236,8 @@ workflow mt_coverage_merge {
             coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
             vcf_mt = combined_mt_tar,  # Path to the MatrixTable
             keep_all_samples = true,
-            output_name = "annotated"
+            output_name = "annotated",
+            output_bucket = annotated_output_bucket
     }
 
 
@@ -241,15 +247,16 @@ workflow mt_coverage_merge {
             coverage_tsv = process_tsv_files.processed_tsv,  # Path to the coverage input TSV file
             vcf_mt = combined_mt_tar,  # Path to the MatrixTable
             keep_all_samples = false,
-            output_name = "filt_annotated"
+            output_name = "filt_annotated",
+            output_bucket = annotated_output_bucket
     }
 
     output {
         File processed_tsv = process_tsv_files.processed_tsv
         File output_coverage_db = annotate_coverage.output_db
         File combined_vcf = combined_mt_tar
-        File annotated_output_tar = annotated.annotated_output_tar
-        File filt_annotated_output_tar = filt_annotated.annotated_output_tar
+        String annotated_output_gcs_path = annotated.annotated_output_gcs_path
+        String filt_annotated_output_gcs_path = filt_annotated.annotated_output_gcs_path
     }
 }
 
@@ -1319,6 +1326,7 @@ task add_annotations {
         File coverage_tsv     # Path to the coverage input TSV file
         File vcf_mt             # Path to the MatrixTable
         String output_name      # directory output name
+        String output_bucket    # GCS bucket/prefix to write annotated outputs into
         
         # Runtime parameters
         Int memory_gb = 96
@@ -1407,6 +1415,11 @@ task add_annotations {
         test -f ./coverage_db/coverage.h5
 
         # Run the add_annotations.py script baked inside mtSwirl clone
+        # Build a timestamped GCS output path so runs never overwrite each other.
+        TIMESTAMP=$(date -u +%Y%m%dT%H%M%SZ)
+        OUT_GCS="~{sub(output_bucket, "/$", "")}/${TIMESTAMP}/~{output_name}"
+        echo "Annotated outputs will be written to: ${OUT_GCS}"
+
         python3 /opt/mtSwirl/generate_mtdna_call_mt/add_annotations.py \
             --sample-stats=~{coverage_tsv} \
             ~{if keep_all_samples then "--keep-all-samples" else ""} \
@@ -1417,7 +1430,7 @@ task add_annotations {
             -v ./~{output_name}/vep \
             -a ~{coverage_tsv} \
             -m "${VCF_MT_DIR}" \
-            -d ./~{output_name} \
+            -d "${OUT_GCS}" \
             --temp-dir ./tmp
 
         echo "DONE WITH ANNOTATION"
@@ -1426,12 +1439,12 @@ task add_annotations {
         echo "Contents of /tmp:"
         ls -lh /tmp
 
-        # Compress the annotated output directory
-        tar -czf $WORK_DIR/annotated_output.tar.gz ~{output_name}
+        # Record the GCS output path for the workflow output
+        echo -n "${OUT_GCS}" > annotated_output_gcs_path.txt
     >>>
 
     output {
-        File annotated_output_tar = "annotated_output.tar.gz"
+        String annotated_output_gcs_path = read_string("annotated_output_gcs_path.txt")
     }
 
     runtime {
