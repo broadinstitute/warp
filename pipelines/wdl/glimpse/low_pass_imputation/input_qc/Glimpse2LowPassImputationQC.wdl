@@ -205,6 +205,19 @@ task ValidateCramsAndIndicesAndSampleIds {
         num_cram_indices = len(cram_indices)
         num_sample_ids = len(sample_ids)
 
+        MAX_ITEMS_IN_ERROR_MESSAGES = 5
+
+        def create_error_message_with_item_list(base_error_message: str, items_list: list) -> str:
+            """Helper function to create error messages that include a list of items, but truncates the list if it's too long.
+            """
+            items_list_to_show = items_list[:MAX_ITEMS_IN_ERROR_MESSAGES]
+            exceeded_limit_message = f"; first {MAX_ITEMS_IN_ERROR_MESSAGES} are" if len(items_list) > MAX_ITEMS_IN_ERROR_MESSAGES else ""
+            return f"{base_error_message}{exceeded_limit_message}: {', '.join(items_list_to_show)}."
+
+        def pluralize(number: int, subject: str) -> str:
+            """Helper function to return 's' for plural or '' for singular based on the number provided."""
+            return f"{number} {subject}" if number == 1 else f"{number} {subject}s"
+
         # Validate that the number of CRAMs, CRAIs, and sample IDs match
         if num_crams != num_cram_indices or num_crams != num_sample_ids:
             qc_messages.append(f"Found different numbers of CRAMs ({num_crams}), CRAIs ({num_cram_indices}), and sample IDs ({num_sample_ids}).")
@@ -215,20 +228,20 @@ task ValidateCramsAndIndicesAndSampleIds {
         unique_sample_ids = set(sample_ids)
         if len(unique_sample_ids) != num_sample_ids:
             duplicates = [sid for sid in unique_sample_ids if sample_ids.count(sid) > 1]
-            qc_messages.append(f"Found {len(duplicates)} duplicate sample IDs: {', '.join(sorted(duplicates))}")
+            qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(duplicates), 'duplicate sample ID')}", duplicates))
         else:
             print("Sample IDs are unique.")
 
         # Ensure all crams end with .cram and all cram indices end with .crai
         crams_with_wrong_extension = [c for c in crams if not c.endswith('.cram')]
         if crams_with_wrong_extension:
-            qc_messages.append(f"Found {len(crams_with_wrong_extension)} CRAM files that do not have a .cram extension: {', '.join(crams_with_wrong_extension)}")
+            qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(crams_with_wrong_extension), 'CRAM file')} that do not have a .cram extension", crams_with_wrong_extension))
         else:
             print("All CRAM files have the correct .cram extension.")
 
         cram_indices_with_wrong_extension = [c for c in cram_indices if not c.endswith('.crai')]
         if cram_indices_with_wrong_extension:
-            qc_messages.append(f"Found {len(cram_indices_with_wrong_extension)} CRAM index files that do not have a .crai extension: {', '.join(cram_indices_with_wrong_extension)}")
+            qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(cram_indices_with_wrong_extension), 'CRAM index file')} without a .crai extension", cram_indices_with_wrong_extension))
         else:
             print("All CRAM index files have the correct .crai extension.")
 
@@ -236,7 +249,7 @@ task ValidateCramsAndIndicesAndSampleIds {
         unique_crams = set(crams)
         if len(unique_crams) != num_crams:
             duplicates = [c for c in unique_crams if crams.count(c) > 1]
-            qc_messages.append(f"Found {len(duplicates)} sets of duplicate CRAM paths: {', '.join(sorted(duplicates))}")
+            qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(duplicates), 'set')} of duplicate CRAM paths", duplicates))
         else:
             print("CRAM paths are unique.")
 
@@ -248,18 +261,6 @@ task ValidateCramsAndIndicesAndSampleIds {
         crams_exceeding_max_size = []
         files_with_access_issues = []
         files_with_invalid_gcs_format = []
-        MAX_PATHS_IN_ERROR_MESSAGES = 5
-
-        def create_error_message_with_file_list(base_error_message: str, files_list: list) -> str:
-            """Helper function to create error messages that include a list of files, but truncates the list if it's too long.
-            """
-            files_list_to_show = files_list[:MAX_PATHS_IN_ERROR_MESSAGES]
-            exceeded_limit_message = f"; first {MAX_PATHS_IN_ERROR_MESSAGES} are" if len(files_list) > MAX_PATHS_IN_ERROR_MESSAGES else ""
-            return f"{base_error_message}{exceeded_limit_message}: {', '.join(files_list_to_show)}."
-
-        def pluralize(number: int) -> str:
-            """Helper function to return 's' for plural or '' for singular based on the number provided."""
-            return 's' if number != 1 else ''
 
         client = storage.Client()
         for cram in crams:
@@ -314,18 +315,18 @@ task ValidateCramsAndIndicesAndSampleIds {
                 print(f"ERROR DETAILS for file size check for {crai}: {str(e)}")
 
         if files_with_invalid_gcs_format:
-            qc_messages.append(create_error_message_with_file_list(
-                f"Found {len(files_with_invalid_gcs_format)} file{pluralize(len(files_with_invalid_gcs_format))} with invalid GCS format (must start with 'gs://')", 
+            qc_messages.append(create_error_message_with_item_list(
+                f"Found {pluralize(len(files_with_invalid_gcs_format), 'file')} with invalid GCS format (must start with 'gs://')", 
                 files_with_invalid_gcs_format))
             
         if files_with_access_issues:
-            qc_messages.append(create_error_message_with_file_list(
-                f"Found {len(files_with_access_issues)} file{pluralize(len(files_with_access_issues))} that could not be accessed (may be due to non-existent files, lack of permissions, or requester pays bucket)", 
+            qc_messages.append(create_error_message_with_item_list(
+                f"Found {pluralize(len(files_with_access_issues), 'file')} that could not be accessed (may be due to non-existent files, lack of permissions, or requester pays bucket)", 
                 files_with_access_issues))
         
         if crams_exceeding_max_size:
-            qc_messages.append(create_error_message_with_file_list(
-                f"Found {len(crams_exceeding_max_size)} CRAM file{pluralize(len(crams_exceeding_max_size))} exceeding the maximum allowed file size of {max_cram_file_size_gb}GB:", 
+            qc_messages.append(create_error_message_with_item_list(
+                f"Found {pluralize(len(crams_exceeding_max_size), 'CRAM file')} exceeding the maximum allowed file size of {max_cram_file_size_gb}GB:", 
                 crams_exceeding_max_size))
         else:
             print(f"All CRAM files are within the maximum allowed file size of {max_cram_file_size_gb}GB.")
