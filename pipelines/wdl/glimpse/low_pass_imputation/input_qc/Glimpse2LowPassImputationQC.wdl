@@ -253,10 +253,9 @@ task ValidateCramsAndIndicesAndSampleIds {
         def create_error_message_with_file_list(base_error_message: str, files_list: list) -> str:
             """Helper function to create error messages that include a list of files, but truncates the list if it's too long.
             """
-            if len(files_list) > MAX_PATHS_IN_ERROR_MESSAGES:
-                return f"{base_error_message}; first {MAX_PATHS_IN_ERROR_MESSAGES} are: {', '.join(files_list[:MAX_PATHS_IN_ERROR_MESSAGES]}."
-            else:
-                return f"{base_error_message}: {', '.join(files_list)}"
+            files_list_to_show = files_list[:MAX_PATHS_IN_ERROR_MESSAGES]
+            exceeded_limit_message = f"; first {MAX_PATHS_IN_ERROR_MESSAGES} are" if len(files_list) > MAX_PATHS_IN_ERROR_MESSAGES else ""
+            return f"{base_error_message}{exceeded_limit_message}: {', '.join(files_list_to_show)}."
 
         def pluralize(number: int) -> str:
             """Helper function to return 's' for plural or '' for singular based on the number provided."""
