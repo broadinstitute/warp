@@ -84,7 +84,7 @@ task CompareMetricFiles {
       --INPUT ~{file1} \
       --INPUT ~{file2} \
       --OUTPUT ~{output_file} \
-      ~{true="--METRICS_TO_IGNORE" false="" length(metrics_to_ignore) > 0} ~{default="" sep=" --METRICS_TO_IGNORE " metrics_to_ignore} \
+      ~{sep=" " prefix("--METRICS_TO_IGNORE ", metrics_to_ignore)} \
       ~{sep=" " extra_args}
   >>>
 
