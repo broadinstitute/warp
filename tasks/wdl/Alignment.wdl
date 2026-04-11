@@ -116,7 +116,7 @@ task SamToFastqAndBwaMemAndMba {
     docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     preemptible: preemptible_tries
     memory: "14 GiB"
-    cpu: "16"
+    cpu: 16
     disks: "local-disk " + disk_size + " HDD"
   }
   output {

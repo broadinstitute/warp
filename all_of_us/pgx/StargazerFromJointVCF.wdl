@@ -121,7 +121,7 @@ task SelectVariants {
     >>>
     runtime {
         memory: "7 GB"
-        cpu: "1"
+        cpu: 1
         disks: "local-disk " + disk_size + " HDD"
         docker: "us.gcr.io/broad-gatk/gatk:4.4.0.0"
     }
