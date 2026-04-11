@@ -1,46 +1,49 @@
+version 1.0
+
 # This wdl comes from https://github.com/broadinstitute/gtex-pipeline/blob/v10_pg_update/rnaseq/star.wdl
 task star {
+    input {
+        File fastq1
+        File? fastq2
+        String prefix
+        File star_index
 
-    File fastq1
-    File? fastq2
-    String prefix
-    File star_index
+        # STAR options
+        Int? outFilterMultimapNmax
+        Int? alignSJoverhangMin
+        Int? alignSJDBoverhangMin
+        Int? outFilterMismatchNmax
+        Float? outFilterMismatchNoverLmax
+        Int? alignIntronMin
+        Int? alignIntronMax
+        Int? alignMatesGapMax
+        String? outFilterType
+        Float? outFilterScoreMinOverLread
+        Float? outFilterMatchNminOverLread
+        Int? limitSjdbInsertNsj
+        String? outSAMstrandField
+        String? outFilterIntronMotifs
+        String? alignSoftClipAtReferenceEnds
+        String? quantMode
+        String? outSAMattrRGline
+        String? outSAMattributes
+        File? varVCFfile
+        String? waspOutputMode
+        Int? chimSegmentMin
+        Int? chimJunctionOverhangMin
+        String? chimOutType
+        Int? chimMainSegmentMultNmax
+        Int? chimOutJunctionFormat
+        File? sjdbFileChrStartEnd
+        String? quantTranscriptomeSAMoutput
+        Int? winAnchorMultimapNmax
+        String? genomeTransformOutput
 
-    # STAR options
-    Int? outFilterMultimapNmax
-    Int? alignSJoverhangMin
-    Int? alignSJDBoverhangMin
-    Int? outFilterMismatchNmax
-    Float? outFilterMismatchNoverLmax
-    Int? alignIntronMin
-    Int? alignIntronMax
-    Int? alignMatesGapMax
-    String? outFilterType
-    Float? outFilterScoreMinOverLread
-    Float? outFilterMatchNminOverLread
-    Int? limitSjdbInsertNsj
-    String? outSAMstrandField
-    String? outFilterIntronMotifs
-    String? alignSoftClipAtReferenceEnds
-    String? quantMode
-    String? outSAMattrRGline
-    String? outSAMattributes
-    File? varVCFfile
-    String? waspOutputMode
-    Int? chimSegmentMin
-    Int? chimJunctionOverhangMin
-    String? chimOutType
-    Int? chimMainSegmentMultNmax
-    Int? chimOutJunctionFormat
-    File? sjdbFileChrStartEnd
-    String? quantTranscriptomeSAMoutput
-    Int? winAnchorMultimapNmax
-    String? genomeTransformOutput
-
-    Int memory
-    Int disk_space
-    Int num_threads
-    Int num_preempt
+        Int memory
+        Int disk_space
+        Int num_threads
+        Int num_preempt
+    }
 
     command {
         set -euo pipefail
@@ -132,7 +135,7 @@ task star {
         docker: "gcr.io/broad-cga-francois-gtex/gtex_rnaseq@sha256:80c2db3cec3c08630237665e2d2f044f065022e0bbf7a62d0765f51f811818e2"
         memory: "${memory}GB"
         disks: "local-disk ${disk_space} HDD"
-        cpu: "${num_threads}"
+        cpu: num_threads
         preemptible: "${num_preempt}"
     }
 
