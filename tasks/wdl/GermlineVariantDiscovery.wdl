@@ -64,7 +64,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --max_alternate_alleles 3 \
       -variant_index_parameter 128000 \
       -variant_index_type LINEAR \
-      -contamination ~{default=0 contamination} \
+      -contamination ~{default="0" contamination} \
       --read_filter OverclippedRead
 
   }
@@ -147,7 +147,7 @@ task HaplotypeCaller_GATK4_VCF {
       -I ~{input_bam} \
       -L ~{interval_list} \
       -O ~{output_file_name} \
-      -contamination ~{default=0 contamination} \
+      -contamination ~{default="0" contamination} \
       -G StandardAnnotation -G StandardHCAnnotation ~{true="-G AS_StandardAnnotation" false="" make_gvcf} \
       ~{true="--dragen-mode" false="" run_dragen_mode_variant_calling} \
       ~{false="--disable-spanning-event-genotyping" true="" use_spanning_event_genotyping} \

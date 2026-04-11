@@ -811,7 +811,7 @@ task CollectWgsMetrics {
     USE_FAST_ALGORITHM=false \
     COUNT_UNPAIRED=true \
     COVERAGE_CAP=12500 \
-    READ_LENGTH=~{default=250 read_length}
+    READ_LENGTH=~{default="250" read_length}
   }
 
   runtime {
@@ -863,7 +863,7 @@ task CollectRawWgsMetrics {
     OUTPUT=~{metrics_filename} \
     COUNT_UNPAIRED=true \
     USE_FAST_ALGORITHM=false \
-    READ_LENGTH=~{default=250 read_length}
+    READ_LENGTH=~{default="250" read_length}
   }
 
   runtime {
