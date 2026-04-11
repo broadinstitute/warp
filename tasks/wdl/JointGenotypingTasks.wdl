@@ -897,7 +897,7 @@ task CrossCheckFingerprint {
   Int cpu = if num_gvcfs < 32 then num_gvcfs else 32
   # Compute memory to use based on the CPU count, following the pattern of
   # 3.75GiB / cpu used by GCP's pricing: https://cloud.google.com/compute/pricing
-  Int memory = if defined(machine_mem_mb) then machine_mem_mb else round(cpu * 3.75 * 1024)
+  Int memory = select_first([machine_mem_mb, round(cpu * 3.75 * 1024)])
   Int java_mem = memory - 512
 
   String output_name = output_base_name + ".fingerprintcheck"
@@ -1057,10 +1057,18 @@ task GetFingerprintingIntervalIndices {
     else
       touch indices.out
     fi
+
+    python3 -c "
+with open('indices.out') as f:
+    indices = [int(line.strip()) for line in f if line.strip()]
+import json
+with open('indices.json', 'w') as out:
+    json.dump(indices, out)
+"
   >>>
 
   output {
-    Array[String] indices_to_fingerprint = read_lines("indices.out")
+    Array[Int] indices_to_fingerprint = read_json("indices.json")
     File all_sorted_interval_list = "all.sorted.interval_list"
     File all_interval_list = "all.interval_list"
     File hdb_interval_list = "hdb.interval_list"

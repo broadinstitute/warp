@@ -503,7 +503,7 @@ task CollectRawWgsMetrics {
   Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + additional_disk
 
   Int memory_size = ceil((if (disk_size < 110) then 5 else 7) * memory_multiplier)
-  String java_memory_size = (memory_size - 1) * 1000
+  Int java_memory_size = (memory_size - 1) * 1000
 
   command {
     java -Xms~{java_memory_size}m -jar /usr/picard/picard.jar \

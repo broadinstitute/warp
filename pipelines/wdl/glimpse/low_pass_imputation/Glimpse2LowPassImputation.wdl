@@ -288,7 +288,7 @@ task ComputeShardsAndMemoryPerShard {
 
     output {
         Array[String] reference_chunk_file_paths = read_lines("reference_shard_file_paths.tsv")
-        Array[Int] mem_gb_per_chunk = read_lines("memory_per_chunk.tsv")
+        Array[String] mem_gb_per_chunk = read_lines("memory_per_chunk.tsv")
     }
 }
 

@@ -51,7 +51,7 @@ workflow determine_hq_sites_intersection {
                 vcf_intervals = training_vcf_so_bgz,
                 vcf_intervals_idx = training_vcf_so_bgz_idx,
                 intersecting_intervals=intersecting_intervals,
-                id = i
+                id = "~{i}"
         }
 
         call intersect_vcfs_as_sites_only {
@@ -92,7 +92,7 @@ workflow determine_hq_sites_intersection {
                 sites_only_vcf_idx = merge_sites_only_intersection.merged_vcf_idx,
                 output_name="full_data_sites_filtered",
                 service_account_json=service_account_json,
-                id = j
+                id = "~{j}"
         }
     }
 
@@ -135,7 +135,7 @@ task sitesOnlyAndHQFilterVcf {
     String output_filename = basename(vcf) + "." + id + ".sites_only.vcf.gz"
     String output_filename_idx = output_filename + ".tbi"
     String has_service_account_file = if (defined(service_account_json)) then 'true' else 'false'
-    String service_account_basename_pre = if (defined(service_account_json)) then service_account_json else ''
+    String service_account_basename_pre = select_first([service_account_json, ''])
     String service_account_basename = basename(service_account_basename_pre)
     String input_vcf_basename = basename(vcf)
     String updated_input_vcf = if (defined(service_account_json)) then input_vcf_basename else vcf
@@ -270,7 +270,7 @@ task filter_by_sites_only {
     String output_filename = basename(output_name) + "." + id + ".vcf.bgz"
     String output_filename_idx = output_filename + ".tbi"
     String has_service_account_file = if (defined(service_account_json)) then 'true' else 'false'
-    String service_account_basename_pre = if (defined(service_account_json)) then service_account_json else ''
+    String service_account_basename_pre = select_first([service_account_json, ''])
     String service_account_basename = basename(service_account_basename_pre)
     String input_vcf_basename = basename(vcf)
     String updated_input_vcf = if (defined(service_account_json)) then input_vcf_basename else vcf
