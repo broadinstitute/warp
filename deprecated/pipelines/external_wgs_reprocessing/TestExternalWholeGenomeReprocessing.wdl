@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/wdl/reprocessing/external/wgs/ExternalWholeGenomeReprocessing.wdl" as ExternalWholeGenomeReprocessing
-import "../../verification/VerifyExternalReprocessing.wdl" as VerifyExternalReprocessing
-import "../../tasks/wdl/Utilities.wdl" as Utilities
-import "../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
+import "ExternalWholeGenomeReprocessing.wdl" as ExternalWholeGenomeReprocessing
+import "../external_exome_reprocessing/VerifyExternalReprocessing.wdl" as VerifyExternalReprocessing
+import "../../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestExternalWholeGenomeReprocessing {
 

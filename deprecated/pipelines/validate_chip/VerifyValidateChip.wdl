@@ -1,7 +1,7 @@
 version 1.0
 
-import "../verification/VerifyTasks.wdl" as Tasks
-import "../verification/VerifyMetrics.wdl" as MetricsVerification
+import "../../../verification/VerifyTasks.wdl" as Tasks
+import "../../../verification/VerifyMetrics.wdl" as MetricsVerification
 
 ## Copyright Broad Institute, 2018
 ##

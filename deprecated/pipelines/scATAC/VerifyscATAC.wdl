@@ -1,6 +1,6 @@
 version 1.0
 
-import "../verification/VerifyTasks.wdl" as VerifyTasks
+import "../../../verification/VerifyTasks.wdl" as VerifyTasks
 
 workflow VerifyscATAC {
   input {

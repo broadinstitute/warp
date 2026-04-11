@@ -1,7 +1,7 @@
 version 1.0
 
-import "../verification/VerifyIlluminaGenotypingArray.wdl" as VerifyIlluminaGenotypingArray
-import "../verification/VerifyTasks.wdl" as VerifyTasks
+import "../../../verification/VerifyIlluminaGenotypingArray.wdl" as VerifyIlluminaGenotypingArray
+import "../../../verification/VerifyTasks.wdl" as VerifyTasks
 
 ## Copyright Broad Institute, 2018
 ##

@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/wdl/arrays/validate_chip/ValidateChip.wdl" as ValidateChip
-import "../../verification/VerifyValidateChip.wdl" as VerifyValidateChip
-import "../../tasks/wdl/Utilities.wdl" as Utilities
-import "../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
+import "ValidateChip.wdl" as ValidateChip
+import "VerifyValidateChip.wdl" as VerifyValidateChip
+import "../../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestValidateChip {
 

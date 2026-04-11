@@ -1,9 +1,9 @@
 version 1.0
 
 
-import "../../pipelines/wdl/reprocessing/external/exome/ExternalExomeReprocessing.wdl" as ExternalExomeReprocessing
-import "../../verification/VerifyExternalReprocessing.wdl" as VerifyExternalReprocessing
-import "../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
+import "ExternalExomeReprocessing.wdl" as ExternalExomeReprocessing
+import "VerifyExternalReprocessing.wdl" as VerifyExternalReprocessing
+import "../../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestExternalExomeReprocessing {
 

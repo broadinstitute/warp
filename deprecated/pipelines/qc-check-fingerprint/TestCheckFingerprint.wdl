@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/wdl/qc/CheckFingerprint.wdl" as CheckFingerprint
-import "../../verification/VerifyCheckFingerprint.wdl" as VerifyCheckFingerprint
-import "../../tasks/wdl/Utilities.wdl" as Utilities
-import "../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
+import "CheckFingerprint.wdl" as CheckFingerprint
+import "VerifyCheckFingerprint.wdl" as VerifyCheckFingerprint
+import "../../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestCheckFingerprint {
 

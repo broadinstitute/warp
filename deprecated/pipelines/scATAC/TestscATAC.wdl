@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/wdl/scATAC/scATAC.wdl" as scATAC
-import "../../verification/VerifyscATAC.wdl" as VerifyscATAC
-import "../../tasks/wdl/Utilities.wdl" as Utilities
-import "../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
+import "scATAC.wdl" as scATAC
+import "VerifyscATAC.wdl" as VerifyscATAC
+import "../../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestscATAC {
 

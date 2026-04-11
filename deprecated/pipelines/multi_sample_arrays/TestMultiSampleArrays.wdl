@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/wdl/arrays/multi_sample/MultiSampleArrays.wdl" as MultiSampleArrays
-import "../../verification/VerifyMultiSampleArrays.wdl" as VerifyMultiSampleArrays
-import "../../tasks/wdl/Utilities.wdl" as Utilities
-import "../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
+import "MultiSampleArrays.wdl" as MultiSampleArrays
+import "VerifyMultiSampleArrays.wdl" as VerifyMultiSampleArrays
+import "../../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../../tasks/wdl/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestMultiSampleArrays {
 

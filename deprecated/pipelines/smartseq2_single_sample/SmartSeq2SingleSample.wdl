@@ -6,7 +6,7 @@ import "../../../tasks/wdl/HISAT2.wdl" as HISAT2
 import "../../../tasks/wdl/Picard.wdl" as Picard
 import "../../../tasks/wdl/RSEM.wdl" as RSEM
 import "../../../tasks/wdl/GroupMetricsOutputs.wdl" as GroupQCs
-import "../../../tasks/wdl/LoomUtils.wdl" as LoomUtils
+import "../smartseq2_multisample/LoomUtils.wdl" as LoomUtils
 
 workflow SmartSeq2SingleSample {
   meta {

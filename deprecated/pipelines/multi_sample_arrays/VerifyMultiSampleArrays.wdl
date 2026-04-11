@@ -1,6 +1,6 @@
 version 1.0
 
-import "../verification/VerifyTasks.wdl" as Tasks
+import "../../../verification/VerifyTasks.wdl" as Tasks
 
 ## Copyright Broad Institute, 2018
 ##
