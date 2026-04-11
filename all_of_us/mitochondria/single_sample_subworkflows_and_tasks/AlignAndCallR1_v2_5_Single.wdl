@@ -409,7 +409,7 @@ task Filter {
 
     # hc_contamination will be None if hasContamination is not defined (I think) OR contamination_major not defined OR contamination_minor not defined
     String hasContamination_2 = select_first([hasContamination,"NOT FOUND"])
-    Float? hc_contamination = if run_contamination && hasContamination_2 == "YES" then (if contamination_major == 0.0 then contamination_minor else 1.0 - contamination_major) else 0.0
+    Float? hc_contamination = if run_contamination && hasContamination_2 == "YES" then (if select_first([contamination_major, 0.0]) == 0.0 then contamination_minor else 1.0 - select_first([contamination_major, 0.0])) else 0.0
     Float hc_contamination_2 = select_first([hc_contamination, 0.0])
     Float? max_contamination = if defined(verifyBamID) then (if verifyBamID > hc_contamination_2 then verifyBamID else hc_contamination_2) else hc_contamination_2
 

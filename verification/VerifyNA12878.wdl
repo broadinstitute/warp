@@ -62,7 +62,7 @@ task RunValidation {
     Int default_disk_space_gb = 100
 
     # Mem is in units of GB but our command and memory runtime values are in MB
-    Int machine_mem = if defined(mem_gb) then mem_gb *1000 else default_ram_mb
+    Int machine_mem = if defined(mem_gb) then select_first([mem_gb]) *1000 else default_ram_mb
     Int command_mem = machine_mem - 1000
     Int max_heap = machine_mem - 500
 

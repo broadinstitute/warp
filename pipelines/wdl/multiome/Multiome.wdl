@@ -109,7 +109,6 @@ workflow Multiome {
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
             soloMultiMappers = soloMultiMappers,
-            cloud_provider = cloud_provider,
             gex_expected_cells = expected_cells,
             run_cellbender = run_cellbender
     }

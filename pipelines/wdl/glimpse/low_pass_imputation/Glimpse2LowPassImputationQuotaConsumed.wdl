@@ -26,7 +26,7 @@ workflow QuotaConsumed {
 
     # validate that either crams, or cram manifest is provided
     if (defined(crams)) {
-        Int quota_consumed = length(select_first([crams]))
+        Int crams_quota_consumed = length(select_first([crams]))
     }
 
     if (defined(cram_manifest)) {
@@ -37,7 +37,7 @@ workflow QuotaConsumed {
     }
 
     output {
-        Int quota_consumed = select_first([quota_consumed, CountCramsFromManifest.cram_manifest_count, 0])
+        Int quota_consumed = select_first([crams_quota_consumed, CountCramsFromManifest.cram_manifest_count, 0])
     }
 }
 

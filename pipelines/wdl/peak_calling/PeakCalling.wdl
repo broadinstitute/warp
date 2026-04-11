@@ -47,7 +47,7 @@ workflow PeakCalling {
     }
   }
 
-  call PeakCalling {
+  call PeakCallingTask {
       input:
         annotations_gtf = annotations_gtf,
         metrics_h5ad = metrics_h5ad,
@@ -58,14 +58,14 @@ workflow PeakCalling {
   }
 
     output {
-        File cellbybin_h5ad = PeakCalling.cellbybin_h5ad
-        File cellbypeak_h5ad = PeakCalling.cellbypeak_h5ad
+        File cellbybin_h5ad = PeakCallingTask.cellbybin_h5ad
+        File cellbypeak_h5ad = PeakCallingTask.cellbypeak_h5ad
         String pipeline_version_out = pipeline_version
     }
 }
 
 # peak calling using SnapATAC2
-task PeakCalling {
+task PeakCallingTask {
     input {
         File annotations_gtf
         File metrics_h5ad

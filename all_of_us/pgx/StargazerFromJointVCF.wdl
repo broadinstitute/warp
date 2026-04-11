@@ -122,7 +122,7 @@ task SelectVariants {
     runtime {
         memory: "7 GB"
         cpu: 1
-        disks: "local-disk " + disk_size + " HDD"
+        disks: "local-disk " + select_first([disk_size, 100]) + " HDD"
         docker: "us.gcr.io/broad-gatk/gatk:4.4.0.0"
     }
     output {
