@@ -306,7 +306,7 @@ task ValidateCramsAndIndicesAndSampleIds {
         
         if crams_exceeding_max_size:
             qc_messages.append(create_error_message_with_item_list(
-                f"Found {pluralize(len(crams_exceeding_max_size), 'CRAM file')} exceeding the maximum allowed file size of {max_cram_file_size_gb}GB:", 
+                f"Found {pluralize(len(crams_exceeding_max_size), 'CRAM file')} exceeding the maximum allowed file size of {max_cram_file_size_gb}GB", 
                 crams_exceeding_max_size))
         else:
             print(f"All CRAM files are within the maximum allowed file size of {max_cram_file_size_gb}GB.")

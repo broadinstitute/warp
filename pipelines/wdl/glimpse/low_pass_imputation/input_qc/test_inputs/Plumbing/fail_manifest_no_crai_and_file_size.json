@@ -5,8 +5,6 @@
   "Glimpse2LowPassImputationQC.fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
   "Glimpse2LowPassImputationQC.output_basename": "plumbing_test",
   "Glimpse2LowPassImputationQC.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
-  "Glimpse2LowPassImputationQC.crams": ["gs://pd-test-storage-public/Glimpse2LowPassImputationQC/input/plumbing/crams/fakeCram0.cram", "gs://pd-test-storage-public/CramToUnmappedBams/input/scientific/G94982.NA12878.WGS/NA12878.cram"],
-  "Glimpse2LowPassImputationQC.cram_indices": ["gs://pd-test-storage-public/Glimpse2LowPassImputationQC/input/plumbing/crams/fakeCram0.cram.crai", "gs://pd-test-storage-public/CramToUnmappedBams/input/scientific/G94982.NA12878.WGS/NA12878.cram.crai"],
-  "Glimpse2LowPassImputationQC.sample_ids": ["sample0", "NA12878wgs"],
+  "Glimpse2LowPassImputationQC.cram_manifest": "gs://pd-test-storage-public/Glimpse2LowPassImputationQC/input/plumbing/manifests/fakeCramManifestNoCraiAndFileSizeTooBig.tsv",
   "Glimpse2LowPassImputationQC.billing_project_for_rp": "terra-f8e3de20"
 }
