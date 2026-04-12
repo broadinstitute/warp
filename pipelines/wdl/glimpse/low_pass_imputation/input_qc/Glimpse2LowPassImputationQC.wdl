@@ -286,7 +286,7 @@ task ValidateCramsAndIndicesAndSampleIds {
                     
                     blob = bucket.blob(blob_name)
                     
-                    # Reload to get metadata
+                    # Reload to ensure the file exists and is accessible
                     blob.reload(client=client)
                 else:
                     files_with_invalid_gcs_format.append(crai)
