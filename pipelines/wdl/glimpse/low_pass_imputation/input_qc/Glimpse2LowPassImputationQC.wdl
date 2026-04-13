@@ -84,6 +84,11 @@ task ConvertCramManifestToInputArrays {
         cram_indices_filename = "cram_indices.txt"
         sample_ids_filename = "sample_ids.txt"
 
+        def write_column(column_data, filename):
+            """Write column to file, with each value stripped of leading/trailing whitespace."""
+            filtered = column_data.astype(str).str.strip()
+            filtered.to_csv(filename, index=False, header=False)
+
         # Read the manifest
         try:
             df = pd.read_csv("~{cram_manifest}", sep='\t')
@@ -103,10 +108,10 @@ task ConvertCramManifestToInputArrays {
                 open(cram_indices_filename, 'w').close()
                 open(sample_ids_filename, 'w').close()
             else:
-                # Write to output files
-                df['sample_id'].to_csv(sample_ids_filename, index=False, header=False)
-                df['cram_path'].to_csv(crams_filename, index=False, header=False)
-                df['cram_index_path'].to_csv(cram_indices_filename, index=False, header=False)
+                # Write to output files, stripping leading/trailing whitespace from each value
+                write_column(df['sample_id'], sample_ids_filename)
+                write_column(df['cram_path'], crams_filename)
+                write_column(df['cram_index_path'], cram_indices_filename)
                 
                 # Write QC results
                 with open(qc_messages_filename, 'w') as f:
