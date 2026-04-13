@@ -174,9 +174,14 @@ task ValidateCramsAndIndicesAndSampleIds {
         qc_messages = []
 
         # Parse WDL arrays from space-separated strings
-        sample_ids = """~{sep=' ' sample_ids}""".split()
-        crams = """~{sep=' ' crams}""".split()
-        cram_indices = """~{sep=' ' cram_indices}""".split()
+        parsed_sample_ids = """~{sep=' ' sample_ids}""".split()
+        parsed_crams = """~{sep=' ' crams}""".split()
+        parsed_cram_indices = """~{sep=' ' cram_indices}""".split()
+
+        # remove empty strings
+        sample_ids = [s for s in parsed_sample_ids if s]
+        crams = [c for c in parsed_crams if c]
+        cram_indices = [c for c in parsed_cram_indices if c]
 
         num_crams = len(crams)
         num_cram_indices = len(cram_indices)
