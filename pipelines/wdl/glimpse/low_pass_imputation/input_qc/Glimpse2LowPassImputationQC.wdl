@@ -87,7 +87,9 @@ task ConvertCramManifestToInputArrays {
         def write_column(column_data, filename):
             """Write column to file, with each value stripped of leading/trailing whitespace."""
             filtered = column_data.fillna('').astype(str).str.strip()
-            filtered.to_csv(filename, index=False, header=False)
+            with open(filename, 'w') as f:
+                for value in filtered:
+                    f.write(f"{value}\n")
 
         # Read the manifest
         try:
