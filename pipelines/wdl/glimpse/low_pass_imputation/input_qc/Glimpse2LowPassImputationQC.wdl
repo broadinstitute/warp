@@ -25,13 +25,12 @@ workflow InputQC {
 
     # validate that either crams, or cram manifest is provided
     if (!defined(crams) && !defined(cram_manifest)) {
-        Boolean no_data_passes_qc = false
         String no_data_message = "No input data provided. Please provide either CRAM files or a CRAM manifest."
     }
 
     # validate that not more than one of these is provided
-    if ((defined(crams) && defined(cram_manifest))) {
-        Boolean multiple_data_types_passes_qc = false
+    Boolean both_crams_and_manfiest_supplied = defined(crams) && defined(cram_manifest)
+    if (both_crams_and_manfiest_supplied) {
         String multiple_data_types_message = "Multiple input data types provided. Please provide only CRAM files (with corresponding CRAM index files and sample IDs) or a CRAM manifest."
     }
 
@@ -43,9 +42,7 @@ workflow InputQC {
         }
     }
 
-    Boolean do_cram_qc = (select_first([ConvertCramManifestToInputArrays.passes_qc, true]) 
-        && select_first([no_data_passes_qc, true]) 
-        && select_first([multiple_data_types_passes_qc, true]))
+    Boolean do_cram_qc = select_first([ConvertCramManifestToInputArrays.passes_qc, !both_crams_and_manfiest_supplied]) 
 
     if (do_cram_qc) {
         Array[String] cram_array = select_first([crams, ConvertCramManifestToInputArrays.crams, []])
@@ -64,7 +61,7 @@ workflow InputQC {
     }
 
     output {
-        Boolean passes_qc = select_first([ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc, no_data_passes_qc, multiple_data_types_passes_qc])
+        Boolean passes_qc = select_first([ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc, false])
         String qc_messages = select_first([ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages, no_data_message, multiple_data_types_message])
     }
 }
@@ -140,7 +137,7 @@ task ConvertCramManifestToInputArrays {
         docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
         cpu: 1
         disks: "local-disk 10 HDD"
-        memory: "1 GiB"
+        memory: "4 GiB"
         preemptible: 3
         maxRetries: 2
         noAddress: true
@@ -200,9 +197,9 @@ task ValidateCramsAndIndicesAndSampleIds {
 
         # Validate that the number of CRAMs, CRAIs, and sample IDs match
         if num_crams != num_cram_indices or num_crams != num_sample_ids:
-            qc_messages.append(f"Found different numbers of CRAMs ({num_crams}), CRAIs ({num_cram_indices}), and sample IDs ({num_sample_ids}).")
+            qc_messages.append(f"Found different numbers of CRAMs ({num_crams}), CRAM index files ({num_cram_indices}), and sample IDs ({num_sample_ids}).")
         else:
-            print(f"Number of CRAMs, CRAIs, and sample IDs match: found {num_crams} of each.")
+            print(f"Number of CRAMs, CRAM index files, and sample IDs match: found {num_crams} of each.")
 
         # Validate that sample IDs are unique
         unique_sample_ids = set(sample_ids)
@@ -326,8 +323,7 @@ task ValidateCramsAndIndicesAndSampleIds {
         docker:  "us.gcr.io/broad-gatk/gatk:4.6.1.0" # has python 3.10
         cpu: 1
         disks: "local-disk 10 HDD"
-        memory: "1 GiB"
-        preemptible: 3
+        memory: "4 GiB"
         maxRetries: 2
     }
     
