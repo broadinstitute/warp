@@ -67,10 +67,13 @@ task pytorch_cuda_test {
 
 workflow test_cuda {
 
+  String pipeline_version = "1.0.0"
+
   call pytorch_cuda_test
 
   output {
     File log = pytorch_cuda_test.log
+    String pipeline_version_out = pipeline_version
   }
 
 }
