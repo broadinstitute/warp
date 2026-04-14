@@ -381,3 +381,11 @@ workflows:
   - name: WholeGenomeReprocessing
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/wgs/WholeGenomeReprocessing.wdl
+
+  - name: scANVI
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/scanvi/scANVI.wdl
+
+  - name: TestCudaGPU
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/scanvi/test_cuda.wdl
