@@ -110,21 +110,46 @@ Instead, the pipeline:
 
 This ensures zero duplication: every preprocessing step executes exactly once (on CPU), and the GPU node spends 100 % of its time on model training and inference.
 
+## Runtime Configuration
+
+Both tasks use the same Docker image (pinned by digest). GPU and CUDA setup is handled entirely by the execution engine — the container does not configure the GPU environment itself.
+
+### Task 1 — `PreprocessFilter` (CPU-only)
+
+| Attribute | Value |
+|---|---|
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:81fe915a045bd2929a1c457f4a0061055c6ea42fa3f88e9352b618e4a6e47b58` |
+| `bootDiskSizeGb` | 20 |
+| `disks` | `local-disk 1000 SSD` |
+| `memory` | `120 GiB` |
+| `cpu` | 32 |
+| `maxRetries` | 1 |
+
+### Task 2 — `MultiomeLabelTransfer` (GPU)
+
+| Attribute | Value |
+|---|---|
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:81fe915a045bd2929a1c457f4a0061055c6ea42fa3f88e9352b618e4a6e47b58` |
+| `bootDiskSizeGb` | 20 |
+| `disks` | `local-disk 500 SSD` |
+| `memory` | `120 GiB` |
+| `cpu` | 32 |
+| `gpuType` | `nvidia-tesla-t4` |
+| `gpuCount` | 2 |
+| `nvidiaDriverVersion` | `525.147.05` |
+| `zones` | `us-central1-a us-central1-c` |
+| `maxRetries` | 1 |
+
+The NVIDIA driver version `525.147.05` satisfies the CUDA 11.3 minimum requirement (≥ 465.19.01) and has been verified working on GCP / Terra with the scvi-scanvi container.
+
 ## Requirements
 
-- **GPU required** for Task 2 — SCVI/SCANVI training benefits significantly from GPU acceleration (NVIDIA Tesla T4 or equivalent).
 - Input h5ad files should follow [Multiome](https://broadinstitute.github.io/warp/docs/Pipelines/Multiome_Pipeline/README) and [PeakCalling](https://broadinstitute.github.io/warp/docs/Pipelines/PeakCalling/README) WARP pipeline conventions.
 - The reference h5ad must contain cell type annotations in `obs['final_annotation']`.
 
 ## Docker
 
-Both tasks use the same `scvi-scanvi` Docker image from [warp-tools](https://github.com/broadinstitute/warp-tools/tree/develop/3rd-party-tools/scvi-scanvi). Only Task 2 gets GPUs attached by the execution engine (hardcoded as `nvidia-tesla-t4` x 2 in the runtime block); the container itself does not configure CUDA — the execution engine handles GPU/driver setup.
-
-```
-us.gcr.io/broad-gotc-prod/scvi-scanvi:1.0.0-1.2-1756234975
-```
-
-Key libraries: scvi-tools 1.2, snapatac2 2.7, scanpy, anndata.
+The `scvi-scanvi` image is maintained in [warp-tools](https://github.com/broadinstitute/warp-tools/tree/develop/3rd-party-tools/scvi-scanvi). Key libraries: scvi-tools 1.2, snapatac2 2.7, scanpy, anndata.
 
 ## Versioning and Changelog
 

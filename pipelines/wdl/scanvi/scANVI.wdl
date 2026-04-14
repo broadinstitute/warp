@@ -385,10 +385,9 @@ PYEOF
         disks: "local-disk ${disk_size} SSD"
         memory: "${mem_size} GiB"
         cpu: nthreads
-        gpuType: "nvidia-tesla-t4"
+        hardware_gpu_type: "nvidia-tesla-t4" # known to work with Terra
         gpuCount: 2
-        nvidiaDriverVersion: "525.147.05"
-        zones: "us-central1-a us-central1-c"
+        nvidia_driver_version: "535.104.05" # compatible with CUDA 12.x and T4 GPUs, known to work with Terra
         maxRetries: 1
     }
 
