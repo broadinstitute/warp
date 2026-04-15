@@ -1,3 +1,8 @@
+# 0.0.7
+2026-04-17 (Date of Last Commit)
+
+* add optional cram_manifest input
+
 # 0.0.6
 2026-04-15 (Date of Last Commit)
 

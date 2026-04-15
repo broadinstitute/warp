@@ -1,7 +1,9 @@
 version 1.0
 
+import "../../../../tasks/wdl/Utilities.wdl" as utils
+
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "0.0.6"
+    String pipeline_version = "0.0.7"
     String quota_consumed_version = "0.0.1"
     String input_qc_version = "1.0.0"
     
@@ -12,6 +14,7 @@ workflow Glimpse2LowPassImputation {
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
         String reference_panel_prefix
 
+        # if multiple data types are provided, the workflow will prioritize crams first, then cram_manifest, then vcfs
         File? input_vcf
         File? input_vcf_index
         Array[File]? crams
@@ -35,17 +38,23 @@ workflow Glimpse2LowPassImputation {
         String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
     }
 
-     # validate that either vcfs, crams, or cram manifest is provided
-    if (!defined(crams) && !defined(cram_manifest)) {
-        String no_data_message = "No input data provided. Please provide either CRAM files or a CRAM manifest."
+    if (!defined(crams) && !defined(cram_manifest) && !defined(input_vcf)) {
+        call utils.ErrorWithMessage as ErrorMessageNoInput {
+            input:
+                message = "At least one type of input data must be provided: CRAM files (with corresponding CRAM index files and sample IDs), a CRAM manifest, or a multi-sample VCF (with corresponding index file)."
+        }
     }
 
-    # validate that not more than one of these is provided
-    Boolean both_crams_and_manfiest_supplied = defined(crams) && defined(cram_manifest)
-    if (both_crams_and_manfiest_supplied) {
-        String multiple_data_types_message = "Multiple input data types provided. Please provide only CRAM files (with corresponding CRAM index files and sample IDs) or a CRAM manifest."
+    if (defined(cram_manifest)) {
+        call ConvertCramManifestToInputArrays {
+            input:
+                cram_manifest = select_first([cram_manifest])
+        }
     }
 
+    Array[File] crams = select_first([crams, ConvertCramManifestToInputArrays.crams, []])
+    Array[File] cram_indices = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices, []])
+    Array[String] sample_ids = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids, []])
 
     if (defined(input_vcf)) {
         call CountSamples {
@@ -222,6 +231,61 @@ workflow Glimpse2LowPassImputation {
 
         File qc_metrics = CollectQCMetrics.qc_metrics
         File? coverage_metrics = CombineCoverageMetrics.coverage_metrics
+    }
+}
+
+task ConvertCramManifestToInputArrays {
+    input {
+        File cram_manifest
+    }   
+
+    command <<<
+        cat <<EOF > script.py
+        import pandas as pd
+
+        crams_filename = "crams.txt"
+        cram_indices_filename = "cram_indices.txt"
+        sample_ids_filename = "sample_ids.txt"
+
+        def write_column(column_data, filename):
+            """Write column to file, with each value stripped of leading/trailing whitespace."""
+            filtered = column_data.fillna('').astype(str).str.strip()
+            with open(filename, 'w') as f:
+                for value in filtered:
+                    f.write(f"{value}\n")
+
+        # Read the manifest
+        df = pd.read_csv("~{cram_manifest}", sep='\t')
+        
+        # Check for required columns
+        required_cols = ['sample_id', 'cram_path', 'cram_index_path']
+        missing_cols = [col for col in required_cols if col not in df.columns]
+        
+        if missing_cols:
+            print(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.") 
+        else:
+            # Write to output files, stripping leading/trailing whitespace from each value
+            write_column(df['sample_id'], sample_ids_filename)
+            write_column(df['cram_path'], crams_filename)
+            write_column(df['cram_index_path'], cram_indices_filename)
+        EOF
+        python3 script.py >&2
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        memory: "4 GiB"
+        preemptible: 3
+        maxRetries: 2
+        noAddress: true
+    }
+
+    output {
+        Array[String] crams = read_lines("crams.txt")
+        Array[String] cram_indices = read_lines("cram_indices.txt")
+        Array[String] sample_ids = read_lines("sample_ids.txt")
     }
 }
 
