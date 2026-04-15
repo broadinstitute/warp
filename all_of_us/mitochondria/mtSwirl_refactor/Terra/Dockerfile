@@ -7,6 +7,7 @@
 #
 # Build context should be the mtSwirl repo root:
 #   docker build -f generate_mtdna_call_mt/Terra/Dockerfile -t aou-mitochondrial-combine-vcfs-covdb:dev .
+# Dockerfile for base image can be found at: https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/aou_mitochondrial_annotate_coverage/Dockerfile
 
 FROM us.gcr.io/broad-gotc-prod/aou-mitochondrial-annotate-coverage:1.0.0
 
