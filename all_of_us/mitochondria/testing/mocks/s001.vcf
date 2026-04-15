@@ -1,0 +1,28 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##FILTER=<ID=artifact_prone_site,Description="Variant overlaps an artifact-prone site">
+##FILTER=<ID=weak_evidence,Description="Mutation does not meet likelihood threshold">
+##FILTER=<ID=strand_bias,Description="Evidence for alt allele comes from one read direction only">
+##contig=<ID=chrM,length=16569>
+##INFO=<ID=MMQ,Number=2,Type=Integer,Description="Median mapping quality for ref and alt alleles">
+##INFO=<ID=TLOD,Number=A,Type=Float,Description="Log 10 likelihood ratio score of variant existing versus not existing">
+##INFO=<ID=STRAND_BIAS_FLAG,Number=0,Type=Flag,Description="Strand bias flag">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic depths of REF and ALT">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Depth of coverage">
+##FORMAT=<ID=AF,Number=A,Type=Float,Description="Allele frequency of ALT allele">
+##FORMAT=<ID=MQ,Number=1,Type=Float,Description="RMS mapping quality">
+##FORMAT=<ID=TLOD,Number=A,Type=Float,Description="Log 10 likelihood ratio score of variant existing versus not existing">
+##FORMAT=<ID=FT,Number=.,Type=String,Description="Sample-level genotype filters">
+##FORMAT=<ID=F1R2,Number=R,Type=Integer,Description="Count of reads in F1R2 pair orientation supporting each allele">
+##FORMAT=<ID=F2R1,Number=R,Type=Integer,Description="Count of reads in F2R1 pair orientation supporting each allele">
+##FORMAT=<ID=MPOS,Number=1,Type=Integer,Description="Median distance from end of read">
+##FORMAT=<ID=AS_SB_TABLE,Number=1,Type=String,Description="Allele-specific forward/reverse read counts for strand bias tests">
+##FORMAT=<ID=STR,Number=1,Type=Integer,Description="Variant is a short tandem repeat">
+##FORMAT=<ID=STRQ,Number=1,Type=Integer,Description="Phred-scaled quality that alt alleles in STRs are not polymerase slippage errors">
+##FORMAT=<ID=RPA,Number=R,Type=Integer,Description="Number of times tandem repeat unit is repeated for each allele">
+##FORMAT=<ID=OriginalSelfRefAlleles,Number=R,Type=String,Description="Original self-reference alleles">
+##FORMAT=<ID=SwappedFieldIDs,Number=1,Type=String,Description="Fields remapped during liftover">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	s001
+chrM	750	.	A	G	.	PASS	MMQ=60,55;TLOD=50.0	GT:AD:DP:AF:MQ:TLOD:FT:F1R2:F2R1:MPOS	0/1:50,50:100:0.5:60.0:50.0:PASS:25,25:25,25:15
+chrM	1438	.	A	G	.	PASS	MMQ=58,52;TLOD=40.0	GT:AD:DP:AF:MQ:TLOD:FT:F1R2:F2R1:MPOS	0/1:60,40:100:0.4:58.0:40.0:PASS:30,20:30,20:12

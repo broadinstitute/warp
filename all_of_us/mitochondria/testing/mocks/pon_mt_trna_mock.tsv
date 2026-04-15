@@ -1,0 +1,4 @@
+mtDNA_position	Reference_nucleotide	New_nucleotide	Classification	ML_probability_of_pathogenicity
+573	A	G	benign	0.1
+1438	A	G	likely_benign	0.2
+2706	A	G	VUS	0.5

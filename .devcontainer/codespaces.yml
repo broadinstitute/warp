@@ -1,0 +1,19 @@
+# GitHub Codespaces Configuration for WARP
+# This file supports development in GitHub Codespaces using the dev container
+
+name: WARP Development Environment
+description: Development environment for WARP WDL pipelines
+template: false
+
+# Deep clone for full git history
+deep_clone: true
+
+# Prebuild settings for faster codespaces startup
+prebuild:
+  # Prebuild on pull requests
+  trigger: pull_request
+  only:
+    # Only prebuild when these paths change
+    - .devcontainer/**
+    - Dockerfile
+    - docker-compose.yml
