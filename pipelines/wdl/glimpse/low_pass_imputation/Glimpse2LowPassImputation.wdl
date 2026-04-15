@@ -16,7 +16,9 @@ workflow Glimpse2LowPassImputation {
         File? input_vcf_index
         Array[File]? crams
         Array[File]? cram_indices
-        Array[String] sample_ids
+        Array[String]? sample_ids
+        File? cram_manifest
+
         File fasta
         File fasta_index
         String output_basename
@@ -32,6 +34,18 @@ workflow Glimpse2LowPassImputation {
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
         String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
     }
+
+     # validate that either vcfs, crams, or cram manifest is provided
+    if (!defined(crams) && !defined(cram_manifest)) {
+        String no_data_message = "No input data provided. Please provide either CRAM files or a CRAM manifest."
+    }
+
+    # validate that not more than one of these is provided
+    Boolean both_crams_and_manfiest_supplied = defined(crams) && defined(cram_manifest)
+    if (both_crams_and_manfiest_supplied) {
+        String multiple_data_types_message = "Multiple input data types provided. Please provide only CRAM files (with corresponding CRAM index files and sample IDs) or a CRAM manifest."
+    }
+
 
     if (defined(input_vcf)) {
         call CountSamples {
