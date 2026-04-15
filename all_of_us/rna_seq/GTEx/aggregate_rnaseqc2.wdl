@@ -23,37 +23,36 @@ task rnaseqc2_aggregate {
 
         echo $(date +"[%b %d %H:%M:%S]") Staging TPM GCT files
         while read path; do
-            gsutil -m cp "${path}" individual_outputs/
+            gsutil -m cp "$path" individual_outputs/
         done < ~{tpm_gcts_list}
 
         echo $(date +"[%b %d %H:%M:%S]") Staging count GCT files
         while read path; do
-            gsutil -m cp "${path}" individual_outputs/
+            gsutil -m cp "$path" individual_outputs/
         done < ~{count_gcts_list}
 
         echo $(date +"[%b %d %H:%M:%S]") Staging exon count GCT files
         while read path; do
-            gsutil -m cp "${path}" individual_outputs/
+            gsutil -m cp "$path" individual_outputs/
         done < ~{exon_count_gcts_list}
 
         echo $(date +"[%b %d %H:%M:%S]") Staging metrics TSV files
         while read path; do
-            gsutil -m cp "${path}" individual_outputs/
+            gsutil -m cp "$path" individual_outputs/
         done < ~{metrics_tsvs_list}
 
-        if [ -f ~{insertsize_hists_list} ]; then
-            echo $(date +"[%b %d %H:%M:%S]") Staging insert size histogram files
-            while read path; do
-                gsutil -m cp "${path}" individual_outputs/
-            done < ~{insertsize_hists_list}
-        fi
+        ~{if defined(insertsize_hists_list) then
+            "echo $(date +\"[%b %d %H:%M:%S]\") Staging insert size histogram files\n" +
+            "while read path; do\n" +
+            "    gsutil -m cp \"$path\" individual_outputs/\n" +
+            "done < " + select_first([insertsize_hists_list])
+        else ""}
 
         touch ~{prefix}.insert_size_hists.txt.gz
         python3 -m rnaseqc aggregate \
             -o . \
             individual_outputs \
-            ~{prefix} \
-            ~{flags}
+            ~{prefix}~{if defined(flags) then " " + select_first([flags]) else ""}
         echo $(date +"[%b %d %H:%M:%S] done")
     >>>
 
