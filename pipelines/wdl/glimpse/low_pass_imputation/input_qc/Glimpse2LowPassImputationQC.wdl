@@ -29,8 +29,8 @@ workflow InputQC {
     }
 
     # validate that not more than one of these is provided
-    Boolean both_crams_and_manfiest_supplied = defined(crams) && defined(cram_manifest)
-    if (both_crams_and_manfiest_supplied) {
+    Boolean both_crams_and_manifest_supplied = defined(crams) && defined(cram_manifest)
+    if (both_crams_and_manifest_supplied) {
         String multiple_data_types_message = "Multiple input data types provided. Please provide only CRAM files (with corresponding CRAM index files and sample IDs) or a CRAM manifest."
     }
 
@@ -42,7 +42,7 @@ workflow InputQC {
         }
     }
 
-    Boolean do_cram_qc = select_first([ConvertCramManifestToInputArrays.passes_qc, !both_crams_and_manfiest_supplied]) 
+    Boolean do_cram_qc = select_first([ConvertCramManifestToInputArrays.passes_qc, !both_crams_and_manifest_supplied]) 
 
     if (do_cram_qc) {
         Array[String] cram_array = select_first([crams, ConvertCramManifestToInputArrays.crams, []])
