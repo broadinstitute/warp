@@ -204,7 +204,7 @@ task ValidateCramsAndIndicesAndSampleIds {
             return f"{base_error_message}{exceeded_limit_message}: {', '.join(items_list_to_show)}."
 
         def pluralize(number: int, subject: str) -> str:
-            """Helper function to return 's' for plural or '' for singular based on the number provided."""
+            """Helper function to return a properly pluralized phrase based on the number provided, e.g. '1 CRAM file' or '2 CRAM files'."""
             return f"{number} {subject}" if number == 1 else f"{number} {subject}s"
 
         # Validate that the number of CRAMs, CRAIs, and sample IDs match
