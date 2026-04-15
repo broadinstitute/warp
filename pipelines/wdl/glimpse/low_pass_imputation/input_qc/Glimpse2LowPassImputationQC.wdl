@@ -2,7 +2,7 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.1"
+    String pipeline_version = "1.0.0"
 
     input {
         Array[String] contigs
@@ -101,7 +101,7 @@ task ConvertCramManifestToInputArrays {
             
             if missing_cols:
                 with open(qc_messages_filename, 'w') as qc_file:
-                    qc_file.write(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}")
+                    qc_file.write(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.")
                 with open(passes_qc_filename, 'w') as f:
                     f.write("false")
                 
@@ -124,7 +124,7 @@ task ConvertCramManifestToInputArrays {
         
         except Exception as e:
             with open(qc_messages_filename, 'w') as qc_file:
-                qc_file.write(f"Error reading CRAM manifest: {str(e)}")
+                qc_file.write(f"Error reading CRAM manifest: {str(e)}.")
             with open(passes_qc_filename, 'w') as f:
                 f.write("false")
             
