@@ -20,12 +20,13 @@ workflow InputQC {
         File fasta_index
         File ref_dict
 
+        # used for warp tests only (which use inputs in an RP bucket). service does not support RP buckets and will not provide this input.
         String? billing_project_for_rp
     }
 
     # validate that either crams, or cram manifest is provided
     if (!defined(crams) && !defined(cram_manifest)) {
-        String no_data_message = "No input data provided. Please provide either CRAM files or a CRAM manifest."
+        String no_data_message = "No input data provided. Please provide either CRAM files (with corresponding CRAM index files and sample IDs) or a CRAM manifest."
     }
 
     # validate that not more than one of these is provided
