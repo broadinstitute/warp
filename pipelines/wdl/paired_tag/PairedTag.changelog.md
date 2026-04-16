@@ -1,3 +1,8 @@
+# 2.1.13
+2026-04-16 (Date of Last Commit)
+
+* Updated StarAlign.wdl dependency; STARsoloFastq task now uses a separate output_base prefix for exon matrix files; this does not affect PairedTag outputs as count_exons defaults to false
+
 # 2.1.12
 2026-03-31 (Date of Last Commit)
 

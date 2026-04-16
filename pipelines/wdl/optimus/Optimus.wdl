@@ -78,7 +78,7 @@ workflow Optimus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "8.0.7"
+  String pipeline_version = "9.0.0"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -265,9 +265,9 @@ workflow Optimus {
         sparse_count_matrix = STARsoloFastq.sparse_counts,
         cell_id = STARsoloFastq.row_index,
         gene_id = STARsoloFastq.col_index,
-        sparse_count_matrix_exon = STARsoloFastq.sparse_counts,
-        cell_id_exon = STARsoloFastq.row_index,
-        gene_id_exon = STARsoloFastq.col_index,
+        sparse_count_matrix_exon = select_first([STARsoloFastq.sparse_counts_exon]),
+        cell_id_exon = select_first([STARsoloFastq.row_index_exon]),
+        gene_id_exon = select_first([STARsoloFastq.col_index_exon]),
         pipeline_version = "Optimus_v~{pipeline_version}",
         warp_tools_docker_path = docker_prefix + warp_tools_docker,
         gex_whitelist_gs_path = whitelist

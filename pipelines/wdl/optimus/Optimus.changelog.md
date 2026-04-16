@@ -1,3 +1,10 @@
+# 9.0.0
+2026-04-16 (Date of Last Commit)
+
+* Fixed bug where exon-only sparse count matrix files overwrote the full-transcript matrix files when counting_mode is sn_rna and count_exons is true; exon matrix outputs now use a separate output_base prefix (input_id_exon)
+* Added three optional task outputs to STARsoloFastq for the exon NPZ files: sparse_counts_exon, row_index_exon, col_index_exon
+* Updated SingleNucleusOptimusH5adOutput call to pass the correct exon-only matrices instead of duplicating the full-transcript matrices
+
 # 8.0.7
 2026-03-31 (Date of Last Commit)
 
