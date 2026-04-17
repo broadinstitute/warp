@@ -463,11 +463,13 @@ task STARsoloFastq {
         ls
 
         # If text files are present, create a tar archive with them and run python script to combine shard metrics
+        # Use $OUTPUT_BASE (not hardcoded ~{input_id}) so each call produces a distinct output file
         python3 /scripts/scripts/combine_shard_metrics.py \
-          Summary.csv Features.stats CellReads.stats ~{counting_mode} ~{input_id} ${SoloDirectory}/filtered/barcodes.tsv ${SoloDirectory}/filtered/matrix.mtx ~{expected_cells}
+          Summary.csv Features.stats CellReads.stats ~{counting_mode} $OUTPUT_BASE ${SoloDirectory}/filtered/barcodes.tsv ${SoloDirectory}/filtered/matrix.mtx ~{expected_cells}
 
         echo "tarring STAR txt files"
-        tar -zcvf ~{input_id}.star_metrics.tar *.txt
+        # Use $OUTPUT_BASE so the second call does not overwrite the first call's tar
+        tar -zcvf ${OUTPUT_BASE}.star_metrics.tar *.txt
        
         # Create the compressed raw count matrix; --output_base keeps each matrix in its own files
         python3 /scripts/scripts/create-merged-npz-output.py \
@@ -530,10 +532,12 @@ task STARsoloFastq {
     File? row_index_exon = "~{input_id}_exon_sparse_counts_row_index.npy"
     File? col_index_exon = "~{input_id}_exon_sparse_counts_col_index.npy"
     File? sparse_counts_exon = "~{input_id}_exon_sparse_counts.npz"
-    File? library_metrics="~{input_id}_library_metrics.csv"
-    File? mtx_files ="~{input_id}.mtx_files.tar"
+    File? library_metrics = "~{input_id}_library_metrics.csv"
+    File? library_metrics_exon = "~{input_id}_exon_library_metrics.csv"
+    File? mtx_files = "~{input_id}.mtx_files.tar"
     File? filtered_mtx_files = "~{input_id}_filtered_mtx_files.tar"
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
+    File? cell_reads_out_exon = "~{input_id}_exon.star_metrics.tar"
     File outputbarcodes = "filtered_barcodes.tsv"
   }
 }
