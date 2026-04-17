@@ -396,4 +396,4 @@ workflows:
 
   - name: TestCudaGPU
     subclass: WDL
-    primaryDescriptorPath: /pipelines/wdl/scanvi/test_cuda.wdl
+    primaryDescriptorPath: /tasks/wdl/test_cuda.wdl

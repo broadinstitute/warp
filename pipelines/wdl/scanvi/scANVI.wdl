@@ -22,11 +22,11 @@ workflow scANVI {
       String ref_filename = "ref.h5ad"
 
       # Unique identifier prepended to all output filenames
-      String run_id
+      String input_id
 
   }
 
-  String pipeline_version = "1.0.1"
+  String pipeline_version = "1.0.0"
 
   # Docker image (same container for both tasks; only Task 2 gets GPUs attached)
   String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:81fe915a045bd2929a1c457f4a0061055c6ea42fa3f88e9352b618e4a6e47b58"
@@ -40,7 +40,7 @@ workflow scANVI {
         gex_filename = gex_filename,
         atac_filename = atac_filename,
         ref_filename = ref_filename,
-        run_id = run_id,
+        input_id = input_id,
         docker = docker
   }
 
@@ -50,7 +50,7 @@ workflow scANVI {
         gex_h5ad = PreprocessFilter.preprocessed_gex_h5ad,
         atac_activity_h5ad = PreprocessFilter.preprocessed_atac_activity_h5ad,
         ref_h5ad = PreprocessFilter.preprocessed_ref_h5ad,
-        run_id = run_id,
+        input_id = input_id,
         docker = docker
   }
 
@@ -89,9 +89,10 @@ task PreprocessFilter {
         String gex_filename = "gex.h5ad"
         String atac_filename = "atac.h5ad"
         String ref_filename = "ref.h5ad"
+* Updated README with detailed two-task workflow overview and diagram
 
         # Runtime attributes hardcoded in each task
-        String run_id
+        String input_id
         String docker
         Int disk_size = 1000 # bigger disk before cell filtering
         Int mem_size = 120
@@ -106,7 +107,7 @@ task PreprocessFilter {
         gex_filename: "Expected GEX h5ad filename in the input bucket."
         atac_filename: "Expected ATAC h5ad filename in the input bucket."
         ref_filename: "Expected reference h5ad filename in the input bucket."
-        run_id: "Unique identifier prepended to all output filenames."
+        input_id: "Unique identifier prepended to all output filenames."
         docker: "Docker image containing the scvi-scanvi runtime environment."
         disk_size: "Disk size in GB."
         mem_size: "Memory size in GB."
@@ -121,13 +122,30 @@ task PreprocessFilter {
             GEX_FILE="~{default='' gex_h5ad}"
             ATAC_FILE="~{default='' atac_h5ad}"
             REF_FILE="~{default='' ref_h5ad}"
-        else
+
+            # Verify all three localized files are present and non-empty
+            for f in "$GEX_FILE" "$ATAC_FILE" "$REF_FILE"; do
+                if [ ! -f "$f" ]; then
+                    echo "ERROR: input file not found: $f" >&2; exit 1
+                fi
+                if [ ! -s "$f" ]; then
+                    echo "ERROR: input file is empty: $f" >&2; exit 1
+                fi
+            done
+        elif [ -n "~{default='' input_bucket}" ]; then
             # Bucket mode: construct GCS paths and download
             BUCKET="~{default='' input_bucket}"
             BUCKET="${BUCKET%/}"
             GEX_FILE="${BUCKET}/~{gex_filename}"
             ATAC_FILE="${BUCKET}/~{atac_filename}"
             REF_FILE="${BUCKET}/~{ref_filename}"
+
+            # Verify all three objects exist in the bucket before downloading
+            for gs_path in "$GEX_FILE" "$ATAC_FILE" "$REF_FILE"; do
+                if ! gsutil -q stat "$gs_path"; then
+                    echo "ERROR: GCS object not found: $gs_path" >&2; exit 1
+                fi
+            done
 
             echo "Downloading inputs from bucket..."
             gsutil cp "$GEX_FILE" gex_input.h5ad
@@ -136,6 +154,9 @@ task PreprocessFilter {
             GEX_FILE="gex_input.h5ad"
             ATAC_FILE="atac_input.h5ad"
             REF_FILE="ref_input.h5ad"
+        else
+            echo "ERROR: must provide either direct file inputs (gex_h5ad, atac_h5ad, ref_h5ad) or input_bucket." >&2
+            exit 1
         fi
 
         export GEX_FILE ATAC_FILE REF_FILE
@@ -144,7 +165,7 @@ task PreprocessFilter {
         ln -sf /usr/local/gencode.v41.basic.annotation.gff3.gz .
 
         # ── Run preprocessing in Python ───────────────────────────────────────
-        python3 <<'PYEOF'
+        python3 <<CODE
 import os
 import anndata as ad
 import scanpy as sc
@@ -222,13 +243,13 @@ atac_activity.obs["modality"] = "atac_unannotated"
 ref.obs["modality"]           = "rna_annotated"
 
 # ── 10. Write preprocessed outputs ───────────────────────────────────────
-run_id = "~{run_id}"
-print(f"Writing preprocessed outputs (run_id={run_id})...")
-gex_shared.write_h5ad(f"{run_id}_preprocessed_gex.h5ad")
-atac_activity.write_h5ad(f"{run_id}_preprocessed_atac_activity.h5ad")
-ref.write_h5ad(f"{run_id}_preprocessed_ref.h5ad")
+input_id = "~{input_id}"
+print(f"Writing preprocessed outputs (input_id={input_id})...")
+gex_shared.write_h5ad(f"{input_id}_preprocessed_gex.h5ad")
+atac_activity.write_h5ad(f"{input_id}_preprocessed_atac_activity.h5ad")
+ref.write_h5ad(f"{input_id}_preprocessed_ref.h5ad")
 print("Preprocessing complete.")
-PYEOF
+CODE
     >>>
 
     runtime {
@@ -241,9 +262,9 @@ PYEOF
     }
 
     output {
-        File preprocessed_gex_h5ad           = "~{run_id}_preprocessed_gex.h5ad"
-        File preprocessed_atac_activity_h5ad = "~{run_id}_preprocessed_atac_activity.h5ad"
-        File preprocessed_ref_h5ad           = "~{run_id}_preprocessed_ref.h5ad"
+        File preprocessed_gex_h5ad           = "~{input_id}_preprocessed_gex.h5ad"
+        File preprocessed_atac_activity_h5ad = "~{input_id}_preprocessed_atac_activity.h5ad"
+        File preprocessed_ref_h5ad           = "~{input_id}_preprocessed_ref.h5ad"
     }
 }
 
@@ -264,7 +285,7 @@ task MultiomeLabelTransfer {
         File ref_h5ad
 
         # Runtime attributes
-        String run_id
+        String input_id
         String docker
         Int disk_size = 500
         Int mem_size = 120
@@ -275,7 +296,7 @@ task MultiomeLabelTransfer {
         gex_h5ad: "Preprocessed gene expression h5ad file (filtered, batch-labeled, modality-tagged)."
         atac_activity_h5ad: "Preprocessed ATAC gene activity h5ad file (converted from cell-by-bin, batch-labeled, modality-tagged)."
         ref_h5ad: "Preprocessed reference h5ad file with cell type labels and modality tag."
-        run_id: "Unique identifier prepended to all output filenames."
+        input_id: "Unique identifier prepended to all output filenames."
         docker: "Docker image containing the scvi-scanvi runtime environment."
         disk_size: "Disk size in GB."
         mem_size: "Memory size in GB."
@@ -284,7 +305,7 @@ task MultiomeLabelTransfer {
     command <<<
         set -euo pipefail
 
-        python3 <<'PYEOF'
+        python3 <<CODE
 import sys
 import time
 import pandas as pd
@@ -361,12 +382,12 @@ atac_activity.obs['final_annotation'] = data.obs.loc[
 # ── 5. Write annotated GEX and ATAC matrices ────────────────────────────
 # These outputs mirror what main() in the container script produces,
 # but are built from the already-preprocessed inputs.
-run_id = "~{run_id}"
-print(f"Writing annotated matrices (run_id={run_id})...")
-gex.write(f"{run_id}_gex_annotated_matrix.h5ad")
-atac_activity.write(f"{run_id}_atac_annotated_matrix.h5ad")
-print(f"  {run_id}_gex_annotated_matrix.h5ad:  {gex.shape}")
-print(f"  {run_id}_atac_annotated_matrix.h5ad: {atac_activity.shape}")
+input_id = "~{input_id}"
+print(f"Writing annotated matrices (input_id={input_id})...")
+gex.write(f"{input_id}_gex_annotated_matrix.h5ad")
+atac_activity.write(f"{input_id}_atac_annotated_matrix.h5ad")
+print(f"  {input_id}_gex_annotated_matrix.h5ad:  {gex.shape}")
+print(f"  {input_id}_atac_annotated_matrix.h5ad: {atac_activity.shape}")
 
 # ── 6. Finalize SCANVI predictions ──────────────────────────────────────
 # finalize_output() adds downstream-required metadata and reformats:
@@ -376,8 +397,8 @@ print(f"  {run_id}_atac_annotated_matrix.h5ad: {atac_activity.shape}")
 #   c. Copies the count matrix into the .raw layer for SCP ingest
 print("Finalizing SCANVI predictions...")
 final_data = finalize_output(data)
-final_data.write(f"{run_id}_SCANVI_predictions.h5ad")
-print(f"  {run_id}_SCANVI_predictions.h5ad:    {final_data.shape}")
+final_data.write(f"{input_id}_SCANVI_predictions.h5ad")
+print(f"  {input_id}_SCANVI_predictions.h5ad:    {final_data.shape}")
 
 # ── Timing summary ───────────────────────────────────────────────────────
 timing_df = pd.DataFrame(
@@ -387,7 +408,7 @@ timing_df = pd.DataFrame(
 print("\nTiming Summary:")
 print(timing_df.to_string(index=False))
 print("\nMultiomeLabelTransfer complete.")
-PYEOF
+CODE
     >>>
 
     runtime {
@@ -403,8 +424,8 @@ PYEOF
     }
 
     output {
-        File scanvi_predictions_h5ad = "~{run_id}_SCANVI_predictions.h5ad"
-        File atac_annotated_h5ad     = "~{run_id}_atac_annotated_matrix.h5ad"
-        File gex_annotated_h5ad      = "~{run_id}_gex_annotated_matrix.h5ad"
+        File scanvi_predictions_h5ad = "~{input_id}_SCANVI_predictions.h5ad"
+        File atac_annotated_h5ad     = "~{input_id}_atac_annotated_matrix.h5ad"
+        File gex_annotated_h5ad      = "~{input_id}_gex_annotated_matrix.h5ad"
     }
 }
