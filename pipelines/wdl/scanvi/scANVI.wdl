@@ -89,7 +89,6 @@ task PreprocessFilter {
         String gex_filename = "gex.h5ad"
         String atac_filename = "atac.h5ad"
         String ref_filename = "ref.h5ad"
-* Updated README with detailed two-task workflow overview and diagram
 
         # Runtime attributes hardcoded in each task
         String input_id
