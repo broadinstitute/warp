@@ -1,0 +1,11 @@
+{
+  "ScviScanvi.cloud_provider": "gcp",
+  "ScviScanvi.gex_h5ad": "gs://broad-gotc-test-storage/Multiome/truth/scientific/10k_PBMC/10k_PBMC_gex.h5ad",
+  "ScviScanvi.atac_h5ad": "gs://broad-gotc-test-storage/PeakCalling/input/scientific/10k_PBMC/10k_PBMC_atac.metrics.h5ad",
+  "ScviScanvi.ref_h5ad": "gs://broad-gotc-test-storage/ScviScanvi/input/pbmc_reference.h5ad",
+  "ScviScanvi.disk_size": 500,
+  "ScviScanvi.mem_size": 64,
+  "ScviScanvi.nthreads": 8,
+  "ScviScanvi.gpu_type": "nvidia-tesla-t4",
+  "ScviScanvi.gpu_count": 1
+}
