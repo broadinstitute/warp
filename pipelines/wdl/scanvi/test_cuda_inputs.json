@@ -1,6 +1,0 @@
-{
-  "test_cuda.pytorch_cuda_test.hardware_gpu_type": "nvidia-tesla-t4",
-  "test_cuda.pytorch_cuda_test.docker_image": "us-central1-docker.pkg.dev/broad-dsde-methods/cellarium-ai/cellarium-ml:noiseprompt",
-  "test_cuda.pytorch_cuda_test.nvidiaDriverVersion": "525.147.05"
-}
-
