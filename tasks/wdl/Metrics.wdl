@@ -183,9 +183,12 @@ task CalculateUMIsMetrics {
   parameter_meta {
     bam_input: "Input bam file containing reads marked with tags for cell barcodes (CB), molecule barcodes (UB) and gene ids (GE)"
     input_id: "Name of sample matching this file; inserted into read group header"
+    original_gtf: "GTF annotation file used for metric calculation; may be gzip-compressed"
+    mt_genes: "(optional) file containing mitochondrial gene names for mitochondrial metric calculation"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
+    disk_override: "(optional) override the calculated disk size (GiB) for this task; use when the default is insufficient"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
