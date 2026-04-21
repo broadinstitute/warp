@@ -1,7 +1,7 @@
 # 6.1.6
 2026-04-21 (Date of Last Commit)
 
-* Added an optional disk_override input to the CalculateUMIsMetrics task to allow users to override the default disk size; this does not affect the outputs of the pipeline
+* Updated internal task dependency versions for this release; this does not affect the outputs of the pipeline
 
 # 6.1.5
 2026-02-24 (Date of Last Commit)
