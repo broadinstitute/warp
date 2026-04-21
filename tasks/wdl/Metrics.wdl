@@ -170,7 +170,8 @@ task CalculateUMIsMetrics {
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.3.0"
     Int machine_mem_mb = 24000
     Int cpu = 8
-    Int disk = ceil(size(bam_input, "Gi") * 4.2)
+    Int? disk_override
+    Int disk = select_first([disk_override, ceil(size(bam_input, "Gi") * 4.2)])
     Int preemptible = 3
   }
 
