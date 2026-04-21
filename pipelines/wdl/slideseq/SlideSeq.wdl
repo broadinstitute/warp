@@ -43,6 +43,8 @@ workflow SlideSeq {
 
         String cloud_provider
 
+        Int? umi_metrics_disk_override
+
     }
 
     # docker images
@@ -130,7 +132,8 @@ workflow SlideSeq {
         input:
             bam_input = MergeBam.output_bam,
             original_gtf = annotations_gtf,
-            input_id = input_id
+            input_id = input_id,
+            disk_override = umi_metrics_disk_override
     }
 
     call Metrics.CalculateCellMetrics as CellMetrics {
