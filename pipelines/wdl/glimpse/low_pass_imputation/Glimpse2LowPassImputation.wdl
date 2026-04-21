@@ -4,8 +4,8 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "0.0.11"
-    String batch_pipeline_version = "0.0.4"
+    String pipeline_version = "0.0.12"
+    String batch_pipeline_version = "0.0.5"
     String quota_consumed_version = "0.0.2"
     String input_qc_version = "1.0.1"
 
@@ -32,6 +32,9 @@ workflow Glimpse2LowPassImputation {
 
         # batch size used by this gateway workflow to split very large sample lists
         Int sample_batch_size = 1000
+
+        # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
+        Int? glimpse_phase_cpu_override
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
         String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:a0151730cefaaa9ef78b7f9644c63ebb00ce6cd470fa0d60349daa5eee020aec"
@@ -74,6 +77,7 @@ workflow Glimpse2LowPassImputation {
                 impute_reference_only_variants = impute_reference_only_variants,
                 call_indels = call_indels,
                 calling_batch_size = calling_batch_size,
+                glimpse_phase_cpu_override = glimpse_phase_cpu_override,
                 gatk_docker = gatk_docker,
                 glimpse_docker = glimpse_docker
         }

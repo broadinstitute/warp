@@ -1,3 +1,8 @@
+# 0.0.12
+2026-05-17 (Date of Last Commit)
+
+* add glimpse_phase_cpu_override workflow input for mostly testing purposes
+
 # 0.0.11
 2026-05-14 (Date of Last Commit)
 

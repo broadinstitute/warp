@@ -1,0 +1,10 @@
+{
+    "Glimpse2LowPassImputation.reference_panel_prefix": "gs://pd-test-storage-public/Glimpse2LowPassImputation/ref_panels/1000G_HGDP_with_trio_information/auxiliary_files/",
+    "Glimpse2LowPassImputation.contigs": ["chr21","chr22"],
+    "Glimpse2LowPassImputation.fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+    "Glimpse2LowPassImputation.fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+    "Glimpse2LowPassImputation.output_basename": "NA12878_x10_manifest_test",
+    "Glimpse2LowPassImputation.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+    "Glimpse2LowPassImputation.cram_manifest": "gs://pd-test-storage-public/Glimpse2LowPassImputation/inputs/manifests/NA12878_x10_manifest.tsv",
+    "Glimpse2LowPassImputation.glimpse_phase_cpu_override": 1
+}
