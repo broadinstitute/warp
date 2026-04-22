@@ -30,7 +30,8 @@ workflow Glimpse2LowPassImputation {
         Int calling_batch_size = 100
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
+#        String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c" # <---
+        String glimpse_docker = "us.gcr.io/broad-dsde-methods/sshah/glimpse_test:v2"
     }
 
     if (defined(input_vcf)) {
@@ -618,7 +619,7 @@ task CollectQCMetrics {
         String output_basename
 
         Int preemptible = 0
-        String docker = "hailgenetics/hail:0.2.126-py3.11"
+        String docker = "mirror.gcr.io/hailgenetics/hail:0.2.126-py3.11"
         Int cpu = 4
         Int mem_gb = 8
     }
