@@ -1,3 +1,8 @@
+# 2.1.12
+2026-04-21 (Date of Last Commit)
+
+* Updated PairedTag to align with upstream task dependency changes; this does not affect the outputs of the pipeline
+
 # 2.1.11
 2026-02-24 (Date of Last Commit)
 

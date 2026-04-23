@@ -1,3 +1,8 @@
+# 8.0.7
+2026-04-21 (Date of Last Commit)
+
+* Updated shared task dependencies to include a non-functional CalculateUMIsMetrics disk override change; this does not affect Optimus outputs
+
 # 8.0.6
 2026-02-24 (Date of Last Commit)
 

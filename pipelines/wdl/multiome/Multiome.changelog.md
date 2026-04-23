@@ -1,3 +1,8 @@
+# 6.1.6
+2026-04-21 (Date of Last Commit)
+
+* Updated internal task dependency versions for this release; this does not affect the outputs of the pipeline
+
 # 6.1.5
 2026-02-24 (Date of Last Commit)
 
