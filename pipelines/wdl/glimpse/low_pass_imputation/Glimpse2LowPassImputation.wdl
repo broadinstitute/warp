@@ -239,6 +239,7 @@ task ConvertCramManifestToInputArrays {
 
     command <<<
         cat <<EOF > script.py
+        import sys
         import pandas as pd
 
         crams_filename = "crams.txt"
@@ -260,7 +261,7 @@ task ConvertCramManifestToInputArrays {
         missing_cols = [col for col in required_cols if col not in df.columns]
         
         if missing_cols:
-            print(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.") 
+            print(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.", file=sys.stderr) 
         else:
             # Write to output files, stripping leading/trailing whitespace from each value
             write_column(df['sample_id'], sample_ids_filename)
