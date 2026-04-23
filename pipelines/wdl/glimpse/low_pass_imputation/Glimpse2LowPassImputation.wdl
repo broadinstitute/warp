@@ -52,9 +52,9 @@ workflow Glimpse2LowPassImputation {
         }
     }
 
-    Array[File] crams = select_first([crams, ConvertCramManifestToInputArrays.crams, []])
-    Array[File] cram_indices = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices, []])
-    Array[String] sample_ids = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids, []])
+    Array[File] crams_to_use = select_first([crams, ConvertCramManifestToInputArrays.crams, []])
+    Array[File] cram_indices_to_use = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices, []])
+    Array[String] sample_ids_to_use = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids, []])
 
     if (defined(input_vcf)) {
         call CountSamples {
@@ -63,17 +63,15 @@ workflow Glimpse2LowPassImputation {
         }
     }
 
-    Int n_samples = select_first([CountSamples.nSamples, length(select_first([crams]))])
+    Int n_samples = select_first([CountSamples.nSamples, length(crams_to_use)])
 
-    if (defined(crams)) {
-        if (length(select_first([crams])) > 1) {
-            call SplitIntoBatches {
-                input:
-                    batch_size = calling_batch_size,
-                    crams = select_first([crams]),
-                    cram_indices = select_first([cram_indices]),
-                    sample_ids = sample_ids
-            }
+    if (length(crams_to_use) > 1) {
+        call SplitIntoBatches {
+            input:
+                batch_size = calling_batch_size,
+                crams = crams_to_use,
+                cram_indices = cram_indices_to_use,
+                sample_ids = sample_ids_to_use
         }
     }
 
@@ -84,10 +82,10 @@ workflow Glimpse2LowPassImputation {
         File sites_table_index = reference_panel_prefix + "sites_table." + contig + ".gz.tbi"
         File reference_chunks = reference_panel_prefix + "reference_chunks." + contig + ".txt"
 
-        if (defined(crams)) {
-            Array[Array[String]] crams_batches = select_first([SplitIntoBatches.crams_batches, [select_first([crams])]])
-            Array[Array[String]] cram_indices_batches = select_first([SplitIntoBatches.cram_indices_batches, [select_first([cram_indices])]])
-            Array[Array[String]] sample_ids_batches = select_first([SplitIntoBatches.sample_ids_batches, [select_first([sample_ids])]])
+        if (length(crams_to_use) > 0) {
+            Array[Array[String]] crams_batches = select_first([SplitIntoBatches.crams_batches, [crams_to_use]])
+            Array[Array[String]] cram_indices_batches = select_first([SplitIntoBatches.cram_indices_batches, [cram_indices_to_use]])
+            Array[Array[String]] sample_ids_batches = select_first([SplitIntoBatches.sample_ids_batches, [sample_ids_to_use]])
 
             scatter(i in range(length(crams_batches))) {
                 call BcftoolsMpileup {
@@ -144,7 +142,7 @@ workflow Glimpse2LowPassImputation {
                     input_vcf_index = phase_input_vcf_index,
                     impute_reference_only_variants = impute_reference_only_variants,
                     call_indels = call_indels,
-                    sample_ids = sample_ids,
+                    sample_ids = sample_ids_to_use,
                     fasta = fasta,
                     fasta_index = fasta_index,
                     docker = glimpse_docker
