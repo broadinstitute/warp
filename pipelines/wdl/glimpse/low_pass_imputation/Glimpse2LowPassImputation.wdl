@@ -31,7 +31,7 @@ workflow Glimpse2LowPassImputation {
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
 #        String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c" # <---
-        String glimpse_docker = "us.gcr.io/broad-dsde-methods/sshah/glimpse_test:v3_with_gcloud"
+        String glimpse_docker = "us.gcr.io/broad-dsde-methods/sshah/glimpse_test:v5_glimpse_extension"
     }
 
     if (defined(input_vcf)) {
