@@ -1,7 +1,6 @@
 version 1.0
 
 import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
-import "./Glimpse2MergeBatches.wdl" as MergeBatches
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
@@ -82,7 +81,7 @@ workflow Glimpse2LowPassImputation {
 
             # Extract AF and INFO annotations from each batch before merging so they can be recalculated
             scatter(batch_annot_idx in range(length(batch_vcfs_for_contig))) {
-                call MergeBatches.ExtractAnnotations {
+                call Glimpse2LowPassImputationTasks.ExtractAnnotations {
                     input:
                         imputed_vcf = batch_vcfs_for_contig[batch_annot_idx],
                         imputed_vcf_index = batch_vcf_indices_for_contig[batch_annot_idx],
@@ -99,7 +98,7 @@ workflow Glimpse2LowPassImputation {
             }
 
             # Recompute AF and INFO as weighted averages across batches and apply back to the merged VCF
-            call MergeBatches.RecomputeAndAnnotate {
+            call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate {
                 input:
                     merged_vcf = MergeContigVcfs.output_vcf,
                     annotations = ExtractAnnotations.annotations,
