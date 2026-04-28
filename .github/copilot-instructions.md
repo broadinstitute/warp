@@ -58,7 +58,7 @@ Each pipeline has a `<PipelineName>.changelog.md` file. For every version bump:
 ## Critical Workflows
 
 ### WDL Validation (MANDATORY)
-Always validate WDL syntax before committing using womtool:
+Always validate WDL syntax before committing using womtool. This depends on having Java installed and the womtool JAR available. Here is an example if you have the JAR in your home directory:
 ```bash
 java -jar ~/womtool-90.jar validate path/to/pipeline.wdl
 ```

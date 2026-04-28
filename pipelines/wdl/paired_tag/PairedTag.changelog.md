@@ -5,6 +5,8 @@
 
 * Data processed in 'sc_rna' counting mode or in 'sn_rna' counting mode (default) with 'count_exons = false' (default) are unaffected by this bug
 
+* Removed the `count_exons` input from the PairedTag workflow following its removal from Optimus v9.0.0. Default behavior is unchanged (the default was `false`).
+
 # 2.1.11
 2026-02-24 (Date of Last Commit)
 

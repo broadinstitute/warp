@@ -30,7 +30,6 @@ workflow PairedTag {
         Boolean force_no_check = false
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Forward"
-        Boolean count_exons = false
         File gex_whitelist = if cloud_provider == "gcp" then "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt" else "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_gex.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
 
         String? soloMultiMappers = "EM"
@@ -101,7 +100,6 @@ workflow PairedTag {
             force_no_check = force_no_check,
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
-            count_exons = count_exons,
             cloud_provider = cloud_provider,
             soloMultiMappers = soloMultiMappers,
             gex_nhash_id = gex_nhash_id,

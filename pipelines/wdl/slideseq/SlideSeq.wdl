@@ -58,6 +58,11 @@ workflow SlideSeq {
     String acr_ubuntu_docker_prefix = "dsppipelinedev.azurecr.io/"
     String ubuntu_docker_prefix = if cloud_provider == "gcp" then gcp_ubuntu_docker_prefix else acr_ubuntu_docker_prefix
 
+    String alpine_docker = "alpine-bash@sha256:965a718a07c700a5204c77e391961edee37477634ce2f9cf652a8e4c2db858ff"
+    String gcp_alpine_docker_prefix = "bashell/"
+    String acr_alpine_docker_prefix = "dsppipelinedev.azurecr.io/"
+    String alpine_docker_prefix = if cloud_provider == "gcp" then gcp_alpine_docker_prefix else acr_alpine_docker_prefix
+
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
     String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
 
@@ -109,6 +114,15 @@ workflow SlideSeq {
             sample_id = input_id,
             whitelist = bead_locations
     }
+
+    # Parse read structure into UMI and CB lengths, and compute solo_features at workflow level
+    call StarAlign.ParseReadStructure as ParseReadStructure {
+        input:
+            read_structure = read_structure,
+            alpine_docker_path = alpine_docker_prefix + alpine_docker
+    }
+    String slideseq_solo_features = if count_exons then "Gene GeneFull" else "GeneFull"
+
     scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
         call StarAlign.STARsoloFastqSlideSeq as STARsoloFastqSlideSeq {
             input:
@@ -117,7 +131,9 @@ workflow SlideSeq {
                 whitelist = bead_locations,
                 tar_star_reference = tar_star_reference,
                 output_bam_basename = output_bam_basename + "_" + idx,
-                read_structure = read_structure,
+                umi_len = ParseReadStructure.umi_len,
+                cb_len = ParseReadStructure.cb_len,
+                solo_features = slideseq_solo_features,
                 count_exons = count_exons
         }
     }

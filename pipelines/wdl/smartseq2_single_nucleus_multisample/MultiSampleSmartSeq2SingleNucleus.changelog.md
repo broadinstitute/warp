@@ -2,6 +2,7 @@
 2026-04-02 (Date of Last Commit)
 
 * Fixed a bug in the Optimus pipeline. The changes have no impact on this pipeline.
+* Removed the `count_exons` parameter from the Optimus pipeline (Optimus v9.0.0). StarAlign.wdl was modified, but the tasks used by this pipeline (`StarAlignFastqMultisample`, `STARGenomeRefVersion`) are unaffected.
 
 # 2.2.5
 2026-02-24 (Date of Last Commit)

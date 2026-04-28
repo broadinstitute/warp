@@ -34,7 +34,6 @@ workflow Multiome {
         Boolean force_no_check = false
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Forward"
-        Boolean count_exons = false
         String? soloMultiMappers
 
         # ATAC inputs
@@ -107,7 +106,6 @@ workflow Multiome {
             force_no_check = force_no_check,
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
-            count_exons = count_exons,
             soloMultiMappers = soloMultiMappers,
             cloud_provider = cloud_provider,
             gex_expected_cells = expected_cells,

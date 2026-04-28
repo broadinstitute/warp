@@ -6,6 +6,8 @@
 * Data processed in 'sc_rna' counting mode or in 'sn_rna' counting mode (default) with 'count_exons = false' (default) are unaffected by this bug
 
 * Added a new scientific test input for the 'sn_rna' + 'count_exons = true' configuration to prevent regressions
+
+* Removed the `count_exons` input from the Multiome workflow following its removal from Optimus v9.0.0. Default behavior is unchanged (the default was `false`).
 # 6.1.6
 2026-04-21 (Date of Last Commit)
 
