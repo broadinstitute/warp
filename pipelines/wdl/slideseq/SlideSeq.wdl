@@ -43,6 +43,8 @@ workflow SlideSeq {
 
         String cloud_provider
 
+        Int? umi_metrics_disk_override
+
     }
 
     # docker images
@@ -76,6 +78,13 @@ workflow SlideSeq {
         i1_fastq: "Optional array of i1 FASTQ files; index read used for demultiplexing of multiple samples on one flow cell"
         input_id: "Name of sample matching this file; inserted into read group header"
         read_structure: "String used to specify the UMI (M) and Barcode (C) positions in the Read 1 FASTQ"
+        tar_star_reference: "Tar archive containing the STAR reference genome index"
+        annotations_gtf: "GTF file containing gene annotations used for alignment and metric calculation"
+        output_bam_basename: "Basename for the output BAM file"
+        count_exons: "If true, produce an additional exon-level count matrix; default is true"
+        bead_locations: "Whitelist file of valid bead barcodes"
+        cloud_provider: "Cloud provider on which the pipeline is running; must be 'gcp' or 'azure'"
+        umi_metrics_disk_override: "(optional) override the default disk size (GiB) for the CalculateUMIsMetrics task"
     }
 
     call StarAlign.STARGenomeRefVersion as ReferenceCheck {
@@ -130,7 +139,8 @@ workflow SlideSeq {
         input:
             bam_input = MergeBam.output_bam,
             original_gtf = annotations_gtf,
-            input_id = input_id
+            input_id = input_id,
+            disk_override = umi_metrics_disk_override
     }
 
     call Metrics.CalculateCellMetrics as CellMetrics {
@@ -214,5 +224,10 @@ workflow SlideSeq {
 
         # h5ad
         File? h5ad_output_file = final_h5ad_output
+    }
+
+    meta {
+        allowNestedInputs: true
+        description: "Processes Slide-seq bead data: aligns reads with STARsolo, computes cell/gene/UMI metrics, and produces a sparse count matrix and h5ad output file"
     }
 }

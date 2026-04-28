@@ -6,6 +6,10 @@
 * Data processed in 'sc_rna' counting mode or in 'sn_rna' counting mode (default) with 'count_exons = false' (default) are unaffected by this bug
 
 * Added a new scientific test input for the 'sn_rna' + 'count_exons = true' configuration to prevent regressions
+# 6.1.6
+2026-04-21 (Date of Last Commit)
+
+* Updated internal task dependency versions for this release; this does not affect the outputs of the pipeline
 
 # 6.1.5
 2026-02-24 (Date of Last Commit)
