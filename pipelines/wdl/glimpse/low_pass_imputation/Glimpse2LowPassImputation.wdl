@@ -1,10 +1,7 @@
 version 1.0
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "0.0.6"
-    String quota_consumed_version = "0.0.1"
-    String input_qc_version = "1.0.0"
-    
+
     input {
 
         Array[String] contigs
@@ -64,7 +61,7 @@ workflow Glimpse2LowPassImputation {
         if (defined(crams)) {
             Array[Array[String]] crams_batches = select_first([SplitIntoBatches.crams_batches, [select_first([crams])]])
             Array[Array[String]] cram_indices_batches = select_first([SplitIntoBatches.cram_indices_batches, [select_first([cram_indices])]])
-            Array[Array[String]] sample_ids_batches = select_first([SplitIntoBatches.sample_ids_batches, [select_first([sample_ids])]])
+            Array[Array[String]] sample_ids_batches = select_first([SplitIntoBatches.sample_ids_batches, [sample_ids]])
 
             scatter(i in range(length(crams_batches))) {
                 call BcftoolsMpileup {
@@ -100,9 +97,10 @@ workflow Glimpse2LowPassImputation {
                 }
             }
 
-            File phase_input_vcf = select_first([BcftoolsMerge.merged_vcf, BcftoolsNorm.output_vcf[0], input_vcf])
-            File phase_input_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, BcftoolsNorm.output_vcf_index[0], input_vcf_index])
         }
+
+        File phase_input_vcf = select_first([BcftoolsMerge.merged_vcf, select_first([BcftoolsNorm.output_vcf, []])[0], input_vcf])
+        File phase_input_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, select_first([BcftoolsNorm.output_vcf_index, []])[0], input_vcf_index])
 
         ## this task is used to grab the reference chunk but does not affect memory usage of glimpsePhase.
         ## still tbd which method makes the most sense cost wise
@@ -153,34 +151,6 @@ workflow Glimpse2LowPassImputation {
         }
     }
 
-    call GatherVcfsNoIndex {
-        input:
-            input_vcfs = SelectVariantRecordsOnly.output_vcf,
-            output_vcf_basename = output_basename + ".imputed",
-            gatk_docker = gatk_docker
-    }
-
-    call CreateVcfIndexAndMd5 {
-        input:
-            vcf_input = GatherVcfsNoIndex.output_vcf,
-            gatk_docker = gatk_docker,
-            preemptible = 0
-    }
-
-    call GatherVcfsNoIndex as GatherVcfsNoIndexHomRefOnly {
-        input:
-            input_vcfs = CreateHomRefSitesOnlyVcf.output_vcf,
-            output_vcf_basename = output_basename + ".imputed.hom_ref_sites_only",
-            gatk_docker = gatk_docker
-    }
-
-    call CreateVcfIndexAndMd5 as CreateVcfIndexAndMd5HomRefOnly {
-        input:
-            vcf_input = GatherVcfsNoIndexHomRefOnly.output_vcf,
-            gatk_docker = gatk_docker,
-            preemptible = 0
-    }
-
     Array[File] genome_coverage_metrics = flatten(contig_coverage_metrics)
     if (length(genome_coverage_metrics) > 0) {
         call CombineCoverageMetrics {
@@ -190,23 +160,12 @@ workflow Glimpse2LowPassImputation {
         }
     }
 
-    call CollectQCMetrics {
-        input:
-            imputed_vcf = GatherVcfsNoIndex.output_vcf,
-            output_basename = output_basename
-    }
-
-
     output {
-        File imputed_vcf = CreateVcfIndexAndMd5.output_vcf
-        File imputed_vcf_index = CreateVcfIndexAndMd5.output_vcf_index
-        File imputed_vcf_md5sum = CreateVcfIndexAndMd5.output_vcf_md5sum
-
-        File imputed_hom_ref_sites_only_vcf = CreateVcfIndexAndMd5HomRefOnly.output_vcf
-        File imputed_hom_ref_sites_only_vcf_inex = CreateVcfIndexAndMd5HomRefOnly.output_vcf_index
-        File imputed_hom_ref_sites_only_vcf_md5 = CreateVcfIndexAndMd5HomRefOnly.output_vcf_md5sum
-
-        File qc_metrics = CollectQCMetrics.qc_metrics
+        Array[File] imputed_contig_vcfs = SelectVariantRecordsOnly.output_vcf
+        Array[File] imputed_contig_vcf_indices = SelectVariantRecordsOnly.output_vcf_index
+        Array[File] imputed_hom_ref_sites_only_contig_vcfs = CreateHomRefSitesOnlyVcf.output_vcf
+        Array[File] imputed_contig_ligated_vcfs = GlimpseLigate.imputed_vcf
+        Array[File] imputed_contig_ligated_vcf_indices = GlimpseLigate.imputed_vcf_index
         File? coverage_metrics = CombineCoverageMetrics.coverage_metrics
     }
 }
@@ -468,7 +427,7 @@ task GlimpsePhase {
         Int? effective_population_size
 
         Int mem_gb = 16
-        Int cpu = 4
+        Int cpu = 4 # note that setting cpu > 1 will introduce non-determinism in GLIMPSE Phase due to multi-threading
         Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.003 * length(select_first([crams, []])) + 10)
         Int preemptible = 30
         Int max_retries = 3
@@ -812,7 +771,7 @@ task CreateVcfIndexAndMd5 {
 task SelectVariantRecordsOnly {
     input {
         File vcf
-        File vcf_index
+        File? vcf_index
         String basename
 
         Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
@@ -828,6 +787,7 @@ task SelectVariantRecordsOnly {
 
         # keep alt sites (i.e. remove hom ref sites)
         bcftools view -i 'GT[*]="alt"' -Oz -o ~{basename}.vcf.gz ~{vcf}
+        tabix ~{basename}.vcf.gz
     }
 
     runtime {
@@ -842,13 +802,14 @@ task SelectVariantRecordsOnly {
 
     output {
         File output_vcf = "~{basename}.vcf.gz"
+        File output_vcf_index = "~{basename}.vcf.gz.tbi"
     }
 }
 
 task CreateHomRefSitesOnlyVcf {
     input {
         File vcf
-        File vcf_index
+        File? vcf_index
         String basename
 
         Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10

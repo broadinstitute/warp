@@ -4,7 +4,7 @@ workflows:
   - name: aggregate_rsem_results
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/GTEx/aggregate_rsem_results.wdl
- 
+
   - name: AggregateSusieWorkflow
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/AggregateSusieWorkflow.wdl
@@ -30,16 +30,16 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/build_indices/BuildIndices.wdl
 
-  
+
   - name: calculateAF
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/calculateAF.wdl
-  
-  
+
+
   - name: calulateGenotypeDosage
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/calculateGenotypeDosage.wdl
-  
+
   - name: CalculatePhenotypeGroups
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/CalculatePhenotypeGroups.wdl
@@ -59,7 +59,7 @@ workflows:
   - name: determine_hq_sites_intersection
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/determine_hq_sites_intersection.wdl
-  
+
   - name: ExomeGermlineSingleSample
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl
@@ -68,11 +68,11 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/exome/ExomeReprocessing.wdl
 
-  
+
   - name: FilterMTAndExportToVCF
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/MTtoVCF/FilterMTAndExportToVCF.wdl
-  
+
   - name: FilterandQCVariants
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
@@ -88,6 +88,10 @@ workflows:
   - name: Glimpse2LowPassImputationQC
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/input_qc/Glimpse2LowPassImputationQC.wdl
+
+  - name: Glimpse2LowPassImputationBatched
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationBatched.wdl
 
   - name: Glimpse2LowPassImputationQuotaConsumed
     subclass: WDL
@@ -144,7 +148,7 @@ workflows:
   - name: MitoPostProcessing
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/MitoPostProcessing.wdl
-  
+
   - name: mt_coverage_merge
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/mt_coverage_merge.wdl
@@ -171,11 +175,11 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/peak_calling/PeakCalling.wdl
 
-  
+
   - name: PrepareGenotypes
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/PrepareGenotypes.wdl
-  
+
   - name: ReblockGVCF
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl
@@ -191,7 +195,7 @@ workflows:
   - name: run_preprocess_admixture_est_rye
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/run_preprocess_admixture_est_rye.wdl
-  
+
   - name: run_admixture
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/run_admixture.wdl
@@ -202,7 +206,7 @@ workflows:
   - name: run_ancestry
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_ancestry.wdl
- 
+
   - name: run_relatedness
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_relatedness.wdl
@@ -252,12 +256,12 @@ workflows:
   - name: SusieR_Workflow
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/susieR_workflow.wdl
-  
+
   - name: tensorqtl_cis_permutations
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/tensorQTL_cis_permutations/tensorqtl_cis_permutations.wdl
-  
-  
+
+
   - name: TestArrayImputationQC
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestArrayImputationQC.wdl
@@ -381,7 +385,7 @@ workflows:
   - name: vds_to_vcf
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/vds_to_vcf.wdl
-  
+
   - name: WholeGenomeGermlineSingleSample
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl
