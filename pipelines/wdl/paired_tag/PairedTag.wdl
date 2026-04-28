@@ -1,4 +1,3 @@
-
 version 1.0
 
 import "../atac/atac.wdl" as atac
