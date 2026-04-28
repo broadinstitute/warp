@@ -495,7 +495,7 @@ task GlimpsePhase {
     command <<<
         set -euo pipefail
 
-        export GCS_OAUTH_TOKEN=$(/root/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
+        export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
 
         cram_paths=( ~{sep=" " crams} )
         cram_index_paths=( ~{sep=" " cram_indices} )
