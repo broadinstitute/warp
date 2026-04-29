@@ -610,32 +610,6 @@ task CollectQCMetrics {
     }
 }
 
-task CountSamples {
-    input {
-        File vcf
-
-        String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
-        Int cpu = 1
-        Int memory_mb = 3000
-        Int disk_size_gb = 10 + ceil(size(vcf, "GiB"))
-    }
-
-    command <<<
-        bcftools query -l ~{vcf} | wc -l
-    >>>
-
-    runtime {
-        docker: bcftools_docker
-        disks: "local-disk ${disk_size_gb} HDD"
-        memory: "${memory_mb} MiB"
-        cpu: cpu
-        noAddress: true
-    }
-    output {
-        Int nSamples = read_int(stdout())
-    }
-}
-
 task CombineCoverageMetrics
 {
     input {
