@@ -9,10 +9,8 @@ workflow Glimpse2LowPassImputation {
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
         String reference_panel_prefix
 
-        File? input_vcf
-        File? input_vcf_index
-        Array[File]? crams
-        Array[File]? cram_indices
+        Array[File] crams
+        Array[File] cram_indices
         Array[String] sample_ids
         File fasta
         File fasta_index
@@ -30,24 +28,15 @@ workflow Glimpse2LowPassImputation {
         String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
     }
 
-    if (defined(input_vcf)) {
-        call CountSamples {
+    Int n_samples = length(select_first([crams]))
+
+    if (length(crams) > 1) {
+        call SplitIntoBatches {
             input:
-                vcf = select_first([input_vcf])
-        }
-    }
-
-    Int n_samples = select_first([CountSamples.nSamples, length(select_first([crams]))])
-
-    if (defined(crams)) {
-        if (length(select_first([crams])) > 1) {
-            call SplitIntoBatches {
-                input:
-                    batch_size = calling_batch_size,
-                    crams = select_first([crams]),
-                    cram_indices = select_first([cram_indices]),
-                    sample_ids = sample_ids
-            }
+                batch_size = calling_batch_size,
+                crams = crams,
+                cram_indices = cram_indices,
+                sample_ids = sample_ids
         }
     }
 
@@ -58,49 +47,46 @@ workflow Glimpse2LowPassImputation {
         File sites_table_index = reference_panel_prefix + "sites_table." + contig + ".gz.tbi"
         File reference_chunks = reference_panel_prefix + "reference_chunks." + contig + ".txt"
 
-        if (defined(crams)) {
-            Array[Array[String]] crams_batches = select_first([SplitIntoBatches.crams_batches, [select_first([crams])]])
-            Array[Array[String]] cram_indices_batches = select_first([SplitIntoBatches.cram_indices_batches, [select_first([cram_indices])]])
-            Array[Array[String]] sample_ids_batches = select_first([SplitIntoBatches.sample_ids_batches, [sample_ids]])
+        Array[Array[String]] crams_batches = select_first([SplitIntoBatches.crams_batches, [select_first([crams])]])
+        Array[Array[String]] cram_indices_batches = select_first([SplitIntoBatches.cram_indices_batches, [select_first([cram_indices])]])
+        Array[Array[String]] sample_ids_batches = select_first([SplitIntoBatches.sample_ids_batches, [sample_ids]])
 
-            scatter(i in range(length(crams_batches))) {
-                call BcftoolsMpileup {
-                    input:
-                        crams = crams_batches[i],
-                        cram_indices = cram_indices_batches[i],
-                        sample_ids = sample_ids_batches[i],
-                        fasta = fasta,
-                        fasta_index = fasta_index,
-                        call_indels = call_indels,
-                        sites_vcf = sites_vcf,
-                }
-
-                call BcftoolsCall {
-                    input:
-                        mpileup_bcf = BcftoolsMpileup.output_bcf,
-                        sites_table = sites_table,
-                        sites_table_index = sites_table_index,
-                }
-
-                call BcftoolsNorm {
-                    input:
-                        calls_bcf = BcftoolsCall.output_bcf,
-                }
+        scatter(i in range(length(crams_batches))) {
+            call BcftoolsMpileup {
+                input:
+                    crams = crams_batches[i],
+                    cram_indices = cram_indices_batches[i],
+                    sample_ids = sample_ids_batches[i],
+                    fasta = fasta,
+                    fasta_index = fasta_index,
+                    call_indels = call_indels,
+                    sites_vcf = sites_vcf,
             }
 
-            if (length(BcftoolsNorm.output_vcf) > 1) {
-                call BcftoolsMerge {
-                    input:
-                        vcfs = BcftoolsNorm.output_vcf,
-                        vcf_indices = BcftoolsNorm.output_vcf_index,
-                        output_basename = output_basename
-                }
+            call BcftoolsCall {
+                input:
+                    mpileup_bcf = BcftoolsMpileup.output_bcf,
+                    sites_table = sites_table,
+                    sites_table_index = sites_table_index,
             }
 
+            call BcftoolsNorm {
+                input:
+                    calls_bcf = BcftoolsCall.output_bcf,
+            }
         }
 
-        File phase_input_vcf = select_first([BcftoolsMerge.merged_vcf, select_first([BcftoolsNorm.output_vcf, []])[0], input_vcf])
-        File phase_input_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, select_first([BcftoolsNorm.output_vcf_index, []])[0], input_vcf_index])
+        if (length(BcftoolsNorm.output_vcf) > 1) {
+            call BcftoolsMerge {
+                input:
+                    vcfs = BcftoolsNorm.output_vcf,
+                    vcf_indices = BcftoolsNorm.output_vcf_index,
+                    output_basename = output_basename
+            }
+        }
+
+        File phase_input_vcf = select_first([BcftoolsMerge.merged_vcf, BcftoolsNorm.output_vcf[0]])
+        File phase_input_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, BcftoolsNorm.output_vcf_index[0]])
 
         ## this task is used to grab the reference chunk but does not affect memory usage of glimpsePhase.
         ## still tbd which method makes the most sense cost wise
