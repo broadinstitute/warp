@@ -97,7 +97,7 @@ workflow Optimus {
   String warp_tools_docker = "warp-tools:2.6.1"
   String star_merge_docker = "star-merge-npz:1.3.0"
   String samtools_star = "samtools-star:1.0.0-1.11-2.7.11a-1731516196"
-  String samtools_star_python = "samtools-star-python:jw_Optimus_exon_only_bug_fix"
+  String samtools_star_python = "samtools-star-python:1.0.0"
 
   #TODO how do we handle these?
   String alpine_docker = "alpine-bash@sha256:965a718a07c700a5204c77e391961edee37477634ce2f9cf652a8e4c2db858ff"

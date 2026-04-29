@@ -420,7 +420,7 @@ task STARsoloFastq {
         # Create the compressed raw count matrix; --output_base keeps each matrix in its own files
         python3 /scripts/scripts/create-merged-npz-output.py \
             --barcodes $BARCODE_FILE --features $FEATURE_FILE --matrix $MATRIX_FILE \
-            --input_id ~{input_id} --output_base $OUTPUT_BASE
+            --input_id ~{input_id}
      
       }
 
@@ -666,7 +666,7 @@ task STARsoloFastqSlideSeq {
     Int umi_len
     Int cb_len
     String solo_features
-    Boolean? count_exons
+    String exon_solo_directory = ""  # empty string means no exon output; set to e.g. "Solo.out/Gene" to enable
 
     # runtime values
     String docker = "us.gcr.io/broad-gotc-prod/star:1.0.1-2.7.11a-1692706072"
@@ -718,11 +718,10 @@ task STARsoloFastqSlideSeq {
     mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
     mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
 
-    if  ~{count_exons}
-    then
-      mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_exon.tsv
-      mv "Solo.out/Gene/raw/features.tsv"     features_exon.tsv
-      mv "Solo.out/Gene/raw/matrix.mtx"       matrix_exon.mtx
+    if [[ -n "~{exon_solo_directory}" ]]; then
+      mv "~{exon_solo_directory}/raw/barcodes.tsv" barcodes_exon.tsv
+      mv "~{exon_solo_directory}/raw/features.tsv" features_exon.tsv
+      mv "~{exon_solo_directory}/raw/matrix.mtx"   matrix_exon.mtx
     fi
 
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam

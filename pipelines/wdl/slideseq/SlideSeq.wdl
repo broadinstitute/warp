@@ -122,6 +122,7 @@ workflow SlideSeq {
             alpine_docker_path = alpine_docker_prefix + alpine_docker
     }
     String slideseq_solo_features = if count_exons then "Gene GeneFull" else "GeneFull"
+    String slideseq_exon_solo_directory = if count_exons then "Solo.out/Gene" else ""
 
     scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
         call StarAlign.STARsoloFastqSlideSeq as STARsoloFastqSlideSeq {
@@ -134,7 +135,7 @@ workflow SlideSeq {
                 umi_len = ParseReadStructure.umi_len,
                 cb_len = ParseReadStructure.cb_len,
                 solo_features = slideseq_solo_features,
-                count_exons = count_exons
+                exon_solo_directory = slideseq_exon_solo_directory
         }
     }
     call Merge.MergeSortBamFiles as MergeBam {
