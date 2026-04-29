@@ -28,7 +28,7 @@ workflow Glimpse2LowPassImputation {
         String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
     }
 
-    Int n_samples = length(select_first([crams]))
+    Int n_samples = length(crams)
 
     if (length(crams) > 1) {
         call SplitIntoBatches {
