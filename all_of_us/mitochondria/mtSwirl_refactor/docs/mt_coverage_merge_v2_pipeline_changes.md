@@ -216,12 +216,6 @@ Parquet would require reading all rows to extract a column slice. TSV would requ
 
 The pipeline runs on **single-VM Cromwell tasks**, not Dataproc. Dataproc would require a separate cluster provisioning step, significantly more operational complexity, and higher cost for tasks that can be solved without distributed computing. The v2 design gets parallelism from Cromwell's scatter/gather — each WDL task is an independent VM — rather than from within-task Spark parallelism.
 
-### Why preserve a non-sharded fallback (`shard_step3 = false`)?
-
-The original `combine_vcfs_and_homref_from_covdb` task is kept for:
-- Small-scale testing (1k–50k samples) where sharding adds overhead without benefit
-- Debugging: the monolithic path is easier to reason about
-- Backward compatibility: existing workflows that don't need 535k scale can continue to use the simpler path
 
 ### Exact output preservation
 
