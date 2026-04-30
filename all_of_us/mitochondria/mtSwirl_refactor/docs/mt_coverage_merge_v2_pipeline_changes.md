@@ -262,4 +262,4 @@ All changes were designed to preserve **exact** (bit-for-bit) outputs:
 - [Planning document: mt_coverage_merge v2 rewrite plan](mt_coverage_merge_v2_plan.md)
 - [Planning document: Finalize covdb scaling plan](FINALIZE_COVDB_SCALING_PLAN.md)
 - [Pull request #1802: mt merge final version](https://github.com/broadinstitute/warp/pull/1802) — the version used to process AoU v9 data
-- [WDL changelog](../../warp/all_of_us/mitochondria/mt_coverage_merge.changelog.md) — `aou_9.0.0`
+- [WDL changelog](../mt_coverage_merge.changelog.md) — `aou_9.0.0`
