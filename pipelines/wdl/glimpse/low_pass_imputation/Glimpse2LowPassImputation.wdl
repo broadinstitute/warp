@@ -104,13 +104,13 @@ workflow Glimpse2LowPassImputation {
         }
 
         # Now that the full cohort is merged and annotations are correct, split into variant-only and hom-ref-only
-        call Glimpse2LowPassImputationBatch.SelectVariantRecordsOnly as SelectContigVariants {
+        call Glimpse2LowPassImputationTasks.SelectVariantRecordsOnly as SelectContigVariants {
             input:
                 vcf = RecomputeAndAnnotate.merged_imputed_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_variants"
         }
 
-        call Glimpse2LowPassImputationBatch.CreateHomRefSitesOnlyVcf as CreateContigHomRefVcf {
+        call Glimpse2LowPassImputationTasks.CreateHomRefSitesOnlyVcf as CreateContigHomRefVcf {
             input:
                 vcf = RecomputeAndAnnotate.merged_imputed_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_hom_ref.sites_only"
