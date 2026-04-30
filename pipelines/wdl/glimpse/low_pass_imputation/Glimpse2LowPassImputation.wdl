@@ -4,7 +4,7 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "0.0.6"
+    String pipeline_version = "0.0.7"
     String quota_consumed_version = "0.0.1"
     String input_qc_version = "1.0.0"
 
@@ -48,7 +48,7 @@ workflow Glimpse2LowPassImputation {
 
     scatter(batch_idx in range(length(SplitIntoSampleBatches.crams_batches))) {
         Int batch_sample_count = length(SplitIntoSampleBatches.sample_ids_batches[batch_idx])
-        call Glimpse2LowPassImputationBatch.Glimpse2LowPassImputation as RunBatch {
+        call Glimpse2LowPassImputationBatch.Glimpse2LowPassImputationBatch as RunBatch {
             input:
                 contigs = contigs,
                 reference_panel_prefix = reference_panel_prefix,
