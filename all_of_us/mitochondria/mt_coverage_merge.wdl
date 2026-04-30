@@ -1162,7 +1162,7 @@ task add_annotations {
         File vcf_mt             # Path to the MatrixTable
         String output_name      # directory output name
         String output_bucket    # GCS bucket/prefix to write annotated outputs into
-        
+
         # Runtime parameters
         Int memory_gb = 96
         Int cpu = 32

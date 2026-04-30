@@ -85,6 +85,14 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputation.wdl
 
+  - name: Glimpse2LowPassImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/input_qc/Glimpse2LowPassImputationQC.wdl
+
+  - name: Glimpse2LowPassImputationQuotaConsumed
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationQuotaConsumed.wdl
+
   - name: get_wgs_median_coverage
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/get_wgs_median_coverage.wdl
@@ -133,6 +141,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/mitochondria_pipeline.wdl
 
+  - name: MitoPostProcessing
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/mitochondria/MitoPostProcessing.wdl
+  
   - name: mt_coverage_merge
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/mt_coverage_merge.wdl
@@ -266,6 +278,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestExomeReprocessing.wdl
 
+  - name: TestGlimpse2LowPassImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestGlimpse2LowPassImputationQC.wdl
+
   - name: TestIlluminaGenotypingArray
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestIlluminaGenotypingArray.wdl
@@ -373,3 +389,11 @@ workflows:
   - name: WholeGenomeReprocessing
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/wgs/WholeGenomeReprocessing.wdl
+
+  - name: scANVI
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/scanvi/scANVI.wdl
+
+  - name: TestCudaGPU
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/scanvi/test_cuda.wdl
