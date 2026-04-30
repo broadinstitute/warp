@@ -1,7 +1,7 @@
 version 1.0
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "0.0.6"
+    String pipeline_version = "0.0.7"
     String quota_consumed_version = "0.0.1"
     String input_qc_version = "1.0.0"
     
@@ -30,8 +30,7 @@ workflow Glimpse2LowPassImputation {
         Int calling_batch_size = 100
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c" # <---
-#        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse:sps_glimpse_docker"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse:sps_glimpse_docker"
     }
 
     if (defined(input_vcf)) {
@@ -495,7 +494,7 @@ task GlimpsePhase {
     command <<<
         set -euo pipefail
 
-        export GCS_OAUTH_TOKEN=$(/root/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
+        export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
 
         cram_paths=( ~{sep=" " crams} )
         cram_index_paths=( ~{sep=" " cram_indices} )
@@ -553,7 +552,8 @@ task GlimpsePhase {
         docker: docker
         disks: "local-disk " + disk_size_gb + " SSD"
         memory: mem_gb + " GiB"
-        cpu: 1
+        cpu: cpu
+        preemptible: preemptible
         maxRetries: max_retries
         checkpointFile: "checkpoint.bin"
         noAddress: true

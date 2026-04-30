@@ -1,3 +1,9 @@
+# 0.0.7
+2026-04-30 (Date of Last Commit)
+
+* Updated wdl to use latest version of the Glimpse imputation image that is generated from GHA in warp-tools repo
+* Updated CollectQCMetrics task to use mirror.gcr.io version of Hail image
+
 # 0.0.6
 2026-04-15 (Date of Last Commit)
 
