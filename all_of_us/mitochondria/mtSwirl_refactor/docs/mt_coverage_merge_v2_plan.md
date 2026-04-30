@@ -233,11 +233,10 @@ The Warp workflow `warp/all_of_us/mitochondria/mt_coverage_merge.wdl` implements
 * `merge_mt_shards` (scatter, multi-round) → merged MT tarballs
 * `finalize_mt_with_covdb` (called once on the deepest merge output) → final MT tarball
 
-#### Step 3 WDL wiring (sharded mode)
+#### Step 3 WDL wiring
 
-`warp/all_of_us/mitochondria/mt_coverage_merge.wdl` now supports a sharded mode controlled by:
+`warp/all_of_us/mitochondria/mt_coverage_merge.wdl` now uses a sharded approach controlled by:
 
-* `shard_step3 = true` (default)
 * `step3_shard_size = 2500`
 * `step3_merge_fanin = 10`
 

@@ -6,6 +6,8 @@ workflow mt_coverage_merge {
         description: "This workflow builds a combined mtDNA MatrixTable from per-sample VCFs, imputes hom-ref coverage from a coverage DB, and outputs annotated (full and filtered) callsets."
         allowNestedInputs: true
     }
+    
+    String pipeline_version = "aou_9.1.0"
 
     input {
         # Side inputs with fields that are not incoporated in the samples table
@@ -132,6 +134,7 @@ workflow mt_coverage_merge {
     }
 
     # Shard the merged MT by samples, finalize each shard, then union back together.
+    # This step assumes the final merge round produces a single MT tar, which should be the case with sufficient fan-in
     call shard_mt_by_samples {
         input:
             in_mt_tar = merge_round_3.merged_mt_tar[0],

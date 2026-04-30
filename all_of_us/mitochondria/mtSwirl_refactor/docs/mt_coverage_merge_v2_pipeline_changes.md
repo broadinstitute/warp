@@ -4,7 +4,7 @@
 
 This document describes the changes made to the `mt_coverage_merge` pipeline to scale it from processing ~1,000 samples to successfully processing **535,000 samples** for the All of Us (AoU) v9 data release. 
 
-The pipeline (`mt_coverage_merge.wdl`) takes per-sample mitochondrial DNA (mtDNA) variant calls and coverage data as inputs, merges them into a cohort-wide callset, imputes homoplasmic reference genotypes where coverage supports them, and produces annotated VCF output. Before this rewrite, the pipeline failed — crashing with out-of-memory errors after running for >82 hours — when run on the 50,000 sample susbset of the v9 AoU cohort.
+The pipeline (`mt_coverage_merge.wdl`) takes per-sample mitochondrial DNA (mtDNA) variant calls and coverage data as inputs, merges them into a cohort-wide callset, imputes homoplasmic reference genotypes where coverage supports them, and produces annotated VCF output. Before this rewrite, the pipeline failed — crashing with out-of-memory errors after running for >82 hours — when run on the 50,000 sample subset of the v9 AoU cohort.
 
 ---
 
@@ -186,7 +186,6 @@ Additionally, `hl._set_flags(no_whole_stage_codegen="1")` — which was at modul
 | `finalize_mt_with_covdb` | `Terra/finalize_mt_with_covdb.py` | Apply covdb hom-ref imputation + artifact filter to one shard |
 | `union_mt_shards` | `Terra/union_mt_shards.py` | Union finalized sample shards back into a single MT |
 
-The original monolithic `combine_vcfs_and_homref_from_covdb` task is retained for backward compatibility (selectable via `shard_step3 = false`) but is not used in production at 535k scale.
 
 ---
 
