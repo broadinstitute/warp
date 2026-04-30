@@ -445,7 +445,6 @@ task STARsoloFastq {
         local FEATURE_FILE=$3
         local MATRIX_FILE=$4
         local OUTPUT_DIR=$5
-        local OUTPUT_BASE=$6  # explicit output prefix for npz/npy files
 
         echo "Processing $MATRIX_NAME data..."
 
@@ -469,19 +468,18 @@ task STARsoloFastq {
         echo "tarring STAR txt files"
         tar -zcvf ~{input_id}.star_metrics.tar *.txt
        
-        # Create the compressed raw count matrix; --output_base keeps each matrix in its own files
+        # Create the compressed raw count matrix;
         python3 /scripts/scripts/create-merged-npz-output.py \
-            --barcodes $BARCODE_FILE --features $FEATURE_FILE --matrix $MATRIX_FILE \
-            --input_id ~{input_id} --output_base $OUTPUT_BASE
-     
+            --barcodes $BARCODE_FILE --features $FEATURE_FILE --matrix $MATRIX_FILE --input_id ~{input_id}
+
       }
 
-    # Process main matrix (whole transcript / GeneFull_Ex50pAS)
-    process_matrix "matrix" "barcodes.tsv" "features.tsv" "matrix.mtx" "./output" "~{input_id}"
+    # Process main matrix
+    process_matrix "matrix" "barcodes.tsv" "features.tsv" "matrix.mtx" "./output"
 
-    # Process snRNA/exon matrix only if files exist
+    # Process snRNA matrix only if files exist
     if [ -s "barcodes_sn_rna.tsv" ]; then
-        process_matrix "matrix_sn_rna" "barcodes_sn_rna.tsv" "features_sn_rna.tsv" "matrix_sn_rna.mtx" "./outputsnrna" "~{input_id}_exon"
+        process_matrix "matrix_sn_rna" "barcodes_sn_rna.tsv" "features_sn_rna.tsv" "matrix_sn_rna.mtx" "./outputsnrna"
     fi
 
     ls -lR
@@ -526,10 +524,6 @@ task STARsoloFastq {
     File row_index = "~{input_id}_sparse_counts_row_index.npy"
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
-    # Exon-only NPZ outputs (only populated when counting_mode=sn_rna and count_exons=true)
-    File? row_index_exon = "~{input_id}_exon_sparse_counts_row_index.npy"
-    File? col_index_exon = "~{input_id}_exon_sparse_counts_col_index.npy"
-    File? sparse_counts_exon = "~{input_id}_exon_sparse_counts.npz"
     File? library_metrics="~{input_id}_library_metrics.csv"
     File? mtx_files ="~{input_id}.mtx_files.tar"
     File? filtered_mtx_files = "~{input_id}_filtered_mtx_files.tar"

@@ -1,8 +1,3 @@
-# 2.2.6
-2026-04-02 (Date of Last Commit)
-
-* Fixed a bug in the Optimus pipeline. The changes have no impact on this pipeline.
-
 # 2.2.5
 2026-02-24 (Date of Last Commit)
 
