@@ -35,7 +35,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/calculateAF.wdl
 
-
   - name: calulateGenotypeDosage
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/calculateGenotypeDosage.wdl
@@ -260,7 +259,6 @@ workflows:
   - name: tensorqtl_cis_permutations
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/tensorQTL_cis_permutations/tensorqtl_cis_permutations.wdl
-
 
   - name: TestArrayImputationQC
     subclass: WDL
