@@ -471,7 +471,7 @@ task STARsoloFastq {
         # Create the compressed raw count matrix
         python3 /scripts/scripts/create-merged-npz-output.py \
             --barcodes $BARCODE_FILE --features $FEATURE_FILE --matrix $MATRIX_FILE --input_id ~{input_id}
-    
+     
       }
 
     # Process main matrix
