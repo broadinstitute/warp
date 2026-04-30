@@ -1,5 +1,9 @@
 version 1.0
 
+# This workflow performs low pass imputation using GLIMPSE2. It's designed to scale
+# to approximately 1000 samples and be used as a subworkflow for Glimpse2LowPassImputation.wdl,
+# which can handle larger sample sizes by splitting into batches and then merging results.
+
 workflow Glimpse2LowPassImputationBatch {
     String pipeline_version = "0.0.1"
 
