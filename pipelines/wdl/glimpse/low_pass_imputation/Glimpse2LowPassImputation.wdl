@@ -30,7 +30,7 @@ workflow Glimpse2LowPassImputation {
         Int calling_batch_size = 100
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse:sps_glimpse_docker"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse:sps_2024_glimpse_docker"
     }
 
     if (defined(input_vcf)) {
