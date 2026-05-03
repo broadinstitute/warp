@@ -540,7 +540,7 @@ task GlimpsePhase {
         #We need to make sure that stderr is maintained since cromwell looks for oom strings
         #in stderr
 
-        eval "$cmd" 2> >(tee glimpse_stderr.log >&2)
+        eval $cmd 2> >(tee glimpse_stderr.log >&2)
 
         if grep -q "EOF marker is absent" glimpse_stderr.log; then
             echo "An input file appears to be truncated.  This may be either a truly truncated file which needs to be fixed, or a networking error which can just be retried."
