@@ -41,7 +41,7 @@ task TerraCopyFilesFromCloudToCloud {
 
   runtime {
     memory: "16 GiB"
-    cpu: "1"
+    cpu: 1
     disks: "local-disk 32 HDD"
     docker: "gcr.io/google.com/cloudsdktool/google-cloud-cli:499.0.0-slim"
     preemptible: 3

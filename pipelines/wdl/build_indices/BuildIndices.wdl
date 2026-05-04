@@ -362,7 +362,7 @@ task CalculateChromosomeSizes {
     docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     preemptible: 3
     memory: "3 GiB"
-    cpu: "1"
+    cpu: 1
     disks: "local-disk 50 HDD"
   }
   output {
@@ -536,7 +536,7 @@ task BuildStarSingleNucleus {
     memory: "64 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
-    cpu:"16"
+    cpu: 16
   }
 }
 
@@ -652,7 +652,7 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
     memory: "96GB"
     disks: "local-disk 100 HDD"
     disk: "100 GB" # TES
-    cpu: "4"
+    cpu: 4
   }
 
   output {
@@ -805,7 +805,7 @@ task RecordMetadata {
     docker: "ubuntu:20.04"
     memory: "5 GiB"
     disks: "local-disk 100 HDD"
-    cpu: "1"
+    cpu: 1
   }
 }
 

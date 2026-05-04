@@ -59,7 +59,7 @@ workflow CaclulateAF {
             docker: "quay.io/biocontainers/plink2:2.0.0a.6.9--h9948957_0"
             memory: "~{memory}GB"
             disks: "local-disk ~{disk_space} HDD"
-            cpu: "~{num_threads}"
+            cpu: num_threads
 
         }
 

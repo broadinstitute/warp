@@ -876,6 +876,6 @@ task STARGenomeRefVersion {
     memory: "2 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
-    cpu:"1"
+    cpu: 1
   }
 }

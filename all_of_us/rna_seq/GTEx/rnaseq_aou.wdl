@@ -1,3 +1,5 @@
+version 1.0
+
 # import "https://api.firecloud.org/ga4gh/v1/tools/broad_drc_aou_aux:samToFastq/versions/1/plain-WDL/descriptor" as samtofastq_wdl
 # import "https://api.firecloud.org/ga4gh/v1/tools/gtex_v10_pg:star_align_v10pg/versions/12/plain-WDL/descriptor" as star_align_wdl
 # import "https://api.firecloud.org/ga4gh/v1/tools/gtex_v10_pg:pre_RSEM_processing_v10pg/versions/6/plain-WDL/descriptor" as prersem_wdl
@@ -14,8 +16,10 @@ import "./rnaseqc2.wdl" as rnaseqc_wdl
 
 
 workflow rnaseq_pipeline_bam_workflow {
+    input {
+        String prefix
+    }
 
-    String prefix
     String pipeline_version = "aou_9.0.1"
 
     call samtofastq_wdl.samtofastq {
