@@ -554,7 +554,6 @@ task GlimpsePhase {
         memory: mem_gb + " GiB"
         cpu: 1
         maxRetries: max_retries
-        checkpointFile: "checkpoint.bin"
         noAddress: true
     }
 
