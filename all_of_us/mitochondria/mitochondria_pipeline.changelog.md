@@ -1,3 +1,16 @@
+# aou_9.1.0 
+
+* refactor to remove non-shardes option for step 3 and unnecessary merge checks 
+
+* removed 'skip_summary' optioin from 'annotate_coverage' task
+
+# aou_9.0.0
+2026-02-24
+
+* minor refactor to rename directory where subworkflows and tasks are. This has no affect on pipeline outputs
+
+* Version used to process v9 data
+
 # beta release
 2025-08-07 (Date of Last Commit)
 

@@ -12,6 +12,7 @@ task PrepareSpliceData {
         Int num_threads
     }
     command {
+        set -euo pipefail
         Rscript /tmp/PrepareSpliceData.R \
             --SpliceData ${SpliceData} \
             --SampleList ${SampleList} \

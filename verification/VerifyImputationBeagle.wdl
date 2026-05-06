@@ -23,10 +23,13 @@ workflow VerifyImputationBeagle {
     Array[File] truth_metrics
     Array[File] test_metrics
 
-    File truth_vcf
-    File test_vcf
-    File test_vcf_index
-    File truth_vcf_index
+    # imputed variant multi sample vcf
+    File multi_sample_truth_vcf
+    File multi_sample_test_vcf
+
+    # imputed hom ref sites only vcf
+    File hom_ref_truth_vcf
+    File hom_ref_test_vcf
 
     Boolean? done
   }
@@ -41,10 +44,17 @@ workflow VerifyImputationBeagle {
     }
   }
 
-  call Tasks.CompareVcfs as CompareOutputVcfs {
+  call Tasks.CompareVcfs as CompareOutputMultiSampleVcfs {
     input:
-      file1 = truth_vcf,
-      file2 = test_vcf,
+      file1 = multi_sample_truth_vcf,
+      file2 = multi_sample_test_vcf,
+      patternForLinesToExcludeFromComparison = "##" # ignore headers
+  }
+
+  call Tasks.CompareVcfs as CompareOutputSitesOnlyVcfs {
+    input:
+      file1 = hom_ref_truth_vcf,
+      file2 = hom_ref_test_vcf,
       patternForLinesToExcludeFromComparison = "##" # ignore headers
   }
 

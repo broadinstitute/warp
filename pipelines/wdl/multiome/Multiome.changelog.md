@@ -1,3 +1,14 @@
+# 6.1.6
+2026-04-21 (Date of Last Commit)
+
+* Updated internal task dependency versions for this release; this does not affect the outputs of the pipeline
+
+# 6.1.5
+2026-02-24 (Date of Last Commit)
+
+* Added 2 new outputs to Multiome.wdl: gex_whitelist_used and atac_whitelist_used; these outputs indicate the whitelist used for the gene expression and ATAC pipelines, respectively. This change is provenance-only and introduces no functional changes to pipeline outputs
+* Added whitelist provenance tracking to JoinMultiomeBarcodes by storing the GEX and ATAC whitelist paths in the h5ad unstructured metadata (.uns). This change is provenance-only and introduces no functional changes to pipeline outputs
+
 # 6.1.4
 2026-01-22 (Date of Last Commit)
 
