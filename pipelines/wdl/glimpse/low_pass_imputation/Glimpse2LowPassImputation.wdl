@@ -120,9 +120,9 @@ workflow Glimpse2LowPassImputation {
     Array[File] batch_coverage_metrics = select_all(RunBatch.coverage_metrics)
 
     if (length(batch_coverage_metrics) > 0) {
-        call Glimpse2LowPassImputationBatch.CombineCoverageMetrics as CombineBatchCoverageMetrics {
+        call Glimpse2LowPassImputationTasks.MergeCoverageMetrics as MergeBatchCoverageMetrics {
             input:
-                cov_metrics = batch_coverage_metrics,
+                coverage_metrics = batch_coverage_metrics,
                 output_basename = output_basename
         }
     }
@@ -171,6 +171,6 @@ workflow Glimpse2LowPassImputation {
         File imputed_hom_ref_sites_only_vcf_md5 = CreateVcfIndexAndMd5HomRefOnly.output_vcf_md5sum
 
         File qc_metrics = CollectQCMetrics.qc_metrics
-        File? coverage_metrics = CombineBatchCoverageMetrics.coverage_metrics
+        File? coverage_metrics = MergeBatchCoverageMetrics.merged_coverage_metrics
     }
 }
