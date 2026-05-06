@@ -112,7 +112,7 @@ Use build scripts for releases:
 ## Critical Workflows
 
 ### WDL Validation (MANDATORY)
-The womtool JAR is expected at `~/womtool-90.jar`. A convenience wrapper also exists at `scripts/validate_wdls.sh`.
+The womtool JAR is expected at at a user-specific location such as `~/womtool-90.jar`, the appropriate version of Java must also be availible. A convenience wrapper also exists at `scripts/validate_wdls.sh`.
 
 Validate a single file:
 ```bash
