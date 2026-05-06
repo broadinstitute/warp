@@ -340,3 +340,59 @@ task CreateHomRefSitesOnlyVcf {
         File output_vcf = "~{basename}.vcf.gz"
     }
 }
+
+task ConvertCramManifestToInputArrays {
+    input {
+        File cram_manifest
+    }   
+
+    command <<<
+        cat <<EOF > script.py
+        import sys
+        import pandas as pd
+
+        crams_filename = "crams.txt"
+        cram_indices_filename = "cram_indices.txt"
+        sample_ids_filename = "sample_ids.txt"
+
+        def write_column(column_data, filename):
+            """Write column to file, with each value stripped of leading/trailing whitespace."""
+            filtered = column_data.fillna('').astype(str).str.strip()
+            with open(filename, 'w') as f:
+                for value in filtered:
+                    f.write(f"{value}\n")
+
+        # Read the manifest
+        df = pd.read_csv("~{cram_manifest}", sep='\t')
+        
+        # Check for required columns
+        required_cols = ['sample_id', 'cram_path', 'cram_index_path']
+        missing_cols = [col for col in required_cols if col not in df.columns]
+        
+        if missing_cols:
+            print(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.", file=sys.stderr) 
+        else:
+            # Write to output files, stripping leading/trailing whitespace from each value
+            write_column(df['sample_id'], sample_ids_filename)
+            write_column(df['cram_path'], crams_filename)
+            write_column(df['cram_index_path'], cram_indices_filename)
+        EOF
+        python3 script.py >&2
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        memory: "4 GiB"
+        preemptible: 3
+        maxRetries: 2
+        noAddress: true
+    }
+
+    output {
+        Array[String] crams = read_lines("crams.txt")
+        Array[String] cram_indices = read_lines("cram_indices.txt")
+        Array[String] sample_ids = read_lines("sample_ids.txt")
+    }
+}
