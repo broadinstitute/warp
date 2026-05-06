@@ -1,331 +1,68 @@
 ---
 title: All of Us RNA-seq eQTL and sQTL Analysis Pipeline
+sidebar_position: 1
 className: aou-doc-page
 ---
 
 <div className="aou-folder-text">
 
-This README describes the end-to-end workflow for preparing genotypes, generating RNA expression and splicing phenotypes, computing covariates, running cis-QTL analysis with TensorQTL, and performing fine-mapping with SuSiE.
+This section documents the All of Us RNA-seq QTL workflows for expression/splicing phenotype generation, QTL analysis preparation, and SuSiE fine-mapping aggregation.
 
 ## Quick Summary
 
 * **Purpose:** Run reproducible eQTL and sQTL analyses from genotype and RNA-derived inputs.
-* **Primary Outputs:** TensorQTL association outputs, SuSiE fine-mapping results, and aggregated credible sets.
-
-All workflows referenced here are implemented as WDLs in **WARP**.
-
-The *original versions* of these workflows were either created by the GTEx Consortium (see their [GTEx GitHub repository](https://github.com/broadinstitute/gtex-pipeline/tree/master?tab=readme-ov-file)) or the **Dr. Stephen Montgomery Lab** at Stanford University, with major contributions from **Evin Padhi** and **Jon Nguyen**. Their work formed the foundation for the integrated analysis pipeline described here. Most of the eQTL scripts originated from the publicly available repository:
-
-* **AoU-Multiomics-Analysis**
-  [https://github.com/AoU-Multiomics-Analysis](https://github.com/AoU-Multiomics-Analysis)
-
-This README explains how the pieces fit together and what each WDL component produces.
-
----
-
-## Overview
-
-This pipeline generates all inputs, outputs, and intermediate metadata required for a full cis-expression QTL(eQTL) and cis-splicing QTL (sQTL) analysis:
-
-* Genotype preprocessing and pruning
-* PLINK files and genotype principal components
-* Dosage matrices per ancestry
-* Expression and splicing phenotype matrices
-* Phenotype PCs and additional grouping metadata
-* Covariate tables
-* TensorQTL cis-QTL results
-* SuSiE fine-mapping outputs
-* Aggregated credible sets
-
----
+* **Primary Outputs:** RNA-derived phenotype artifacts, TensorQTL-ready inputs, SuSiE fine-mapping results, and aggregated annotations.
 
 ## Input Requirements
 
-To run the workflows described here, you need:
+To run the workflows described below, you generally need:
 
 * A joint-called **VCF** containing the relevant samples
 * **Research IDs** partitioned by ancestry or subpopulation
-* RNA expression quantifications (for eQTLs)
-* BAM/CRAM files for splice junction extraction (for sQTLs)
-* Associated metadata (sample-level phenotype table)
-
----
-
-## Analysis Flow
-
-The sections below describe each workflow, its purpose, and expected outputs.
-
----
-
-## 1. Ancestry Grouping & Sample Lists
-
-Prepare a table listing sample IDs for each ancestry/subpopulation. We used a Jupyter Notebook (not provided) to use the ancestry predictions from All of Us V9 to create sample subsets per population. We then created a Terra data table with one population per row as well as combined population.
-
-Outputs:
-
-* Sample lists per ancestry group in TSV format
-* Terra data table to track per-ancestry metadata for downstream analyses
-
-
-This step is required before running genotype or phenotype workflows per ancestry.
-
----
-
-## 2. Genotype Preparation (`Prepare_VCF`)
-
-The [Prepare_VCF](https://dockstore.org/workflows/github.com/AoU-Multiomics-Analysis/prepare_QTL/prepare_VCF:develop?tab=info) WDL performs:
-
-* Variant pruning
-* Conversion of the VCF to PLINK (`pgen`, `psam`, `pvar`)
-* Computation of **genotype PCs**
-
-Outputs:
-
-* Pruned VCF
-* PLINK genotype files
-* Genotype principal component matrix (genotype PCs)
-
-These outputs are used for both eQTL and sQTL pipelines.
-
-Adaptation in WARP:
-
-We copied this workflow into WARP into the MTtoVCF folder. It was versioned and where possible, dockers were recreated and versioned.
-
----
-
-## 3. Genotype Dosage Calculation
-
-The [CalculateGenotypeDosage](https://github.com/AoU-Multiomics-Analysis/prepare_QTL/blob/main/workflows/calculateGenotypeDosage.wdl) WDL generates genotype dosages per ancestry group.
-
-Outputs:
-
-* Dosage files and indices per ancestry (variant-by-sample dosage matrices)
-
-A versioned copy of this WDL can be found in the prepare_QTL folder in WARP.
-
----
-## 4. RNA Alignment, Counts and Splicing BED
-The [rnaseq_aou.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/GTEx/rnaseq_aou.wdl) was modified from the original GTEx pipeline and run with the GENCODE v48 GTF. The resulting counts were used as input for downstream expression QTL analysis.
-
-For splicing QTL (sQTL) analysis, the resulting duplicate-marked aligned BAMs were used as input to the [leafcutter_bam_to_junc.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/leafcutter_bam_to_junc.wdl).
-
-This created a junction file that was used as input for the [leafcutter_cluster.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/leafcutter_cluster.wdl), which produces a BED file for downstream  sQTL.
-
-## 5. RNA Phenotype Preparation for eQTL (`Prepare_eQTL`)
-
-The [Prepare_eQTL WDL](https://github.com/AoU-Multiomics-Analysis/prepare_QTL/blob/main/workflows/prepare_eQTL.wdl) processes RNA expression data to generate:
-
-* A **BED-format phenotype matrix**
-* **Phenotype PCs** for downstream covariate construction
-
-Inputs typically include:
-
-* Expression quantifications (TPM/CPM or counts)
-* Sample metadata
-* Gene annotations
-
-Outputs are formatted to match TensorQTL requirements.
-
-A versioned copy of this WDL is in WARP in the prepare_QTL folder and the docker has been versioned in warp-tools.
-
----
-
-## 6. Covariate Creation (`MergeCovariates`)
-
-The [MergeCovariates WDL](https://github.com/AoU-Multiomics-Analysis/prepare_QTL/blob/main/workflows/MergeCovariates.wdl) merges:
-
-* Genotype PCs
-* Phenotype PCs (expression or splicing)
-* Optional grouping variables (for sQTLs)
-
-Outputs:
-
-* A single covariates file for use in TensorQTL
-
-This step ensures consistent ordering and formatting across all inputs.
-
-A versioned copy of this WDL is in WARP in the prepare_QTL folder.
-
-
----
-
-## 7. cis-eQTL Mapping (TensorQTL)
-
-The [TensorQTL cis permutations WDL](https://dockstore.org/workflows/github.com/AoU-Multiomics-Analysis/tensorQTL_cis_permutations:main?tab=info) runs **TensorQTL cis-permutation** mode to compute:
-
-* Nominal associations
-* Permutation-based cis-eQTL statistics
-* Beta values, empirical p-values, and effect directions
-
-Notes:
-
-* The optional phenotype groups file is **not** required for eQTL analysis
-* Results can be written directly into a structured output directory or table
-* These outputs form the basis for fine-mapping
-
-A versioned copy of this workflow is available in WARP in the tensorQTL_cis_permutations folder.
-
----
-
-## 8. FDR Recalculation & Fine-Mapping Prep
-
-After TensorQTL completes:
-
-* Recalculate FDR
-* Filter to **FDR ≤ 0.05**
-* Format results into a SuSiE-ready table
-
-This step typically involves:
-
-* Computing q-values
-* Generating a list of significant gene–variant pairs
-* Preparing SuSiE input metadata, including:
-
-  * Expression ID
-  * Genomic window coordinates
-  * Output prefix names (must match SuSiE input requirements)
-
----
-
-## 9. SuSiE Fine-Mapping (`SusieR`)
-
-This [SusieR WDL](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/susieR_workflow.wdl) performs SuSiE fine-mapping for each cis-window.
-
-Inputs:
-
-* Dosage matrices (from Step 3)
-* Significant TensorQTL hits (from Step 7)
-* Expression or splicing phenotype metadata
-* A consistent `OutputPrefix` per phenotype
-
-Outputs include:
-
-* SuSiE credible sets
-* Variant posterior inclusion probabilities
-* Fine-mapped credible intervals
-
-Tips:
-
-* Preemptible VMs can be used to reduce cost
-* For reproducibility, a pinned Docker SHA is recommended
-
----
-
-## 10. Allele Frequency Calculation
-
-The [CalculateAF](https://dockstore.org/workflows/github.com/AoU-Multiomics-Analysis/prepare_QTL/calculateAF:main?tab=info) WDL calculates allele frequencies using PLINK.
-
-Outputs:
-
-* Per-variant allele frequencies
-* Additional variant summary metrics
-
-This step is optional but useful for interpretation and downstream reporting.
-
----
-
-## 11. SuSiE Aggregation
-
-The [AggregateSusie WDL](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/AggregateSusieWorkflow.wdl) aggregates fine-mapping results across all phenotypes.
-
-Inputs:
-
-* Paths to all SuSiE parquet outputs
-
-  * Use the **“SusieParquet”** (fine-mapped) files
-  * Do **not** use the "Full" parquets (contain all tested variants)
-
-Outputs:
-
-* Combined table of all credible sets
-* Aggregated fine-mapping metadata
-* Summary tables for downstream QTL interpretation
-
----
-
-## sQTL Workflow
-
-The sQTL pipeline shares genotype components with the eQTL workflow but differs in phenotype preparation and covariate structure.
-
----
-
-### 1. Leafcutter Junc and Cluster Generation
-
-Run:
-
-* **Bam2Junc** to extract junctions
-* **Cluster** to identify splice clusters
-
-Outputs:
-
-* Junc files
-* Cluster definitions
-* Leafcutter BED files (cluster-level)
-
----
-
-### 2. Prepare sQTL Phenotypes (`prepare_sQTL`)
-
-This WDL:
-
-* Consumes Leafcutter BED files
-* Generates a **splicing phenotype BED**
-* Computes **phenotype PCs**
-
-Older versions of the preprocessing script also produced:
-
-* **PhenotypeGroups** (required for TensorQTL)
-
-This is included as a separate workflow below.
-
----
-
-### 3. Calculate Phenotype Groups
-
-If phenotype groups are not emitted by the updated splicing phenotype WDL, a supplementary WDL can generate them.
-
-Outputs:
-
-* PhenotypeGroups file
-
----
-
-### 4. Merge Covariates (sQTL)
-
-Identical to the eQTL covariate merging step, but includes:
-
-* Genotype PCs
-* Splicing phenotype PCs
-* PhenotypeGroups file
-
-Outputs:
-
-* Covariate file for TensorQTL sQTL analysis
-
----
-
-### 5. TensorQTL cis-sQTL
-
-This step uses:
-
-* PLINK genotype files
-* Splicing BED phenotype matrix
-* Covariates
-* PhenotypeGroups
-
-Outputs:
-
-* cis-sQTL nominal and permutation results
-* Per-cluster association statistics
-
-Downstream fine-mapping can be performed using the same SuSiE workflow if desired.
-
----
+* RNA expression quantifications (for eQTL)
+* BAM/CRAM files for splice junction extraction (for sQTL)
+* Sample-level metadata tables
+
+## Ordered Analysis Flow
+
+The table below reflects the original end-to-end run order, including steps that do not yet have dedicated docs pages in this folder.
+
+| Order | Stage | Workflow / Component | Documentation | WDL | Run next |
+| :--: | --- | --- | --- | --- | --- |
+| 0 | Cohort setup | Ancestry grouping and sample lists | No dedicated WDL page (notebook/table prep) | N/A | Use ancestry/sample partitions as inputs to genotype and phenotype prep. |
+| 1 | Genotype prep | Prepare genotypes (pruning + PLINK + PCs) | No dedicated page yet | [PrepareGenotypes.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/PrepareGenotypes.wdl) | Run dosage generation per ancestry/population. |
+| 2 | Genotype prep | Calculate genotype dosage | No dedicated page yet | [calculateGenotypeDosage.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/prepare_QTL/calculateGenotypeDosage.wdl) | Feed dosages into TensorQTL and SuSiE inputs later. |
+| 3 | RNA processing | RNA-seq AoU processing (alignment/quant/QC) | [RNA-seq AoU Processing](./rnaseq_aou) | [rnaseq_aou.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/GTEx/rnaseq_aou.wdl) | Branch into eQTL phenotype prep and/or sQTL junction extraction. |
+| 4A | eQTL phenotypes | Prepare eQTL phenotype BED + phenotype PCs | No dedicated page yet | [prepare_eQTL.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/prepare_QTL/prepare_eQTL.wdl) | Merge covariates for eQTL TensorQTL run. |
+| 4B | sQTL phenotypes | Extract junctions from BAM | [Leafcutter BAM to Junctions](./leafcutter_bam_to_junc) | [leafcutter_bam_to_junc.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/leafcutter_bam_to_junc.wdl) | Cluster junctions to build sQTL phenotype matrices. |
+| 5B | sQTL phenotypes | Cluster junctions + generate leafcutter outputs | [Leafcutter Clustering](./leafcutter_cluster) | [leafcutter_cluster.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/leafcutter_cluster.wdl) | If needed, run separate phenotype-group generation before covariate merge. |
+| 5C | sQTL phenotypes | Prepare sQTL phenotype BED + PCs | No dedicated page yet | [prepare_sQTL.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/prepare_QTL/prepare_sQTL.wdl) | Use splicing BED/PC outputs for sQTL covariate merge and TensorQTL. |
+| 6B | sQTL metadata | Calculate phenotype groups | [Calculate Phenotype Groups](./calculate_phenotype_groups) | [CalculatePhenotypeGroups.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/CalculatePhenotypeGroups.wdl) | Merge covariates for sQTL TensorQTL run. |
+| 7 | Covariates | Merge covariates (genotype PCs + phenotype PCs ± groups) | No dedicated page yet | [MergeCovariates.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/prepare_QTL/MergeCovariates.wdl) | Run TensorQTL cis permutations for eQTL/sQTL. |
+| 8 | Association | TensorQTL cis permutations | No dedicated page yet | [tensorqtl_cis_permutations.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/tensorQTL_cis_permutations/tensorqtl_cis_permutations.wdl) | Recalculate FDR and prepare significant loci for fine-mapping. |
+| 9 | Fine-mapping prep | FDR recalculation + SuSiE input preparation | No dedicated WDL page in this folder | N/A | Run SuSiE per phenotype window. |
+| 10 | Fine-mapping | SuSiE fine-mapping | [SuSiE Fine-Mapping Workflow](./susieR_workflow) | [susieR_workflow.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/susieR_workflow.wdl) | Aggregate SuSiE outputs across phenotypes. |
+| 11 | Aggregation | Aggregate SuSiE outputs and annotate | [Aggregate SuSiE Workflow](./aggregate_susie_workflow) | [AggregateSusieWorkflow.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/AggregateSusieWorkflow.wdl) | Optional: compute AF summaries for downstream interpretation/reporting. |
+| 12 (optional) | Variant summaries | Calculate allele frequencies | No dedicated page yet | [calculateAF.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/prepare_QTL/calculateAF.wdl) | Use AF metrics in interpretation/QC/reporting. |
+
+## Practical Run Notes
+
+* **eQTL path:** 0 → 1 → 2 → 3 → 4A → 7 → 8 → 9 → 10 → 11 (+12 optional).
+* **sQTL path:** 0 → 1 → 2 → 3 → 4B → 5B → 5C → 6B (if required) → 7 → 8 → 9 → 10 → 11 (+12 optional).
+* **Key dependency:** `susieR_workflow` expects TensorQTL-derived significant loci plus dosage inputs from earlier genotype steps.
+* **Phenotype groups:** required for many sQTL TensorQTL configurations; for eQTL they are typically not required.
+
+## Additional Processing Notes
+
+* **FDR and SuSiE prep:** after TensorQTL, recalculate FDR, filter significant loci (commonly 0.05), and format SuSiE-ready inputs.
+* **SuSiE runtime guidance:** preemptible VMs can reduce cost; pinned Docker SHAs improve reproducibility.
+* **Aggregation inputs:** for `AggregateSusieWorkflow`, use fine-mapped `SusieParquet` outputs; do not use full/all-tested parquet outputs.
 
 ## Acknowledgements
 
-This pipeline builds upon extensive work by the **Stephen Montgomery Lab** at Stanford University.
-Special thanks to:
+The original versions of these workflows were either created by the GTEx Consortium (see their [GTEx GitHub repository](https://github.com/broadinstitute/gtex-pipeline/tree/master?tab=readme-ov-file)) or by the **Dr. Stephen Montgomery Lab** at Stanford University. Most of the eQTL scripts originated from the [AoU-Multiomics-Analysis repository](https://github.com/AoU-Multiomics-Analysis).
+
+This pipeline builds upon extensive work by the **Stephen Montgomery Lab** at Stanford University. Special thanks to:
 
 * **Evin Padhi**
 * **Jon Nguyen**
@@ -333,6 +70,10 @@ Special thanks to:
 for developing foundational versions of many scripts and workflows used in this analysis.
 
 Additional integration, optimization, and workflow migration were performed by the All of Us Multiomics and the Broad Pipeline Development teams as part of the WARP workflow suite.
+
+## Feedback
+
+Please help us make our tools better by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues); we welcome pipeline-related suggestions or questions.
 
 </div>
 
