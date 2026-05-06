@@ -35,7 +35,6 @@ workflow Glimpse2LowPassImputation {
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
         String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
         String docker_merge = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
-        Int mem_gb_merge = 32 # TODO: this can be decreased by rewriting the RecomputeAndAnnotate to work in chunks instead of line by line
     }
 
     call Glimpse2LowPassImputationBatch.SplitIntoBatches as SplitIntoSampleBatches {
@@ -99,8 +98,7 @@ workflow Glimpse2LowPassImputation {
                 annotations = ExtractAnnotations.annotations,
                 num_samples = batch_sample_count,
                 output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated",
-                docker_merge = docker_merge,
-                mem_gb = mem_gb_merge
+                docker_merge = docker_merge
         }
 
         # Now that the full cohort is merged and annotations are correct, split into variant-only and hom-ref-only
