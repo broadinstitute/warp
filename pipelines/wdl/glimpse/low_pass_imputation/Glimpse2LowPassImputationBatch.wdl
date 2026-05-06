@@ -408,7 +408,7 @@ task GlimpsePhase {
         Int mem_gb = 16
         Int cpu = 1 # note that setting cpu > 1 will introduce non-determinism in GLIMPSE Phase due to multi-threading
         Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.003 * length(select_first([crams, []])) + 10)
-        Int preemptible = 30
+        Int preemptible = 0
         Int max_retries = 3
         String docker
     }
