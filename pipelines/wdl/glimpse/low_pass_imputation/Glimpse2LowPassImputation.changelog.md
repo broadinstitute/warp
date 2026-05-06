@@ -1,3 +1,8 @@
+# 0.0.8
+2026-05-06 (Date of Last Commit)
+
+* Improved performance of RecomputeAndAnnotate, used correct MergeCoverageMetrics task for recombining batched outputs
+
 # 0.0.7
 2026-04-30 (Date of Last Commit)
 
