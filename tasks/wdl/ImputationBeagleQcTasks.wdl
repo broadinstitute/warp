@@ -18,14 +18,14 @@ task QcChecks {
         # create empty qc messages file
         touch qc_messages.txt
 
-        # check for a large number of variants in input vcf and exit if greater than 10 million
+        # check for a large number of variants in input vcf and exit if greater than 3 million
         line_count=$(bcftools stats ~{vcf_input}  | grep "number of records:" | awk '{print $6}')
-        if [ "$line_count" -gt 10000000 ]; then
-            echo "Greater than 10 million variants found in the input VCF." >> qc_messages.txt
+        if [ "$line_count" -gt 3000000 ]; then
+            echo "Greater than 3 million variants found in the input VCF." >> qc_messages.txt
             echo "false" > passes_qc.txt
             exit 0
         else
-            echo "Less than or equal to 10 million variants found in input VCF."
+            echo "$line_count variants found in input VCF."
         fi
 
         # grab header from vcf

@@ -2,13 +2,13 @@
 	"ATAC.input_id":"10k_PBMC_downsampled",
 	"ATAC.cloud_provider":"gcp",
 	"ATAC.read1_fastq_gzipped":[
-	  "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R1_atac.fastq.gz"
+	  "gs://pd-test-storage-public/atac/input/plumbing/10k_pbmc_downsampled/fastq_R1_atac.fastq.gz"
 	],
 	"ATAC.read2_fastq_gzipped":[
-	  "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R2_atac.fastq.gz"
+	  "gs://pd-test-storage-public/atac/input/plumbing/10k_pbmc_downsampled/fastq_R2_atac.fastq.gz"
 	],
 	"ATAC.read3_fastq_gzipped":[
-	  "gs://pd-test-storage-public/Multiome/input/plumbing/fastq_R3_atac.fastq.gz"
+	  "gs://pd-test-storage-public/atac/input/plumbing/10k_pbmc_downsampled/fastq_R3_atac.fastq.gz"
 	],
 	"ATAC.tar_bwa_reference":"gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar",
 	"ATAC.chrom_sizes":"gs://pd-test-storage-public/Multiome/input/hg38.chrom.sizes",

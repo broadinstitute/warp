@@ -5,13 +5,13 @@
   "IlluminaGenotypingArray.reported_gender": "Female",
   "IlluminaGenotypingArray.chip_well_barcode": "204520870050_R04C01",
 
-  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GDA-8v1-0_A5/idats/204520870050_R04C01/204520870050_R04C01_Grn.idat",
-  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GDA-8v1-0_A5/idats/204520870050_R04C01/204520870050_R04C01_Red.idat",
+  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/204520870050_R04C01_NA24143/204520870050_R04C01_Grn.idat",
+  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/204520870050_R04C01_NA24143/204520870050_R04C01_Red.idat",
 
-  "IlluminaGenotypingArray.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.bpm",
-  "IlluminaGenotypingArray.extended_chip_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.1.5.extended.csv",
-  "IlluminaGenotypingArray.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A1_ClusterFile.egt",
-  "IlluminaGenotypingArray.minor_allele_frequency_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.MAF.txt",
+  "IlluminaGenotypingArray.bead_pool_manifest_file": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/204520870050_R04C01_NA24143/GDA-8v1-0_A5.bpm",
+  "IlluminaGenotypingArray.extended_chip_manifest_file": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/204520870050_R04C01_NA24143/GDA-8v1-0_A5.1.5.extended.csv",
+  "IlluminaGenotypingArray.cluster_file": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/204520870050_R04C01_NA24143/GDA-8v1-0_A1_ClusterFile.egt",
+  "IlluminaGenotypingArray.minor_allele_frequency_file": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/204520870050_R04C01_NA24143/GDA-8v1-0_A5.MAF.txt",
 
   "IlluminaGenotypingArray.disk_size": 100,
 

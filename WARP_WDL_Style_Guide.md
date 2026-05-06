@@ -105,6 +105,20 @@
   - Both use curly braces `{}` which can cause confusion
   - Example: `f'~{prefix}_output.txt'` - the f-string is unnecessary and potentially problematic
   - Prefer simple string interpolation: `'~{prefix}_output.txt'`
+- Heredoc delimiter for inline Python
+  - Use `<<CODE` / `CODE` as the heredoc delimiter when invoking inline Python with `python3`
+  - This is the established convention across WARP tasks and pipelines
+  - Example:
+    ```wdl
+    command <<<
+        python3 <<CODE
+    import sys
+    print("hello")
+    CODE
+    >>>
+    ```
+  - Do **not** use quoted delimiters such as `<<'PYEOF'` or `<<'CODE'`; the unquoted form is consistent with the rest of the repo
+  - Note: unquoted `<<CODE` allows bash `$variable` expansion inside the block; use `~{wdl_var}` for WDL interpolation (resolved before bash runs) and avoid bare `$` shell variables inside the Python block unless intentional
 - Python best practices in WDL context
   - Validate inputs early
   - Use meaningful variable names

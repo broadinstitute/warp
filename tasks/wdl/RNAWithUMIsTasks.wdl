@@ -277,12 +277,14 @@ task CopyReadGroupsToHeader {
 task GetSampleName {
   input {
     File bam
+    String? billing_project
 
     String docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
   }
+  String requester_pays_flag = if defined(billing_project) then "--gcs-project-for-requester-pays ${billing_project}" else ""
 
   parameter_meta {
     bam: {
@@ -291,7 +293,7 @@ task GetSampleName {
   }
 
   command <<<
-    gatk GetSampleName -I ~{bam} -O sample_name.txt
+    gatk GetSampleName -I ~{bam} -O sample_name.txt ~{requester_pays_flag}
   >>>
 
   runtime {

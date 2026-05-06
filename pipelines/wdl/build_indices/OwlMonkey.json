@@ -10,5 +10,5 @@
   "BuildIndices.mito_ref_gbk": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/Ferret/sequence.gb",
   "BuildIndices.organism": "Owl_monkey",
   "BuildIndices.run_mitofinder": "true",
-  "BuildIndices.skip_gtf_modification": "true"
+  "BuildIndices.run_modify_gtf": "false"
 }

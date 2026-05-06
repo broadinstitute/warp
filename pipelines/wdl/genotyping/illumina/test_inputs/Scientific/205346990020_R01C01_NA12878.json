@@ -5,16 +5,16 @@
   "IlluminaGenotypingArray.reported_gender": "Female",
   "IlluminaGenotypingArray.chip_well_barcode": "205346990020_R01C01",
 
-  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GSAMD-24v3-0-EA_20034606_A1/idats/205346990020_R01C01/205346990020_R01C01_Grn.idat",
-  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GSAMD-24v3-0-EA_20034606_A1/idats/205346990020_R01C01/205346990020_R01C01_Red.idat",
+  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/205346990020_R01C01_NA12878/205346990020_R01C01_Grn.idat",
+  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/205346990020_R01C01_NA12878/205346990020_R01C01_Red.idat",
 
-  "IlluminaGenotypingArray.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GSAMD-24v3-0-EA_20034606_A1/GSAMD-24v3-0-EA_20034606_A1.bpm",
-  "IlluminaGenotypingArray.extended_chip_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GSAMD-24v3-0-EA_20034606_A1/GSAMD-24v3-0-EA_20034606_A1.2.0.extended.csv",
-  "IlluminaGenotypingArray.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/GSAMD-24v3-0-EA_20034606_A1/GSAMD-24v3-0-EA_20034606_A1_custom.egt",
+  "IlluminaGenotypingArray.bead_pool_manifest_file": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/205346990020_R01C01_NA12878/GSAMD-24v3-0-EA_20034606_A1.bpm",
+  "IlluminaGenotypingArray.extended_chip_manifest_file": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/205346990020_R01C01_NA12878/GSAMD-24v3-0-EA_20034606_A1.2.0.extended.csv",
+  "IlluminaGenotypingArray.cluster_file": "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/205346990020_R01C01_NA12878/GSAMD-24v3-0-EA_20034606_A1_custom.egt",
 
-  "IlluminaGenotypingArray.control_sample_vcf_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878.vcf.gz",
-  "IlluminaGenotypingArray.control_sample_vcf_index_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878.vcf.gz.tbi",
-  "IlluminaGenotypingArray.control_sample_intervals_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878.interval_list",
+  "IlluminaGenotypingArray.control_sample_vcf_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.vcf.gz",
+  "IlluminaGenotypingArray.control_sample_vcf_index_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.vcf.gz.tbi",
+  "IlluminaGenotypingArray.control_sample_intervals_file" : "gs://pd-test-storage-public/IlluminaGenotypingArray/input/scientific/controldata/NA12878.interval_list",
   "IlluminaGenotypingArray.control_sample_name" : "NA12878",
   "IlluminaGenotypingArray.disk_size": 100,
 

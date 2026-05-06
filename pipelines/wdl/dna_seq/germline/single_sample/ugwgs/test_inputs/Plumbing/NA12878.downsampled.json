@@ -1,5 +1,5 @@
 {
-    "UltimaGenomicsWholeGenomeGermline.input_cram_list": ["gs://broad-gotc-test-storage/germline_single_sample/ugwgs/plumbing/crams/downsampled_NA12878.cram"],
+    "UltimaGenomicsWholeGenomeGermline.input_cram_list": ["gs://pd-test-storage-public/UltimaGenomicsWholeGenomeGermline/input/plumbing/NA12878.downsampled/downsampled_NA12878.cram"],
     "UltimaGenomicsWholeGenomeGermline.base_file_name": "downsampled_NA12878",
     "UltimaGenomicsWholeGenomeGermline.contamination_sites": {
         "contamination_sites_vcf": "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/verify_bam_id/Homo_sapiens_assembly38.contam_fixed.vcf",

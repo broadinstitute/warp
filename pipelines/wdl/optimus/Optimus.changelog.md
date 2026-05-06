@@ -1,3 +1,20 @@
+# 8.0.7
+2026-04-21 (Date of Last Commit)
+
+* Updated shared task dependencies to include a non-functional CalculateUMIsMetrics disk override change; this does not affect Optimus outputs
+
+# 8.0.6
+2026-02-24 (Date of Last Commit)
+
+* Added 1 new output to Optimus.wdl: whitelist_input_used; this output indicates the whitelist used. This change is provenance-only and introduces no functional changes to pipeline outputs
+* Added whitelist provenance tracking to OptimusH5adGeneration and SingleNucleusOptimusH5adOutput by storing the whitelist path in the h5ad unstructured metadata (.uns). This change is provenance-only and introduces no functional changes to pipeline outputs
+
+# 8.0.5
+2026-01-22 (Date of Last Commit)
+
+* Added a new, defaulted input cellbender_memory_GB to Optimus; this does not affect the outputs of the pipeline
+* Added a task level input, mem_size, to StarSoloFastq to expose memory settings; this does not affect the outputs of this pipeline 
+
 # 8.0.4
 25-07-31 (Date of Last Commit)
 

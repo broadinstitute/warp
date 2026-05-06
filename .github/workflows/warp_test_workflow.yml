@@ -211,6 +211,7 @@ jobs:
           done
 
           echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash after 15 minutes of retries!"
+          
           exit 1
         env:
           GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
@@ -251,19 +252,18 @@ jobs:
           TEST_TYPE="${{ env.testType }}"
           INPUTS_DIR="${{ inputs.pipeline_dir }}/test_inputs/$TEST_TYPE"
           echo "Running tests with test type: $TEST_TYPE"
-
-          TRUTH_PATH="gs://broad-gotc-test-storage/${{ inputs.dockstore_pipeline_name }}/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
-          echo "Truth path: $TRUTH_PATH"
           
           RESULTS_PATH="gs://pd-test-results/${{ inputs.dockstore_pipeline_name }}/results/$CURRENT_TIME"
 
+
           # Submit all jobs first and store their submission IDs
           for input_file in "$INPUTS_DIR"/*.json; do
-            test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path "$TRUTH_PATH" \
+            test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py \
                 --results_path "$RESULTS_PATH" \
                 --inputs_json "$input_file" \
                 --update_truth "$UPDATE_TRUTH_BOOL" \
-                --branch_name "$BRANCH_NAME" )
+                --branch_name "$TRUTH_BRANCH" \
+                --dockstore_pipeline_name "${{ inputs.dockstore_pipeline_name }}" )
             echo "Uploading the test input file: $test_input_file"
 
             # Create the submission_data.json file for this input_file

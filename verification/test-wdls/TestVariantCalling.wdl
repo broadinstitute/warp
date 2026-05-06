@@ -70,7 +70,6 @@ workflow TestVariantCalling {
         skip_reblocking = skip_reblocking,
         use_dragen_hard_filtering = use_dragen_hard_filtering,
         cloud_provider = cloud_provider
-  
     }
 
     

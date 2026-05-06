@@ -107,6 +107,8 @@ The Multiome workflow calls two WARP subworkflows, one external subworkflow (opt
 | Output variable name | Filename, if applicable | Output format and description |
 |--- | --- | --- | 
 | multiome_pipeline_version_out | N.A. | String describing the version of the Multiome pipeline used. |
+| gex_whitelist_used | `gex_whitelist_input.txt` | File describing the whitelist used for the Optimus pipeline |
+| atac_whitelist_used | `atac_whitelist_input.txt` | File describing the whitelist used for the ATAC pipeline |
 | bam_aligned_output_atac | `<input_id>_atac.bam` | BAM file containing aligned reads from ATAC workflow. |
 | fragment_file_atac | `<input_id>_atac.fragments.sorted.tsv.gz` | Sorted and bgzipped TSV file containing fragment start and stop coordinates per barcode. The columns are "Chromosome", "Start", "Stop", "ATAC Barcode", "Number of reads", and "GEX Barcode". | 
 | fragment_file_index |  `<input_id>_atac.fragments.sorted.tsv.gz.csi` | Tabix CSI index file for the fragment file. |
@@ -139,6 +141,16 @@ The Multiome workflow calls two WARP subworkflows, one external subworkflow (opt
 | cellbybin_h5ad_file | h5ad | Cell by bin matrix produced by SnapATAC2 peak calling. This matrix contains (unmerged) peaks in the MACS3 unstructured metadata (adata.uns['MACS3']). The matrix consists of insertion counts per 500 bp genomic bin and cell barcode. |
 | cellbypeak_h5ad_file | h5ad | Cell by peak matrix produced by SnapATAC2 peak calling. This matrix contains insertion counts per (merged) peak coordinates and per cell barcode. | 
 
+**Provenance metadata (whitelist):** The v6.1.5 Multiome pipeline now records the barcode whitelist used during processing in the .uns metadata of both GEX and ATAC h5ad outputs.. This is a provenance-only update and does not alter any counts, metrics, or downstream results.
+
+You can inspect the whitelist file path in Python as follows:
+
+```python
+import anndata
+
+adata = anndata.read_h5ad("<file_name>.h5ad")
+print(adata.uns["whitelists"])
+```
 
 
 ## Versioning and testing

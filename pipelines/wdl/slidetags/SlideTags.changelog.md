@@ -1,3 +1,26 @@
+# 1.0.9
+2026-04-21 (Date of Last Commit)
+
+* Updated PairedTag to align with upstream task dependency changes; this does not affect the outputs of the pipeline
+
+# 1.0.8
+2026-02-24 (Date of Last Commit)
+
+* Added 2 new outputs to Multiome.wdl: gex_whitelist_used and atac_whitelist_used; these outputs indicate the whitelist used for the gene expression and ATAC pipelines, respectively. This change is provenance-only and introduces no functional changes to pipeline outputs
+* Added whitelist provenance tracking to JoinMultiomeBarcodes by storing the GEX and ATAC whitelist paths in the h5ad unstructured metadata (.uns). This change is provenance-only and introduces no functional changes to pipeline outputs
+
+# 1.0.7
+2026-01-26 (Date of Last Commit)
+
+* Moved inputs into new Google buckets. This change does not affect the outputs of the pipeline
+* Added an optional input, billing_project, to specify a billing project when accessing files in a requester pays bucket. This change does not affect the outputs of the pipeline
+
+# 1.0.6
+2026-01-22 (Date of Last Commit)
+
+* Added a new, defaulted input cellbender_memory_GB to Optimus; this does not affect the outputs of this pipeline
+* Added a task level input, mem_size, to StarSoloFastq to expose memory settings; this does not affect the outputs of this pipeline
+
 # 1.0.5
 2025-10-24 (Date of Last Commit)
 

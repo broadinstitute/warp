@@ -3,12 +3,12 @@ workflows:
 
   - name: aggregate_rsem_results
     subclass: WDL
-    primaryDescriptorPath: /all_of_us/rna_seq/aggregate_rsem_results.wdl
-  
+    primaryDescriptorPath: /all_of_us/rna_seq/GTEx/aggregate_rsem_results.wdl
+ 
   - name: AggregateSusieWorkflow
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/AggregateSusieWorkflow.wdl
-  
+
   - name: ArrayImputationQuotaConsumed
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/arrays/imputation_beagle/ArrayImputationQuotaConsumed.wdl
@@ -22,14 +22,32 @@ workflows:
     primaryDescriptorPath:
       /pipelines/wdl/atac/atac.wdl
 
+  - name: Beagle5Phasing
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/phasing/Beagle5Phasing.wdl
+
   - name: BuildIndices
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/build_indices/BuildIndices.wdl
 
+  
+  - name: calculateAF
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/calculateAF.wdl
+  
+  
+  - name: calulateGenotypeDosage
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/calculateGenotypeDosage.wdl
+  
   - name: CalculatePhenotypeGroups
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/CalculatePhenotypeGroups.wdl
-  
+
+  - name: convert_vcf_to_plink_bed
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/admixture/convert_vcf_to_plink_bed.wdl
+
   - name: CramToUnmappedBams
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
@@ -50,6 +68,11 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/exome/ExomeReprocessing.wdl
 
+  
+  - name: FilterMTAndExportToVCF
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/MTtoVCF/FilterMTAndExportToVCF.wdl
+  
   - name: FilterandQCVariants
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
@@ -57,6 +80,22 @@ workflows:
   - name: FixItFelixAndVariantCall
     subclass: WDL
     primaryDescriptorPath: /all_of_us/cmrg/FixItFelixAndVariantCall.wdl
+
+  - name: Glimpse2LowPassImputation
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputation.wdl
+
+  - name: Glimpse2LowPassImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/input_qc/Glimpse2LowPassImputationQC.wdl
+
+  - name: Glimpse2LowPassImputationQuotaConsumed
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationQuotaConsumed.wdl
+
+  - name: get_wgs_median_coverage
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/mitochondria/get_wgs_median_coverage.wdl
 
   - name: GvsAoUReblockGvcf
     subclass: WDL
@@ -85,23 +124,27 @@ workflows:
   - name: leafcutter_bam_to_junc
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_bam_to_junc.wdl
-  
+
   - name: leafcutter_cluster
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/leafcutter_cluster.wdl
-    
+
   - name: LocalizeAndConcatStargazer
     subclass: WDL
     primaryDescriptorPath: /all_of_us/pgx/LocalizeAndConcatStargazer.wdl
-  
+
   - name: MakeTable
     subclass: WDL
     primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
-    
+
   - name: mitochondria_pipeline
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/mitochondria_pipeline.wdl
 
+  - name: MitoPostProcessing
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/mitochondria/MitoPostProcessing.wdl
+  
   - name: mt_coverage_merge
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/mt_coverage_merge.wdl
@@ -128,26 +171,34 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/peak_calling/PeakCalling.wdl
 
+  
+  - name: PrepareGenotypes
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/PrepareGenotypes.wdl
+  
   - name: ReblockGVCF
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl
 
   - name: rnaseq_aou
     subclass: WDL
-    primaryDescriptorPath: /all_of_us/rna_seq/rnaseq_aou.wdl
+    primaryDescriptorPath: /all_of_us/rna_seq/GTEx/rnaseq_aou.wdl
 
   - name: RNAWithUMIsPipeline
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/rna_seq/RNAWithUMIsPipeline.wdl
-  
+
   - name: run_preprocess_admixture_est_rye
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/run_preprocess_admixture_est_rye.wdl
   
+  - name: run_admixture
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/admixture/run_admixture.wdl
   - name: run_admixture_est_rye
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/run_admixture_est_rye.wdl
-  
+
   - name: run_ancestry
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_ancestry.wdl
@@ -155,7 +206,7 @@ workflows:
   - name: run_relatedness
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_relatedness.wdl
-  
+
   - name: run_sample_outlier_qc
     subclass: WDL
     primaryDescriptorPath: /all_of_us/ancestry/run_sample_outlier_qc.wdl
@@ -189,15 +240,23 @@ workflows:
 
     primaryDescriptorPath: /beta-pipelines/broad/Utilities/SplitMultisampleVCF/SplitMultisampleVCF.wdl
     readMePath: /beta-pipelines/broad/Utilities/SplitMultisampleVCF/README.md
-  
+
   - name: StargazerFromJointVCF
     subclass: WDL
     primaryDescriptorPath: /all_of_us/pgx/StargazerFromJointVCF.wdl
-  
+
+  - name: SubsetPhasedVcfsForFLARE
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/local_ancestry/SubsetPhasedVcfsForFLARE.wdl
 
   - name: SusieR_Workflow
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/susieR_workflow.wdl
+  
+  - name: tensorqtl_cis_permutations
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/tensorQTL_cis_permutations/tensorqtl_cis_permutations.wdl
+  
   
   - name: TestArrayImputationQC
     subclass: WDL
@@ -218,6 +277,10 @@ workflows:
   - name: TestExomeReprocessing
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestExomeReprocessing.wdl
+
+  - name: TestGlimpse2LowPassImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestGlimpse2LowPassImputationQC.wdl
 
   - name: TestIlluminaGenotypingArray
     subclass: WDL
@@ -326,3 +389,11 @@ workflows:
   - name: WholeGenomeReprocessing
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/wgs/WholeGenomeReprocessing.wdl
+
+  - name: scANVI
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/scanvi/scANVI.wdl
+
+  - name: TestCudaGPU
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/scanvi/test_cuda.wdl

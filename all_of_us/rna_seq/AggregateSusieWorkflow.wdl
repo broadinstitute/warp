@@ -10,6 +10,7 @@ task AggregateSusie{
     }
 
     command <<<
+    set -euo pipefail
     export GSUTIL_PARALLEL_PROCESS_COUNT=32
     export GSUTIL_PARALLEL_THREAD_COUNT=8
 
@@ -60,6 +61,7 @@ task AnnotateSusie {
 
     }
     command <<<
+    set -euo pipefail
     Rscript /tmp/annotate_susie_data.R \
         --OutputPrefix ~{OutputPrefix} \
         --GencodeGTF ~{GencodeGTF} \
@@ -106,7 +108,7 @@ workflow AggregateSusieWorkflow {
 
     }
  
-    String pipeline_version = "aou_9.0.1"
+    String pipeline_version = "aou_9.0.2"
     
     call AggregateSusie {
         input:
