@@ -1,10 +1,6 @@
 # 3.0.0
 2026-04-02 (Date of Last Commit)
 
-* Fixed a bug in the Optimus pipeline affecting runs with counting_mode = sn_rna and count_exons = true (non-default settings) where all count matrices (NPZ and h5ad) incorrectly contained exon-only counts in both h5ad layers; the pipeline now correctly captures full-transcript gene counts (introns + exons) and exon-only gene counts as separate layers
-
-* Data processed in 'sc_rna' counting mode or in 'sn_rna' counting mode (default) with 'count_exons = false' (default) are unaffected by this bug
-
 * Removed the `count_exons` input from the PairedTag workflow following its removal from Optimus v9.0.0. Default behavior is unchanged (the default was `false`).
 
 # 2.1.11

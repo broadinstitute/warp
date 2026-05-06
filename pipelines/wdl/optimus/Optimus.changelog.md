@@ -1,13 +1,7 @@
 # 9.0.0
 2026-04-02 (Date of Last Commit)
 
-* Fixed a bug affecting runs with counting_mode = sn_rna and count_exons = true (non-default settings) where all count matrices (NPZ and h5ad) incorrectly contained exon-only counts in both h5ad layers; the pipeline now correctly captures full-transcript gene counts (introns + exons) and exon-only gene counts as separate layers
-
-* Data processed in 'sc_rna' counting mode (default) or in 'sn_rna' counting mode with 'count_exons = false' (default) are unaffected by this bug
-
-* Added a new multiome scientific test input for the 'sn_rna' + 'count_exons = true' configuration to prevent regressions
-
-* Removed the `count_exons` parameter and feature entirely; the previously-broken exon-counts layer is no longer produced. The bug fix above is superseded: sn_rna mode now always emits a single whole-transcript count matrix (`GeneFull_Ex50pAS`). Removed the corresponding `*_sn_rna` / `*_exon` outputs from STARsoloFastq.
+* Removed the `count_exons` parameter and feature entirely; the previously-broken exon-counts layer is no longer produced. `sn_rna` mode now always emits a single whole-transcript count matrix (`GeneFull_Ex50pAS`). Removed the corresponding `*_sn_rna` / `*_exon` outputs from STARsoloFastq.
 
 * Refactored `STARsoloFastq` to compute STAR parameters (`umi_len`, `cb_len`, `solo_features`, `solo_directory`) at the workflow level rather than inside bash. The `chemistry` task input was replaced with explicit `umi_len` and `cb_len` inputs. Added validation of `star_strand_mode` to `checkOptimusInput`. Parameterized the per-matrix output prefix (`OUTPUT_BASE`) so the `star_metrics.tar` artifact name is unique per matrix and no longer overwritten on subsequent matrix processing.
 # 8.0.7
