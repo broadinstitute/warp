@@ -55,92 +55,93 @@ The Mitochondria Pipeline processes mtDNA data from whole-genome sequencing (WGS
 
 ### Overview
 
-The workflow takes in a TSV file containing sample names, as well as output metrics and output files files from the Mitochondria Pipeline workflow. Its goal is to produce a final, comprehensively annotated mitochondrial variant callset. It does this by:
-- Preparing a master sample information file.
-- Merging all individual coverage files into a single coverage dataset.
-- Merging all individual VCF files, using the coverage data to improve accuracy.
-- Running an extensive annotation and QC process on the final merged VCFs.
+The `mt_coverage_merge` workflow takes per-sample mtDNA VCF files and coverage metrics produced by the Mitochondria Pipeline and merges them into a single annotated cohort-wide callset. The pipeline is designed to scale to hundreds of thousands of samples.
 
-A key feature of this pipeline is that the final annotation step is run twice in parallel: once keeping all samples (`annotated`) and once filtering out low-quality samples (`filt_annotated`), producing two distinct final outputs.
+The workflow proceeds in the following stages:
+1. **(Optional) Sample subsetting** — filter the input data table to a specific sample list
+2. **TSV preprocessing** — join auxiliary metadata (ancestry, age, WGS coverage) into a master sample sheet
+3. **Coverage DB construction** — build an HDF5 coverage database from per-sample coverage files
+4. **VCF ingestion (sharded + merged)** — import per-sample VCFs in parallel shards and merge via a multi-round fan-in tree
+5. **Finalization (sharded)** — impute homoplasmic-reference genotypes from the coverage DB and apply artifact filters, run in parallel across sample shards
+6. **Annotation** — add cohort-wide variant statistics, QC filters, and population/haplogroup allele frequencies; run twice in parallel (all samples and QC-filtered samples)
 
-### Task: `subset_data_table`
-- **Purpose**: This is an optional first step that filters the input sample TSV (containing output metrics from the Mitochondria Pipeline) to only include a specific list of desired samples.
-- **Inputs**:
-- `full_data_tsv`: The input TSV containing information for all samples, including paths to their VCF and coverage files produced by the Mitochondria Pipeline
-  - `sample_list_tsv` (Optional): A simple text file with one column of sample IDs to keep.
+### Inputs
 
-- **Transformation**:
-  - A simple Python script using pandas reads both files.
-  - It filters the `full_data_tsv` to keep only the rows whose sample ID is present in the `sample_list_tsv`.
-  - If `sample_list_tsv` is not provided, it simply passes the `full_data_tsv` through unchanged.
+| Input | Type | Description |
+|---|---|---|
+| `full_data_tsv` | File | Per-sample data table with paths to VCF and coverage files from the Mitochondria Pipeline |
+| `sample_list_tsv` | File? | Optional list of sample IDs to subset to |
+| `coverage_tsv` | File | Supplementary QC metrics (mean WGS coverage, contamination, collection date) |
+| `ancestry_tsv` | File | Predicted genetic ancestry per sample |
+| `dob_tsv` | File | Date of birth per sample |
+| `wgs_median_coverage_tsv` | File | WGS median coverage per sample |
+| `step3_output_bucket` | String | GCS bucket for intermediate MT tarballs |
+| `annotated_output_bucket` | String | GCS bucket for final annotated outputs |
+| `vcf_col_name` | String | Column name in the data table containing the VCF path (default: `final_vcf`) |
+| `combined_mt_name` | String | Name for the combined output MT (default: `combined_vcf`) |
 
-- **Output**:
-  - `subset_tsv`: A new TSV file containing data for only the selected samples.
+Key sharding parameters (with defaults):
 
-### Task: `process_tsv_files`
-- **Purpose**: To perform data wrangling by merging several different information sources into a single, clean, master sample sheet that the downstream Hail scripts can use.
+| Parameter | Default | Description |
+|---|---|---|
+| `step3_shard_size` | 2,500 | Samples per VCF ingest shard |
+| `step3_merge_fanin` | 10 | Merge fan-in per round |
+| `step3_shard_n_partitions` | 192 | Hail partitions per shard MT |
+| `finalize_shard_size` | 25,000 | Samples per finalize shard |
+| `finalize_shard_n_partitions` | 256 | Hail partitions per finalize shard MT |
+| `finalize_union_n_partitions` | 1,000 | Hail partitions for the final unioned MT |
 
-- **Inputs**:
-  - `input_tsv`: The (potentially subsetted) data table from the previous step.
-  - `coverage_tsv`: A supplementary file containing QC metrics like mean sequencing coverage.
-  - `ancestry_tsv`: A file with the predicted genetic ancestry for each sample.
-  - `dob_tsv`: A file with the date of birth for each sample.
+### Outputs
 
-- **Transformation**:
-  - This task runs a pandas script to join these four files together based on the sample ID.
-  - It renames columns to match the expected format for the Hail scripts (e.g., `ancestry_pred` becomes `pop`).
-  - It calculates a new `age` column by subtracting the date of birth from the biosample collection date.
+| Output | Type | Description |
+|---|---|---|
+| `processed_tsv` | File | Master sample sheet after metadata joins |
+| `output_coverage_db` | File | `coverage_db.tar.gz` — HDF5 coverage database + summary TSV |
+| `combined_vcf` | File | `tar.gz` of the finalized, unioned cohort MatrixTable |
+| `annotated_output_gcs_path` | String | GCS path to annotated outputs (all samples) |
+| `filt_annotated_output_gcs_path` | String | GCS path to annotated outputs (QC-filtered samples only) |
 
-- **Output**:
-  - `processed_tsv`: A single, master TSV file with all the necessary columns (`s`, `coverage`, `final_vcf`, `pop`, `age`, etc.) for the main pipeline.
+---
 
-### Task: `annotate_coverage`
-- **Purpose**: To merge all the individual per-base coverage files into a single, unified Hail MatrixTable.
-- **Inputs**:
-  - `input_tsv`: The master processed_tsv from the previous step, which contains the paths to each sample's coverage file.
+### Tasks
 
-- **Transformation**:
-  - This task calls the `annotate_coverage.py` script. 
-  - This script performs the scalable, **hierarchical merge** of all the individual coverage files listed in the input TSV. 
-  - After merging, it calculates summary statistics across all samples, such as the mean and median coverage at each base of the mitochondrial genome. 
-  - Finally, it archives the resulting Hail MatrixTable into a compressed tarball (`.tar.gz`).
+#### `subset_data_table` *(optional)*
+Filters `full_data_tsv` to only the rows matching sample IDs in `sample_list_tsv`. If no sample list is provided, the full table is passed through unchanged.
 
-- **Output**:
-  - `output_ht`: A `tar.gz` archive containing the final combined coverage MatrixTable.
+#### `process_tsv_files`
+Joins the sample data table with `coverage_tsv`, `ancestry_tsv`, `dob_tsv`, and `wgs_median_coverage_tsv` on sample ID. Renames and derives columns: `ancestry_pred` → `pop`, collection date − date of birth → `age`. The output `processed_tsv` is used as the master sample sheet for all downstream tasks.
 
-### Task: `combine_vcfs`
-- **Purpose**: To merge all individual sample VCF files into a single, combined MatrixTable, using the coverage data for improved accuracy.
-- **Inputs**:
-  - `input_tsv`: The master `processed_tsv`, which contains the paths to each sample's VCF file.
-  - `coverage_mt_tar`: The compressed coverage MatrixTable produced by the `annotate_coverage` task.
+#### `annotate_coverage`
+Builds an HDF5 coverage database (`coverage.h5`) from the per-sample coverage files listed in `processed_tsv`. Per-position summary statistics (mean, median, fraction over 100× and 1000×) are computed using numpy. Outputs `coverage_db.tar.gz` containing `coverage.h5` and `coverage_summary.tsv`.
+- **Docker**: `aou-mito-coverage-db:1.0.0`
 
-- **Transformation**:
-  - This task calls the `combine_vcfs.py` script.
-  - It first unzips the coverage MatrixTable so it can be read by Hail.
-  - The Python script then performs the **hierarchical merge** of all the individual VCF files.
-  - Critically, it uses the unzipped coverage data to accurately distinguish between sites with no variation (homoplasmic reference) and sites with low sequencing depth (missing data).
-  - The resulting merged VCF MatrixTable is archived into a `.tar.gz` file.
+#### `make_vcf_shards_from_tsv`
+Partitions the sample list into TSV shards of `step3_shard_size` samples each, producing one TSV file per shard.
 
-- **Output**:
-  - `results_tar`: A `tar.gz` archive containing the combined VCF MatrixTable.
+#### `build_vcf_shard_mt` *(scattered)*
+Imports one shard of per-sample VCF files into a Hail MatrixTable, writes it as a `.tar.gz` to `step3_output_bucket`, and returns the GCS path.
+- **Docker**: `aou-mito-hail-processing:1.0.0`
 
-### Task: `add_annotations` (called as `annotated` and `filt_annotated`)
-- **Purpose**: To perform the final, extensive annotation and quality control of the combined VCF callset.
-- **Inputs**:
-  - `vcf_mt`: The compressed VCF MatrixTable from the `combine_vcfs` task.
-  - `coverage_mt`: The compressed coverage MatrixTable from the `annotate_coverage` task.
-  - `coverage_tsv`: The master `processed_tsv`, which is used here to provide sample-level QC stats.
-  - `keep_all_samples`: A boolean flag that is the key difference between the two calls.
+#### `make_mt_merge_groups` + `merge_mt_shards` *(3 rounds, scattered)*
+Merges shard MTs in a multi-round fan-in tree (`step3_merge_fanin = 10`). Each round groups the current MT tarballs and merges each group via `multi_way_union_mts`. Three rounds reduce ~200+ shards to a single merged MT. Intermediate tarballs are stored in `step3_output_bucket`.
+- **Docker**: `aou-mito-hail-processing:1.0.0`
 
-- **Transformation**:
-  - This task calls the comprehensive `add_annotations.py` script. It first unzips the input VCF and coverage MatrixTables.
-  - The script then adds dozens of annotations, including:
-    - Allele frequencies (overall, per-population, per-haplogroup). 
-    - Pathogenicity predictions for tRNA variants. 
-    - Quality control filters (`indel_stack`, `common_low_heteroplasmy`, etc.). 
-  - The transformation depends on the `keep_all_samples` flag:
-    - `annotated` call (`keep_all_samples = true`): The script calculates all QC metrics but does not remove any samples. 
-    - `filt_annotated` call (`keep_all_samples = false`): The script removes samples that fail QC filters for contamination, copy number, etc.
+#### `shard_mt_by_samples`
+Splits the fully merged MT into per-sample-shard MT tarballs of `finalize_shard_size` samples each, stored in `step3_output_bucket`.
+- **Docker**: `aou-mito-hail-processing:1.0.0`
 
-- **Output**:
-  - `annotated_output_tar` / `filt_annotated_output_tar`: Two separate `.tar.gz` archives, each containing a complete set of output files (MatrixTables, VCFs, text files) for the respective analysis—one with all samples included, and one with only the QC-passed samples.
+#### `finalize_mt_with_covdb` *(scattered)*
+For each sample shard: reads the shard MT and the HDF5 coverage DB, imputes homoplasmic-reference genotypes (missing entries where coverage exceeds threshold are set to hom-ref), and applies the artifact-prone site filter. Processes positions in blocks to avoid repeated full-matrix scans. Outputs a finalized shard MT tarball.
+- **Docker**: `aou-mito-hail-processing:1.0.0`
+
+#### `union_mt_shards`
+Unions all finalized sample-shard MTs into a single cohort-wide MT via `union_cols`, writes the result as a tarball to `step3_output_bucket`.
+- **Docker**: `aou-mito-hail-processing:1.0.0`
+
+#### `add_annotations` *(called twice: `annotated` and `filt_annotated`)*
+Runs `add_annotations.py` on the final unioned MT to add cohort-wide variant statistics, per-population and per-haplogroup allele frequencies, QC filters, and pathogenicity annotations. Called twice in parallel:
+- `annotated` (`keep_all_samples = true`): all samples retained
+- `filt_annotated` (`keep_all_samples = false`): samples failing QC (contamination, copy number, etc.) removed
+
+Outputs are written directly to timestamped subdirectories under `annotated_output_bucket`.
+- **Docker**: `aou-mito-hail-processing:1.0.0`
