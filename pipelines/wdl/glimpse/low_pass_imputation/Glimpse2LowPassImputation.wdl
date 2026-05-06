@@ -53,9 +53,9 @@ workflow Glimpse2LowPassImputation {
         }
     }
 
-    Array[String] crams_to_use = select_first([crams, ConvertCramManifestToInputArrays.crams])
-    Array[String] cram_indices_to_use = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices])
-    Array[String] sample_ids_to_use = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids])
+    Array[String] crams_to_use = select_first([crams, ConvertCramManifestToInputArrays.crams, []])
+    Array[String] cram_indices_to_use = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices, []])
+    Array[String] sample_ids_to_use = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids, []])
 
     call Glimpse2LowPassImputationBatch.SplitIntoBatches as SplitIntoSampleBatches {
         input:
