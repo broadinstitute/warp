@@ -18,7 +18,7 @@ task OptimusH5adGeneration {
     # gene annotation file in GTF format
     File annotation_file
     File? cellbarcodes
-    File? library_metrics
+    File? input_library_metrics
    # the file "merged-cell-metrics.csv.gz" that contains the cellwise metrics
     File cell_metrics
     # the file "merged-gene-metrics.csv.gz" that contains the  genwise metrics
@@ -101,7 +101,7 @@ task OptimusH5adGeneration {
      --gex_h5ad "~{input_id}.h5ad" \
      --cellbarcodes ~{cellbarcodes} \
      ~{"--gex_nhash_id " + gex_nhash_id} \
-     --library_csv ~{library_metrics} \
+     --library_csv ~{input_library_metrics} \
      --input_id ~{input_id} \
      --counting_mode ~{counting_mode} \
      --expected_cells ~{expected_cells}
@@ -170,7 +170,7 @@ task SingleNucleusOptimusH5adOutput {
         # file (.npy) that contains the array of gene names
         File gene_id_exon
         # library-level metrics
-        File? library_metrics
+        File? input_library_metrics
         # Cell calls from starsolo in TSV format
         File? cellbarcodes
         String gtf_path = annotation_file
@@ -222,7 +222,7 @@ task SingleNucleusOptimusH5adOutput {
         --gex_h5ad "~{input_id}.h5ad" \
         --cellbarcodes ~{cellbarcodes} \
         ~{"--gex_nhash_id " + gex_nhash_id} \
-        --library_csv ~{library_metrics} \
+        --library_csv ~{input_library_metrics} \
         --input_id ~{input_id} \
         --counting_mode ~{counting_mode} \
         --expected_cells ~{expected_cells}

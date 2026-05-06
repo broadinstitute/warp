@@ -144,7 +144,7 @@ workflow Testsnm3C {
                 test_unique_reads_cgn_extraction_allc_extract_array = GetUniqueReadsCgnExtractionAllcExtractArray.results_files,
                 truth_all_reads_3C_contacts_array = GetAllReads3CContactsArray.truth_files,
                 test_all_reads_3C_contacts_array = GetAllReads3CContactsArray.results_files,
-                done = CopyToTestResults.done
+                previous_done = CopyToTestResults.done
         }
     }
 }

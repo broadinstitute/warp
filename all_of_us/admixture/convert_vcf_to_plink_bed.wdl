@@ -9,7 +9,7 @@ workflow convert_vcf_to_plink_bed {
     }
     String pipeline_version = "aou_9.0.1"
 
-    call convert_vcf_to_plink_bed {
+    call convert_vcf_to_plink_bed_task {
         input:
             prefix=prefix,
             vcf=merged_vcf_shards,
@@ -17,12 +17,12 @@ workflow convert_vcf_to_plink_bed {
     }
 
     output {
-        File bed = convert_vcf_to_plink_bed.bed
-        File bim = convert_vcf_to_plink_bed.bim
-        File fam = convert_vcf_to_plink_bed.fam
+        File bed = convert_vcf_to_plink_bed_task.bed
+        File bim = convert_vcf_to_plink_bed_task.bim
+        File fam = convert_vcf_to_plink_bed_task.fam
     }
 }
-task convert_vcf_to_plink_bed {
+task convert_vcf_to_plink_bed_task {
     input {
         String prefix
         File vcf
@@ -44,7 +44,7 @@ task convert_vcf_to_plink_bed {
     runtime {
         docker: "mussmann/admixpipe:3.0"
         memory: "31 GB"
-        cpu: "4"
+        cpu: 4
         disks: "local-disk 500 HDD"
     }
 }

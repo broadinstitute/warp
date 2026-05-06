@@ -62,7 +62,7 @@ task leafcutter_cluster {
         docker: "us.gcr.io/broad-gotc-prod/leafcutter:1.0.0"
         memory: "~{memory}GB"
         disks: "local-disk ~{disk_space} HDD"
-        cpu: "~{num_threads}"
+        cpu: num_threads
         preemptible: "~{num_preempt}"
     }
 

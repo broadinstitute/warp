@@ -20,7 +20,7 @@ workflow Verifysnm3C {
         Array[File] test_all_reads_3C_contacts_array
         Array[File] truth_all_reads_3C_contacts_array
 
-        Boolean? done
+        Boolean? previous_done
     }
 
     call VerifyTasks.CompareCompressedTextFiles as CompareMappingSummaryMetrics {

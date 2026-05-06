@@ -1,18 +1,21 @@
+version 1.0
+
 task rnaseqc2 {
+    input {
+        File bam_file
+        File genes_gtf
+        String sample_id
+        String? strandedness
+        File? intervals_bed
+        File? reference_fasta
+        File? reference_fasta_index
+        String? flags
 
-    File bam_file
-    File genes_gtf
-    String sample_id
-    String? strandedness
-    File? intervals_bed
-    File? reference_fasta
-    File? reference_fasta_index
-    String? flags
-
-    Int memory
-    Int disk_space
-    Int num_threads
-    Int num_preempt
+        Int memory
+        Int disk_space
+        Int num_threads
+        Int num_preempt
+    }
 
     command {
         set -euo pipefail
@@ -38,7 +41,7 @@ task rnaseqc2 {
         docker: "gcr.io/broad-cga-francois-gtex/gtex_rnaseq:V10"
         memory: "${memory}GB"
         disks: "local-disk ${disk_space} HDD"
-        cpu: "${num_threads}"
+        cpu: num_threads
         preemptible: "${num_preempt}"
     }
 
