@@ -144,7 +144,7 @@ done
 - Import path errors are the most common validation failures
 
 ### Pipeline Version Management
-1. **Version Bump Rule**: Increment patch version (e.g., 1.2.3 → 1.2.4) once per branch/PR
+1. **Version Bump Rule**: Increment patch version (e.g., 1.2.3 → 1.2.4) at *most* once per branch/PR per merge from develop to staging.
 2. **Pipeline-Specific Updates**: Update version string in the WDL file
 3. **Master Tracking**: Update `pipeline_versions.txt` with new version and current date
 4. **Linked Versions**: Some pipelines reference sub-workflow versions (e.g., ImputationBeagle references ArrayImputationQuotaConsumed version)
