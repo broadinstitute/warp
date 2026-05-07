@@ -2,7 +2,6 @@ version 1.0
 
 import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
-import "../../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow Glimpse2LowPassImputation {
     String pipeline_version = "0.0.8"
@@ -39,13 +38,6 @@ workflow Glimpse2LowPassImputation {
         Int mem_gb_merge = 32 # TODO: this can be decreased by rewriting the RecomputeAndAnnotate to work in chunks instead of line by line
     }
 
-    if (!defined(crams) && !defined(cram_manifest)) {
-        call utils.ErrorWithMessage as ErrorMessageNoInput {
-            input:
-                message = "At least one type of input data must be provided: CRAM files (with corresponding CRAM index files and sample IDs) or a CRAM manifest."
-        }
-    }
-
     if (defined(cram_manifest)) {
         call Glimpse2LowPassImputationTasks.ConvertCramManifestToInputArrays {
             input:
@@ -53,9 +45,10 @@ workflow Glimpse2LowPassImputation {
         }
     }
 
-    Array[String] crams_to_use = select_first([crams, ConvertCramManifestToInputArrays.crams, []])
-    Array[String] cram_indices_to_use = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices, []])
-    Array[String] sample_ids_to_use = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids, []])
+    # if neither crams (and cram_indices and sample_ids) nor cram_manifest is provided the workflow will fail at runtime
+    Array[String] crams_to_use = select_first([crams, ConvertCramManifestToInputArrays.crams])
+    Array[String] cram_indices_to_use = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices])
+    Array[String] sample_ids_to_use = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids])
 
     call Glimpse2LowPassImputationBatch.SplitIntoBatches as SplitIntoSampleBatches {
         input:

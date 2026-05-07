@@ -371,6 +371,7 @@ task ConvertCramManifestToInputArrays {
         
         if missing_cols:
             print(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.", file=sys.stderr) 
+            exit(1)
         else:
             # Write to output files, stripping leading/trailing whitespace from each value
             write_column(df['sample_id'], sample_ids_filename)
