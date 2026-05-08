@@ -2,20 +2,19 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.1"
 
     input {
-        Array[String] contigs
-
-        # this is the directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
-        String reference_panel_prefix
-
+        # if multiple data types are provided, the workflow will prioritize cram_manifest first, then crams/cram_indices/sample_ids
         Array[File]? crams
         Array[File]? cram_indices
         Array[String]? sample_ids
         File? cram_manifest
         String output_basename
 
+        Array[String] contigs
+        # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
+        String reference_panel_prefix
         File fasta
         File fasta_index
         File ref_dict
@@ -46,9 +45,9 @@ workflow InputQC {
     Boolean do_cram_qc = select_first([ConvertCramManifestToInputArrays.passes_qc, !both_crams_and_manifest_supplied]) 
 
     if (do_cram_qc) {
-        Array[String] cram_array = select_first([crams, ConvertCramManifestToInputArrays.crams, []])
-        Array[String] cram_indices_array = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices, []])
-        Array[String] sample_ids_array = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids, []])
+        Array[String] cram_array = select_first([ConvertCramManifestToInputArrays.crams, crams, []])
+        Array[String] cram_indices_array = select_first([ConvertCramManifestToInputArrays.cram_indices, cram_indices, []])
+        Array[String] sample_ids_array = select_first([ConvertCramManifestToInputArrays.sample_ids, sample_ids, []])
 
         if (length(cram_array) > 0) {
             call ValidateCramsAndIndicesAndSampleIds {

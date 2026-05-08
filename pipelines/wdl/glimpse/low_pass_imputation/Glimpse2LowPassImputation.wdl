@@ -5,11 +5,11 @@ import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2Low
 
 workflow Glimpse2LowPassImputation {
     String pipeline_version = "0.0.8"
-    String quota_consumed_version = "0.0.1"
-    String input_qc_version = "1.0.0"
+    String quota_consumed_version = "0.0.2"
+    String input_qc_version = "1.0.1"
 
     input {
-        # if multiple data types are provided, the workflow will prioritize crams first, then cram_manifest
+        # if multiple data types are provided, the workflow will prioritize cram_manifest first, then crams/cram_indices/sample_ids
         Array[File]? crams
         Array[File]? cram_indices
         Array[String]? sample_ids
@@ -46,9 +46,9 @@ workflow Glimpse2LowPassImputation {
     }
 
     # if neither crams (and cram_indices and sample_ids) nor cram_manifest is provided the workflow will fail at runtime
-    Array[String] crams_to_use = select_first([crams, ConvertCramManifestToInputArrays.crams])
-    Array[String] cram_indices_to_use = select_first([cram_indices, ConvertCramManifestToInputArrays.cram_indices])
-    Array[String] sample_ids_to_use = select_first([sample_ids, ConvertCramManifestToInputArrays.sample_ids])
+    Array[String] crams_to_use = select_first([ConvertCramManifestToInputArrays.crams, crams])
+    Array[String] cram_indices_to_use = select_first([ConvertCramManifestToInputArrays.cram_indices, cram_indices])
+    Array[String] sample_ids_to_use = select_first([ConvertCramManifestToInputArrays.sample_ids, sample_ids])
 
     call Glimpse2LowPassImputationBatch.SplitIntoBatches as SplitIntoSampleBatches {
         input:

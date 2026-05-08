@@ -4,23 +4,21 @@ import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 
 workflow QuotaConsumed {
     # if this changes, update the quota_consumed_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.1"
+    String pipeline_version = "0.0.2"
 
     input {
-        Array[String] contigs
-
-        # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
-        String reference_panel_prefix
-
-        # service currently does not accept VCFs as input
+        # if multiple data types are provided, the workflow will prioritize cram_manifest first, then crams/cram_indices/sample_ids
         Array[File]? crams
         Array[File]? cram_indices
         Array[String]? sample_ids
         File? cram_manifest
-        File fasta
-        File fasta_index
         String output_basename
 
+        Array[String] contigs
+        # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
+        String reference_panel_prefix
+        File fasta
+        File fasta_index
         File ref_dict
     }
 

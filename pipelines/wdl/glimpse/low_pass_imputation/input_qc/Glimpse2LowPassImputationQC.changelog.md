@@ -1,3 +1,8 @@
+# 1.0.1
+2026-05-08 (Date of Last Commit)
+
+* Use cram_manifest if provided, falling back to crams/cram_indices/sample_ids input arrays
+
 # 1.0.0
 2026-04-15 (Date of Last Commit)
 

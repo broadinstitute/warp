@@ -1,3 +1,8 @@
+# 0.0.2
+2026-05-08 (Date of Last Commit)
+
+* Re-order inputs to be consistent with other WDLs.
+
 # 0.0.1
 2026-04-02 (Date of Last Commit)
 
