@@ -36,7 +36,6 @@ workflow Glimpse2LowPassImputation {
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
         String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:a0151730cefaaa9ef78b7f9644c63ebb00ce6cd470fa0d60349daa5eee020aec"
         String docker_merge = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
-        Int mem_gb_merge = 32 # TODO: this can be decreased by rewriting the RecomputeAndAnnotate to work in chunks instead of line by line
     }
 
     if (defined(cram_manifest)) {
@@ -112,8 +111,7 @@ workflow Glimpse2LowPassImputation {
                 annotations = ExtractAnnotations.annotations,
                 num_samples = batch_sample_count,
                 output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated",
-                docker_merge = docker_merge,
-                mem_gb = mem_gb_merge
+                docker_merge = docker_merge
         }
 
         # Now that the full cohort is merged and annotations are correct, split into variant-only and hom-ref-only
@@ -135,9 +133,9 @@ workflow Glimpse2LowPassImputation {
     Array[File] batch_coverage_metrics = select_all(RunBatch.coverage_metrics)
 
     if (length(batch_coverage_metrics) > 0) {
-        call Glimpse2LowPassImputationBatch.CombineCoverageMetrics as CombineBatchCoverageMetrics {
+        call Glimpse2LowPassImputationTasks.MergeCoverageMetrics as MergeBatchCoverageMetrics {
             input:
-                cov_metrics = batch_coverage_metrics,
+                coverage_metrics = batch_coverage_metrics,
                 output_basename = output_basename
         }
     }
@@ -186,6 +184,6 @@ workflow Glimpse2LowPassImputation {
         File imputed_hom_ref_sites_only_vcf_md5 = CreateVcfIndexAndMd5HomRefOnly.output_vcf_md5sum
 
         File qc_metrics = CollectQCMetrics.qc_metrics
-        File? coverage_metrics = CombineBatchCoverageMetrics.coverage_metrics
+        File? coverage_metrics = MergeBatchCoverageMetrics.merged_coverage_metrics
     }
 }
