@@ -124,39 +124,57 @@ task RecomputeAndAnnotate {
         String output_basename
 
         String docker_merge
-        Int disk_size_gb = ceil(2.2 * size(merged_vcf, "GiB") + 50)
-        Int mem_gb
+        Int disk_size_gb = ceil(2.2 * size(merged_vcf, "GiB") + size(annotations, "GiB") + 50)
+        Int mem_gb = 8
         Int cpu = 2
         Int preemptible = 1
     }
 
     command <<<
         cat <<EOF > script.py
-import pandas as pd
-import functools
+        import pandas as pd
+        import numpy as np
 
-input_filenames = ['~{sep="', '" annotations}']
-num_samples = [~{sep=", " num_samples}]
-if len(num_samples) != len(input_filenames):
-    raise RuntimeError('The number of input annotations does not match the number of input number of samples.')
-num_batches = len(input_filenames)
+        input_filenames = ['~{sep="', '" annotations}']
+        num_samples = [~{sep=", " num_samples}]
+        if len(num_samples) != len(input_filenames):
+        raise RuntimeError('The number of input annotations does not match the number of input number of samples.')
 
-def calculate_af(row):
-    return sum([row[f'AF_{i}'] * num_samples[i] for i in range(num_batches)]) / sum(num_samples)
-def calculate_info(row):
-    aggregated_af = row['AF']
-    return 1 if aggregated_af == 0 or aggregated_af == 1 else \
-                     1 - \
-                    (sum([(1 - row[f'INFO_{i}']) * 2 * num_samples[i] * row[f'AF_{i}'] * (1 - row[f'AF_{i}']) for i in range(num_batches)])) / \
-                    (2 * sum(num_samples) * aggregated_af * (1 - aggregated_af))
+        total_samples = sum(num_samples)
+        num_batches = len(input_filenames)
+        chunk_size = 100_000
 
-annotation_dfs = [pd.read_csv(input_filename, sep='\t').rename(columns={'AF': f'AF_{i}', 'INFO': f'INFO_{i}'}) for i, input_filename in enumerate(input_filenames)]
-annotations_merged = functools.reduce(lambda left, right: pd.merge(left, right, on=['CHROM', 'POS', 'REF', 'ALT'], how='inner', validate='one_to_one'), annotation_dfs)
-annotations_merged['AF'] = annotations_merged.apply(lambda row: calculate_af(row), axis=1)
-annotations_merged['INFO'] = annotations_merged.apply(lambda row: calculate_info(row), axis=1)
-annotations_merged.to_csv('aggregated_annotations.tsv', sep='\t', columns=['CHROM', 'POS', 'REF', 'ALT', 'AF', 'INFO'], header=False, index=False)
+        # Stream all annotation files in parallel chunks rather than loading everything into memory at once.
+        # This keeps memory usage proportional to chunk_size * num_batches rather than total_sites * num_batches.
+        readers = [pd.read_csv(f, sep='\t', chunksize=chunk_size) for f in input_filenames]
 
-EOF
+        with open('aggregated_annotations.tsv', 'w') as out:
+        for chunks in zip(*readers):
+        # Validate that all batches have identical sites for this chunk
+        ref_loci = chunks[0][['CHROM', 'POS', 'REF', 'ALT']].reset_index(drop=True)
+        for i, chunk in enumerate(chunks[1:], 1):
+        if not ref_loci.equals(chunk[['CHROM', 'POS', 'REF', 'ALT']].reset_index(drop=True)):
+        raise RuntimeError(f'Sites in chunk do not match between batch 0 and batch {i}. '
+        f'First mismatch at: {ref_loci[~ref_loci.eq(chunk[["CHROM","POS","REF","ALT"]].reset_index(drop=True)).all(axis=1)].head(1).to_dict("records")}')
+
+        # Vectorized weighted AF across batches
+        agg_af = sum(chunks[i]['AF'].values * num_samples[i] for i in range(num_batches)) / total_samples
+
+        # Vectorized weighted INFO across batches
+        numerator = sum(
+        (1 - chunks[i]['INFO'].values) * 2 * num_samples[i] * chunks[i]['AF'].values * (1 - chunks[i]['AF'].values)
+        for i in range(num_batches)
+        )
+        denominator = 2 * total_samples * agg_af * (1 - agg_af)
+        # INFO is defined as 1 for monomorphic sites (AF == 0 or AF == 1)
+        agg_info = np.where((agg_af == 0) | (agg_af == 1), 1.0, 1 - numerator / denominator)
+
+        result = ref_loci.copy()
+        result['AF'] = agg_af
+        result['INFO'] = agg_info
+        result.to_csv(out, sep='\t', header=False, index=False)
+
+        EOF
         python3 script.py
 
         bgzip aggregated_annotations.tsv
@@ -241,8 +259,8 @@ task MergeCoverageMetrics {
         merged_coverage_metrics_array = [pd.read_csv(coverage_metric, sep='\t', dtype=all_types) for coverage_metric in coverage_metrics]
         id_offset = 0
         for cov_metric in merged_coverage_metrics_array:
-            cov_metric.ID += id_offset
-            id_offset = cov_metric.ID.max() + 1
+        cov_metric.ID += id_offset
+        id_offset = cov_metric.ID.max() + 1
         merged_coverage_metrics = pd.concat(merged_coverage_metrics_array).sort_values(['Chunk','ID'])
         merged_coverage_metrics.to_csv('~{output_basename}.coverage_metrics.txt', sep='\t', index=False)
         EOF
