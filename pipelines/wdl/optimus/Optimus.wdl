@@ -7,7 +7,7 @@ import "../../../tasks/wdl/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/wdl/CheckInputs.wdl" as OptimusInputChecks
 import "../../../tasks/wdl/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/wdl/Utilities.wdl" as utils
-import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender_no_cuda
+import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender_no_cuda # imported for Azure CellBender GPU workflow, which requires a different base image without CUDA drivers
 import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 
 workflow Optimus {
@@ -64,9 +64,6 @@ workflow Optimus {
 
     # Set to Forward, Reverse, or Unstranded to account for stranded library preparations (per STARsolo documentation)
     String star_strand_mode = "Forward"
-    
-    # Set to true to count reads aligned to exonic regions in sn_rna mode
-    Boolean count_exons = false
 
     # Set starsolo disk size as adjustable parameter
     # Int disk_starsolo
@@ -78,7 +75,7 @@ workflow Optimus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "8.0.7"
+  String pipeline_version = "9.0.0"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -147,7 +144,7 @@ workflow Optimus {
     input:
       force_no_check = force_no_check,
       counting_mode = counting_mode,
-      count_exons = count_exons,
+      star_strand_mode = star_strand_mode,
       gcp_whitelist_v2 = gcp_whitelist_v2,
       gcp_whitelist_v3 = gcp_whitelist_v3,
       azure_whitelist_v2 = azure_whitelist_v2,
@@ -165,6 +162,12 @@ workflow Optimus {
       ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
   }
 
+  # Compute STAR parameters at workflow level instead of bash conditionals in the task
+  Int umi_len = if tenx_chemistry_version == 2 then 10 else 12
+  Int cb_len = 16
+  String solo_features = if counting_mode == "sc_rna" then "Gene" else "GeneFull_Ex50pAS"
+  String solo_directory = if counting_mode == "sc_rna" then "Solo.out/Gene" else "Solo.out/GeneFull_Ex50pAS"
+
   call StarAlign.STARsoloFastq as STARsoloFastq {
       input:
         r1_fastq = r1_fastq,
@@ -172,9 +175,11 @@ workflow Optimus {
         star_strand_mode = star_strand_mode,
         white_list = whitelist,
         tar_star_reference = tar_star_reference,
-        chemistry = tenx_chemistry_version,
+        umi_len = umi_len,
+        cb_len = cb_len,
+        solo_features = solo_features,
+        solo_directory = solo_directory,
         counting_mode = counting_mode,
-        count_exons = count_exons,
         input_id = input_id,
         output_bam_basename = output_bam_basename,
         soloMultiMappers = soloMultiMappers,
@@ -210,56 +215,27 @@ workflow Optimus {
     }
   }
 
-  if (!count_exons) {
-    call H5adUtils.OptimusH5adGeneration{
-      input:
-        input_id = input_id,
-        gex_nhash_id = gex_nhash_id,
-        expected_cells = gex_expected_cells,
-        input_name = input_name,
-        input_id_metadata_field = input_id_metadata_field,
-        input_name_metadata_field = input_name_metadata_field,
-        annotation_file = annotations_gtf,
-        library_metrics = STARsoloFastq.library_metrics,
-        cellbarcodes = STARsoloFastq.outputbarcodes,
-        cell_metrics = CellMetrics.cell_metrics,
-        gene_metrics = GeneMetrics.gene_metrics,
-        sparse_count_matrix = STARsoloFastq.sparse_counts,
-        cell_id = STARsoloFastq.row_index,
-        gene_id = STARsoloFastq.col_index,
-        empty_drops_result = RunEmptyDrops.empty_drops_result,
-        counting_mode = counting_mode,
-        pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker,
-        gex_whitelist_gs_path = whitelist
-    }
-  }
-
-  if (count_exons  && counting_mode=="sn_rna") {
-    call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
-      input:
-        input_id = input_id,
-        gex_nhash_id = gex_nhash_id,
-        expected_cells = gex_expected_cells,
-        input_name = input_name,
-        counting_mode = counting_mode,
-        input_id_metadata_field = input_id_metadata_field,
-        input_name_metadata_field = input_name_metadata_field,
-        annotation_file = annotations_gtf,
-        library_metrics = STARsoloFastq.library_metrics,
-        cellbarcodes = STARsoloFastq.outputbarcodes,
-        cell_metrics = CellMetrics.cell_metrics,
-        gene_metrics = GeneMetrics.gene_metrics,
-        sparse_count_matrix = STARsoloFastq.sparse_counts,
-        cell_id = STARsoloFastq.row_index,
-        gene_id = STARsoloFastq.col_index,
-        sparse_count_matrix_exon = STARsoloFastq.sparse_counts,
-        cell_id_exon = STARsoloFastq.row_index,
-        gene_id_exon = STARsoloFastq.col_index,
-        pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker,
-        gex_whitelist_gs_path = whitelist
-    }
+  call H5adUtils.OptimusH5adGeneration {
+    input:
+      input_id = input_id,
+      gex_nhash_id = gex_nhash_id,
+      expected_cells = gex_expected_cells,
+      input_name = input_name,
+      input_id_metadata_field = input_id_metadata_field,
+      input_name_metadata_field = input_name_metadata_field,
+      annotation_file = annotations_gtf,
+      library_metrics = STARsoloFastq.library_metrics,
+      cellbarcodes = STARsoloFastq.outputbarcodes,
+      cell_metrics = CellMetrics.cell_metrics,
+      gene_metrics = GeneMetrics.gene_metrics,
+      sparse_count_matrix = STARsoloFastq.sparse_counts,
+      cell_id = STARsoloFastq.row_index,
+      gene_id = STARsoloFastq.col_index,
+      empty_drops_result = RunEmptyDrops.empty_drops_result,
+      counting_mode = counting_mode,
+      pipeline_version = "Optimus_v~{pipeline_version}",
+      warp_tools_docker_path = docker_prefix + warp_tools_docker,
+      gex_whitelist_gs_path = whitelist
   }
 
   # Call CellBender
@@ -296,9 +272,9 @@ workflow Optimus {
     }
   }
 
-  File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
-  File final_whitelist_input = select_first([OptimusH5adGenerationWithExons.whitelist_name_file, OptimusH5adGeneration.whitelist_name_file])
-  File final_library_metrics = select_first([OptimusH5adGenerationWithExons.library_metrics, OptimusH5adGeneration.library_metrics])
+  File final_h5ad_output = OptimusH5adGeneration.h5ad_output
+  File final_whitelist_input = OptimusH5adGeneration.whitelist_name_file
+  File final_library_metrics = OptimusH5adGeneration.library_metrics
 
   output {
     # version of this pipeline

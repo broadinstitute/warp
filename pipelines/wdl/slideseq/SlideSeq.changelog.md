@@ -1,4 +1,12 @@
 # 3.6.6
+2026-04-02 (Date of Last Commit)
+
+* Removed the Optimus `count_exons` parameter from the Optimus pipeline (Optimus v9.0.0). The `STARsoloFastqSlideSeq` task used by SlideSeq is unaffected and retains its existing behavior.
+
+* Refactored `STARsoloFastqSlideSeq` to receive `umi_len`, `cb_len`, and `solo_features` as inputs (computed at the workflow level via the new `ParseReadStructure` task) rather than parsing the read structure and computing the soloFeatures string in bash. Pipeline outputs are unchanged.
+
+* Replaced internal  `Boolean? count_exons` in `STARsoloFastqSlideSeq` with `String exon_solo_directory`; the workflow now passes a pre-computed directory path instead of a boolean, eliminating boolean logic from the task body. Pipeline inputs and outputs are unchanged.
+
 2026-04-21 (Date of Last Commit)
 
 * Added an optional disk_override input to the CalculateUMIsMetrics task to allow users to override the default disk size; this does not affect the outputs of the pipeline
