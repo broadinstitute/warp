@@ -128,6 +128,7 @@ task RecomputeAndAnnotate {
         Int mem_gb = 8
         Int cpu = 2
         Int preemptible = 1
+        Int chunk_size = 100000
     }
 
     command <<<
@@ -142,7 +143,7 @@ if len(num_samples) != len(input_filenames):
 
 total_samples = sum(num_samples)
 num_batches = len(input_filenames)
-chunk_size = 100_000
+chunk_size = ~{chunk_size}
 
 # Stream all annotation files in parallel chunks rather than loading everything into memory at once.
 # This keeps memory usage proportional to chunk_size * num_batches rather than total_sites * num_batches.
