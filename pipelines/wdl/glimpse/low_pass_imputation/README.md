@@ -149,16 +149,12 @@ Glimpse outputs three values in the info field:
 ## Glimpse2LowPassImputationQuotaConsumed summary
 
 The `QuotaConsumed` workflow computes submitted sample count for service quota accounting.  
-Quota is derived from either:
-
-- number of input CRAMs, or
-- number of CRAM entries found in a provided CRAM manifest.
+Quota is derived from number of CRAM entries found in the provided CRAM manifest.
 
 ## Glimpse2LowPassImputationQC summary
 
-The `InputQC` workflow validates CRAM-based inputs for GLIMPSE2 low-pass imputation. Checks include:
+The `InputQC` workflow validates CRAM-based inputs supplied by the `cram_manifest` for GLIMPSE2 low-pass imputation. Checks include:
 
-- exactly one input mode is provided: CRAM arrays or CRAM manifest
 - required manifest columns are present: `sample_id`, `cram_path`, `cram_index_path`
 - counts of CRAMs, CRAIs, and sample IDs match
 - sample IDs are unique
