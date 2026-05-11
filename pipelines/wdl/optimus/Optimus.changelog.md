@@ -1,3 +1,14 @@
+# 9.0.0
+2026-04-02 (Date of Last Commit)
+
+* Removed the `count_exons` parameter and feature entirely; the previously-broken exon-counts layer is no longer produced. `sn_rna` mode now always emits a single whole-transcript count matrix (`GeneFull_Ex50pAS`). Removed the corresponding `*_sn_rna` / `*_exon` outputs from STARsoloFastq.
+
+* Refactored `STARsoloFastq` to compute STAR parameters (`umi_len`, `cb_len`, `solo_features`, `solo_directory`) at the workflow level rather than inside bash. The `chemistry` task input was replaced with explicit `umi_len` and `cb_len` inputs. Added validation of `star_strand_mode` to `checkOptimusInput`. Parameterized the per-matrix output prefix (`OUTPUT_BASE`) so the `star_metrics.tar` artifact name is unique per matrix and no longer overwritten on subsequent matrix processing.
+# 8.0.7
+2026-04-21 (Date of Last Commit)
+
+* Updated shared task dependencies to include a non-functional CalculateUMIsMetrics disk override change; this does not affect Optimus outputs
+
 # 8.0.6
 2026-02-24 (Date of Last Commit)
 

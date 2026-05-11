@@ -115,6 +115,29 @@ def chunks(items, binsize):
         yield lst
 
 
+def union_rows_tree(mts: list[hl.MatrixTable], chunk_size: int = 8) -> hl.MatrixTable:
+    """Union MatrixTables by rows using a fan-in tree.
+
+    This avoids a long linear union chain and keeps DAG size manageable.
+
+    :param mts: List of MatrixTables to union.
+    :param chunk_size: Fan-in size per union stage.
+    :return: MatrixTable with all rows unioned.
+    """
+    if not mts:
+        raise ValueError("union_rows_tree requires at least one MatrixTable")
+    staging = list(mts)
+    while len(staging) > 1:
+        next_stage = []
+        for group in chunks(staging, chunk_size):
+            merged = group[0]
+            for mt in group[1:]:
+                merged = merged.union_rows(mt)
+            next_stage.append(merged)
+        staging = next_stage
+    return staging[0]
+
+
 def coverage_merging(paths, num_merges, chunk_size, check_from_disk, 
                      temp_dir, n_read_partitions, n_final_partitions, 
                      keep_targets, logger, no_batch_mode=False):
@@ -622,8 +645,8 @@ def determine_hom_refs_from_covdb(
     * Map each MT sample to its covdb row index.
     * Chunk MT positions into position blocks.
     * For each block, read coverage from HDF5 once and broadcast only that block.
-    * Update entries for rows in that block, leaving other rows untouched.
-    * Periodically checkpoint to avoid constructing an enormous IR from all blocks.
+    * Filter rows to the block, update entries only for those rows, and checkpoint.
+    * Union all block MTs using a fan-in tree to keep the DAG size manageable.
     """
     from generate_mtdna_call_mt.covdb_utils import open_covdb_index, read_covdb_block
     import numpy as np
@@ -688,9 +711,7 @@ def determine_hom_refs_from_covdb(
     pos_to_block_hl = hl.literal({int(np.int32(k)): int(np.int32(v)) for k, v in pos_to_block.items()})
     mt = mt.annotate_rows(__pos=hl.int32(mt.locus.position))
     mt = mt.annotate_rows(__block=hl.int32(pos_to_block_hl.get(mt.__pos)))
-    mt = mt.repartition(n_blocks, shuffle=True)
-
-    mt = mt.annotate_entries(__cov=hl.missing(hl.tint32))
+    block_mts: list[hl.MatrixTable] = []
 
     for block_id, block in enumerate(block_positions):
         block_id_i32 = int(np.int32(block_id))
@@ -714,47 +735,48 @@ def determine_hom_refs_from_covdb(
         pos_to_offset_hl = hl.literal(
             {int(np.int32(p)): int(np.int32(i)) for i, p in enumerate(block)}
         )
-        offset_expr = pos_to_offset_hl.get(mt.__pos)
+
+        mt_b = mt.filter_rows(mt.__block == block_id_i32)
+        offset_expr = pos_to_offset_hl.get(mt_b.__pos)
         cov_expr = hl.if_else(
             hl.is_defined(offset_expr),
-            cov_block_hl[hl.int32(offset_expr)][hl.int32(mt.__col_idx)],
+            cov_block_hl[hl.int32(offset_expr)][hl.int32(mt_b.__col_idx)],
             hl.missing(hl.tint32),
         )
 
-        mt = mt.annotate_entries(
-            __cov=hl.if_else(mt.__block == block_id_i32, cov_expr, mt.__cov)
+        mt_b = mt_b.annotate_entries(__cov=cov_expr)
+        mt_b = mt_b.annotate_entries(
+            DP=hl.if_else(hl.is_missing(mt_b.HL), mt_b.__cov, mt_b.DP)
         )
 
-        if (
-            checkpoint_interval_blocks > 0
-            and (block_id + 1) % checkpoint_interval_blocks == 0
-            and (block_id + 1) < n_blocks
-        ):
+        hom_ref_expr = hl.is_missing(mt_b.HL) & (mt_b.DP > minimum_homref_coverage)
+        mt_b = mt_b.annotate_entries(
+            HL=hl.if_else(hom_ref_expr, 0.0, mt_b.HL),
+            FT=hl.if_else(hom_ref_expr, {"PASS"}, mt_b.FT),
+            DP=hl.if_else(
+                hl.is_missing(mt_b.HL) & (mt_b.DP <= minimum_homref_coverage),
+                hl.null(hl.tint32),
+                mt_b.DP,
+            ),
+        )
+
+        mt_b = mt_b.drop("__cov")
+
+        if checkpoint_interval_blocks > 0:
             tmp_path = hl.utils.new_temp_file("covdb_block", extension="mt")
             log.info(
-                "Checkpointing covdb blocks at %d/%d -> %s",
+                "Checkpointing covdb block %d/%d -> %s",
                 block_id + 1,
                 n_blocks,
                 tmp_path,
             )
-            mt = mt.checkpoint(tmp_path, overwrite=True)
+            mt_b = mt_b.checkpoint(tmp_path, overwrite=True)
 
-    mt = mt.annotate_entries(DP=hl.if_else(hl.is_missing(mt.HL), mt.__cov, mt.DP))
+        block_mts.append(mt_b)
 
-    hom_ref_expr = hl.is_missing(mt.HL) & (mt.DP > minimum_homref_coverage)
-    mt = mt.annotate_entries(
-        HL=hl.if_else(hom_ref_expr, 0.0, mt.HL),
-        FT=hl.if_else(hom_ref_expr, {"PASS"}, mt.FT),
-        DP=hl.if_else(
-            hl.is_missing(mt.HL) & (mt.DP <= minimum_homref_coverage),
-            hl.null(hl.tint32),
-            mt.DP,
-        ),
-    )
-
-    mt = mt.drop("__cov")
-    mt = mt.drop("__covdb_sample_index", "__col_idx", "__pos", "__block")
-    return mt
+    mt_out = union_rows_tree(block_mts)
+    mt_out = mt_out.drop("__covdb_sample_index", "__col_idx", "__pos", "__block")
+    return mt_out
 
 
 def apply_mito_artifact_filter(mt: hl.MatrixTable, artifact_prone_sites_path: str, artifact_prone_sites_reference: str) -> hl.MatrixTable:

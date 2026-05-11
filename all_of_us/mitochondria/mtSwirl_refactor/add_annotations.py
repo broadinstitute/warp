@@ -9,8 +9,6 @@ import numpy as np
 import sys, os
 sys.path.append('/home/jupyter/')
 
-hl.init(log='annotations_logging.log')
-
 from collections import Counter
 from textwrap import dedent
 
@@ -57,11 +55,7 @@ logging.basicConfig(
 logger = logging.getLogger("add annotations")
 logger.setLevel(logging.INFO)
 
-if int(hl.version().split('-')[0].split('.')[2]) >= 75: # only use this if using hail 0.2.75 or greater
-    logger.info("Setting hail flag to avoid array index out of bounds error...")
-    # Setting this flag isn't generally recommended, but is needed (since at least Hail version 0.2.75) to avoid an array index out of bounds error until changes are made in future versions of Hail
-    # TODO: reassess if this flag is still needed for future versions of Hail
-    hl._set_flags(no_whole_stage_codegen="1")
+_HAIL_VERSION_MINOR = int(hl.version().split('-')[0].split('.')[2])
 
 
 def add_genotype(mt_path: str, min_hom_threshold: float = 0.95) -> hl.MatrixTable:
@@ -2219,6 +2213,17 @@ def main(args):  # noqa: D103
     mt_path = args.mt_path
     output_dir = args.output_dir
     temp_dir = args.temp_dir
+    hl.init(
+        log='annotations_logging.log',
+        tmp_dir=f"file://{os.path.abspath(temp_dir)}",
+        local_tmpdir=f"file://{os.path.abspath(temp_dir)}",
+        spark_conf={"spark.local.dir": os.path.abspath(temp_dir)},
+    )
+    if _HAIL_VERSION_MINOR >= 75:  # only use this if using hail 0.2.75 or greater
+        logger.info("Setting hail flag to avoid array index out of bounds error...")
+        # Setting this flag isn't generally recommended, but is needed (since at least Hail version 0.2.75) to avoid an array index out of bounds error until changes are made in future versions of Hail
+        # TODO: reassess if this flag is still needed for future versions of Hail
+        hl._set_flags(no_whole_stage_codegen="1")
     participant_data = args.participant_data
     vep_results = args.vep_results
     min_hom_threshold = args.min_hom_threshold
