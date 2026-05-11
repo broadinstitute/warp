@@ -5,7 +5,8 @@ version 1.0
 # which can handle larger sample sizes by splitting into batches and then merging results.
 
 workflow Glimpse2LowPassImputationBatch {
-    String pipeline_version = "0.0.1"
+    # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
+    String pipeline_version = "0.0.2"
 
     input {
 
@@ -93,8 +94,6 @@ workflow Glimpse2LowPassImputationBatch {
         File phase_input_vcf = select_first([BcftoolsMerge.merged_vcf, BcftoolsNorm.output_vcf[0]])
         File phase_input_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, BcftoolsNorm.output_vcf_index[0]])
 
-        ## this task is used to grab the reference chunk but does not affect memory usage of glimpsePhase.
-        ## still tbd which method makes the most sense cost wise
         call ComputeShardsAndMemoryPerShard {
             input:
                 reference_chunks_memory = reference_chunks,
@@ -113,6 +112,7 @@ workflow Glimpse2LowPassImputationBatch {
                     sample_ids = sample_ids,
                     fasta = fasta,
                     fasta_index = fasta_index,
+                    mem_gb = ComputeShardsAndMemoryPerShard.mem_gb_per_chunk[reference_chunk_index],
                     docker = glimpse_docker
             }
         }
@@ -210,7 +210,7 @@ task ComputeShardsAndMemoryPerShard {
         df['reference_shard'].to_csv('reference_shard_file_paths.tsv', sep='\t', index=False, header=None)
 
         # calculate memory usage and save to file
-        df['mem_gb'] = df['base_gb'] + df['slope_per_sample_gb'] * ~{n_samples}
+        df['mem_gb'] = df['base_gb']
         df['mem_gb'] = df['mem_gb'].apply(lambda x: min(256, int(np.ceil(x))))  # cap at 256 GB
         df['mem_gb'].to_csv('memory_per_chunk.tsv', sep='\t', index=False, header=None)
         EOF
@@ -368,7 +368,7 @@ task BcftoolsMerge {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-dsde-methods/bcftools:v1.3"
+        docker: "us.gcr.io/broad-dsde-methods/vcfeval_docker:v1.1"
         disks: "local-disk " + disk_size_gb + " HDD"
         memory: mem_gb + " GiB"
         cpu: cpu
