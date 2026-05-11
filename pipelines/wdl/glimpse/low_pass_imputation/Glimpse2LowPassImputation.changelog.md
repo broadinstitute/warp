@@ -1,3 +1,8 @@
+# 0.0.9
+2026-05-11 (Date of Last Commit)
+
+* add batch wdl pipeline version
+
 # 0.0.8
 2026-05-08 (Date of Last Commit)
 
