@@ -106,7 +106,7 @@ workflow AggregateSusieWorkflow {
 
     }
  
-    String pipeline_version = "aou_9.0.2"
+    String pipeline_version = "aou_9.0.3"
     
     call AggregateSusie {
         input:
