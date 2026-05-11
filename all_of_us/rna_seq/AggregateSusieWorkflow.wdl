@@ -19,8 +19,6 @@ task AggregateSusie{
     mkdir -p localized
     gsutil -m cp -I localized/ < file_paths.txt 
 
-    # Write the new local file paths into filelist.txt
-    ls -1 "$(pwd)/localized/*" > filelist.txt
     Rscript /tmp/merge_susie.R --FilePaths file_paths.txt  --OutputPrefix ~{OutputPrefix}
     >>>
 
