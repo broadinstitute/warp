@@ -7,11 +7,8 @@ workflow QuotaConsumed {
     String pipeline_version = "0.0.2"
 
     input {
-        # if multiple data types are provided, the workflow will prioritize cram_manifest first, then crams/cram_indices/sample_ids
-        Array[File]? crams
-        Array[File]? cram_indices
-        Array[String]? sample_ids
-        File? cram_manifest
+        # service expects only cram_manifest even though main wdl can alternatively take input arrays
+        File cram_manifest
         String output_basename
 
         Array[String] contigs
@@ -22,20 +19,13 @@ workflow QuotaConsumed {
         File ref_dict
     }
 
-    # validate that either crams, or cram manifest is provided
-    if (defined(crams)) {
-        Int quota_consumed = length(select_first([crams]))
-    }
-
-    if (defined(cram_manifest)) {
-        call CountCramsFromManifest {
-            input:
-                cram_manifest = select_first([cram_manifest])
-        }
+    call CountCramsFromManifest {
+        input:
+            cram_manifest = cram_manifest
     }
 
     output {
-        Int quota_consumed = select_first([quota_consumed, CountCramsFromManifest.cram_manifest_count, 0])
+        Int quota_consumed = CountCramsFromManifest.cram_manifest_count
     }
 }
 

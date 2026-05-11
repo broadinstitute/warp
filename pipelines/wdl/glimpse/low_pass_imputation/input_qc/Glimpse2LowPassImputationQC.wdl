@@ -5,11 +5,8 @@ workflow InputQC {
     String pipeline_version = "1.0.1"
 
     input {
-        # if multiple data types are provided, the workflow will prioritize cram_manifest first, then crams/cram_indices/sample_ids
-        Array[File]? crams
-        Array[File]? cram_indices
-        Array[String]? sample_ids
-        File? cram_manifest
+        # service expects only cram_manifest even though main wdl can alternatively take input arrays
+        File cram_manifest
         String output_basename
 
         Array[String] contigs
@@ -23,46 +20,24 @@ workflow InputQC {
         String? billing_project_for_rp
     }
 
-    # validate that either crams, or cram manifest is provided
-    if (!defined(crams) && !defined(cram_manifest)) {
-        String no_data_message = "No input data provided. Please provide either CRAM files (with corresponding CRAM index files and sample IDs) or a CRAM manifest."
+    call ConvertCramManifestToInputArrays {
+        input:
+            cram_manifest = cram_manifest
     }
 
-    # validate that not more than one of these is provided
-    Boolean both_crams_and_manifest_supplied = defined(crams) && defined(cram_manifest)
-    if (both_crams_and_manifest_supplied) {
-        String multiple_data_types_message = "Multiple input data types provided. Please provide only CRAM files (with corresponding CRAM index files and sample IDs) or a CRAM manifest."
-    }
-
-    # convert cram manifest to arrays of crams, cram indices, and sample ids if manifest is provided
-    if (defined(cram_manifest) && !defined(crams)) {
-        call ConvertCramManifestToInputArrays {
+    if (ConvertCramManifestToInputArrays.passes_qc) {
+        call ValidateCramsAndIndicesAndSampleIds {
             input:
-                cram_manifest = select_first([cram_manifest])
-        }
-    }
-
-    Boolean do_cram_qc = select_first([ConvertCramManifestToInputArrays.passes_qc, !both_crams_and_manifest_supplied]) 
-
-    if (do_cram_qc) {
-        Array[String] cram_array = select_first([ConvertCramManifestToInputArrays.crams, crams, []])
-        Array[String] cram_indices_array = select_first([ConvertCramManifestToInputArrays.cram_indices, cram_indices, []])
-        Array[String] sample_ids_array = select_first([ConvertCramManifestToInputArrays.sample_ids, sample_ids, []])
-
-        if (length(cram_array) > 0) {
-            call ValidateCramsAndIndicesAndSampleIds {
-                input:
-                    crams = cram_array,
-                    cram_indices = cram_indices_array,
-                    sample_ids = sample_ids_array,
-                    billing_project_for_rp = billing_project_for_rp
-            }
+                crams = ConvertCramManifestToInputArrays.crams,
+                cram_indices = ConvertCramManifestToInputArrays.cram_indices,
+                sample_ids = ConvertCramManifestToInputArrays.sample_ids,
+                billing_project_for_rp = billing_project_for_rp
         }
     }
 
     output {
-        Boolean passes_qc = select_first([ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc, false])
-        String qc_messages = select_first([ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages, no_data_message, multiple_data_types_message])
+        Boolean passes_qc = select_first([ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
+        String qc_messages = select_first([ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
     }
 }
 
