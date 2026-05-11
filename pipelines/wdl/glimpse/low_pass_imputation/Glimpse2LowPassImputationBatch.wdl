@@ -34,8 +34,6 @@ workflow Glimpse2LowPassImputationBatch {
         String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
     }
 
-    Int n_samples = length(crams)
-
     if (length(crams) > 1) {
         call SplitIntoBatches {
             input:
@@ -96,8 +94,7 @@ workflow Glimpse2LowPassImputationBatch {
 
         call ComputeShardsAndMemoryPerShard {
             input:
-                reference_chunks_memory = reference_chunks,
-                n_samples = n_samples
+                reference_chunks_memory = reference_chunks
         }
 
         scatter (reference_chunk_index in range(length(ComputeShardsAndMemoryPerShard.reference_chunk_file_paths))) {
@@ -195,7 +192,6 @@ task SplitIntoBatches {
 task ComputeShardsAndMemoryPerShard {
     input {
         File reference_chunks_memory
-        Int n_samples
     }
 
     command <<<
