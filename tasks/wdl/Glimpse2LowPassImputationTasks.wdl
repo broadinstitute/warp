@@ -340,3 +340,44 @@ task CreateHomRefSitesOnlyVcf {
         File output_vcf = "~{basename}.vcf.gz"
     }
 }
+
+task UpdateHeader {
+    input {
+        File vcf
+        String basename
+        String? pipeline_header_line
+
+        Int disk_size_gb = ceil(4 * size(vcf, "GiB")) + 20
+        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+        Int cpu = 1
+        Int memory_mb = 3000
+        Int preemptible = 3
+    }
+
+    command <<<
+        set -e -o pipefail
+
+        # If pipeline_header_line is provided, add it to the VCF header
+        if [ -n "~{default="" pipeline_header_line}" ]; then
+            bcftools view -h --no-version ~{vcf} > header.txt
+            TOTAL_LINES=$(wc -l < "header.txt")
+            REMOVED_COMMENT_CHARACTER_HEADER_LINE=$(echo "~{pipeline_header_line}" | sed 's/^#*//')
+            sed -i "${TOTAL_LINES}i\##${REMOVED_COMMENT_CHARACTER_HEADER_LINE}" header.txt
+
+        bcftools reheader -h header.txt -o ~{basename}.vcf.gz ~{vcf}
+    >>>
+
+    runtime {
+        docker: gatk_docker
+        disks: "local-disk ${disk_size_gb} HDD"
+        memory: "${memory_mb} MiB"
+        cpu: cpu
+        preemptible: preemptible
+        maxRetries: 1
+        noAddress: true
+    }
+
+    output {
+        File output_vcf = "~{basename}.vcf.gz"
+    }
+}

@@ -23,6 +23,8 @@ workflow Glimpse2LowPassImputation {
 
         File ref_dict
 
+        String? pipeline_header_line # optional additional header lines to add to the output VCF
+
         Boolean impute_reference_only_variants = false
         Boolean call_indels = false
 
@@ -37,6 +39,9 @@ workflow Glimpse2LowPassImputation {
         String docker_merge = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
         Int mem_gb_merge = 32 # TODO: this can be decreased by rewriting the RecomputeAndAnnotate to work in chunks instead of line by line
     }
+
+    # define this here to use it in scatters
+    String defined_pipeline_header_line = select_first([pipeline_header_line, ""])
 
     call Glimpse2LowPassImputationBatch.SplitIntoBatches as SplitIntoSampleBatches {
         input:
@@ -103,16 +108,25 @@ workflow Glimpse2LowPassImputation {
                 mem_gb = mem_gb_merge
         }
 
+        # Update VCF header with pipeline version metadata (if provided)
+        call Glimpse2LowPassImputationTasks.UpdateHeader {
+            input:
+                vcf = RecomputeAndAnnotate.merged_imputed_vcf,
+                basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated.update_header",
+                pipeline_header_line = defined_pipeline_header_line,
+                gatk_docker = gatk_docker
+        }
+
         # Now that the full cohort is merged and annotations are correct, split into variant-only and hom-ref-only
         call Glimpse2LowPassImputationTasks.SelectVariantRecordsOnly as SelectContigVariants {
             input:
-                vcf = RecomputeAndAnnotate.merged_imputed_vcf,
+                vcf = UpdateHeader.output_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_variants"
         }
 
         call Glimpse2LowPassImputationTasks.CreateHomRefSitesOnlyVcf as CreateContigHomRefVcf {
             input:
-                vcf = RecomputeAndAnnotate.merged_imputed_vcf,
+                vcf = UpdateHeader.output_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_hom_ref.sites_only"
         }
     }
