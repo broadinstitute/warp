@@ -3,7 +3,7 @@
 
 * refactor to remove non-shardes option for step 3 and unnecessary merge checks 
 
-* removed 'skip_summary' optioin from 'annotate_coverage' task
+* removed 'skip_summary' option from 'annotate_coverage' task
 
 * Updated docker image references from `aou-mitochondrial-combine-vcfs-covdb` to `aou-mito-hail-processing:1.0.0` as part of mito docker consolidation
 
