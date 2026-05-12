@@ -1,6 +1,14 @@
 # Changelog Style Guide Overview
 The style guide provides formatting guidelines and language suggestions for pipeline changelogs. ...uggestions for pipeline changelogs. It is divided into four sections: 1) Changelog Information, which details the types of changes listed in a changelog, 2) Language Usage, which describes language style and syntax for changelog information, 3) Changelog Format, which provides sample formatting for changelog information, and 4) Sample Changelog Entries, which displays two examples of changelog entries taken from the [Optimus.changelog.md file](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/optimus/Optimus.changelog.md).  
 
+## Agent / Automation Rules
+
+These rules apply whenever an agent or automated tool creates or modifies a changelog entry.
+
+1. **Version bumps are once per branch/PR.** If the top changelog entry on the current branch already has an unreleased version bump (i.e. the version is higher than what is in `develop`), append new bullet points to that entry — do not create a new version section.
+2. **Cascading bumps.** When a shared task (e.g. `StarAlign.wdl`, `CheckInputs.wdl`, `Metrics.wdl`) changes, check every pipeline that imports it. Either bump the version with a changelog note **or** add a bullet explicitly stating there is no functional impact on that pipeline.
+3. **`pipeline_versions.txt`** must be updated only when a pipeline version number actually changes — not on every commit.
+
 ## Changelog Information
 Pipeline changelogs have four informational parts:
 

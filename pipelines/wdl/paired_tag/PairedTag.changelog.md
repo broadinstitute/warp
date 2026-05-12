@@ -1,7 +1,7 @@
-# 2.1.12
-2026-04-21 (Date of Last Commit)
+# 3.0.0
+2026-04-02 (Date of Last Commit)
 
-* Updated PairedTag to align with upstream task dependency changes; this does not affect the outputs of the pipeline
+* Removed the `count_exons` input from the PairedTag workflow following its removal from Optimus v9.0.0. Default behavior is unchanged (the default was `false`).
 
 # 2.1.11
 2026-02-24 (Date of Last Commit)

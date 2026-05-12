@@ -1,3 +1,13 @@
+# 0.0.8
+2026-05-08 (Date of Last Commit)
+
+* Add support for optional cram_manifest input
+
+# 0.0.7
+2026-04-30 (Date of Last Commit)
+
+* Add batched version of the wdl, which runs n samples at a time as subworkflows and recombines their outputs.
+
 # 0.0.6
 2026-04-15 (Date of Last Commit)
 
