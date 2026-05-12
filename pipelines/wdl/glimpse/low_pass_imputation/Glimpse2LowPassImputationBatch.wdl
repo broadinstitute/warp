@@ -200,7 +200,7 @@ task ComputeShardsAndMemoryPerShard {
         import numpy as np
 
 
-        df = pd.read_csv('~{reference_chunks_memory}', sep='\t', header=None, names=['contig', 'reference_shard', 'base_gb', 'slope_per_sample_gb'])
+        df = pd.read_csv('~{reference_chunks_memory}', sep='\t', header=None, usecols=[0,1,2], names=['contig', 'reference_shard', 'base_gb'])
 
         # write out reference shards to process
         df['reference_shard'].to_csv('reference_shard_file_paths.tsv', sep='\t', index=False, header=None)
