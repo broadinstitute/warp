@@ -104,26 +104,31 @@ workflow Glimpse2LowPassImputation {
                 output_vcf_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged"
         }
 
-        # Recompute AF and INFO as weighted averages across batches and apply back to the merged VCF
-        call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate {
-            input:
-                merged_vcf = MergeContigVcfs.output_vcf,
-                annotations = ExtractAnnotations.annotations,
-                num_samples = batch_sample_count,
-                output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated",
-                docker_merge = docker_merge
+        # Recompute AF and INFO as weighted averages across batches and apply back to the merged VCF.
+        # Skip when there is only one batch since the single-batch annotations are already correct
+        if (length(SplitIntoSampleBatches.crams_batches) > 1) {
+            call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate {
+                input:
+                    merged_vcf = MergeContigVcfs.output_vcf,
+                    annotations = ExtractAnnotations.annotations,
+                    num_samples = batch_sample_count,
+                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated",
+                    docker_merge = docker_merge
+            }
         }
+
+        File annotated_contig_vcf = select_first([RecomputeAndAnnotate.merged_imputed_vcf, MergeContigVcfs.output_vcf])
 
         # Now that the full cohort is merged and annotations are correct, split into variant-only and hom-ref-only
         call Glimpse2LowPassImputationTasks.SelectVariantRecordsOnly as SelectContigVariants {
             input:
-                vcf = RecomputeAndAnnotate.merged_imputed_vcf,
+                vcf = annotated_contig_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_variants"
         }
 
         call Glimpse2LowPassImputationTasks.CreateHomRefSitesOnlyVcf as CreateContigHomRefVcf {
             input:
-                vcf = RecomputeAndAnnotate.merged_imputed_vcf,
+                vcf = annotated_contig_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_hom_ref.sites_only"
         }
     }
