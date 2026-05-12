@@ -23,6 +23,8 @@ workflow Glimpse2LowPassImputationBatch {
 
         File ref_dict
 
+        String? pipeline_header_line # optional additional header lines to add to the output VCF
+
         Boolean impute_reference_only_variants = false
         Boolean call_indels = false
 
@@ -123,6 +125,7 @@ workflow Glimpse2LowPassImputationBatch {
                 imputed_chunks_indices = GlimpsePhase.imputed_vcf_index,
                 output_basename = output_basename,
                 ref_dict = ref_dict,
+                pipeline_header_line = pipeline_header_line,
                 docker = glimpse_docker
         }
         Array[File] contig_coverage_metrics = select_all(GlimpsePhase.coverage_metrics)
@@ -505,6 +508,7 @@ task GlimpseLigate {
         Array[File] imputed_chunks_indices
         String output_basename
         File ref_dict
+        String? pipeline_header_line
 
         Int mem_gb = 4
         Int cpu = 2
@@ -524,8 +528,17 @@ task GlimpseLigate {
 
         # Set correct reference dictionary
         bcftools view -h --no-version ligated.vcf.gz > old_header.vcf
-        java -jar /picard.jar UpdateVcfSequenceDictionary -I old_header.vcf --SD ~{ref_dict} -O new_header.vcf
-        bcftools reheader -h new_header.vcf -o ~{output_basename}.imputed.vcf.gz ligated.vcf.gz
+        java -jar /picard.jar UpdateVcfSequenceDictionary -I old_header.vcf --SD ~{ref_dict} -O updated_header.vcf
+
+        # Add pipeline_header_line if provided
+        if [ -n "~{default="" pipeline_header_line}" ]; then
+            TOTAL_LINES=$(wc -l < "updated_header.vcf")
+            REMOVED_COMMENT_CHARACTER_HEADER_LINE=$(echo "~{pipeline_header_line}" | sed 's/^#*//')
+            sed -i "${TOTAL_LINES}i\##${REMOVED_COMMENT_CHARACTER_HEADER_LINE}" updated_header.vcf
+        fi
+
+        # Apply the final header (with ref dict and optionally pipeline_header_line) to the VCF
+        bcftools reheader -h updated_header.vcf -o ~{output_basename}.imputed.vcf.gz ligated.vcf.gz
         tabix ~{output_basename}.imputed.vcf.gz
     >>>
 
