@@ -168,7 +168,8 @@ with open('aggregated_annotations.tsv', 'w') as out:
         )
         denominator = 2 * total_samples * agg_af * (1 - agg_af)
         # INFO is defined as 1 for monomorphic sites (AF == 0 or AF == 1)
-        agg_info = np.where((agg_af == 0) | (agg_af == 1), 1.0, 1 - numerator / denominator)
+        polymorphic = (agg_af != 0) & (agg_af != 1)
+        agg_info = np.where(polymorphic, 1 - np.divide(numerator, denominator, where=polymorphic, out=np.zeros_like(denominator)), 1.0)
 
         result = ref_loci.copy()
         result['AF'] = agg_af
