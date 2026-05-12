@@ -364,7 +364,11 @@ task UpdateHeader {
             REMOVED_COMMENT_CHARACTER_HEADER_LINE=$(echo "~{pipeline_header_line}" | sed 's/^#*//')
             sed -i "${TOTAL_LINES}i\##${REMOVED_COMMENT_CHARACTER_HEADER_LINE}" header.txt
 
-        bcftools reheader -h header.txt -o ~{basename}.vcf.gz ~{vcf}
+            bcftools reheader -h header.txt -o ~{basename}.vcf.gz ~{vcf}
+        else
+            # If no pipeline_header_line, just symlink the input VCF (no modification needed)
+            ln -s ~{vcf} ~{basename}.vcf.gz
+        fi
     >>>
 
     runtime {
