@@ -4,23 +4,23 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "0.0.7"
-    String quota_consumed_version = "0.0.1"
-    String input_qc_version = "1.0.0"
+    String pipeline_version = "0.0.8"
+    String quota_consumed_version = "0.0.2"
+    String input_qc_version = "1.0.1"
 
     input {
-        Array[String] contigs
-
-        # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
-        String reference_panel_prefix
-
+        # if multiple data types are provided, the workflow will prioritize cram_manifest first, then crams/cram_indices/sample_ids
         Array[File]? crams
         Array[File]? cram_indices
-        Array[String] sample_ids
-        File fasta
-        File fasta_index
+        Array[String]? sample_ids
+        File? cram_manifest
         String output_basename
 
+        Array[String] contigs
+        # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
+        String reference_panel_prefix
+        File fasta
+        File fasta_index
         File ref_dict
 
         Boolean impute_reference_only_variants = false
@@ -38,12 +38,24 @@ workflow Glimpse2LowPassImputation {
         Int mem_gb_merge = 32 # TODO: this can be decreased by rewriting the RecomputeAndAnnotate to work in chunks instead of line by line
     }
 
+    if (defined(cram_manifest)) {
+        call Glimpse2LowPassImputationTasks.ConvertCramManifestToInputArrays {
+            input:
+                cram_manifest = select_first([cram_manifest])
+        }
+    }
+
+    # if neither crams (and cram_indices and sample_ids) nor cram_manifest is provided the workflow will fail at runtime
+    Array[String] crams_to_use = select_first([ConvertCramManifestToInputArrays.crams, crams])
+    Array[String] cram_indices_to_use = select_first([ConvertCramManifestToInputArrays.cram_indices, cram_indices])
+    Array[String] sample_ids_to_use = select_first([ConvertCramManifestToInputArrays.sample_ids, sample_ids])
+
     call Glimpse2LowPassImputationBatch.SplitIntoBatches as SplitIntoSampleBatches {
         input:
             batch_size = sample_batch_size,
-            crams = select_first([crams]),
-            cram_indices = select_first([cram_indices]),
-            sample_ids = sample_ids
+            crams = crams_to_use,
+            cram_indices = cram_indices_to_use,
+            sample_ids = sample_ids_to_use
     }
 
     scatter(batch_idx in range(length(SplitIntoSampleBatches.crams_batches))) {
