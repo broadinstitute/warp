@@ -35,6 +35,17 @@ workflow InputQC {
         }
     }
 
+    if (defined(ValidateCramsAndIndicesAndSampleIds.passes_qc) && ValidateCramsAndIndicesAndSampleIds.passes_qc) {
+        call ValidateCramContents {
+            input:
+                crams = ConvertCramManifestToInputArrays.crams,
+                cram_indices = ConvertCramManifestToInputArrays.cram_indices,
+                contigs = contigs,
+                ref_dict = ref_dict,
+                billing_project_for_rp = billing_project_for_rp
+        }
+    }
+
     output {
         Boolean passes_qc = select_first([ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
         String qc_messages = select_first([ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
@@ -304,6 +315,9 @@ task ValidateCramsAndIndicesAndSampleIds {
 
         EOF
         python3 script.py
+
+        # This task should always succeed
+        exit 0
     >>>
     
     runtime {
@@ -318,4 +332,67 @@ task ValidateCramsAndIndicesAndSampleIds {
         Boolean passes_qc = read_boolean("passes_qc.txt")
         String qc_messages = read_string("qc_messages.txt")
     }
+}
+
+task ValidateCramContents {
+    input {
+        Array[String] crams
+        Array[String] contigs
+        File ref_dict
+        String? billing_project_for_rp
+    }
+
+    String billing_project = select_first([billing_project_for_rp, ""])
+
+    command <<<
+        # set up auth for accessing files using samtools
+        export GCS_OAUTH_TOKEN=$(gcloud auth application-default print-access-token)
+
+        # configure billing project to use for requester pays buckets, if billing project provided
+        if [ -n "$billing_project" ]; then
+            echo "Using billing project '$billing_project' for requester pays buckets."
+            export GCS_REQUESTER_PAYS_PROJECT=~{billing_project}
+        fi
+
+        # collect reference MD5sums from the reference dictionary for the contigs in the reference panel
+        declare -A ref_md5sums
+        while read -r line; do
+            if [[ $line == @SQ* ]]; then
+                chrom=$(echo "$line" | grep -oP 'SN:\K\S+')
+                md5=$(echo "$line" | grep -oP 'M5:\K\S+')
+                if [[ " ${contigs[@]} " =~ " ${chrom} " ]]; then
+                    ref_md5sums["$chrom"]="$md5"
+                fi
+            fi
+        done < ~{ref_dict}
+        
+        # read cram headers to validate that they contain the expected reference alignment MD5sums
+        for cram in ~{sep=' ' crams}; do
+            echo "Validating CRAM file: $cram"
+            header=$(samtools view -H "$cram")
+            for chrom in "${!ref_md5sums[@]}"; do
+                expected_md5=${ref_md5sums[$chrom]}
+                if ! echo "$header" | grep -q "SN:$chrom" || ! echo "$header" | grep -q "M5:$expected_md5"; then
+                    echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom (expected SN:$chrom and M5:$expected_md5 in header)" >&2
+                    exit 1
+                fi
+            done
+        done
+
+        # This task should always succeed
+        exit 0
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        memory: "4 GiB"
+        maxRetries: 2
+    }
+
+    output {
+        Boolean passes_qc
+        String qc_messages
+    }    
 }
