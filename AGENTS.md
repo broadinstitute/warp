@@ -1,12 +1,77 @@
 # Agent Instructions
 
-For all agent-driven work in this repository, follow [.github/copilot-instructions.md](.github/copilot-instructions.md).
+Single entry point for all agent-driven work in this repository. Start here, follow the links to authoritative references, and consult the *Agent-Specific Notes* below for guidance that is not captured in the human-facing style guides.
 
-For all changelog and versioning rules (when to bump, how to write entries, cascading bumps, `pipeline_versions.txt`), see [changelog_style.md](changelog_style.md).
+## Authoritative References
+
+| Topic | Document | Audience |
+| --- | --- | --- |
+| Full agent operating instructions (WDL patterns, validation, multi-cloud, CI triggers, merge conflicts) | [.github/copilot-instructions.md](.github/copilot-instructions.md) | Agents |
+| Changelog and versioning rules (when to bump, format, cascading bumps, `pipeline_versions.txt`) | [changelog_style.md](changelog_style.md) | Both |
+| WDL style guide (formatting, naming, `parameter_meta`, heredoc convention) | [WARP_WDL_Style_Guide.md](WARP_WDL_Style_Guide.md) | Both |
+| Docusaurus markdown style (admonitions, tables, tabs, code-block highlighting, cross-refs) | [website/docs/contribution/contribute_to_warp_docs/doc_style.md](website/docs/contribution/contribute_to_warp_docs/doc_style.md) | Both |
+| How to build / serve / validate the docs site | [website/docs/contribution/contribute_to_warp_docs/docsite_maintenance.md](website/docs/contribution/contribute_to_warp_docs/docsite_maintenance.md) | Both |
+
+The human-facing guides (last three rows) are canonical for style. Anything *agent-specific* lives here or in [.github/copilot-instructions.md](.github/copilot-instructions.md) — do not duplicate human-facing style content into the agent docs.
 
 ## Quick Checklist Before Completing Any WARP Task
 
-1. **Validate all modified WDLs** — and every WDL that imports them (transitively). Use the loop in *WDL Validation (MANDATORY)*.
-2. **Changelog and versioning** — follow [changelog_style.md](changelog_style.md) *Agent / Automation Rules*.
+1. **Validate all modified WDLs** — and every WDL that imports them (transitively). See *WDL Validation (MANDATORY)* in [.github/copilot-instructions.md](.github/copilot-instructions.md).
+2. **Changelog and versioning** — follow [changelog_style.md](changelog_style.md).
 3. **After merging develop**, grep for duplicate `pipeline_version` lines — keep the higher one.
-4. **Sub-workflow contract.** Removing an input from a shared WDL requires removing it from every caller.
+4. **Sub-workflow contract** — removing an input from a shared WDL requires removing it from every caller.
+5. **Stale example/test inputs** — when you rename a workflow or remove/rename inputs, audit `pipelines/wdl/<name>/example_inputs/*.json` and `test_inputs/**/*.json`; they break silently because they are not checked by womtool.
+6. **Touching a pipeline's interface** — also update the pipeline's docs page under `website/docs/Pipelines/<Name>_Pipeline/README.md` and run `yarn --cwd=website build` to catch broken links.
+
+## Agent-Specific Notes
+
+Conventions that have emerged from agent-driven sessions and that are not (or not yet) covered by the human style guides.
+
+### Pipeline documentation layout
+
+Each pipeline has **two** doc artifacts:
+
+- **In-repo `README.md`** (`pipelines/wdl/<name>/README.md`) — short. Should contain: one-sentence summary, link to the full docs page on the WARP site, minimal "Running the pipeline" snippet, required inputs at a glance, link to `<Pipeline>.changelog.md`. Do **not** mirror the full docs page here.
+- **Docs-site page** (`website/docs/Pipelines/<Name>_Pipeline/README.md`) — full documentation. Required Docusaurus frontmatter:
+
+  ```yaml
+  ---
+  sidebar_position: 1
+  slug: /Pipelines/<Name>_Pipeline/README
+  ---
+  ```
+
+  Plus a sibling `_category_.json` when creating a new category.
+
+When you change a pipeline's interface, update **both** artifacts (or, at minimum, ensure the slim README still points correctly and the docs page reflects the new inputs/outputs).
+
+### Validating documentation changes
+
+Before claiming docs work is done, run a full build:
+
+```bash
+yarn --cwd=website install   # first time only
+yarn --cwd=website build     # validates frontmatter and all links
+```
+
+`yarn --cwd=website start` is fine for previewing but does not fail on broken links — always use `build` to validate.
+
+### Cross-page links within the docs site
+
+For links from one pipeline page to another, prefer a relative path that works in Docusaurus, e.g. `[Multiome](../Multiome_Pipeline/README.md)`. When the target does **not** have a docs page, link to the GitHub source (e.g. `https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/peak_calling`) rather than a non-resolving relative path.
+
+### WDL inline-Python heredoc convention
+
+Use unquoted `<<CODE` heredocs for inline Python inside `command { ... }` blocks so that `~{}` WDL interpolation still works. Quoted heredoc terminators such as `<<'PYEOF'` suppress WDL interpolation and are not used in this repo. Canonical reference: [WARP_WDL_Style_Guide.md](WARP_WDL_Style_Guide.md) §9.
+
+### GPU runtime keys
+
+For GPU tasks, the runtime keys understood by both Cromwell on Terra/GCP and by womtool are `gpuType`, `gpuCount`, and `nvidiaDriverVersion` (camelCase). Some snake_case aliases (`hardware_gpu_type`, `nvidia_driver_version`) are accepted by certain Cromwell configurations but are not universally portable — prefer the camelCase form when authoring new pipelines.
+
+### `input_id` output prefix pattern
+
+When a pipeline emits per-sample artifacts, accept a `String input_id` workflow input and prefix every output filename with `~{input_id}_`. This matches the convention used by scANVI, Optimus, Multiome, and other Skylab-origin pipelines.
+
+### When you discover a recurring agent mistake
+
+Record it here (under *Agent-Specific Notes*) or in [.github/copilot-instructions.md](.github/copilot-instructions.md) — not in the human-facing style guides. Keep entries short and link out to the canonical reference rather than duplicating it.
