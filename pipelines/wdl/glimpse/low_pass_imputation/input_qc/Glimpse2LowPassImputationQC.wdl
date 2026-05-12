@@ -35,11 +35,10 @@ workflow InputQC {
         }
     }
 
-    if (defined(ValidateCramsAndIndicesAndSampleIds.passes_qc) && ValidateCramsAndIndicesAndSampleIds.passes_qc) {
+    if (ConvertCramManifestToInputArrays.passes_qc && ValidateCramsAndIndicesAndSampleIds.passes_qc) {
         call ValidateCramContents {
             input:
                 crams = ConvertCramManifestToInputArrays.crams,
-                cram_indices = ConvertCramManifestToInputArrays.cram_indices,
                 contigs = contigs,
                 ref_dict = ref_dict,
                 billing_project_for_rp = billing_project_for_rp
@@ -373,11 +372,17 @@ task ValidateCramContents {
             for chrom in "${!ref_md5sums[@]}"; do
                 expected_md5=${ref_md5sums[$chrom]}
                 if ! echo "$header" | grep -q "SN:$chrom" || ! echo "$header" | grep -q "M5:$expected_md5"; then
-                    echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom (expected SN:$chrom and M5:$expected_md5 in header)" >&2
-                    exit 1
+                    echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom (expected SN:$chrom and M5:$expected_md5 in header)" >> qc_messages.txt
                 fi
             done
         done
+
+        # passes_qc is true if qc_messages is empty
+        if [ ! -s qc_messages.txt ]; then
+            echo "true" > passes_qc.txt
+        else
+            echo "false" > passes_qc.txt
+        fi
 
         # This task should always succeed
         exit 0
@@ -392,7 +397,7 @@ task ValidateCramContents {
     }
 
     output {
-        Boolean passes_qc
-        String qc_messages
+        Boolean passes_qc = read_boolean("passes_qc.txt")
+        String qc_messages = read_string("qc_messages.txt")
     }    
 }
