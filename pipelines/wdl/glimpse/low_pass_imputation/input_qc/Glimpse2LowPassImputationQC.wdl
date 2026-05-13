@@ -353,11 +353,8 @@ task ValidateCramContents {
             export GCS_REQUESTER_PAYS_PROJECT=~{billing_project}
         fi
 
-        # collect reference MD5sums from the reference dictionary for the contigs in the reference panel
-        contigs=('chr1' 'chr2')
-        ref_dict='/scripts/Homo_sapiens_assembly38.dict'
-        cram='/scripts/NA12878_PLUMBING.cram'
-
+        contigs=("""~{sep=' ' contigs}""")
+        ref_dict="~{ref_dict}"
 
         declare -A ref_md5sums
         while read -r line; do
@@ -385,15 +382,17 @@ task ValidateCramContents {
         done
 
         # read cram headers to validate that they contain the expected reference alignment MD5sums
-        echo "Validating CRAM file: $cram"
-        header=$(samtools view -H "$cram")
-        for chrom in "${!ref_md5sums[@]}"; do
-            expected_md5=${ref_md5sums[$chrom]}
-            if ! echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"; then
-                echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom (expected SN:$chrom and M5:$expected_md5 on the same line in header)" >> qc_messages.txt
-            else
-                echo "CRAM file $cram contains expected reference alignment MD5 for contig $chrom."
-            fi
+        for cram in """~{sep=' ' crams}""".split(); do
+            echo "Validating CRAM file: $cram"
+            header=$(samtools view -H "$cram")
+            for chrom in "${!ref_md5sums[@]}"; do
+                expected_md5=${ref_md5sums[$chrom]}
+                if ! echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"; then
+                    echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom (expected SN:$chrom and M5:$expected_md5 on the same line in header)" >> qc_messages.txt
+                else
+                    echo "CRAM file $cram contains expected reference alignment MD5 for contig $chrom."
+                fi
+            done
         done
 
         # passes_qc is true if qc_messages is empty
