@@ -481,7 +481,7 @@ task GlimpsePhase {
         docker: docker
         disks: "local-disk " + disk_size_gb + " SSD"
         memory: mem_gb + " GiB"
-        cpu: cpu
+        cpu: 1
         preemptible: preemptible
         maxRetries: max_retries
         checkpointFile: "checkpoint.bin"
