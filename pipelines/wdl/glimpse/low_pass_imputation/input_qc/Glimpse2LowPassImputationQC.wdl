@@ -46,8 +46,8 @@ workflow InputQC {
     }
 
     output {
-        Boolean passes_qc = select_first([ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
-        String qc_messages = select_first([ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
+        Boolean passes_qc = select_first([ValidateCramContents.passes_qc, ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
+        String qc_messages = select_first([ValidateCramContents.qc_messages, ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
     }
 }
 
@@ -354,27 +354,46 @@ task ValidateCramContents {
         fi
 
         # collect reference MD5sums from the reference dictionary for the contigs in the reference panel
+        contigs=('chr1' 'chr2')
+        ref_dict='/scripts/Homo_sapiens_assembly38.dict'
+        cram='/scripts/NA12878_PLUMBING.cram'
+
+
         declare -A ref_md5sums
         while read -r line; do
             if [[ $line == @SQ* ]]; then
-                chrom=$(echo "$line" | grep -oP 'SN:\K\S+')
-                md5=$(echo "$line" | grep -oP 'M5:\K\S+')
+                chrom=$(echo "$line" | awk '{for(i=1;i<=NF;i++) if($i~/^SN:/) print substr($i,4)}')
+                md5=$(echo "$line" | awk '{for(i=1;i<=NF;i++) if($i~/^M5:/) print substr($i,4)}')
+
                 if [[ " ${contigs[@]} " =~ " ${chrom} " ]]; then
                     ref_md5sums["$chrom"]="$md5"
+
+                    echo  ${contigs[@]}
+                    echo ${chrom}
+                    
+                    # Check if we've found all contigs
+                    if [[ ${#ref_md5sums[@]} -eq ${#contigs[@]} ]]; then
+                        break
+                    fi
                 fi
             fi
-        done < ~{ref_dict}
-        
+        done < $ref_dict
+
+        echo "found relevant contigs with these md5sums in ref dict ${ref_dict}:"
+        for chrom in "${!ref_md5sums[@]}"; do
+            echo "  $chrom: ${ref_md5sums[$chrom]}"
+        done
+
         # read cram headers to validate that they contain the expected reference alignment MD5sums
-        for cram in ~{sep=' ' crams}; do
-            echo "Validating CRAM file: $cram"
-            header=$(samtools view -H "$cram")
-            for chrom in "${!ref_md5sums[@]}"; do
-                expected_md5=${ref_md5sums[$chrom]}
-                if ! echo "$header" | grep -q "SN:$chrom" || ! echo "$header" | grep -q "M5:$expected_md5"; then
-                    echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom (expected SN:$chrom and M5:$expected_md5 in header)" >> qc_messages.txt
-                fi
-            done
+        echo "Validating CRAM file: $cram"
+        header=$(samtools view -H "$cram")
+        for chrom in "${!ref_md5sums[@]}"; do
+            expected_md5=${ref_md5sums[$chrom]}
+            if ! echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"; then
+                echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom (expected SN:$chrom and M5:$expected_md5 on the same line in header)" >> qc_messages.txt
+            else
+                echo "CRAM file $cram contains expected reference alignment MD5 for contig $chrom."
+            fi
         done
 
         # passes_qc is true if qc_messages is empty
