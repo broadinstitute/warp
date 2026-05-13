@@ -382,7 +382,7 @@ task ValidateCramContents {
         done
 
         # read cram headers to validate that they contain the expected reference alignment MD5sums
-        for cram in """~{sep=' ' crams}""".split(); do
+        for cram in ~{sep=' ' crams}; do
             echo "Validating CRAM file: $cram"
             header=$(samtools view -H "$cram")
             for chrom in "${!ref_md5sums[@]}"; do
