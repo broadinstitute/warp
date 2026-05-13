@@ -1,6 +1,6 @@
 version 1.0
 
-workflow mt_coverage_merge {
+workflow MitochondriaMerge {
     
     meta {
         description: "This workflow builds a combined mtDNA MatrixTable from per-sample VCFs, imputes hom-ref coverage from a coverage DB, and outputs annotated (full and filtered) callsets."
@@ -19,22 +19,22 @@ workflow mt_coverage_merge {
         File full_data_tsv
         File? sample_list_tsv
 
-        # Step 3 (combine vcfs + homref from covdb)
+        # VCF Merge (combine vcfs + homref from covdb)
         String vcf_col_name = "final_vcf"
         String combined_mt_name = "combined_vcf"
 
-        # Step 3 sharding controls
-        Int step3_shard_size = 2500
-        Int step3_merge_fanin = 10
-        Int step3_shard_n_partitions = 192
-        String step3_output_bucket
+        # VCF merge harding controls
+        Int vcf_merge_shard_size = 2500
+        Int vcf_merge_merge_fanin = 10
+        Int vcf_merge_shard_n_partitions = 192
+        String vcf_merge_output_bucket
 
         # Finalize sharding controls
         Int finalize_shard_size = 25000
         Int finalize_shard_n_partitions = 256
         Int finalize_union_n_partitions = 1000
 
-        # Step 5 (add_annotations) output bucket
+        # Add annotations output bucket
         # Annotated outputs are written directly to GCS. A timestamp subdirectory
         # is created inside the task to prevent accidental overwrites.
         String annotated_output_bucket
@@ -70,15 +70,15 @@ workflow mt_coverage_merge {
         input:
             input_tsv = process_tsv_files.processed_tsv,
             vcf_col_name = vcf_col_name,
-            shard_size = step3_shard_size
+            shard_size = vcf_merge_shard_size
     }
 
     scatter (shard_tsv in make_vcf_shards_from_tsv.shard_tsvs) {
         call build_vcf_shard_mt {
             input:
                 shard_tsv = shard_tsv,
-                n_final_partitions = step3_shard_n_partitions,
-                output_bucket = step3_output_bucket
+                n_final_partitions = vcf_merge_shard_n_partitions,
+                output_bucket = vcf_merge_output_bucket
         }
     }
 
@@ -86,7 +86,7 @@ workflow mt_coverage_merge {
     call make_mt_merge_groups as make_merge_groups_1 {
         input:
             mt_tars = build_vcf_shard_mt.shard_mt_tar,
-            fanin = step3_merge_fanin
+            fanin = vcf_merge_merge_fanin
     }
 
     scatter (mt_list_tsv in make_merge_groups_1.mt_list_tsvs) {
@@ -94,8 +94,8 @@ workflow mt_coverage_merge {
             input:
                 mt_list_tsv = mt_list_tsv,
                 out_mt_name = "merge_round_1_" + basename(mt_list_tsv, ".tsv") + ".mt",
-                chunk_size = step3_merge_fanin,
-                output_bucket = step3_output_bucket
+                chunk_size = vcf_merge_merge_fanin,
+                output_bucket = vcf_merge_output_bucket
         }
     }
 
@@ -103,7 +103,7 @@ workflow mt_coverage_merge {
     call make_mt_merge_groups as make_merge_groups_2 {
         input:
             mt_tars = merge_round_1.merged_mt_tar,
-            fanin = step3_merge_fanin
+            fanin = vcf_merge_merge_fanin
     }
 
     scatter (mt_list_tsv in make_merge_groups_2.mt_list_tsvs) {
@@ -111,8 +111,8 @@ workflow mt_coverage_merge {
             input:
                 mt_list_tsv = mt_list_tsv,
                 out_mt_name = "merge_round_2_" + basename(mt_list_tsv, ".tsv") + ".mt",
-                chunk_size = step3_merge_fanin,
-                output_bucket = step3_output_bucket
+                chunk_size = vcf_merge_merge_fanin,
+                output_bucket = vcf_merge_output_bucket
         }
     }
 
@@ -120,7 +120,7 @@ workflow mt_coverage_merge {
     call make_mt_merge_groups as make_merge_groups_3 {
         input:
             mt_tars = merge_round_2.merged_mt_tar,
-            fanin = step3_merge_fanin
+            fanin = vcf_merge_merge_fanin
     }
 
     scatter (mt_list_tsv in make_merge_groups_3.mt_list_tsvs) {
@@ -128,8 +128,8 @@ workflow mt_coverage_merge {
             input:
                 mt_list_tsv = mt_list_tsv,
                 out_mt_name = "merge_round_3_" + basename(mt_list_tsv, ".tsv") + ".mt",
-                chunk_size = step3_merge_fanin,
-                output_bucket = step3_output_bucket
+                chunk_size = vcf_merge_merge_fanin,
+                output_bucket = vcf_merge_output_bucket
         }
     }
 
@@ -140,7 +140,7 @@ workflow mt_coverage_merge {
             in_mt_tar = merge_round_3.merged_mt_tar[0],
             shard_size = finalize_shard_size,
             n_final_partitions = finalize_shard_n_partitions,
-            output_bucket = step3_output_bucket
+            output_bucket = vcf_merge_output_bucket
     }
 
     scatter (shard_mt_tar in shard_mt_by_samples.shard_mt_tars) {
@@ -158,7 +158,7 @@ workflow mt_coverage_merge {
             mt_tars = finalize_mt_shard.results_tar,
             out_mt_name = combined_mt_name,
             n_final_partitions = finalize_union_n_partitions,
-            output_bucket = step3_output_bucket
+            output_bucket = vcf_merge_output_bucket
     }
 
     call add_annotations as annotated {
