@@ -140,17 +140,17 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
 
-  - name: mitochondria_single_sample
+  - name: MitochondriaMerge
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/mitochondria/merge/mitochondria_merge.wdl
+
+  - name: MitochondriaSingleSample
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/single_sample/mitochondria_single_sample.wdl
 
   - name: MitoPostProcessing
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/merge/mito_post_processing.wdl
-
-  - name: MitochondriaMerge
-    subclass: WDL
-    primaryDescriptorPath: /all_of_us/mitochondria/merge/mitochondria_merge.wdl
 
   - name: Multiome
     subclass: WDL

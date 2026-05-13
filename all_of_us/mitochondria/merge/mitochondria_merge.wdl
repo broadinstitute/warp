@@ -23,7 +23,7 @@ workflow MitochondriaMerge {
         String vcf_col_name = "final_vcf"
         String combined_mt_name = "combined_vcf"
 
-        # VCF merge harding controls
+        # VCF merge sharding controls
         Int vcf_merge_shard_size = 2500
         Int vcf_merge_merge_fanin = 10
         Int vcf_merge_shard_n_partitions = 192
