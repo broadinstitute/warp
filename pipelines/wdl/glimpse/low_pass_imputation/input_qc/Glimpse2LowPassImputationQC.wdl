@@ -408,7 +408,7 @@ task ValidateCramContents {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
+        docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
         cpu: 1
         disks: "local-disk 10 HDD"
         memory: "4 GiB"
