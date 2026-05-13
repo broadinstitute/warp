@@ -14,7 +14,7 @@ The workflow processes each requested contig independently, imputes each sample 
 | Workflow language       | WDL 1.0                                                                               | [openWDL](https://github.com/openwdl/wdl)                                |
 | Sub-workflows           | Gateway workflow + `Glimpse2LowPassImputationBatch`                                   | Imported from `Glimpse2LowPassImputationBatch.wdl`                       |
 | Genomic processing      | Contig-by-contig and reference-chunk-based processing                                 | Workflow scatter logic                                                   |
-| Cohort scalability      | Sample batching (`sample_batch_size`) then per-contig batch merge                     | Gateway orchestration in `Glimpse2LowPassImputation.wdl`                 |
+| Cohort scalability      | Inputs optionally specified via `cram_manifest`, sample batching (`sample_batch_size`) then per-contig batch merge                     | Gateway orchestration in `Glimpse2LowPassImputation.wdl`                 |
 | Algorithms              | `bcftools` mpileup/call/norm/merge + GLIMPSE2 phase/ligate + post-merge re-annotation | Task commands in batch and task WDLs                                     |
 | Quality control         | Sample QC metrics and optional coverage-metrics aggregation                           | `CollectQCMetrics`, `CombineCoverageMetrics`                             |
 | Data input file format  | CRAM/CRAI arrays with sample IDs                                                      | Workflow input block                                                     |
@@ -28,11 +28,12 @@ This gateway workflow expects CRAM-based inputs and a GLIMPSE2-compatible refere
 
 | Input                            | Description                                                                                                         |
 |----------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| `cram_manifest`                  | Optional manifest TSV file containing columns (including header line) of sample_id, cram_path, and cram_index_path referring to cloud-hosted input files to be imputed. This or all three array inputs (crams, cram_indices, sample_ids) must be provided.                               |
+| `crams`                          | Optional array of input CRAMs                                                                                       |
+| `cram_indices`                   | Optional array of CRAI files corresponding to `crams`                                                               |
+| `sample_ids`                     | Optional array of sample ID strings corresponding to CRAM inputs                                                    |
 | `contigs`                        | Array of contigs/chromosomes to process                                                                             |
 | `reference_panel_prefix`         | Directory/prefix containing `sites.<contig>.vcf.gz`, `sites_table.<contig>.gz`, and `reference_chunks.<contig>.txt` |
-| `crams`                          | Optional array of input CRAMs (required for normal execution path)                                                  |
-| `cram_indices`                   | Optional array of CRAI files corresponding to `crams`                                                               |
-| `sample_ids`                     | Sample IDs corresponding to CRAM inputs                                                                             |
 | `fasta`                          | Reference FASTA                                                                                                     |
 | `fasta_index`                    | FASTA index                                                                                                         |
 | `output_basename`                | Basename for intermediate and final outputs                                                                         |
@@ -52,7 +53,8 @@ The top-level workflow orchestrates batching, per-batch imputation, and cohort-l
 
 | Task / Call                                          | Purpose                                                             | Input Dependencies                                         | Key Function                                                |
 |------------------------------------------------------|---------------------------------------------------------------------|------------------------------------------------------------|-------------------------------------------------------------|
-| `SplitIntoSampleBatches`                             | Split CRAMs/CRAIs/sample IDs into sample-level batches              | `crams`, `cram_indices`, `sample_ids`, `sample_batch_size` | Enables large-cohort scaling at gateway level               |
+| `ConvertCramManifestToInputArrays`                   | Convert cram manifest input into CRAMs/CRAIs/sample IDs arrays      | `cram_manifest` | Facilitates submission of very large sets of inputs via manifest file           |
+| `SplitIntoSampleBatches`                             | Split CRAMs/CRAIs/sample IDs into sample-level batches              | `crams`, `cram_indices`, `sample_ids` from inputs or derived from `cram_manifest`, `sample_batch_size` | Enables large-cohort scaling at gateway level               |
 | `RunBatch` (`Glimpse2LowPassImputationBatch`)        | Run full low-pass imputation pipeline on each sample batch          | Batch-specific CRAMs/indices/sample IDs + reference inputs | Produces per-batch, per-contig ligated imputed VCFs         |
 | `ExtractAnnotations`                                 | Extract AF/INFO annotations from each batch contig VCF              | Batch ligated VCFs and indexes                             | Captures annotations needed for post-merge recomputation    |
 | `MergeContigVcfs` (`MergeSampleChunksVcfsWithPaste`) | Merge sample columns across batch VCFs for one contig               | Array of batch VCFs for contig                             | Creates full-cohort contig VCF with aligned site lists      |
@@ -147,16 +149,12 @@ Glimpse outputs three values in the info field:
 ## Glimpse2LowPassImputationQuotaConsumed summary
 
 The `QuotaConsumed` workflow computes submitted sample count for service quota accounting.  
-Quota is derived from either:
-
-- number of input CRAMs, or
-- number of CRAM entries found in a provided CRAM manifest.
+Quota is derived from number of CRAM entries found in the provided CRAM manifest.
 
 ## Glimpse2LowPassImputationQC summary
 
-The `InputQC` workflow validates CRAM-based inputs for GLIMPSE2 low-pass imputation. Checks include:
+The `InputQC` workflow validates CRAM-based inputs supplied by the `cram_manifest` for GLIMPSE2 low-pass imputation. Checks include:
 
-- exactly one input mode is provided: CRAM arrays or CRAM manifest
 - required manifest columns are present: `sample_id`, `cram_path`, `cram_index_path`
 - counts of CRAMs, CRAIs, and sample IDs match
 - sample IDs are unique
