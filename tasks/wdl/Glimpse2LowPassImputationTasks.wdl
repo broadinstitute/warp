@@ -171,9 +171,15 @@ with open('aggregated_annotations.tsv', 'w') as out:
         polymorphic = (agg_af != 0) & (agg_af != 1)
         agg_info = np.where(polymorphic, 1 - np.divide(numerator, denominator, where=polymorphic, out=np.zeros_like(denominator)), 1.0)
 
+        def round_to_n_sig_figs(x, n):
+            if x == 0:
+                return 0
+            return round(float(x), n - 1 - int(np.floor(np.log10(abs(x)))))
+
         result = ref_loci.copy()
-        result['AF'] = agg_af
-        result['INFO'] = agg_info
+        # Cap INFO and AF values at 3 sig-figs to avoid blowing up the output file size w/ overprecision
+        result['AF'] = np.vectorize(round_to_n_sig_figs)(agg_af, 3)
+        result['INFO'] = np.vectorize(round_to_n_sig_figs)(agg_info, 3)
         result.to_csv(out, sep='\t', header=False, index=False)
 
 EOF
@@ -364,7 +370,7 @@ task CreateHomRefSitesOnlyVcf {
 task ConvertCramManifestToInputArrays {
     input {
         File cram_manifest
-    }   
+    }
 
     command <<<
         cat <<EOF > script.py
@@ -384,13 +390,13 @@ task ConvertCramManifestToInputArrays {
 
         # Read the manifest
         df = pd.read_csv("~{cram_manifest}", sep='\t')
-        
+
         # Check for required columns
         required_cols = ['sample_id', 'cram_path', 'cram_index_path']
         missing_cols = [col for col in required_cols if col not in df.columns]
-        
+
         if missing_cols:
-            print(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.", file=sys.stderr) 
+            print(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.", file=sys.stderr)
             exit(1)
         else:
             # Write to output files, stripping leading/trailing whitespace from each value
