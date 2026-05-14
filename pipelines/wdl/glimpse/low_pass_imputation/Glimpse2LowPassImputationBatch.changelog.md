@@ -1,3 +1,8 @@
+# 0.0.3
+2026-05-13 (Date of Last Commit)
+
+* updates to support a newer version of the GLIMPSE docker image, which includes a fix for non-deterministic output during phasing when using 1 CPU.
+
 # 0.0.2
 2026-05-11 (Date of Last Commit)
 
