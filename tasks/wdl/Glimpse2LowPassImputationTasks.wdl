@@ -173,7 +173,7 @@ with open('aggregated_annotations.tsv', 'w') as out:
 
         def round_to_n_sig_figs(x, n):
             if x == 0:
-                return 0
+                return 0.0
             return round(float(x), n - 1 - int(np.floor(np.log10(abs(x)))))
 
         result = ref_loci.copy()
