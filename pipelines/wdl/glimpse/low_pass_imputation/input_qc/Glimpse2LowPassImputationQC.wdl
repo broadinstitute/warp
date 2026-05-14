@@ -348,8 +348,8 @@ task ValidateCramContents {
         export GCS_OAUTH_TOKEN=`gcloud auth application-default print-access-token`
 
         # configure billing project to use for requester pays buckets, if billing project provided
-        if [ -n "$billing_project" ]; then
-            echo "Using billing project '$billing_project' for requester pays buckets."
+        if [ -n "~{billing_project}" ]; then
+            echo "Using billing project '~{billing_project}' for requester pays buckets."
             export GCS_REQUESTER_PAYS_PROJECT=~{billing_project}
         fi
 
