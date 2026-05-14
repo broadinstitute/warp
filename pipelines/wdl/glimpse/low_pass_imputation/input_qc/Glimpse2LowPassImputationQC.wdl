@@ -345,8 +345,7 @@ task ValidateCramContents {
 
     command <<<
         # set up auth for accessing files using samtools
-        gcloud auth application-default print-access-token > token.txt
-        export HTS_AUTH_LOCATION="token.txt"
+        export GCS_OAUTH_TOKEN=`gcloud auth application-default print-access-token`
 
         # configure billing project to use for requester pays buckets, if billing project provided
         if [ -n "$billing_project" ]; then
@@ -405,7 +404,7 @@ task ValidateCramContents {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+        docker: "us.gcr.io/broad-dsp-lrma/lr-gcloud-samtools:0.1.23.1"
         cpu: 1
         disks: "local-disk 10 HDD"
         memory: "4 GiB"
