@@ -1,3 +1,18 @@
+# 0.0.10
+2026-05-13 (Date of Last Commit)
+
+* Update GLIMPSE docker image to latest, which includes a fix for non-deterministic output during phasing when using 1 CPU
+
+# 0.0.9
+2026-05-11 (Date of Last Commit)
+
+* add batch wdl pipeline version
+
+# 0.0.8
+2026-05-08 (Date of Last Commit)
+
+* Add support for optional cram_manifest input
+
 # 0.0.7
 2026-04-30 (Date of Last Commit)
 

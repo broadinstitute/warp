@@ -5,7 +5,8 @@ version 1.0
 # which can handle larger sample sizes by splitting into batches and then merging results.
 
 workflow Glimpse2LowPassImputationBatch {
-    String pipeline_version = "0.0.1"
+    # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
+    String pipeline_version = "0.0.3"
 
     input {
 
@@ -32,8 +33,6 @@ workflow Glimpse2LowPassImputationBatch {
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
         String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
     }
-
-    Int n_samples = length(crams)
 
     if (length(crams) > 1) {
         call SplitIntoBatches {
@@ -93,12 +92,9 @@ workflow Glimpse2LowPassImputationBatch {
         File phase_input_vcf = select_first([BcftoolsMerge.merged_vcf, BcftoolsNorm.output_vcf[0]])
         File phase_input_vcf_index = select_first([BcftoolsMerge.merged_vcf_index, BcftoolsNorm.output_vcf_index[0]])
 
-        ## this task is used to grab the reference chunk but does not affect memory usage of glimpsePhase.
-        ## still tbd which method makes the most sense cost wise
         call ComputeShardsAndMemoryPerShard {
             input:
-                reference_chunks_memory = reference_chunks,
-                n_samples = n_samples
+                reference_chunks_memory = reference_chunks
         }
 
         scatter (reference_chunk_index in range(length(ComputeShardsAndMemoryPerShard.reference_chunk_file_paths))) {
@@ -113,6 +109,7 @@ workflow Glimpse2LowPassImputationBatch {
                     sample_ids = sample_ids,
                     fasta = fasta,
                     fasta_index = fasta_index,
+                    mem_gb = ComputeShardsAndMemoryPerShard.mem_gb_per_chunk[reference_chunk_index],
                     docker = glimpse_docker
             }
         }
@@ -195,7 +192,6 @@ task SplitIntoBatches {
 task ComputeShardsAndMemoryPerShard {
     input {
         File reference_chunks_memory
-        Int n_samples
     }
 
     command <<<
@@ -204,13 +200,13 @@ task ComputeShardsAndMemoryPerShard {
         import numpy as np
 
 
-        df = pd.read_csv('~{reference_chunks_memory}', sep='\t', header=None, names=['contig', 'reference_shard', 'base_gb', 'slope_per_sample_gb'])
+        df = pd.read_csv('~{reference_chunks_memory}', sep='\t', header=None, usecols=[0,1,2], names=['contig', 'reference_shard', 'base_gb'])
 
         # write out reference shards to process
         df['reference_shard'].to_csv('reference_shard_file_paths.tsv', sep='\t', index=False, header=None)
 
         # calculate memory usage and save to file
-        df['mem_gb'] = df['base_gb'] + df['slope_per_sample_gb'] * ~{n_samples}
+        df['mem_gb'] = df['base_gb']
         df['mem_gb'] = df['mem_gb'].apply(lambda x: min(256, int(np.ceil(x))))  # cap at 256 GB
         df['mem_gb'].to_csv('memory_per_chunk.tsv', sep='\t', index=False, header=None)
         EOF
@@ -368,7 +364,7 @@ task BcftoolsMerge {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-dsde-methods/bcftools:v1.3"
+        docker: "us.gcr.io/broad-dsde-methods/vcfeval_docker:v1.1"
         disks: "local-disk " + disk_size_gb + " HDD"
         memory: mem_gb + " GiB"
         cpu: cpu
@@ -427,7 +423,7 @@ task GlimpsePhase {
     command <<<
         set -euo pipefail
 
-        export GCS_OAUTH_TOKEN=$(/root/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
+        export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
 
         cram_paths=( ~{sep=" " crams} )
         cram_index_paths=( ~{sep=" " cram_indices} )

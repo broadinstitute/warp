@@ -177,6 +177,38 @@ meta {
 }
 ```
 
+### WDL Style
+Follow [WARP_WDL_Style_Guide.md](../WARP_WDL_Style_Guide.md) for formatting, naming, `parameter_meta`, and the `<<CODE` heredoc convention for inline Python in `command` blocks (quoted terminators like `<<'PYEOF'` suppress `~{}` interpolation and are not used here).
+
+### GPU Runtime Keys
+Use camelCase `gpuType`, `gpuCount`, and `nvidiaDriverVersion` in `runtime` blocks — universally portable across Cromwell/Terra/GCP. The snake_case aliases (`hardware_gpu_type`, `nvidia_driver_version`) are not portable.
+
+## Documentation
+
+Two-tier layout for every pipeline:
+
+- **In-repo `README.md`** (`pipelines/wdl/<name>/README.md`) — slim: one-sentence summary, link to the full docs page on the WARP site, minimal "Running the pipeline" snippet, required inputs at a glance, link to the pipeline changelog. Do not mirror the full docs page here.
+- **Docs-site page** (`website/docs/Pipelines/<Name>_Pipeline/README.md`) — full documentation. Required Docusaurus frontmatter:
+  ```yaml
+  ---
+  sidebar_position: 1
+  slug: /Pipelines/<Name>_Pipeline/README
+  ---
+  ```
+
+For Docusaurus markdown conventions (admonitions, tabs, code-block highlighting, tables, cross-refs) follow [website/docs/contribution/contribute_to_warp_docs/doc_style.md](../website/docs/contribution/contribute_to_warp_docs/doc_style.md). For site build/serve commands follow [website/docs/contribution/contribute_to_warp_docs/docsite_maintenance.md](../website/docs/contribution/contribute_to_warp_docs/docsite_maintenance.md).
+
+**Validate docs changes** with a full build (catches broken links and bad frontmatter):
+```bash
+yarn --cwd=website install   # first time only
+yarn --cwd=website build
+```
+`yarn --cwd=website start` is fine for previewing but does not fail on broken links.
+
+**Cross-page links**: prefer relative paths to other pipeline pages (e.g. `[Multiome](../Multiome_Pipeline/README.md)`). When the target lacks a docs page, link to the GitHub source rather than a non-resolving relative path.
+
+**Stale example/test inputs**: when renaming a workflow or removing/renaming inputs, audit `pipelines/wdl/<name>/example_inputs/*.json` and `test_inputs/**/*.json` — these break silently because they are not validated by womtool.
+
 ## GitHub Workflows and CI/CD
 
 ### Workflow Path Triggers
