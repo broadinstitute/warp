@@ -357,6 +357,9 @@ task ValidateCramContents {
         ref_dict="~{ref_dict}"
 
         declare -A ref_md5sums
+        expected_count=${#contigs[@]}
+        found_count=0
+        
         while read -r line; do
             if [[ $line == @SQ* ]]; then
                 chrom=$(echo "$line" | awk '{for(i=1;i<=NF;i++) if($i~/^SN:/) print substr($i,4)}')
@@ -364,9 +367,10 @@ task ValidateCramContents {
 
                 if [[ " ${contigs[@]} " =~ " ${chrom} " ]]; then
                     ref_md5sums["$chrom"]="$md5"
-
+                    found_count=$((found_count + 1))
+                    
                     # Check if we've found all contigs
-                    if [[ $${#ref_md5sums[@]} -eq $${#contigs[@]} ]]; then
+                    if [[ $found_count -eq $expected_count ]]; then
                         break
                     fi
                 fi
@@ -382,6 +386,7 @@ task ValidateCramContents {
         for cram in ~{sep=' ' crams}; do
             echo "Validating CRAM file: $cram"
             header=$(samtools view -H "$cram")
+            head -n 5 <<< "$header" # print first 5 lines of header for debugging
             for chrom in "${!ref_md5sums[@]}"; do
                 expected_md5=${ref_md5sums[$chrom]}
                 if ! echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"; then
