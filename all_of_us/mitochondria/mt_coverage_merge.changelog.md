@@ -1,9 +1,9 @@
 # aou_9.1.0
 2026-04-30 (Date of Last Commit)
 
-* refactor to remove non-shardes option for step 3 and unnecessary merge checks 
+* Remove non-sharded option for vcf merge and unnecessary merge checks 
 
-* removed 'skip_summary' option from 'annotate_coverage' task
+* Removed 'skip_summary' option from 'annotate_coverage' task
 
 * Updated docker image references from `aou-mitochondrial-combine-vcfs-covdb` to `aou-mito-hail-processing:1.0.0` as part of mito docker consolidation
 
