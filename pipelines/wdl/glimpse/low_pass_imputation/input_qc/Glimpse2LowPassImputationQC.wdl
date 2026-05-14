@@ -345,7 +345,8 @@ task ValidateCramContents {
 
     command <<<
         # set up auth for accessing files using samtools
-        export GCS_OAUTH_TOKEN=$(gcloud auth application-default print-access-token)
+        gcloud auth application-default print-access-token > token.txt
+        export HTS_AUTH_LOCATION="token.txt"
 
         # configure billing project to use for requester pays buckets, if billing project provided
         if [ -n "$billing_project" ]; then
@@ -365,11 +366,8 @@ task ValidateCramContents {
                 if [[ " ${contigs[@]} " =~ " ${chrom} " ]]; then
                     ref_md5sums["$chrom"]="$md5"
 
-                    echo  ${contigs[@]}
-                    echo ${chrom}
-                    
                     # Check if we've found all contigs
-                    if [[ ${#ref_md5sums[@]} -eq ${#contigs[@]} ]]; then
+                    if [[ $${#ref_md5sums[@]} -eq $${#contigs[@]} ]]; then
                         break
                     fi
                 fi
