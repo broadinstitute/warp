@@ -86,27 +86,26 @@ workflow Glimpse2LowPassImputation {
         Array[File] batch_vcfs_for_contig = transpose(RunBatch.imputed_contig_ligated_vcfs)[contig_idx]
         Array[File] batch_vcf_indices_for_contig = transpose(RunBatch.imputed_contig_ligated_vcf_indices)[contig_idx]
 
-        # Extract AF and INFO annotations from each batch before merging so they can be recalculated
-        scatter(batch_annot_idx in range(length(batch_vcfs_for_contig))) {
-            call Glimpse2LowPassImputationTasks.ExtractAnnotations {
-                input:
-                    imputed_vcf = batch_vcfs_for_contig[batch_annot_idx],
-                    imputed_vcf_index = batch_vcf_indices_for_contig[batch_annot_idx],
-                    batch_index = batch_annot_idx,
-                    docker_extract_annotations = gatk_docker
-            }
-        }
-
-        # Paste all batches' sample columns together for this contig
-        call Glimpse2LowPassImputationTasks.MergeSampleChunksVcfsWithPaste as MergeContigVcfs {
-            input:
-                input_vcfs = batch_vcfs_for_contig,
-                output_vcf_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged"
-        }
-
-        # Recompute AF and INFO as weighted averages across batches and apply back to the merged VCF.
-        # Skip when there is only one batch since the single-batch annotations are already correct
+        # For multiple batches: paste sample columns together, recompute AF/INFO as weighted averages.
+        # For a single batch: skip both steps since the batch VCF already has correct annotations.
         if (length(SplitIntoSampleBatches.crams_batches) > 1) {
+            # Extract AF and INFO annotations from each batch before merging so they can be recalculated
+            scatter(batch_annot_idx in range(length(batch_vcfs_for_contig))) {
+                call Glimpse2LowPassImputationTasks.ExtractAnnotations {
+                    input:
+                        imputed_vcf = batch_vcfs_for_contig[batch_annot_idx],
+                        imputed_vcf_index = batch_vcf_indices_for_contig[batch_annot_idx],
+                        batch_index = batch_annot_idx,
+                        docker_extract_annotations = gatk_docker
+                }
+            }
+
+            call Glimpse2LowPassImputationTasks.MergeSampleChunksVcfsWithPaste as MergeContigVcfs {
+                input:
+                    input_vcfs = batch_vcfs_for_contig,
+                    output_vcf_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged"
+            }
+
             call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate {
                 input:
                     merged_vcf = MergeContigVcfs.output_vcf,
@@ -117,7 +116,7 @@ workflow Glimpse2LowPassImputation {
             }
         }
 
-        File annotated_contig_vcf = select_first([RecomputeAndAnnotate.merged_imputed_vcf, MergeContigVcfs.output_vcf])
+        File annotated_contig_vcf = select_first([RecomputeAndAnnotate.merged_imputed_vcf, batch_vcfs_for_contig[0]])
 
         # Now that the full cohort is merged and annotations are correct, split into variant-only and hom-ref-only
         call Glimpse2LowPassImputationTasks.SelectVariantRecordsOnly as SelectContigVariants {
