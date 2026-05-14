@@ -1,3 +1,8 @@
+# 0.0.4
+2026-05-13 (Date of Last Commit)
+
+* pointed to correct default image for GLIMPSE
+
 # 0.0.3
 2026-05-13 (Date of Last Commit)
 
