@@ -346,6 +346,7 @@ task ValidateCramContents {
     command <<<
         # set up auth for accessing files using samtools
         export GCS_OAUTH_TOKEN=`gcloud auth application-default print-access-token`
+        touch qc_messages.txt
 
         # configure billing project to use for requester pays buckets, if billing project provided
         if [ -n "~{billing_project}" ]; then
