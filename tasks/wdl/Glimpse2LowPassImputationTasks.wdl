@@ -6,8 +6,8 @@ task MergeSampleChunksVcfsWithPaste {
         String output_vcf_basename
 
         Int disk_size_gb = ceil(2.2 * size(input_vcfs, "GiB") + 50)
-        Int mem_gb = 12
-        Int cpu = 4
+        Int mem_gb = 8
+        Int cpu = 2
         Int preemptible = 3
     }
 
@@ -92,7 +92,7 @@ task ExtractAnnotations {
         String docker_extract_annotations
         Int disk_size_gb = ceil(2 * size(imputed_vcf, "GiB") + 50)
         Int mem_gb = 2
-        Int cpu = 2
+        Int cpu = 1
         Int preemptible = 1
     }
 
@@ -125,8 +125,8 @@ task RecomputeAndAnnotate {
 
         String docker_merge
         Int disk_size_gb = ceil(2.2 * size(merged_vcf, "GiB") + size(annotations, "GiB") + 50)
-        Int mem_gb = 8
-        Int cpu = 2
+        Int mem_gb = 6
+        Int cpu = 1
         Int preemptible = 1
         Int chunk_size = 100000
     }
