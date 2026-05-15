@@ -1,3 +1,8 @@
+# 3.0.0
+2026-04-02 (Date of Last Commit)
+
+* Removed the `count_exons` input from the PairedTag workflow following its removal from Optimus v9.0.0. Default behavior is unchanged (the default was `false`).
+
 # 2.1.11
 2026-02-24 (Date of Last Commit)
 

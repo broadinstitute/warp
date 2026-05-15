@@ -6,7 +6,7 @@ import "../optimus/Optimus.wdl" as optimus
 
 workflow SlideTags {
 
-    String pipeline_version = "1.0.8"
+    String pipeline_version = "2.0.0"
 
     input {
 
@@ -33,7 +33,6 @@ workflow SlideTags {
         Boolean force_no_check = false
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Reverse"
-        Boolean count_exons = false
         String? soloMultiMappers
         String? gex_nhash_id
         File? mt_genes
@@ -67,7 +66,6 @@ workflow SlideTags {
             force_no_check = force_no_check,
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
-            count_exons = count_exons,
             soloMultiMappers = soloMultiMappers,
             gex_expected_cells = expected_cells
     }
@@ -139,4 +137,3 @@ workflow SlideTags {
 
      }
 }
-

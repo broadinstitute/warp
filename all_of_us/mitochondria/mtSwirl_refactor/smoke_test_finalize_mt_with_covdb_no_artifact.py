@@ -64,7 +64,7 @@ def main() -> None:
             mt,
             coverage_h5_path=str(covdb_path),
             minimum_homref_coverage=100,
-            position_block_size=2,
+            position_block_size=1,
         )
 
         mt = mt.checkpoint(str(tmp_path / "final.mt"), overwrite=True, stage_locally=True)
