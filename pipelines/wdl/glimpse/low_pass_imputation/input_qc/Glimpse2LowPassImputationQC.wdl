@@ -342,6 +342,7 @@ task ValidateCramContents {
     }
 
     String billing_project = select_first([billing_project_for_rp, ""])
+    String ref_dict_basename = basename(ref_dict)
 
     command <<<
         # set up auth for accessing files using samtools
@@ -357,6 +358,7 @@ task ValidateCramContents {
 
         contigs=(~{sep=' ' contigs})
         ref_dict="~{ref_dict}"
+        ref_dict_basename="~{ref_dict_basename}"
 
         declare -A ref_md5sums
         expected_count=${#contigs[@]}
@@ -384,23 +386,52 @@ task ValidateCramContents {
             echo "  $chrom: ${ref_md5sums[$chrom]}"
         done
 
+        crams_with_bad_or_missing_md5sums=()
         # read cram headers to validate that they contain the expected reference alignment MD5sums
         for cram in ~{sep=' ' crams}; do
             echo "Validating CRAM file: $cram"
             header=$(samtools view -H "$cram")
-            head -n 5 <<< "$header" # print first 5 lines of header for debugging
+            cram_ok=true
             for chrom in "${!ref_md5sums[@]}"; do
                 expected_md5=${ref_md5sums[$chrom]}
-                echo "Checking for expected reference alignment MD5 for contig $chrom (expected SN:$chrom and M5:$expected_md5 on the same line in header)"
                 echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"
                 if ! echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"; then
-                    echo "writing QC message to file"
-                    echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom (expected SN:$chrom with M5:$expected_md5 in header)" >> qc_messages.txt
-                else
-                    echo "CRAM file $cram contains expected reference alignment MD5 for contig $chrom."
+                    echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom or it does not match the expected value."
+                    crams_with_bad_or_missing_md5sums+=("$cram")
+                    cram_ok=false
+                    break # no need to check other contigs for this cram if one is already missing or has a bad md5sum
                 fi
             done
+            if [ "$cram_ok" = true ]; then
+                echo "CRAM file $cram contains expected reference alignment MD5sums for all expected contigs."
+            fi
         done
+
+        # if crams_with_bad_or_missing_md5sums is not empty, write an error message to qc_messages.txt
+        MAX_ITEMS_IN_ERROR_MESSAGES=5
+        n_bad_crams=${#crams_with_bad_or_missing_md5sums[@]}
+        if [ $n_bad_crams -ne 0 ]; then
+            {
+                if [ $n_bad_crams -eq 1 ]; then
+                    pluralized=""
+                else
+                    pluralized="s"
+                fi
+                first_part_of_message="Found $n_bad_crams CRAM file$pluralized not aligned to the expected reference ($ref_dict_basename)"
+                
+                # Show only first N items if list is too long
+                if [ $n_bad_crams -gt $MAX_ITEMS_IN_ERROR_MESSAGES ]; then
+                    second_part_of_message="; first $MAX_ITEMS_IN_ERROR_MESSAGES are:"
+                    list_to_show=$(IFS=", "; echo "${crams_with_bad_or_missing_md5sums[*]:0:$MAX_ITEMS_IN_ERROR_MESSAGES}")
+                    echo "$first_part_of_message$second_part_of_message $list_to_show"
+                else
+                    list_to_show=$(IFS=", "; echo "${crams_with_bad_or_missing_md5sums[*]}")
+                    echo "$first_part_of_message: $list_to_show"
+                fi
+            } >> qc_messages.txt
+        else
+            echo "All CRAM files contain the expected reference alignment MD5sums for the expected contigs."
+        fi
 
         # passes_qc is true if qc_messages is empty
         if [ ! -s qc_messages.txt ]; then
