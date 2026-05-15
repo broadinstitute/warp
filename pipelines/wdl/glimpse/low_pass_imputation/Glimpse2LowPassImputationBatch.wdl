@@ -31,7 +31,7 @@ workflow Glimpse2LowPassImputationBatch {
         Int calling_batch_size = 100
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:31ad8da64611cee375e405b197ebe618832e91b259524d066f5c2ee75f812473"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:a0cd46ee13ef19b9105db6978835e2cc1d08910493f6d140df83cdbacb40afd5"
     }
 
     if (length(crams) > 1) {

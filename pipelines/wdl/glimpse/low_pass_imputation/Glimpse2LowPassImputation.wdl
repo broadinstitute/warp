@@ -34,7 +34,7 @@ workflow Glimpse2LowPassImputation {
         Int sample_batch_size = 1000
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:31ad8da64611cee375e405b197ebe618832e91b259524d066f5c2ee75f812473"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:a0cd46ee13ef19b9105db6978835e2cc1d08910493f6d140df83cdbacb40afd5"
         String docker_merge = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
         Int mem_gb_merge = 32 # TODO: this can be decreased by rewriting the RecomputeAndAnnotate to work in chunks instead of line by line
     }
