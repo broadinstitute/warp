@@ -355,7 +355,7 @@ task ValidateCramContents {
 
         touch qc_messages.txt
 
-        contigs=~{sep=' ' contigs}
+        contigs=(~{sep=' ' contigs})
         ref_dict="~{ref_dict}"
 
         declare -A ref_md5sums
