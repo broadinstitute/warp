@@ -18,10 +18,11 @@ The human-facing guides (last three rows) are canonical for style. Anything *age
 
 1. **Validate all modified WDLs** — and every WDL that imports them (transitively). See *WDL Validation (MANDATORY)* in [.github/copilot-instructions.md](.github/copilot-instructions.md).
 2. **Changelog and versioning** — follow [changelog_style.md](changelog_style.md).
-3. **After merging develop**, grep for duplicate `pipeline_version` lines — keep the higher one.
-4. **Sub-workflow contract** — removing an input from a shared WDL requires removing it from every caller.
-5. **Stale example/test inputs** — when you rename a workflow or remove/rename inputs, audit `pipelines/wdl/<name>/example_inputs/*.json` and `test_inputs/**/*.json`; they break silently because they are not checked by womtool.
-6. **Touching a pipeline's interface** — also update the pipeline's docs page under `website/docs/Pipelines/<Name>_Pipeline/README.md` and run `yarn --cwd=website build` to catch broken links.
+3. **Cascading version bumps** — when modifying a shared task (`tasks/wdl/`), every pipeline that imports it (directly or transitively) needs either a patch bump + changelog note **or** an explicit "no functional impact" entry. See the dependency chains in [.github/copilot-instructions.md](.github/copilot-instructions.md#cascading-version-bumps). Validation passing is not sufficient — changelogs must also be updated.
+4. **After merging develop**, grep for duplicate `pipeline_version` lines — keep the higher one.
+5. **Sub-workflow contract** — removing an input from a shared WDL requires removing it from every caller.
+6. **Stale example/test inputs** — when you rename a workflow or remove/rename inputs, audit `pipelines/wdl/<name>/example_inputs/*.json` and `test_inputs/**/*.json`; they break silently because they are not checked by womtool.
+7. **Touching a pipeline's interface** — also update the pipeline's docs page under `website/docs/Pipelines/<Name>_Pipeline/README.md` and run `yarn --cwd=website build` to catch broken links.
 
 ## Agent-Specific Notes
 
