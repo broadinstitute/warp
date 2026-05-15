@@ -346,7 +346,6 @@ task ValidateCramContents {
     command <<<
         # set up auth for accessing files using samtools
         export GCS_OAUTH_TOKEN=`gcloud auth application-default print-access-token`
-        touch qc_messages.txt
 
         # configure billing project to use for requester pays buckets, if billing project provided
         if [ -n "~{billing_project}" ]; then
@@ -354,7 +353,9 @@ task ValidateCramContents {
             export GCS_REQUESTER_PAYS_PROJECT=~{billing_project}
         fi
 
-        contigs=("""~{sep=' ' contigs}""")
+        touch qc_messages.txt
+
+        contigs=~{sep=' ' contigs}
         ref_dict="~{ref_dict}"
 
         declare -A ref_md5sums
@@ -370,8 +371,8 @@ task ValidateCramContents {
                     ref_md5sums["$chrom"]="$md5"
                     found_count=$((found_count + 1))
                     
-                    # Check if we've found all contigs
                     if [[ $found_count -eq $expected_count ]]; then
+                        echo "Found all ${found_count} expected contigs in reference dictionary."
                         break
                     fi
                 fi
