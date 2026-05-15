@@ -389,8 +389,11 @@ task ValidateCramContents {
             head -n 5 <<< "$header" # print first 5 lines of header for debugging
             for chrom in "${!ref_md5sums[@]}"; do
                 expected_md5=${ref_md5sums[$chrom]}
+                echo "Checking for expected reference alignment MD5 for contig $chrom (expected SN:$chrom and M5:$expected_md5 on the same line in header)"
+                echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"
                 if ! echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"; then
-                    echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom (expected SN:$chrom and M5:$expected_md5 on the same line in header)" >> qc_messages.txt
+                    echo "writing QC message to file"
+                    echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom (expected SN:$chrom with M5:$expected_md5 in header)" >> qc_messages.txt
                 else
                     echo "CRAM file $cram contains expected reference alignment MD5 for contig $chrom."
                 fi
