@@ -1,13 +1,17 @@
 ---
+title: Mitochondria Single Sample Pipeline Overview
 sidebar_position: 1
-slug: /Pipelines/mitochondria_single_sample/README
+slug: /All_of_Us/Mitochondria_Single_Sample/README
+className: aou-doc-page
 ---
+
+ <div className="aou-folder-text">
 
 # Mitochondria Single Sample Pipeline Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [aou_9.0.0](https://github.com/broadinstitute/warp/blob/master/all_of_us/mitochondria/single_sample/mitochondria_single_sample.changelog.md) | May, 2026 | [WARP Pipelines](mailto:warp@broadinstitute.org) | [File an issue](https://github.com/broadinstitute/warp/issues) |
+| [aou_9.0.1](https://github.com/broadinstitute/warp/blob/master/all_of_us/mitochondria/single_sample/mitochondria_single_sample.changelog.md) | May, 2026 | [WARP Pipelines](mailto:warp@broadinstitute.org) | [File an issue](https://github.com/broadinstitute/warp/issues) |
 
 ## Introduction to the Mitochondria Single Sample workflow
 

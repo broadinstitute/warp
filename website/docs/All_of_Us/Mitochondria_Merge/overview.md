@@ -1,7 +1,11 @@
 ---
+title: Mitochondria Merge Pipeline Overview
 sidebar_position: 1
-slug: /Pipelines/MtCoverageMerge_Pipeline/README
+slug: /All_of_Us/Mitochondria_Merge/README
+className: aou-doc-page
 ---
+
+<div className="aou-folder-text">
 
 # Mitochondria Merge Pipeline Overview
 
@@ -15,7 +19,7 @@ The mtDNA Coverage Merge Pipeline ([`mitochondria_merge.wdl`](https://github.com
 
 The pipeline proceeds in six stages: metadata preprocessing, HDF5 coverage database construction, sharded VCF ingestion and multi-round merging, sharded homoplasmic-reference imputation and artifact filtering, and finally a dual-track annotation step that produces both a complete callset and a QC-filtered callset.
 
-A companion utility pipeline, [`get_wgs_median_coverage.wdl`](https://github.com/broadinstitute/warp/blob/master/all_of_us/mitochondria/get_wgs_median_coverage.wdl), can be used to extract WGS median coverage values from per-sample Picard metrics files and produce the `wgs_median_coverage_tsv` input required by this pipeline.
+A companion utility pipeline, [`get_wgs_median_coverage.wdl`](https://github.com/broadinstitute/warp/blob/master/all_of_us/mitochondria/merge/get_wgs_median_coverage.wdl), can be used to extract WGS median coverage values from per-sample Picard metrics files and produce the `wgs_median_coverage_tsv` input required by this pipeline.
 
 ## Quickstart table
 
@@ -38,7 +42,7 @@ The pipeline can be deployed using [Cromwell](https://cromwell.readthedocs.io/en
 
 ### Preparing inputs with get_wgs_median_coverage
 
-The [`get_wgs_median_coverage.wdl`](https://github.com/broadinstitute/warp/blob/master/all_of_us/mitochondria/get_wgs_median_coverage.wdl) utility pipeline reads a two-column TSV (`research_id`, `metrics_path`) pointing to per-sample Picard WGS metrics files and extracts the median coverage value for each sample. Its output (`median_coverage_tsv`) is the `wgs_median_coverage_tsv` input to `mitochondria_merge`. The pipeline shards the input TSV for parallel processing and merges results at the end.
+The [`get_wgs_median_coverage.wdl`](https://github.com/broadinstitute/warp/blob/master/all_of_us/mitochondria/merge/get_wgs_median_coverage.wdl) utility pipeline reads a two-column TSV (`research_id`, `metrics_path`) pointing to per-sample Picard WGS metrics files and extracts the median coverage value for each sample. Its output (`median_coverage_tsv`) is the `wgs_median_coverage_tsv` input to `mitochondria_merge`. The pipeline shards the input TSV for parallel processing and merges results at the end.
 
 ## Inputs
 
