@@ -1,8 +1,13 @@
-# 0.0.4
+# 0.0.5
 2026-05-15 (Date of Last Commit)
 
 * Updated wdl to use latest version of the Glimpse imputation image that is generated from GHA in warp-tools repo
 * Updated CollectQCMetrics task to use mirror.gcr.io version of Hail image
+
+# 0.0.4
+2026-05-14 (Date of Last Commit)
+
+* pointed to correct default GLIMPSE docker image
 
 # 0.0.3
 2026-05-13 (Date of Last Commit)
