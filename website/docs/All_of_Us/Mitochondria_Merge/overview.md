@@ -15,7 +15,7 @@ className: aou-doc-page
 
 ## Introduction to the Mitochondria Merge workflow
 
-The mtDNA Coverage Merge Pipeline ([`mitochondria_merge.wdl`](https://github.com/broadinstitute/warp/blob/master/all_of_us/mitochondria/merge/mitochondria_merge.wdl)) is a cloud-optimized WDL pipeline that takes per-sample mtDNA VCF files and coverage metrics produced by the [Mitochondria Single Sample](../Mitochondria_Single_Sample/README.md) and merges them into a single annotated cohort-wide callset. The pipeline is designed to scale to hundreds of thousands of samples and has been validated on the All of Us (AoU) v9 dataset of 535,000 samples.
+The mtDNA Coverage Merge Pipeline ([`mitochondria_merge.wdl`](https://github.com/broadinstitute/warp/blob/master/all_of_us/mitochondria/merge/mitochondria_merge.wdl)) is a cloud-optimized WDL pipeline that takes per-sample mtDNA VCF files and coverage metrics produced by the [Mitochondria Single Sample](../Mitochondria_Single_Sample/overview.md) and merges them into a single annotated cohort-wide callset. The pipeline is designed to scale to hundreds of thousands of samples and has been validated on the All of Us (AoU) v9 dataset of 535,000 samples.
 
 The pipeline proceeds in six stages: metadata preprocessing, HDF5 coverage database construction, sharded VCF ingestion and multi-round merging, sharded homoplasmic-reference imputation and artifact filtering, and finally a dual-track annotation step that produces both a complete callset and a QC-filtered callset.
 

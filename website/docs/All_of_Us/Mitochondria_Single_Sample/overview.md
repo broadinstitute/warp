@@ -19,7 +19,7 @@ The Mitochondria Mitochondria Single Sample Pipeline ([`mitochondria_single_samp
 
 The pipeline is based on the [mtSwirl v2.5_MongoSwirl_Single](https://github.com/rahulg603/mtSwirl) methodology and implements a two-round alignment and variant calling strategy. In the first round, reads are aligned to the standard hg38 mitochondrial reference and variants are called with Mutect2. A personalized self-reference is then constructed from the called variants, and in the second round reads are realigned to this self-reference for improved variant calling accuracy. Variant calls from the second round are lifted back to hg38 coordinates for a consistent final output.
 
-The pipeline optionally computes NUMT (nuclear mitochondrial DNA segment) coverage metrics for quality control purposes. Outputs from this pipeline — particularly the final VCF and per-base coverage metrics — serve as per-sample inputs to the [`MitochondriaMerge`](../MtCoverageMerge_Pipeline/README.md) cohort-level pipeline.
+The pipeline optionally computes NUMT (nuclear mitochondrial DNA segment) coverage metrics for quality control purposes. Outputs from this pipeline — particularly the final VCF and per-base coverage metrics — serve as per-sample inputs to the [`MitochondriaMerge`](../Mitochondria_Merge/overview.md) cohort-level pipeline.
 
 This pipeline was originally released as part of: Gupta, R., Kanai, M., Durham, T.J. et al. Nuclear genetic control of mtDNA copy number and heteroplasmy in humans. *Nature*, 2023. https://doi.org/10.1038/s41586-023-06426-5.
 
