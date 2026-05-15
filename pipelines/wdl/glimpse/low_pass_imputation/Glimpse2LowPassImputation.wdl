@@ -4,8 +4,8 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "0.0.10"
-    String batch_pipeline_version = "0.0.3"
+    String pipeline_version = "0.0.11"
+    String batch_pipeline_version = "0.0.4"
     String quota_consumed_version = "0.0.2"
     String input_qc_version = "1.0.1"
 
@@ -36,7 +36,6 @@ workflow Glimpse2LowPassImputation {
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
         String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:a0151730cefaaa9ef78b7f9644c63ebb00ce6cd470fa0d60349daa5eee020aec"
         String docker_merge = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
-        Int mem_gb_merge = 32 # TODO: this can be decreased by rewriting the RecomputeAndAnnotate to work in chunks instead of line by line
     }
 
     if (defined(cram_manifest)) {
@@ -87,45 +86,48 @@ workflow Glimpse2LowPassImputation {
         Array[File] batch_vcfs_for_contig = transpose(RunBatch.imputed_contig_ligated_vcfs)[contig_idx]
         Array[File] batch_vcf_indices_for_contig = transpose(RunBatch.imputed_contig_ligated_vcf_indices)[contig_idx]
 
-        # Extract AF and INFO annotations from each batch before merging so they can be recalculated
-        scatter(batch_annot_idx in range(length(batch_vcfs_for_contig))) {
-            call Glimpse2LowPassImputationTasks.ExtractAnnotations {
+        # For multiple batches: paste sample columns together, recompute AF/INFO as weighted averages.
+        # For a single batch: skip both steps since the batch VCF already has correct annotations.
+        if (length(SplitIntoSampleBatches.crams_batches) > 1) {
+            # Extract AF and INFO annotations from each batch before merging so they can be recalculated
+            scatter(batch_annot_idx in range(length(batch_vcfs_for_contig))) {
+                call Glimpse2LowPassImputationTasks.ExtractAnnotations {
+                    input:
+                        imputed_vcf = batch_vcfs_for_contig[batch_annot_idx],
+                        imputed_vcf_index = batch_vcf_indices_for_contig[batch_annot_idx],
+                        batch_index = batch_annot_idx,
+                        docker_extract_annotations = gatk_docker
+                }
+            }
+
+            call Glimpse2LowPassImputationTasks.MergeSampleChunksVcfsWithPaste as MergeContigVcfs {
                 input:
-                    imputed_vcf = batch_vcfs_for_contig[batch_annot_idx],
-                    imputed_vcf_index = batch_vcf_indices_for_contig[batch_annot_idx],
-                    batch_index = batch_annot_idx,
-                    docker_extract_annotations = gatk_docker
+                    input_vcfs = batch_vcfs_for_contig,
+                    output_vcf_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged"
+            }
+
+            call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate {
+                input:
+                    merged_vcf = MergeContigVcfs.output_vcf,
+                    annotations = ExtractAnnotations.annotations,
+                    num_samples = batch_sample_count,
+                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated",
+                    docker_merge = docker_merge
             }
         }
 
-        # Paste all batches' sample columns together for this contig
-        call Glimpse2LowPassImputationTasks.MergeSampleChunksVcfsWithPaste as MergeContigVcfs {
-            input:
-                input_vcfs = batch_vcfs_for_contig,
-                output_vcf_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged"
-        }
-
-        # Recompute AF and INFO as weighted averages across batches and apply back to the merged VCF
-        call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate {
-            input:
-                merged_vcf = MergeContigVcfs.output_vcf,
-                annotations = ExtractAnnotations.annotations,
-                num_samples = batch_sample_count,
-                output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated",
-                docker_merge = docker_merge,
-                mem_gb = mem_gb_merge
-        }
+        File annotated_contig_vcf = select_first([RecomputeAndAnnotate.merged_imputed_vcf, batch_vcfs_for_contig[0]])
 
         # Now that the full cohort is merged and annotations are correct, split into variant-only and hom-ref-only
         call Glimpse2LowPassImputationTasks.SelectVariantRecordsOnly as SelectContigVariants {
             input:
-                vcf = RecomputeAndAnnotate.merged_imputed_vcf,
+                vcf = annotated_contig_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_variants"
         }
 
         call Glimpse2LowPassImputationTasks.CreateHomRefSitesOnlyVcf as CreateContigHomRefVcf {
             input:
-                vcf = RecomputeAndAnnotate.merged_imputed_vcf,
+                vcf = annotated_contig_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_hom_ref.sites_only"
         }
     }
@@ -135,9 +137,9 @@ workflow Glimpse2LowPassImputation {
     Array[File] batch_coverage_metrics = select_all(RunBatch.coverage_metrics)
 
     if (length(batch_coverage_metrics) > 0) {
-        call Glimpse2LowPassImputationBatch.CombineCoverageMetrics as CombineBatchCoverageMetrics {
+        call Glimpse2LowPassImputationTasks.MergeCoverageMetrics as MergeBatchCoverageMetrics {
             input:
-                cov_metrics = batch_coverage_metrics,
+                coverage_metrics = batch_coverage_metrics,
                 output_basename = output_basename
         }
     }
@@ -186,6 +188,6 @@ workflow Glimpse2LowPassImputation {
         File imputed_hom_ref_sites_only_vcf_md5 = CreateVcfIndexAndMd5HomRefOnly.output_vcf_md5sum
 
         File qc_metrics = CollectQCMetrics.qc_metrics
-        File? coverage_metrics = CombineBatchCoverageMetrics.coverage_metrics
+        File? coverage_metrics = MergeBatchCoverageMetrics.merged_coverage_metrics
     }
 }
