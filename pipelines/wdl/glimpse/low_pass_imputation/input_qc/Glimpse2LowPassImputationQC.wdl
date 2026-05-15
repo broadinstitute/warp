@@ -35,6 +35,7 @@ workflow InputQC {
         }
     }
 
+    # only check cram contents if the previous QC checks passed
     if (ConvertCramManifestToInputArrays.passes_qc && ValidateCramsAndIndicesAndSampleIds.passes_qc) {
         call ValidateCramContents {
             input:
