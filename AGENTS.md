@@ -48,31 +48,19 @@ When you change a pipeline's interface, update **both** artifacts (or, at minimu
 
 ### Validating documentation changes
 
-Before claiming docs work is done, run a full build:
-
-```bash
-yarn --cwd=website install   # first time only
-yarn --cwd=website build     # validates frontmatter and all links
-```
-
-`yarn --cwd=website start` is fine for previewing but does not fail on broken links — always use `build` to validate.
-
-### Cross-page links within the docs site
-
-For links from one pipeline page to another, prefer a relative path that works in Docusaurus, e.g. `[Multiome](../Multiome_Pipeline/README.md)`. When the target does **not** have a docs page, link to the GitHub source (e.g. `https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/peak_calling`) rather than a non-resolving relative path.
-
-### WDL inline-Python heredoc convention
-
-Use unquoted `<<CODE` heredocs for inline Python inside `command { ... }` blocks so that `~{}` WDL interpolation still works. Quoted heredoc terminators such as `<<'PYEOF'` suppress WDL interpolation and are not used in this repo. Canonical reference: [WARP_WDL_Style_Guide.md](WARP_WDL_Style_Guide.md) §9.
-
-### GPU runtime keys
-
-For GPU tasks, the runtime keys understood by both Cromwell on Terra/GCP and by womtool are `gpuType`, `gpuCount`, and `nvidiaDriverVersion` (camelCase). Some snake_case aliases (`hardware_gpu_type`, `nvidia_driver_version`) are accepted by certain Cromwell configurations but are not universally portable — prefer the camelCase form when authoring new pipelines.
+See *Documentation → Validate docs changes* in [.github/copilot-instructions.md](.github/copilot-instructions.md). The key distinction: `yarn --cwd=website start` does not fail on broken links — always use `yarn --cwd=website build` before marking docs work complete.
 
 ### `input_id` output prefix pattern
 
 When a pipeline emits per-sample artifacts, accept a `String input_id` workflow input and prefix every output filename with `~{input_id}_`. This matches the convention used by scANVI, Optimus, Multiome, and other Skylab-origin pipelines.
 
+### Optimus/Skylab chemistry and reference assets
+
+When adding support for a new 10x chemistry in Optimus:
+- Use `tenx_chemistry_version` (Integer, e.g. `4`) for the major chemistry version and `tenx_chemistry_subversion` (optional String, e.g. `"v4_TRU"`) for whitelist variant selection within that version.
+- Optimus whitelist files live at `gs://gcp-public-data--broad-references/optimus_whitelists/`. Do **not** use the old `RNA/resources/` path (which contained a `febrary` typo and is incorrect).
+- Validate that inputs required by a given chemistry (e.g. `i1_fastq` for v4) are enforced via `ErrorWithMessage` when the chemistry version demands them.
+
 ### When you discover a recurring agent mistake
 
-Record it here (under *Agent-Specific Notes*) or in [.github/copilot-instructions.md](.github/copilot-instructions.md) — not in the human-facing style guides. Keep entries short and link out to the canonical reference rather than duplicating it.
+Record it here (under *Agent-Specific Notes*) or in [.github/copilot-instructions.md](.github/copilot-instructions.md) — not in the human-facing style guides. Keep entries short and link out to the canonical reference rather than duplicating it. **Before adding a new note, check whether the information is already in copilot-instructions.md** — prefer a one-line reference over a duplicate section.
