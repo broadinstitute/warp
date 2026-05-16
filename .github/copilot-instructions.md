@@ -43,11 +43,6 @@ import "../../../tasks/wdl/UnmappedBamToAlignedBam.wdl" as ToBam
 import "../../../structs/dna_seq/DNASeqStructs.wdl"
 ```
 
-Verify no legacy paths remain: the following command should return nothing.
-```bash
-grep -rn 'tasks/broad\|tasks/skylab\|pipelines/broad\|pipelines/skylab' pipelines tasks verification
-```
-
 ### Sub-workflow Input Contract
 A WDL file defines a **single input contract for all callers**. You cannot expose an input to one workflow but hide it from another that imports the same WDL. To remove a parameter from one consumer, you must remove it from the shared task/sub-workflow **and** from every caller.
 
