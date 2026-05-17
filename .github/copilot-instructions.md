@@ -43,11 +43,6 @@ import "../../../tasks/wdl/UnmappedBamToAlignedBam.wdl" as ToBam
 import "../../../structs/dna_seq/DNASeqStructs.wdl"
 ```
 
-Verify no legacy paths remain: the following command should return nothing.
-```bash
-grep -rn 'tasks/broad\|tasks/skylab\|pipelines/broad\|pipelines/skylab' pipelines tasks verification
-```
-
 ### Sub-workflow Input Contract
 A WDL file defines a **single input contract for all callers**. You cannot expose an input to one workflow but hide it from another that imports the same WDL. To remove a parameter from one consumer, you must remove it from the shared task/sub-workflow **and** from every caller.
 
@@ -85,10 +80,12 @@ Each pipeline has a `<PipelineName>.changelog.md` file. For each new version:
 When a shared task changes, every workflow that imports it may need a version bump. Common dependency chains:
 
 - `tasks/wdl/StarAlign.wdl` → **Optimus**, **SlideSeq**, **Multiome** (via Optimus), **PairedTag** (via Optimus), **SlideTags** (via Optimus), **MultiSampleSmartSeq2SingleNucleus**
-- `tasks/wdl/CheckInputs.wdl` → **Optimus** and its wrappers (Multiome, PairedTag, SlideTags)
+- `tasks/wdl/CheckInputs.wdl` → **Optimus** (via `checkOptimusInput`) and its wrappers (**Multiome**, **PairedTag**, **SlideTags**); also **MultiSampleSmartSeq2SingleNucleus** (via `checkInputArrays`, a separate task in the same file). Note: SlideSeq imports this file but never calls any of its tasks — changes to CheckInputs.wdl task signatures do not functionally affect SlideSeq through this import.
 - `tasks/wdl/Metrics.wdl` → Most Skylab-origin pipelines
 
 For each dependent pipeline, either bump the version with a changelog note **or** add a "no functional impact" note explaining why the change is benign for that pipeline.
+
+> **Important:** passing womtool validation is **not sufficient** to satisfy cascading bump requirements. Womtool only checks task call signatures — it does not enforce changelog updates. When CI reports "X.changelog.md has not been changed and needs to be updated", that is a cascading bump violation: patch-bump the WDL version, add a changelog entry (even "no functional impact"), and update `pipeline_versions.txt`.
 
 ### Test Inputs
 Test JSON inputs live at two locations per pipeline:
@@ -112,7 +109,7 @@ Use build scripts for releases:
 ## Critical Workflows
 
 ### WDL Validation (MANDATORY)
-The womtool JAR is expected at at a user-specific location such as `~/womtool-90.jar`, the appropriate version of Java must also be availible. A convenience wrapper also exists at `scripts/validate_wdls.sh`.
+The womtool JAR is expected at a user-specific location such as `~/womtool-90.jar`. The appropriate version of Java must also be available. A convenience wrapper also exists at `scripts/validate_wdls.sh`.
 
 Validate a single file:
 ```bash
@@ -152,15 +149,19 @@ done
 ## Structural Conventions
 
 ### Multi-cloud Support
-Pipelines support GCP/Azure via `cloud_provider` input and conditional docker selection:
+Pipelines support GCP/Azure via a `cloud_provider` input. The pattern varies by pipeline origin:
+
+**Broad-origin pipelines** (DNA-seq, arrays, genotyping) maintain dual docker registries and validate `cloud_provider` at runtime:
 ```wdl
 String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
 String gatk_docker_azure = "terrapublic.azurecr.io/gatk:4.6.1.0"
 String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
 ```
 
+**Skylab-origin pipelines** (Optimus, Multiome, ATAC-seq, PairedTag, SlideTags, SlideSeq, RNAWithUMIs, MultiSampleSmartSeq2) default `cloud_provider = "gcp"` and do **not** maintain Azure docker registries. Do not add Azure docker alternatives to these pipelines.
+
 ### Error Handling
-Use `ErrorWithMessage` task for input validation:
+Use `ErrorWithMessage` task for input validation. For broad-origin pipelines validating `cloud_provider`:
 ```wdl
 if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
   call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
