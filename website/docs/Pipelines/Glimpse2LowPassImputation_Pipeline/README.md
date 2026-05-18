@@ -58,10 +58,10 @@ This gateway workflow expects CRAM-based inputs and a GLIMPSE2-compatible refere
 | `call_indels`                    | Whether to include indels during calling/imputation (default: `false`)                                              |
 | `calling_batch_size`             | Batch size for CRAM calling inside each batch subworkflow (default: `100`)                                          |
 | `sample_batch_size`              | Batch size at gateway level for splitting very large cohorts (default: `1000`)                                      |
+| `glimpse_phase_cpu_override`     | Optional cpu override for GlimpsePhase task (default: `4`)                                                          |
 | `gatk_docker`                    | GATK Docker image                                                                                                   |
 | `glimpse_docker`                 | GLIMPSE2 Docker image                                                                                               |
 | `docker_merge`                   | Docker used for merge/re-annotation step                                                                            |
-| `mem_gb_merge`                   | Memory (GB) for post-batch merge/re-annotation (default: `32`)                                                      |
 
 ### Workflow Tasks
 
@@ -77,7 +77,7 @@ The top-level workflow orchestrates batching, per-batch imputation, and cohort-l
 | `RecomputeAndAnnotate`                               | Recompute AF/INFO across merged cohort and write updated contig VCF | Merged contig VCF + extracted annotations                  | Restores cohort-correct annotations after paste-based merge |
 | `SelectContigVariants`                               | Create variants-only contig VCF                                     | Re-annotated contig VCF                                    | Removes homozygous-reference-only records                   |
 | `CreateContigHomRefVcf`                              | Create hom-ref-sites-only contig VCF                                | Re-annotated contig VCF                                    | Keeps homozygous-reference-only sites                       |
-| `CombineBatchCoverageMetrics`                        | Combine optional coverage metric files across batches               | `RunBatch.coverage_metrics`                                | Produces aggregated coverage table when metrics exist       |
+| `MergeBatchCoverageMetrics`                          | Combine optional coverage metric files across batches               | `RunBatch.coverage_metrics`                                | Produces aggregated coverage table when metrics exist       |
 | `GatherVcfsNoIndex`                                  | Gather contig variant VCFs into genome-wide variant VCF             | Variant-only contig VCFs                                   | Produces final genome-wide variant VCF                      |
 | `CreateVcfIndexAndMd5`                               | Index and checksum final variant VCF                                | Gathered variant VCF                                       | Creates `.tbi` and md5                                      |
 | `GatherVcfsNoIndexHomRefOnly`                        | Gather contig hom-ref-sites-only VCFs                               | Hom-ref contig VCFs                                        | Produces final genome-wide hom-ref-sites-only VCF           |
@@ -131,17 +131,17 @@ It is designed for cohorts up to roughly 1000 samples per batch, then returns co
 
 ### Batch Internal Processing
 
-| Step                                   | Purpose                                                                               |
-|----------------------------------------|---------------------------------------------------------------------------------------|
-| `SplitIntoBatches` (conditional)       | Splits CRAMs/CRAIs/sample IDs into internal calling batches                           |
-| `BcftoolsMpileup`                      | Computes pileups at panel sites per internal batch                                    |
-| `BcftoolsCall`                         | Calls candidate variants from mpileup output                                          |
-| `BcftoolsNorm`                         | Normalizes and indexes called variants                                                |
-| `BcftoolsMerge` (conditional)          | Merges per-internal-batch VCFs if multiple were produced                              |
-| `ComputeShardsAndMemoryPerShard`       | Reads reference chunks and computes per-shard memory estimates                        |
-| `GlimpsePhase`                         | Runs `GLIMPSE2_phase` for each reference shard                                        |
-| `GlimpseLigate`                        | Ligates shard outputs to one contig-level imputed VCF and updates sequence dictionary |
-| `CombineCoverageMetrics` (conditional) | Combines optional shard/contig coverage metric files                                  |
+| Step                                      | Purpose                                                                               |
+|-------------------------------------------|---------------------------------------------------------------------------------------|
+| `SplitIntoBatches` (conditional)          | Splits CRAMs/CRAIs/sample IDs into internal calling batches                           |
+| `BcftoolsMpileup`                         | Computes pileups at panel sites per internal batch                                    |
+| `BcftoolsCall`                            | Calls candidate variants from mpileup output                                          |
+| `BcftoolsNorm`                            | Normalizes and indexes called variants                                                |
+| `BcftoolsMerge` (conditional)             | Merges per-internal-batch VCFs if multiple were produced                              |
+| `ComputeShardsAndMemoryPerShard`          | Reads reference chunks and computes per-shard memory estimates                        |
+| `GlimpsePhase`                            | Runs `GLIMPSE2_phase` for each reference shard                                        |
+| `GlimpseLigate`                           | Ligates shard outputs to one contig-level imputed VCF and updates sequence dictionary |
+| `MergeBatchCoverageMetrics` (conditional) | Combines optional shard/contig coverage metric files                                  |
 
 ### Batch Outputs
 
