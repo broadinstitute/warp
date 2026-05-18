@@ -19,6 +19,8 @@ This top-level workflow is now a gateway that scales to large cohorts by splitti
 
 The workflow processes each requested contig independently, imputes each sample batch against reference-defined chunks, ligates chunk outputs per batch/contig, merges sample columns across batches, recomputes AF/INFO annotations, and gathers contig outputs into final genome-wide files.
 
+![](pipeline.png)
+
 ### Pipeline Features
 
 | Pipeline features       | Description                                                                           | Source                                                                   |
