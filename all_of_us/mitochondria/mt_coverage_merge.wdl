@@ -366,7 +366,7 @@ task build_vcf_shard_mt {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mito-hail-processing:1.0.0"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -567,7 +567,7 @@ task merge_mt_shards {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.1"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mito-hail-processing:1.0.0"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -690,7 +690,7 @@ task shard_mt_by_samples {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mito-hail-processing:1.0.0"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -828,7 +828,7 @@ EOF_MT_TARS
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mito-hail-processing:1.0.0"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -928,7 +928,7 @@ task finalize_mt_with_covdb {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:dev"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mito-hail-processing:1.0.0"
         memory: memory_gb + " GB"
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type
@@ -1150,7 +1150,7 @@ task annotate_coverage {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/mt-coverage-db:1.0.0"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mito-coverage-db:1.0.0"
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 
@@ -1286,7 +1286,7 @@ task add_annotations {
     }
 
     runtime {
-    docker: "us.gcr.io/broad-gotc-prod/aou-mitochondrial-combine-vcfs-covdb:1.0.3"
+    docker: "us.gcr.io/broad-gotc-prod/aou-mito-hail-processing:1.0.0"
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 

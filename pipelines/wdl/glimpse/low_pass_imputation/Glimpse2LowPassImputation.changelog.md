@@ -1,3 +1,14 @@
+# 0.0.11
+2026-05-14 (Date of Last Commit)
+
+* Improved memory performance of RecomputeAndAnnotate to better handle large amounts of samples.
+* Use correct MergeCoverageMetrics task for recombining batched outputs.
+
+# 0.0.10
+2026-05-13 (Date of Last Commit)
+
+* Update GLIMPSE docker image to latest, which includes a fix for non-deterministic output during phasing when using 1 CPU
+
 # 0.0.9
 2026-05-11 (Date of Last Commit)
 
