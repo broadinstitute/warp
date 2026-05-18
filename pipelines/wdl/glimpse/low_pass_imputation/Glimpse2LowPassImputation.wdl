@@ -4,10 +4,10 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "0.0.12"
+    String pipeline_version = "0.0.13"
     String batch_pipeline_version = "0.0.5"
-    String quota_consumed_version = "0.0.2"
-    String input_qc_version = "1.0.1"
+    String quota_consumed_version = "0.0.3"
+    String input_qc_version = "1.0.2"
 
     input {
         # if multiple data types are provided, the workflow will prioritize cram_manifest first, then crams/cram_indices/sample_ids
@@ -16,6 +16,8 @@ workflow Glimpse2LowPassImputation {
         Array[String]? sample_ids
         File? cram_manifest
         String output_basename
+        # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCF
+        Float? info_filter_for_inclusion
 
         Array[String] contigs
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
@@ -155,9 +157,18 @@ workflow Glimpse2LowPassImputation {
             gatk_docker = gatk_docker
     }
 
+    if (defined(info_filter_for_inclusion)) {
+        call Glimpse2LowPassImputationTasks.FilterVcfByInfo {
+            input:
+                vcf = GatherVcfsNoIndex.output_vcf,
+                info_threshold = select_first([info_filter_for_inclusion]),
+                basename = output_basename + ".imputed.info_filtered"
+        }
+    }
+
     call Glimpse2LowPassImputationBatch.CreateVcfIndexAndMd5 {
         input:
-            vcf_input = GatherVcfsNoIndex.output_vcf,
+            vcf_input = select_first([FilterVcfByInfo.output_vcf, GatherVcfsNoIndex.output_vcf]),
             gatk_docker = gatk_docker,
             preemptible = 0
     }
@@ -178,7 +189,7 @@ workflow Glimpse2LowPassImputation {
 
     call Glimpse2LowPassImputationBatch.CollectQCMetrics {
         input:
-            imputed_vcf = GatherVcfsNoIndex.output_vcf,
+            imputed_vcf = select_first([FilterVcfByInfo.output_vcf, GatherVcfsNoIndex.output_vcf]),
             output_basename = output_basename
     }
 

@@ -4,12 +4,13 @@ import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 
 workflow QuotaConsumed {
     # if this changes, update the quota_consumed_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.2"
+    String pipeline_version = "0.0.3"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
         File cram_manifest
         String output_basename
+        Float? info_filter_for_inclusion
 
         Array[String] contigs
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
