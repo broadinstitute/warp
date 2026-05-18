@@ -385,8 +385,11 @@ task ValidateCramContents {
 
         crams_with_bad_or_missing_md5sums=()
         MAX_ITEMS_IN_ERROR_MESSAGES=5
+        cram_check_count=0
+        MAX_CRAMS_TO_CHECK=100 # to limit runtime of this task, we will only check the first 100 crams for the expected md5sums
         # read cram headers to validate that they contain the expected reference alignment MD5sums
         for cram in ~{sep=' ' crams}; do
+            cram_check_count=$((cram_check_count + 1))
             echo "Validating CRAM file: $cram"
             header=$(samtools view -H "$cram")
             cram_ok=true
@@ -406,6 +409,11 @@ task ValidateCramContents {
             # if we've found more than MAX_ITEMS_IN_ERROR_MESSAGES + 1 crams with bad or missing md5sums, we can stop checking the rest of the crams because the error message will be truncated anyway
             if [ ${#crams_with_bad_or_missing_md5sums[@]} -gt $((MAX_ITEMS_IN_ERROR_MESSAGES + 1)) ]; then
                 echo "Found more than $((MAX_ITEMS_IN_ERROR_MESSAGES + 1)) CRAM files with bad or missing reference alignment MD5sums; skipping validation of remaining CRAM files" 
+                break
+            fi
+            # if we've checked more than MAX_CRAMS_TO_CHECK crams, we will stop to limit runtime of this task
+            if [ $cram_check_count -ge $MAX_CRAMS_TO_CHECK ]; then
+                echo "Checked $MAX_CRAMS_TO_CHECK CRAM files; stopping further checks to limit runtime of this task" 
                 break
             fi
         done
