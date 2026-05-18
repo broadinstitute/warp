@@ -280,6 +280,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestExomeReprocessing.wdl
 
+  - name: TestGlimpse2LowPassImputation
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestGlimpse2LowPassImputation.wdl
+
   - name: TestGlimpse2LowPassImputationQC
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestGlimpse2LowPassImputationQC.wdl
