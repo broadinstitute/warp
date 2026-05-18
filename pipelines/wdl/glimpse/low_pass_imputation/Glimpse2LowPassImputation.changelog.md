@@ -3,7 +3,6 @@
 
 * Adds an optional pipeline_header_line input to the WDL. When set, GlimpseLigate will add this line to the header of output VCF.
 
-
 # 0.0.12
 2026-05-17 (Date of Last Commit)
 

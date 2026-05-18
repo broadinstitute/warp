@@ -2,7 +2,7 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.1"
+    String pipeline_version = "1.0.2"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
@@ -18,6 +18,8 @@ workflow InputQC {
 
         # used for warp tests only (which use inputs in an RP bucket). service does not support RP buckets and will not provide this input.
         String? billing_project_for_rp
+
+        String? pipeline_header_line # optional additional header lines to add to the output VCF
     }
 
     call ConvertCramManifestToInputArrays {
