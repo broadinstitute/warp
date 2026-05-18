@@ -367,8 +367,10 @@ task ValidateCramContents {
         
         while read -r line; do
             if [[ $line == @SQ* ]]; then
-                chrom=$(echo "$line" | awk '{for(i=1;i<=NF;i++) if($i~/^SN:/) print substr($i,4)}')
-                md5=$(echo "$line" | awk '{for(i=1;i<=NF;i++) if($i~/^M5:/) print substr($i,4)}')
+                # chrom is in the 2nd column of the ref dict in format SN:<chromName>
+                chrom=$(echo "$line" | cut -f 2 | cut -d ":" -f 2)
+                # md5sum is in the 4th column of the ref dict in format M5:<md5sum>
+                md5=$(echo "$line" | cut -f 4 | cut -d ":" -f 2)
 
                 if [[ " ${contigs[@]} " =~ " ${chrom} " ]]; then
                     ref_md5sums["$chrom"]="$md5"
@@ -404,7 +406,12 @@ task ValidateCramContents {
                 fi
             done
             if [ "$cram_ok" = true ]; then
-                echo "CRAM file $cram contains expected reference alignment MD5sums for all expected contigs."
+                echo "CRAM file $cram contains expected reference alignment MD5sums for all expected contigs"
+            fi
+            # if we've found more than MAX_ITEMS_IN_ERROR_MESSAGES + 1 crams with bad or missing md5sums, we can stop checking the rest of the crams because the error message will be truncated anyway
+            if [ ${#crams_with_bad_or_missing_md5sums[@]} -gt $((MAX_ITEMS_IN_ERROR_MESSAGES + 1)) ]; then
+                echo "Found more than $((MAX_ITEMS_IN_ERROR_MESSAGES + 1)) CRAM files with bad or missing reference alignment MD5sums; skipping validation of remaining CRAM files" 
+                break
             fi
         done
 
@@ -413,19 +420,19 @@ task ValidateCramContents {
         n_bad_crams=${#crams_with_bad_or_missing_md5sums[@]}
         if [ $n_bad_crams -ne 0 ]; then
             {
-                if [ $n_bad_crams -eq 1 ]; then
-                    pluralized=""
-                else
-                    pluralized="s"
-                fi
-                first_part_of_message="Found $n_bad_crams CRAM file$pluralized not aligned to the expected reference ($ref_dict_basename)"
-                
                 # Show only first N items if list is too long
                 if [ $n_bad_crams -gt $MAX_ITEMS_IN_ERROR_MESSAGES ]; then
+                    first_part_of_message="Found more than $MAX_ITEMS_IN_ERROR_MESSAGES CRAM files not aligned to the expected reference ($ref_dict_basename)"
                     second_part_of_message="; first $MAX_ITEMS_IN_ERROR_MESSAGES are:"
                     list_to_show=$(IFS=", "; echo "${crams_with_bad_or_missing_md5sums[*]:0:$MAX_ITEMS_IN_ERROR_MESSAGES}")
                     echo "$first_part_of_message$second_part_of_message $list_to_show"
                 else
+                    if [ $n_bad_crams -eq 1 ]; then
+                        pluralized=""
+                    else
+                        pluralized="s"
+                    fi
+                    first_part_of_message="Found $n_bad_crams CRAM file$pluralized not aligned to the expected reference ($ref_dict_basename)"
                     list_to_show=$(IFS=", "; echo "${crams_with_bad_or_missing_md5sums[*]}")
                     echo "$first_part_of_message: $list_to_show"
                 fi
