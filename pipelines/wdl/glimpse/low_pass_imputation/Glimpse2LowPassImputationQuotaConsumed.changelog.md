@@ -1,3 +1,8 @@
+# 0.0.3
+2026-05-15 (Date of Last Commit)
+
+* Fix grep command
+
 # 0.0.2
 2026-05-11 (Date of Last Commit)
 

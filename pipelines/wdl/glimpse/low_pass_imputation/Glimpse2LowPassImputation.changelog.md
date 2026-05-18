@@ -1,6 +1,6 @@
 # 0.0.14
 
-* Update QC workflow version
+* Update QC workflow version and Quota Consumed workflow version
 
 # 0.0.13
 2026-05-19 (Date of Last Commit)
