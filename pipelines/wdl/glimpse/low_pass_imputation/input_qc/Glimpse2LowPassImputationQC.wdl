@@ -121,9 +121,6 @@ task ConvertCramManifestToInputArrays {
 
         EOF
         python3 script.py
-
-        # This task should always succeed
-        exit 0
     >>>
 
     runtime {
@@ -315,9 +312,6 @@ task ValidateCramsAndIndicesAndSampleIds {
 
         EOF
         python3 script.py
-
-        # This task should always succeed
-        exit 0
     >>>
     
     runtime {
