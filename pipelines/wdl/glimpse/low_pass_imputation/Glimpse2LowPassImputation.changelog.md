@@ -1,3 +1,8 @@
+# 0.0.12
+2026-05-14 (Date of Last Commit)
+
+* Updated `RecomputeAndAnnotate` and `MergeSampleChunksVcfsWithPaste` tasks to require fewer CPUs and less RAM
+
 # 0.0.11
 2026-05-14 (Date of Last Commit)
 
