@@ -209,3 +209,5 @@ Kylee Degatano, Aseel Awdeh, Robert Sidney Cox III, Wes Dingman, George Grant, F
 ## Feedback
 
 Please help us make our tools better by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues).
+
+</div>
