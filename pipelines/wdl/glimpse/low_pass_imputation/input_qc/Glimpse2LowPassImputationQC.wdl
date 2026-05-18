@@ -384,6 +384,7 @@ task ValidateCramContents {
         done
 
         crams_with_bad_or_missing_md5sums=()
+        MAX_ITEMS_IN_ERROR_MESSAGES=5
         # read cram headers to validate that they contain the expected reference alignment MD5sums
         for cram in ~{sep=' ' crams}; do
             echo "Validating CRAM file: $cram"
@@ -410,7 +411,6 @@ task ValidateCramContents {
         done
 
         # if crams_with_bad_or_missing_md5sums is not empty, write an error message to qc_messages.txt
-        MAX_ITEMS_IN_ERROR_MESSAGES=5
         n_bad_crams=${#crams_with_bad_or_missing_md5sums[@]}
         if [ $n_bad_crams -ne 0 ]; then
             {
