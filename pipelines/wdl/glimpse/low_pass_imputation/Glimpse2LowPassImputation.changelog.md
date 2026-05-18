@@ -1,7 +1,19 @@
-# 0.0.11
-2026-05-13 (Date of Last Commit)
+# 0.0.13
+2026-05-18 (Date of Last Commit)
 
 * Adds an optional pipeline_header_line input to the WDL. When set, GlimpseLigate will add this line to the header of output VCF.
+
+
+# 0.0.12
+2026-05-17 (Date of Last Commit)
+
+* add glimpse_phase_cpu_override workflow input for mostly testing purposes
+
+# 0.0.11
+2026-05-14 (Date of Last Commit)
+
+* Improved memory performance of RecomputeAndAnnotate to better handle large amounts of samples.
+* Use correct MergeCoverageMetrics task for recombining batched outputs.
 
 # 0.0.10
 2026-05-13 (Date of Last Commit)

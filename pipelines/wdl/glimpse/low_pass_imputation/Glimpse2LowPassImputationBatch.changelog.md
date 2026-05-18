@@ -1,7 +1,17 @@
-# 0.0.4
-2026-05-13 (Date of Last Commit)
+# 0.0.6
+2026-05-18 (Date of Last Commit)
 
 * Adds an optional pipeline_header_line input to the WDL. When set, GlimpseLigate will add this line to the header of output VCF.
+
+# 0.0.5
+2026-05-17 (Date of Last Commit)
+
+* add glimpse_phase_cpu_override workflow input for mostly testing purposes
+
+# 0.0.4
+2026-05-14 (Date of Last Commit)
+
+* pointed to correct default GLIMPSE docker image
 
 # 0.0.3
 2026-05-13 (Date of Last Commit)

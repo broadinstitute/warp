@@ -1,3 +1,8 @@
+# 2.0.1
+2026-05-15 (Date of Last Commit)
+
+* Updated shared dependency CheckInputs.wdl to support 10x v4 (GEM-X) chemistry; no functional impact on SlideTags outputs
+
 # 2.0.0
 2026-04-02 (Date of Last Commit)
 

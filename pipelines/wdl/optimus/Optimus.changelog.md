@@ -1,3 +1,13 @@
+# 9.1.0
+2026-05-15 (Date of Last Commit)
+
+* Added native support for 10x 3' v4 (GEM-X) chemistry by accepting `tenx_chemistry_version = 4`; added `tenx_chemistry_subversion` input (`"v4"` for Cell Ranger v8.0/v8.0.1, `"v4_TRU"` for Cell Ranger v9.0 and later) to select the correct barcode whitelist
+* Added runtime check that `i1_fastq` is provided when `tenx_chemistry_version` is 4
+* Corrected barcode whitelist GCS paths to use the canonical `optimus_whitelists/` bucket prefix and fixed `febrary` → `february` typo in the v3 whitelist path
+* Removed all Azure cloud options (ACR docker prefixes, Azure whitelist URLs, Azure CellBender branch); `cloud_provider` input is retained and defaults to `"gcp"`
+* Added two v4 example input files: `human_v4_example.json` (Cell Ranger v8.0/v8.0.1) and `human_v4_TRU_example.json` (Cell Ranger v9.0+)
+* Added v4 chemistry documentation page to the WARP docs site
+
 # 9.0.0
 2026-04-02 (Date of Last Commit)
 
