@@ -1,7 +1,12 @@
-# 0.0.12
+# 0.0.13
 2026-05-19 (Date of Last Commit)
 
 * Updated `ExtractAnnotations`, `RecomputeAndAnnotate`, `MergeSampleChunksVcfsWithPaste` tasks to require fewer CPUs and/or less RAM
+
+# 0.0.12
+2026-05-17 (Date of Last Commit)
+
+* add glimpse_phase_cpu_override workflow input for mostly testing purposes
 
 # 0.0.11
 2026-05-14 (Date of Last Commit)
