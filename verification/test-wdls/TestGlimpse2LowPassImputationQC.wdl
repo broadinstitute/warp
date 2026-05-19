@@ -10,6 +10,7 @@ workflow TestGlimpse2LowPassImputationQC {
     input {
         File cram_manifest
         String output_basename
+        Float? info_filter_for_inclusion
 
         Array[String] contigs
         String reference_panel_prefix
@@ -29,7 +30,7 @@ workflow TestGlimpse2LowPassImputationQC {
     meta {
       allowNestedInputs: true
     }
-  
+
     call Glimpse2LowPassImputationQC.InputQC {
       input:
         contigs = contigs,
@@ -38,6 +39,7 @@ workflow TestGlimpse2LowPassImputationQC {
         fasta = fasta,
         fasta_index = fasta_index,
         output_basename = output_basename,
+        info_filter_for_inclusion = info_filter_for_inclusion,
         ref_dict = ref_dict,
         billing_project_for_rp = billing_project_for_rp
     }
@@ -50,18 +52,18 @@ workflow TestGlimpse2LowPassImputationQC {
           "qc_messages": InputQC.qc_messages
         }
     }
-    
+
     # Copy results of pipeline to test results bucket
     call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
       input:
         files_to_copy             = [WriteMapToTsv.tsv_file],
         destination_cloud_path    = results_path
     }
-  
+
     # If updating truth then copy output to truth bucket
     if (update_truth){
       call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
-        input: 
+        input:
           files_to_copy             = [WriteMapToTsv.tsv_file],
           destination_cloud_path    = truth_path
       }
@@ -78,7 +80,7 @@ workflow TestGlimpse2LowPassImputationQC {
 
       call VerifyGlimpse2LowPassImputationQC.VerifyGlimpse2LowPassImputationQC as Verify {
         input:
-          truth_outputs = GetOutputs.truth_file, 
+          truth_outputs = GetOutputs.truth_file,
           test_outputs = GetOutputs.results_file,
           done = CopyToTestResults.done
       }
