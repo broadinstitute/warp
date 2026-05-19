@@ -426,8 +426,8 @@ task ValidateCramContents {
                 if [ $n_bad_crams -gt $MAX_ITEMS_IN_ERROR_MESSAGES ]; then
                     first_part_of_message="Found more than $MAX_ITEMS_IN_ERROR_MESSAGES CRAM files not aligned to the expected reference ($ref_dict_basename)"
                     second_part_of_message="; first $MAX_ITEMS_IN_ERROR_MESSAGES are:"
-                    joined=$(printf ", %s" "${crams_with_bad_or_missing_md5sums[*]:0:$MAX_ITEMS_IN_ERROR_MESSAGES}")
-                    list_to_show="${joined:2}" # remove leading comma and space
+                    joined=$(IFS=","; echo "${crams_with_bad_or_missing_md5sums[*]:0:$MAX_ITEMS_IN_ERROR_MESSAGES}")
+                    list_to_show="${joined//,/, }" # Replaces every ',' with ', '
                     echo "$first_part_of_message$second_part_of_message $list_to_show"
                 else
                     if [ $n_bad_crams -eq 1 ]; then
@@ -436,8 +436,8 @@ task ValidateCramContents {
                         pluralized="s"
                     fi
                     first_part_of_message="Found $n_bad_crams CRAM file$pluralized not aligned to the expected reference ($ref_dict_basename)"
-                    joined=$(printf ", %s" "${crams_with_bad_or_missing_md5sums[*]}")
-                    list_to_show="${joined:2}" # remove leading comma and space
+                    joined=$(IFS=","; echo "${crams_with_bad_or_missing_md5sums[*]}")
+                    list_to_show="${joined//,/, }" # Replaces every ',' with ', '
                     echo "$first_part_of_message: $list_to_show"
                 fi
             } >> qc_messages.txt
