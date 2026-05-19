@@ -515,10 +515,18 @@ task BuildStarSingleNucleus {
         cp ~{annotation_gtf} ~{annotation_gtf_modified}
     fi
 
+    if [[ "~{genome_fa}" == *.gz ]]; then
+        echo "Detected gzipped FASTA file, decompressing..."
+        gunzip -c ~{genome_fa} > genome.fa
+    else
+        echo "GTF file is not compressed, copying..."
+        cp ~{genome_fa} genome.fa
+    fi
+
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
-    --genomeFastaFiles ~{genome_fa} \
+    --genomeFastaFiles genome.fa \
     --sjdbGTFfile ~{annotation_gtf_modified} \
     --sjdbOverhang 100 \
     --runThreadN 16 \
