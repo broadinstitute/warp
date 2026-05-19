@@ -519,7 +519,7 @@ task BuildStarSingleNucleus {
         echo "Detected gzipped FASTA file, decompressing..."
         gunzip -c ~{genome_fa} > genome.fa
     else
-        echo "GTF file is not compressed, copying..."
+        echo "FASTA file is not compressed, copying..."
         cp ~{genome_fa} genome.fa
     fi
 
