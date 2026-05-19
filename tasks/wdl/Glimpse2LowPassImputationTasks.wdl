@@ -423,3 +423,51 @@ task ConvertCramManifestToInputArrays {
         Array[String] sample_ids = read_lines("sample_ids.txt")
     }
 }
+
+task UpdateHeader {
+    input {
+        File vcf
+        File ref_dict
+        String? pipeline_header_line
+        String output_basename
+
+        Int mem_gb = 2
+        Int cpu = 1
+        Int disk_size_gb = ceil(2.1 * size(vcf, "GiB") + 5)
+        Int preemptible = 3
+        Int max_retries = 1
+        String docker
+    }
+
+    command <<<
+        set -xeuo pipefail
+
+        # Set correct reference dictionary
+        bcftools view -h --no-version ~{vcf} > old_header.vcf
+        java -jar /picard.jar UpdateVcfSequenceDictionary -I old_header.vcf --SD ~{ref_dict} -O updated_header.vcf
+
+        # Add pipeline_header_line if provided
+        if [ -n "~{default="" pipeline_header_line}" ]; then
+            TOTAL_LINES=$(wc -l < "updated_header.vcf")
+            REMOVED_COMMENT_CHARACTER_HEADER_LINE=$(echo "~{pipeline_header_line}" | sed 's/^#*//')
+            sed -i "${TOTAL_LINES}i\##${REMOVED_COMMENT_CHARACTER_HEADER_LINE}" updated_header.vcf
+        fi
+
+        # Apply the final header (with ref dict and optionally pipeline_header_line) to the VCF
+        bcftools reheader -h updated_header.vcf -o ~{output_basename}.vcf.gz ~{vcf}
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+        maxRetries: max_retries
+        noAddress: true
+    }
+
+    output {
+        File output_vcf = "~{output_basename}.vcf.gz"
+    }
+}

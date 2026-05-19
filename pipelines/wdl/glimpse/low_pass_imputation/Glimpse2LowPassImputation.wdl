@@ -75,8 +75,6 @@ workflow Glimpse2LowPassImputation {
                 fasta = fasta,
                 fasta_index = fasta_index,
                 output_basename = output_basename + ".batch_" + batch_idx,
-                ref_dict = ref_dict,
-                pipeline_header_line = pipeline_header_line,
                 impute_reference_only_variants = impute_reference_only_variants,
                 call_indels = call_indels,
                 calling_batch_size = calling_batch_size,
@@ -125,16 +123,26 @@ workflow Glimpse2LowPassImputation {
 
         File annotated_contig_vcf = select_first([RecomputeAndAnnotate.merged_imputed_vcf, batch_vcfs_for_contig[0]])
 
+        # Update VCF header with reference dictionary and pipeline header line (if provided)
+        call Glimpse2LowPassImputationTasks.UpdateHeader {
+            input:
+                vcf = annotated_contig_vcf,
+                ref_dict = ref_dict,
+                pipeline_header_line = pipeline_header_line,
+                output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.updated_header",
+                docker = gatk_docker
+        }
+
         # Now that the full cohort is merged and annotations are correct, split into variant-only and hom-ref-only
         call Glimpse2LowPassImputationTasks.SelectVariantRecordsOnly as SelectContigVariants {
             input:
-                vcf = annotated_contig_vcf,
+                vcf = UpdateHeader.output_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_variants"
         }
 
         call Glimpse2LowPassImputationTasks.CreateHomRefSitesOnlyVcf as CreateContigHomRefVcf {
             input:
-                vcf = annotated_contig_vcf,
+                vcf = UpdateHeader.output_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_hom_ref.sites_only"
         }
     }
