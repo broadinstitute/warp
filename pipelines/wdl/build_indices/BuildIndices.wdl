@@ -505,6 +505,7 @@ task BuildStarSingleNucleus {
   String annotation_gtf_modified = "~{gtf_prefix}v~{gtf_annotation_version}.annotation.gtf"
 
   command <<<
+    set -euxo pipefail
     # Decompress GTF if gzipped, otherwise copy to expected output name
     if [[ "~{annotation_gtf}" == *.gz ]]; then
         echo "Detected gzipped GTF file, decompressing..."
