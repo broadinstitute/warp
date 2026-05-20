@@ -46,7 +46,7 @@ This gateway workflow expects CRAM-based inputs and a GLIMPSE2-compatible refere
 | `gatk_docker`                    | GATK Docker image                                                                                                                                                                                                                                          |
 | `glimpse_docker`                 | GLIMPSE2 Docker image                                                                                                                                                                                                                                      |
 | `docker_merge`                   | Docker used for merge/re-annotation step                                                                                                                                                                                                                   |
-| `info_filter_for_inclusion`      | Optional minimum INFO score threshold; variants below this value are excluded from the final output VCF                                                                                                                                                    |
+| `info_filter_for_inclusion`      | Optional minimum INFO score threshold; variants below this value are excluded from the final output VCF (default: `0.0`)                                                                                                                                   |
 
 ### Workflow Tasks
 
