@@ -7,7 +7,6 @@ className: aou-doc-page
 
 <div className="aou-folder-text">
 
-# Mitochondria Merge Pipeline Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
