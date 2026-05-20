@@ -43,7 +43,7 @@ task CountCramsFromManifest {
     command <<<
         set -e -o pipefail
 
-        grep ".cram" ~{cram_manifest} | wc -l > cram_manifest_count.txt
+        grep "\.cram" ~{cram_manifest} | wc -l > cram_manifest_count.txt
     >>>
 
     output {

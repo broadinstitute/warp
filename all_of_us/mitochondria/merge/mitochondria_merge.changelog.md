@@ -1,11 +1,17 @@
 # aou_9.1.0
 2026-04-30 (Date of Last Commit)
 
-* Remove non-sharded option for vcf merge and unnecessary merge checks 
+* refactor to remove non-sharded option for step 3 and unnecessary merge checks 
 
-* Removed 'skip_summary' option from 'annotate_coverage' task
+* removed 'skip_summary' option from 'annotate_coverage' task
 
 * Updated docker image references from `aou-mitochondrial-combine-vcfs-covdb` to `aou-mito-hail-processing:1.0.0` as part of mito docker consolidation
+
+* moved dockers and scripts from Warp to Warp-tools 
+
+* renamed inputs from "step3" to "vcf_merge" 
+
+* renamed workflow from "mt_coverage_merge" to "MitochondriaMerge"
 
 aou_9.0.0
 2026-03-23 (Date of Last Commit)
@@ -23,4 +29,4 @@ aou_9_beta
 # beta release
 2025-08-07 (Date of Last Commit)
 
-* This is a working version of the mitochondria_pipeline and the starting point for the pipeline dev team
+* This is a working version of the mitochondria_single_sample and the starting point for the pipeline dev team

@@ -1,7 +1,12 @@
-# 1.0.2
-2026-05-18 (Date of Last Commit)
+# 1.0.3
+2026-05-20 (Date of Last Commit)
 
 * Added optional `info_filter_for_inclusion` input for interface consistency with main pipeline; not used by QC
+
+# 1.0.2
+2026-05-20 (Date of Last Commit)
+
+* Add check for correct reference alignment in input CRAMs 
 
 # 1.0.1
 2026-05-11 (Date of Last Commit)

@@ -36,9 +36,20 @@ workflow InputQC {
         }
     }
 
+    # only check cram contents if the previous QC checks passed
+    if (ConvertCramManifestToInputArrays.passes_qc && ValidateCramsAndIndicesAndSampleIds.passes_qc) {
+        call ValidateCramContents {
+            input:
+                crams = ConvertCramManifestToInputArrays.crams,
+                contigs = contigs,
+                ref_dict = ref_dict,
+                billing_project_for_rp = billing_project_for_rp
+        }
+    }
+
     output {
-        Boolean passes_qc = select_first([ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
-        String qc_messages = select_first([ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
+        Boolean passes_qc = select_first([ValidateCramContents.passes_qc, ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
+        String qc_messages = select_first([ValidateCramContents.qc_messages, ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
     }
 }
 
@@ -111,9 +122,6 @@ task ConvertCramManifestToInputArrays {
 
         EOF
         python3 script.py
-
-        # This task should always succeed
-        exit 0
     >>>
 
     runtime {
@@ -319,4 +327,146 @@ task ValidateCramsAndIndicesAndSampleIds {
         Boolean passes_qc = read_boolean("passes_qc.txt")
         String qc_messages = read_string("qc_messages.txt")
     }
+}
+
+task ValidateCramContents {
+    input {
+        Array[String] crams
+        Array[String] contigs
+        File ref_dict
+        String? billing_project_for_rp
+    }
+
+    String billing_project = select_first([billing_project_for_rp, ""])
+    String ref_dict_basename = basename(ref_dict)
+
+    command <<<
+        # set up auth for accessing files using samtools
+        export GCS_OAUTH_TOKEN=`gcloud auth application-default print-access-token`
+
+        # configure billing project to use for requester pays buckets, if billing project provided
+        if [ -n "~{billing_project}" ]; then
+            echo "Using billing project '~{billing_project}' for requester pays buckets."
+            export GCS_REQUESTER_PAYS_PROJECT=~{billing_project}
+        fi
+
+        touch qc_messages.txt
+
+        contigs=(~{sep=' ' contigs})
+        ref_dict="~{ref_dict}"
+        ref_dict_basename="~{ref_dict_basename}"
+
+        declare -A ref_md5sums
+        expected_count=${#contigs[@]}
+        found_count=0
+        
+        while read -r line; do
+            if [[ $line == @SQ* ]]; then
+                # chrom is in the 2nd column of the ref dict in format SN:<chromName>
+                chrom=$(echo "$line" | cut -f 2 | cut -d ":" -f 2)
+                # md5sum is in the 4th column of the ref dict in format M5:<md5sum>
+                md5=$(echo "$line" | cut -f 4 | cut -d ":" -f 2)
+
+                if [[ " ${contigs[@]} " =~ " ${chrom} " ]]; then
+                    ref_md5sums["$chrom"]="$md5"
+                    found_count=$((found_count + 1))
+                    
+                    if [[ $found_count -eq $expected_count ]]; then
+                        echo "Found all ${found_count} expected contigs in reference dictionary."
+                        break
+                    fi
+                fi
+            fi
+        done < $ref_dict
+
+        echo "found relevant contigs with these md5sums in ref dict ${ref_dict}:"
+        for chrom in "${!ref_md5sums[@]}"; do
+            echo "  $chrom: ${ref_md5sums[$chrom]}"
+        done
+
+        crams_with_bad_or_missing_md5sums=()
+        MAX_ITEMS_IN_ERROR_MESSAGES=5
+        cram_check_count=0
+        MAX_CRAMS_TO_CHECK=100 # to limit runtime of this task, we will only check the first 100 crams for the expected md5sums
+        # read cram headers to validate that they contain the expected reference alignment MD5sums
+        for cram in ~{sep=' ' crams}; do
+            cram_check_count=$((cram_check_count + 1))
+            echo "Validating CRAM file: $cram"
+            header=$(samtools view -H "$cram")
+            cram_ok=true
+            for chrom in "${!ref_md5sums[@]}"; do
+                expected_md5=${ref_md5sums[$chrom]}
+                echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"
+                if ! echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"; then
+                    echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom or it does not match the expected value."
+                    crams_with_bad_or_missing_md5sums+=("$cram")
+                    cram_ok=false
+                    break # no need to check other contigs for this cram if one is already missing or has a bad md5sum
+                fi
+            done
+            if [ "$cram_ok" = true ]; then
+                echo "CRAM file $cram contains expected reference alignment MD5sums for all expected contigs"
+            fi
+            # if we've found more than MAX_ITEMS_IN_ERROR_MESSAGES crams with bad or missing md5sums, we can stop checking the rest of the crams because the error message will be truncated anyway
+            if [ ${#crams_with_bad_or_missing_md5sums[@]} -gt $((MAX_ITEMS_IN_ERROR_MESSAGES)) ]; then
+                echo "Found more than $((MAX_ITEMS_IN_ERROR_MESSAGES)) CRAM files with bad or missing reference alignment MD5sums; skipping validation of remaining CRAM files" 
+                break
+            fi
+            # if we've checked more than MAX_CRAMS_TO_CHECK crams, we will stop to limit runtime of this task
+            if [ $cram_check_count -ge $MAX_CRAMS_TO_CHECK ]; then
+                echo "Checked $MAX_CRAMS_TO_CHECK CRAM files; stopping further checks to limit runtime of this task" 
+                break
+            fi
+        done
+
+        # if crams_with_bad_or_missing_md5sums is not empty, write an error message to qc_messages.txt
+        n_bad_crams=${#crams_with_bad_or_missing_md5sums[@]}
+        if [ $n_bad_crams -ne 0 ]; then
+            {
+                # Show only first N items if list is too long
+                if [ $n_bad_crams -gt $MAX_ITEMS_IN_ERROR_MESSAGES ]; then
+                    first_part_of_message="Found more than $MAX_ITEMS_IN_ERROR_MESSAGES CRAM files not aligned to the expected reference ($ref_dict_basename)"
+                    second_part_of_message="; first $MAX_ITEMS_IN_ERROR_MESSAGES are:"
+                    joined=$(IFS=","; echo "${crams_with_bad_or_missing_md5sums[*]:0:$MAX_ITEMS_IN_ERROR_MESSAGES}")
+                    list_to_show="${joined//,/, }" # Replaces every ',' with ', '
+                    echo "$first_part_of_message$second_part_of_message $list_to_show"
+                else
+                    if [ $n_bad_crams -eq 1 ]; then
+                        pluralized=""
+                    else
+                        pluralized="s"
+                    fi
+                    first_part_of_message="Found $n_bad_crams CRAM file$pluralized not aligned to the expected reference ($ref_dict_basename)"
+                    joined=$(IFS=","; echo "${crams_with_bad_or_missing_md5sums[*]}")
+                    list_to_show="${joined//,/, }" # Replaces every ',' with ', '
+                    echo "$first_part_of_message: $list_to_show"
+                fi
+            } >> qc_messages.txt
+        else
+            echo "All CRAM files contain the expected reference alignment MD5sums for the expected contigs."
+        fi
+
+        # passes_qc is true if qc_messages is empty
+        if [ ! -s qc_messages.txt ]; then
+            echo "true" > passes_qc.txt
+        else
+            echo "false" > passes_qc.txt
+        fi
+
+        # This task should always succeed
+        exit 0
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsp-lrma/lr-gcloud-samtools:0.1.23.1"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        memory: "4 GiB"
+        maxRetries: 2
+    }
+
+    output {
+        Boolean passes_qc = read_boolean("passes_qc.txt")
+        String qc_messages = read_string("qc_messages.txt")
+    }    
 }

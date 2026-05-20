@@ -2,9 +2,9 @@
 
 ## Overview
 
-This document describes the changes made to the `mt_coverage_merge` pipeline to scale it from processing ~1,000 samples to successfully processing **535,000 samples** for the All of Us (AoU) v9 data release. 
+This document describes the changes made to the `Mitochondria Merge` pipeline to scale it from processing ~1,000 samples to successfully processing **535,000 samples** for the All of Us (AoU) v9 data release. 
 
-The pipeline (`mt_coverage_merge.wdl`) takes per-sample mitochondrial DNA (mtDNA) variant calls and coverage data as inputs, merges them into a cohort-wide callset, imputes homoplasmic reference genotypes where coverage supports them, and produces annotated VCF output. Before this rewrite, the pipeline failed — crashing with out-of-memory errors after running for >82 hours — when run on the 50,000 sample subset of the v9 AoU cohort.
+The pipeline (`mitochondria_merge.wdl`) takes per-sample mitochondrial DNA (mtDNA) variant calls and coverage data as inputs, merges them into a cohort-wide callset, imputes homoplasmic reference genotypes where coverage supports them, and produces annotated VCF output. Before this rewrite, the pipeline failed — crashing with out-of-memory errors after running for >82 hours — when run on the 50,000 sample subset of the v9 AoU cohort.
 
 ---
 
@@ -228,7 +228,7 @@ All changes were designed to preserve **exact** (bit-for-bit) outputs:
 
 ## What Stayed the Same
 
-- The per-sample single-sample Mutect2 pipeline (`mitochondria_pipeline.wdl`) — no changes
+- The per-sample single-sample Mutect2 pipeline (`mitochondria_single_sample.wdl`) — no changes
 - The VCF merge logic (`multi_way_union_mts` hierarchical merge) — same algorithm, now applied to smaller groups
 - The hom-ref imputation semantics — identical logic as v1
 - The artifact-prone site filter — same filter, applied once after finalization
@@ -241,9 +241,9 @@ All changes were designed to preserve **exact** (bit-for-bit) outputs:
 
 | Parameter | Default | Description |
 |---|---|---|
-| `step3_shard_size` | 2,500 | Samples per VCF ingest shard |
-| `step3_merge_fanin` | 10 | Merge fan-in per round |
-| `step3_shard_n_partitions` | 192 | Hail partitions for each shard MT |
+| `vcf_merge_shard_size` | 2,500 | Samples per VCF ingest shard |
+| `vcf_merge_merge_fanin` | 10 | Merge fan-in per round |
+| `vcf_merge_shard_n_partitions` | 192 | Hail partitions for each shard MT |
 | `finalize_shard_size` | 25,000 | Samples per finalize shard |
 | `finalize_shard_n_partitions` | 256 | Hail partitions per finalize shard MT |
 | `finalize_union_n_partitions` | 1,000 | Hail partitions for the final unioned MT |
@@ -252,7 +252,7 @@ All changes were designed to preserve **exact** (bit-for-bit) outputs:
 
 ## References
 
-- [Planning document: mt_coverage_merge v2 rewrite plan](mt_coverage_merge_v2_plan.md)
+- [Planning document: mt_coverage_merge v2 rewrite plan](mitochondria_merge_v2_plan.md)
 - [Planning document: Finalize covdb scaling plan](FINALIZE_COVDB_SCALING_PLAN.md)
 - [Pull request #1802: mt merge final version](https://github.com/broadinstitute/warp/pull/1802) — the version used to process AoU v9 data
-- [WDL changelog](../mt_coverage_merge.changelog.md) — `aou_9.0.0`
+- [WDL changelog](../mitochondria_merge.changelog.md) — `aou_9.0.0`
