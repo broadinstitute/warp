@@ -1,8 +1,13 @@
-# 0.0.13
-2026-05-18 (Date of Last Commit)
+# 0.0.14
+2026-05-20 (Date of Last Commit)
 
 * Adds an optional pipeline_header_line input to the WDL
 * Adds a new task called UpdateHeader that is called to fo VCF header reformatting
+
+# 0.0.13
+2026-05-19 (Date of Last Commit)
+
+* Updated `ExtractAnnotations`, `RecomputeAndAnnotate`, `MergeSampleChunksVcfsWithPaste` tasks to require fewer CPUs and/or less RAM
 
 # 0.0.12
 2026-05-17 (Date of Last Commit)
