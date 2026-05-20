@@ -35,6 +35,9 @@ workflow Glimpse2LowPassImputationBatch {
         String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:a0151730cefaaa9ef78b7f9644c63ebb00ce6cd470fa0d60349daa5eee020aec"
     }
 
+    # note that setting cpu > 1 will introduce non-determinism in GLIMPSE Phase due to multi-threading
+    Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
+
     if (length(crams) > 1) {
         call SplitIntoBatches {
             input:
@@ -111,7 +114,7 @@ workflow Glimpse2LowPassImputationBatch {
                     fasta = fasta,
                     fasta_index = fasta_index,
                     mem_gb = ComputeShardsAndMemoryPerShard.mem_gb_per_chunk[reference_chunk_index],
-                    cpu_override = glimpse_phase_cpu_override,
+                    cpu = defined_glimpse_phase_cpu_override,
                     docker = glimpse_docker
             }
         }
@@ -396,7 +399,7 @@ task GlimpsePhase {
         Int? n_burnin
         Int? n_main
         Int? effective_population_size
-        Int? cpu_override # note that setting cpu > 1 will introduce non-determinism in GLIMPSE Phase due to multi-threading
+        Int cpu
 
         Int mem_gb = 16
         Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.003 * length(select_first([crams, []])) + 10)
@@ -404,8 +407,6 @@ task GlimpsePhase {
         Int max_retries = 3
         String docker
     }
-
-    Int cpu = select_first([cpu_override, 4])
 
     parameter_meta {
         crams: {
