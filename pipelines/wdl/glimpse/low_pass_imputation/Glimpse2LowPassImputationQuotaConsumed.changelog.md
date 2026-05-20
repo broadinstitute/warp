@@ -1,7 +1,12 @@
-# 0.0.3
+# 0.0.4
 2026-05-18 (Date of Last Commit)
 
 * Adds an optional pipeline_header_line input to the WDL
+
+# 0.0.3
+2026-05-20 (Date of Last Commit)
+
+* Fix grep command to be an accurate cram count
 
 # 0.0.2
 2026-05-11 (Date of Last Commit)

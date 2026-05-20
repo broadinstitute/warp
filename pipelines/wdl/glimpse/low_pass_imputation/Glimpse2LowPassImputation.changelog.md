@@ -1,8 +1,18 @@
-# 0.0.14
+# 0.0.16
 2026-05-20 (Date of Last Commit)
 
 * Adds an optional pipeline_header_line input to the WDL
 * Adds a new task called UpdateHeader that is called to fo VCF header reformatting
+
+# 0.0.15
+2026-05-20 (Date of Last Commit)
+
+* Updated `batch_pipeline_version` to 0.0.6 to reflect update to Glimpse and Hail docker images being used in the Batch wdl
+
+# 0.0.14
+2026-05-20 (Date of Last Commit)
+
+* Updated `quota_consumed_version` to 0.0.3 and `input_qc_version` to 1.0.2 to reflect interface updates in auxiliary workflows
 
 # 0.0.13
 2026-05-19 (Date of Last Commit)

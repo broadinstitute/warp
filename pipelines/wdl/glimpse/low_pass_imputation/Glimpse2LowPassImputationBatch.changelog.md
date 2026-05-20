@@ -1,7 +1,13 @@
-# 0.0.6
+# 0.0.7
 2026-05-20 (Date of Last Commit)
 
 * Moves the VCF header reformatting step in GlimpseLigate to its own separate task that is called from main Glimpse2LowPassImputation workflow.
+
+# 0.0.6
+2026-05-20 (Date of Last Commit)
+
+* Updated wdl to use latest version of the Glimpse imputation image that is generated from GHA in warp-tools repo
+* Updated CollectQCMetrics task to use mirror.gcr.io version of Hail image
 
 # 0.0.5
 2026-05-17 (Date of Last Commit)

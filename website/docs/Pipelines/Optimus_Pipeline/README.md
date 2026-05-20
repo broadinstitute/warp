@@ -324,7 +324,7 @@ When citing WARP, please use the following:
 Kylee Degatano, Aseel Awdeh, Robert Sidney Cox III, Wes Dingman, George Grant, Farzaneh Khajouei, Elizabeth Kiernan, Kishori Konwar, Kaylee L Mathews, Kevin Palis, Nikelle Petrillo, Geraldine Van der Auwera, Chengchen (Rex) Wang, Jessica Way. "Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis." _Bioinformatics_, 2025; [https://doi.org/10.1093/bioinformatics/btaf494](https://doi.org/10.1093/bioinformatics/btaf494)
 
 ## Consortia support
-This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project, the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN), and the [BRAIN Initiative Cell Atlas Network](www.portal.brain-bican.org) (BICAN). 
+This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project, the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN), and the [BRAIN Initiative Cell Atlas Network](https://www.portal.brain-bican.org) (BICAN). 
 
 Each consortium may use slightly different reference files for data analysis or have different post-processing steps. Learn more about HCA by reading the [Consortia Processing](./consortia-processing.md) overview.
 
