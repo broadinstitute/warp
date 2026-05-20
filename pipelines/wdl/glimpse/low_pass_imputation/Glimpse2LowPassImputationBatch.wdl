@@ -6,7 +6,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.6"
 
     input {
 
@@ -34,7 +34,7 @@ workflow Glimpse2LowPassImputationBatch {
         Int? glimpse_phase_cpu_override
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:a0cd46ee13ef19b9105db6978835e2cc1d08910493f6d140df83cdbacb40afd5"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"
     }
 
     if (length(crams) > 1) {

@@ -37,7 +37,7 @@ workflow Glimpse2LowPassImputation {
         Int? glimpse_phase_cpu_override
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:a0cd46ee13ef19b9105db6978835e2cc1d08910493f6d140df83cdbacb40afd5"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"
         String docker_merge = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
     }
 
