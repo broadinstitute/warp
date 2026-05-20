@@ -1150,7 +1150,7 @@ task annotate_coverage {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/aou-mito-coverage-db:1.0.0"
+        docker: "us.gcr.io/broad-gotc-prod/aou-mito-coverage-db:1.0.1"
         memory: memory_gb + " GB" 
         cpu: cpu
         disks: "local-disk " + disk_gb + " " + disk_type 
