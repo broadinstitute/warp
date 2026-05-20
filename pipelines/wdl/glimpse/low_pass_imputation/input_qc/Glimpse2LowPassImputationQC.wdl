@@ -406,9 +406,9 @@ task ValidateCramContents {
             if [ "$cram_ok" = true ]; then
                 echo "CRAM file $cram contains expected reference alignment MD5sums for all expected contigs"
             fi
-            # if we've found more than MAX_ITEMS_IN_ERROR_MESSAGES + 1 crams with bad or missing md5sums, we can stop checking the rest of the crams because the error message will be truncated anyway
-            if [ ${#crams_with_bad_or_missing_md5sums[@]} -gt $((MAX_ITEMS_IN_ERROR_MESSAGES + 1)) ]; then
-                echo "Found more than $((MAX_ITEMS_IN_ERROR_MESSAGES + 1)) CRAM files with bad or missing reference alignment MD5sums; skipping validation of remaining CRAM files" 
+            # if we've found more than MAX_ITEMS_IN_ERROR_MESSAGES crams with bad or missing md5sums, we can stop checking the rest of the crams because the error message will be truncated anyway
+            if [ ${#crams_with_bad_or_missing_md5sums[@]} -gt $((MAX_ITEMS_IN_ERROR_MESSAGES)) ]; then
+                echo "Found more than $((MAX_ITEMS_IN_ERROR_MESSAGES)) CRAM files with bad or missing reference alignment MD5sums; skipping validation of remaining CRAM files" 
                 break
             fi
             # if we've checked more than MAX_CRAMS_TO_CHECK crams, we will stop to limit runtime of this task
