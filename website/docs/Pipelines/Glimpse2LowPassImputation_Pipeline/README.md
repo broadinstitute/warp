@@ -171,6 +171,7 @@ The `InputQC` workflow validates CRAM-based inputs supplied by the `cram_manifes
 - CRAM file names end with `.cram` and indices end with `.crai`
 - input paths use `gs://` format and are accessible
 - CRAM file sizes do not exceed the configured maximum (default: 10 GB)
+- CRAM files are aligned to the expected reference
 - optional requester-pays validation via `billing_project_for_rp`
  
 ## Important notes
