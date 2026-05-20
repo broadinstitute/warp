@@ -1,5 +1,5 @@
 # 1.0.2
-2026-05-19 (Date of Last Commit)
+2026-05-20 (Date of Last Commit)
 
 * Add check for correct reference alignment in input CRAMs 
 
