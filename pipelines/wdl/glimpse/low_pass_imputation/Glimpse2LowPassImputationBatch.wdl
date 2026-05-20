@@ -35,7 +35,9 @@ workflow Glimpse2LowPassImputationBatch {
         String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:a0151730cefaaa9ef78b7f9644c63ebb00ce6cd470fa0d60349daa5eee020aec"
     }
 
-    # note that setting cpu > 1 will introduce non-determinism in GLIMPSE Phase due to multi-threading
+    # we need to define this here so that it can be used in nester scatters below. Cromwell doesn't understand optional inputs
+    # to tasks that are inside nested scatters, so we need to define a non-optional variable that we can use to pass the
+    # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
     Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
 
     if (length(crams) > 1) {
@@ -399,8 +401,8 @@ task GlimpsePhase {
         Int? n_burnin
         Int? n_main
         Int? effective_population_size
-        Int cpu
 
+        Int cpu = 4 # note that setting cpu > 1 will introduce non-determinism in GLIMPSE Phase due to multi-threading
         Int mem_gb = 16
         Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.003 * length(select_first([crams, []])) + 10)
         Int preemptible = 30
