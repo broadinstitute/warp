@@ -6,7 +6,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.6"
 
     input {
 
@@ -34,7 +34,7 @@ workflow Glimpse2LowPassImputationBatch {
         Int? glimpse_phase_cpu_override
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:a0151730cefaaa9ef78b7f9644c63ebb00ce6cd470fa0d60349daa5eee020aec"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"
     }
 
     if (length(crams) > 1) {
@@ -553,7 +553,7 @@ task CollectQCMetrics {
         String output_basename
 
         Int preemptible = 0
-        String docker = "hailgenetics/hail:0.2.126-py3.11"
+        String docker = "mirror.gcr.io/hailgenetics/hail:0.2.126-py3.11"
         Int cpu = 4
         Int mem_gb = 8
     }

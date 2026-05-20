@@ -1,3 +1,8 @@
+# 0.0.15
+2026-05-20 (Date of Last Commit)
+
+* Updated `batch_pipeline_version` to 0.0.6 to reflect update to Glimpse and Hail docker images being used in the Batch wdl
+
 # 0.0.14
 2026-05-20 (Date of Last Commit)
 
