@@ -1,7 +1,7 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/rahulg603/mtSwirl/master/WDL/v2.5_MongoSwirl_Single/LiftoverTools_v2_5_Single.wdl" as LiftoverTools_Single
-import "https://raw.githubusercontent.com/rahulg603/mtSwirl/master/WDL/v2.5_MongoSwirl_Single/MongoTasks_v2_5_Single.wdl" as MongoTasks_Single
+import "../../../../all_of_us/mitochondria/single_sample/single_sample_subworkflows_and_tasks/LiftoverTools_v2_5_Single.wdl" as LiftoverTools_Single
+import "../../../../all_of_us/mitochondria/single_sample/single_sample_subworkflows_and_tasks/MongoTasks_v2_5_Single.wdl" as MongoTasks_Single
 
 workflow ProduceSelfReferenceFiles {
     # Running bcftools consensus when an interval file was used upstream to subset the genome
@@ -31,7 +31,7 @@ workflow ProduceSelfReferenceFiles {
     #  Outputted files produce "contigs" for each interval, 1-indexed to the start of the interval and not the actual chromosome.
     #  This part is only supported for nucDNA intervals. The machinery is ready for mtDNA intervals but not tested -- we do not support analysis on subsets of the mtDNA.
     meta {
-        description: "Produces all relevant self-reference files for version 2.2 of MitochondriaPipeline."
+        description: "Produces all relevant self-reference files for version 2.2 of MitochondriaSingleSample."
     }
 
     input {

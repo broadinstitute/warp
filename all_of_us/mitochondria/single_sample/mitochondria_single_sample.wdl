@@ -1,11 +1,11 @@
 version 1.0
-import "../../all_of_us/mitochondria/single_sample_subworkflows_and_tasks/AlignAndCallR1_v2_5_Single.wdl" as AlignAndCallR1_Single
-import "../../all_of_us/mitochondria/single_sample_subworkflows_and_tasks/AlignAndCallR2_v2_5_Single.wdl" as AlignAndCallR2_Single
-import "../../all_of_us/mitochondria/single_sample_subworkflows_and_tasks/LiftoverTools_v2_5_Single.wdl" as LiftoverTools_Single
-import "../../all_of_us/mitochondria/single_sample_subworkflows_and_tasks/ProduceSelfReferenceFiles_v2_5_Single.wdl" as ProduceSelfReferenceFiles_Single
-import "../../all_of_us/mitochondria/single_sample_subworkflows_and_tasks/MongoTasks_v2_5_Single.wdl" as MongoTasks_Single
+import "../../../all_of_us/mitochondria/single_sample/single_sample_subworkflows_and_tasks/AlignAndCallR1_v2_5_Single.wdl" as AlignAndCallR1_Single
+import "../../../all_of_us/mitochondria/single_sample/single_sample_subworkflows_and_tasks/AlignAndCallR2_v2_5_Single.wdl" as AlignAndCallR2_Single
+import "../../../all_of_us/mitochondria/single_sample/single_sample_subworkflows_and_tasks/LiftoverTools_v2_5_Single.wdl" as LiftoverTools_Single
+import "../../../all_of_us/mitochondria/single_sample/single_sample_subworkflows_and_tasks/ProduceSelfReferenceFiles_v2_5_Single.wdl" as ProduceSelfReferenceFiles_Single
+import "../../../all_of_us/mitochondria/single_sample/single_sample_subworkflows_and_tasks/MongoTasks_v2_5_Single.wdl" as MongoTasks_Single
 
-workflow MitochondriaPipeline {
+workflow MitochondriaSingleSample {
 
     meta {
         description: "Takes in an hg38 bam or cram and outputs VCF of SNP/Indel calls on the mitochondria."
@@ -77,7 +77,7 @@ workflow MitochondriaPipeline {
         Int? n_cpu_bwa
         Int? preemptible_tries
     }
-    String pipeline_version = "beta_0.0.0"
+    String pipeline_version = "aou_9.0.1"
 
     parameter_meta {
         wgs_aligned_input_bam_or_cram: "Full WGS hg38 bam or cram"
