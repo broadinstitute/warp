@@ -1,7 +1,11 @@
-# 0.0.14
+# 0.0.15
 2026-05-20 (Date of Last Commit)
 
 * Added optional `info_filter_for_inclusion` input; when supplied, filters out variants with INFO score below that threshold from the output VCF before indexing and QC
+
+# 0.0.14
+2026-05-20 (Date of Last Commit)
+
 * Updated `quota_consumed_version` to 0.0.3 and `input_qc_version` to 1.0.2 to reflect interface updates in auxiliary workflows
 
 # 0.0.13

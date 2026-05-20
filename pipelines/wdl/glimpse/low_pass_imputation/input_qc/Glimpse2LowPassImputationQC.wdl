@@ -2,7 +2,7 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.2"
+    String pipeline_version = "1.0.3"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
@@ -359,7 +359,7 @@ task ValidateCramContents {
         declare -A ref_md5sums
         expected_count=${#contigs[@]}
         found_count=0
-        
+
         while read -r line; do
             if [[ $line == @SQ* ]]; then
                 # chrom is in the 2nd column of the ref dict in format SN:<chromName>
@@ -370,7 +370,7 @@ task ValidateCramContents {
                 if [[ " ${contigs[@]} " =~ " ${chrom} " ]]; then
                     ref_md5sums["$chrom"]="$md5"
                     found_count=$((found_count + 1))
-                    
+
                     if [[ $found_count -eq $expected_count ]]; then
                         echo "Found all ${found_count} expected contigs in reference dictionary."
                         break
@@ -409,12 +409,12 @@ task ValidateCramContents {
             fi
             # if we've found more than MAX_ITEMS_IN_ERROR_MESSAGES crams with bad or missing md5sums, we can stop checking the rest of the crams because the error message will be truncated anyway
             if [ ${#crams_with_bad_or_missing_md5sums[@]} -gt $((MAX_ITEMS_IN_ERROR_MESSAGES)) ]; then
-                echo "Found more than $((MAX_ITEMS_IN_ERROR_MESSAGES)) CRAM files with bad or missing reference alignment MD5sums; skipping validation of remaining CRAM files" 
+                echo "Found more than $((MAX_ITEMS_IN_ERROR_MESSAGES)) CRAM files with bad or missing reference alignment MD5sums; skipping validation of remaining CRAM files"
                 break
             fi
             # if we've checked more than MAX_CRAMS_TO_CHECK crams, we will stop to limit runtime of this task
             if [ $cram_check_count -ge $MAX_CRAMS_TO_CHECK ]; then
-                echo "Checked $MAX_CRAMS_TO_CHECK CRAM files; stopping further checks to limit runtime of this task" 
+                echo "Checked $MAX_CRAMS_TO_CHECK CRAM files; stopping further checks to limit runtime of this task"
                 break
             fi
         done
@@ -468,5 +468,5 @@ task ValidateCramContents {
     output {
         Boolean passes_qc = read_boolean("passes_qc.txt")
         String qc_messages = read_string("qc_messages.txt")
-    }    
+    }
 }
