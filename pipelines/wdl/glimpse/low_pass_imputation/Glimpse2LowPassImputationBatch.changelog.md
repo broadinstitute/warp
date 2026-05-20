@@ -1,7 +1,7 @@
 # 0.0.6
 2026-05-18 (Date of Last Commit)
 
-* Adds an optional pipeline_header_line input to the WDL. When set, GlimpseLigate will add this line to the header of output VCF.
+* Moves the VCF header reformatting step in GlimpseLigate to its own separate task that is called from main Glimpse2LowPassImputation workflow.
 
 # 0.0.5
 2026-05-17 (Date of Last Commit)
