@@ -17,7 +17,7 @@ workflow Glimpse2LowPassImputation {
         File? cram_manifest
         String output_basename
         # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCF
-        Float? info_filter_for_inclusion
+        Float info_filter_for_inclusion = 0.0
 
         Array[String] contigs
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
@@ -157,7 +157,7 @@ workflow Glimpse2LowPassImputation {
             gatk_docker = gatk_docker
     }
 
-    if (defined(info_filter_for_inclusion)) {
+    if (info_filter_for_inclusion > 0.0) {
         call Glimpse2LowPassImputationTasks.FilterVcfByInfo {
             input:
                 vcf = GatherVcfsNoIndex.output_vcf,
