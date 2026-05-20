@@ -1,6 +1,6 @@
 version 1.0
 
-workflow get_wgs_median_coverage {
+workflow GetWgsMedianCoverage {
 
     input {
         File wgs_metrics_tsv
