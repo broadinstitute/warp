@@ -6,7 +6,7 @@ ExomeGermlineSingleSample	 3.2.7	2026-01-21
 ExomeReprocessing	 3.3.7	2026-01-21 
 Glimpse2LowPassImputation	 0.0.13	2026-05-19 
 Glimpse2LowPassImputationBatch	 0.0.5	2026-05-17 
-Glimpse2LowPassImputationQC	 1.0.1	2026-05-11 
+Glimpse2LowPassImputationQC	 1.0.2	2026-05-13
 Glimpse2LowPassImputationQuotaConsumed	 0.0.2	2026-05-11 
 IlluminaGenotypingArray	 1.12.27	2026-01-21 
 Imputation	 1.1.23	2025-10-03 
