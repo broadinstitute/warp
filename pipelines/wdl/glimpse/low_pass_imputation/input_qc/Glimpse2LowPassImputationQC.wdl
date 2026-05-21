@@ -2,12 +2,13 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.2"
+    String pipeline_version = "1.0.3"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
         File cram_manifest
         String output_basename
+        Float? info_filter_for_inclusion
 
         Array[String] contigs
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
@@ -56,7 +57,7 @@ workflow InputQC {
 task ConvertCramManifestToInputArrays {
     input {
         File cram_manifest
-    }   
+    }
 
     command <<<
         cat <<EOF > script.py
@@ -80,17 +81,17 @@ task ConvertCramManifestToInputArrays {
         # Read the manifest
         try:
             df = pd.read_csv("~{cram_manifest}", sep='\t')
-            
+
             # Check for required columns
             required_cols = ['sample_id', 'cram_path', 'cram_index_path']
             missing_cols = [col for col in required_cols if col not in df.columns]
-            
+
             if missing_cols:
                 with open(qc_messages_filename, 'w') as qc_file:
                     qc_file.write(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.")
                 with open(passes_qc_filename, 'w') as f:
                     f.write("false")
-                
+
                 # Create empty output files
                 open(crams_filename, 'w').close()
                 open(cram_indices_filename, 'w').close()
@@ -100,20 +101,20 @@ task ConvertCramManifestToInputArrays {
                 write_column(df['sample_id'], sample_ids_filename)
                 write_column(df['cram_path'], crams_filename)
                 write_column(df['cram_index_path'], cram_indices_filename)
-                
+
                 # Write QC results
                 with open(qc_messages_filename, 'w') as f:
                     f.write('\n'.join(qc_messages) if qc_messages else '')
-                
+
                 with open(passes_qc_filename, 'w') as f:
                     f.write("true" if not qc_messages else "false")
-        
+
         except Exception as e:
             with open(qc_messages_filename, 'w') as qc_file:
                 qc_file.write(f"Error reading CRAM manifest: {str(e)}.")
             with open(passes_qc_filename, 'w') as f:
                 f.write("false")
-            
+
             # Create empty output files
             open(crams_filename, 'w').close()
             open(cram_indices_filename, 'w').close()
@@ -240,22 +241,22 @@ task ValidateCramsAndIndicesAndSampleIds {
                 if cram.startswith('gs://'):
                     # Parse GCS URI
                     bucket_name, blob_name = cram[5:].split('/', 1)
-                    
+
                     # Get bucket and set user_project for requester pays
                     if billing_project:
                         bucket = client.bucket(bucket_name, user_project=billing_project)
                     else:
                         bucket = client.bucket(bucket_name)
-                    
+
                     blob = bucket.blob(blob_name)
-                    
+
                     # Reload to get metadata
                     blob.reload(client=client)
-                    
+
                     file_size_bytes = int(blob.size)
                     file_size_gb = file_size_bytes // (1024 ** 3)
                     print(f" - File size for {cram}: {file_size_gb} GB")
-                    
+
                     if file_size_gb > max_cram_file_size_gb:
                         crams_exceeding_max_size.append(f"{cram} ({file_size_gb}GB)")
                 else:
@@ -269,15 +270,15 @@ task ValidateCramsAndIndicesAndSampleIds {
                 if crai.startswith('gs://'):
                     # Parse GCS URI
                     bucket_name, blob_name = crai[5:].split('/', 1)
-                    
+
                     # Get bucket and set user_project for requester pays
                     if billing_project:
                         bucket = client.bucket(bucket_name, user_project=billing_project)
                     else:
                         bucket = client.bucket(bucket_name)
-                    
+
                     blob = bucket.blob(blob_name)
-                    
+
                     # Reload to ensure the file exists and is accessible
                     blob.reload(client=client)
                 else:
@@ -288,17 +289,17 @@ task ValidateCramsAndIndicesAndSampleIds {
 
         if files_with_invalid_gcs_format:
             qc_messages.append(create_error_message_with_item_list(
-                f"Found {pluralize(len(files_with_invalid_gcs_format), 'file')} with invalid GCS format (must start with 'gs://')", 
+                f"Found {pluralize(len(files_with_invalid_gcs_format), 'file')} with invalid GCS format (must start with 'gs://')",
                 files_with_invalid_gcs_format))
-            
+
         if files_with_access_issues:
             qc_messages.append(create_error_message_with_item_list(
-                f"Found {pluralize(len(files_with_access_issues), 'file')} that could not be accessed (may be due to non-existent files, lack of permissions, or requester pays bucket)", 
+                f"Found {pluralize(len(files_with_access_issues), 'file')} that could not be accessed (may be due to non-existent files, lack of permissions, or requester pays bucket)",
                 files_with_access_issues))
-        
+
         if crams_exceeding_max_size:
             qc_messages.append(create_error_message_with_item_list(
-                f"Found {pluralize(len(crams_exceeding_max_size), 'CRAM file')} exceeding the maximum allowed file size of {max_cram_file_size_gb}GB", 
+                f"Found {pluralize(len(crams_exceeding_max_size), 'CRAM file')} exceeding the maximum allowed file size of {max_cram_file_size_gb}GB",
                 crams_exceeding_max_size))
         else:
             print(f"All CRAM files are within the maximum allowed file size of {max_cram_file_size_gb}GB.")
@@ -313,7 +314,7 @@ task ValidateCramsAndIndicesAndSampleIds {
         EOF
         python3 script.py
     >>>
-    
+
     runtime {
         docker:  "us.gcr.io/broad-gatk/gatk:4.6.1.0" # has python 3.10
         cpu: 1
@@ -321,7 +322,7 @@ task ValidateCramsAndIndicesAndSampleIds {
         memory: "4 GiB"
         maxRetries: 2
     }
-    
+
     output {
         Boolean passes_qc = read_boolean("passes_qc.txt")
         String qc_messages = read_string("qc_messages.txt")
@@ -358,7 +359,7 @@ task ValidateCramContents {
         declare -A ref_md5sums
         expected_count=${#contigs[@]}
         found_count=0
-        
+
         while read -r line; do
             if [[ $line == @SQ* ]]; then
                 # chrom is in the 2nd column of the ref dict in format SN:<chromName>
@@ -369,7 +370,7 @@ task ValidateCramContents {
                 if [[ " ${contigs[@]} " =~ " ${chrom} " ]]; then
                     ref_md5sums["$chrom"]="$md5"
                     found_count=$((found_count + 1))
-                    
+
                     if [[ $found_count -eq $expected_count ]]; then
                         echo "Found all ${found_count} expected contigs in reference dictionary."
                         break
@@ -408,12 +409,12 @@ task ValidateCramContents {
             fi
             # if we've found more than MAX_ITEMS_IN_ERROR_MESSAGES crams with bad or missing md5sums, we can stop checking the rest of the crams because the error message will be truncated anyway
             if [ ${#crams_with_bad_or_missing_md5sums[@]} -gt $((MAX_ITEMS_IN_ERROR_MESSAGES)) ]; then
-                echo "Found more than $((MAX_ITEMS_IN_ERROR_MESSAGES)) CRAM files with bad or missing reference alignment MD5sums; skipping validation of remaining CRAM files" 
+                echo "Found more than $((MAX_ITEMS_IN_ERROR_MESSAGES)) CRAM files with bad or missing reference alignment MD5sums; skipping validation of remaining CRAM files"
                 break
             fi
             # if we've checked more than MAX_CRAMS_TO_CHECK crams, we will stop to limit runtime of this task
             if [ $cram_check_count -ge $MAX_CRAMS_TO_CHECK ]; then
-                echo "Checked $MAX_CRAMS_TO_CHECK CRAM files; stopping further checks to limit runtime of this task" 
+                echo "Checked $MAX_CRAMS_TO_CHECK CRAM files; stopping further checks to limit runtime of this task"
                 break
             fi
         done
@@ -467,5 +468,5 @@ task ValidateCramContents {
     output {
         Boolean passes_qc = read_boolean("passes_qc.txt")
         String qc_messages = read_string("qc_messages.txt")
-    }    
+    }
 }

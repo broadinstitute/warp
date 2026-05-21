@@ -1,3 +1,8 @@
+# 1.0.3
+2026-05-20 (Date of Last Commit)
+
+* Added optional `info_filter_for_inclusion` input for interface consistency with main pipeline; not used by QC
+
 # 1.0.2
 2026-05-20 (Date of Last Commit)
 

@@ -1,3 +1,8 @@
+# 0.0.16
+2026-05-21 (Date of Last Commit)
+
+* Added optional `info_filter_for_inclusion` input; when supplied, filters out variants with INFO score below that threshold from the output VCF before indexing and QC
+
 # 0.0.15
 2026-05-20 (Date of Last Commit)
 
