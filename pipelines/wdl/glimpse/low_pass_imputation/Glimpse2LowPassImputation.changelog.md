@@ -1,7 +1,12 @@
+# 0.0.16
+2026-05-21 (Date of Last Commit)
+
+* Added optional `info_filter_for_inclusion` input; when supplied, filters out variants with INFO score below that threshold from the output VCF before indexing and QC.
+
 # 0.0.15
 2026-05-20 (Date of Last Commit)
 
-* Added optional `info_filter_for_inclusion` input; when supplied, filters out variants with INFO score below that threshold from the output VCF before indexing and QC.
+* Updated `batch_pipeline_version` to 0.0.6 to reflect update to Glimpse and Hail docker images being used in the Batch wdl
 
 # 0.0.14
 2026-05-20 (Date of Last Commit)
