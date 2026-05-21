@@ -434,7 +434,6 @@ task UpdateHeader {
         Int mem_gb = 2
         Int cpu = 1
         Int disk_size_gb = ceil(2.1 * size(vcf, "GiB") + 5)
-        Int preemptible = 3
         Int max_retries = 1
         String docker
     }
@@ -459,10 +458,9 @@ task UpdateHeader {
 
     runtime {
         docker: docker
-        disks: "local-disk " + disk_size_gb + " HDD"
+        disks: "local-disk " + disk_size_gb + "SSD"
         memory: mem_gb + " GiB"
         cpu: cpu
-        preemptible: preemptible
         maxRetries: max_retries
         noAddress: true
     }

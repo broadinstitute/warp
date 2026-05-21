@@ -35,7 +35,7 @@ workflow Glimpse2LowPassImputationBatch {
         String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"
     }
 
-    # we need to define this here so that it can be used in nester scatters below. Cromwell doesn't understand optional inputs
+    # we need to define this here so that it can be used in nested scatters below. Cromwell doesn't understand optional inputs
     # to tasks that are inside nested scatters, so we need to define a non-optional variable that we can use to pass the
     # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
     Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
@@ -522,7 +522,6 @@ task GlimpseLigate {
         echo "nproc reported ${NPROC} CPUs, using that number as the threads argument for GLIMPSE."
 
         /bin/GLIMPSE2_ligate --input ~{write_lines(imputed_chunks)} --output ~{output_basename}.imputed.vcf.gz --threads ${NPROC}
-        tabix -f ~{output_basename}.imputed.vcf.gz
     >>>
 
     runtime {

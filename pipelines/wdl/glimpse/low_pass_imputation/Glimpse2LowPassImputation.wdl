@@ -124,26 +124,16 @@ workflow Glimpse2LowPassImputation {
 
         File annotated_contig_vcf = select_first([RecomputeAndAnnotate.merged_imputed_vcf, batch_vcfs_for_contig[0]])
 
-        # Update VCF header with reference dictionary and pipeline header line (if provided)
-        call Glimpse2LowPassImputationTasks.UpdateHeader {
-            input:
-                vcf = annotated_contig_vcf,
-                ref_dict = ref_dict,
-                pipeline_header_line = pipeline_header_line,
-                output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.updated_header",
-                docker = glimpse_docker
-        }
-
         # Now that the full cohort is merged and annotations are correct, split into variant-only and hom-ref-only
         call Glimpse2LowPassImputationTasks.SelectVariantRecordsOnly as SelectContigVariants {
             input:
-                vcf = UpdateHeader.output_vcf,
+                vcf = annotated_contig_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_variants"
         }
 
         call Glimpse2LowPassImputationTasks.CreateHomRefSitesOnlyVcf as CreateContigHomRefVcf {
             input:
-                vcf = UpdateHeader.output_vcf,
+                vcf = annotated_contig_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_hom_ref.sites_only"
         }
     }
@@ -167,9 +157,19 @@ workflow Glimpse2LowPassImputation {
             gatk_docker = gatk_docker
     }
 
+    # Update VCF header with reference dictionary and pipeline header line (if provided) for genome wide VCF
+    call Glimpse2LowPassImputationTasks.UpdateHeader {
+        input:
+            vcf = GatherVcfsNoIndex.output_vcf,
+            ref_dict = ref_dict,
+            pipeline_header_line = pipeline_header_line,
+            output_basename = output_basename + ".imputed.updated_header",
+            docker = glimpse_docker
+    }
+
     call Glimpse2LowPassImputationBatch.CreateVcfIndexAndMd5 {
         input:
-            vcf_input = GatherVcfsNoIndex.output_vcf,
+            vcf_input = UpdateHeader.output_vcf,
             gatk_docker = gatk_docker,
             preemptible = 0
     }
@@ -181,9 +181,19 @@ workflow Glimpse2LowPassImputation {
             gatk_docker = gatk_docker
     }
 
+    # Update VCF header with reference dictionary and pipeline header line (if provided) for hom-ref-only VCF as well
+    call Glimpse2LowPassImputationTasks.UpdateHeader as UpdateHeaderHomRefOnly {
+        input:
+            vcf = GatherVcfsNoIndexHomRefOnly.output_vcf,
+            ref_dict = ref_dict,
+            pipeline_header_line = pipeline_header_line,
+            output_basename = output_basename + ".imputed.hom_ref_sites_only.updated_header",
+            docker = glimpse_docker
+    }
+
     call Glimpse2LowPassImputationBatch.CreateVcfIndexAndMd5 as CreateVcfIndexAndMd5HomRefOnly {
         input:
-            vcf_input = GatherVcfsNoIndexHomRefOnly.output_vcf,
+            vcf_input = UpdateHeaderHomRefOnly.output_vcf,
             gatk_docker = gatk_docker,
             preemptible = 0
     }
