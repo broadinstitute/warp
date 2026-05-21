@@ -42,47 +42,49 @@ The workflow processes each requested contig independently, imputes each sample 
 
 This gateway workflow expects CRAM-based inputs and a GLIMPSE2-compatible reference panel layout.
 
-| Input                            | Description                                                                                                         |
-|----------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| `cram_manifest`                  | Optional manifest TSV file containing columns (including header line) of sample_id, cram_path, and cram_index_path referring to cloud-hosted input files to be imputed. This or all three array inputs (crams, cram_indices, sample_ids) must be provided.                               |
-| `crams`                          | Optional array of input CRAMs                                                                                       |
-| `cram_indices`                   | Optional array of CRAI files corresponding to `crams`                                                               |
-| `sample_ids`                     | Optional array of sample ID strings corresponding to CRAM inputs                                                    |
-| `contigs`                        | Array of contigs/chromosomes to process                                                                             |
+| Input                            | Description                                                                                                        |
+|----------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `cram_manifest`                  | Optional manifest TSV file containing columns (including header line) of sample_id, cram_path, and cram_index_path referring to cloud-hosted input files to be imputed. This or all three array inputs (crams, cram_indices, sample_ids) must be provided.                              |
+| `crams`                          | Optional array of input CRAMs                                                                                      |
+| `cram_indices`                   | Optional array of CRAI files corresponding to `crams`                                                              |
+| `sample_ids`                     | Optional array of sample ID strings corresponding to CRAM inputs                                                   |
+| `contigs`                        | Array of contigs/chromosomes to process                                                                            |
 | `reference_panel_prefix`         | Directory/prefix containing `sites.<contig>.vcf.gz`, `sites_table.<contig>.gz`, and `reference_chunks.<contig>.txt` |
-| `fasta`                          | Reference FASTA                                                                                                     |
-| `fasta_index`                    | FASTA index                                                                                                         |
-| `output_basename`                | Basename for intermediate and final outputs                                                                         |
-| `ref_dict`                       | Reference dictionary used during ligation/header normalization                                                      |
-| `impute_reference_only_variants` | Whether to impute reference-only variants (default: `false`)                                                        |
-| `call_indels`                    | Whether to include indels during calling/imputation (default: `false`)                                              |
-| `calling_batch_size`             | Batch size for CRAM calling inside each batch subworkflow (default: `100`)                                          |
-| `sample_batch_size`              | Batch size at gateway level for splitting very large cohorts (default: `1000`)                                      |
-| `glimpse_phase_cpu_override`     | Optional cpu override for GlimpsePhase task (default: `4`)                                                          |
-| `gatk_docker`                    | GATK Docker image                                                                                                   |
-| `glimpse_docker`                 | GLIMPSE2 Docker image                                                                                               |
-| `docker_merge`                   | Docker used for merge/re-annotation step                                                                            |
+| `fasta`                          | Reference FASTA                                                                                                    |
+| `fasta_index`                    | FASTA index                                                                                                        |
+| `output_basename`                | Basename for intermediate and final outputs                                                                        |
+| `ref_dict`                       | Reference dictionary used during ligation/header normalization                                                     |
+| `impute_reference_only_variants` | Whether to impute reference-only variants (default: `false`)                                                       |
+| `call_indels`                    | Whether to include indels during calling/imputation (default: `false`)                                             |
+| `calling_batch_size`             | Batch size for CRAM calling inside each batch subworkflow (default: `100`)                                         |
+| `sample_batch_size`              | Batch size at gateway level for splitting very large cohorts (default: `1000`)                                     |
+| `glimpse_phase_cpu_override`     | Optional cpu override for GlimpsePhase task (default: `4`)                                                         |
+| `pipeline_header_line`           | Optional additional header lines to add to the output VCF                                                          |
+| `gatk_docker`                    | GATK Docker image                                                                                                  |
+| `glimpse_docker`                 | GLIMPSE2 Docker image                                                                                              |
+| `docker_merge`                   | Docker used for merge/re-annotation step                                                                           |
 
 ### Workflow Tasks
 
 The top-level workflow orchestrates batching, per-batch imputation, and cohort-level merging/re-annotation.
 
-| Task / Call                                          | Purpose                                                             | Input Dependencies                                         | Key Function                                                |
-|------------------------------------------------------|---------------------------------------------------------------------|------------------------------------------------------------|-------------------------------------------------------------|
-| `ConvertCramManifestToInputArrays`                   | Convert cram manifest input into CRAMs/CRAIs/sample IDs arrays      | `cram_manifest` | Facilitates submission of very large sets of inputs via manifest file           |
+| Task / Call                                          | Purpose                                                             | Input Dependencies                                                                                     | Key Function                                                |
+|------------------------------------------------------|---------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+| `ConvertCramManifestToInputArrays`                   | Convert cram manifest input into CRAMs/CRAIs/sample IDs arrays      | `cram_manifest`                                                                                        | Facilitates submission of very large sets of inputs via manifest file           |
 | `SplitIntoSampleBatches`                             | Split CRAMs/CRAIs/sample IDs into sample-level batches              | `crams`, `cram_indices`, `sample_ids` from inputs or derived from `cram_manifest`, `sample_batch_size` | Enables large-cohort scaling at gateway level               |
-| `RunBatch` (`Glimpse2LowPassImputationBatch`)        | Run full low-pass imputation pipeline on each sample batch          | Batch-specific CRAMs/indices/sample IDs + reference inputs | Produces per-batch, per-contig ligated imputed VCFs         |
-| `ExtractAnnotations`                                 | Extract AF/INFO annotations from each batch contig VCF              | Batch ligated VCFs and indexes                             | Captures annotations needed for post-merge recomputation    |
-| `MergeContigVcfs` (`MergeSampleChunksVcfsWithPaste`) | Merge sample columns across batch VCFs for one contig               | Array of batch VCFs for contig                             | Creates full-cohort contig VCF with aligned site lists      |
-| `RecomputeAndAnnotate`                               | Recompute AF/INFO across merged cohort and write updated contig VCF | Merged contig VCF + extracted annotations                  | Restores cohort-correct annotations after paste-based merge |
-| `SelectContigVariants`                               | Create variants-only contig VCF                                     | Re-annotated contig VCF                                    | Removes homozygous-reference-only records                   |
-| `CreateContigHomRefVcf`                              | Create hom-ref-sites-only contig VCF                                | Re-annotated contig VCF                                    | Keeps homozygous-reference-only sites                       |
-| `MergeBatchCoverageMetrics`                          | Combine optional coverage metric files across batches               | `RunBatch.coverage_metrics`                                | Produces aggregated coverage table when metrics exist       |
-| `GatherVcfsNoIndex`                                  | Gather contig variant VCFs into genome-wide variant VCF             | Variant-only contig VCFs                                   | Produces final genome-wide variant VCF                      |
-| `CreateVcfIndexAndMd5`                               | Index and checksum final variant VCF                                | Gathered variant VCF                                       | Creates `.tbi` and md5                                      |
-| `GatherVcfsNoIndexHomRefOnly`                        | Gather contig hom-ref-sites-only VCFs                               | Hom-ref contig VCFs                                        | Produces final genome-wide hom-ref-sites-only VCF           |
-| `CreateVcfIndexAndMd5HomRefOnly`                     | Index and checksum final hom-ref-sites-only VCF                     | Gathered hom-ref-sites-only VCF                            | Creates `.tbi` and md5                                      |
-| `CollectQCMetrics`                                   | Compute sample QC metrics from final imputed variant VCF            | Final imputed variant VCF                                  | Generates sample-level QC report                            |
+| `RunBatch` (`Glimpse2LowPassImputationBatch`)        | Run full low-pass imputation pipeline on each sample batch          | Batch-specific CRAMs/indices/sample IDs + reference inputs                                             | Produces per-batch, per-contig ligated imputed VCFs         |
+| `ExtractAnnotations`                                 | Extract AF/INFO annotations from each batch contig VCF              | Batch ligated VCFs and indexes                                                                         | Captures annotations needed for post-merge recomputation    |
+| `MergeContigVcfs` (`MergeSampleChunksVcfsWithPaste`) | Merge sample columns across batch VCFs for one contig               | Array of batch VCFs for contig                                                                         | Creates full-cohort contig VCF with aligned site lists      |
+| `RecomputeAndAnnotate`                               | Recompute AF/INFO across merged cohort and write updated contig VCF | Merged contig VCF + extracted annotations                                                              | Restores cohort-correct annotations after paste-based merge |
+| `UpdateHeader`                                       | Update VCF header with reference info                               | Re-annotated contig VCF                                                                                | Updates VCF headers with reference dictionary information and optionally adds pipeline metadata                   |
+| `SelectContigVariants`                               | Create variants-only contig VCF                                     | Contig VCF with updated header                                                                         | Removes homozygous-reference-only records                   |
+| `CreateContigHomRefVcf`                              | Create hom-ref-sites-only contig VCF                                | Contig VCF with updated header                                                                         | Keeps homozygous-reference-only sites                       |
+| `MergeBatchCoverageMetrics`                          | Combine optional coverage metric files across batches               | `RunBatch.coverage_metrics`                                                                            | Produces aggregated coverage table when metrics exist       |
+| `GatherVcfsNoIndex`                                  | Gather contig variant VCFs into genome-wide variant VCF             | Variant-only contig VCFs                                                                               | Produces final genome-wide variant VCF                      |
+| `CreateVcfIndexAndMd5`                               | Index and checksum final variant VCF                                | Gathered variant VCF                                                                                   | Creates `.tbi` and md5                                      |
+| `GatherVcfsNoIndexHomRefOnly`                        | Gather contig hom-ref-sites-only VCFs                               | Hom-ref contig VCFs                                                                                    | Produces final genome-wide hom-ref-sites-only VCF           |
+| `CreateVcfIndexAndMd5HomRefOnly`                     | Index and checksum final hom-ref-sites-only VCF                     | Gathered hom-ref-sites-only VCF                                                                        | Creates `.tbi` and md5                                      |
+| `CollectQCMetrics`                                   | Compute sample QC metrics from final imputed variant VCF            | Final imputed variant VCF                                                                              | Generates sample-level QC report                            |
 
 ### Outputs
 

@@ -24,7 +24,8 @@ workflow Glimpse2LowPassImputation {
         File fasta_index
         File ref_dict
 
-        String? pipeline_header_line # optional additional header lines to add to the output VCF
+        # optional additional header lines to add to the output VCF
+        String? pipeline_header_line
 
         Boolean impute_reference_only_variants = false
         Boolean call_indels = false
@@ -130,7 +131,7 @@ workflow Glimpse2LowPassImputation {
                 ref_dict = ref_dict,
                 pipeline_header_line = pipeline_header_line,
                 output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.updated_header",
-                docker = gatk_docker
+                docker = glimpse_docker
         }
 
         # Now that the full cohort is merged and annotations are correct, split into variant-only and hom-ref-only
