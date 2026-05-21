@@ -1,8 +1,8 @@
 # 0.0.16
-2026-05-20 (Date of Last Commit)
+2026-05-21 (Date of Last Commit)
 
 * Adds an optional pipeline_header_line input to the WDL
-* Adds a new task called UpdateHeader that is called to fo VCF header reformatting
+* Adds a new task called UpdateHeader that is called to do VCF header reformatting
 
 # 0.0.15
 2026-05-20 (Date of Last Commit)

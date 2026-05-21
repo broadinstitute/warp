@@ -2,7 +2,7 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.2"
+    String pipeline_version = "1.0.3"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
