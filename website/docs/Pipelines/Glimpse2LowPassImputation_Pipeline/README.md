@@ -134,17 +134,17 @@ It is designed for cohorts up to roughly 1000 samples per batch, then returns co
 
 ### Batch Internal Processing
 
-| Step                                      | Purpose                                                                               |
-|-------------------------------------------|---------------------------------------------------------------------------------------|
-| `SplitIntoBatches` (conditional)          | Splits CRAMs/CRAIs/sample IDs into internal calling batches                           |
-| `BcftoolsMpileup`                         | Computes pileups at panel sites per internal batch                                    |
-| `BcftoolsCall`                            | Calls candidate variants from mpileup output                                          |
-| `BcftoolsNorm`                            | Normalizes and indexes called variants                                                |
-| `BcftoolsMerge` (conditional)             | Merges per-internal-batch VCFs if multiple were produced                              |
-| `ComputeShardsAndMemoryPerShard`          | Reads reference chunks and computes per-shard memory estimates                        |
-| `GlimpsePhase`                            | Runs `GLIMPSE2_phase` for each reference shard                                        |
-| `GlimpseLigate`                           | Ligates shard outputs to one contig-level imputed VCF and updates sequence dictionary |
-| `MergeBatchCoverageMetrics` (conditional) | Combines optional shard/contig coverage metric files                                  |
+| Step                                      | Purpose                                                        |
+|-------------------------------------------|----------------------------------------------------------------|
+| `SplitIntoBatches` (conditional)          | Splits CRAMs/CRAIs/sample IDs into internal calling batches    |
+| `BcftoolsMpileup`                         | Computes pileups at panel sites per internal batch             |
+| `BcftoolsCall`                            | Calls candidate variants from mpileup output                   |
+| `BcftoolsNorm`                            | Normalizes and indexes called variants                         |
+| `BcftoolsMerge` (conditional)             | Merges per-internal-batch VCFs if multiple were produced       |
+| `ComputeShardsAndMemoryPerShard`          | Reads reference chunks and computes per-shard memory estimates |
+| `GlimpsePhase`                            | Runs `GLIMPSE2_phase` for each reference shard                 |
+| `GlimpseLigate`                           | Ligates shard outputs to one contig-level imputed VCF          |
+| `MergeBatchCoverageMetrics` (conditional) | Combines optional shard/contig coverage metric files           |
 
 ### Batch Outputs
 
