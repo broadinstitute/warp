@@ -458,7 +458,7 @@ task UpdateHeader {
 
     runtime {
         docker: docker
-        disks: "local-disk " + disk_size_gb + "SSD"
+        disks: "local-disk " + disk_size_gb + " SSD"
         memory: mem_gb + " GiB"
         cpu: cpu
         maxRetries: max_retries
