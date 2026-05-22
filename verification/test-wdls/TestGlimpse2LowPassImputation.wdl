@@ -16,7 +16,7 @@ workflow TestGlimpse2LowPassImputation {
         Array[File]? crams
         Array[File]? cram_indices
         Array[String]? sample_ids
-        
+
         Int sample_batch_size = 1000
 
         Int? glimpse_phase_cpu_override
@@ -25,6 +25,7 @@ workflow TestGlimpse2LowPassImputation {
         File fasta
         File fasta_index
         String output_basename
+        Float? info_filter_for_inclusion
 
         File ref_dict
 
@@ -37,7 +38,7 @@ workflow TestGlimpse2LowPassImputation {
     meta {
       allowNestedInputs: true
     }
-  
+
     call Glimpse2LowPassImputation.Glimpse2LowPassImputation {
       input:
         contigs = contigs,
@@ -52,9 +53,10 @@ workflow TestGlimpse2LowPassImputation {
         sample_batch_size = sample_batch_size,
         glimpse_phase_cpu_override = glimpse_phase_cpu_override,
         output_basename = output_basename,
+        info_filter_for_inclusion = info_filter_for_inclusion,
     }
 
-    
+
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
@@ -63,7 +65,7 @@ workflow TestGlimpse2LowPassImputation {
                                     ]
     ])
 
-    
+
     # Collect all of the pipeline metrics into single Array[String]
     Array[String] pipeline_metrics = flatten([
                                     [ # File outputs
@@ -77,11 +79,11 @@ workflow TestGlimpse2LowPassImputation {
         files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
         destination_cloud_path    = results_path
     }
-  
+
     # If updating truth then copy output to truth bucket
     if (update_truth){
       call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
-        input: 
+        input:
           files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
           destination_cloud_path    = truth_path
       }
@@ -111,7 +113,7 @@ workflow TestGlimpse2LowPassImputation {
 
       call VerifyGlimpse2LowPassImputation.VerifyGlimpse2LowPassImputation as Verify {
         input:
-          truth_metrics = GetMetrics.truth_files, 
+          truth_metrics = GetMetrics.truth_files,
           test_metrics = GetMetrics.results_files,
           multi_sample_truth_vcf = GetImputedMultiSampleVcf.truth_file,
           multi_sample_test_vcf = GetImputedMultiSampleVcf.results_file,

@@ -63,6 +63,7 @@ This gateway workflow expects CRAM-based inputs and a GLIMPSE2-compatible refere
 | `gatk_docker`                    | GATK Docker image                                                                                                  |
 | `glimpse_docker`                 | GLIMPSE2 Docker image                                                                                              |
 | `docker_merge`                   | Docker used for merge/re-annotation step                                                                           |
+| `info_filter_for_inclusion`      | Optional minimum INFO score threshold; variants below this value are excluded from the final output VCF (default: `0.0`)                                                                                                                                   |
 
 ### Workflow Tasks
 
@@ -81,6 +82,7 @@ The top-level workflow orchestrates batching, per-batch imputation, and cohort-l
 | `CreateContigHomRefVcf`                              | Create hom-ref-sites-only contig VCF                                | Contig VCF with updated header                                                                         | Keeps homozygous-reference-only sites                       |
 | `MergeBatchCoverageMetrics`                          | Combine optional coverage metric files across batches               | `RunBatch.coverage_metrics`                                                                            | Produces aggregated coverage table when metrics exist       |
 | `GatherVcfsNoIndex`                                  | Gather contig variant VCFs into genome-wide variant VCF             | Variant-only contig VCFs                                                                               | Produces final genome-wide variant VCF                      |
+| `FilterVcfByInfo`                                    | Filter variants below the INFO score threshold (optional)           | Gathered variant VCF; only runs when `info_filter_for_inclusion` is supplied                           | Removes low-quality imputed variants from the final VCF               |
 | `CreateVcfIndexAndMd5`                               | Index and checksum final variant VCF                                | Gathered variant VCF                                                                                   | Creates `.tbi` and md5                                      |
 | `GatherVcfsNoIndexHomRefOnly`                        | Gather contig hom-ref-sites-only VCFs                               | Hom-ref contig VCFs                                                                                    | Produces final genome-wide hom-ref-sites-only VCF           |
 | `CreateVcfIndexAndMd5HomRefOnly`                     | Index and checksum final hom-ref-sites-only VCF                     | Gathered hom-ref-sites-only VCF                                                                        | Creates `.tbi` and md5                                      |
