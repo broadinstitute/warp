@@ -1,17 +1,21 @@
 # aou_9.1.0
-2026-04-30 (Date of Last Commit)
+2026-05-20 (Date of Last Commit)
 
-* refactor to remove non-sharded option for step 3 and unnecessary merge checks 
+* Removed non-sharded option for step 3 (vcf merge) and unnecessary merge checks 
 
-* removed 'skip_summary' option from 'annotate_coverage' task
+* Removed 'skip_summary' option from 'annotate_coverage' task
 
 * Updated docker image references from `aou-mitochondrial-combine-vcfs-covdb` to `aou-mito-hail-processing:1.0.0` as part of mito docker consolidation
 
-* moved dockers and scripts from Warp to Warp-tools 
+* Moved dockers and scripts from Warp to Warp-tools 
 
-* renamed inputs from "step3" to "vcf_merge" 
+* Renamed inputs from "step3" to "vcf_merge" 
 
-* renamed workflow from "mt_coverage_merge" to "MitochondriaMerge"
+* Renamed workflow from "mt_coverage_merge" to "MitochondriaMerge"
+
+* Updated per-position median calculation in `annotate_coverage` to match `hl.median` behavior: for even N, the median is now the floor of the average of the two middle values, rather than the lower of the two middle values
+
+* Updated coverage HDF5 dtype from inferred uint16 to a fixed uint32 default to prevent silent truncation of high-coverage positions; added an explicit overflow guard that raises an error if any coverage value exceeds the dtype maximum
 
 aou_9.0.0
 2026-03-23 (Date of Last Commit)
