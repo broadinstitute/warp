@@ -4,10 +4,10 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "0.0.13"
-    String batch_pipeline_version = "0.0.5"
-    String quota_consumed_version = "0.0.2"
-    String input_qc_version = "1.0.1"
+    String pipeline_version = "0.0.16"
+    String batch_pipeline_version = "0.0.6"
+    String quota_consumed_version = "0.0.4"
+    String input_qc_version = "1.0.3"
 
     input {
         # if multiple data types are provided, the workflow will prioritize cram_manifest first, then crams/cram_indices/sample_ids
@@ -16,6 +16,8 @@ workflow Glimpse2LowPassImputation {
         Array[String]? sample_ids
         File? cram_manifest
         String output_basename
+        # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCF
+        Float info_filter_for_inclusion = 0.0
 
         Array[String] contigs
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
@@ -37,7 +39,7 @@ workflow Glimpse2LowPassImputation {
         Int? glimpse_phase_cpu_override
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse@sha256:a0151730cefaaa9ef78b7f9644c63ebb00ce6cd470fa0d60349daa5eee020aec"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"
         String docker_merge = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
     }
 
@@ -122,16 +124,27 @@ workflow Glimpse2LowPassImputation {
 
         File annotated_contig_vcf = select_first([RecomputeAndAnnotate.merged_imputed_vcf, batch_vcfs_for_contig[0]])
 
+        if (info_filter_for_inclusion > 0.0) {
+            call Glimpse2LowPassImputationTasks.FilterVcfByInfo as FilterContigVcfByInfo {
+                input:
+                    vcf = annotated_contig_vcf,
+                    info_threshold = info_filter_for_inclusion,
+                    basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.info_filtered"
+            }
+        }
+
+        File filtered_contig_vcf = select_first([FilterContigVcfByInfo.output_vcf, annotated_contig_vcf])
+
         # Now that the full cohort is merged and annotations are correct, split into variant-only and hom-ref-only
         call Glimpse2LowPassImputationTasks.SelectVariantRecordsOnly as SelectContigVariants {
             input:
-                vcf = annotated_contig_vcf,
+                vcf = filtered_contig_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_variants"
         }
 
         call Glimpse2LowPassImputationTasks.CreateHomRefSitesOnlyVcf as CreateContigHomRefVcf {
             input:
-                vcf = annotated_contig_vcf,
+                vcf = filtered_contig_vcf,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_hom_ref.sites_only"
         }
     }

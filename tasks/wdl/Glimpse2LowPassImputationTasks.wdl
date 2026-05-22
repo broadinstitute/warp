@@ -287,6 +287,42 @@ task MergeCoverageMetrics {
     }
 }
 
+task FilterVcfByInfo {
+    input {
+        File vcf
+        File? vcf_index
+        Float info_threshold
+        String basename
+
+        Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
+        Int cpu = 1
+        Int mem_gb = 4
+        String docker = "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
+    }
+
+    command <<<
+        set -e -o pipefail
+
+        bcftools filter -i 'INFO/INFO >= ~{info_threshold}' -Oz -o ~{basename}.vcf.gz ~{vcf}
+        bcftools index -t ~{basename}.vcf.gz
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size_gb} SSD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: 3
+        maxRetries: 1
+        noAddress: true
+    }
+
+    output {
+        File output_vcf = "~{basename}.vcf.gz"
+        File output_vcf_index = "~{basename}.vcf.gz.tbi"
+    }
+}
+
 task SelectVariantRecordsOnly {
     input {
         File vcf

@@ -1,3 +1,13 @@
+# 0.0.4
+2026-05-20 (Date of Last Commit)
+
+* Added optional `info_filter_for_inclusion` input for interface consistency with main pipeline; not used by quota consumed
+
+# 0.0.3
+2026-05-20 (Date of Last Commit)
+
+* Fix grep command to be an accurate cram count
+
 # 0.0.2
 2026-05-11 (Date of Last Commit)
 
