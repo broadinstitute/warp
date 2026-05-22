@@ -522,6 +522,10 @@ task GlimpseLigate {
         echo "nproc reported ${NPROC} CPUs, using that number as the threads argument for GLIMPSE."
 
         /bin/GLIMPSE2_ligate --input ~{write_lines(imputed_chunks)} --output ~{output_basename}.imputed.vcf.gz --threads ${NPROC}
+
+        # GLIMPSE2_ligate creates an index, but it may not be compatible with GATK tools
+        # Regenerate the index with tabix to ensure compatibility
+        tabix -f ~{output_basename}.imputed.vcf.gz
     >>>
 
     runtime {
