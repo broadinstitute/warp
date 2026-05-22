@@ -525,7 +525,9 @@ task GlimpseLigate {
 
         # GLIMPSE2_ligate creates an index, but it may not be compatible with GATK tools
         # Regenerate the index with tabix to ensure compatibility
-        tabix -f ~{output_basename}.imputed.vcf.gz
+        cp ~{output_basename}.imputed.vcf.gz tabix.vcf.gz
+
+        tabix tabix.vcf.gz
     >>>
 
     runtime {
@@ -541,6 +543,7 @@ task GlimpseLigate {
     output {
         File imputed_vcf = "~{output_basename}.imputed.vcf.gz"
         File imputed_vcf_index = "~{output_basename}.imputed.vcf.gz.tbi"
+        File tabix_vcf_index = "tabix.vcf.gz.tbi"
     }
 }
 
