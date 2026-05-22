@@ -523,11 +523,8 @@ task GlimpseLigate {
 
         /bin/GLIMPSE2_ligate --input ~{write_lines(imputed_chunks)} --output ~{output_basename}.imputed.vcf.gz --threads ${NPROC}
 
-        # GLIMPSE2_ligate creates an index, but it may not be compatible with GATK tools
-        # Regenerate the index with tabix to ensure compatibility
-        cp ~{output_basename}.imputed.vcf.gz tabix.vcf.gz
-
-        tabix tabix.vcf.gz
+        # GLIMPSE2_ligate creates an index, but it is not compatible with GATK tools so we regenerate it with tabix
+        tabix -f ~{output_basename}.imputed.vcf.gz
     >>>
 
     runtime {
@@ -543,7 +540,6 @@ task GlimpseLigate {
     output {
         File imputed_vcf = "~{output_basename}.imputed.vcf.gz"
         File imputed_vcf_index = "~{output_basename}.imputed.vcf.gz.tbi"
-        File tabix_vcf_index = "tabix.vcf.gz.tbi"
     }
 }
 
