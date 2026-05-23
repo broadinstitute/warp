@@ -163,7 +163,7 @@ workflow Glimpse2LowPassImputation {
         # Update VCF header with reference dictionary and pipeline header line (if provided)
         call Glimpse2LowPassImputationTasks.UpdateHeader as UpdateHeaderHomRefOnly {
             input:
-                vcf = filtered_contig_vcf,
+                vcf = CreateContigHomRefVcf.output_vcf,
                 ref_dict = ref_dict,
                 pipeline_header_line = pipeline_header_line,
                 output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.merged.only_hom_ref.sites_only.updated_header",
