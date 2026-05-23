@@ -356,7 +356,6 @@ task SelectVariantRecordsOnly {
 
     output {
         File output_vcf = "~{basename}.vcf.gz"
-        File output_vcf_index = "~{basename}.vcf.gz.tbi"
     }
 }
 
