@@ -20,7 +20,7 @@ workflow InputQC {
         # used for warp tests only (which use inputs in an RP bucket). service does not support RP buckets and will not provide this input.
         String? billing_project_for_rp
 
-        # optional additional header lines to add to the output VCF
+        # optional additional header line to add to the output VCF
         String? pipeline_header_line
     }
 
