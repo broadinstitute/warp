@@ -1,3 +1,8 @@
+# 0.0.7
+2026-05-22 (Date of Last Commit)
+
+* Moves the VCF header reformatting step in GlimpseLigate to its own separate task that is called from main Glimpse2LowPassImputation workflow.
+
 # 0.0.6
 2026-05-20 (Date of Last Commit)
 

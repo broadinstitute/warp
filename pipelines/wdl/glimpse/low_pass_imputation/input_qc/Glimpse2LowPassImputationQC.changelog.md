@@ -1,3 +1,8 @@
+# 1.0.4
+2026-05-22 (Date of Last Commit)
+
+* Adds an optional pipeline_header_line input to the WDL
+
 # 1.0.3
 2026-05-20 (Date of Last Commit)
 
@@ -6,7 +11,7 @@
 # 1.0.2
 2026-05-20 (Date of Last Commit)
 
-* Add check for correct reference alignment in input CRAMs 
+* Add check for correct reference alignment in input CRAMs
 
 # 1.0.1
 2026-05-11 (Date of Last Commit)
