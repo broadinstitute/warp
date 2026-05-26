@@ -342,7 +342,6 @@ task SelectVariantRecordsOnly {
 
         # keep alt sites (i.e. remove hom ref sites)
         bcftools view -i 'GT[*]="alt"' -Oz -o ~{basename}.vcf.gz ~{vcf}
-        tabix ~{basename}.vcf.gz
     }
 
     runtime {
@@ -357,7 +356,6 @@ task SelectVariantRecordsOnly {
 
     output {
         File output_vcf = "~{basename}.vcf.gz"
-        File output_vcf_index = "~{basename}.vcf.gz.tbi"
     }
 }
 
@@ -457,5 +455,178 @@ task ConvertCramManifestToInputArrays {
         Array[String] crams = read_lines("crams.txt")
         Array[String] cram_indices = read_lines("cram_indices.txt")
         Array[String] sample_ids = read_lines("sample_ids.txt")
+    }
+}
+
+task UpdateHeader {
+    input {
+        File vcf
+        File ref_dict
+        String? pipeline_header_line
+        String output_basename
+
+        Int mem_gb = 2
+        Int cpu = 1
+        Int disk_size_gb = ceil(2.1 * size(vcf, "GiB") + 5)
+        Int max_retries = 1
+        String docker
+    }
+
+    command <<<
+        set -xeuo pipefail
+
+        # Set correct reference dictionary
+        bcftools view -h --no-version ~{vcf} > old_header.vcf
+        java -jar /picard.jar UpdateVcfSequenceDictionary -I old_header.vcf --SD ~{ref_dict} -O updated_header.vcf
+
+        # Add pipeline_header_line if provided
+        if [ -n "~{default="" pipeline_header_line}" ]; then
+            TOTAL_LINES=$(wc -l < "updated_header.vcf")
+            REMOVED_COMMENT_CHARACTER_HEADER_LINE=$(echo "~{pipeline_header_line}" | sed 's/^#*//')
+            sed -i "${TOTAL_LINES}i\##${REMOVED_COMMENT_CHARACTER_HEADER_LINE}" updated_header.vcf
+        fi
+
+        # Apply the final header (with ref dict and optionally pipeline_header_line) to the VCF
+        bcftools reheader -h updated_header.vcf -o ~{output_basename}.vcf.gz ~{vcf}
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk " + disk_size_gb + " SSD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        maxRetries: max_retries
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        File output_vcf = "~{output_basename}.vcf.gz"
+    }
+}
+
+task GatherVcfsNoIndex {
+    input {
+        Array[File] input_vcfs
+        String output_vcf_basename
+
+        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+        Int cpu = 2
+        Int memory_mb = 10000
+        Int disk_size_gb = ceil(3*size(input_vcfs, "GiB")) + 10
+    }
+    Int command_mem = memory_mb - 1500
+    Int max_heap = memory_mb - 1000
+
+    command <<<
+        set -e -o pipefail
+
+        gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+        GatherVcfs \
+        -I ~{sep=' -I ' input_vcfs} \
+        --REORDER_INPUT_BY_FIRST_VARIANT \
+        -O ~{output_vcf_basename}.vcf.gz
+    >>>
+    runtime {
+        docker: gatk_docker
+        disks: "local-disk ${disk_size_gb} SSD"
+        memory: "${memory_mb} MiB"
+        cpu: cpu
+        maxRetries: 1
+        noAddress: true
+    }
+    output {
+        File output_vcf = "~{output_vcf_basename}.vcf.gz"
+    }
+}
+
+task CreateVcfIndexAndMd5 {
+    input {
+        File vcf_input
+
+        Int disk_size_gb = ceil(1.1*size(vcf_input, "GiB")) + 10
+        Int cpu = 1
+        Int memory_mb = 6000
+        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+        Int preemptible = 3
+    }
+
+    String vcf_basename = basename(vcf_input, ".vcf.gz")
+
+    command <<<
+        set -e -o pipefail
+
+        ln -sf ~{vcf_input} ~{vcf_basename}.vcf.gz
+
+        bcftools index -t ~{vcf_basename}.vcf.gz
+
+        md5sum ~{vcf_basename}.vcf.gz | awk '{ print $1 }' > ~{vcf_basename}.md5sum
+    >>>
+    runtime {
+        docker: gatk_docker
+        disks: "local-disk ${disk_size_gb} SSD"
+        memory: "${memory_mb} MiB"
+        cpu: cpu
+        preemptible: preemptible
+        maxRetries: 1
+        noAddress: true
+    }
+    output {
+        File output_vcf = "~{vcf_basename}.vcf.gz"
+        File output_vcf_index = "~{vcf_basename}.vcf.gz.tbi"
+        File output_vcf_md5sum = "~{vcf_basename}.md5sum"
+    }
+}
+
+task CollectQCMetrics {
+    input {
+        File imputed_vcf
+        String output_basename
+
+        Int preemptible = 0
+        String docker = "mirror.gcr.io/hailgenetics/hail:0.2.126-py3.11"
+        Int cpu = 4
+        Int mem_gb = 8
+    }
+
+    parameter_meta {
+        imputed_vcf: {
+                         localization_optional: true
+                     }
+    }
+
+    Int disk_size_gb = ceil(2*size(imputed_vcf, "GiB") + 50)
+
+    command <<<
+        set -euo pipefail
+
+        cat <<'EOF' > script.py
+        import hail as hl
+        import pandas as pd
+
+        # Calculate metrics
+        hl.init(default_reference='GRCh38', idempotent=True)
+        vcf = hl.import_vcf('~{imputed_vcf}', force_bgz=True)
+        qc = hl.sample_qc(vcf)
+        qc_pd = qc.cols().flatten() \
+        .rename({'sample_qc.' + col: col for col in list(qc['sample_qc'])}) \
+        .rename({'s': 'sample_id'}) \
+        .to_pandas()
+        qc_pd.to_csv('~{output_basename}.qc_metrics.tsv', sep='\t', index=False, float_format='%.4f')
+        EOF
+        python3 script.py
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+        noAddress: true
+    }
+
+    output {
+        File qc_metrics = "~{output_basename}.qc_metrics.tsv"
     }
 }

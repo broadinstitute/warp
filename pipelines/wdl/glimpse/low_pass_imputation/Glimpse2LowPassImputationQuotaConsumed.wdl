@@ -4,7 +4,7 @@ import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 
 workflow QuotaConsumed {
     # if this changes, update the quota_consumed_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.4"
+    String pipeline_version = "0.0.5"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
@@ -18,6 +18,9 @@ workflow QuotaConsumed {
         File fasta
         File fasta_index
         File ref_dict
+
+        # optional additional header line to add to the output VCF
+        String? pipeline_header_line
     }
 
     call CountCramsFromManifest {

@@ -1,3 +1,8 @@
+# 0.0.5
+2026-05-22 (Date of Last Commit)
+
+* Adds an optional pipeline_header_line input to the WDL
+
 # 0.0.4
 2026-05-20 (Date of Last Commit)
 
