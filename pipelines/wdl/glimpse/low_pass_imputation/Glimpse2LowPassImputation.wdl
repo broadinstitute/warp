@@ -4,8 +4,8 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "0.0.17"
-    String batch_pipeline_version = "0.0.7"
+    String pipeline_version = "0.0.18"
+    String batch_pipeline_version = "0.0.8"
     String quota_consumed_version = "0.0.5"
     String input_qc_version = "1.0.4"
 
@@ -173,15 +173,6 @@ workflow Glimpse2LowPassImputation {
 
     Array[File] contig_variant_vcfs = UpdateHeaderVariants.output_vcf
     Array[File] contig_hom_ref_vcfs = UpdateHeaderHomRefOnly.output_vcf
-    Array[File] batch_coverage_metrics = select_all(RunBatch.coverage_metrics)
-
-    if (length(batch_coverage_metrics) > 0) {
-        call Glimpse2LowPassImputationTasks.MergeCoverageMetrics as MergeBatchCoverageMetrics {
-            input:
-                coverage_metrics = batch_coverage_metrics,
-                output_basename = output_basename
-        }
-    }
 
     call Glimpse2LowPassImputationTasks.GatherVcfsNoIndex {
         input:
@@ -227,6 +218,5 @@ workflow Glimpse2LowPassImputation {
         File imputed_hom_ref_sites_only_vcf_md5 = CreateVcfIndexAndMd5HomRefOnly.output_vcf_md5sum
 
         File qc_metrics = CollectQCMetrics.qc_metrics
-        File? coverage_metrics = MergeBatchCoverageMetrics.merged_coverage_metrics
     }
 }
