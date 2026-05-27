@@ -1,3 +1,8 @@
+# 0.0.18
+2026-05-27 (Date of Last Commit)
+
+* remove coverage metrics from glimpse phase task
+
 # 0.0.17
 2026-05-22 (Date of Last Commit)
 

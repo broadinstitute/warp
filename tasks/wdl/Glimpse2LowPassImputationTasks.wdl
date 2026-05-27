@@ -242,51 +242,6 @@ task MergeQCMetrics {
     }
 }
 
-task MergeCoverageMetrics {
-    input {
-        Array[File] coverage_metrics
-        String docker = "us.gcr.io/broad-dsde-methods/python-data-slim:1.1"
-        String output_basename
-
-        Int disk_size_gb = ceil(2.2 * size(coverage_metrics, "GiB") + 50)
-        Int mem_gb = 4
-        Int cpu = 2
-        Int preemptible = 1
-    }
-
-    command <<<
-        set -xeuo pipefail
-
-
-        python3 <<EOF
-        import pandas as pd
-        from collections import defaultdict
-        coverage_metrics = ['~{sep="', '" coverage_metrics}']
-        all_types = defaultdict(lambda: str)
-        all_types.update({"Chunk":int, "ID":int})
-        merged_coverage_metrics_array = [pd.read_csv(coverage_metric, sep='\t', dtype=all_types) for coverage_metric in coverage_metrics]
-        id_offset = 0
-        for cov_metric in merged_coverage_metrics_array:
-            cov_metric.ID += id_offset
-            id_offset = cov_metric.ID.max() + 1
-        merged_coverage_metrics = pd.concat(merged_coverage_metrics_array).sort_values(['Chunk','ID'])
-        merged_coverage_metrics.to_csv('~{output_basename}.coverage_metrics.txt', sep='\t', index=False)
-        EOF
-    >>>
-
-    output {
-        File merged_coverage_metrics = "~{output_basename}.coverage_metrics.txt"
-    }
-
-    runtime {
-        docker: docker
-        disks: "local-disk " + disk_size_gb + " HDD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-    }
-}
-
 task FilterVcfByInfo {
     input {
         File vcf

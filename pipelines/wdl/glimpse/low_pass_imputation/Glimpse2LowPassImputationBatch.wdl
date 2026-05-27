@@ -6,7 +6,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.7"
+    String pipeline_version = "0.0.8"
 
     input {
 
@@ -128,22 +128,11 @@ workflow Glimpse2LowPassImputationBatch {
                 output_basename = output_basename,
                 docker = glimpse_docker
         }
-        Array[File] contig_coverage_metrics = select_all(GlimpsePhase.coverage_metrics)
-    }
-
-    Array[File] genome_coverage_metrics = flatten(contig_coverage_metrics)
-    if (length(genome_coverage_metrics) > 0) {
-        call CombineCoverageMetrics {
-            input:
-                cov_metrics = genome_coverage_metrics,
-                output_basename = output_basename
-        }
     }
 
     output {
         Array[File] imputed_contig_ligated_vcfs = GlimpseLigate.imputed_vcf
         Array[File] imputed_contig_ligated_vcf_indices = GlimpseLigate.imputed_vcf_index
-        File? coverage_metrics = CombineCoverageMetrics.coverage_metrics
     }
 }
 
@@ -497,7 +486,6 @@ task GlimpsePhase {
     output {
         File imputed_vcf = "phase_output.bcf"
         File imputed_vcf_index = "phase_output.bcf.csi"
-        File? coverage_metrics = "phase_output_stats_coverage.txt.gz"
     }
 }
 
@@ -540,50 +528,5 @@ task GlimpseLigate {
     output {
         File imputed_vcf = "~{output_basename}.imputed.vcf.gz"
         File imputed_vcf_index = "~{output_basename}.imputed.vcf.gz.tbi"
-    }
-}
-
-task CombineCoverageMetrics
-{
-    input {
-        Array[File] cov_metrics
-        String output_basename
-    }
-
-    command <<<
-        set -euo pipefail
-
-        cov_files=( ~{sep=" " cov_metrics} )
-
-        for i in "${!cov_files[@]}"; do
-            if [ $i -eq 0 ]; then
-                n_skip=1
-                echo 'Chunk' > chunk_col.txt
-            else
-                n_skip=2
-            fi
-            # glimpse coverage metrics are formatted to be human readable in a command line, not machine readable or consistent.  ie, number of tabs
-            # are variable between columns depending on length of sample names, odd things like that.  We want these to be machine readable tables,
-            # so need to fix this.
-            zcat ${cov_files[$i]} | tail -n +$((n_skip + 1)) | sed s/%//g | sed s/"No data"/"No data pct"/g | sed s/\\t\\t/\\t/g >> cov_file.txt
-            n_lines_cov=$(< cov_file.txt wc -l)
-            n_lines_chunk=$(< chunk_col.txt wc -l)
-            n_lines_out=$((n_lines_cov-n_lines_chunk))
-            echo 'n_lines_out=' ${n_lines_out}
-            echo ${cov_files[$i]}
-            { yes ${i} || :; } | head -n ${n_lines_out} >> chunk_col.txt
-        done
-
-        paste chunk_col.txt cov_file.txt > ~{output_basename}.coverage_metrics.txt
-
-    >>>
-
-    runtime {
-        docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
-        noAddress: true
-    }
-
-    output {
-        File coverage_metrics="~{output_basename}.coverage_metrics.txt"
     }
 }
