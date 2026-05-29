@@ -17,13 +17,13 @@
 
 * Updated coverage HDF5 dtype from inferred uint16 to a fixed uint32 default to prevent silent truncation of high-coverage positions; added an explicit overflow guard that raises an error if any coverage value exceeds the dtype maximum
 
-aou_9.0.0
+# aou_9.0.0
 2026-03-23 (Date of Last Commit)
 
 * Version of the pipeline use to process AoU v9 data
 
 
-aou_9_beta
+# aou_9_beta
 2025-10-31 (Date of Last Commit)
 
 * Added support for optional subsetting of inputs using a Terra data table TSV
