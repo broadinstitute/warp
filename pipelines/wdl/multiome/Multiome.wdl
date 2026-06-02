@@ -9,11 +9,13 @@ import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "7.0.1"
+    String pipeline_version = "7.0.2"
 
     input {
         String cloud_provider
         String input_id
+        # Key name used to label the input_id value in h5ad obs and uns metadata
+        String input_id_name = "input_id"
         # Additional library aliquot ID
         String? gex_nhash_id
         String? atac_nhash_id
@@ -93,6 +95,7 @@ workflow Multiome {
             r2_fastq = gex_r2_fastq,
             i1_fastq = gex_i1_fastq,
             input_id = input_id + "_gex",
+            input_id_name = input_id_name,
             output_bam_basename = input_id + "_gex",
             gex_nhash_id = gex_nhash_id,
             tar_star_reference = tar_star_reference,
@@ -118,6 +121,7 @@ workflow Multiome {
             read2_fastq_gzipped = atac_r2_fastq,
             read3_fastq_gzipped = atac_r3_fastq,
             input_id = input_id + "_atac",
+            input_id_name = input_id_name,
             tar_bwa_reference = tar_bwa_reference,
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,

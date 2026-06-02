@@ -1,3 +1,8 @@
+# 9.1.1
+2026-06-01 (Date of Last Commit)
+
+* Added optional `input_id_name` input (default `"input_id"`) to allow callers to control the metadata key name under which `input_id` is stored in the GEX h5ad `obs` columns and `uns` global attributes
+
 # 9.1.0
 2026-05-15 (Date of Last Commit)
 

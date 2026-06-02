@@ -8,6 +8,7 @@ task OptimusH5adGeneration {
     String warp_tools_docker_path
     # name of the sample
     String input_id
+    String input_id_name = "input_id"
     String? gex_nhash_id
     # user provided id
     String counting_mode = "sc_rna"
@@ -71,6 +72,7 @@ task OptimusH5adGeneration {
           --gene_id  ~{gene_id} \
           --output_path_for_h5ad "~{input_id}" \
           --input_id ~{input_id} \
+          --input_id_name ~{input_id_name} \
           ~{"--input_name " + input_name} \
           ~{"--input_id_metadata_field " + input_id_metadata_field} \
           ~{"--input_name_metadata_field " + input_name_metadata_field} \
@@ -87,6 +89,7 @@ task OptimusH5adGeneration {
           --gene_id  ~{gene_id} \
           --output_path_for_h5ad "~{input_id}" \
           --input_id ~{input_id} \
+          --input_id_name ~{input_id_name} \
           ~{"--input_name " + input_name} \
           ~{"--input_id_metadata_field " + input_id_metadata_field} \
           ~{"--input_name_metadata_field " + input_name_metadata_field} \
@@ -143,6 +146,7 @@ task SingleNucleusOptimusH5adOutput {
         String warp_tools_docker_path
         # name of the sample
         String input_id
+        String input_id_name = "input_id"
         # additional aliquot id
         String? gex_nhash_id
         # user provided id
@@ -210,6 +214,7 @@ task SingleNucleusOptimusH5adOutput {
         --gene_id_2  ~{gene_id_exon} \
         --output_path_for_h5ad "~{input_id}" \
         --input_id ~{input_id} \
+        --input_id_name ~{input_id_name} \
         ~{"--input_name " + input_name} \
         ~{"--input_id_metadata_field " + input_id_metadata_field} \
         ~{"--input_name_metadata_field " + input_name_metadata_field} \
@@ -601,7 +606,7 @@ task SingleNucleusSlideseqH5adOutput {
 task SingleNucleusSmartSeq2H5adOutput {
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.6.1"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.7.1"
 
         Array[File] alignment_summary_metrics
         Array[File] dedup_metrics
@@ -696,7 +701,7 @@ task AggregateSmartSeq2H5ad {
         Array[File] h5ad_input
         String batch_id
         String pipeline_version
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.6.1"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.7.1"
         Int disk = 200
         Int machine_mem_mb = 4000
         Int cpu = 1

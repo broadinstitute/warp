@@ -13,8 +13,8 @@ Imputation	 1.1.23	2025-10-03
 ImputationBeagle	 3.0.1	2026-02-23 
 JointGenotyping	 1.7.3	2025-08-11 
 MultiSampleSmartSeq2SingleNucleus	 2.2.7	2026-05-15 
-Multiome	 7.0.1	2026-05-15 
-Optimus	 9.1.0	2026-05-15 
+Multiome	 7.0.2	2026-06-01 
+Optimus	 9.1.1	2026-06-01 
 PairedTag	 3.0.1	2026-05-15 
 PeakCalling	 1.0.1	2025-08-11 
 Pipeline Name	Version	Date of Last Commit
@@ -28,6 +28,6 @@ UltimaGenomicsWholeGenomeGermline	 1.2.2	2026-01-29
 VariantCalling	 2.2.8	2026-01-21 
 WholeGenomeGermlineSingleSample	 3.3.7	2026-01-21 
 WholeGenomeReprocessing	 3.3.7	2026-01-21 
-atac	 2.9.3	2025-09-19 
+atac	 2.9.4	2026-06-01 
 scANVI	 1.0.0	2026-04-17 
 snm3C	 4.1.1	2025-09-19 
