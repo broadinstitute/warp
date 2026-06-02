@@ -55,23 +55,22 @@ task checkInputArrays {
 
 task checkOptimusInput {
   input {
-    String cloud_provider
-    #String SAS_TOKEN
     File r1_fastq
     String counting_mode
     Boolean force_no_check
-    Boolean count_exons
+    String star_strand_mode
     Int disk = ceil(size(r1_fastq, "GiB")) + 50
     Int machine_mem_mb = 1000
     Int cpu = 1
     Int tenx_chemistry_version
-    String gcp_whitelist_v2
-    String gcp_whitelist_v3
-    String azure_whitelist_v2
-    String azure_whitelist_v3
+    String? tenx_chemistry_subversion
+    String whitelist_v2
+    String whitelist_v3
+    String whitelist_v4
+    String whitelist_v4_TRU
     Boolean ignore_r1_read_length
     String alpine_docker_path
-  }  
+  }
 
   meta {
     description: "checks optimus input values and fails the pipeline immediately"
@@ -99,55 +98,45 @@ task checkOptimusInput {
       echo "ERROR: Invalid value \"${counting_mode}\" for input \"counting_mode\""
     fi
 
+    if [[ ! ("~{star_strand_mode}" == "Forward" || "~{star_strand_mode}" == "Reverse" || "~{star_strand_mode}" == "Unstranded") ]]
+    then
+      pass="false"
+      echo "ERROR: Invalid value \"~{star_strand_mode}\" for input \"star_strand_mode\". Should be Forward, Reverse, or Unstranded."
+    fi
+
     if [[ ~{force_no_check} == "true" ]]
     then
        echo "force_no_check is set: Ignoring input checks"
        exit 0;
     fi
 
-    if [[ "~{counting_mode}" == "sc_rna" ]]
-    then
-      if [[ ~{count_exons} == "true" ]]
-      then
-        pass="false"
-        echo "ERROR: Invalid value count_exons should not be used with \"${counting_mode}\" input."
-      fi
-    fi
-
     # Check for chemistry version to produce read structure and whitelist
     if [[ ~{tenx_chemistry_version} == 2 ]]
       then
-      if [[ "~{cloud_provider}" == "gcp" ]]
-      then
-        WHITELIST="~{gcp_whitelist_v2}"
-      elif [[ "~{cloud_provider}" == "azure" ]]
-      then
-        WHITELIST="~{azure_whitelist_v2}"
-      else
-        pass="false"
-        echo "ERROR: Cloud provider must be either gcp or azure"
-      fi
+      WHITELIST="~{whitelist_v2}"
       echo "WHITELIST:" $WHITELIST
       echo $WHITELIST > whitelist.txt
       echo 16C10M > read_struct.txt
     elif [[ ~{tenx_chemistry_version} == 3 ]]
       then
-      if [[ "~{cloud_provider}" == "gcp" ]]
+      WHITELIST="~{whitelist_v3}"
+      echo "WHITELIST:" $WHITELIST
+      echo $WHITELIST > whitelist.txt
+      echo 16C12M > read_struct.txt
+    elif [[ ~{tenx_chemistry_version} == 4 ]]
       then
-        WHITELIST="~{gcp_whitelist_v3}"
-      elif [[ "~{cloud_provider}" == "azure" ]]
+      if [[ "~{tenx_chemistry_subversion}" == "v4_TRU" ]]
       then
-        WHITELIST="~{azure_whitelist_v3}"
+        WHITELIST="~{whitelist_v4_TRU}"
       else
-        pass="false"
-        echo "ERROR: Cloud provider must be either gcp or azure"
+        WHITELIST="~{whitelist_v4}"
       fi
       echo "WHITELIST:" $WHITELIST
       echo $WHITELIST > whitelist.txt
       echo 16C12M > read_struct.txt
     else
       pass="false"
-      echo "ERROR: Chemistry version must be either 2 or 3"
+      echo "ERROR: Chemistry version must be 2, 3, or 4"
     fi
     
     if [[ ~{tenx_chemistry_version} == 2 && $COUNT != 26 && ~{ignore_r1_read_length} == "false" ]]
@@ -158,6 +147,10 @@ task checkOptimusInput {
       then
       pass="false"
       echo "Read1 FASTQ does not match v3 chemistry; to override set ignore_r1_read_length to true"
+    elif [[ ~{tenx_chemistry_version} == 4 && $COUNT != 28 && ~{ignore_r1_read_length} == "false" ]]
+      then
+      pass="false"
+      echo "Read1 FASTQ does not match v4 chemistry; to override set ignore_r1_read_length to true"
     else
       pass="true"
     fi

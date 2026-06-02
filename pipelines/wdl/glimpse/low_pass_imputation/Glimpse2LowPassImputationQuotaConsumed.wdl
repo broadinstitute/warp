@@ -4,40 +4,32 @@ import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 
 workflow QuotaConsumed {
     # if this changes, update the quota_consumed_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.1"
+    String pipeline_version = "0.0.5"
 
     input {
-        Array[String] contigs
+        # service expects only cram_manifest even though main wdl can alternatively take input arrays
+        File cram_manifest
+        String output_basename
+        Float? info_filter_for_inclusion
 
+        Array[String] contigs
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
         String reference_panel_prefix
-
-        # service currently does not accept VCFs as input
-        Array[File]? crams
-        Array[File]? cram_indices
-        Array[String]? sample_ids
-        File? cram_manifest
         File fasta
         File fasta_index
-        String output_basename
-
         File ref_dict
+
+        # optional additional header line to add to the output VCF
+        String? pipeline_header_line
     }
 
-    # validate that either crams, or cram manifest is provided
-    if (defined(crams)) {
-        Int quota_consumed = length(select_first([crams]))
-    }
-
-    if (defined(cram_manifest)) {
-        call CountCramsFromManifest {
-            input:
-                cram_manifest = select_first([cram_manifest])
-        }
+    call CountCramsFromManifest {
+        input:
+            cram_manifest = cram_manifest
     }
 
     output {
-        Int quota_consumed = select_first([quota_consumed, CountCramsFromManifest.cram_manifest_count, 0])
+        Int quota_consumed = CountCramsFromManifest.cram_manifest_count
     }
 }
 
@@ -54,7 +46,7 @@ task CountCramsFromManifest {
     command <<<
         set -e -o pipefail
 
-        grep ".cram" ~{cram_manifest} | wc -l > cram_manifest_count.txt
+        grep "\.cram" ~{cram_manifest} | wc -l > cram_manifest_count.txt
     >>>
 
     output {

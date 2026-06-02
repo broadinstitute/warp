@@ -46,7 +46,6 @@ workflow TestOptimus {
     String star_strand_mode
 
     # Set to true to count reads aligned to exonic regions in sn_rna mode
-    Boolean count_exons = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
@@ -83,7 +82,6 @@ workflow TestOptimus {
       emptydrops_lower           = emptydrops_lower,
       force_no_check             = force_no_check,
       star_strand_mode           = star_strand_mode,
-      count_exons                = count_exons,
       ignore_r1_read_length      = ignore_r1_read_length,
       soloMultiMappers           = soloMultiMappers,
       cloud_provider             = cloud_provider,
