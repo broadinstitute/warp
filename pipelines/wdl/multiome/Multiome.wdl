@@ -108,7 +108,6 @@ workflow Multiome {
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
             soloMultiMappers = soloMultiMappers,
-            cloud_provider = cloud_provider,
             gex_expected_cells = expected_cells,
             run_cellbender = run_cellbender
     }
