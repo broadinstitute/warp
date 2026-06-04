@@ -1,3 +1,8 @@
+# 0.0.19
+2026-06-03 (Date of Last Commit)
+
+* add seed input to glimpse phase task
+
 # 0.0.18
 2026-05-27 (Date of Last Commit)
 

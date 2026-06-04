@@ -6,7 +6,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.8"
+    String pipeline_version = "0.0.9"
 
     input {
 
@@ -390,6 +390,7 @@ task GlimpsePhase {
         Int? n_burnin
         Int? n_main
         Int? effective_population_size
+        Int seed = 15052011
 
         Int cpu = 4 # note that setting cpu > 1 will introduce non-determinism in GLIMPSE Phase due to multi-threading
         Int mem_gb = 16
@@ -446,6 +447,7 @@ task GlimpsePhase {
         --reference ~{reference_chunk} \
         --output phase_output.bcf \
         --threads ~{cpu} \
+        --seed ~{seed} \
         ~{if impute_reference_only_variants then "--impute-reference-only-variants" else ""} ~{if call_indels then "--call-indels" else ""} \
         ~{"--burnin " + n_burnin} ~{"--main " + n_main} \
         ~{"--ne " + effective_population_size} \
