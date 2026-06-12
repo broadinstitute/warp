@@ -112,9 +112,6 @@ workflow Glimpse2LowPassImputationBatch {
                     input_vcf_index = phase_input_vcf_index,
                     impute_reference_only_variants = impute_reference_only_variants,
                     call_indels = call_indels,
-                    sample_ids = sample_ids,
-                    fasta = fasta,
-                    fasta_index = fasta_index,
                     mem_gb = ComputeShardsAndMemoryPerShard.mem_gb_per_chunk[reference_chunk_index],
                     cpu = defined_glimpse_phase_cpu_override,
                     docker = glimpse_docker
@@ -376,13 +373,8 @@ task BcftoolsMerge {
 
 task GlimpsePhase {
     input {
-        File? input_vcf
-        File? input_vcf_index
-        Array[File]? crams
-        Array[File]? cram_indices
-        Array[String] sample_ids
-        File? fasta
-        File? fasta_index
+        File input_vcf
+        File input_vcf_index
         File reference_chunk
 
         Boolean impute_reference_only_variants
@@ -394,19 +386,13 @@ task GlimpsePhase {
 
         Int cpu = 4 # note that setting cpu > 1 will introduce non-determinism in GLIMPSE Phase due to multi-threading
         Int mem_gb = 16
-        Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.003 * length(select_first([crams, []])) + 10)
+        Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 10)
         Int preemptible = 30
         Int max_retries = 3
         String docker
     }
 
     parameter_meta {
-        crams: {
-                   localization_optional: true
-               }
-        cram_indices: {
-                          localization_optional: true
-                      }
         input_vcf: {
                    localization_optional: true
                }
@@ -415,35 +401,13 @@ task GlimpsePhase {
                       }
     }
 
-    String bam_file_list_input = if defined(crams) then "--bam-list crams.list" else ""
     command <<<
         set -euo pipefail
 
         export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
 
-        cram_paths=( ~{sep=" " crams} )
-        cram_index_paths=( ~{sep=" " cram_indices} )
-        sample_ids=( ~{sep=" " sample_ids} )
-
-        duplicate_cram_filenames=$(printf "%s\n" "${cram_paths[@]}" | xargs -I {} basename {} | sort | uniq -d)
-        if [ ! -z "$duplicate_cram_filenames" ]; then
-            echo "ERROR: The input CRAMs contain multiple files with the same basename, which leads to an error due to the way that htslib is implemented. Duplicate filenames:"
-            printf "%s\n" "${duplicate_cram_filenames[@]}"
-            exit 1
-        fi
-
-        if ~{if defined(cram_indices) then "true" else "false"}; then
-            for i in "${!cram_paths[@]}" ; do
-                echo -e "${cram_paths[$i]}##idx##${cram_index_paths[$i]} ${sample_ids[$i]}" >> crams.list
-            done
-        else
-            for i in "${!cram_paths[@]}"; do
-                echo -e "${cram_paths[$i]} ${sample_ids[$i]}" >> crams.list
-            done
-        fi
-
         cmd="/bin/GLIMPSE2_phase \
-        ~{"--input-gl " + input_vcf} \
+        --input-gl " + ~{input_vcf} \
         --reference ~{reference_chunk} \
         --output phase_output.bcf \
         --threads ~{cpu} \
@@ -451,8 +415,6 @@ task GlimpsePhase {
         ~{if impute_reference_only_variants then "--impute-reference-only-variants" else ""} ~{if call_indels then "--call-indels" else ""} \
         ~{"--burnin " + n_burnin} ~{"--main " + n_main} \
         ~{"--ne " + effective_population_size} \
-        ~{bam_file_list_input} \
-        ~{"--fasta " + fasta} \
         --checkpoint-file-out checkpoint.bin"
 
         if [ -s "checkpoint.bin" ]; then
