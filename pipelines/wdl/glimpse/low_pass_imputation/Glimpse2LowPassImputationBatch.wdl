@@ -407,7 +407,7 @@ task GlimpsePhase {
         export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
 
         cmd="/bin/GLIMPSE2_phase \
-        --input-gl " + ~{input_vcf} \
+        --input-gl ~{input_vcf} \
         --reference ~{reference_chunk} \
         --output phase_output.bcf \
         --threads ~{cpu} \
