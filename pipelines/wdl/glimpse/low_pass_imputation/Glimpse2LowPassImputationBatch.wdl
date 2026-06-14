@@ -15,9 +15,7 @@ workflow Glimpse2LowPassImputationBatch {
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
         String reference_panel_prefix
 
-        Array[File] crams
-        Array[File] cram_indices
-        Array[String] sample_ids
+        File cram_manifest
         File fasta
         File fasta_index
         String output_basename
@@ -40,14 +38,10 @@ workflow Glimpse2LowPassImputationBatch {
     # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
     Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
 
-    if (length(crams) > 1) {
-        call SplitIntoBatches {
-            input:
-                batch_size = calling_batch_size,
-                crams = crams,
-                cram_indices = cram_indices,
-                sample_ids = sample_ids
-        }
+    call SplitCramManifestIntoBatchesOfStrings {
+        input:
+            batch_size = calling_batch_size,
+            cram_manifest = cram_manifest
     }
 
     scatter(contig in contigs) {
@@ -57,16 +51,13 @@ workflow Glimpse2LowPassImputationBatch {
         File sites_table_index = reference_panel_prefix + "sites_table." + contig + ".gz.tbi"
         File reference_chunks = reference_panel_prefix + "reference_chunks." + contig + ".txt"
 
-        Array[Array[String]] crams_batches = select_first([SplitIntoBatches.crams_batches, [select_first([crams])]])
-        Array[Array[String]] cram_indices_batches = select_first([SplitIntoBatches.cram_indices_batches, [select_first([cram_indices])]])
-        Array[Array[String]] sample_ids_batches = select_first([SplitIntoBatches.sample_ids_batches, [sample_ids]])
 
-        scatter(i in range(length(crams_batches))) {
+        scatter(i in range(length(SplitCramManifestIntoBatchesOfStrings.crams_batches))) {
             call BcftoolsMpileup {
                 input:
-                    crams = crams_batches[i],
-                    cram_indices = cram_indices_batches[i],
-                    sample_ids = sample_ids_batches[i],
+                    crams = SplitCramManifestIntoBatchesOfStrings.crams_batches[i],
+                    cram_indices = SplitCramManifestIntoBatchesOfStrings.cram_indices_batches[i],
+                    sample_ids = SplitCramManifestIntoBatchesOfStrings.sample_ids_batches[i],
                     fasta = fasta,
                     fasta_index = fasta_index,
                     call_indels = call_indels,
@@ -130,6 +121,7 @@ workflow Glimpse2LowPassImputationBatch {
     output {
         Array[File] imputed_contig_ligated_vcfs = GlimpseLigate.imputed_vcf
         Array[File] imputed_contig_ligated_vcf_indices = GlimpseLigate.imputed_vcf_index
+        Int total_samples = SplitCramManifestIntoBatchesOfStrings.total_samples
     }
 }
 
@@ -178,6 +170,68 @@ task SplitIntoBatches {
         Array[Array[String]] crams_batches = read_json('crams.json')
         Array[Array[String]] cram_indices_batches = read_json('cram_indices.json')
         Array[Array[String]] sample_ids_batches = read_json('sample_ids.json')
+    }
+}
+
+task SplitCramManifestIntoBatchesOfStrings {
+    input {
+        Int batch_size
+        File cram_manifest
+    }
+
+    command <<<
+        cat <<EOF > script.py
+        import json
+        import pandas as pd
+
+        batch_size = ~{batch_size}
+
+        # Read the manifest
+        df = pd.read_csv("~{cram_manifest}", sep='\t')
+
+        # Check for required columns
+        required_cols = ['sample_id', 'cram_path', 'cram_index_path']
+        missing_cols = [col for col in required_cols if col not in df.columns]
+
+        if missing_cols:
+            print(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.", file=sys.stderr)
+            exit(1)
+
+        crams = df['cram_path'].tolist()
+        cram_indices = df['crai_path'].tolist()
+        sample_ids = df['sample_id'].tolist()
+
+        crams_batches = [crams[i:i + batch_size] for i in range(0, len(crams), batch_size)]
+        cram_indices_batches = [cram_indices[i:i + batch_size] for i in range(0, len(cram_indices), batch_size)]
+        sample_ids_batches = [sample_ids[i:i + batch_size] for i in range(0, len(sample_ids), batch_size)]
+
+        with open('crams.json', 'w') as json_file:
+            json.dump(crams_batches, json_file)
+        with open('cram_indices.json', 'w') as json_file:
+            json.dump(cram_indices_batches, json_file)
+        with open('sample_ids.json', 'w') as json_file:
+            json.dump(sample_ids_batches, json_file)
+
+        with open('total_samples.txt', 'w') as total_sample_file:
+            total_sample_file.write(len(crams))
+        EOF
+        python3 script.py
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        memory: "1 GiB"
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        Array[Array[String]] crams_batches = read_json('crams.json')
+        Array[Array[String]] cram_indices_batches = read_json('cram_indices.json')
+        Array[Array[String]] sample_ids_batches = read_json('sample_ids.json')
+        Int total_samples = read_int("total_samples.txt")
     }
 }
 

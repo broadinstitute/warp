@@ -356,8 +356,9 @@ task CreateHomRefSitesOnlyVcf {
     }
 }
 
-task ConvertCramManifestToInputArrays {
+task SplitCramManifestIntoBatches {
     input {
+        Int batch_size
         File cram_manifest
     }
 
@@ -366,16 +367,7 @@ task ConvertCramManifestToInputArrays {
         import sys
         import pandas as pd
 
-        crams_filename = "crams.txt"
-        cram_indices_filename = "cram_indices.txt"
-        sample_ids_filename = "sample_ids.txt"
-
-        def write_column(column_data, filename):
-            """Write column to file, with each value stripped of leading/trailing whitespace."""
-            filtered = column_data.fillna('').astype(str).str.strip()
-            with open(filename, 'w') as f:
-                for value in filtered:
-                    f.write(f"{value}\n")
+        batch_size = ~{batch_size}
 
         # Read the manifest
         df = pd.read_csv("~{cram_manifest}", sep='\t')
@@ -387,29 +379,73 @@ task ConvertCramManifestToInputArrays {
         if missing_cols:
             print(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.", file=sys.stderr)
             exit(1)
-        else:
-            # Write to output files, stripping leading/trailing whitespace from each value
-            write_column(df['sample_id'], sample_ids_filename)
-            write_column(df['cram_path'], crams_filename)
-            write_column(df['cram_index_path'], cram_indices_filename)
+
+        chunk_num = 0
+        for i in range(0, len(df), ~{batch_size}):
+            chunk = df[i : i + chunk_size]
+            chunk.to_csv(f"chunk_{chunk_num:04d}.tsv", sep='\t', index=False)
+            chunk_num += 1
+
         EOF
-        python3 script.py >&2
+        python3 script.py
     >>>
 
     runtime {
         docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
         cpu: 1
         disks: "local-disk 10 HDD"
-        memory: "4 GiB"
+        memory: "1 GiB"
         preemptible: 3
-        maxRetries: 2
         noAddress: true
     }
 
     output {
-        Array[String] crams = read_lines("crams.txt")
-        Array[String] cram_indices = read_lines("cram_indices.txt")
-        Array[String] sample_ids = read_lines("sample_ids.txt")
+        Array[File] cram_manifest_batches = glob("chunk_*")
+    }
+}
+
+task ConvertInputArraysToManifest {
+    input {
+        Array[String] sample_ids
+        Array[String] cram_paths
+        Array[String] cram_index_paths
+        String output_filename = "manifest.tsv"
+    }
+
+    command <<<
+        set -euo pipefail
+
+        python3 << 'EOF'
+        import sys
+
+        sample_ids = ['~{sep="', '" sample_ids}']
+        cram_paths = ['~{sep="', '" cram_paths}']
+        cram_index_paths = ['~{sep="', '" cram_index_paths}']
+
+        # Validate all arrays have the same length
+        if not (len(sample_ids) == len(cram_paths) == len(cram_index_paths)):
+            print(f"ERROR: Input arrays have different lengths: sample_ids={len(sample_ids)}, cram_paths={len(cram_paths)}, cram_index_paths={len(cram_index_paths)}", file=sys.stderr)
+            sys.exit(1)
+
+        # Write TSV with headers
+        with open('~{output_filename}', 'w') as f:
+            f.write("sample_id\tcram_path\tcram_index_path\n")
+            for sample_id, cram_path, cram_index_path in zip(sample_ids, cram_paths, cram_index_paths):
+                f.write(f"{sample_id}\t{cram_path}\t{cram_index_path}\n")
+        EOF
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        memory: "1 GiB"
+        disks: "local-disk 10 HDD"
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        File output_manifest = "~{output_filename}"
     }
 }
 

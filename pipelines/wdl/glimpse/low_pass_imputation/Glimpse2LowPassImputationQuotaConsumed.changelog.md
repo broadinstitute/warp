@@ -1,3 +1,8 @@
+# 0.0.6
+2026-06-13 (Date of Last Commit)
+
+* remove unused import
+
 # 0.0.5
 2026-05-22 (Date of Last Commit)
 
