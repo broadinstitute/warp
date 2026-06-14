@@ -8,7 +8,7 @@ task MergeSampleChunksVcfsWithPaste {
         Int disk_size_gb = ceil(2.2 * size(input_vcfs, "GiB") + 50)
         Int mem_gb = 8
         Int cpu = 4
-        Int preemptible = 3
+        Int preemptible = 0
     }
 
     command <<<
@@ -127,7 +127,7 @@ task RecomputeAndAnnotate {
         Int disk_size_gb = ceil(2.2 * size(merged_vcf, "GiB") + size(annotations, "GiB") + 50)
         Int mem_gb = 6
         Int cpu = 1
-        Int preemptible = 1
+        Int preemptible = 0
         Int chunk_size = 100000
     }
 
@@ -382,8 +382,8 @@ task SplitCramManifestIntoBatches {
 
         chunk_num = 0
         for i in range(0, len(df), ~{batch_size}):
-            chunk = df[i : i + chunk_size]
-            chunk.to_csv(f"chunk_{chunk_num:04d}.tsv", sep='\t', index=False)
+            df_chunk = df[i : i + batch_size]
+            df_chunk.to_csv(f"chunk_{chunk_num:04d}.tsv", sep='\t', index=False)
             chunk_num += 1
 
         EOF
