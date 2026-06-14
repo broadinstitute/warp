@@ -213,7 +213,7 @@ task SplitCramManifestIntoBatchesOfStrings {
             json.dump(sample_ids_batches, json_file)
 
         with open('total_samples.txt', 'w') as total_sample_file:
-            total_sample_file.write(len(crams))
+            total_sample_file.write(str(len(crams)))
         EOF
         python3 script.py
     >>>
