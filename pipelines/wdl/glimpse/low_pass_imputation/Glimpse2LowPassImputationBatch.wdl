@@ -198,7 +198,7 @@ task SplitCramManifestIntoBatchesOfStrings {
             exit(1)
 
         crams = df['cram_path'].tolist()
-        cram_indices = df['crai_path'].tolist()
+        cram_indices = df['cram_index_path'].tolist()
         sample_ids = df['sample_id'].tolist()
 
         crams_batches = [crams[i:i + batch_size] for i in range(0, len(crams), batch_size)]
