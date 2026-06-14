@@ -7,7 +7,7 @@ ExomeReprocessing	 3.3.7	2026-01-21
 Glimpse2LowPassImputation	 0.0.20	2026-06-12 
 Glimpse2LowPassImputationBatch	 0.0.10	2026-06-12 
 Glimpse2LowPassImputationQC	 1.0.4	2026-05-22 
-Glimpse2LowPassImputationQuotaConsumed	 0.0.5	2026-05-22 
+Glimpse2LowPassImputationQuotaConsumed	 0.0.6	2026-06-13 
 IlluminaGenotypingArray	 1.12.27	2026-01-21 
 Imputation	 1.1.23	2025-10-03 
 ImputationBeagle	 3.0.1	2026-02-23 
