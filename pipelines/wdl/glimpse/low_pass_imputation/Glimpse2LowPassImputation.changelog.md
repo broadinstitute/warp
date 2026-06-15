@@ -1,7 +1,7 @@
 # 0.0.20
 2026-06-12 (Date of Last Commit)
 
-* remove unnecessary inputs from GlimpsePhase task to help with cromwell metadata writing
+* use file manifest instead of input arrays for submitting batches to reduce metadata writing
 
 # 0.0.19
 2026-06-03 (Date of Last Commit)

@@ -1,7 +1,7 @@
 # 0.0.10
 2026-06-12 (Date of Last Commit)
 
-* remove unnecessary inputs from GlimpsePhase task to help with cromwell metadata writing
+* remove unnecessary inputs from GlimpsePhase task to reduce cromwell metadata writing
 
 # 0.0.9
 2026-06-03 (Date of Last Commit)
