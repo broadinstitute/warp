@@ -57,8 +57,12 @@ workflow pca_only_no_labels {
     output {
         File training_pca_labels_ht_tsv = create_hw_pca_training.pca_scores_tsv
         File training_pca_eigenvalues_tsv = create_hw_pca_training.pca_eigenvalues_tsv
-        File training_pca_labels_tsv_plots_1_2 = plot_1_2.training_pca_labels_tsv_plot
-        File training_pca_labels_tsv_plots_3_4 = plot_3_4.training_pca_labels_tsv_plot
+        File training_pca_scatter_plots_1_2 = plot_1_2.training_pca_scatter_plot
+        File training_pca_scatter_plots_3_4 = plot_3_4.training_pca_scatter_plot
+        File training_pca_contour_plots_1_2 = plot_1_2.training_pca_contour_plot
+        File training_pca_contour_plots_3_4 = plot_3_4.training_pca_contour_plot
+        File training_pca_hexbin_plots_1_2 = plot_1_2.training_pca_hexbin_plot
+        File training_pca_hexbin_plots_3_4 = plot_3_4.training_pca_hexbin_plot
     }
 }
 
@@ -257,22 +261,22 @@ task plot_pca {
         import pandas as pd
         import numpy as np
         import matplotlib.pyplot as plt
+        from scipy.ndimage import gaussian_filter
 
         def check_pc(pc: int) -> None:
             if pc < 1:
                 raise ValueError(f'Specified pc was negative or zero: {pc}.  Inputs are 1-indexed.')
 
-        def plot_categorical_points(df, score_col, pc1, pc2, col_category, output_figure_fname, pct_var=None):
-            # Unique labels and colors
+        def plot_scatter(df, pc1, pc2, col_category, output_figure_fname, pct_var=None):
+            """Scatter plot only — no contour overlay."""
             labels = df[col_category].unique()
             colors = plt.cm.rainbow(np.linspace(0, 1, len(labels)))
 
-            # Plot each group with a different color
             for label, color in zip(labels, colors):
                 subset = df[df[col_category] == label]
-                x = subset[f'PC{pc1}']  # Updated to use individual PC columns
-                y = subset[f'PC{pc2}']  # Updated to use individual PC columns
-                plt.scatter(x, y, color=color, s=2, alpha=~{alpha})  # Removed legend and added alpha for transparency
+                x = subset[f'PC{pc1}']
+                y = subset[f'PC{pc2}']
+                plt.scatter(x, y, color=color, s=2, alpha=~{alpha})
 
             plt.title('CDRv9 PCA')
             if pct_var is not None:
@@ -286,6 +290,66 @@ task plot_pca {
 
             plt.xlabel(xlabel)
             plt.ylabel(ylabel)
+            plt.gca().set_aspect('equal', adjustable='box')
+            plt.tight_layout()
+            plt.savefig(output_figure_fname)
+            plt.close()
+
+        def plot_categorical_points(df, score_col, pc1, pc2, col_category, output_figure_fname, pct_var=None):
+            """Scatter plot with contour density overlay."""
+            # Unique labels and colors
+            labels = df[col_category].unique()
+            colors = plt.cm.rainbow(np.linspace(0, 1, len(labels)))
+
+            # Plot each group with a different color
+            for label, color in zip(labels, colors):
+                subset = df[df[col_category] == label]
+                x = subset[f'PC{pc1}']  # Updated to use individual PC columns
+                y = subset[f'PC{pc2}']  # Updated to use individual PC columns
+                plt.scatter(x, y, color=color, s=2, alpha=~{alpha})  # Removed legend and added alpha for transparency
+
+            # Contour overlay using 2D histogram (O(n), safe for large datasets)
+            x_all = df[f'PC{pc1}']
+            y_all = df[f'PC{pc2}']
+            h, xedges, yedges = np.histogram2d(x_all, y_all, bins=200)
+            h_smooth = gaussian_filter(h, sigma=2)
+            xcenters = (xedges[:-1] + xedges[1:]) / 2
+            ycenters = (yedges[:-1] + yedges[1:]) / 2
+            plt.contour(xcenters, ycenters, h_smooth.T, levels=8, colors='black', alpha=0.5, linewidths=0.8)
+
+            plt.title('CDRv9 PCA')
+            if pct_var is not None:
+                pct_x = pct_var.get(pc1)
+                pct_y = pct_var.get(pc2)
+                xlabel = f"PC{pc1} ({pct_x:.2f}%)" if pct_x is not None else f"PC{pc1}"
+                ylabel = f"PC{pc2} ({pct_y:.2f}%)" if pct_y is not None else f"PC{pc2}"
+            else:
+                xlabel = f"PC{pc1}"
+                ylabel = f"PC{pc2}"
+
+            plt.xlabel(xlabel)
+            plt.ylabel(ylabel)
+            plt.gca().set_aspect('equal', adjustable='box')
+            plt.tight_layout()
+            plt.savefig(output_figure_fname)
+            plt.close()
+
+        def plot_hexbin(df, pc1, pc2, output_figure_fname, pct_var=None):
+            fig, ax = plt.subplots()
+            hb = ax.hexbin(df[f'PC{pc1}'], df[f'PC{pc2}'], gridsize=100, cmap='Blues', mincnt=1)
+            plt.colorbar(hb, ax=ax, label='Count')
+            plt.title('CDRv9 PCA (Hexbin Density)')
+            if pct_var is not None:
+                pct_x = pct_var.get(pc1)
+                pct_y = pct_var.get(pc2)
+                xlabel = f"PC{pc1} ({pct_x:.2f}%)" if pct_x is not None else f"PC{pc1}"
+                ylabel = f"PC{pc2} ({pct_y:.2f}%)" if pct_y is not None else f"PC{pc2}"
+            else:
+                xlabel = f"PC{pc1}"
+                ylabel = f"PC{pc2}"
+            ax.set_xlabel(xlabel)
+            ax.set_ylabel(ylabel)
+            ax.set_aspect('equal', adjustable='box')
             plt.tight_layout()
             plt.savefig(output_figure_fname)
             plt.close()
@@ -299,9 +363,6 @@ task plot_pca {
         check_pc(pc1)
         check_pc(pc2)
 
-        # Create output filename
-        output_figure_basename = f'{output_prefix}_{pc1}_{pc2}.png'
-
         # Read and process data
         df = pd.read_csv("~{pca_tsv}", sep="\t")
         pct_variance_df = pd.read_csv("~{pct_variance_tsv}", sep="\t")
@@ -313,14 +374,25 @@ task plot_pca {
         # Add pop labels since plot function expects them
         df['pop_label'] = ["No label"] * len(df)
 
-        # Generate the plot
-        plot_categorical_points(df, 'scores', pc1, pc2, 'pop_label', output_figure_basename, pct_variance_lookup)
+        # 1) Scatter-only plot (original, no contour)
+        scatter_figure_basename = f'{output_prefix}_{pc1}_{pc2}_scatter.png'
+        plot_scatter(df, pc1, pc2, 'pop_label', scatter_figure_basename, pct_variance_lookup)
+
+        # 2) Scatter + contour overlay
+        contour_figure_basename = f'{output_prefix}_{pc1}_{pc2}_contour.png'
+        plot_categorical_points(df, 'scores', pc1, pc2, 'pop_label', contour_figure_basename, pct_variance_lookup)
+
+        # 3) Standalone hexbin density plot
+        hexbin_figure_basename = f'{output_prefix}_{pc1}_{pc2}_hexbin.png'
+        plot_hexbin(df, pc1, pc2, hexbin_figure_basename, pct_variance_lookup)
 
         EOF
     >>>
 
     output {
-        File training_pca_labels_tsv_plot = "~{output_prefix}_~{pc1}_~{pc2}.png"
+        File training_pca_scatter_plot = "~{output_prefix}_~{pc1}_~{pc2}_scatter.png"
+        File training_pca_contour_plot = "~{output_prefix}_~{pc1}_~{pc2}_contour.png"
+        File training_pca_hexbin_plot = "~{output_prefix}_~{pc1}_~{pc2}_hexbin.png"
     }
 
     runtime {
