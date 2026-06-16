@@ -1,6 +1,6 @@
 {
-    "ReblockGVCF.gvcf": "gs://broad-gotc-test-storage/reblock_gvcf/wgs/plumbing/input/G96830.NA12878/NA12878_PLUMBING.g.vcf.gz",
-    "ReblockGVCF.gvcf_index": "gs://broad-gotc-test-storage/reblock_gvcf/wgs/plumbing/input/G96830.NA12878/index_in_different_location/NA12878_PLUMBING.g.vcf.gz.tbi",
+    "ReblockGVCF.gvcf": "gs://pd-test-storage-public/ReblockGVCF/input/plumbing/G96830.NA12878.index/NA12878_PLUMBING.g.vcf.gz",
+    "ReblockGVCF.gvcf_index": "gs://pd-test-storage-public/ReblockGVCF/input/plumbing/G96830.NA12878.index/index_in_different_location/NA12878_PLUMBING.g.vcf.gz.tbi",
     "ReblockGVCF.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
     "ReblockGVCF.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
     "ReblockGVCF.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",

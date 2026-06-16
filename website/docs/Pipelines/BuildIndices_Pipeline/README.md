@@ -146,6 +146,7 @@ Example references are available in the Broad Public Reference bucket, a Google 
 | STAR Annotation GTF    | `gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf` |
 | BWA-MEM2 Index TAR     | `gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar` |
 | Chromosome Sizes       | `gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/chrom.sizes` |
+| FASTA                  | `gs://gcp-public-data--broad-references/hg38/v0/single_nucleus_smart_seq_2/GRCh38.primary_assembly.genome.fa` |
 
 
 ### Mouse
@@ -159,6 +160,8 @@ Example references are available in the Broad Public Reference bucket, a Google 
 | STAR Annotation GTF    | `gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_vM32.annotation.gtf` |
 | BWA-MEM2 Index TAR     | `gs://gcp-public-data--broad-references/GRCm39/bwa/v2_2_1/bwa-mem2-2.2.1-Mouse-GENCODE-build-GRCm39.tar` |
 | Chromosome Sizes       | `gs://gcp-public-data--broad-references/GRCm39/bwa/v2_2_1/chrom.sizes` |
+| FASTA                  | `gs://gcp-public-data--broad-references/GRCm39/single_nucleus_smart_seq_2/GRCm39.primary_assembly.genome.fa` |
+
 
 ### Macaque
 Inputs for the Macaque reference below were modified using a custom tool to handle nuclear mitochondrial inserts, [numty-dumpty](https://github.com/nkschaefer/numty-dumpty). See the README for the [STAR index](https://storage.cloud.google.com/gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/numty_dumpty/README_STAR.txt) and the [bwa-mem2 index]
@@ -172,6 +175,8 @@ Inputs for the Macaque reference below were modified using a custom tool to hand
 | BWA Index TAR      | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/bwa-mem2-2.2.1-Macaque-NCBI-build-GCF_003339765.1.tar` |
 | GTF Annotation     | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/10x_filtered/mt_v103_modified.annotation.gtf` |
 | Chromosome Sizes   | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/bwa/v2_2_1/chrom.sizes` |
+| FASTA              | `gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/single_nucleus_smart_seq_2/GCF_003339765.1_Mmul_10_genomic.fna` |
+
 
 This macaque reference works with the Optimus, Multiome, and Paired-tag workflows. However, mitochondrial genes are not demarcated with an "mt-" tag. A separate text file with MT genes is required. An example is the list below:
 
@@ -247,6 +252,72 @@ Marmoset scripts expect a custom-modified input Marmoset GTF file. These inputs 
 | Chromosome Sizes   | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/bwa/v2_2_1/chrom.sizes` |
 | STAR Index TAR     | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/star/v2_7_10a/modified_star2.7.10a-Pig-NCBI-build-Sscrofa11.1-2.2.tar` |
 | GTF Annotation     | `gs://gcp-public-data--broad-references/S.scrofa/Sscrofa11.1/cleanome/star/v2_7_10a/modified_v2.2.annotation.gtf` |
+
+### Owl Monkey
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | 86718_ANA_hifiasm-v0.15.2.pri (NCBI) |
+| Gene Annotation    | RefSeq GCF_030222135.1 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/A.nancymaae/86718_ANA_hifiasm-v0.15.2.pri/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Owl_monkey-NCBI-build-86718_ANA_hifiasm-v0.15.2.pri.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/A.nancymaae/86718_ANA_hifiasm-v0.15.2.pri/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/A.nancymaae/86718_ANA_hifiasm-v0.15.2.pri/cleanome/star/v2_7_10a/star2.7.10a-Owl_monkey-NCBI-build-86718_ANA_hifiasm-v0.15.2.pri-GCF_030222135.1.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/A.nancymaae/86718_ANA_hifiasm-v0.15.2.pri/cleanome/star/v2_7_10a/vGCF_030222135.1.annotation.gtf` |
+| MT Genes List      | `gs://gcp-public-data--broad-references/A.nancymaae/86718_ANA_hifiasm-v0.15.2.pri/cleanome/owl_monkey_mt_genes_list.txt` |
+
+### Lemur
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | Mmur_3.0 (NCBI) |
+| Gene Annotation    | RefSeq GCF_000165445.2 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/M.murinus/Mmur_3.0/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Gray_mouse_lemur-NCBI-build-Mmur_3.0.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/M.murinus/Mmur_3.0/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/M.murinus/Mmur_3.0/cleanome/star/v2_7_10a/star2.7.10a-Gray_mouse_lemur-NCBI-build-Mmur_3.0-GCF_000165445.2.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/M.murinus/Mmur_3.0/cleanome/star/v2_7_10a/vGCF_000165445.2.annotation.gtf` |
+| MT Genes List      | `gs://gcp-public-data--broad-references/M.murinus/Mmur_3.0/cleanome/lemur_mt_genes_list.txt` |
+
+### Naked Mole Rat
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | HetGla_female_1.0 (NCBI) |
+| Gene Annotation    | RefSeq GCF_000247695.1 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/H.glaber/HetGla_female_1.0/cleanome/bwa/bwa-mem2-2.2.1-Naked_mole_rat-NCBI-build-HetGla_female_1.0.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/H.glaber/HetGla_female_1.0/cleanome/bwa/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/H.glaber/HetGla_female_1.0/cleanome/star/v2_7_10a/star2.7.10a-Naked_mole_rat-NCBI-build-HetGla_female_1.0-GCF_000247695.1.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/H.glaber/HetGla_female_1.0/cleanome/star/v2_7_10a/vGCF_000247695.1.annotation.gtf` |
+| MT Genes List      | `gs://gcp-public-data--broad-references/H.glaber/HetGla_female_1.0/cleanome/naked_mole_rat_mt_genes_list.txt` |
+
+### Chimp
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | NHGRI_mPanTro3-v2.0_pri (NCBI) |
+| Gene Annotation    | RefSeq GCF_028858775.2 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/P.troglodytes/NHGRI_mPanTro3-v2.0_pri/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Chimp-NCBI-build-NHGRI_mPanTro3-v2.0_pri.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/P.troglodytes/NHGRI_mPanTro3-v2.0_pri/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/P.troglodytes/NHGRI_mPanTro3-v2.0_pri/cleanome/star/v2_7_10a/star2.7.10a-Chimp-NCBI-build-NHGRI_mPanTro3-v2.0_pri-GCF_028858775.2.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/P.troglodytes/NHGRI_mPanTro3-v2.0_pri/cleanome/star/v2_7_10a/vGCF_028858775.2.annotation.gtf` |
+| MT Genes List      | `gs://gcp-public-data--broad-references/P.troglodytes/NHGRI_mPanTro3-v2.0_pri/cleanome/chimp_mt_genes_list.txt` |
+
+### Ferret
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | ASM1176430v1.1 (NCBI) |
+| Gene Annotation    | RefSeq GCF_011764305.1 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/M.putorius_furo/ASM1176430v1.1/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Ferret-NCBI-build-ASM1176430v1.1.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/M.putorius_furo/ASM1176430v1.1/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/M.putorius_furo/ASM1176430v1.1/cleanome/star/v2_7_10a/star2.7.10a-Ferret-NCBI-build-ASM1176430v1.1-GCF_011764305.1.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/M.putorius_furo/ASM1176430v1.1/cleanome/star/v2_7_10a/vGCF_011764305.1.annotation.gtf` |
+| MT Genes List      | `gs://gcp-public-data--broad-references/M.putorius_furo/ASM1176430v1.1/cleanome/ferret_mt_genes_list.txt` |
+
+### Treeshrew
+| File Type           | File Location |
+|---------------------|--------------|
+| Genomic Reference  | TupChi_1.0 (NCBI) |
+| Gene Annotation    | RefSeq GCF_000334495.1 |
+| BWA-MEM2 Index TAR | `gs://gcp-public-data--broad-references/T.belangeri/TupChi_1.0/cleanome/bwa/v2_2_1/bwa-mem2-2.2.1-Treeshrew-NCBI-build-TupChi_1.0.tar` |
+| Chromosome Sizes   | `gs://gcp-public-data--broad-references/T.belangeri/TupChi_1.0/cleanome/bwa/v2_2_1/chrom.sizes` |
+| STAR Index TAR     | `gs://gcp-public-data--broad-references/T.belangeri/TupChi_1.0/cleanome/star/v2_7_10a/star2.7.10a-Treeshrew-NCBI-build-TupChi_1.0-GCF_000334495.1.tar` |
+| GTF Annotation     | `gs://gcp-public-data--broad-references/T.belangeri/TupChi_1.0/cleanome/star/v2_7_10a/vGCF_000334495.1.annotation.gtf` |
+| MT Genes List      | NA |
 
 ### Viral references
 

@@ -1,3 +1,33 @@
+# 3.6.7
+2026-05-15 (Date of Last Commit)
+
+* Updated shared dependency CheckInputs.wdl to support 10x v4 (GEM-X) chemistry; no functional impact on SlideSeq outputs
+
+# 3.6.6
+2026-04-02 (Date of Last Commit)
+
+* Removed the Optimus `count_exons` parameter from the Optimus pipeline (Optimus v9.0.0). The `STARsoloFastqSlideSeq` task used by SlideSeq is unaffected and retains its existing behavior.
+
+* Refactored `STARsoloFastqSlideSeq` to receive `umi_len`, `cb_len`, and `solo_features` as inputs (computed at the workflow level via the new `ParseReadStructure` task) rather than parsing the read structure and computing the soloFeatures string in bash. Pipeline outputs are unchanged.
+
+* Replaced internal  `Boolean? count_exons` in `STARsoloFastqSlideSeq` with `String exon_solo_directory`; the workflow now passes a pre-computed directory path instead of a boolean, eliminating boolean logic from the task body. Pipeline inputs and outputs are unchanged.
+
+2026-04-21 (Date of Last Commit)
+
+* Added an optional disk_override input to the CalculateUMIsMetrics task to allow users to override the default disk size; this does not affect the outputs of the pipeline
+
+# 3.6.5
+2026-02-24 (Date of Last Commit)
+
+* Added 2 new outputs to Multiome.wdl: gex_whitelist_used and atac_whitelist_used; these outputs indicate the whitelist used for the gene expression and ATAC pipelines, respectively. This change is provenance-only and introduces no functional changes to pipeline outputs
+* Added whitelist provenance tracking to JoinMultiomeBarcodes by storing the GEX and ATAC whitelist paths in the h5ad unstructured metadata (.uns). This change is provenance-only and introduces no functional changes to pipeline outputs
+
+# 3.6.4
+2026-01-22 (Date of Last Commit)
+
+* Added a new, defaulted input cellbender_memory_GB to Optimus; this does not affect the outputs of this pipeline
+* Added a task level input, mem_size, to StarSoloFastq to expose memory settings; this does not affect the outputs of this pipeline
+
 # 3.6.3
 2025-06-20 (Date of Last Commit)
 * Added reference genome/GTF headers to fragment file via new string inputs; this change does not affect this pipeline

@@ -7,14 +7,14 @@ slug: /Pipelines/Optimus_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v8.0.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2025 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
+| [optimus_v8.0.6](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2026 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
 
 
 ![Optimus_diagram](Optimus_diagram.png)
 
 ## Introduction to the Optimus workflow
 
-Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/) as well as the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN; see [Acknowledgements](#acknowledgements) below). It supports the processing of any 3' single-cell and single-nucleus count data generated with the [10x Genomics v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/).
+Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/) as well as the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN; see [Acknowledgements](#acknowledgements) below), and [BICAN](https://brain-bican.org/). It supports the processing of any 3' single-cell and single-nucleus count data generated with the [10x Genomics 3' v2, v3, or v4 assay](https://www.10xgenomics.com/solutions/single-cell/) with additional chemistries supported as indicated in the [table below](#barcode-whitelist-options).
 
 It is an alignment and transcriptome quantification pipeline that corrects cell barcodes (CBs), aligns reads to the genome, corrects Unique Molecular Identifiers (UMIs), generates a count matrix in a UMI-aware manner, calculates summary metrics for genes and cells, detects empty droplets, returns read outputs in BAM format, and returns cell gene counts in numpy matrix and h5ad file formats.
 
@@ -31,7 +31,7 @@ The following table provides a quick glance at the Optimus pipeline features:
 
 | Pipeline features | Description | Source |
 |--- | --- | --- |
-| Assay type | 10x single cell or single nucleus expression (v2 and v3) | [10x Genomics](https://www.10xgenomics.com)
+| Assay type | 10x single cell or single nucleus expression (v2, v3, and v4) | [10x Genomics](https://www.10xgenomics.com)
 | Overall workflow  | Quality control module and transcriptome quantification module | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/optimus/Optimus.wdl) |
 | Workflow language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence | GRCh38.p13 (v43) human genome primary sequence and GRCm39 (M32) mouse genome primary sequence | GENCODE [human reference files](https://www.gencodegenes.org/human/release_43.html) and [mouse reference files](https://www.gencodegenes.org/mouse/release_M32.html)
@@ -73,7 +73,7 @@ Each 10x v2 and v3 3’ sequencing experiment generates triplets of FASTQ files 
 
 1. Forward reads (`r1_fastq`) containing the unique molecular identifier (UMI) and CB sequences
 2. Reverse reads (`r2_fastq`) containing the alignable genomic information from the mRNA transcript
-3. Optional index FASTQ (`i1_fastq`) containing the sample barcodes, when provided by the sequencing facility
+3. Index FASTQ (`i1_fastq`) containing the sample barcodes; optional for v2/v3 chemistry, **required for v4 (GEM-X) chemistry**
 
 
 :::tip Optimus is currently a single sample pipeline
@@ -88,9 +88,9 @@ The example configuration files also contain metadata for the reference files, d
 
 | Parameter name | Description | Optional attributes (when applicable) |
 | --- | --- | --- |
-| cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
-| whitelist |  List of known CBs; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) whitelist that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom whitelist can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom whitelist, set the input `ignore_r1_read_length` to "true". | N/A |
-| read_struct | String describing the structure of reads; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) read structure that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom read structure can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom read structure, set the input `force_no_check` to "true". | N/A |
+| cloud_provider | String describing the cloud provider; default is "gcp". "azure" is accepted but all pipeline assets are hosted on GCP. | "gcp" (default) |
+| whitelist |  List of known CBs; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) whitelist that corresponds to the chemistry based on `tenx_chemistry_version` (and `tenx_chemistry_subversion` for v4). See the [Barcode whitelist options](#barcode-whitelist-options) table below for available whitelists. | N/A |
+| read_struct | String describing the structure of reads; automatically selected based on `tenx_chemistry_version` (`16C10M` for v2; `16C12M` for v3 and v4). Override by setting `force_no_check` to `true`. | N/A |
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/build_indices/BuildIndices.wdl). | N/A |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | N/A |
 | gex_nhash_id | Optional string to identify the library aliquot; will be echoed in the output h5ad file in the adata.uns and the library-level metrics CSV; default is null (`""`) | N/A |
@@ -98,7 +98,8 @@ The example configuration files also contain metadata for the reference files, d
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the input_id. | N/A |
 | input_name_metadata_field | Optional string describing, when applicable, the metadata field containing the input_name. | N/A |
 | annotations_gtf | GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | N/A |
-| tenx_chemistry_version | Integer that specifies if data was generated with 10x v2 or v3 chemistry. Optimus validates this chemistry by examining the UMIs and CBs in the first read 1 FASTQ file. If the chemistry does not match, the pipeline will fail. You can remove the check by setting "ignore_r1_read_length = true" in the input JSON. | 2 or 3 |
+| tenx_chemistry_version | Integer specifying the 10x chemistry. v2 uses a 10 bp UMI (26 bp R1), v3 and v4 use a 12 bp UMI (28 bp R1). Optimus validates the expected R1 length by default. You can override validation by setting `ignore_r1_read_length = true`. | 2, 3, or 4 |
+| tenx_chemistry_subversion | For v4 chemistry only: selects between the two v4 barcode whitelists. Use `"v4"` for kits run with Cell Ranger v8.0/v8.0.1; use `"v4_TRU"` for Cell Ranger v9.0 and later (default when unspecified). See [v4 chemistry documentation](./v4_chemistry.md) for details. | "v4" or "v4_TRU" |
 | mt_genes | Optional file containing mitochondrial gene names for a specific species. This is used for calculating gene metrics. | N/A |
 | soloMultiMappers | Optional string describing whether or not the Optimus (GEX) pipeline should run STARsolo with the `--soloMultiMappers` flag; default is "Uniform". | N/A |
 | counting_mode | String describing whether data is single-cell or single-nucleus. Single-cell mode counts reads aligned to the gene transcript, whereas single-nucleus counts whole transcript to account for nuclear pre-mRNA. | "sc_rna" or "sn_rna" |
@@ -106,9 +107,19 @@ The example configuration files also contain metadata for the reference files, d
 | star_strand_mode | Optional string for running the workflow on forward stranded, reverse stranded, or unstranded data; default is "Forward". | "Forward" (default), "Reverse", and "Unstranded" |
 | ignore_r1_read_length | Boolean that overrides a check on the 10x chemistry. Default is set to false. If true, the workflow will not ensure that the 10x_chemistry_version input matches the chemistry in the read 1 FASTQ. | "true" or "false" (default) | 
 | emptydrops_lower | UMI threshold for emptyDrops detection; default is 100. | N/A |
-| count_exons | Boolean indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**. If true, this option will output an additional layer for the h5ad file. By default, it is set to "false". If the parameter is true and used with sc_rnamode, the workflow will return an error. | "true" or "false" (default) |
+| count_exons | **Deprecated and removed in Optimus v9.0.0.** This parameter is no longer accepted by the workflow; sn_rna mode now always produces a single whole-transcript count matrix (`GeneFull_Ex50pAS`). | N/A |
 | gex_expected_cells | Optional integer input for the expected number of cells, which is used calculate library-level metrics. The default is set to 3,000. | N/A |
 | run_cellbender | Optional boolean used to determine if the Optimus (GEX) pipeline should run CellBender on the output gene expression h5ad file, `h5ad_output_file_gex`; default is "false".  | Boolean |
+
+#### Barcode whitelist options
+
+| File name                 | Location                                                                            | Description                                                                                                          | Intended Use                                                                                                                 |
+| ------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 737K-august-2016.txt      | gs://gcp-public-data--broad-references/optimus_whitelists/737K-august-2016.txt      | V2 Chemistry gene expression whitelist (now called barcode inclusion list by 10x)                                    | This is the Optimus gene expression whitelist for 3' V2 chemistry                                                            |
+| 3M-february-2018.txt      | gs://gcp-public-data--broad-references/optimus_whitelists/3M-february-2018.txt      | V3 Chemistry gene expression whitelist (now called barcode inclusion list by 10x)                                    | This is the Optimus gene expression whitelist for 3' V3 chemistry                                                            |
+| 3M-3pgex-may-2023.txt     | gs://gcp-public-data--broad-references/optimus_whitelists/3M-3pgex-may-2023.txt     | V4 Chemistry gene expression whitelist (now called barcode inclusion list by 10x) for Cell Ranger v8.0 and v8.0.1    | This is the Optimus gene expression whitelist for 3' V4 chemistry corresponding to kits run with Cell Ranger v8.0 and v8.0.1 |
+| 3M-3pgex-may-2023_TRU.txt | gs://gcp-public-data--broad-references/optimus_whitelists/3M-3pgex-may-2023_TRU.txt | V4 TRU Chemistry gene expression whitelist (now called barcode inclusion list by 10x) for Cell Ranger v9.0 and later | This is the Optimus gene expression whitelist for 3' V4 chemistry corresponding to kits run with Cell Ranger v9.0 and later  |
+| 3M-5pgex-jan-2023.txt     | gs://gcp-public-data--broad-references/optimus_whitelists/3M-5pgex-jan-2023.txt     | Single Cell 5' V3 Chemistry gene expression whitelist (now called barcode inclusion list by 10x)                     | This is the Optimus gene expression whitelist for the 5' V3 Chemistry as used by SlideTags                                   |
 
 #### Pseudogene handling
 The example Optimus reference files are downloaded directly from GENCODE (see Quickstart table) and are not modified to remove pseudogenes. This is in contrast to the [references created for Cell Ranger](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/release-notes/references#header) which remove pseudogenes and small RNAs.
@@ -124,12 +135,13 @@ The Optimus pipeline is currently available on the cloud-based platform Terra. A
 The [Optimus workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/optimus/Optimus.wdl) imports individual "tasks," also written in  WDL script, from the WARP [tasks folder](https://github.com/broadinstitute/warp/blob/master/tasks/wdl). 
 
 Overall, the Optimus workflow:
-1. Checks inputs.
-1. Corrects CBs, aligns reads, corrects UMIs, and counts genes with STAR.
-1. Calculates gene metrics.
-1. Calculates cell metrics.
-1. Runs emptyDrops.
-1. Merges gene counts, metrics, and emptyDrops data into a h5ad-formatted matrix.
+1. [Checks inputs.](#1-checks-inputs)
+1. [Corrects CBs, aligns reads, corrects UMIs, and counts genes with STAR.](#2-correct-cbs-trims-reads-align-annotate-genes-correct-umis-and-count-genes)
+1. [Calculates gene metrics.](#3-calculate-gene-metrics)
+1. [Calculates cell metrics.](#4-calculate-cell-metrics)
+1. [Runs emptyDrops.](#5-run-emptydrops)
+1. [Merges gene counts, metrics, and emptyDrops data into a h5ad-formatted matrix.](#6--matrix-construction)
+1. [Optionally, removes ambient RNA background with CellBender.](#7-optional-run-cellbender)
 
 
 The tools each Optimus task employs are detailed in the table below. 
@@ -143,8 +155,8 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by gene using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes gene metrics. | 
 | [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by cell using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes cell metrics. |
 | [RunEmptyDrops.RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RunEmptyDrops.wdl) | npz2rds.sh, emptyDropsWrapper.R, emptyDrops | [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Runs custom scripts to convert the NPY and NPZ files to RDS and then uses emptyDrops to identify empty lipid droplets. This step only runs when `counting_mode` = "sc_rna". This task is nondeterministic.|
-|  [H5adUtils.OptimusH5adGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/H5adUtils.wdl) | create_h5ad_optimus.py | Python3 | Merges the gene counts, cell metrics, gene metrics, and emptyDrops data into a h5ad formatted cell-by-gene matrix. The h5ad contains exon counts when using sc_rna mode, and whole-gene counts when running in sn_rna mode. It optionally contains an additional layer for exon counts when running sn_rna mode with `exon_counts` set to true. This task is nondeterministic.|
-| CellBender.run_cellbender_remove_background_gpu as CellBender ([WDL](https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl))| CellBender | Optional task that runs the `cellbender_remove_background.wdl` WDL script directly from the [CellBender GitHub repository](https://github.com/broadinstitute/CellBender/tree/master), depending on whether the input `run_cellbender` is "true" or "false". |
+|  [H5adUtils.OptimusH5adGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/H5adUtils.wdl) | create_h5ad_optimus.py | Python3 | Merges the gene counts, cell metrics, gene metrics, and emptyDrops data into a h5ad formatted cell-by-gene matrix. The h5ad contains exon counts when using sc_rna mode, and whole-gene counts when running in sn_rna mode. This task is nondeterministic.|
+| CellBender.run_cellbender_remove_background_gpu as CellBender ([WDL](https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl)) | CellBender | [CellBender v0.3.0](https://github.com/broadinstitute/CellBender/tree/v0.3.0) | Optional task that removes ambient RNA and background UMIs from the output h5ad. Runs from the [CellBender GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) when the `run_cellbender` input is `true`. |
 
 
 More information about the different tags used to flag the data can be found in the [Bam_tags documentation](./Bam_tags.md).
@@ -169,11 +181,11 @@ Read trimming removes Illumina adapter sequences. This is set to match the read 
 
 **Alignment**
 
-STAR maps barcoded reads to the genome primary assembly reference (see the Quickstart table above for version information). The example references for Optimus were generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/build_indices/BuildIndices.wdl). The strandedness for alignment is specified in STAR with the `--soloStrand` parameter, which is set to unstranded by default. 
+STAR maps barcoded reads to the genome primary assembly reference (see the Quickstart table above for version information). The example references for Optimus were generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/build_indices/BuildIndices.wdl). The strandedness for alignment is specified in STAR with the `--soloStrand` parameter, which is set to Forward by default (controlled by the `star_strand_mode` input). 
 
 **Gene annotation**
 
-Prior to gene counting, STARsolo adds gene annotations which will vary depending on the counting_mode ("sc_rna" or "sn_rna") specified in the Optimus workflow. With `sc_rna`, STARsolo runs with the “Gene” COUNTING_MODE, which is specific to exons.  With the `sn_rna` mode, STARsolo runs the “GeneFull_Ex50pAS” COUNTING_MODE and has the additional option to run the "Gene" mode when the input parameter `count_exons` is set to "true". 
+Prior to gene counting, STARsolo adds gene annotations which will vary depending on the counting_mode ("sc_rna" or "sn_rna") specified in the Optimus workflow. With `sc_rna`, STARsolo runs with the “Gene” COUNTING_MODE, which is specific to exons.  With the `sn_rna` mode, STARsolo runs the “GeneFull_Ex50pAS” COUNTING_MODE, which counts reads aligned to whole transcripts (introns plus exons).
 
 Genes that overlap an alignment are stored with the GX BAM tag; for sc_rna mode, this will include the gene that corresponds to an exon or UTR, whereas for sn_rna mode, this will include the gene corresponding to an exon, UTR, and intron.
 
@@ -189,7 +201,7 @@ Deduplicated UMIs are counted towards their assigned gene/cells, producing a raw
 
 **STARsolo outputs**
 
-The task’s output includes a coordinate-sorted BAM file containing the CB-corrected reads and SAM attributes UB UR UY CR CB CY NH GX GN. Additionally, after counting, the task outputs three intermediate TSV files (features, barcodes, and matrix) used for downstream empty droplet detection and h5ad matrix generation. The task also outputs a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ).
+The task's output includes a coordinate-sorted BAM file containing the CB-corrected reads and SAM attributes UB UR UY CR CB CY NH GX GN. After counting, the task outputs compressed sparse count matrices in NPY/NPZ format (features, barcodes, and counts) used for downstream empty droplet detection and h5ad matrix generation, as well as TAR archives of raw (`mtx_files`) and filtered (`filtered_mtx_files`) matrix market files. A complete list of task outputs is available in the [Outputs](#8-outputs) section.
 
 #### 3. Calculate gene metrics
 
@@ -219,11 +231,21 @@ Read full details for all the metrics in the [Optimus Count Matrix Overview](./L
 
 The type of gene counts in the h5ad will vary depending on the Optimus workflow counting_mode. If running single-cell data (sc_rna mode), the counts will include only exonic gene counts. 
 
-If running single-nucleus data (sn_rna mode), the counts in the main matrix will be whole transcript and, when `count_exons` is set to true, the counts in an additional layer will be exonic. Using the `count_exons` parameter will cause the h5ad matrix to have additional columns (cell barcodes) due to the difference in STARsolo counting mode.
+If running single-nucleus data (sn_rna mode), the counts in the main matrix will be whole transcript (introns plus exons).
 
 You can determine which type of counts are in the h5ad by looking at the global attribute `expression_data_type`.
 
-For sn_rna mode, you can also access whole transcript and exonic counts using AnnData alyers `layers()` method. For example, adata.layers[“exon_counts”]` will return the exonic counts from the output h5ad. 
+
+**Provenance metadata (whitelist):** The v8.0.6 Optimus pipeline now records the barcode whitelist used during processing in the .uns metadata of its h5ad outputs. This is a provenance-only update and does not alter any counts, metrics, or downstream results.
+
+You can inspect the whitelist file path in Python as follows:
+
+```python
+import anndata
+
+adata = anndata.read_h5ad("<file_name>.h5ad")
+print(adata.uns["whitelist"])
+```
 
 #### 7. Optional: Run CellBender
 This task runs when the `run_cellbender` input is set to true. CellBender is a tool for removing background UMIs and thereby helps to flag empty drops. Learn more in the [CellBender documentation](https://cellbender.readthedocs.io/en/latest/).
@@ -243,6 +265,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | ------ |------ | ------ | ------ |
 | pipeline_version_out | N/A | Version of the processing pipeline run on this data. | String |
 | genomic_reference_version | reference_version.txt | Genomic reference version | TXT |
+| whitelist_input_used | `whitelist_input.txt` | Whitelist used as input to Optimus | TXT |
 | bam | `<input_id>.bam` | Aligned BAM | BAM |
 | matrix | `<input_id>_sparse_counts.npz` | Converted sparse matrix file from the Starsolo task. | NPZ |
 | matrix_row_index | `<input_id>_sparse_counts_row_index.npy` | Index of cells in count matrix. | NPY |
@@ -301,9 +324,9 @@ When citing WARP, please use the following:
 Kylee Degatano, Aseel Awdeh, Robert Sidney Cox III, Wes Dingman, George Grant, Farzaneh Khajouei, Elizabeth Kiernan, Kishori Konwar, Kaylee L Mathews, Kevin Palis, Nikelle Petrillo, Geraldine Van der Auwera, Chengchen (Rex) Wang, Jessica Way. "Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis." _Bioinformatics_, 2025; [https://doi.org/10.1093/bioinformatics/btaf494](https://doi.org/10.1093/bioinformatics/btaf494)
 
 ## Consortia support
-This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project and the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
+This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project, the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN), and the [BRAIN Initiative Cell Atlas Network](https://www.portal.brain-bican.org) (BICAN). 
 
-Each consortium may use slightly different reference files for data analysis or have different post-processing steps. Learn more by reading the [Consortia Processing](./consortia-processing.md) overview.
+Each consortium may use slightly different reference files for data analysis or have different post-processing steps. Learn more about HCA by reading the [Consortia Processing](./consortia-processing.md) overview.
 
 If your organization also uses this pipeline, we would like to list you! Please reach out to us by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues).
 

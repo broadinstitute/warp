@@ -1,3 +1,30 @@
+# 7.0.1
+2026-05-15 (Date of Last Commit)
+
+* Updated shared dependency CheckInputs.wdl to support 10x v4 (GEM-X) chemistry; no functional impact on Multiome outputs
+
+# 7.0.0
+2026-04-02 (Date of Last Commit)
+
+* Removed the `count_exons` input from the Multiome workflow following its removal from Optimus v9.0.0. Default behavior is unchanged (the default was `false`).
+
+# 6.1.6
+2026-04-21 (Date of Last Commit)
+
+* Updated internal task dependency versions for this release; this does not affect the outputs of the pipeline
+
+# 6.1.5
+2026-02-24 (Date of Last Commit)
+
+* Added 2 new outputs to Multiome.wdl: gex_whitelist_used and atac_whitelist_used; these outputs indicate the whitelist used for the gene expression and ATAC pipelines, respectively. This change is provenance-only and introduces no functional changes to pipeline outputs
+* Added whitelist provenance tracking to JoinMultiomeBarcodes by storing the GEX and ATAC whitelist paths in the h5ad unstructured metadata (.uns). This change is provenance-only and introduces no functional changes to pipeline outputs
+
+# 6.1.4
+2026-01-22 (Date of Last Commit)
+
+* Added a new, defaulted input cellbender_memory_GB to Optimus; this does not affect the outputs of this pipeline
+* Added a task level input, mem_size, to StarSoloFastq to expose memory settings; this does not affect the outputs of this pipeline
+
 # 6.1.3
 2025-08-15 (Date of Last Commit)
 
@@ -19,7 +46,7 @@
 * Added reference genome/GTF headers to fragment file via new string inputs
 
 # 6.0.5
-2025-06-18 (Date of Last Commit) 
+2025-06-18 (Date of Last Commit)
 
 * Added the exclude_chroms input parameter to the snap.metrics.tsse function in the CreateFragmentFile task of the ATAC pipeline; which is a list of chromosomes to exclude in per cell metric computation. The default value is [chrM, M]
 

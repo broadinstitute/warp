@@ -18,14 +18,14 @@ task QcChecks {
         # create empty qc messages file
         touch qc_messages.txt
 
-        # check for a large number of variants in input vcf and exit if greater than 10 million
+        # check for a large number of variants in input vcf and exit if greater than 3 million
         line_count=$(bcftools stats ~{vcf_input}  | grep "number of records:" | awk '{print $6}')
-        if [ "$line_count" -gt 10000000 ]; then
-            echo "Greater than 10 million variants found in the input VCF." >> qc_messages.txt
+        if [ "$line_count" -gt 3000000 ]; then
+            echo "Greater than 3 million variants found in the input VCF." >> qc_messages.txt
             echo "false" > passes_qc.txt
             exit 0
         else
-            echo "Less than or equal to 10 million variants found in input VCF."
+            echo "$line_count variants found in input VCF."
         fi
 
         # grab header from vcf
@@ -36,6 +36,23 @@ task QcChecks {
             echo "VCF version 4.0+";
         else
             echo "VCF version < 4.0 or not found." >> qc_messages.txt;
+        fi
+
+        # filter indels coded as REF or ALT “D/I”
+        bcftools view -i 'REF="I,D" || ALT="I,D"' ~{vcf_input} > indels.vcf
+
+        # check if indels.vcf have any variants coded as REF or ALT “D/I”
+        if grep -v '^#' indels.vcf | grep -q .; then
+            echo "Input VCF has indels improperly coded as REF or ALT 'D/I'." >> qc_messages.txt;
+        else
+            echo "No improperly coded indels found in input VCF.";
+        fi
+
+        # check each contig header has length attribute
+        if gunzip -c ~{vcf_input} | grep '^##contig=' | grep -vq 'length='; then
+            echo "One or more contig headers in input VCF have missing 'length' attribute." >> qc_messages.txt;
+        else
+            echo "All contig headers in input VCF have length attribute.";
         fi
 
         # check for variants in at least one of the canonical chromosomes - chr1 to chr22

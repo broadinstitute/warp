@@ -7,7 +7,6 @@ import "../../../tasks/wdl/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/wdl/CheckInputs.wdl" as OptimusInputChecks
 import "../../../tasks/wdl/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/wdl/Utilities.wdl" as utils
-import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender_no_cuda
 import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 
 workflow Optimus {
@@ -17,7 +16,7 @@ workflow Optimus {
   }
 
   input {
-    String cloud_provider
+    String cloud_provider = "gcp"
 
     # Mode for counting either "sc_rna" or "sn_rna"
     String counting_mode = "sc_rna"
@@ -42,13 +41,16 @@ workflow Optimus {
 
     # CellBender
     Boolean run_cellbender = false
+    Int cellbender_memory_GB = 32
 
-    # Chemistry options include: 2 or 3
+    # Chemistry options include: 2, 3, or 4
     Int tenx_chemistry_version
-    # Whitelist is selected based on the input tenx_chemistry_version
+    # For v4 chemistry: "v4" (Cell Ranger v8.0/v8.0.1) or "v4_TRU" (Cell Ranger v9.0 and later; default when unspecified)
+    String? tenx_chemistry_subversion
+    # Whitelist is selected based on tenx_chemistry_version (and tenx_chemistry_subversion for v4)
     File whitelist = checkOptimusInput.whitelist_out
 
-    # read_structure is based on v2 or v3 chemistry
+    # read_structure is based on v2, v3, or v4 chemistry
     String read_struct = checkOptimusInput.read_struct_out
 
     # Emptydrops lower cutoff
@@ -63,9 +65,6 @@ workflow Optimus {
 
     # Set to Forward, Reverse, or Unstranded to account for stranded library preparations (per STARsolo documentation)
     String star_strand_mode = "Forward"
-    
-    # Set to true to count reads aligned to exonic regions in sn_rna mode
-    Boolean count_exons = false
 
     # Set starsolo disk size as adjustable parameter
     # Int disk_starsolo
@@ -73,21 +72,23 @@ workflow Optimus {
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
     # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
-    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
-
+    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times.
   }
 
   # Version of this pipeline
-  String pipeline_version = "8.0.4"
+  String pipeline_version = "9.1.0"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
 
-  # 10x parameters
-  File gcp_whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
-  File gcp_whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
-  File azure_whitelist_v2 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/737k-august-2016.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
-  File azure_whitelist_v3 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/3M-febrary-2018.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
+  # 10x barcode whitelists (canonical paths; see documentation Barcode whitelist options table)
+  File whitelist_v2 = "gs://gcp-public-data--broad-references/optimus_whitelists/737K-august-2016.txt"
+  File whitelist_v3 = "gs://gcp-public-data--broad-references/optimus_whitelists/3M-february-2018.txt"
+  # v4 whitelist selection depends on tenx_chemistry_subversion:
+  #   "v4"     -> Cell Ranger v8.0 and v8.0.1
+  #   "v4_TRU" -> Cell Ranger v9.0 and later (used when tenx_chemistry_subversion is unspecified)
+  File whitelist_v4 = "gs://gcp-public-data--broad-references/optimus_whitelists/3M-3pgex-may-2023.txt"
+  File whitelist_v4_TRU = "gs://gcp-public-data--broad-references/optimus_whitelists/3M-3pgex-may-2023_TRU.txt"
 
   # Takes the first read1 FASTQ from the inputs to check for chemistry match
   File r1_single_fastq = r1_fastq[0]
@@ -102,35 +103,19 @@ workflow Optimus {
   String samtools_star = "samtools-star:1.0.0-1.11-2.7.11a-1731516196"
   String samtools_star_python = "samtools-star-python:1.0.0"
 
-  #TODO how do we handle these?
   String alpine_docker = "alpine-bash@sha256:965a718a07c700a5204c77e391961edee37477634ce2f9cf652a8e4c2db858ff"
-  String gcp_alpine_docker_prefix = "bashell/"
-  String acr_alpine_docker_prefix = "dsppipelinedev.azurecr.io/"
-  String alpine_docker_prefix = if cloud_provider == "gcp" then gcp_alpine_docker_prefix else acr_alpine_docker_prefix
+  String alpine_docker_prefix = "bashell/"
 
   String ubuntu_docker = "ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
-  String gcp_ubuntu_docker_prefix = "gcr.io/gcp-runtimes/"
-  String acr_ubuntu_docker_prefix = "dsppipelinedev.azurecr.io/"
-  String ubuntu_docker_prefix = if cloud_provider == "gcp" then gcp_ubuntu_docker_prefix else acr_ubuntu_docker_prefix
+  String ubuntu_docker_prefix = "gcr.io/gcp-runtimes/"
 
-  String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
-  String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
-
-  # choose docker prefix based on cloud provider
-  String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
-
-  # make sure either gcp or azr is supplied as cloud_provider
-  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
-    call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
-      input:
-        message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
-    }
-  }
+  # all pipeline tasks use the GCP (GCR) docker registry
+  String docker_prefix = "us.gcr.io/broad-gotc-prod/"
 
   parameter_meta {
     r1_fastq: "forward read, contains cell barcodes and molecule barcodes"
     r2_fastq: "reverse read, contains cDNA fragment generated from captured mRNA"
-    i1_fastq: "(optional) index read, for demultiplexing of multiple samples on one flow cell."
+    i1_fastq: "index read used for demultiplexing; required when tenx_chemistry_version is 4"
     input_id: "name of sample matching this file, inserted into read group header"
     input_id_metadata_field: "String that describes the metadata field containing the input_id"
     input_name: "User provided sample name or cell_names"
@@ -138,24 +123,33 @@ workflow Optimus {
     tar_star_reference: "star genome reference"
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
     whitelist: "10x genomics cell barcode allowlist"
-    tenx_chemistry_version: "10X Genomics v2 (10 bp UMI) or v3 chemistry (12bp UMI)"
+    tenx_chemistry_version: "10X Genomics chemistry version: 2 (10 bp UMI), 3 (12 bp UMI), or 4 / GEM-X (12 bp UMI; requires i1_fastq)"
+    tenx_chemistry_subversion: "For v4 chemistry only: 'v4' for Cell Ranger v8.0/v8.0.1 whitelist; 'v4_TRU' for Cell Ranger v9.0+ whitelist (default when unspecified)"
     force_no_check: "Set to true to override input checks and allow pipeline to proceed with invalid input"
     star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded.' Default is Forward."
+  }
+
+  # For v4 chemistry, i1_fastq is required
+  if (tenx_chemistry_version == 4 && !defined(i1_fastq)) {
+    call utils.ErrorWithMessage as ErrorI1FastqRequired {
+      input:
+        message = "i1_fastq is required when tenx_chemistry_version is 4."
+    }
   }
 
   call OptimusInputChecks.checkOptimusInput {
     input:
       force_no_check = force_no_check,
       counting_mode = counting_mode,
-      count_exons = count_exons,
-      gcp_whitelist_v2 = gcp_whitelist_v2,
-      gcp_whitelist_v3 = gcp_whitelist_v3,
-      azure_whitelist_v2 = azure_whitelist_v2,
-      azure_whitelist_v3 = azure_whitelist_v3,
+      star_strand_mode = star_strand_mode,
+      whitelist_v2 = whitelist_v2,
+      whitelist_v3 = whitelist_v3,
+      whitelist_v4 = whitelist_v4,
+      whitelist_v4_TRU = whitelist_v4_TRU,
+      tenx_chemistry_subversion = tenx_chemistry_subversion,
       tenx_chemistry_version = tenx_chemistry_version,
       r1_fastq = r1_single_fastq,
       ignore_r1_read_length = ignore_r1_read_length,
-      cloud_provider = cloud_provider,
       alpine_docker_path = alpine_docker_prefix + alpine_docker
   }
 
@@ -165,6 +159,12 @@ workflow Optimus {
       ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
   }
 
+  # Compute STAR parameters at workflow level instead of bash conditionals in the task
+  Int umi_len = if tenx_chemistry_version == 2 then 10 else 12
+  Int cb_len = 16
+  String solo_features = if counting_mode == "sc_rna" then "Gene" else "GeneFull_Ex50pAS"
+  String solo_directory = if counting_mode == "sc_rna" then "Solo.out/Gene" else "Solo.out/GeneFull_Ex50pAS"
+
   call StarAlign.STARsoloFastq as STARsoloFastq {
       input:
         r1_fastq = r1_fastq,
@@ -172,9 +172,11 @@ workflow Optimus {
         star_strand_mode = star_strand_mode,
         white_list = whitelist,
         tar_star_reference = tar_star_reference,
-        chemistry = tenx_chemistry_version,
+        umi_len = umi_len,
+        cb_len = cb_len,
+        solo_features = solo_features,
+        solo_directory = solo_directory,
         counting_mode = counting_mode,
-        count_exons = count_exons,
         input_id = input_id,
         output_bam_basename = output_bam_basename,
         soloMultiMappers = soloMultiMappers,
@@ -210,97 +212,55 @@ workflow Optimus {
     }
   }
 
-  if (!count_exons) {
-    call H5adUtils.OptimusH5adGeneration{
-      input:
-        input_id = input_id,
-        gex_nhash_id = gex_nhash_id,
-        expected_cells = gex_expected_cells,
-        input_name = input_name,
-        input_id_metadata_field = input_id_metadata_field,
-        input_name_metadata_field = input_name_metadata_field,
-        annotation_file = annotations_gtf,
-        library_metrics = STARsoloFastq.library_metrics,
-        cellbarcodes = STARsoloFastq.outputbarcodes,
-        cell_metrics = CellMetrics.cell_metrics,
-        gene_metrics = GeneMetrics.gene_metrics,
-        sparse_count_matrix = STARsoloFastq.sparse_counts,
-        cell_id = STARsoloFastq.row_index,
-        gene_id = STARsoloFastq.col_index,
-        empty_drops_result = RunEmptyDrops.empty_drops_result,
-        counting_mode = counting_mode,
-        pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker
-    }
-  }
-  if (count_exons  && counting_mode=="sn_rna") {
-    call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
-      input:
-        input_id = input_id,
-        gex_nhash_id = gex_nhash_id,
-        expected_cells = gex_expected_cells,
-        input_name = input_name,
-        counting_mode = counting_mode,
-        input_id_metadata_field = input_id_metadata_field,
-        input_name_metadata_field = input_name_metadata_field,
-        annotation_file = annotations_gtf,
-        library_metrics = STARsoloFastq.library_metrics,
-        cellbarcodes = STARsoloFastq.outputbarcodes,
-        cell_metrics = CellMetrics.cell_metrics,
-        gene_metrics = GeneMetrics.gene_metrics,
-        sparse_count_matrix = STARsoloFastq.sparse_counts,
-        cell_id = STARsoloFastq.row_index,
-        gene_id = STARsoloFastq.col_index,
-        sparse_count_matrix_exon = STARsoloFastq.sparse_counts,
-        cell_id_exon = STARsoloFastq.row_index,
-        gene_id_exon = STARsoloFastq.col_index,
-        pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker
-    }
+  call H5adUtils.OptimusH5adGeneration {
+    input:
+      input_id = input_id,
+      gex_nhash_id = gex_nhash_id,
+      expected_cells = gex_expected_cells,
+      input_name = input_name,
+      input_id_metadata_field = input_id_metadata_field,
+      input_name_metadata_field = input_name_metadata_field,
+      annotation_file = annotations_gtf,
+      library_metrics = STARsoloFastq.library_metrics,
+      cellbarcodes = STARsoloFastq.outputbarcodes,
+      cell_metrics = CellMetrics.cell_metrics,
+      gene_metrics = GeneMetrics.gene_metrics,
+      sparse_count_matrix = STARsoloFastq.sparse_counts,
+      cell_id = STARsoloFastq.row_index,
+      gene_id = STARsoloFastq.col_index,
+      empty_drops_result = RunEmptyDrops.empty_drops_result,
+      counting_mode = counting_mode,
+      pipeline_version = "Optimus_v~{pipeline_version}",
+      warp_tools_docker_path = docker_prefix + warp_tools_docker,
+      gex_whitelist_gs_path = whitelist
   }
 
   # Call CellBender
   if (run_cellbender) {
-    if (cloud_provider == "gcp") {
-      call CellBender.run_cellbender_remove_background_gpu as CellBender {
-        input:
-          sample_name = input_id,
-          input_file_unfiltered = final_h5ad_output,
-          hardware_boot_disk_size_GB = 20,
-          hardware_cpu_count = 4,
-          hardware_disk_size_GB = 50,
-          hardware_gpu_type = "nvidia-tesla-t4",
-          hardware_memory_GB = 32,
-          hardware_preemptible_tries = 2,
-          hardware_zones = "us-central1-a us-central1-c",
-          nvidia_driver_version = "470.82.01"
-      }
-    }
-    if (cloud_provider == "azure") {
-      call CellBender_no_cuda.run_cellbender_remove_background_gpu as CellBender_no_cuda {
-        input:
-          sample_name = input_id,
-          input_file_unfiltered = final_h5ad_output,
-          hardware_boot_disk_size_GB = 20,
-          hardware_cpu_count = 4,
-          hardware_disk_size_GB = 50,
-          hardware_gpu_type = "nvidia-tesla-t4",
-          hardware_memory_GB = 32,
-          hardware_preemptible_tries = 2,
-          hardware_zones = "us-central1-a us-central1-c",
-          nvidia_driver_version = "470.82.01"
-      }
+    call CellBender.run_cellbender_remove_background_gpu as CellBender {
+      input:
+        sample_name = input_id,
+        input_file_unfiltered = final_h5ad_output,
+        hardware_boot_disk_size_GB = 20,
+        hardware_cpu_count = 4,
+        hardware_disk_size_GB = 50,
+        hardware_gpu_type = "nvidia-tesla-t4",
+        hardware_memory_GB = cellbender_memory_GB,
+        hardware_preemptible_tries = 2,
+        hardware_zones = "us-central1-a us-central1-c",
+        nvidia_driver_version = "470.82.01"
     }
   }
 
-  File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
-  File final_library_metrics = select_first([OptimusH5adGenerationWithExons.library_metrics, OptimusH5adGeneration.library_metrics])
-
+  File final_h5ad_output = OptimusH5adGeneration.h5ad_output
+  File final_whitelist_input = OptimusH5adGeneration.whitelist_name_file
+  File final_library_metrics = OptimusH5adGeneration.library_metrics
 
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
+    File whitelist_input_used = final_whitelist_input
    
     # Metrics outputs
     File cell_metrics = CellMetrics.cell_metrics

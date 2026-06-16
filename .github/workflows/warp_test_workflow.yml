@@ -211,6 +211,7 @@ jobs:
           done
 
           echo "Error: The Dockstore Commit Hash does not match the GitHub Commit Hash after 15 minutes of retries!"
+          
           exit 1
         env:
           GITHUB_COMMIT_HASH: ${{ env.GITHUB_COMMIT_HASH }}
@@ -251,19 +252,18 @@ jobs:
           TEST_TYPE="${{ env.testType }}"
           INPUTS_DIR="${{ inputs.pipeline_dir }}/test_inputs/$TEST_TYPE"
           echo "Running tests with test type: $TEST_TYPE"
-
-          TRUTH_PATH="gs://broad-gotc-test-storage/${{ inputs.dockstore_pipeline_name }}/truth/$(echo "$TEST_TYPE" | tr '[:upper:]' '[:lower:]')/$TRUTH_BRANCH"
-          echo "Truth path: $TRUTH_PATH"
           
           RESULTS_PATH="gs://pd-test-results/${{ inputs.dockstore_pipeline_name }}/results/$CURRENT_TIME"
 
+
           # Submit all jobs first and store their submission IDs
           for input_file in "$INPUTS_DIR"/*.json; do
-            test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py --truth_path "$TRUTH_PATH" \
+            test_input_file=$(python3 scripts/firecloud_api/UpdateTestInputs.py \
                 --results_path "$RESULTS_PATH" \
                 --inputs_json "$input_file" \
                 --update_truth "$UPDATE_TRUTH_BOOL" \
-                --branch_name "$BRANCH_NAME" )
+                --branch_name "$TRUTH_BRANCH" \
+                --dockstore_pipeline_name "${{ inputs.dockstore_pipeline_name }}" )
             echo "Uploading the test input file: $test_input_file"
 
             # Create the submission_data.json file for this input_file
@@ -471,14 +471,31 @@ jobs:
           name: workflow-summary
           path: workflow_summary.json
 
-      # Step 14: Print Summary on Success
+      # Step 14: Post Summary Artifact
+      # Purpose: Sends the workflow summary JSON to the workflow analysis processor
+      - name: Post Summary Artifact
+        if: always()
+        env:
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+        run: |
+          if [ -f "workflow_summary.json" ]; then
+            jq -n --arg RUN_ID "$WORKFLOW_RUN_ID" --slurpfile SUMMARY workflow_summary.json '{run_id: $RUN_ID, summary: $SUMMARY[0].summary}' > workflow_payload.json
+            curl -X POST "https://workflow-processor-5zhxczqoxq-uc.a.run.app/api/workflow-summary/" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ github.token }}" \
+              -d @workflow_payload.json
+          else
+            echo "Warning: workflow_summary.json not found. Check for earlier failures."
+          fi
+
+      # Step 15: Print Summary on Success
       # Purpose: Prints the final summary of the pipeline execution in case of success
       - name: Print Summary on Success
         if: success()
         run: |
           echo "# :white_check_mark: Pipeline Execution Summary :white_check_mark:" >> $GITHUB_STEP_SUMMARY
 
-      # Step 15: Print Summary on Failure
+      # Step 16: Print Summary on Failure
       # Purpose: Prints the final summary of the pipeline execution in case of failure
       - name: Print Summary on Failure
         if: failure()

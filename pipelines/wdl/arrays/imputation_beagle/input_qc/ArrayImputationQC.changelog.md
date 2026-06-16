@@ -1,3 +1,18 @@
+# 1.3.0
+2026-02-04 (Date of Last Commit)
+
+* Lower variant number check to 3 million from 10 million to further prevent whole genome inputs from being submitted
+
+# 1.2.5
+2025-12-23 (Date of Last Commit)
+
+* Update QcChecks to catch VCFs that have missing length attribute in contig headers.
+
+# 1.2.4
+2025-12-05 (Date of Last Commit)
+
+* Update QcChecks to catch VCFs that have indels improperly coded as REF or ALT “D/I”.
+
 # 1.2.3 
 2025-10-17 (Date of Last Commit)
 

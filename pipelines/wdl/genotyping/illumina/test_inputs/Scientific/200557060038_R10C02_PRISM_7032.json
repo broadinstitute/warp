@@ -5,16 +5,16 @@
   "IlluminaGenotypingArray.reported_gender": "Male",
   "IlluminaGenotypingArray.chip_well_barcode": "200557060038_R10C02",
 
-  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/Broad_GWAS_supplemental_15061359_A1/idats/200557060038_R10C02/200557060038_R10C02_Grn.idat",
-  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/Broad_GWAS_supplemental_15061359_A1/idats/200557060038_R10C02/200557060038_R10C02_Red.idat",
+  "IlluminaGenotypingArray.green_idat_cloud_path": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/200557060038_R10C02_PRISM_7032/200557060038_R10C02_Grn.idat",
+  "IlluminaGenotypingArray.red_idat_cloud_path": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/200557060038_R10C02_PRISM_7032/200557060038_R10C02_Red.idat",
 
-  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_file": "gs://broad-gotc-test-storage/arrays/Broad_GWAS_supplemental_15061359_A1/inputs/200557060038_R10C02/200557060038_R10C02.PRISM_7032.reference.fingerprint.vcf.gz",
-  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_index_file": "gs://broad-gotc-test-storage/arrays/Broad_GWAS_supplemental_15061359_A1/inputs/200557060038_R10C02/200557060038_R10C02.PRISM_7032.reference.fingerprint.vcf.gz.tbi",
+  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/200557060038_R10C02_PRISM_7032/200557060038_R10C02.PRISM_7032.reference.fingerprint.vcf.gz",
+  "IlluminaGenotypingArray.fingerprint_genotypes_vcf_index_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/200557060038_R10C02_PRISM_7032/200557060038_R10C02.PRISM_7032.reference.fingerprint.vcf.gz.tbi",
 
   "IlluminaGenotypingArray.bead_pool_manifest_file": "gs://gcp-public-data--broad-references/arrays/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.bpm",
   "IlluminaGenotypingArray.extended_chip_manifest_file": "gs://gcp-public-data--broad-references/arrays/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.1.3.extended.csv",
   "IlluminaGenotypingArray.cluster_file": "gs://gcp-public-data--broad-references/arrays/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.egt",
-  "IlluminaGenotypingArray.zcall_thresholds_file": "gs://broad-gotc-test-storage/arrays/metadata/Broad_GWAS_supplemental_15061359_A1/thresholds.7.txt",
+  "IlluminaGenotypingArray.zcall_thresholds_file": "gs://pd-test-storage-private/IlluminaGenotypingArray/input/scientific/200557060038_R10C02_PRISM_7032/thresholds.7.txt",
 
   "IlluminaGenotypingArray.disk_size": 100,
 
