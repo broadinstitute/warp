@@ -1,4 +1,5 @@
 version 1.0
+import "../../tasks/wdl/Utilities.wdl" as utils
 
 workflow pca_only_no_labels {
 
@@ -12,18 +13,37 @@ workflow pca_only_no_labels {
     }
     String pipeline_version = "beta_0.0.0"
 
-    call ConcatenateChromosomalVcfs {
-        input:
-            vcf_files=hq_sites_vcf_files,
-            vcf_indices=hq_sites_vcf_indices,
-            output_vcf_basename=final_output_prefix + "_autosomes.vcf.gz"
+    # check that the number of VCF files matches the number of index files and that both are non-zero. Fail if either is 0 or they are different lengths.
+    if (length(hq_sites_vcf_files) != length(hq_sites_vcf_indices) || (length(hq_sites_vcf_files) == 0)) {
+        call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+            input:
+                message = "Input arrays 'hq_sites_vcf_files' and 'hq_sites_vcf_indices' must be non-empty and have the same length."
+        }
     }
+
+    if (length(hq_sites_vcf_files) > 1) {
+        call ConcatenateChromosomalVcfs {
+            input:
+                vcf_files=hq_sites_vcf_files,
+                vcf_indices=hq_sites_vcf_indices,
+                output_vcf_basename=final_output_prefix + "_autosomes.vcf.gz"
+        }
+    }
+    
+    File vcf_bgz = select_first([
+        ConcatenateChromosomalVcfs.concatenated_vcf, 
+        hq_sites_vcf_files[0] # If only one file, use it directly
+    ])
+    File vcf_bgz_index = select_first([
+        ConcatenateChromosomalVcfs.concatenated_vcf_idx, 
+        hq_sites_vcf_indices[0] # If only one file, use it directly
+    ])
 
     # Train the model on the intersection sites (full version that includes the samples)
     call create_hw_pca_training {
         input:
-            full_bgz=ConcatenateChromosomalVcfs.concatenated_vcf,
-            full_bgz_index=ConcatenateChromosomalVcfs.concatenated_vcf_idx,
+            full_bgz=vcf_bgz,
+            full_bgz_index=vcf_bgz_index,
             final_output_prefix=final_output_prefix,
             num_pcs=num_pcs,
             min_vcf_partitions_in=min_vcf_partitions_in
