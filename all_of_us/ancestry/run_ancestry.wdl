@@ -324,7 +324,7 @@ task plot_ancestry {
         ancestries = ["afr", "amr","eas", "eur", "mid", "oth", "sas"]
 
         pred_label_dict_no_N = {
-            "afr": "African", "amr":"Latino/Admixed American","eas":"East Asian", "eur": "European", "mid": "Middle Eastern", "oth": "Remaining", "sas": "South Asian"
+            "afr": "African", "amr":"Americas","eas":"East Asian", "eur": "European", "mid": "Middle Eastern", "oth": "Remaining", "sas": "South Asian"
         }
 
         def create_ancestry_dict_with_N(relevant_column:str, df:pd.DataFrame):
