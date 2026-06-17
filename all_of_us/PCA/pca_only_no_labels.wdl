@@ -148,6 +148,12 @@ task create_hw_pca_training {
 
     command <<<
         set -e
+
+        # Reserve ~50 GB for the OS and Python process; give the rest to the JVM driver heap.
+        # spark.driver.memory in spark_conf cannot resize a heap that is already running —
+        # SPARK_DRIVER_MEMORY must be set before the JVM starts.
+        export SPARK_DRIVER_MEMORY="~{mem_gb - 50}g"
+
         python3 <<EOF
         import os
         import os.path
@@ -156,16 +162,11 @@ task create_hw_pca_training {
         import hail as hl
 
         spark_conf = {
-            # Driver settings
-            'spark.driver.memory': '80g',  # Increased driver memory to 80 GB
-            'spark.driver.maxResultSize': '20g',
+            # Driver heap is controlled by SPARK_DRIVER_MEMORY env var set above.
+            # Setting spark.driver.memory here has no effect once the JVM is running.
+            'spark.driver.maxResultSize': '50g',
 
-            # Executor settings (12 executors × 4 cores = 48 cores total)
-            'spark.executor.memory': '32g',  # Increased executor memory to 32 GB
-            'spark.executor.cores': '4',
-            'spark.executor.instances': '12',
-
-            # Parallelism settings
+            # Parallelism (local mode uses all cores on the VM)
             'spark.sql.shuffle.partitions': '1500',
             'spark.default.parallelism': '1500',
 
@@ -173,8 +174,7 @@ task create_hw_pca_training {
             'spark.sql.adaptive.enabled': 'true',
             'spark.sql.adaptive.coalescePartitions.enabled': 'true',
 
-            # Memory management
-            'spark.executor.memory.fraction': '0.8',
+            # Serialization
             'spark.serializer': 'org.apache.spark.serializer.KryoSerializer'
         }
         hl.init(default_reference='GRCh38', idempotent=False, spark_conf=spark_conf)
