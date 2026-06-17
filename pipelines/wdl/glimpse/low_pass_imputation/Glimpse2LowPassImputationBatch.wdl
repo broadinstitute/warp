@@ -6,7 +6,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.9"
+    String pipeline_version = "0.0.10"
 
     input {
 
@@ -15,9 +15,7 @@ workflow Glimpse2LowPassImputationBatch {
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
         String reference_panel_prefix
 
-        Array[File] crams
-        Array[File] cram_indices
-        Array[String] sample_ids
+        File cram_manifest
         File fasta
         File fasta_index
         String output_basename
@@ -40,14 +38,10 @@ workflow Glimpse2LowPassImputationBatch {
     # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
     Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
 
-    if (length(crams) > 1) {
-        call SplitIntoBatches {
-            input:
-                batch_size = calling_batch_size,
-                crams = crams,
-                cram_indices = cram_indices,
-                sample_ids = sample_ids
-        }
+    call SplitCramManifestIntoBatchesOfStrings {
+        input:
+            batch_size = calling_batch_size,
+            cram_manifest = cram_manifest
     }
 
     scatter(contig in contigs) {
@@ -57,16 +51,13 @@ workflow Glimpse2LowPassImputationBatch {
         File sites_table_index = reference_panel_prefix + "sites_table." + contig + ".gz.tbi"
         File reference_chunks = reference_panel_prefix + "reference_chunks." + contig + ".txt"
 
-        Array[Array[String]] crams_batches = select_first([SplitIntoBatches.crams_batches, [select_first([crams])]])
-        Array[Array[String]] cram_indices_batches = select_first([SplitIntoBatches.cram_indices_batches, [select_first([cram_indices])]])
-        Array[Array[String]] sample_ids_batches = select_first([SplitIntoBatches.sample_ids_batches, [sample_ids]])
 
-        scatter(i in range(length(crams_batches))) {
+        scatter(i in range(length(SplitCramManifestIntoBatchesOfStrings.crams_batches))) {
             call BcftoolsMpileup {
                 input:
-                    crams = crams_batches[i],
-                    cram_indices = cram_indices_batches[i],
-                    sample_ids = sample_ids_batches[i],
+                    crams = SplitCramManifestIntoBatchesOfStrings.crams_batches[i],
+                    cram_indices = SplitCramManifestIntoBatchesOfStrings.cram_indices_batches[i],
+                    sample_ids = SplitCramManifestIntoBatchesOfStrings.sample_ids_batches[i],
                     fasta = fasta,
                     fasta_index = fasta_index,
                     call_indels = call_indels,
@@ -112,9 +103,6 @@ workflow Glimpse2LowPassImputationBatch {
                     input_vcf_index = phase_input_vcf_index,
                     impute_reference_only_variants = impute_reference_only_variants,
                     call_indels = call_indels,
-                    sample_ids = sample_ids,
-                    fasta = fasta,
-                    fasta_index = fasta_index,
                     mem_gb = ComputeShardsAndMemoryPerShard.mem_gb_per_chunk[reference_chunk_index],
                     cpu = defined_glimpse_phase_cpu_override,
                     docker = glimpse_docker
@@ -133,6 +121,7 @@ workflow Glimpse2LowPassImputationBatch {
     output {
         Array[File] imputed_contig_ligated_vcfs = GlimpseLigate.imputed_vcf
         Array[File] imputed_contig_ligated_vcf_indices = GlimpseLigate.imputed_vcf_index
+        Int total_samples = SplitCramManifestIntoBatchesOfStrings.total_samples
     }
 }
 
@@ -181,6 +170,68 @@ task SplitIntoBatches {
         Array[Array[String]] crams_batches = read_json('crams.json')
         Array[Array[String]] cram_indices_batches = read_json('cram_indices.json')
         Array[Array[String]] sample_ids_batches = read_json('sample_ids.json')
+    }
+}
+
+task SplitCramManifestIntoBatchesOfStrings {
+    input {
+        Int batch_size
+        File cram_manifest
+    }
+
+    command <<<
+        cat <<EOF > script.py
+        import json
+        import pandas as pd
+
+        batch_size = ~{batch_size}
+
+        # Read the manifest
+        df = pd.read_csv("~{cram_manifest}", sep='\t')
+
+        # Check for required columns
+        required_cols = ['sample_id', 'cram_path', 'cram_index_path']
+        missing_cols = [col for col in required_cols if col not in df.columns]
+
+        if missing_cols:
+            print(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.", file=sys.stderr)
+            exit(1)
+
+        crams = df['cram_path'].tolist()
+        cram_indices = df['cram_index_path'].tolist()
+        sample_ids = df['sample_id'].tolist()
+
+        crams_batches = [crams[i:i + batch_size] for i in range(0, len(crams), batch_size)]
+        cram_indices_batches = [cram_indices[i:i + batch_size] for i in range(0, len(cram_indices), batch_size)]
+        sample_ids_batches = [sample_ids[i:i + batch_size] for i in range(0, len(sample_ids), batch_size)]
+
+        with open('crams.json', 'w') as json_file:
+            json.dump(crams_batches, json_file)
+        with open('cram_indices.json', 'w') as json_file:
+            json.dump(cram_indices_batches, json_file)
+        with open('sample_ids.json', 'w') as json_file:
+            json.dump(sample_ids_batches, json_file)
+
+        with open('total_samples.txt', 'w') as total_sample_file:
+            total_sample_file.write(str(len(crams)))
+        EOF
+        python3 script.py
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        memory: "1 GiB"
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        Array[Array[String]] crams_batches = read_json('crams.json')
+        Array[Array[String]] cram_indices_batches = read_json('cram_indices.json')
+        Array[Array[String]] sample_ids_batches = read_json('sample_ids.json')
+        Int total_samples = read_int("total_samples.txt")
     }
 }
 
@@ -376,13 +427,8 @@ task BcftoolsMerge {
 
 task GlimpsePhase {
     input {
-        File? input_vcf
-        File? input_vcf_index
-        Array[File]? crams
-        Array[File]? cram_indices
-        Array[String] sample_ids
-        File? fasta
-        File? fasta_index
+        File input_vcf
+        File input_vcf_index
         File reference_chunk
 
         Boolean impute_reference_only_variants
@@ -394,19 +440,13 @@ task GlimpsePhase {
 
         Int cpu = 4 # note that setting cpu > 1 will introduce non-determinism in GLIMPSE Phase due to multi-threading
         Int mem_gb = 16
-        Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.003 * length(select_first([crams, []])) + 10)
+        Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 10)
         Int preemptible = 30
         Int max_retries = 3
         String docker
     }
 
     parameter_meta {
-        crams: {
-                   localization_optional: true
-               }
-        cram_indices: {
-                          localization_optional: true
-                      }
         input_vcf: {
                    localization_optional: true
                }
@@ -415,35 +455,13 @@ task GlimpsePhase {
                       }
     }
 
-    String bam_file_list_input = if defined(crams) then "--bam-list crams.list" else ""
     command <<<
         set -euo pipefail
 
         export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
 
-        cram_paths=( ~{sep=" " crams} )
-        cram_index_paths=( ~{sep=" " cram_indices} )
-        sample_ids=( ~{sep=" " sample_ids} )
-
-        duplicate_cram_filenames=$(printf "%s\n" "${cram_paths[@]}" | xargs -I {} basename {} | sort | uniq -d)
-        if [ ! -z "$duplicate_cram_filenames" ]; then
-            echo "ERROR: The input CRAMs contain multiple files with the same basename, which leads to an error due to the way that htslib is implemented. Duplicate filenames:"
-            printf "%s\n" "${duplicate_cram_filenames[@]}"
-            exit 1
-        fi
-
-        if ~{if defined(cram_indices) then "true" else "false"}; then
-            for i in "${!cram_paths[@]}" ; do
-                echo -e "${cram_paths[$i]}##idx##${cram_index_paths[$i]} ${sample_ids[$i]}" >> crams.list
-            done
-        else
-            for i in "${!cram_paths[@]}"; do
-                echo -e "${cram_paths[$i]} ${sample_ids[$i]}" >> crams.list
-            done
-        fi
-
         cmd="/bin/GLIMPSE2_phase \
-        ~{"--input-gl " + input_vcf} \
+        --input-gl ~{input_vcf} \
         --reference ~{reference_chunk} \
         --output phase_output.bcf \
         --threads ~{cpu} \
@@ -451,8 +469,6 @@ task GlimpsePhase {
         ~{if impute_reference_only_variants then "--impute-reference-only-variants" else ""} ~{if call_indels then "--call-indels" else ""} \
         ~{"--burnin " + n_burnin} ~{"--main " + n_main} \
         ~{"--ne " + effective_population_size} \
-        ~{bam_file_list_input} \
-        ~{"--fasta " + fasta} \
         --checkpoint-file-out checkpoint.bin"
 
         if [ -s "checkpoint.bin" ]; then
