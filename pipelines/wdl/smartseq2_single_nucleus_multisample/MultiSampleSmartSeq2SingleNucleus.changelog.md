@@ -1,3 +1,8 @@
+# 2.2.8
+2026-06-03 (Date of Last Commit)
+
+* Updated warp-tools docker to 2.7.1; no functional impact on MultiSampleSmartSeq2SingleNucleus outputs
+
 # 2.2.7
 2026-05-15 (Date of Last Commit)
 

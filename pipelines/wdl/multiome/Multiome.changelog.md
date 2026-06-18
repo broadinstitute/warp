@@ -1,3 +1,8 @@
+# 7.0.2
+2026-06-01 (Date of Last Commit)
+
+* Added optional `input_id_name` input (default `"input_id"`) threaded through to both Optimus (GEX) and ATAC sub-workflows, allowing callers to control the metadata key name under which `input_id` is stored in the h5ad outputs
+
 # 7.0.1
 2026-05-15 (Date of Last Commit)
 

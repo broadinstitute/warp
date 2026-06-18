@@ -20,6 +20,8 @@ workflow ATAC {
 
     # Output prefix/base name for all intermediate files and pipeline outputs
     String input_id
+    # Key name used to label the input_id value in h5ad obs and uns metadata
+    String input_id_name = "input_id"
     String cloud_provider
     # Additional library aliquot ID
     String? atac_nhash_id
@@ -55,7 +57,7 @@ workflow ATAC {
     File? aligned_ATAC_bam
   }
 
-  String pipeline_version = "2.9.3"
+  String pipeline_version = "2.9.4"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -63,7 +65,7 @@ workflow ATAC {
   String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
   # Docker image names
-  String warp_tools_docker = "warp-tools:2.6.1"
+  String warp_tools_docker = "warp-tools:2.7.1"
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
@@ -153,7 +155,8 @@ workflow ATAC {
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
-        input_id = input_id
+        input_id = input_id,
+        input_id_name = input_id_name
     }
   }
   if (!preindex) {
@@ -166,7 +169,8 @@ workflow ATAC {
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
-        input_id = input_id
+        input_id = input_id,
+        input_id_name = input_id_name
     }
     if (peak_calling) {
       call peakcalling.PeakCalling as PeakCalling{
@@ -546,6 +550,7 @@ task CreateFragmentFile {
     String docker_path
     String atac_nhash_id = ""
     String input_id
+    String input_id_name = "input_id"
     Int atac_expected_cells = 3000
     String gtf_path = annotations_gtf
   }
@@ -578,6 +583,7 @@ task CreateFragmentFile {
     # set parameters
     bam = "~{bam}"
     input_id = "~{input_id}"
+    input_id_name = "~{input_id_name}"
     chrom_sizes = "~{chrom_sizes}"
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
@@ -636,6 +642,9 @@ task CreateFragmentFile {
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
     # Add nhash_id to h5ad file as unstructured metadata
     atac_data.uns['NHashID'] = atac_nhash_id
+    # Add input_id to obs (per-cell) and uns using the configurable key name
+    atac_data.obs[input_id_name] = input_id
+    atac_data.uns[input_id_name] = input_id
 
     # Add GTF to uns field
     # Original path from args.annotation_file
