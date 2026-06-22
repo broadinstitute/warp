@@ -108,14 +108,23 @@ def parse_args():
 
     parser.add_argument(
         "--driver-memory",
-        default="100g",
-        help="Spark driver memory (legacy arg). Default: 100g.",
+        default="60g",
+        help="Spark driver memory (legacy arg). Default: 60g.",
     )
 
     parser.add_argument(
         "--executor-memory",
-        default="10g",
-        help="Spark executor memory (legacy arg). Default: 10g.",
+        default="8g",
+        help="Spark executor memory (legacy arg). Default: 8g.",
+    )
+
+    parser.add_argument(
+        "--temp-bucket",
+        default=None,
+        help=(
+            "GCS bucket/prefix used to derive AoU-style temp dir '<temp_bucket>/Stage_1/temp'. "
+            "Used when --tmp-dir is not provided."
+        ),
     )
 
     parser.add_argument(
@@ -144,8 +153,8 @@ def parse_args():
     parser.add_argument(
         "--spark-driver-cores",
         type=int,
-        default=None,
-        help="Spark driver cores override, e.g. 8.",
+        default=32,
+        help="Spark driver cores override. Default: 32.",
     )
 
     parser.add_argument(
@@ -157,8 +166,8 @@ def parse_args():
     parser.add_argument(
         "--spark-executor-cores",
         type=int,
-        default=None,
-        help="Spark executor cores override, e.g. 4.",
+        default=4,
+        help="Spark executor cores override. Default: 4.",
     )
 
     parser.add_argument(
@@ -191,23 +200,34 @@ def build_spark_conf(args):
         spark_conf["spark.driver.cores"] = str(args.spark_driver_cores)
     if args.spark_executor_cores is not None:
         spark_conf["spark.executor.cores"] = str(args.spark_executor_cores)
-    if args.spark_local_dir:
-        spark_conf["spark.local.dir"] = args.spark_local_dir
+    effective_tmp_dir = get_effective_tmp_dir(args)
+    spark_local_dir = args.spark_local_dir or effective_tmp_dir
+    if spark_local_dir:
+        spark_conf["spark.local.dir"] = spark_local_dir
     if args.spark_task_max_failures is not None:
         spark_conf["spark.task.maxFailures"] = str(args.spark_task_max_failures)
 
     return spark_conf
 
 
+def get_effective_tmp_dir(args):
+    if args.tmp_dir:
+        return args.tmp_dir
+    if args.temp_bucket:
+        return f"{args.temp_bucket.rstrip('/')}/Stage_1/temp"
+    return None
+
+
 def main():
     args = parse_args()
+    effective_tmp_dir = get_effective_tmp_dir(args)
 
     spark_conf = build_spark_conf(args)
 
     print(f"[remove_phased_samples] mt_path={args.mt_path}")
     print(f"[remove_phased_samples] remove_samples_tsv={args.remove_samples_tsv}")
     print(f"[remove_phased_samples] out_vcf={args.out_vcf}")
-    print(f"[remove_phased_samples] tmp_dir={args.tmp_dir}")
+    print(f"[remove_phased_samples] tmp_dir={effective_tmp_dir}")
     print(f"[remove_phased_samples] spark_conf={spark_conf}")
 
     init_kwargs = {
@@ -215,8 +235,8 @@ def main():
         "idempotent": True,
         "spark_conf": spark_conf,
     }
-    if args.tmp_dir:
-        init_kwargs["tmp_dir"] = args.tmp_dir
+    if effective_tmp_dir:
+        init_kwargs["tmp_dir"] = effective_tmp_dir
 
     hl.init(**init_kwargs)
 
