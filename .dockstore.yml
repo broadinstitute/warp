@@ -76,6 +76,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
 
+  - name: RemovePhasedSamples
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/phasing/remove_phased_samples.wdl
+
   - name: FixItFelixAndVariantCall
     subclass: WDL
     primaryDescriptorPath: /all_of_us/cmrg/FixItFelixAndVariantCall.wdl
