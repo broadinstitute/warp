@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# v1.1.0
 
 import argparse
 import hail as hl
@@ -108,13 +109,63 @@ def parse_args():
     parser.add_argument(
         "--driver-memory",
         default="100g",
-        help="Spark driver memory. Default: 100g.",
+        help="Spark driver memory (legacy arg). Default: 100g.",
     )
 
     parser.add_argument(
         "--executor-memory",
         default="10g",
-        help="Spark executor memory. Default: 10g.",
+        help="Spark executor memory (legacy arg). Default: 10g.",
+    )
+
+    parser.add_argument(
+        "--tmp-dir",
+        default=None,
+        help=(
+            "Optional Hail temp directory (usually a GCS path for Dataproc runs), "
+            "e.g. gs://bucket/path/tmp."
+        ),
+    )
+
+    parser.add_argument(
+        "--spark-local-dir",
+        default=None,
+        help=(
+            "Optional Spark local scratch dir/path (often set to same GCS temp prefix in Dataproc wrapper)."
+        ),
+    )
+
+    parser.add_argument(
+        "--spark-driver-memory",
+        default=None,
+        help="Spark driver memory override, e.g. 60g.",
+    )
+
+    parser.add_argument(
+        "--spark-driver-cores",
+        type=int,
+        default=None,
+        help="Spark driver cores override, e.g. 8.",
+    )
+
+    parser.add_argument(
+        "--spark-executor-memory",
+        default=None,
+        help="Spark executor memory override, e.g. 8g.",
+    )
+
+    parser.add_argument(
+        "--spark-executor-cores",
+        type=int,
+        default=None,
+        help="Spark executor cores override, e.g. 4.",
+    )
+
+    parser.add_argument(
+        "--spark-task-max-failures",
+        type=int,
+        default=20,
+        help="Spark task max failures. Default: 20.",
     )
 
     parser.add_argument(
@@ -126,19 +177,48 @@ def parse_args():
     return parser.parse_args()
 
 
+def build_spark_conf(args):
+    spark_conf = {}
+
+    driver_memory = args.spark_driver_memory or args.driver_memory
+    executor_memory = args.spark_executor_memory or args.executor_memory
+
+    if driver_memory:
+        spark_conf["spark.driver.memory"] = driver_memory
+    if executor_memory:
+        spark_conf["spark.executor.memory"] = executor_memory
+    if args.spark_driver_cores is not None:
+        spark_conf["spark.driver.cores"] = str(args.spark_driver_cores)
+    if args.spark_executor_cores is not None:
+        spark_conf["spark.executor.cores"] = str(args.spark_executor_cores)
+    if args.spark_local_dir:
+        spark_conf["spark.local.dir"] = args.spark_local_dir
+    if args.spark_task_max_failures is not None:
+        spark_conf["spark.task.maxFailures"] = str(args.spark_task_max_failures)
+
+    return spark_conf
+
+
 def main():
     args = parse_args()
 
-    spark_conf = {
-        "spark.executor.memory": args.executor_memory,
-        "spark.driver.memory": args.driver_memory,
-    }
+    spark_conf = build_spark_conf(args)
 
-    hl.init(
-        default_reference="GRCh38",
-        idempotent=True,
-        spark_conf=spark_conf,
-    )
+    print(f"[remove_phased_samples] mt_path={args.mt_path}")
+    print(f"[remove_phased_samples] remove_samples_tsv={args.remove_samples_tsv}")
+    print(f"[remove_phased_samples] out_vcf={args.out_vcf}")
+    print(f"[remove_phased_samples] tmp_dir={args.tmp_dir}")
+    print(f"[remove_phased_samples] spark_conf={spark_conf}")
+
+    init_kwargs = {
+        "default_reference": "GRCh38",
+        "idempotent": True,
+        "spark_conf": spark_conf,
+    }
+    if args.tmp_dir:
+        init_kwargs["tmp_dir"] = args.tmp_dir
+
+    hl.init(**init_kwargs)
 
     # ------------------------------------------------------------
     # 1. Read input MatrixTable
