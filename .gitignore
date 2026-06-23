@@ -11,6 +11,7 @@ verification/test-wdls/__pycache__/
 
 # VSCode project settings
 .vscode
+*.code-workspace
 
 # python virtual environments
 venv/
