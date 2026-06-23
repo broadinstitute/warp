@@ -73,7 +73,7 @@ Each 10x v2 and v3 3’ sequencing experiment generates triplets of FASTQ files 
 
 1. Forward reads (`r1_fastq`) containing the unique molecular identifier (UMI) and CB sequences
 2. Reverse reads (`r2_fastq`) containing the alignable genomic information from the mRNA transcript
-3. Optional index FASTQ (`i1_fastq`) containing the sample barcodes, when provided by the sequencing facility
+3. Index FASTQ (`i1_fastq`) containing the sample barcodes; optional for v2/v3 chemistry, **required for v4 (GEM-X) chemistry**
 
 
 :::tip Optimus is currently a single sample pipeline
@@ -88,9 +88,9 @@ The example configuration files also contain metadata for the reference files, d
 
 | Parameter name | Description | Optional attributes (when applicable) |
 | --- | --- | --- |
-| cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
-| whitelist |  List of known CBs; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) whitelist that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom whitelist can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3 (for example, v4). To use a custom whitelist, set the input `ignore_r1_read_length` to `true`. See the [Barcode whitelist options](#barcode-whitelist-options) table below for available whitelists. | N/A |
-| read_struct | String describing the structure of reads; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) read structure that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom read structure can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom read structure, set the input `force_no_check` to "true". | N/A |
+| cloud_provider | String describing the cloud provider; default is "gcp". "azure" is accepted but all pipeline assets are hosted on GCP. | "gcp" (default) |
+| whitelist |  List of known CBs; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) whitelist that corresponds to the chemistry based on `tenx_chemistry_version` (and `tenx_chemistry_subversion` for v4). See the [Barcode whitelist options](#barcode-whitelist-options) table below for available whitelists. | N/A |
+| read_struct | String describing the structure of reads; automatically selected based on `tenx_chemistry_version` (`16C10M` for v2; `16C12M` for v3 and v4). Override by setting `force_no_check` to `true`. | N/A |
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/build_indices/BuildIndices.wdl). | N/A |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | N/A |
 | gex_nhash_id | Optional string to identify the library aliquot; will be echoed in the output h5ad file in the adata.uns and the library-level metrics CSV; default is null (`""`) | N/A |
@@ -98,7 +98,8 @@ The example configuration files also contain metadata for the reference files, d
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the input_id. | N/A |
 | input_name_metadata_field | Optional string describing, when applicable, the metadata field containing the input_name. | N/A |
 | annotations_gtf | GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | N/A |
-| tenx_chemistry_version | Integer that specifies if data was generated with 10x v2 or v3 chemistry. v4 chemistry is supported via a [custom whitelist](#barcode-whitelist-options). Optimus validates v2/v3 chemistry by examining the UMIs and CBs in the first read 1 FASTQ file. If the chemistry does not match, the pipeline will fail. You can remove the check by setting `ignore_r1_read_length = true` in the input JSON. | 2 or 3 |
+| tenx_chemistry_version | Integer specifying the 10x chemistry. v2 uses a 10 bp UMI (26 bp R1), v3 and v4 use a 12 bp UMI (28 bp R1). Optimus validates the expected R1 length by default. You can override validation by setting `ignore_r1_read_length = true`. | 2, 3, or 4 |
+| tenx_chemistry_subversion | For v4 chemistry only: selects between the two v4 barcode whitelists. Use `"v4"` for kits run with Cell Ranger v8.0/v8.0.1; use `"v4_TRU"` for Cell Ranger v9.0 and later (default when unspecified). See [v4 chemistry documentation](./v4_chemistry.md) for details. | "v4" or "v4_TRU" |
 | mt_genes | Optional file containing mitochondrial gene names for a specific species. This is used for calculating gene metrics. | N/A |
 | soloMultiMappers | Optional string describing whether or not the Optimus (GEX) pipeline should run STARsolo with the `--soloMultiMappers` flag; default is "Uniform". | N/A |
 | counting_mode | String describing whether data is single-cell or single-nucleus. Single-cell mode counts reads aligned to the gene transcript, whereas single-nucleus counts whole transcript to account for nuclear pre-mRNA. | "sc_rna" or "sn_rna" |
@@ -323,7 +324,7 @@ When citing WARP, please use the following:
 Kylee Degatano, Aseel Awdeh, Robert Sidney Cox III, Wes Dingman, George Grant, Farzaneh Khajouei, Elizabeth Kiernan, Kishori Konwar, Kaylee L Mathews, Kevin Palis, Nikelle Petrillo, Geraldine Van der Auwera, Chengchen (Rex) Wang, Jessica Way. "Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis." _Bioinformatics_, 2025; [https://doi.org/10.1093/bioinformatics/btaf494](https://doi.org/10.1093/bioinformatics/btaf494)
 
 ## Consortia support
-This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project, the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN), and the [BRAIN Initiative Cell Atlas Network](www.portal.brain-bican.org) (BICAN). 
+This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project, the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN), and the [BRAIN Initiative Cell Atlas Network](https://www.portal.brain-bican.org) (BICAN). 
 
 Each consortium may use slightly different reference files for data analysis or have different post-processing steps. Learn more about HCA by reading the [Consortia Processing](./consortia-processing.md) overview.
 

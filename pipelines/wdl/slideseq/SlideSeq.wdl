@@ -25,7 +25,7 @@ import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow SlideSeq {
 
-    String pipeline_version = "3.6.6"
+    String pipeline_version = "3.6.7"
 
     input {
         Array[File] r1_fastq

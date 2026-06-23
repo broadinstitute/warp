@@ -6,7 +6,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.3"
+    String pipeline_version = "0.0.9"
 
     input {
 
@@ -22,17 +22,23 @@ workflow Glimpse2LowPassImputationBatch {
         File fasta_index
         String output_basename
 
-        File ref_dict
-
         Boolean impute_reference_only_variants = false
         Boolean call_indels = false
 
         # batch size used when calling SplitIntoBatches to make variant calls from the crams
         Int calling_batch_size = 100
 
+        # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing
+        Int? glimpse_phase_cpu_override
+
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-dsde-methods/glimpse:kachulis_ck_bam_reader_retry_cf5822c"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"
     }
+
+    # we need to define this here so that it can be used in nested scatters below. Cromwell doesn't understand optional inputs
+    # to tasks that are inside nested scatters, so we need to define a non-optional variable that we can use to pass the
+    # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
+    Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
 
     if (length(crams) > 1) {
         call SplitIntoBatches {
@@ -110,6 +116,7 @@ workflow Glimpse2LowPassImputationBatch {
                     fasta = fasta,
                     fasta_index = fasta_index,
                     mem_gb = ComputeShardsAndMemoryPerShard.mem_gb_per_chunk[reference_chunk_index],
+                    cpu = defined_glimpse_phase_cpu_override,
                     docker = glimpse_docker
             }
         }
@@ -119,25 +126,13 @@ workflow Glimpse2LowPassImputationBatch {
                 imputed_chunks = GlimpsePhase.imputed_vcf,
                 imputed_chunks_indices = GlimpsePhase.imputed_vcf_index,
                 output_basename = output_basename,
-                ref_dict = ref_dict,
                 docker = glimpse_docker
-        }
-        Array[File] contig_coverage_metrics = select_all(GlimpsePhase.coverage_metrics)
-    }
-
-    Array[File] genome_coverage_metrics = flatten(contig_coverage_metrics)
-    if (length(genome_coverage_metrics) > 0) {
-        call CombineCoverageMetrics {
-            input:
-                cov_metrics = genome_coverage_metrics,
-                output_basename = output_basename
         }
     }
 
     output {
         Array[File] imputed_contig_ligated_vcfs = GlimpseLigate.imputed_vcf
         Array[File] imputed_contig_ligated_vcf_indices = GlimpseLigate.imputed_vcf_index
-        File? coverage_metrics = CombineCoverageMetrics.coverage_metrics
     }
 }
 
@@ -395,9 +390,10 @@ task GlimpsePhase {
         Int? n_burnin
         Int? n_main
         Int? effective_population_size
+        Int seed = 15052011
 
-        Int mem_gb = 16
         Int cpu = 4 # note that setting cpu > 1 will introduce non-determinism in GLIMPSE Phase due to multi-threading
+        Int mem_gb = 16
         Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 0.003 * length(select_first([crams, []])) + 10)
         Int preemptible = 30
         Int max_retries = 3
@@ -451,6 +447,7 @@ task GlimpsePhase {
         --reference ~{reference_chunk} \
         --output phase_output.bcf \
         --threads ~{cpu} \
+        --seed ~{seed} \
         ~{if impute_reference_only_variants then "--impute-reference-only-variants" else ""} ~{if call_indels then "--call-indels" else ""} \
         ~{"--burnin " + n_burnin} ~{"--main " + n_main} \
         ~{"--ne " + effective_population_size} \
@@ -491,7 +488,6 @@ task GlimpsePhase {
     output {
         File imputed_vcf = "phase_output.bcf"
         File imputed_vcf_index = "phase_output.bcf.csi"
-        File? coverage_metrics = "phase_output_stats_coverage.txt.gz"
     }
 }
 
@@ -500,7 +496,6 @@ task GlimpseLigate {
         Array[File] imputed_chunks
         Array[File] imputed_chunks_indices
         String output_basename
-        File ref_dict
 
         Int mem_gb = 4
         Int cpu = 2
@@ -516,13 +511,10 @@ task GlimpseLigate {
         NPROC=$(nproc)
         echo "nproc reported ${NPROC} CPUs, using that number as the threads argument for GLIMPSE."
 
-        /bin/GLIMPSE2_ligate --input ~{write_lines(imputed_chunks)} --output ligated.vcf.gz --threads ${NPROC}
+        /bin/GLIMPSE2_ligate --input ~{write_lines(imputed_chunks)} --output ~{output_basename}.imputed.vcf.gz --threads ${NPROC}
 
-        # Set correct reference dictionary
-        bcftools view -h --no-version ligated.vcf.gz > old_header.vcf
-        java -jar /picard.jar UpdateVcfSequenceDictionary -I old_header.vcf --SD ~{ref_dict} -O new_header.vcf
-        bcftools reheader -h new_header.vcf -o ~{output_basename}.imputed.vcf.gz ligated.vcf.gz
-        tabix ~{output_basename}.imputed.vcf.gz
+        # GLIMPSE2_ligate creates an index, but it is not compatible with GATK tools so we regenerate it with tabix
+        tabix -f ~{output_basename}.imputed.vcf.gz
     >>>
 
     runtime {
@@ -538,176 +530,5 @@ task GlimpseLigate {
     output {
         File imputed_vcf = "~{output_basename}.imputed.vcf.gz"
         File imputed_vcf_index = "~{output_basename}.imputed.vcf.gz.tbi"
-    }
-}
-
-task CollectQCMetrics {
-    input {
-        File imputed_vcf
-        String output_basename
-
-        Int preemptible = 0
-        String docker = "hailgenetics/hail:0.2.126-py3.11"
-        Int cpu = 4
-        Int mem_gb = 8
-    }
-
-    parameter_meta {
-        imputed_vcf: {
-                         localization_optional: true
-                     }
-    }
-
-    Int disk_size_gb = ceil(2*size(imputed_vcf, "GiB") + 50)
-
-    command <<<
-        set -euo pipefail
-
-        cat <<'EOF' > script.py
-        import hail as hl
-        import pandas as pd
-
-        # Calculate metrics
-        hl.init(default_reference='GRCh38', idempotent=True)
-        vcf = hl.import_vcf('~{imputed_vcf}', force_bgz=True)
-        qc = hl.sample_qc(vcf)
-        qc_pd = qc.cols().flatten() \
-        .rename({'sample_qc.' + col: col for col in list(qc['sample_qc'])}) \
-        .rename({'s': 'sample_id'}) \
-        .to_pandas()
-        qc_pd.to_csv('~{output_basename}.qc_metrics.tsv', sep='\t', index=False, float_format='%.4f')
-        EOF
-        python3 script.py
-    >>>
-
-    runtime {
-        docker: docker
-        disks: "local-disk " + disk_size_gb + " HDD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        noAddress: true
-    }
-
-    output {
-        File qc_metrics = "~{output_basename}.qc_metrics.tsv"
-    }
-}
-
-task CombineCoverageMetrics
-{
-    input {
-        Array[File] cov_metrics
-        String output_basename
-    }
-
-    command <<<
-        set -euo pipefail
-
-        cov_files=( ~{sep=" " cov_metrics} )
-
-        for i in "${!cov_files[@]}"; do
-            if [ $i -eq 0 ]; then
-                n_skip=1
-                echo 'Chunk' > chunk_col.txt
-            else
-                n_skip=2
-            fi
-            # glimpse coverage metrics are formatted to be human readable in a command line, not machine readable or consistent.  ie, number of tabs
-            # are variable between columns depending on length of sample names, odd things like that.  We want these to be machine readable tables,
-            # so need to fix this.
-            zcat ${cov_files[$i]} | tail -n +$((n_skip + 1)) | sed s/%//g | sed s/"No data"/"No data pct"/g | sed s/\\t\\t/\\t/g >> cov_file.txt
-            n_lines_cov=$(< cov_file.txt wc -l)
-            n_lines_chunk=$(< chunk_col.txt wc -l)
-            n_lines_out=$((n_lines_cov-n_lines_chunk))
-            echo 'n_lines_out=' ${n_lines_out}
-            echo ${cov_files[$i]}
-            { yes ${i} || :; } | head -n ${n_lines_out} >> chunk_col.txt
-        done
-
-        paste chunk_col.txt cov_file.txt > ~{output_basename}.coverage_metrics.txt
-
-    >>>
-
-    runtime {
-        docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
-        noAddress: true
-    }
-
-    output {
-        File coverage_metrics="~{output_basename}.coverage_metrics.txt"
-    }
-}
-
-task GatherVcfsNoIndex {
-    input {
-        Array[File] input_vcfs
-        String output_vcf_basename
-
-        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
-        Int cpu = 2
-        Int memory_mb = 10000
-        Int disk_size_gb = ceil(3*size(input_vcfs, "GiB")) + 10
-    }
-    Int command_mem = memory_mb - 1500
-    Int max_heap = memory_mb - 1000
-
-    command <<<
-        set -e -o pipefail
-
-        gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
-        GatherVcfs \
-        -I ~{sep=' -I ' input_vcfs} \
-        --REORDER_INPUT_BY_FIRST_VARIANT \
-        -O ~{output_vcf_basename}.vcf.gz
-    >>>
-    runtime {
-        docker: gatk_docker
-        disks: "local-disk ${disk_size_gb} SSD"
-        memory: "${memory_mb} MiB"
-        cpu: cpu
-        maxRetries: 1
-        noAddress: true
-    }
-    output {
-        File output_vcf = "~{output_vcf_basename}.vcf.gz"
-    }
-}
-
-task CreateVcfIndexAndMd5 {
-    input {
-        File vcf_input
-
-        Int disk_size_gb = ceil(1.1*size(vcf_input, "GiB")) + 10
-        Int cpu = 1
-        Int memory_mb = 6000
-        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
-        Int preemptible = 3
-    }
-
-    String vcf_basename = basename(vcf_input, ".vcf.gz")
-
-    command <<<
-        set -e -o pipefail
-
-        ln -sf ~{vcf_input} ~{vcf_basename}.vcf.gz
-
-        bcftools index -t ~{vcf_basename}.vcf.gz
-
-        md5sum ~{vcf_basename}.vcf.gz | awk '{ print $1 }' > ~{vcf_basename}.md5sum
-    >>>
-    runtime {
-        docker: gatk_docker
-        disks: "local-disk ${disk_size_gb} SSD"
-        memory: "${memory_mb} MiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: 1
-        noAddress: true
-    }
-    output {
-        File output_vcf = "~{vcf_basename}.vcf.gz"
-        File output_vcf_index = "~{vcf_basename}.vcf.gz.tbi"
-        File output_vcf_md5sum = "~{vcf_basename}.md5sum"
     }
 }

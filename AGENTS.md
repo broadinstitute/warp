@@ -18,10 +18,11 @@ The human-facing guides (last three rows) are canonical for style. Anything *age
 
 1. **Validate all modified WDLs** — and every WDL that imports them (transitively). See *WDL Validation (MANDATORY)* in [.github/copilot-instructions.md](.github/copilot-instructions.md).
 2. **Changelog and versioning** — follow [changelog_style.md](changelog_style.md).
-3. **After merging develop**, grep for duplicate `pipeline_version` lines — keep the higher one.
-4. **Sub-workflow contract** — removing an input from a shared WDL requires removing it from every caller.
-5. **Stale example/test inputs** — when you rename a workflow or remove/rename inputs, audit `pipelines/wdl/<name>/example_inputs/*.json` and `test_inputs/**/*.json`; they break silently because they are not checked by womtool.
-6. **Touching a pipeline's interface** — also update the pipeline's docs page under `website/docs/Pipelines/<Name>_Pipeline/README.md` and run `yarn --cwd=website build` to catch broken links.
+3. **Cascading version bumps** — when modifying a shared task (`tasks/wdl/`), every pipeline that imports it (directly or transitively) needs either a patch bump + changelog note **or** an explicit "no functional impact" entry. See the dependency chains in [.github/copilot-instructions.md](.github/copilot-instructions.md#cascading-version-bumps). Validation passing is not sufficient — changelogs must also be updated.
+4. **After merging develop**, grep for duplicate `pipeline_version` lines — keep the higher one.
+5. **Sub-workflow contract** — removing an input from a shared WDL requires removing it from every caller.
+6. **Stale example/test inputs** — when you rename a workflow or remove/rename inputs, audit `pipelines/wdl/<name>/example_inputs/*.json` and `test_inputs/**/*.json`; they break silently because they are not checked by womtool.
+7. **Touching a pipeline's interface** — also update the pipeline's docs page under `website/docs/Pipelines/<Name>_Pipeline/README.md` and run `yarn --cwd=website build` to catch broken links.
 
 ## Agent-Specific Notes
 
@@ -47,31 +48,19 @@ When you change a pipeline's interface, update **both** artifacts (or, at minimu
 
 ### Validating documentation changes
 
-Before claiming docs work is done, run a full build:
-
-```bash
-yarn --cwd=website install   # first time only
-yarn --cwd=website build     # validates frontmatter and all links
-```
-
-`yarn --cwd=website start` is fine for previewing but does not fail on broken links — always use `build` to validate.
-
-### Cross-page links within the docs site
-
-For links from one pipeline page to another, prefer a relative path that works in Docusaurus, e.g. `[Multiome](../Multiome_Pipeline/README.md)`. When the target does **not** have a docs page, link to the GitHub source (e.g. `https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/peak_calling`) rather than a non-resolving relative path.
-
-### WDL inline-Python heredoc convention
-
-Use unquoted `<<CODE` heredocs for inline Python inside `command { ... }` blocks so that `~{}` WDL interpolation still works. Quoted heredoc terminators such as `<<'PYEOF'` suppress WDL interpolation and are not used in this repo. Canonical reference: [WARP_WDL_Style_Guide.md](WARP_WDL_Style_Guide.md) §9.
-
-### GPU runtime keys
-
-For GPU tasks, the runtime keys understood by both Cromwell on Terra/GCP and by womtool are `gpuType`, `gpuCount`, and `nvidiaDriverVersion` (camelCase). Some snake_case aliases (`hardware_gpu_type`, `nvidia_driver_version`) are accepted by certain Cromwell configurations but are not universally portable — prefer the camelCase form when authoring new pipelines.
+See *Documentation → Validate docs changes* in [.github/copilot-instructions.md](.github/copilot-instructions.md). The key distinction: `yarn --cwd=website start` does not fail on broken links — always use `yarn --cwd=website build` before marking docs work complete.
 
 ### `input_id` output prefix pattern
 
 When a pipeline emits per-sample artifacts, accept a `String input_id` workflow input and prefix every output filename with `~{input_id}_`. This matches the convention used by scANVI, Optimus, Multiome, and other Skylab-origin pipelines.
 
+### Optimus/Skylab chemistry and reference assets
+
+When adding support for a new 10x chemistry in Optimus:
+- Use `tenx_chemistry_version` (Integer, e.g. `4`) for the major chemistry version and `tenx_chemistry_subversion` (optional String, e.g. `"v4_TRU"`) for whitelist variant selection within that version.
+- Optimus whitelist files live at `gs://gcp-public-data--broad-references/optimus_whitelists/`. Do **not** use the old `RNA/resources/` path (which contained a `febrary` typo and is incorrect).
+- Validate that inputs required by a given chemistry (e.g. `i1_fastq` for v4) are enforced via `ErrorWithMessage` when the chemistry version demands them.
+
 ### When you discover a recurring agent mistake
 
-Record it here (under *Agent-Specific Notes*) or in [.github/copilot-instructions.md](.github/copilot-instructions.md) — not in the human-facing style guides. Keep entries short and link out to the canonical reference rather than duplicating it.
+Record it here (under *Agent-Specific Notes*) or in [.github/copilot-instructions.md](.github/copilot-instructions.md) — not in the human-facing style guides. Keep entries short and link out to the canonical reference rather than duplicating it. **Before adding a new note, check whether the information is already in copilot-instructions.md** — prefer a one-line reference over a duplicate section.

@@ -2,12 +2,13 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.1"
+    String pipeline_version = "1.0.4"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
         File cram_manifest
         String output_basename
+        Float? info_filter_for_inclusion
 
         Array[String] contigs
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
@@ -18,6 +19,9 @@ workflow InputQC {
 
         # used for warp tests only (which use inputs in an RP bucket). service does not support RP buckets and will not provide this input.
         String? billing_project_for_rp
+
+        # optional additional header line to add to the output VCF
+        String? pipeline_header_line
     }
 
     call ConvertCramManifestToInputArrays {
@@ -35,9 +39,20 @@ workflow InputQC {
         }
     }
 
+    # only check cram contents if the previous QC checks passed
+    if (ConvertCramManifestToInputArrays.passes_qc && ValidateCramsAndIndicesAndSampleIds.passes_qc) {
+        call ValidateCramContents {
+            input:
+                crams = ConvertCramManifestToInputArrays.crams,
+                contigs = contigs,
+                ref_dict = ref_dict,
+                billing_project_for_rp = billing_project_for_rp
+        }
+    }
+
     output {
-        Boolean passes_qc = select_first([ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
-        String qc_messages = select_first([ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
+        Boolean passes_qc = select_first([ValidateCramContents.passes_qc, ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
+        String qc_messages = select_first([ValidateCramContents.qc_messages, ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
     }
 }
 
@@ -45,7 +60,7 @@ workflow InputQC {
 task ConvertCramManifestToInputArrays {
     input {
         File cram_manifest
-    }   
+    }
 
     command <<<
         cat <<EOF > script.py
@@ -69,17 +84,17 @@ task ConvertCramManifestToInputArrays {
         # Read the manifest
         try:
             df = pd.read_csv("~{cram_manifest}", sep='\t')
-            
+
             # Check for required columns
             required_cols = ['sample_id', 'cram_path', 'cram_index_path']
             missing_cols = [col for col in required_cols if col not in df.columns]
-            
+
             if missing_cols:
                 with open(qc_messages_filename, 'w') as qc_file:
                     qc_file.write(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.")
                 with open(passes_qc_filename, 'w') as f:
                     f.write("false")
-                
+
                 # Create empty output files
                 open(crams_filename, 'w').close()
                 open(cram_indices_filename, 'w').close()
@@ -89,20 +104,20 @@ task ConvertCramManifestToInputArrays {
                 write_column(df['sample_id'], sample_ids_filename)
                 write_column(df['cram_path'], crams_filename)
                 write_column(df['cram_index_path'], cram_indices_filename)
-                
+
                 # Write QC results
                 with open(qc_messages_filename, 'w') as f:
                     f.write('\n'.join(qc_messages) if qc_messages else '')
-                
+
                 with open(passes_qc_filename, 'w') as f:
                     f.write("true" if not qc_messages else "false")
-        
+
         except Exception as e:
             with open(qc_messages_filename, 'w') as qc_file:
                 qc_file.write(f"Error reading CRAM manifest: {str(e)}.")
             with open(passes_qc_filename, 'w') as f:
                 f.write("false")
-            
+
             # Create empty output files
             open(crams_filename, 'w').close()
             open(cram_indices_filename, 'w').close()
@@ -110,9 +125,6 @@ task ConvertCramManifestToInputArrays {
 
         EOF
         python3 script.py
-
-        # This task should always succeed
-        exit 0
     >>>
 
     runtime {
@@ -232,22 +244,22 @@ task ValidateCramsAndIndicesAndSampleIds {
                 if cram.startswith('gs://'):
                     # Parse GCS URI
                     bucket_name, blob_name = cram[5:].split('/', 1)
-                    
+
                     # Get bucket and set user_project for requester pays
                     if billing_project:
                         bucket = client.bucket(bucket_name, user_project=billing_project)
                     else:
                         bucket = client.bucket(bucket_name)
-                    
+
                     blob = bucket.blob(blob_name)
-                    
+
                     # Reload to get metadata
                     blob.reload(client=client)
-                    
+
                     file_size_bytes = int(blob.size)
                     file_size_gb = file_size_bytes // (1024 ** 3)
                     print(f" - File size for {cram}: {file_size_gb} GB")
-                    
+
                     if file_size_gb > max_cram_file_size_gb:
                         crams_exceeding_max_size.append(f"{cram} ({file_size_gb}GB)")
                 else:
@@ -261,15 +273,15 @@ task ValidateCramsAndIndicesAndSampleIds {
                 if crai.startswith('gs://'):
                     # Parse GCS URI
                     bucket_name, blob_name = crai[5:].split('/', 1)
-                    
+
                     # Get bucket and set user_project for requester pays
                     if billing_project:
                         bucket = client.bucket(bucket_name, user_project=billing_project)
                     else:
                         bucket = client.bucket(bucket_name)
-                    
+
                     blob = bucket.blob(blob_name)
-                    
+
                     # Reload to ensure the file exists and is accessible
                     blob.reload(client=client)
                 else:
@@ -280,17 +292,17 @@ task ValidateCramsAndIndicesAndSampleIds {
 
         if files_with_invalid_gcs_format:
             qc_messages.append(create_error_message_with_item_list(
-                f"Found {pluralize(len(files_with_invalid_gcs_format), 'file')} with invalid GCS format (must start with 'gs://')", 
+                f"Found {pluralize(len(files_with_invalid_gcs_format), 'file')} with invalid GCS format (must start with 'gs://')",
                 files_with_invalid_gcs_format))
-            
+
         if files_with_access_issues:
             qc_messages.append(create_error_message_with_item_list(
-                f"Found {pluralize(len(files_with_access_issues), 'file')} that could not be accessed (may be due to non-existent files, lack of permissions, or requester pays bucket)", 
+                f"Found {pluralize(len(files_with_access_issues), 'file')} that could not be accessed (may be due to non-existent files, lack of permissions, or requester pays bucket)",
                 files_with_access_issues))
-        
+
         if crams_exceeding_max_size:
             qc_messages.append(create_error_message_with_item_list(
-                f"Found {pluralize(len(crams_exceeding_max_size), 'CRAM file')} exceeding the maximum allowed file size of {max_cram_file_size_gb}GB", 
+                f"Found {pluralize(len(crams_exceeding_max_size), 'CRAM file')} exceeding the maximum allowed file size of {max_cram_file_size_gb}GB",
                 crams_exceeding_max_size))
         else:
             print(f"All CRAM files are within the maximum allowed file size of {max_cram_file_size_gb}GB.")
@@ -305,7 +317,7 @@ task ValidateCramsAndIndicesAndSampleIds {
         EOF
         python3 script.py
     >>>
-    
+
     runtime {
         docker:  "us.gcr.io/broad-gatk/gatk:4.6.1.0" # has python 3.10
         cpu: 1
@@ -313,7 +325,149 @@ task ValidateCramsAndIndicesAndSampleIds {
         memory: "4 GiB"
         maxRetries: 2
     }
-    
+
+    output {
+        Boolean passes_qc = read_boolean("passes_qc.txt")
+        String qc_messages = read_string("qc_messages.txt")
+    }
+}
+
+task ValidateCramContents {
+    input {
+        Array[String] crams
+        Array[String] contigs
+        File ref_dict
+        String? billing_project_for_rp
+    }
+
+    String billing_project = select_first([billing_project_for_rp, ""])
+    String ref_dict_basename = basename(ref_dict)
+
+    command <<<
+        # set up auth for accessing files using samtools
+        export GCS_OAUTH_TOKEN=`gcloud auth application-default print-access-token`
+
+        # configure billing project to use for requester pays buckets, if billing project provided
+        if [ -n "~{billing_project}" ]; then
+            echo "Using billing project '~{billing_project}' for requester pays buckets."
+            export GCS_REQUESTER_PAYS_PROJECT=~{billing_project}
+        fi
+
+        touch qc_messages.txt
+
+        contigs=(~{sep=' ' contigs})
+        ref_dict="~{ref_dict}"
+        ref_dict_basename="~{ref_dict_basename}"
+
+        declare -A ref_md5sums
+        expected_count=${#contigs[@]}
+        found_count=0
+
+        while read -r line; do
+            if [[ $line == @SQ* ]]; then
+                # chrom is in the 2nd column of the ref dict in format SN:<chromName>
+                chrom=$(echo "$line" | cut -f 2 | cut -d ":" -f 2)
+                # md5sum is in the 4th column of the ref dict in format M5:<md5sum>
+                md5=$(echo "$line" | cut -f 4 | cut -d ":" -f 2)
+
+                if [[ " ${contigs[@]} " =~ " ${chrom} " ]]; then
+                    ref_md5sums["$chrom"]="$md5"
+                    found_count=$((found_count + 1))
+
+                    if [[ $found_count -eq $expected_count ]]; then
+                        echo "Found all ${found_count} expected contigs in reference dictionary."
+                        break
+                    fi
+                fi
+            fi
+        done < $ref_dict
+
+        echo "found relevant contigs with these md5sums in ref dict ${ref_dict}:"
+        for chrom in "${!ref_md5sums[@]}"; do
+            echo "  $chrom: ${ref_md5sums[$chrom]}"
+        done
+
+        crams_with_bad_or_missing_md5sums=()
+        MAX_ITEMS_IN_ERROR_MESSAGES=5
+        cram_check_count=0
+        MAX_CRAMS_TO_CHECK=100 # to limit runtime of this task, we will only check the first 100 crams for the expected md5sums
+        # read cram headers to validate that they contain the expected reference alignment MD5sums
+        for cram in ~{sep=' ' crams}; do
+            cram_check_count=$((cram_check_count + 1))
+            echo "Validating CRAM file: $cram"
+            header=$(samtools view -H "$cram")
+            cram_ok=true
+            for chrom in "${!ref_md5sums[@]}"; do
+                expected_md5=${ref_md5sums[$chrom]}
+                echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"
+                if ! echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"; then
+                    echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom or it does not match the expected value."
+                    crams_with_bad_or_missing_md5sums+=("$cram")
+                    cram_ok=false
+                    break # no need to check other contigs for this cram if one is already missing or has a bad md5sum
+                fi
+            done
+            if [ "$cram_ok" = true ]; then
+                echo "CRAM file $cram contains expected reference alignment MD5sums for all expected contigs"
+            fi
+            # if we've found more than MAX_ITEMS_IN_ERROR_MESSAGES crams with bad or missing md5sums, we can stop checking the rest of the crams because the error message will be truncated anyway
+            if [ ${#crams_with_bad_or_missing_md5sums[@]} -gt $((MAX_ITEMS_IN_ERROR_MESSAGES)) ]; then
+                echo "Found more than $((MAX_ITEMS_IN_ERROR_MESSAGES)) CRAM files with bad or missing reference alignment MD5sums; skipping validation of remaining CRAM files"
+                break
+            fi
+            # if we've checked more than MAX_CRAMS_TO_CHECK crams, we will stop to limit runtime of this task
+            if [ $cram_check_count -ge $MAX_CRAMS_TO_CHECK ]; then
+                echo "Checked $MAX_CRAMS_TO_CHECK CRAM files; stopping further checks to limit runtime of this task"
+                break
+            fi
+        done
+
+        # if crams_with_bad_or_missing_md5sums is not empty, write an error message to qc_messages.txt
+        n_bad_crams=${#crams_with_bad_or_missing_md5sums[@]}
+        if [ $n_bad_crams -ne 0 ]; then
+            {
+                # Show only first N items if list is too long
+                if [ $n_bad_crams -gt $MAX_ITEMS_IN_ERROR_MESSAGES ]; then
+                    first_part_of_message="Found more than $MAX_ITEMS_IN_ERROR_MESSAGES CRAM files not aligned to the expected reference ($ref_dict_basename)"
+                    second_part_of_message="; first $MAX_ITEMS_IN_ERROR_MESSAGES are:"
+                    joined=$(IFS=","; echo "${crams_with_bad_or_missing_md5sums[*]:0:$MAX_ITEMS_IN_ERROR_MESSAGES}")
+                    list_to_show="${joined//,/, }" # Replaces every ',' with ', '
+                    echo "$first_part_of_message$second_part_of_message $list_to_show"
+                else
+                    if [ $n_bad_crams -eq 1 ]; then
+                        pluralized=""
+                    else
+                        pluralized="s"
+                    fi
+                    first_part_of_message="Found $n_bad_crams CRAM file$pluralized not aligned to the expected reference ($ref_dict_basename)"
+                    joined=$(IFS=","; echo "${crams_with_bad_or_missing_md5sums[*]}")
+                    list_to_show="${joined//,/, }" # Replaces every ',' with ', '
+                    echo "$first_part_of_message: $list_to_show"
+                fi
+            } >> qc_messages.txt
+        else
+            echo "All CRAM files contain the expected reference alignment MD5sums for the expected contigs."
+        fi
+
+        # passes_qc is true if qc_messages is empty
+        if [ ! -s qc_messages.txt ]; then
+            echo "true" > passes_qc.txt
+        else
+            echo "false" > passes_qc.txt
+        fi
+
+        # This task should always succeed
+        exit 0
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsp-lrma/lr-gcloud-samtools:0.1.23.1"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        memory: "4 GiB"
+        maxRetries: 2
+    }
+
     output {
         Boolean passes_qc = read_boolean("passes_qc.txt")
         String qc_messages = read_string("qc_messages.txt")
