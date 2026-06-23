@@ -32,4 +32,4 @@ When migrating WDL workflows to Nextflow:
 
 ---
 
-For questions about Nextflow workflow development in WARP, please refer to the main [WARP documentation](../../README.md) and [AI coding guidelines](../../.github/copilot-instructions.md).
+For questions about Nextflow workflow development in WARP, please refer to the main [WARP documentation](../../README.md) and [agent instructions](../../AGENTS.md).
