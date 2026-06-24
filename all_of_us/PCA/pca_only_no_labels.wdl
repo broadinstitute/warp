@@ -79,10 +79,10 @@ workflow pca_only_no_labels {
         File training_pca_eigenvalues_tsv = create_hw_pca_training.pca_eigenvalues_tsv
         File training_pca_scatter_plots_1_2 = plot_1_2.training_pca_scatter_plot
         File training_pca_scatter_plots_3_4 = plot_3_4.training_pca_scatter_plot
-        File training_pca_contour_plots_1_2 = plot_1_2.training_pca_contour_plot
-        File training_pca_contour_plots_3_4 = plot_3_4.training_pca_contour_plot
         File training_pca_hexbin_plots_1_2 = plot_1_2.training_pca_hexbin_plot
         File training_pca_hexbin_plots_3_4 = plot_3_4.training_pca_hexbin_plot
+        File training_pca_3d_density_plots_1_2 = plot_1_2.training_pca_3d_density_plot
+        File training_pca_3d_density_plots_3_4 = plot_3_4.training_pca_3d_density_plot
     }
 }
 
@@ -288,7 +288,7 @@ task plot_pca {
                 raise ValueError(f'Specified pc was negative or zero: {pc}.  Inputs are 1-indexed.')
 
         def plot_scatter(df, pc1, pc2, col_category, output_figure_fname, pct_var=None):
-            """Scatter plot only — no contour overlay."""
+            """Scatter plot."""
             labels = df[col_category].unique()
             colors = plt.cm.rainbow(np.linspace(0, 1, len(labels)))
 
@@ -297,45 +297,6 @@ task plot_pca {
                 x = subset[f'PC{pc1}']
                 y = subset[f'PC{pc2}']
                 plt.scatter(x, y, color=color, s=2, alpha=~{alpha})
-
-            plt.title('CDRv9 PCA')
-            if pct_var is not None:
-                pct_x = pct_var.get(pc1)
-                pct_y = pct_var.get(pc2)
-                xlabel = f"PC{pc1} ({pct_x:.2f}%)" if pct_x is not None else f"PC{pc1}"
-                ylabel = f"PC{pc2} ({pct_y:.2f}%)" if pct_y is not None else f"PC{pc2}"
-            else:
-                xlabel = f"PC{pc1}"
-                ylabel = f"PC{pc2}"
-
-            plt.xlabel(xlabel)
-            plt.ylabel(ylabel)
-            plt.gca().set_aspect('equal', adjustable='box')
-            plt.tight_layout()
-            plt.savefig(output_figure_fname)
-            plt.close()
-
-        def plot_categorical_points(df, score_col, pc1, pc2, col_category, output_figure_fname, pct_var=None):
-            """Scatter plot with contour density overlay."""
-            # Unique labels and colors
-            labels = df[col_category].unique()
-            colors = plt.cm.rainbow(np.linspace(0, 1, len(labels)))
-
-            # Plot each group with a different color
-            for label, color in zip(labels, colors):
-                subset = df[df[col_category] == label]
-                x = subset[f'PC{pc1}']  # Updated to use individual PC columns
-                y = subset[f'PC{pc2}']  # Updated to use individual PC columns
-                plt.scatter(x, y, color=color, s=2, alpha=~{alpha})  # Removed legend and added alpha for transparency
-
-            # Contour overlay using 2D histogram (O(n), safe for large datasets)
-            x_all = df[f'PC{pc1}']
-            y_all = df[f'PC{pc2}']
-            h, xedges, yedges = np.histogram2d(x_all, y_all, bins=200)
-            h_smooth = gaussian_filter(h, sigma=2)
-            xcenters = (xedges[:-1] + xedges[1:]) / 2
-            ycenters = (yedges[:-1] + yedges[1:]) / 2
-            plt.contour(xcenters, ycenters, h_smooth.T, levels=8, colors='black', alpha=0.5, linewidths=0.8)
 
             plt.title('CDRv9 PCA')
             if pct_var is not None:
@@ -374,6 +335,64 @@ task plot_pca {
             plt.savefig(output_figure_fname)
             plt.close()
 
+        def plot_3d_density(df, pc1, pc2, output_figure_fname, pct_var=None):
+            """3D surface plot of the smoothed log-density of two PCs."""
+            # Extract the two PCs of interest from the DataFrame
+            x = df[f'PC{pc1}']
+            y = df[f'PC{pc2}']
+
+            # Choose bin counts automatically with numpy's Freedman-Diaconis rule
+            # ('auto') rather than hardcoding. On 500k+ samples that rule can return
+            # thousands of bins, producing an unwieldy surface mesh, so we cap each
+            # axis at a sane maximum for a readable 3D surface.
+            max_bins = 200
+            nbins_x = min(len(np.histogram_bin_edges(x, bins='auto')) - 1, max_bins)
+            nbins_y = min(len(np.histogram_bin_edges(y, bins='auto')) - 1, max_bins)
+            counts, xedges, yedges = np.histogram2d(x, y, bins=[nbins_x, nbins_y])
+
+            # Log-density transform: compresses the dynamic range so dense and
+            # sparse regions are both visible on the surface
+            Z = np.log1p(counts)
+
+            # Smooth the log-density so the surface is continuous rather than jagged
+            Z = gaussian_filter(Z, sigma=1.5)
+
+            # Bin centers for the X and Y axes (edges -> centers)
+            xcenters = (xedges[:-1] + xedges[1:]) / 2
+            ycenters = (yedges[:-1] + yedges[1:]) / 2
+
+            # Build a meshgrid; transpose Z so its orientation matches X/Y
+            # (histogram2d indexes Z as [x, y], surface plots expect [y, x])
+            X, Y = np.meshgrid(xcenters, ycenters)
+            Z = Z.T
+
+            # Create the 3D surface plot
+            fig = plt.figure(figsize=(10, 8))
+            ax = fig.add_subplot(111, projection='3d')
+            surf = ax.plot_surface(X, Y, Z, cmap='viridis', linewidth=0, antialiased=True)
+            fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10, label='log(1 + density)')
+
+            ax.set_title('CDRv9 PCA (3D Density)')
+
+            # Same axis-labeling logic as the other plotting functions
+            if pct_var is not None:
+                pct_x = pct_var.get(pc1)
+                pct_y = pct_var.get(pc2)
+                xlabel = f"PC{pc1} ({pct_x:.2f}%)" if pct_x is not None else f"PC{pc1}"
+                ylabel = f"PC{pc2} ({pct_y:.2f}%)" if pct_y is not None else f"PC{pc2}"
+            else:
+                xlabel = f"PC{pc1}"
+                ylabel = f"PC{pc2}"
+
+            ax.set_xlabel(xlabel)
+            ax.set_ylabel(ylabel)
+            ax.set_zlabel('log(1 + density)')
+
+            # Save a static PNG and close the figure (consistent with the rest of the script)
+            plt.tight_layout()
+            plt.savefig(output_figure_fname)
+            plt.close()
+
         # Define variables from WDL inputs
         output_prefix = "~{output_prefix}"
         pc1 = ~{pc1}
@@ -394,25 +413,25 @@ task plot_pca {
         # Add pop labels since plot function expects them
         df['pop_label'] = ["No label"] * len(df)
 
-        # 1) Scatter-only plot (original, no contour)
+        # 1) Scatter-only plot
         scatter_figure_basename = f'{output_prefix}_{pc1}_{pc2}_scatter.png'
         plot_scatter(df, pc1, pc2, 'pop_label', scatter_figure_basename, pct_variance_lookup)
 
-        # 2) Scatter + contour overlay
-        contour_figure_basename = f'{output_prefix}_{pc1}_{pc2}_contour.png'
-        plot_categorical_points(df, 'scores', pc1, pc2, 'pop_label', contour_figure_basename, pct_variance_lookup)
-
-        # 3) Standalone hexbin density plot
+        # 2) Standalone hexbin density plot
         hexbin_figure_basename = f'{output_prefix}_{pc1}_{pc2}_hexbin.png'
         plot_hexbin(df, pc1, pc2, hexbin_figure_basename, pct_variance_lookup)
+
+        # 3) 3D smoothed log-density surface plot
+        density_3d_figure_basename = f'{output_prefix}_{pc1}_{pc2}_3d_density.png'
+        plot_3d_density(df, pc1, pc2, density_3d_figure_basename, pct_variance_lookup)
 
         EOF
     >>>
 
     output {
         File training_pca_scatter_plot = "~{output_prefix}_~{pc1}_~{pc2}_scatter.png"
-        File training_pca_contour_plot = "~{output_prefix}_~{pc1}_~{pc2}_contour.png"
         File training_pca_hexbin_plot = "~{output_prefix}_~{pc1}_~{pc2}_hexbin.png"
+        File training_pca_3d_density_plot = "~{output_prefix}_~{pc1}_~{pc2}_3d_density.png"
     }
 
     runtime {
