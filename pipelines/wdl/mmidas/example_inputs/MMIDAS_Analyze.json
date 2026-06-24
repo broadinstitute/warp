@@ -1,0 +1,17 @@
+{
+  "MMIDAS_Analyze.preprocessed_h5ad":        "gs://your-bucket/Mouse_ALM-VISp_cpm.h5ad",
+  "MMIDAS_Analyze.checkpoints_manifest":     "gs://your-bucket/results/checkpoints_manifest.json",
+  "MMIDAS_Analyze.model_tar":                "gs://your-bucket/results/model.tar.gz",
+  "MMIDAS_Analyze.evaluation_results_json":  "gs://your-bucket/results/evaluation_results.json",
+
+  "MMIDAS_Analyze.kegg_toml":   "gs://your-bucket/KEGG/KEGG.toml",
+  "MMIDAS_Analyze.htree_file":  "gs://your-bucket/data/tree_Mouse_ALM-VISp_2018.csv",
+
+  "MMIDAS_Analyze.n_pca":               100,
+  "MMIDAS_Analyze.k_fold":              10,
+  "MMIDAS_Analyze.n_traversal_steps":   50,
+  "MMIDAS_Analyze.traversal_arm":       0,
+  "MMIDAS_Analyze.n_selected_cats":     10,
+  "MMIDAS_Analyze.batch_size":          5000,
+  "MMIDAS_Analyze.seed":                0
+}
