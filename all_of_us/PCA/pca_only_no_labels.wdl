@@ -281,6 +281,7 @@ task plot_pca {
         import pandas as pd
         import numpy as np
         import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 - registers the '3d' projection on old matplotlib
         from scipy.ndimage import gaussian_filter
 
         def check_pc(pc: int) -> None:
