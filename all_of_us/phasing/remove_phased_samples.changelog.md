@@ -3,6 +3,8 @@
 
 * Added additional spark runtime parameters that are passed to the python script
 
+* Capped the cluster prefix
+
 # aou_9.0.0
 2026-06-22 (Date of Last Commit)
 

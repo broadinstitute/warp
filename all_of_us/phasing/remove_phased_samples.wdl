@@ -153,7 +153,7 @@ task RemovePhasedSamplesOnDataproc {
     from google.cloud import dataproc_v1 as dataproc
 
     cluster_prefix = "~{mt_output_stem}".lower().replace("_", "-").replace(".", "-")
-    cluster_prefix = cluster_prefix[:30] if len(cluster_prefix) > 30 else cluster_prefix
+    cluster_prefix = cluster_prefix[:20] if len(cluster_prefix) > 20 else cluster_prefix
     cluster_name = f"rmph-{cluster_prefix}-hail-step1-{str(uuid.uuid4())[0:13]}"
 
     script_path = "~{submission_script}"
