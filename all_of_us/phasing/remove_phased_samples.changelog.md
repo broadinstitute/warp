@@ -1,3 +1,8 @@
+# aou_9.0.1
+2026-06-24 (Date of Last Commit)
+
+* Added additional spark runtime parameters that are passed to the python script
+
 # aou_9.0.0
 2026-06-22 (Date of Last Commit)
 

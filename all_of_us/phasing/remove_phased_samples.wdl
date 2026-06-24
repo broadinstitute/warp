@@ -31,11 +31,18 @@ workflow RunRemovePhasedSamples {
     String output_bucket_path
     File submission_script
 
+    # Spark executor/driver config (passed as script args to remove_phased_samples.py)
+    Int executor_cores = 4
+    String executor_memory = "26g"
+    Int driver_cores = 32
+    String driver_memory = "60g"
+    Int spark_task_max_failures = 20
+
     # WDL runtime for the lightweight launcher VM
     String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.134"
   }
 
-  String pipeline_version = "aou_9.0.0"
+  String pipeline_version = "aou_9.0.1"
   String output_bucket_path_with_trailing_slash = sub(output_bucket_path, "/$", "") + "/"
 
   scatter (path in input_mt_paths) {
@@ -52,6 +59,11 @@ workflow RunRemovePhasedSamples {
         region = region,
         output_bucket = output_bucket_path_with_trailing_slash,
         submission_script = submission_script,
+        executor_cores = executor_cores,
+        executor_memory = executor_memory,
+        driver_cores = driver_cores,
+        driver_memory = driver_memory,
+        spark_task_max_failures = spark_task_max_failures,
         hail_docker = hail_docker
     }
   }
@@ -81,11 +93,18 @@ task RemovePhasedSamplesOnDataproc {
 
     String master_machine_type = "n1-highmem-32"
     Float master_memory_fraction = 0.8
-    String worker_machine_type = "n1-highmem-4"
-    Int num_workers = 25
-    Int num_preemptible_workers = 25
+    String worker_machine_type = "n1-highmem-8"
+    Int num_workers = 16
+    Int num_preemptible_workers = 0
     Int time_to_live_minutes = 14400
     RuntimeAttr? runtime_attr_override
+
+    # Spark executor/driver config (passed as script args to remove_phased_samples.py)
+    Int executor_cores = 4
+    String executor_memory = "26g"
+    Int driver_cores = 32
+    String driver_memory = "60g"
+    Int spark_task_max_failures = 8
 
     String hail_docker
   }
@@ -161,11 +180,18 @@ task RemovePhasedSamplesOnDataproc {
                 cluster_temp_bucket = cluster.config.temp_bucket
 
                 submit_cmd = f'''gcloud dataproc jobs submit pyspark {script_path} \
-                --cluster={cluster_name} --project ~{gcs_project} --region=~{region} --account {account} --driver-log-levels root=WARN -- \
+                --cluster={cluster_name} --project ~{gcs_project} --region=~{region} --account {account} \
+                --driver-log-levels root=WARN \
+                -- \
                 --mt-path ~{input_mt_path} \
                 --remove-samples-tsv ~{remove_samples_tsv} \
                 --remove-id-col ~{remove_id_col} \
                 --out-vcf ~{output_filtered_vcf_url} \
+                --spark-executor-cores ~{executor_cores} \
+                --spark-executor-memory ~{executor_memory} \
+                --spark-driver-cores ~{driver_cores} \
+                --spark-driver-memory ~{driver_memory} \
+                --spark-task-max-failures ~{spark_task_max_failures} \
                 ~{if write_out_mt then "--out-mt-path " + output_filtered_mt_url else ""} \
                 ~{if defined(metadata_vcf_or_header) then "--metadata-vcf-or-header " + select_first([metadata_vcf_or_header]) else ""} \
                 ~{if overwrite then "--overwrite" else ""} \
