@@ -1,3 +1,8 @@
+# 0.0.21
+2026-06-25 (Date of Last Commit)
+
+* update glimpse2 docker image with latest picard/bcftools
+
 # 0.0.20
 2026-06-12 (Date of Last Commit)
 
