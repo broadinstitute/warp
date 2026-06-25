@@ -386,7 +386,7 @@ task BcftoolsMpileup {
         Int max_retries = 3
     }
 
-    Int disk_size_gb = ceil(5*size(crams, "GiB") + size(fasta, "GiB") + size(sites_vcf, "GiB")) + 10
+    Int disk_size_gb = ceil(2.5*size(crams, "GiB") + size(fasta, "GiB") + size(sites_vcf, "GiB")) + 10
 
     command <<<
         set -xeuo pipefail
