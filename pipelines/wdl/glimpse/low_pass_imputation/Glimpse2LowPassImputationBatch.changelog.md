@@ -1,4 +1,4 @@
-# 0.1.12
+# 0.0.12
 2026-06-26 (Date of Last Commit)
 
 * use updated GLIMPSE2 build to fix cloud input streaming
