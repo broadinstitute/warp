@@ -30,7 +30,7 @@ workflow Glimpse2LowPassImputationBatch {
         Int? glimpse_phase_cpu_override
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:morgan-test-retries-v2-75db1f9"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:morgan-test-retries-v2-with-bcftools-update-75db1f9"
     }
 
     # we need to define this here so that it can be used in nested scatters below. Cromwell doesn't understand optional inputs
