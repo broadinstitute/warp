@@ -1,3 +1,8 @@
+# 0.0.11
+2026-06-22 (Date of Last Commit)
+
+* pre chunk each cram before passing it to mpileup
+
 # 0.0.10
 2026-06-12 (Date of Last Commit)
 
