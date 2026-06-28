@@ -1,3 +1,12 @@
+# 1.1.0
+2026-06-27 (Date of Last Commit)
+
+* Made the ATAC h5ad input optional. When no ATAC h5ad is provided (direct-file mode) or no ATAC object is found in the input bucket (bucket mode), the pipeline auto-detects GEX-only mode and trains/annotates from the reference atlas using gene expression and reference data alone, without using ATAC.
+* Added run_gex_only_model to the scvi-scanvi container to train SCVI/SCANVI on GEX + reference only
+* PreprocessFilter skips ATAC loading, barcode reindexing, shared-barcode subsetting, and gene-activity conversion in GEX-only mode
+* Made preprocessed_atac_activity_h5ad and atac_annotated_h5ad optional outputs (null in GEX-only mode)
+* Added a GEX-only example inputs file (example_inputs/scANVI.gex_only.json)
+
 # 1.0.0
 2026-04-17 (Date of Last Commit)
 

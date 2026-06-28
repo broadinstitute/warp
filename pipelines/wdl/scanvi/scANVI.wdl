@@ -3,7 +3,7 @@ version 1.0
 workflow scANVI {
 
   meta {
-    description: "Pipeline for cell type label transfer on Multiome data using SCVI and SCANVI models. Integrates single-cell RNA (GEX) and ATAC data with an annotated reference to transfer cell type labels via semi-supervised deep generative models."
+    description: "Pipeline for cell type label transfer using SCVI and SCANVI models. Integrates single-cell RNA (GEX) and (optionally) ATAC data with an annotated reference to transfer cell type labels via semi-supervised deep generative models. When no ATAC h5ad is provided, the pipeline auto-detects GEX-only mode and trains/annotates from the reference atlas using GEX and reference alone."
     allowNestedInputs: true
   }
 
@@ -26,10 +26,11 @@ workflow scANVI {
 
   }
 
-  String pipeline_version = "1.0.0"
+  String pipeline_version = "1.1.0"
 
   # Docker image (same container for both tasks; only Task 2 gets GPUs attached)
-  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:81fe915a045bd2929a1c457f4a0061055c6ea42fa3f88e9352b618e4a6e47b58"
+  # Exposes run_gex_only_model for GEX-only mode (warp-tools/3rd-party-tools/scvi-scanvi).
+  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:635d4391d50cba9bd58f1fc41b10d8e1c61285a73bde75371815ce9a0db3430c"
   # Step 1: CPU-only preprocessing and filtering of all three h5ad inputs
   call PreprocessFilter {
       input:
@@ -56,7 +57,7 @@ workflow scANVI {
 
   output {
       File scanvi_predictions_h5ad = MultiomeLabelTransfer.scanvi_predictions_h5ad
-      File atac_annotated_h5ad = MultiomeLabelTransfer.atac_annotated_h5ad
+      File? atac_annotated_h5ad = MultiomeLabelTransfer.atac_annotated_h5ad
       File gex_annotated_h5ad = MultiomeLabelTransfer.gex_annotated_h5ad
       String pipeline_version_out = pipeline_version
   }
@@ -101,10 +102,10 @@ task PreprocessFilter {
     parameter_meta {
         input_bucket: "GCS bucket path containing input h5ad files (e.g., gs://bucket/path/to/inputs)."
         gex_h5ad: "Gene expression AnnData h5ad file from Multiome/Optimus pipeline output."
-        atac_h5ad: "ATAC cell-by-bin AnnData h5ad file from Multiome/PeakCalling pipeline output."
+        atac_h5ad: "Optional ATAC cell-by-bin AnnData h5ad file from Multiome/PeakCalling pipeline output. If omitted, the pipeline runs in GEX-only mode (training/annotation from the reference using GEX alone)."
         ref_h5ad: "Annotated reference AnnData h5ad file with cell type labels in obs['final_annotation']."
         gex_filename: "Expected GEX h5ad filename in the input bucket."
-        atac_filename: "Expected ATAC h5ad filename in the input bucket."
+        atac_filename: "Expected ATAC h5ad filename in the input bucket. Optional in bucket mode: if absent from the bucket, the pipeline runs in GEX-only mode."
         ref_filename: "Expected reference h5ad filename in the input bucket."
         input_id: "Unique identifier prepended to all output filenames."
         docker: "Docker image containing the scvi-scanvi runtime environment."
@@ -116,14 +117,19 @@ task PreprocessFilter {
         set -euo pipefail
 
         # ── Resolve input file paths ──────────────────────────────────────────
+        # GEX and reference are always required. ATAC is optional: when it is not
+        # provided (direct mode) or absent from the bucket (bucket mode), ATAC_FILE
+        # stays empty and the pipeline runs in GEX-only mode.
+        ATAC_FILE=""
         if [ -n "~{default='' gex_h5ad}" ]; then
             # Direct File inputs: Cromwell already localized them
             GEX_FILE="~{default='' gex_h5ad}"
-            ATAC_FILE="~{default='' atac_h5ad}"
             REF_FILE="~{default='' ref_h5ad}"
+            ATAC_FILE="~{default='' atac_h5ad}"
 
-            # Verify all three localized files are present and non-empty
-            for f in "$GEX_FILE" "$ATAC_FILE" "$REF_FILE"; do
+            # Verify the required GEX/REF localized files (and ATAC if provided)
+            # are present and non-empty
+            for f in "$GEX_FILE" "$REF_FILE" ${ATAC_FILE:+"$ATAC_FILE"}; do
                 if [ ! -f "$f" ]; then
                     echo "ERROR: input file not found: $f" >&2; exit 1
                 fi
@@ -136,11 +142,10 @@ task PreprocessFilter {
             BUCKET="~{default='' input_bucket}"
             BUCKET="${BUCKET%/}"
             GEX_FILE="${BUCKET}/~{gex_filename}"
-            ATAC_FILE="${BUCKET}/~{atac_filename}"
             REF_FILE="${BUCKET}/~{ref_filename}"
 
-            # Verify all three objects exist in the bucket before downloading
-            for gs_path in "$GEX_FILE" "$ATAC_FILE" "$REF_FILE"; do
+            # Verify the required GEX/REF objects exist in the bucket
+            for gs_path in "$GEX_FILE" "$REF_FILE"; do
                 if ! gsutil -q stat "$gs_path"; then
                     echo "ERROR: GCS object not found: $gs_path" >&2; exit 1
                 fi
@@ -148,19 +153,28 @@ task PreprocessFilter {
 
             echo "Downloading inputs from bucket..."
             gsutil cp "$GEX_FILE" gex_input.h5ad
-            gsutil cp "$ATAC_FILE" atac_input.h5ad
             gsutil cp "$REF_FILE" ref_input.h5ad
             GEX_FILE="gex_input.h5ad"
-            ATAC_FILE="atac_input.h5ad"
             REF_FILE="ref_input.h5ad"
+
+            # ATAC is optional in bucket mode: auto-detect by stat'ing the object.
+            ATAC_GS_PATH="${BUCKET}/~{atac_filename}"
+            if gsutil -q stat "$ATAC_GS_PATH"; then
+                echo "ATAC object found; downloading for multiome mode..."
+                gsutil cp "$ATAC_GS_PATH" atac_input.h5ad
+                ATAC_FILE="atac_input.h5ad"
+            else
+                echo "No ATAC object at $ATAC_GS_PATH; running in GEX-only mode."
+            fi
         else
-            echo "ERROR: must provide either direct file inputs (gex_h5ad, atac_h5ad, ref_h5ad) or input_bucket." >&2
+            echo "ERROR: must provide either direct file inputs (gex_h5ad and ref_h5ad) or input_bucket." >&2
             exit 1
         fi
 
         export GEX_FILE ATAC_FILE REF_FILE
 
-        # Symlink the gene annotation file (needed by snapatac2 make_gene_matrix)
+        # Symlink the gene annotation file (needed by snapatac2 make_gene_matrix);
+        # only relevant when ATAC is present, but harmless to create unconditionally.
         ln -sf /usr/local/gencode.v41.basic.annotation.gff3.gz .
 
         # ── Run preprocessing in Python ───────────────────────────────────────
@@ -168,34 +182,30 @@ task PreprocessFilter {
 import os
 import anndata as ad
 import scanpy as sc
-import snapatac2 as snap
 import numpy as np
 
 gex_path  = os.environ["GEX_FILE"]
-atac_path = os.environ["ATAC_FILE"]
+atac_path = os.environ.get("ATAC_FILE", "").strip()
 ref_path  = os.environ["REF_FILE"]
 
-# ── 1. Load datasets ─────────────────────────────────────────────────────
+# ATAC is optional. When no ATAC file was resolved we run in GEX-only mode:
+# train/annotate from the reference using GEX alone, never touching ATAC.
+atac_present = bool(atac_path)
+print(f"Mode: {'multiome (GEX + ATAC)' if atac_present else 'GEX-only (no ATAC)'}")
+
+# ── 1. Load GEX and reference (always required) ──────────────────────────
 print("Loading GEX...")
 gex = sc.read_h5ad(gex_path)
 print(f"  GEX loaded: {gex.shape}")
-
-print("Loading ATAC...")
-atac = snap.read(atac_path, backed=None)
-print(f"  ATAC loaded: {atac.shape}")
 
 print("Loading reference...")
 ref = sc.read_h5ad(ref_path)
 print(f"  Reference loaded: {ref.shape}")
 
-# ── 2. Patch missing columns ─────────────────────────────────────────────
+# ── 2. Patch missing GEX columns ─────────────────────────────────────────
 if "star_IsCell" not in gex.obs.columns:
     print("  Patching: adding star_IsCell = True (column was missing)")
     gex.obs["star_IsCell"] = True
-
-if "gex_barcodes" not in atac.obs.columns:
-    print("  Patching: adding gex_barcodes from obs index (column was missing)")
-    atac.obs["gex_barcodes"] = atac.obs.index
 
 # ── 3. Filter GEX to STARsolo cell calls ─────────────────────────────────
 print("Filtering GEX to star_IsCell == True...")
@@ -211,42 +221,68 @@ print(f"  After min_counts filter: {gex.shape}")
 gex.obs["batch"] = 1
 gex.layers["counts"] = gex.X.copy()
 
-# ── 4. Reindex ATAC barcodes to match GEX ────────────────────────────────
-print("Reindexing ATAC barcodes to gex_barcodes...")
-atac.obs = atac.obs.set_index("gex_barcodes")
-
-# ── 5. Subset to shared barcodes ─────────────────────────────────────────
-shared = atac.obs.index.intersection(gex.obs.index)
-print(f"Shared barcodes between GEX and ATAC: {len(shared)}")
-atac_shared = atac[atac.obs.index.isin(shared)].copy()
-gex_shared  = gex[gex.obs.index.isin(shared)].copy()
-print(f"  GEX shared: {gex_shared.shape}")
-print(f"  ATAC shared: {atac_shared.shape}")
-
-# ── 6. Assign batch labels ───────────────────────────────────────────────
-atac_shared.obs["batch"] = "pd-multiome_sci_atac"
-gex_shared.obs["batch"]  = "pd-multiome_sci_gex"
-
-# ── 7. Add placeholder annotations for query datasets ────────────────────
-gex_shared.obs["final_annotation"] = "Unknown"
-
-# ── 8. Convert ATAC cell-by-bin → gene activity matrix ───────────────────
-print("Converting ATAC cell-by-bin to gene activity matrix (hg38)...")
-atac_activity = snap.pp.make_gene_matrix(atac_shared, gene_anno=snap.genome.hg38)
-print(f"  Gene activity matrix: {atac_activity.shape}")
-atac_activity.obs["final_annotation"] = "Unknown"
-
-# ── 9. Tag modalities ────────────────────────────────────────────────────
-gex_shared.obs["modality"]    = "rna_unannotated"
-atac_activity.obs["modality"] = "atac_unannotated"
-ref.obs["modality"]           = "rna_annotated"
-
-# ── 10. Write preprocessed outputs ───────────────────────────────────────
 input_id = "~{input_id}"
-print(f"Writing preprocessed outputs (input_id={input_id})...")
-gex_shared.write_h5ad(f"{input_id}_preprocessed_gex.h5ad")
-atac_activity.write_h5ad(f"{input_id}_preprocessed_atac_activity.h5ad")
-ref.write_h5ad(f"{input_id}_preprocessed_ref.h5ad")
+
+if atac_present:
+    # ── Multiome path: load and integrate ATAC ───────────────────────────
+    import snapatac2 as snap
+
+    print("Loading ATAC...")
+    atac = snap.read(atac_path, backed=None)
+    print(f"  ATAC loaded: {atac.shape}")
+
+    if "gex_barcodes" not in atac.obs.columns:
+        print("  Patching: adding gex_barcodes from obs index (column was missing)")
+        atac.obs["gex_barcodes"] = atac.obs.index
+
+    # Reindex ATAC barcodes to match GEX
+    print("Reindexing ATAC barcodes to gex_barcodes...")
+    atac.obs = atac.obs.set_index("gex_barcodes")
+
+    # Subset to shared barcodes
+    shared = atac.obs.index.intersection(gex.obs.index)
+    print(f"Shared barcodes between GEX and ATAC: {len(shared)}")
+    atac_shared = atac[atac.obs.index.isin(shared)].copy()
+    gex_shared  = gex[gex.obs.index.isin(shared)].copy()
+    print(f"  GEX shared: {gex_shared.shape}")
+    print(f"  ATAC shared: {atac_shared.shape}")
+
+    # Assign batch labels
+    atac_shared.obs["batch"] = "pd-multiome_sci_atac"
+    gex_shared.obs["batch"]  = "pd-multiome_sci_gex"
+
+    # Add placeholder annotations for query datasets
+    gex_shared.obs["final_annotation"] = "Unknown"
+
+    # Convert ATAC cell-by-bin → gene activity matrix
+    print("Converting ATAC cell-by-bin to gene activity matrix (hg38)...")
+    atac_activity = snap.pp.make_gene_matrix(atac_shared, gene_anno=snap.genome.hg38)
+    print(f"  Gene activity matrix: {atac_activity.shape}")
+    atac_activity.obs["final_annotation"] = "Unknown"
+
+    # Tag modalities
+    gex_shared.obs["modality"]    = "rna_unannotated"
+    atac_activity.obs["modality"] = "atac_unannotated"
+    ref.obs["modality"]           = "rna_annotated"
+
+    # Write preprocessed outputs (GEX + ATAC activity + reference)
+    print(f"Writing preprocessed outputs (input_id={input_id})...")
+    gex_shared.write_h5ad(f"{input_id}_preprocessed_gex.h5ad")
+    atac_activity.write_h5ad(f"{input_id}_preprocessed_atac_activity.h5ad")
+    ref.write_h5ad(f"{input_id}_preprocessed_ref.h5ad")
+else:
+    # ── GEX-only path: no ATAC, no shared-barcode subset ─────────────────
+    gex_shared = gex.copy()
+    gex_shared.obs["batch"]            = "pd-multiome_sci_gex"
+    gex_shared.obs["final_annotation"] = "Unknown"
+    gex_shared.obs["modality"]         = "rna_unannotated"
+    ref.obs["modality"]                = "rna_annotated"
+
+    # Write preprocessed outputs (GEX + reference only; no ATAC activity file)
+    print(f"Writing preprocessed outputs (input_id={input_id})...")
+    gex_shared.write_h5ad(f"{input_id}_preprocessed_gex.h5ad")
+    ref.write_h5ad(f"{input_id}_preprocessed_ref.h5ad")
+
 print("Preprocessing complete.")
 CODE
     >>>
@@ -261,9 +297,9 @@ CODE
     }
 
     output {
-        File preprocessed_gex_h5ad           = "~{input_id}_preprocessed_gex.h5ad"
-        File preprocessed_atac_activity_h5ad = "~{input_id}_preprocessed_atac_activity.h5ad"
-        File preprocessed_ref_h5ad           = "~{input_id}_preprocessed_ref.h5ad"
+        File preprocessed_gex_h5ad            = "~{input_id}_preprocessed_gex.h5ad"
+        File? preprocessed_atac_activity_h5ad = "~{input_id}_preprocessed_atac_activity.h5ad"
+        File preprocessed_ref_h5ad            = "~{input_id}_preprocessed_ref.h5ad"
     }
 }
 
@@ -280,7 +316,7 @@ task MultiomeLabelTransfer {
     input {
         # Preprocessed h5ad files from PreprocessFilter
         File gex_h5ad
-        File atac_activity_h5ad
+        File? atac_activity_h5ad
         File ref_h5ad
 
         # Runtime attributes
@@ -293,7 +329,7 @@ task MultiomeLabelTransfer {
 
     parameter_meta {
         gex_h5ad: "Preprocessed gene expression h5ad file (filtered, batch-labeled, modality-tagged)."
-        atac_activity_h5ad: "Preprocessed ATAC gene activity h5ad file (converted from cell-by-bin, batch-labeled, modality-tagged)."
+        atac_activity_h5ad: "Optional preprocessed ATAC gene activity h5ad file (converted from cell-by-bin, batch-labeled, modality-tagged). If omitted, the task runs in GEX-only mode and trains/annotates from GEX + reference only."
         ref_h5ad: "Preprocessed reference h5ad file with cell type labels and modality tag."
         input_id: "Unique identifier prepended to all output filenames."
         docker: "Docker image containing the scvi-scanvi runtime environment."
@@ -316,40 +352,59 @@ import anndata as ad
 # (which re-runs all preprocessing) is NEVER called.  The three functions
 # imported here operate entirely on already-preprocessed AnnData objects.
 sys.path.insert(0, "/usr/local")
-from multiome_label_transfer import run_multi_model, transfer_labels, finalize_output
+from multiome_label_transfer import (
+    run_multi_model,
+    run_gex_only_model,
+    transfer_labels,
+    finalize_output,
+)
+
+# ATAC activity is optional. When PreprocessFilter ran in GEX-only mode it does
+# not emit an ATAC activity file, so this path is empty and we train/annotate
+# from GEX + reference alone via run_gex_only_model.
+atac_path = "~{default='' atac_activity_h5ad}".strip()
+atac_present = bool(atac_path)
+print(f"Mode: {'multiome (GEX + ATAC)' if atac_present else 'GEX-only (no ATAC)'}")
 
 # ── 1. Load preprocessed h5ad files ──────────────────────────────────────
 # These files were fully preprocessed by the PreprocessFilter task:
 #   - GEX: filtered to STARsolo cell calls, min-count filtered, batch-
-#     labeled, modality-tagged, subset to shared barcodes
-#   - ATAC activity: gene activity matrix (converted from cell-by-bin by
-#     snapatac2), batch-labeled, modality-tagged, subset to shared barcodes
+#     labeled, modality-tagged (subset to shared barcodes in multiome mode)
+#   - ATAC activity (multiome only): gene activity matrix (converted from
+#     cell-by-bin by snapatac2), batch-labeled, modality-tagged
 #   - Reference: annotated with final_annotation and modality tag
 # NO additional filtering, reindexing, or gene-activity conversion needed.
 print("Loading preprocessed inputs (no re-preprocessing)...")
 gex           = sc.read_h5ad("~{gex_h5ad}")
-atac_activity = sc.read_h5ad("~{atac_activity_h5ad}")
 ref           = sc.read_h5ad("~{ref_h5ad}")
 print(f"  GEX:           {gex.shape}")
-print(f"  ATAC activity: {atac_activity.shape}")
 print(f"  Reference:     {ref.shape}")
+atac_activity = None
+if atac_present:
+    atac_activity = sc.read_h5ad(atac_path)
+    print(f"  ATAC activity: {atac_activity.shape}")
 
 timing_summary = {}
 
 # ── 2. Train SCVI and SCANVI models (GPU-accelerated) ────────────────────
-# run_multi_model() performs the following steps on the preprocessed data:
-#   a. Concatenates GEX, ATAC activity, and reference into a single AnnData
-#      (ad.concat with join='inner', index_unique='_')
-#   b. Filters genes expressed in fewer than 5 cells
-#   c. Selects 5000 highly variable genes (Seurat v3, batch-aware)
-#   d. Trains SCVI (unsupervised VAE): 2 layers, 30 latent dims,
+# run_multi_model()/run_gex_only_model() perform the following on the
+# preprocessed data:
+#   a. Concatenate the query/reference datasets into a single AnnData
+#      (ad.concat with join='inner', index_unique='_'). Multiome concatenates
+#      GEX + ATAC activity + reference; GEX-only concatenates GEX + reference.
+#   b. Filter genes expressed in fewer than 5 cells
+#   c. Select 5000 highly variable genes (Seurat v3, batch-aware)
+#   d. Train SCVI (unsupervised VAE): 2 layers, 30 latent dims,
 #      negative-binomial likelihood, gene-batch dispersion, up to 500 epochs
-#   e. Trains SCANVI (semi-supervised): propagates reference cell-type labels
+#   e. Train SCANVI (semi-supervised): propagate reference cell-type labels
 #      to unlabeled query cells, up to 500 epochs, 100 samples per label
-#   f. Returns: concatenated AnnData (data), SCVI model (vae), SCANVI (lvae)
+#   f. Return: concatenated AnnData (data), SCVI model (vae), SCANVI (lvae)
 print("Training SCVI and SCANVI models...")
 start = time.time()
-data, vae, lvae = run_multi_model(gex, atac_activity, ref)
+if atac_present:
+    data, vae, lvae = run_multi_model(gex, atac_activity, ref)
+else:
+    data, vae, lvae = run_gex_only_model(gex, ref)
 timing_summary['Model Training'] = time.time() - start
 print(f"  Model training complete in {timing_summary['Model Training']:.1f}s")
 
@@ -367,26 +422,29 @@ timing_summary['Label Transfer'] = time.time() - start
 print(f"  Label transfer complete in {timing_summary['Label Transfer']:.1f}s")
 
 # ── 4. Propagate predicted labels back to original matrices ──────────────
-# ad.concat (called inside run_multi_model) appended modality-key suffixes
-# to obs_names (e.g. "barcode_rna_unannotated", "barcode_atac_unannotated").
-# We use those suffixed names to look up each cell's SCANVI prediction
-# (C_scANVI) in the concatenated object and copy it into the original
-# preprocessed GEX and ATAC AnnData objects.
-print("Propagating predicted labels to GEX and ATAC matrices...")
+# ad.concat (called inside the training functions) appended modality-key
+# suffixes to obs_names (e.g. "barcode_rna_unannotated",
+# "barcode_atac_unannotated"). We use those suffixed names to look up each
+# cell's SCANVI prediction (C_scANVI) in the concatenated object and copy it
+# into the original preprocessed GEX (and, in multiome mode, ATAC) objects.
+print("Propagating predicted labels to GEX matrix...")
 gex.obs['final_annotation'] = data.obs.loc[
     gex.obs_names + '_rna_unannotated']['C_scANVI'].to_numpy()
-atac_activity.obs['final_annotation'] = data.obs.loc[
-    atac_activity.obs_names + '_atac_unannotated']['C_scANVI'].to_numpy()
+if atac_present:
+    print("Propagating predicted labels to ATAC matrix...")
+    atac_activity.obs['final_annotation'] = data.obs.loc[
+        atac_activity.obs_names + '_atac_unannotated']['C_scANVI'].to_numpy()
 
-# ── 5. Write annotated GEX and ATAC matrices ────────────────────────────
+# ── 5. Write annotated GEX (and ATAC) matrices ──────────────────────────
 # These outputs mirror what main() in the container script produces,
 # but are built from the already-preprocessed inputs.
 input_id = "~{input_id}"
 print(f"Writing annotated matrices (input_id={input_id})...")
 gex.write(f"{input_id}_gex_annotated_matrix.h5ad")
-atac_activity.write(f"{input_id}_atac_annotated_matrix.h5ad")
 print(f"  {input_id}_gex_annotated_matrix.h5ad:  {gex.shape}")
-print(f"  {input_id}_atac_annotated_matrix.h5ad: {atac_activity.shape}")
+if atac_present:
+    atac_activity.write(f"{input_id}_atac_annotated_matrix.h5ad")
+    print(f"  {input_id}_atac_annotated_matrix.h5ad: {atac_activity.shape}")
 
 # ── 6. Finalize SCANVI predictions ──────────────────────────────────────
 # finalize_output() adds downstream-required metadata and reformats:
@@ -424,7 +482,7 @@ CODE
 
     output {
         File scanvi_predictions_h5ad = "~{input_id}_SCANVI_predictions.h5ad"
-        File atac_annotated_h5ad     = "~{input_id}_atac_annotated_matrix.h5ad"
+        File? atac_annotated_h5ad    = "~{input_id}_atac_annotated_matrix.h5ad"
         File gex_annotated_h5ad      = "~{input_id}_gex_annotated_matrix.h5ad"
     }
 }
