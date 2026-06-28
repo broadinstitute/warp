@@ -24,6 +24,10 @@ workflow scANVI {
       # Unique identifier prepended to all output filenames
       String input_id
 
+      # Optional cap on SCVI/SCANVI training epochs (applies to both multiome and
+      # GEX-only modes). When unset, the container default (500) is used.
+      Int? max_epochs
+
   }
 
   String pipeline_version = "1.1.0"
@@ -52,6 +56,7 @@ workflow scANVI {
         atac_activity_h5ad = PreprocessFilter.preprocessed_atac_activity_h5ad,
         ref_h5ad = PreprocessFilter.preprocessed_ref_h5ad,
         input_id = input_id,
+        max_epochs = max_epochs,
         docker = docker
   }
 
@@ -321,6 +326,7 @@ task MultiomeLabelTransfer {
 
         # Runtime attributes
         String input_id
+        Int? max_epochs
         String docker
         Int disk_size = 500
         Int mem_size = 120
@@ -332,6 +338,7 @@ task MultiomeLabelTransfer {
         atac_activity_h5ad: "Optional preprocessed ATAC gene activity h5ad file (converted from cell-by-bin, batch-labeled, modality-tagged). If omitted, the task runs in GEX-only mode and trains/annotates from GEX + reference only."
         ref_h5ad: "Preprocessed reference h5ad file with cell type labels and modality tag."
         input_id: "Unique identifier prepended to all output filenames."
+        max_epochs: "Optional cap on SCVI/SCANVI training epochs, applied to both multiome and GEX-only modes. When unset, the container default (500) is used."
         docker: "Docker image containing the scvi-scanvi runtime environment."
         disk_size: "Disk size in GB."
         mem_size: "Memory size in GB."
@@ -400,11 +407,18 @@ timing_summary = {}
 #      to unlabeled query cells, up to 500 epochs, 100 samples per label
 #   f. Return: concatenated AnnData (data), SCVI model (vae), SCANVI (lvae)
 print("Training SCVI and SCANVI models...")
+# Optional epoch cap (applies to whichever model runs). Passed as a kwarg only when
+# set, so the default path stays compatible with container images that predate the
+# max_epochs parameter.
+max_epochs_val = "~{default='' max_epochs}".strip()
+train_kwargs = {"max_epochs": int(max_epochs_val)} if max_epochs_val else {}
+if train_kwargs:
+    print(f"  max_epochs override: {train_kwargs['max_epochs']}")
 start = time.time()
 if atac_present:
-    data, vae, lvae = run_multi_model(gex, atac_activity, ref)
+    data, vae, lvae = run_multi_model(gex, atac_activity, ref, **train_kwargs)
 else:
-    data, vae, lvae = run_gex_only_model(gex, ref)
+    data, vae, lvae = run_gex_only_model(gex, ref, **train_kwargs)
 timing_summary['Model Training'] = time.time() - start
 print(f"  Model training complete in {timing_summary['Model Training']:.1f}s")
 

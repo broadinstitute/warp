@@ -6,6 +6,7 @@
 * PreprocessFilter skips ATAC loading, barcode reindexing, shared-barcode subsetting, and gene-activity conversion in GEX-only mode
 * Made preprocessed_atac_activity_h5ad and atac_annotated_h5ad optional outputs (null in GEX-only mode)
 * Added a GEX-only example inputs file (example_inputs/scANVI.gex_only.json)
+* Added an optional max_epochs input that caps SCVI/SCANVI training epochs in both multiome and GEX-only modes (defaults to the container value of 500 when unset)
 
 # 1.0.0
 2026-04-17 (Date of Last Commit)

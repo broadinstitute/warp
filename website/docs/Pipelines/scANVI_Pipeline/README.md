@@ -61,6 +61,7 @@ Example input JSON files are available in the [`example_inputs`](https://github.
 | `gex_filename` | String | Expected GEX h5ad filename in the input bucket. | `"gex.h5ad"` |
 | `atac_filename` | String | Expected ATAC h5ad filename in the input bucket. Optional: if absent from the bucket, the pipeline runs in GEX-only mode. | `"atac.h5ad"` |
 | `ref_filename` | String | Expected reference h5ad filename in the input bucket. | `"ref.h5ad"` |
+| `max_epochs` | Int? | Optional cap on SCVI/SCANVI training epochs, applied in both multiome and GEX-only modes. When unset, the container default (500) is used. | — |
 
 :::note Input mode precedence
 If `gex_h5ad` and `ref_h5ad` are supplied, they are used directly and `input_bucket` is ignored. Otherwise, the filenames are downloaded from `input_bucket` via `gsutil`. The pipeline fails fast if a required (GEX or reference) input is missing or empty.
