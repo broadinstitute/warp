@@ -1,5 +1,12 @@
 name: Test scANVI
 
+# Minimal permissions for the reusable test workflow (Terra/GCP auth needs id-token;
+# it also reads contents and writes to the Actions API).
+permissions:
+  contents: read
+  id-token: write
+  actions: write
+
 # Controls when the workflow will run
 on:
   pull_request:
@@ -18,9 +25,9 @@ on:
       - 'pipelines/wdl/scanvi/**'
       # tasks from the pipeline WDL and their dependencies
       - 'tasks/wdl/Utilities.wdl'
-      # verification WDL and its dependencies
+      # verification WDL (scANVI-specific; CompareScanviH5ad lives here, NOT in the
+      # shared verification/VerifyTasks.wdl, so scANVI changes don't trigger every pipeline)
       - 'verification/VerifyScANVI.wdl'
-      - 'verification/VerifyTasks.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestscANVI.wdl'
       - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
