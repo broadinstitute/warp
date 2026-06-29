@@ -9,9 +9,9 @@ workflow CreateVcfIndex {
   input {
     File vcf_input
 
-    Int disk_size_gb = ceil(1.1 * size(vcf_input, "GiB")) + 10
+    Int disk_size_gb = 1000
     Int cpu = 1
-    Int memory_gb = 1000
+    Int memory_gb = 16
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int preemptible = 3
   }
@@ -35,9 +35,9 @@ task CreateVcfIndexTask {
   input {
     File vcf_input
 
-    Int disk_size_gb = ceil(1.1 * size(vcf_input, "GiB")) + 10
+    Int disk_size_gb = 1000
     Int cpu = 1
-    Int memory_gb = 1000
+    Int memory_gb = 16
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int preemptible = 3
   }
