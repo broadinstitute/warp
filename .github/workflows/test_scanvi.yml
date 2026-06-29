@@ -10,12 +10,10 @@ permissions:
 # Controls when the workflow will run
 on:
   pull_request:
-    # NOTE: scANVI currently ships Scientific tests only (no test_inputs/Plumbing).
-    # warp_test_workflow runs Scientific for PRs to master and Plumbing otherwise,
-    # so the auto-trigger is scoped to master to avoid running against a missing
-    # Plumbing input set. Add test_inputs/Plumbing and restore "develop"/"staging"
-    # here once Plumbing inputs exist. Manual workflow_dispatch can still run either.
-    branches: [ "master" ]
+    # scANVI currently ships Scientific tests only (no test_inputs/Plumbing). We pin
+    # test_type to Scientific below so non-master PRs run Scientific instead of the
+    # (missing) Plumbing set. The paths filter keeps this from firing on unrelated PRs.
+    branches: [ "develop", "staging", "master" ]
     # Only run if files in these paths changed:
     ####################################
     # SET PIPELINE SPECIFIC PATHS HERE #
@@ -70,7 +68,9 @@ jobs:
       pipeline_dir: pipelines/wdl/scanvi
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
-      test_type: ${{ github.event.inputs.testType }}
+      # scANVI has only Scientific inputs; default to Scientific (avoids the reusable
+      # workflow falling back to Plumbing on develop/staging PRs).
+      test_type: ${{ github.event.inputs.testType || 'Scientific' }}
       truth_branch: ${{ github.event.inputs.truthBranch || 'master' }}
     secrets:
       PDT_TESTER_SA_B64: ${{ secrets.PDT_TESTER_SA_B64 }}

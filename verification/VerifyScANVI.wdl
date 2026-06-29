@@ -1,5 +1,7 @@
 version 1.0
 
+import "../tasks/wdl/Utilities.wdl" as Utilities
+
 ## Verification workflow for the scANVI pipeline.
 ##
 ## scANVI trains stochastic SCVI/SCANVI models, so outputs are not bit-reproducible.
@@ -41,7 +43,18 @@ workflow VerifyScANVI {
             label_key  = "final_annotation"
     }
 
-    # Annotated ATAC matrix: only present in multiome mode
+    # ATAC-annotated output is optional (produced only in multiome mode). Fail loudly if
+    # exactly one side defines it — that signals an unexpected presence/absence regression
+    # (e.g. truth has ATAC but a code change made the run GEX-only) that would otherwise be
+    # silently skipped.
+    if (defined(test_atac_annotated_h5ad) != defined(truth_atac_annotated_h5ad)) {
+        call Utilities.ErrorWithMessage as AtacPresenceMismatch {
+            input:
+                message = "scANVI ATAC-annotated output is present on only one of {test, truth}; expected both (multiome) or neither (GEX-only)."
+        }
+    }
+
+    # Compare ATAC when both sides have it (multiome).
     if (defined(test_atac_annotated_h5ad) && defined(truth_atac_annotated_h5ad)) {
         call CompareScanviH5ad as CompareAtacAnnotated {
             input:
@@ -122,7 +135,13 @@ task CompareScanviH5ad {
     if len(all_labels) < 2:
         corr = 1.0  # degenerate single-label case
     else:
-        corr = float(np.corrcoef(tp, sp)[0, 1])
+        with np.errstate(invalid="ignore"):
+            corr = float(np.corrcoef(tp, sp)[0, 1])
+        # corrcoef is NaN when a proportion vector has zero variance (e.g. uniform
+        # distribution): treat identical distributions as a perfect match, otherwise
+        # as no correlation so the threshold check can fail rather than pass on NaN.
+        if np.isnan(corr):
+            corr = 1.0 if np.allclose(tp, sp) else 0.0
     print("Per-cell-type proportions (truth vs test):")
     for lab, t, s in zip(all_labels, tp, sp):
         print(f"  {lab:40s} truth={t:.4f}  test={s:.4f}")

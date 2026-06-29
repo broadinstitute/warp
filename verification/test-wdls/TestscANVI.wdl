@@ -44,7 +44,7 @@ workflow TestscANVI {
     # Collect all of the pipeline outputs into a single Array[String].
     # atac_annotated_h5ad is optional (only produced in multiome mode), so it is
     # included via select_all and contributes nothing in GEX-only mode.
-    Array[File] pipeline_outputs = flatten([
+    Array[String] pipeline_outputs = flatten([
                                     [ # always produced
                                     scANVI.scanvi_predictions_h5ad,
                                     scANVI.gex_annotated_h5ad,
