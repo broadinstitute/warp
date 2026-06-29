@@ -30,3 +30,6 @@ gha-creds-*.json
 .cache/
 scanvi_gpu_test/
 *.h5ad
+
+# Personal devcontainer (references local NAS mount + GPU; not shared)
+.devcontainer/devcontainer.json

@@ -28,9 +28,20 @@ workflow scANVI {
       # GEX-only modes). When unset, the container default (500) is used.
       Int? max_epochs
 
+      # Reference adaptation. When the reference is an AIT-schema atlas, these select
+      # which obs columns become the cell-type label and the batch. When unset, AIT
+      # references default to subclass/donor_id and PBMC-style references to
+      # final_annotation/batch (i.e. existing behavior is unchanged).
+      String? ref_label_column
+      String? ref_batch_column
+
+      # Genome for the ATAC cell-by-bin -> gene-activity conversion (multiome mode only):
+      # "hg38" (default, human), "mm10", or "mm39" (mouse).
+      String genome = "hg38"
+
   }
 
-  String pipeline_version = "1.1.0"
+  String pipeline_version = "1.2.0"
 
   # Docker image (same container for both tasks; only Task 2 gets GPUs attached)
   # Exposes run_gex_only_model for GEX-only mode (warp-tools/3rd-party-tools/scvi-scanvi).
@@ -46,6 +57,9 @@ workflow scANVI {
         atac_filename = atac_filename,
         ref_filename = ref_filename,
         input_id = input_id,
+        ref_label_column = ref_label_column,
+        ref_batch_column = ref_batch_column,
+        genome = genome,
         docker = docker
   }
 
@@ -96,6 +110,11 @@ task PreprocessFilter {
         String atac_filename = "atac.h5ad"
         String ref_filename = "ref.h5ad"
 
+        # Reference adaptation (AIT-schema support)
+        String? ref_label_column
+        String? ref_batch_column
+        String genome = "hg38"
+
         # Runtime attributes hardcoded in each task
         String input_id
         String docker
@@ -108,10 +127,13 @@ task PreprocessFilter {
         input_bucket: "GCS bucket path containing input h5ad files (e.g., gs://bucket/path/to/inputs)."
         gex_h5ad: "Gene expression AnnData h5ad file from Multiome/Optimus pipeline output."
         atac_h5ad: "Optional ATAC cell-by-bin AnnData h5ad file from Multiome/PeakCalling pipeline output. If omitted, the pipeline runs in GEX-only mode (training/annotation from the reference using GEX alone)."
-        ref_h5ad: "Annotated reference AnnData h5ad file with cell type labels in obs['final_annotation']."
+        ref_h5ad: "Annotated reference AnnData h5ad file. PBMC-style references carry cell type labels in obs['final_annotation'] and a batch in obs['batch']; AIT-schema references (uns['schema_version']+uns['hierarchy']) are auto-detected and adapted (see ref_label_column/ref_batch_column)."
         gex_filename: "Expected GEX h5ad filename in the input bucket."
         atac_filename: "Expected ATAC h5ad filename in the input bucket. Optional in bucket mode: if absent from the bucket, the pipeline runs in GEX-only mode."
         ref_filename: "Expected reference h5ad filename in the input bucket."
+        ref_label_column: "Reference obs column to use as the cell-type label. When unset, defaults to 'subclass' for AIT references and 'final_annotation' otherwise."
+        ref_batch_column: "Reference obs column to use as the batch. When unset, defaults to 'donor_id' for AIT references and 'batch' otherwise."
+        genome: "Genome for ATAC gene-activity conversion in multiome mode: 'hg38' (default), 'mm10', or 'mm39'."
         input_id: "Unique identifier prepended to all output filenames."
         docker: "Docker image containing the scvi-scanvi runtime environment."
         disk_size: "Disk size in GB."
@@ -193,6 +215,62 @@ gex_path  = os.environ["GEX_FILE"]
 atac_path = os.environ.get("ATAC_FILE", "").strip()
 ref_path  = os.environ["REF_FILE"]
 
+# Reference-adaptation + ATAC-genome controls (from WDL inputs; empty = use defaults).
+ref_label_column = "~{default='' ref_label_column}".strip()
+ref_batch_column = "~{default='' ref_batch_column}".strip()
+genome = "~{genome}".strip() or "hg38"
+
+
+def normalize_reference(ref, label_col_override, batch_col_override):
+    """Adapt the annotated reference into the form the trainer expects: counts in
+    .X, cell-type labels in obs['final_annotation'], and a batch in obs['batch'].
+
+    Supports AIT-schema atlases (Allen Institute Taxonomy: no .X — counts live in
+    .raw; labels in a class/subclass/cluster_id hierarchy; batch in donor_id) and
+    PBMC-style references (already have .X + final_annotation + batch). For the
+    latter with no overrides this is a validate-only no-op, so existing behavior
+    (and truth) is unchanged.
+    """
+    is_ait = ("schema_version" in ref.uns) and ("hierarchy" in ref.uns)
+    if is_ait:
+        print(f"  AIT reference detected (schema_version={ref.uns.get('schema_version')}, "
+              f"hierarchy levels={list(ref.uns['hierarchy'])}).")
+
+    # AIT files store counts in .raw and have no .X; .raw.var loses the gene symbols,
+    # so take the matrix from .raw but keep the (aligned) gene-symbol .var.
+    if ref.X is None:
+        if ref.raw is None:
+            raise SystemExit("ERROR: reference has neither .X nor .raw; cannot obtain counts.")
+        if ref.raw.n_vars != ref.n_vars:
+            raise SystemExit(
+                f"ERROR: reference .raw n_vars ({ref.raw.n_vars}) != .var n_vars ({ref.n_vars}); "
+                "cannot align raw counts to gene symbols.")
+        print("  Reference has no .X; materializing counts from .raw (with .var gene symbols).")
+        counts = ref.raw.X
+        if hasattr(counts, "tocsr"):
+            counts = counts.tocsr()
+        ref = ad.AnnData(X=counts, obs=ref.obs.copy(), var=ref.var.copy(), uns=dict(ref.uns))
+
+    # Resolve label/batch columns: explicit override > AIT default > PBMC default.
+    label_col = label_col_override or ("subclass" if is_ait else "final_annotation")
+    batch_col = batch_col_override or ("donor_id" if is_ait else "batch")
+    for col, role in [(label_col, "label"), (batch_col, "batch")]:
+        if col not in ref.obs.columns:
+            raise SystemExit(
+                f"ERROR: reference {role} column '{col}' not found in obs "
+                f"(available: {sorted(ref.obs.columns)}).")
+
+    # Map into the trainer's expected columns. Skip when already correctly named so a
+    # PBMC reference is left byte-for-byte unchanged.
+    if label_col != "final_annotation":
+        ref.obs["final_annotation"] = ref.obs[label_col].astype(str)
+    if batch_col != "batch":
+        ref.obs["batch"] = ref.obs[batch_col].astype(str)
+    print(f"  Reference ready: label='{label_col}' -> final_annotation, "
+          f"batch='{batch_col}' -> batch, shape {ref.shape}")
+    return ref
+
+
 # ATAC is optional. When no ATAC file was resolved we run in GEX-only mode:
 # train/annotate from the reference using GEX alone, never touching ATAC.
 atac_present = bool(atac_path)
@@ -206,6 +284,8 @@ print(f"  GEX loaded: {gex.shape}")
 print("Loading reference...")
 ref = sc.read_h5ad(ref_path)
 print(f"  Reference loaded: {ref.shape}")
+# Adapt AIT-schema (or other) references into the trainer's expected form.
+ref = normalize_reference(ref, ref_label_column, ref_batch_column)
 
 # ── 2. Patch missing GEX columns ─────────────────────────────────────────
 if "star_IsCell" not in gex.obs.columns:
@@ -259,9 +339,17 @@ if atac_present:
     # Add placeholder annotations for query datasets
     gex_shared.obs["final_annotation"] = "Unknown"
 
-    # Convert ATAC cell-by-bin → gene activity matrix
-    print("Converting ATAC cell-by-bin to gene activity matrix (hg38)...")
-    atac_activity = snap.pp.make_gene_matrix(atac_shared, gene_anno=snap.genome.hg38)
+    # Convert ATAC cell-by-bin → gene activity matrix (genome-specific)
+    print(f"Converting ATAC cell-by-bin to gene activity matrix ({genome})...")
+    _genomes = {
+        "hg38": getattr(snap.genome, "hg38", None),
+        "mm10": getattr(snap.genome, "mm10", None),
+        "mm39": getattr(snap.genome, "mm39", None) or getattr(snap.genome, "GRCm39", None),
+    }
+    gene_anno = _genomes.get(genome)
+    if gene_anno is None:
+        raise SystemExit(f"ERROR: unsupported/unavailable genome '{genome}' (expected hg38|mm10|mm39)")
+    atac_activity = snap.pp.make_gene_matrix(atac_shared, gene_anno=gene_anno)
     print(f"  Gene activity matrix: {atac_activity.shape}")
     atac_activity.obs["final_annotation"] = "Unknown"
 

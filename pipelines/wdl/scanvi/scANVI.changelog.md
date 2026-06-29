@@ -1,3 +1,10 @@
+# 1.2.0
+2026-06-28 (Date of Last Commit)
+
+* Added support for AIT (Allen Institute Taxonomy) schema reference atlases. AIT references are auto-detected (uns['schema_version'] + uns['hierarchy']) and adapted in PreprocessFilter: counts are materialized from .raw (AIT files have no .X) using the gene symbols from .var, the cell-type label is taken from a chosen taxonomy level, and the batch from a chosen obs column.
+* Added optional ref_label_column and ref_batch_column inputs to select the reference label/batch columns. Defaults: AIT references use subclass/donor_id; PBMC-style references use final_annotation/batch (existing behavior unchanged).
+* Added a genome input (hg38 default, mm10, mm39) for the ATAC cell-by-bin -> gene-activity conversion, enabling mouse multiome references; default hg38 keeps existing human runs unchanged.
+
 # 1.1.0
 2026-06-27 (Date of Last Commit)
 

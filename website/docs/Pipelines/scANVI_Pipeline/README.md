@@ -7,7 +7,7 @@ slug: /Pipelines/scANVI_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [scANVI_v1.1.0](https://github.com/broadinstitute/warp/releases?q=scANVI&expanded=true) | June, 2026 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
+| [scANVI_v1.2.0](https://github.com/broadinstitute/warp/releases?q=scANVI&expanded=true) | June, 2026 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
 
 ## Introduction to the scANVI workflow
 
@@ -62,6 +62,9 @@ Example input JSON files are available in the [`example_inputs`](https://github.
 | `atac_filename` | String | Expected ATAC h5ad filename in the input bucket. Optional: if absent from the bucket, the pipeline runs in GEX-only mode. | `"atac.h5ad"` |
 | `ref_filename` | String | Expected reference h5ad filename in the input bucket. | `"ref.h5ad"` |
 | `max_epochs` | Int? | Optional cap on SCVI/SCANVI training epochs, applied in both multiome and GEX-only modes. When unset, the container default (500) is used. | — |
+| `ref_label_column` | String? | Reference `obs` column to use as the cell-type label. When unset, defaults to `subclass` for AIT references and `final_annotation` otherwise. | — |
+| `ref_batch_column` | String? | Reference `obs` column to use as the batch. When unset, defaults to `donor_id` for AIT references and `batch` otherwise. | — |
+| `genome` | String | Genome for the ATAC cell-by-bin → gene-activity conversion (multiome only): `hg38` (default), `mm10`, or `mm39`. | `"hg38"` |
 
 :::note Input mode precedence
 If `gex_h5ad` and `ref_h5ad` are supplied, they are used directly and `input_bucket` is ignored. Otherwise, the filenames are downloaded from `input_bucket` via `gsutil`. The pipeline fails fast if a required (GEX or reference) input is missing or empty.
@@ -73,7 +76,12 @@ The ATAC input is optional. In direct-file mode, omit `atac_h5ad`; in bucket mod
 
 #### Reference requirements
 
-The reference h5ad must contain cell type annotations in `obs['final_annotation']`. The query datasets (GEX, and ATAC when present) do not need pre-existing annotations — placeholder `Unknown` labels are added automatically before training.
+The reference h5ad must provide cell-type labels and a batch. Two reference forms are supported:
+
+- **PBMC-style** (default): counts in `.X`, labels in `obs['final_annotation']`, batch in `obs['batch']`.
+- **AIT-schema** (Allen Institute Taxonomy): auto-detected via `uns['schema_version']` + `uns['hierarchy']`. These typically have **no `.X`** (counts are materialized from `.raw`, keeping the gene symbols from `.var`), a cell-type **hierarchy** (e.g. `class`/`subclass`/`cluster_id`), and a batch column such as `donor_id`. By default the label is taken from `subclass` and the batch from `donor_id`; override with `ref_label_column` / `ref_batch_column`. For a mouse AIT reference used in multiome mode, set `genome` to `mm10`/`mm39` so the ATAC gene-activity conversion uses the correct genome.
+
+The query datasets (GEX, and ATAC when present) do not need pre-existing annotations — placeholder `Unknown` labels are added automatically before training.
 
 ## scANVI tasks and tools
 
