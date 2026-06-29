@@ -1,0 +1,29 @@
+{
+  "Optimus.r1_fastq": [
+    "gs://pd-test-storage-public/Optimus/input/scientific/3p_gemx_cnik/3p_gemx_cnik_fastqs/10k_Mouse_Brain_CNIK_3p_gemx_gex_S4_L001_R1_001.fastq.gz",
+    "gs://pd-test-storage-public/Optimus/input/scientific/3p_gemx_cnik/3p_gemx_cnik_fastqs/10k_Mouse_Brain_CNIK_3p_gemx_gex_S4_L002_R1_001.fastq.gz",
+    "gs://pd-test-storage-public/Optimus/input/scientific/3p_gemx_cnik/3p_gemx_cnik_fastqs/10k_Mouse_Brain_CNIK_3p_gemx_gex_S4_L003_R1_001.fastq.gz",
+    "gs://pd-test-storage-public/Optimus/input/scientific/3p_gemx_cnik/3p_gemx_cnik_fastqs/10k_Mouse_Brain_CNIK_3p_gemx_gex_S4_L004_R1_001.fastq.gz"
+  ],
+  "Optimus.r2_fastq": [
+    "gs://pd-test-storage-public/Optimus/input/scientific/3p_gemx_cnik/3p_gemx_cnik_fastqs/10k_Mouse_Brain_CNIK_3p_gemx_gex_S4_L001_R2_001.fastq.gz",
+    "gs://pd-test-storage-public/Optimus/input/scientific/3p_gemx_cnik/3p_gemx_cnik_fastqs/10k_Mouse_Brain_CNIK_3p_gemx_gex_S4_L002_R2_001.fastq.gz",
+    "gs://pd-test-storage-public/Optimus/input/scientific/3p_gemx_cnik/3p_gemx_cnik_fastqs/10k_Mouse_Brain_CNIK_3p_gemx_gex_S4_L003_R2_001.fastq.gz",
+    "gs://pd-test-storage-public/Optimus/input/scientific/3p_gemx_cnik/3p_gemx_cnik_fastqs/10k_Mouse_Brain_CNIK_3p_gemx_gex_S4_L004_R2_001.fastq.gz"
+  ],
+  "Optimus.i1_fastq": [
+    "gs://pd-test-storage-public/Optimus/input/scientific/3p_gemx_cnik/3p_gemx_cnik_fastqs/10k_Mouse_Brain_CNIK_3p_gemx_gex_S4_L001_I1_001.fastq.gz",
+    "gs://pd-test-storage-public/Optimus/input/scientific/3p_gemx_cnik/3p_gemx_cnik_fastqs/10k_Mouse_Brain_CNIK_3p_gemx_gex_S4_L002_I1_001.fastq.gz",
+    "gs://pd-test-storage-public/Optimus/input/scientific/3p_gemx_cnik/3p_gemx_cnik_fastqs/10k_Mouse_Brain_CNIK_3p_gemx_gex_S4_L003_I1_001.fastq.gz",
+    "gs://pd-test-storage-public/Optimus/input/scientific/3p_gemx_cnik/3p_gemx_cnik_fastqs/10k_Mouse_Brain_CNIK_3p_gemx_gex_S4_L004_I1_001.fastq.gz"
+  ],
+  "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_star2.7.10a-Mouse-GENCODE-build-GRCm39-M32.tar",
+  "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_vM32.annotation.gtf",
+  "Optimus.input_id": "10k_mouse_brain_cnik_v4",
+  "Optimus.tenx_chemistry_version": "4",
+  "Optimus.tenx_chemistry_subversion": "v4",
+  "Optimus.counting_mode": "sn_rna",
+  "Optimus.star_strand_mode": "Forward",
+  "Optimus.gex_nhash_id": "example_1234",
+  "Optimus.cloud_provider": "gcp"
+}
