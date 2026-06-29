@@ -1,0 +1,5 @@
+{
+  "scANVI.input_id": "Mouse_Hippocampus_AIT",
+  "scANVI.gex_h5ad": "gs://pd-test-storage-public/scANVI/input/scientific/Mouse_Hippocampus_AIT/Mouse_Hippocampus_gex.h5ad",
+  "scANVI.ref_h5ad": "gs://pd-test-storage-public/scANVI/input/scientific/Mouse_Hippocampus_AIT/Mouse_cortex_hippocampus_10X_seq_04042025.h5ad"
+}
