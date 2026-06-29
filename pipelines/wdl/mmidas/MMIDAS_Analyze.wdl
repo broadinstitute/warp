@@ -38,7 +38,7 @@ workflow MMIDAS_Analyze {
     Int    seed         = 0
 
     # ── Runtime ──────────────────────────────────────────────────────────────
-    String docker           = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1782753423"
+    String docker           = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1782763680"
     Int    analyze_disk_size = 200
     Int    analyze_mem_size  = 64
     Int    analyze_cpu       = 8
