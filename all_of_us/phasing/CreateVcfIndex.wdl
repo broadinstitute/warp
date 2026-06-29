@@ -11,7 +11,7 @@ workflow CreateVcfIndex {
 
     Int disk_size_gb = ceil(1.1 * size(vcf_input, "GiB")) + 10
     Int cpu = 1
-    Int memory_mb = 6000
+    Int memory_gb = 1000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int preemptible = 3
   }
@@ -21,7 +21,7 @@ workflow CreateVcfIndex {
       vcf_input = vcf_input,
       disk_size_gb = disk_size_gb,
       cpu = cpu,
-      memory_mb = memory_mb,
+      memory_gb = memory_gb,
       gatk_docker = gatk_docker,
       preemptible = preemptible
   }
