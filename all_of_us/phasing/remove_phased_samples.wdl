@@ -76,7 +76,7 @@ workflow RunRemovePhasedSamples {
   }
 
   output {
-    Array[String] filtered_vcf_urls = IndexVcf.output_vcf
+    Array[String] filtered_vcf_urls = RemovePhasedSamplesOnDataproc.filtered_vcf_url
     Array[String] filtered_vcf_index_urls = IndexVcf.output_vcf_index
     Array[String?] filtered_mt_urls = RemovePhasedSamplesOnDataproc.filtered_mt_url
   }
@@ -131,7 +131,6 @@ task RemovePhasedSamplesOnDataproc {
   String mt_output_stem = sub(mt_basename, "\\.mt$", "")
 
   String output_filtered_vcf_url = output_bucket + mt_output_stem + ".filtered.vcf.bgz"
-  String output_filtered_vcf_index_url = output_bucket + mt_output_stem + ".filtered.vcf.bgz.tbi"
   String output_filtered_mt_url = output_bucket + mt_output_stem + ".filtered.mt"
 
   command <<<
@@ -226,7 +225,6 @@ task RemovePhasedSamplesOnDataproc {
 
   output {
     String filtered_vcf_url = output_filtered_vcf_url
-    String filtered_vcf_index_url = output_filtered_vcf_index_url
     String? filtered_mt_url = output_filtered_mt_url
   }
 

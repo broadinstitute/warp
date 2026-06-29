@@ -27,7 +27,6 @@ workflow CreateVcfIndex {
   }
 
   output {
-    File output_vcf = CreateVcfIndexTask.output_vcf
     File output_vcf_index = CreateVcfIndexTask.output_vcf_index
   }
 }
@@ -64,7 +63,6 @@ task CreateVcfIndexTask {
   }
 
   output {
-    File output_vcf = vcf_basename
     File output_vcf_index = vcf_basename + ".tbi"
   }
 }
