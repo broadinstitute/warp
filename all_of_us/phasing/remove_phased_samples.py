@@ -380,8 +380,7 @@ def main():
     hl.export_vcf(
         mt_filtered,
         args.out_vcf,
-        metadata=metadata,
-        tabix=True,
+        metadata=metadata
     )
 
 

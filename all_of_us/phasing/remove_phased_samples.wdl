@@ -1,5 +1,7 @@
 version 1.0
 
+import "CreateVcfIndex.wdl"
+
 struct RuntimeAttr {
   Float? mem_gb
   Int? cpu_cores
@@ -66,11 +68,16 @@ workflow RunRemovePhasedSamples {
         spark_task_max_failures = spark_task_max_failures,
         hail_docker = hail_docker
     }
+
+    call CreateVcfIndex.CreateVcfIndex as IndexVcf {
+      input:
+        vcf_input = RemovePhasedSamplesOnDataproc.filtered_vcf_url
+    }
   }
 
   output {
-    Array[String] filtered_vcf_urls = RemovePhasedSamplesOnDataproc.filtered_vcf_url
-    Array[String] filtered_vcf_index_urls = RemovePhasedSamplesOnDataproc.filtered_vcf_index_url
+    Array[String] filtered_vcf_urls = IndexVcf.output_vcf
+    Array[String] filtered_vcf_index_urls = IndexVcf.output_vcf_index
     Array[String?] filtered_mt_urls = RemovePhasedSamplesOnDataproc.filtered_mt_url
   }
 }
