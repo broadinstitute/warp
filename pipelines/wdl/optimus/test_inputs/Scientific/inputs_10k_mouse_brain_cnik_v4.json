@@ -20,7 +20,7 @@
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_star2.7.10a-Mouse-GENCODE-build-GRCm39-M32.tar",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_vM32.annotation.gtf",
   "Optimus.input_id": "10k_mouse_brain_cnik_v4",
-  "Optimus.tenx_chemistry_version": "4",
+  "Optimus.tenx_chemistry_version": 4,
   "Optimus.tenx_chemistry_subversion": "v4",
   "Optimus.counting_mode": "sn_rna",
   "Optimus.star_strand_mode": "Forward",
