@@ -52,7 +52,7 @@ workflow MMIDAS_Train {
     Float   k_select_thr           = 0.95
 
     # ── Runtime ──────────────────────────────────────────────────────────────
-    String  docker                 = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1782763680"
+    String  docker                 = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1782844522"
     Int     train_disk_size        = 200
     Int     train_mem_size         = 64
     Int     train_cpu              = 8
