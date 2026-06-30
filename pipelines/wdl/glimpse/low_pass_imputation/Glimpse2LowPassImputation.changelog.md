@@ -1,3 +1,10 @@
+# 1.0.0
+2026-06-30 (Date of Last Commit)
+
+* update glimpse docker image to encompass vcf streaming fixes
+* update batch subworkflow
+* update version for prod release
+
 # 0.0.21
 2026-06-22 (Date of Last Commit)
 
