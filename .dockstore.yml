@@ -159,7 +159,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/mmidas/MMIDAS_DataPrep.wdl
 
-  - name: MMMIDAS_Train
+  - name: MMIDAS_Train
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/mmidas/MMIDAS_Train.wdl
 
