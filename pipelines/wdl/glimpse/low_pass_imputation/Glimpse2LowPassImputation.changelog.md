@@ -3,7 +3,7 @@
 
 * update glimpse docker image to encompass vcf streaming fixes
 * update batch subworkflow
-* update version for prod release
+* update version for teaspoons prod release
 
 # 0.0.21
 2026-06-22 (Date of Last Commit)

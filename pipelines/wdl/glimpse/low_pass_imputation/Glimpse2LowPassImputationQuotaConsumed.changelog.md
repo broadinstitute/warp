@@ -1,7 +1,7 @@
 # 1.0.0
 2026-06-30 (Date of Last Commit)
 
-* update version for prod release
+* update version for teaspoons prod release
 
 # 0.0.6
 2026-06-13 (Date of Last Commit)

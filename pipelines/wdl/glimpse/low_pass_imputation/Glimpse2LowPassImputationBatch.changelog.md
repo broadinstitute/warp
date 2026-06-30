@@ -1,7 +1,7 @@
 # 1.0.0
 2026-06-30 (Date of Last Commit)
 
-* update version for prod release
+* update version for teaspoons prod release
 * update glimpse docker image to encompass vcf streaming fixes
 
 # 0.0.11
