@@ -261,6 +261,10 @@ When adding support for a new 10x chemistry in Optimus:
 - Optimus whitelist files live at `gs://gcp-public-data--broad-references/optimus_whitelists/`. Do **not** use the old `RNA/resources/` path (which contained a `febrary` typo and is incorrect).
 - Validate that inputs required by a given chemistry (e.g. `i1_fastq` for v4) are enforced via `ErrorWithMessage` when the chemistry version demands them.
 
+### Jupyter notebooks
+
+Never hand-write `.ipynb` JSON. Build notebooks programmatically with `nbformat` (markdown + code cells as plain strings), then **execute** them with `jupyter nbconvert --to notebook --execute --inplace …` so the delivered notebook has its figures and tables rendered inline. If the (often containerized) environment lacks `nbconvert`/`ipykernel`, install them there first — a scientific report container with `scanpy`/`matplotlib` usually has network for `pip`. **Deliver an *executed* notebook or stop and ask** — never ship an unexecuted notebook or one assembled by hand.
+
 ### When you discover a recurring agent mistake
 
 Record it here, under *Agent-Specific Notes* — this file is the only home for agent guidance. Keep entries short and link out to the canonical reference rather than duplicating it. **Before adding a new note, check whether the information is already covered above or in a linked doc** — prefer a one-line reference over a duplicate section.
