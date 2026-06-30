@@ -96,6 +96,8 @@ When adding a new test input for a regression case, also wire it into the releva
 
 **Stale inputs break silently** — they are not validated by womtool. When renaming a workflow or removing/renaming inputs, audit `example_inputs/*.json` and `test_inputs/**/*.json`.
 
+**New pipeline inputs must be threaded through the test wrapper.** CI remaps a pipeline test JSON (`<Pipeline>.foo`) onto `Test<Pipeline>.wdl` (`Test<Pipeline>.foo`). So when you add an input to a pipeline AND a test JSON sets it, you MUST also (1) declare it in `verification/test-wdls/Test<Pipeline>.wdl` and (2) forward it to the `call <Pipeline>` block — otherwise the remapped input is an undeclared workflow input and the CI run crashes. **Womtool does NOT catch this**: the wrapper validates fine without forwarding an optional input, so it stays silent until a test actually exercises the input (this is exactly what bit the Optimus v4 `tenx_chemistry_subversion` test — added to `Optimus.wdl` but not `TestOptimus.wdl`). Thread it through *every* affected wrapper (e.g. `Optimus` → `TestOptimus`, and the wrapping pipelines' test WDLs like `TestMultiome`/`TestPairedTag` if the input propagates up).
+
 ## Changelog and Versioning
 
 Every pipeline carries a `String pipeline_version = "major.minor.patch"` and a cumulative `<PipelineName>.changelog.md`. For entry **format and language** follow the [changelog style guide](website/docs/contribution/contribute_to_warp/changelog_style.md); for what makes a change **major / minor / patch** follow [VersionAndReleasePipelines.md](website/docs/About_WARP/VersionAndReleasePipelines.md). The agent-operational rules below are not in those docs:
