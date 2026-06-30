@@ -1,3 +1,10 @@
+# 1.4.0
+2026-06-30 (Date of Last Commit)
+
+* Added an optional scanvi_model input: a saved SCANVI model (.tar.gz of a model dir, no bundled adata). When provided, the label-transfer task loads it and predicts instead of training SCVI/SCANVI — valid when the model matches the incoming data/reference. Auto-detected (no flag).
+* Every run now also outputs its trained/loaded SCANVI model as scanvi_model_out (saved without adata, ~tens of MB), in the same .tar.gz format as the scanvi_model input, so an output can be fed straight back as a later run's input.
+* Exposed gpu_count (default 2) plus mem_size/nthreads/disk_size as inputs so a supplied-model prediction run can be right-sized to a small CPU box (gpu_count=0); default training/inference resources are unchanged.
+
 # 1.3.0
 2026-06-30 (Date of Last Commit)
 

@@ -26,6 +26,14 @@ workflow TestscANVI {
       String genome = "hg38"
       Boolean output_max_probability = false
 
+      # Optional pre-trained SCANVI model (skip training) + compute overrides, forwarded to scANVI.
+      # The pretrained Plumbing test sets scanvi_model + gpu_count=0 + small mem/cpu/disk.
+      File? scanvi_model
+      Int gpu_count = 2
+      Int mem_size = 120
+      Int nthreads = 32
+      Int disk_size = 500
+
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
       String results_path
@@ -49,16 +57,24 @@ workflow TestscANVI {
         ref_label_column = ref_label_column,
         ref_batch_column = ref_batch_column,
         genome           = genome,
-        output_max_probability = output_max_probability
+        output_max_probability = output_max_probability,
+        scanvi_model     = scanvi_model,
+        gpu_count        = gpu_count,
+        mem_size         = mem_size,
+        nthreads         = nthreads,
+        disk_size        = disk_size
     }
 
     # Collect all of the pipeline outputs into a single Array[String].
     # atac_annotated_h5ad is optional (only produced in multiome mode), so it is
     # included via select_all and contributes nothing in GEX-only mode.
+    # scanvi_model_out is archived to results/truth (not verified — model weights are
+    # non-deterministic across training runs).
     Array[String] pipeline_outputs = flatten([
                                     [ # always produced
                                     scANVI.scanvi_predictions_h5ad,
                                     scANVI.gex_annotated_h5ad,
+                                    scANVI.scanvi_model_out,
                                     ],
                                     select_all([scANVI.atac_annotated_h5ad]),
     ])
