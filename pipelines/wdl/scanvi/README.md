@@ -30,6 +30,10 @@ The ATAC input (`scANVI.atac_h5ad`, or `atac.h5ad` in the bucket) is **optional*
 
 The reference h5ad must provide cell-type labels and a batch. **PBMC-style** references have counts in `.X`, labels in `obs['final_annotation']`, and a batch in `obs['batch']`. **AIT-schema** (Allen Institute Taxonomy) references are auto-detected and adapted: counts are pulled from `.raw`, and the label/batch default to `subclass`/`donor_id` (override with `scANVI.ref_label_column` / `scANVI.ref_batch_column`). For a mouse AIT reference in multiome mode, set `scANVI.genome` to `mm10`/`mm39` (default `hg38`).
 
+### Optional: per-cell label confidence
+
+Set `scANVI.output_max_probability` to `true` to add a `max_probability` obs column to every output h5ad — the per-cell maximum SCANVI posterior probability, i.e. the confidence of the assigned label. Default `false` leaves outputs unchanged. Useful for thresholding or flagging low-confidence calls downstream.
+
 ## Versioning
 
 See [scANVI.changelog.md](scANVI.changelog.md) for the full release history.

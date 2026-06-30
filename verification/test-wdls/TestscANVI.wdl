@@ -19,6 +19,13 @@ workflow TestscANVI {
       String ref_filename = "ref.h5ad"
       String input_id
 
+      # Optional reference-column / genome overrides, forwarded to scANVI. Unset => the
+      # pipeline's own defaults (AIT subclass/donor_id; genome hg38), so existing tests are unchanged.
+      String? ref_label_column
+      String? ref_batch_column
+      String genome = "hg38"
+      Boolean output_max_probability = false
+
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
       String results_path
@@ -37,8 +44,12 @@ workflow TestscANVI {
         ref_h5ad      = ref_h5ad,
         gex_filename  = gex_filename,
         atac_filename = atac_filename,
-        ref_filename  = ref_filename,
-        input_id      = input_id
+        ref_filename     = ref_filename,
+        input_id         = input_id,
+        ref_label_column = ref_label_column,
+        ref_batch_column = ref_batch_column,
+        genome           = genome,
+        output_max_probability = output_max_probability
     }
 
     # Collect all of the pipeline outputs into a single Array[String].

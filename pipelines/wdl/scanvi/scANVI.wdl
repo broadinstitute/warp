@@ -39,9 +39,14 @@ workflow scANVI {
       # "hg38" (default, human), "mm10", or "mm39" (mouse).
       String genome = "hg38"
 
+      # Optional: also emit the per-cell maximum SCANVI posterior probability (the
+      # confidence of the assigned label) as a `max_probability` obs column in every
+      # output h5ad. Default false preserves existing outputs.
+      Boolean output_max_probability = false
+
   }
 
-  String pipeline_version = "1.2.0"
+  String pipeline_version = "1.3.0"
 
   # Docker image (same container for both tasks; only Task 2 gets GPUs attached)
   # Exposes run_gex_only_model for GEX-only mode (warp-tools/3rd-party-tools/scvi-scanvi).
@@ -71,6 +76,7 @@ workflow scANVI {
         ref_h5ad = PreprocessFilter.preprocessed_ref_h5ad,
         input_id = input_id,
         max_epochs = max_epochs,
+        output_max_probability = output_max_probability,
         docker = docker
   }
 
@@ -415,6 +421,7 @@ task MultiomeLabelTransfer {
         # Runtime attributes
         String input_id
         Int? max_epochs
+        Boolean output_max_probability = false
         String docker
         Int disk_size = 500
         Int mem_size = 120
@@ -427,6 +434,7 @@ task MultiomeLabelTransfer {
         ref_h5ad: "Preprocessed reference h5ad file with cell type labels and modality tag."
         input_id: "Unique identifier prepended to all output filenames."
         max_epochs: "Optional cap on SCVI/SCANVI training epochs, applied to both multiome and GEX-only modes. When unset, the container default (500) is used."
+        output_max_probability: "When true, also write a `max_probability` obs column (the per-cell maximum SCANVI posterior probability, i.e. the assigned label's confidence) to every output h5ad."
         docker: "Docker image containing the scvi-scanvi runtime environment."
         disk_size: "Disk size in GB."
         mem_size: "Memory size in GB."
@@ -523,6 +531,17 @@ plot, data = transfer_labels(data, lvae)
 timing_summary['Label Transfer'] = time.time() - start
 print(f"  Label transfer complete in {timing_summary['Label Transfer']:.1f}s")
 
+# ── 3b. Optional per-cell label confidence (max posterior probability) ───
+# When enabled, record the maximum SCANVI posterior probability per cell — the
+# confidence of the assigned C_scANVI label — via lvae.predict(soft=True) row max.
+# Stored as obs['max_probability'] on the concatenated object and propagated to
+# every output below. Off by default, so existing outputs are unchanged.
+output_max_probability = ~{true='True' false='False' output_max_probability}
+if output_max_probability:
+    print("Computing per-cell max label probability (SCANVI predict soft=True)...")
+    soft_probs = lvae.predict(data, soft=True)
+    data.obs['max_probability'] = soft_probs.max(axis=1).astype('float32')
+
 # ── 4. Propagate predicted labels back to original matrices ──────────────
 # ad.concat (called inside the training functions) appended modality-key
 # suffixes to obs_names (e.g. "barcode_rna_unannotated",
@@ -532,10 +551,16 @@ print(f"  Label transfer complete in {timing_summary['Label Transfer']:.1f}s")
 print("Propagating predicted labels to GEX matrix...")
 gex.obs['final_annotation'] = data.obs.loc[
     gex.obs_names + '_rna_unannotated']['C_scANVI'].to_numpy()
+if output_max_probability:
+    gex.obs['max_probability'] = data.obs.loc[
+        gex.obs_names + '_rna_unannotated']['max_probability'].to_numpy()
 if atac_present:
     print("Propagating predicted labels to ATAC matrix...")
     atac_activity.obs['final_annotation'] = data.obs.loc[
         atac_activity.obs_names + '_atac_unannotated']['C_scANVI'].to_numpy()
+    if output_max_probability:
+        atac_activity.obs['max_probability'] = data.obs.loc[
+            atac_activity.obs_names + '_atac_unannotated']['max_probability'].to_numpy()
 
 # ── 5. Write annotated GEX (and ATAC) matrices ──────────────────────────
 # These outputs mirror what main() in the container script produces,

@@ -1,3 +1,8 @@
+# 1.3.0
+2026-06-30 (Date of Last Commit)
+
+* Added an optional output_max_probability input (default false). When true, every output h5ad gains a `max_probability` obs column holding the per-cell maximum SCANVI posterior probability — the confidence of the assigned label — computed from lvae.predict(soft=True). Default false leaves existing outputs unchanged.
+
 # 1.2.0
 2026-06-28 (Date of Last Commit)
 
