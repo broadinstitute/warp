@@ -10,6 +10,14 @@ workflow pca_only_no_labels {
         Int num_pcs
         Int? min_vcf_partitions_in
         Float alpha = 0.18
+
+        # Optional ancestry-based subsetting. Provide BOTH together (or neither):
+        #   - ancestry_list: TSV (with header) of ancestry predictions covering all samples.
+        #     Must contain a 'research_id' column (sample ID) and an 'ancestry_pred_other'
+        #     column (ancestry label). Other columns are ignored.
+        #   - ancestry: which 'ancestry_pred_other' value to subset to (e.g. "eur")
+        File? ancestry_list
+        String? ancestry
     }
     String pipeline_version = "beta_0.0.0"
 
@@ -46,7 +54,9 @@ workflow pca_only_no_labels {
             full_bgz_index=vcf_bgz_index,
             final_output_prefix=final_output_prefix,
             num_pcs=num_pcs,
-            min_vcf_partitions_in=min_vcf_partitions_in
+            min_vcf_partitions_in=min_vcf_partitions_in,
+            ancestry_list=ancestry_list,
+            ancestry=ancestry
     }
 
     call compute_pct_variance {
@@ -133,6 +143,8 @@ task create_hw_pca_training {
         String final_output_prefix
         Int num_pcs
         Int? min_vcf_partitions_in
+        File? ancestry_list
+        String? ancestry
         Int disk_gb = 2000
         Int mem_gb = 512
         Int cpu = 48
@@ -180,12 +192,66 @@ task create_hw_pca_training {
         hl.init(default_reference='GRCh38', idempotent=False, spark_conf=spark_conf)
         print(hl.spark_context().master)
 
-        def get_PCA_scores(vcf_bgz:str, num_pcs:int, min_vcf_partitions=200):
+        def subset_to_ancestry(mt, ancestry_list_path:str, selected_ancestry:str):
+            """Subset the MatrixTable columns to the samples of one ancestry.
+
+            Reads the ancestry-prediction table by column name: 'research_id' (sample ID)
+            and 'ancestry_pred_other' (ancestry label); all other columns are ignored.
+            Hard-fails if the selected ancestry matches no rows in the list, or if any
+            listed sample is absent from the MatrixTable (exact sample-name match on 's').
+            """
+            # Read the ancestry-prediction table and keep only the rows whose
+            # 'ancestry_pred_other' value matches the requested ancestry.
+            anc = hl.import_table(ancestry_list_path).key_by('research_id')
+            anc = anc.filter(anc.ancestry_pred_other == selected_ancestry)
+            n_selected = anc.count()
+            if n_selected == 0:
+                raise ValueError(
+                    f"Ancestry '{selected_ancestry}' matched no rows in the ancestry list "
+                    f"file '{ancestry_list_path}'. Check the 'ancestry' input and the "
+                    f"file's 'ancestry_pred_other' column values."
+                )
+
+            # Find listed samples that are absent from the matrix table (exact match on 's').
+            mt_samples = mt.cols().key_by('s')
+            mt_samples = mt_samples.key_by(research_id=mt_samples.s).select()
+            missing = anc.anti_join(mt_samples)
+            n_missing = missing.count()
+            if n_missing == n_selected:
+                raise ValueError(
+                    f"None of the {n_selected} sample(s) for ancestry '{selected_ancestry}' "
+                    f"were found in the matrix table (zero overlap). Verify that the sample "
+                    f"IDs match the VCF sample names exactly."
+                )
+            if n_missing > 0:
+                examples = [r.research_id for r in missing.take(5)]
+                raise ValueError(
+                    f"{n_missing} of {n_selected} sample(s) for ancestry "
+                    f"'{selected_ancestry}' are not present in the matrix table "
+                    f"(exact match required). Examples: {examples}"
+                )
+
+            # All listed samples are present; keep exactly those columns.
+            mt = mt.filter_cols(hl.is_defined(anc[mt.s]))
+            print(f"Subset matrix table to {n_selected} sample(s) for ancestry '{selected_ancestry}'.")
+            return mt
+
+        def get_PCA_scores(vcf_bgz:str, num_pcs:int, min_vcf_partitions=200, ancestry_list_path="", selected_ancestry=""):
             v = hl.import_vcf(vcf_bgz, force_bgz=True,  min_partitions=min_vcf_partitions)
+            # Subset to the requested ancestry's samples BEFORE any training.
+            if ancestry_list_path:
+                v = subset_to_ancestry(v, ancestry_list_path, selected_ancestry)
             eigenvalues, scores, _ = hl.hwe_normalized_pca(v.GT, k=num_pcs, compute_loadings=False)
             return eigenvalues, scores
 
-        eigenvalues_training, scores_training = get_PCA_scores("~{full_bgz}", ~{num_pcs}, ~{min_vcf_partitions})
+        # Optional ancestry subsetting inputs (empty strings when not provided).
+        ancestry_list_path = "~{default="" ancestry_list}"
+        selected_ancestry = "~{default="" ancestry}"
+        if bool(ancestry_list_path) != bool(selected_ancestry):
+            raise ValueError("'ancestry_list' and 'ancestry' must be provided together, or neither.")
+
+        eigenvalues_training, scores_training = get_PCA_scores(
+            "~{full_bgz}", ~{num_pcs}, ~{min_vcf_partitions}, ancestry_list_path, selected_ancestry)
 
         # Expand PCA scores into separate columns
         scores_training = scores_training.annotate(**{f'PC{i+1}': scores_training.scores[i] for i in range(~{num_pcs})})
