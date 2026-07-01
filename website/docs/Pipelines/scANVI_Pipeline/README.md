@@ -7,7 +7,7 @@ slug: /Pipelines/scANVI_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [scANVI_v1.2.0](https://github.com/broadinstitute/warp/releases?q=scANVI&expanded=true) | June, 2026 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
+| [scANVI_v2.0.0](https://github.com/broadinstitute/warp/releases?q=scANVI&expanded=true) | July, 2026 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
 
 ## Introduction to the scANVI workflow
 
@@ -75,6 +75,12 @@ Example input JSON files are available in the [`example_inputs`](https://github.
 | `ref_label_column` | String? | Reference `obs` column to use as the cell-type label. When unset, defaults to `subclass` for AIT references and `final_annotation` otherwise. | — |
 | `ref_batch_column` | String? | Reference `obs` column to use as the batch. When unset, defaults to `donor_id` for AIT references and `batch` otherwise. | — |
 | `genome` | String | Genome for the ATAC cell-by-bin → gene-activity conversion (multiome only): `hg38` (default), `mm10`, or `mm39`. | `"hg38"` |
+| `scanvi_model` | File? | **Optional** pre-trained SCANVI model (`.tar.gz` of a saved model directory, no bundled AnnData — the format emitted as `scanvi_model_out`). When provided, the label-transfer task **loads it and predicts, skipping SCVI/SCANVI training** (auto-detected, no flag). Valid when the model matches the incoming data/reference. | — |
+| `output_max_probability` | Boolean | When `true`, add a `max_probability` obs column (per-cell maximum SCANVI posterior — the assigned label's confidence) to every output h5ad. | `false` |
+| `gpu_count` | Int | GPUs requested for the label-transfer task. Set `0` for a CPU-only prediction run (e.g. a supplied-model run on small data). | `2` |
+| `mem_size` | Int | Memory (GiB) for the label-transfer task. | `120` |
+| `nthreads` | Int | CPUs for the label-transfer task. | `32` |
+| `disk_size` | Int | Disk (GB) for the label-transfer task. | `500` |
 
 :::note Input mode precedence
 If `gex_h5ad` and `ref_h5ad` are supplied, they are used directly and `input_bucket` is ignored. Otherwise, the filenames are downloaded from `input_bucket` via `gsutil`. The pipeline fails fast if a required (GEX or reference) input is missing or empty.
@@ -82,6 +88,10 @@ If `gex_h5ad` and `ref_h5ad` are supplied, they are used directly and `input_buc
 
 :::note GEX-only mode
 The ATAC input is optional. In direct-file mode, omit `atac_h5ad`; in bucket mode, simply do not place an `atac.h5ad` in the bucket (its presence is auto-detected via `gsutil stat`). In GEX-only mode, SCVI/SCANVI are trained on GEX + reference via `run_gex_only_model`, labels are transferred to GEX only, and the `atac_annotated_h5ad` output is not produced. See [`example_inputs/scANVI.gex_only.json`](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/scanvi/example_inputs).
+:::
+
+:::note Reusing a trained model (skip training)
+Every run emits its SCANVI model as the `scanvi_model_out` output — a small `.tar.gz` (no bundled data). Pass that file back as the `scanvi_model` input on a later run and the label-transfer task **loads it and predicts instead of training SCVI/SCANVI**, which is valid when the model matches the incoming data/reference. For a cheap CPU-only prediction run, also set `gpu_count = 0` (and smaller `mem_size`/`nthreads`/`disk_size`). Applying a reference model to genuinely novel query data (scArches-style query mapping) is planned future work.
 :::
 
 #### Reference requirements
@@ -195,6 +205,7 @@ All output filenames are prefixed with `~{input_id}_`.
 | `scanvi_predictions_h5ad` | `<input_id>_SCANVI_predictions.h5ad` | Combined AnnData with SCANVI cell type predictions, UMAP, and metadata. | H5AD |
 | `gex_annotated_h5ad` | `<input_id>_gex_annotated_matrix.h5ad` | Preprocessed GEX AnnData annotated with transferred cell type labels. | H5AD |
 | `atac_annotated_h5ad` | `<input_id>_atac_annotated_matrix.h5ad` | ATAC gene-activity AnnData annotated with transferred cell type labels. Produced only in multiome mode (absent in GEX-only mode). | H5AD |
+| `scanvi_model_out` | `<input_id>_scanvi_model.tar.gz` | The run's trained (or loaded) SCANVI model, saved without bundled AnnData (~tens of MB). Can be passed back as `scanvi_model` on a later run to skip training. | TAR.GZ |
 | `pipeline_version_out` | N/A | Version of the processing pipeline run on this data. | String |
 
 ## Runtime configuration
