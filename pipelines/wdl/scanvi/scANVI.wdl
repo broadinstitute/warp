@@ -61,7 +61,7 @@ workflow scANVI {
 
   }
 
-  String pipeline_version = "1.4.0"
+  String pipeline_version = "2.0.0"
 
   # Docker image (same container for both tasks; only Task 2 gets GPUs attached)
   # Exposes run_gex_only_model for GEX-only mode (warp-tools/3rd-party-tools/scvi-scanvi).

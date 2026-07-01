@@ -1,18 +1,10 @@
-# 1.4.0
+# 2.0.0
 2026-06-30 (Date of Last Commit)
 
-* Added an optional scanvi_model input: a saved SCANVI model (.tar.gz of a model dir, no bundled adata). When provided, the label-transfer task loads it and predicts instead of training SCVI/SCANVI — valid when the model matches the incoming data/reference. Auto-detected (no flag).
-* Every run now also outputs its trained/loaded SCANVI model as scanvi_model_out (saved without adata, ~tens of MB), in the same .tar.gz format as the scanvi_model input, so an output can be fed straight back as a later run's input.
+* MAJOR: the pipeline now emits a reusable model. Every run outputs its trained (or loaded) SCANVI model as scanvi_model_out — a saved model directory (.tar.gz, ~tens of MB, no bundled adata), in the same format the pipeline accepts as input. Reusing that model to run inference on similar data means reprocessing through the pipeline, so this is a qualitative change to the outputs (major per VersionAndReleasePipelines.md).
+* Added an optional scanvi_model input: when provided, the label-transfer task loads it and predicts instead of training SCVI/SCANVI — valid when the model matches the incoming data/reference. Auto-detected (no flag).
 * Exposed gpu_count (default 2) plus mem_size/nthreads/disk_size as inputs so a supplied-model prediction run can be right-sized to a small CPU box (gpu_count=0); default training/inference resources are unchanged.
-
-# 1.3.0
-2026-06-30 (Date of Last Commit)
-
-* Added an optional output_max_probability input (default false). When true, every output h5ad gains a `max_probability` obs column holding the per-cell maximum SCANVI posterior probability — the confidence of the assigned label — computed from lvae.predict(soft=True). Default false leaves existing outputs unchanged.
-
-# 1.2.0
-2026-06-28 (Date of Last Commit)
-
+* Added an optional output_max_probability input (default false). When true, every output h5ad gains a max_probability obs column holding the per-cell maximum SCANVI posterior probability (the confidence of the assigned label), computed from lvae.predict(soft=True). Default false leaves existing outputs unchanged.
 * Added support for AIT (Allen Institute Taxonomy) schema reference atlases. AIT references are auto-detected (uns['schema_version'] + uns['hierarchy']) and adapted in PreprocessFilter: counts are materialized from .raw (AIT files have no .X) using the gene symbols from .var, the cell-type label is taken from a chosen taxonomy level, and the batch from a chosen obs column.
 * Added optional ref_label_column and ref_batch_column inputs to select the reference label/batch columns. Defaults: AIT references use subclass/donor_id; PBMC-style references use final_annotation/batch (existing behavior unchanged).
 * Added a genome input (hg38 default, mm10, mm39) for the ATAC cell-by-bin -> gene-activity conversion, enabling mouse multiome references; default hg38 keeps existing human runs unchanged.
