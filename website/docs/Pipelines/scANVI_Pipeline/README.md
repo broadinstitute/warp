@@ -17,6 +17,16 @@ ATAC is optional. When no ATAC h5ad is supplied, the pipeline auto-detects **GEX
 
 The pipeline is split into two tasks — **PreprocessFilter** (CPU-only) and **MultiomeLabelTransfer** (GPU) — so that expensive GPU time is reserved exclusively for model training and inference. All data loading, quality filtering, and (in multiome mode) barcode alignment and gene-activity-matrix conversion happen on a CPU node first; the GPU node receives ready-to-train h5ad files and never re-runs preprocessing.
 
+### How the label transfer works: SCVI + SCANVI
+
+scANVI annotates in two stages — an **unsupervised** representation-learning step followed by a **semi-supervised** annotation step — so it can exploit *all* the cells (the large unlabeled query alongside the annotated reference), not just the labeled ones.
+
+1. **SCVI — unsupervised embedding.** [SCVI](https://docs.scvi-tools.org/en/1.4.1/user_guide/models/scvi.html) is a variational autoencoder trained on the **concatenation** of the query and reference cells (GEX, plus the ATAC gene-activity matrix in multiome mode) **without using any cell-type labels**. It learns a low-dimensional latent representation that captures biological variation while correcting batch effects — across donors, and between the query and the reference (and across modalities). Being unsupervised, it uses every cell, so the embedding is shaped by the full dataset rather than only the annotated subset.
+
+2. **SCANVI — semi-supervised annotation.** [SCANVI](https://docs.scvi-tools.org/en/1.4.1/user_guide/models/scanvi.html) is initialized **from the trained SCVI model** and adds a cell-type classifier on top of that latent space. It is trained **semi-supervised**: the reference cells provide their known labels (the supervision signal) while the unlabeled query cells (tagged `Unknown`) continue to shape the latent space (the unsupervised signal). The result is a label-aware embedding in which query cells sit near reference cells of the same type, and SCANVI then predicts a cell type for every query cell (`C_scANVI`).
+
+This unsupervised → semi-supervised design is more robust than training a supervised classifier on the reference alone: SCVI first integrates query and reference into a common, batch-corrected space using all available cells, and SCANVI only has to learn the annotation boundaries **within** that shared space. Labels are transferred by propagating each query cell's `C_scANVI` prediction back onto the original matrices.
+
 :::tip Want to use scANVI for your publication?
 The pipeline is designed to consume the outputs of the [Multiome](../Multiome_Pipeline/README.md) and [PeakCalling](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/peak_calling) WARP pipelines. Cite the pipeline using the WARP citation in the [Citing](#citing-the-scanvi-pipeline) section below.
 :::
