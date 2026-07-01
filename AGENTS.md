@@ -36,7 +36,7 @@ WARP is a collection of cloud-optimized WDL (Workflow Description Language) pipe
 - **`verification/`** — test workflows that validate pipeline outputs (`verification/test-wdls/` for test implementations)
 - **`scripts/`** — build and validation automation
 
-> **History:** Content was previously split between `pipelines/broad/` (DNA-seq, arrays, reprocessing) and `pipelines/skylab/` (single-cell RNA-seq, ATAC-seq, multiome). Both are now unified under `pipelines/wdl/` and `tasks/wdl/`. Docker images are maintained separately in [warp-tools](https://github.com/broadinstitute/warp-tools).
+> **History:** Content was previously split between `pipelines/broad/` (DNA-seq, arrays, reprocessing) and `pipelines/skylab/` (single-cell RNA-seq, ATAC-seq, multiome)--any remnants you should offer to clean up. Both are now unified under `pipelines/wdl/` and `tasks/wdl/`. Docker images are maintained separately in [warp-tools](https://github.com/broadinstitute/warp-tools).
 
 ## WDL Development and Validation
 
@@ -144,15 +144,11 @@ When a shared task changes, every workflow that imports it may need a version bu
 
 Pipelines support GCP/Azure via a `cloud_provider` input. The pattern varies by pipeline origin:
 
-**Broad-origin pipelines** (DNA-seq, arrays, genotyping) maintain dual docker registries and validate `cloud_provider` at runtime:
+**Broad-origin pipelines** (DNA-seq, arrays, genotyping) maintain docker registries and validate `cloud_provider` at runtime:
 
 ```wdl
-String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
-String gatk_docker_azure = "terrapublic.azurecr.io/gatk:4.6.1.0"
-String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
+String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
 ```
-
-**Skylab-origin pipelines** (Optimus, Multiome, ATAC-seq, PairedTag, SlideTags, SlideSeq, RNAWithUMIs, MultiSampleSmartSeq2) default `cloud_provider = "gcp"` and do **not** maintain Azure docker registries. Do not add Azure docker alternatives to these pipelines.
 
 **Error handling:** use the `ErrorWithMessage` task for input validation. For broad-origin pipelines validating `cloud_provider`:
 
@@ -261,13 +257,11 @@ Keep the higher version and delete the duplicate line.
 
 ## Agent-Specific Notes
 
-Conventions that have emerged from agent-driven sessions and that are not (or not yet) covered by the human-facing docs.
-
 ### `input_id` output prefix pattern
 
 When a pipeline emits per-sample artifacts, accept a `String input_id` workflow input and prefix every output filename with `~{input_id}_`. This matches the convention used by scANVI, Optimus, Multiome, and other Skylab-origin pipelines.
 
-### Optimus/Skylab chemistry and reference assets
+### Optimus chemistry and reference assets
 
 When adding support for a new 10x chemistry in Optimus:
 
@@ -275,7 +269,7 @@ When adding support for a new 10x chemistry in Optimus:
 - Optimus whitelist files live at `gs://gcp-public-data--broad-references/optimus_whitelists/`. Do **not** use the old `RNA/resources/` path (which contained a `febrary` typo and is incorrect).
 - Validate that inputs required by a given chemistry (e.g. `i1_fastq` for v4) are enforced via `ErrorWithMessage` when the chemistry version demands them.
 
-### When you discover a recurring agent mistake
+### When you discover a recurring agent mistake or lack of adherence
 
 Record it here, under *Agent-Specific Notes* — this file is the only home for agent guidance. Keep entries short and link out to the canonical reference rather than duplicating it. **Before adding a new note, check whether the information is already covered above or in a linked doc** — prefer a one-line reference over a duplicate section.
 
