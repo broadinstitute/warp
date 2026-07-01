@@ -93,6 +93,8 @@ workflow pca_only_no_labels {
         File training_pca_hexbin_plots_3_4 = plot_3_4.training_pca_hexbin_plot
         File training_pca_3d_density_plots_1_2 = plot_1_2.training_pca_3d_density_plot
         File training_pca_3d_density_plots_3_4 = plot_3_4.training_pca_3d_density_plot
+        File training_pca_3d_density_interactive_plots_1_2 = plot_1_2.training_pca_3d_density_interactive_plot
+        File training_pca_3d_density_interactive_plots_3_4 = plot_3_4.training_pca_3d_density_interactive_plot
     }
 }
 
@@ -341,6 +343,10 @@ task plot_pca {
     command <<<
         set -e
 
+        # plotly is not present in this image; install it for the interactive HTML plot.
+        # 5.18.0 is the newest release supporting the image's Python 3.6.
+        python3 -m pip install --quiet plotly==5.18.0
+
         python3 <<EOF
         import os
         import os.path
@@ -349,6 +355,7 @@ task plot_pca {
         import matplotlib.pyplot as plt
         from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 - registers the '3d' projection on old matplotlib
         from scipy.ndimage import gaussian_filter
+        import plotly.graph_objects as go
 
         def check_pc(pc: int) -> None:
             if pc < 1:
@@ -460,6 +467,66 @@ task plot_pca {
             plt.savefig(output_figure_fname)
             plt.close()
 
+        def plot_3d_density_interactive(df, pc1, pc2, output_figure_fname, pct_var=None):
+            """Interactive (HTML) 3D surface plot of the smoothed log-density of two PCs.
+
+            Mirrors plot_3d_density's histogram / log-density / smoothing steps, but renders
+            with plotly so the surface can be rotated and zoomed in a browser.
+            """
+            # Extract the two PCs of interest from the DataFrame
+            x = df[f'PC{pc1}']
+            y = df[f'PC{pc2}']
+
+            # Same automatic-but-capped binning as the static version
+            max_bins = 200
+            nbins_x = min(len(np.histogram_bin_edges(x, bins='auto')) - 1, max_bins)
+            nbins_y = min(len(np.histogram_bin_edges(y, bins='auto')) - 1, max_bins)
+            counts, xedges, yedges = np.histogram2d(x, y, bins=[nbins_x, nbins_y])
+
+            # Log-density transform: compress dynamic range so dense and sparse
+            # regions are both visible on the surface
+            Z = np.log1p(counts)
+
+            # Gaussian smoothing (same sigma as the static version)
+            Z = gaussian_filter(Z, sigma=1.5)
+
+            # Bin centers for the X and Y axes (edges -> centers)
+            xcenters = (xedges[:-1] + xedges[1:]) / 2
+            ycenters = (yedges[:-1] + yedges[1:]) / 2
+
+            # Transpose Z so its orientation matches the axes: histogram2d indexes
+            # counts as [x, y], while plotly's Surface expects z indexed as z[y][x].
+            Z = Z.T
+
+            # Build the interactive surface (Viridis to match the static colormap)
+            fig = go.Figure(data=[go.Surface(
+                z=Z, x=xcenters, y=ycenters,
+                colorscale='Viridis',
+                colorbar=dict(title='log(1 + density)'),
+            )])
+
+            # Same axis-labeling logic as the static functions
+            if pct_var is not None:
+                pct_x = pct_var.get(pc1)
+                pct_y = pct_var.get(pc2)
+                xlabel = f"PC{pc1} ({pct_x:.2f}%)" if pct_x is not None else f"PC{pc1}"
+                ylabel = f"PC{pc2} ({pct_y:.2f}%)" if pct_y is not None else f"PC{pc2}"
+            else:
+                xlabel = f"PC{pc1}"
+                ylabel = f"PC{pc2}"
+
+            fig.update_layout(
+                title='CDRv9 PCA (3D Density, interactive)',
+                scene=dict(
+                    xaxis_title=xlabel,
+                    yaxis_title=ylabel,
+                    zaxis_title='log(1 + density)',
+                ),
+            )
+
+            # Save as a self-contained interactive HTML file
+            fig.write_html(output_figure_fname)
+
         # Define variables from WDL inputs
         output_prefix = "~{output_prefix}"
         pc1 = ~{pc1}
@@ -492,6 +559,10 @@ task plot_pca {
         density_3d_figure_basename = f'{output_prefix}_{pc1}_{pc2}_3d_density.png'
         plot_3d_density(df, pc1, pc2, density_3d_figure_basename, pct_variance_lookup)
 
+        # 4) Interactive 3D density surface plot (HTML)
+        density_3d_interactive_basename = f'{output_prefix}_{pc1}_{pc2}_3d_density.html'
+        plot_3d_density_interactive(df, pc1, pc2, density_3d_interactive_basename, pct_variance_lookup)
+
         EOF
     >>>
 
@@ -499,6 +570,7 @@ task plot_pca {
         File training_pca_scatter_plot = "~{output_prefix}_~{pc1}_~{pc2}_scatter.png"
         File training_pca_hexbin_plot = "~{output_prefix}_~{pc1}_~{pc2}_hexbin.png"
         File training_pca_3d_density_plot = "~{output_prefix}_~{pc1}_~{pc2}_3d_density.png"
+        File training_pca_3d_density_interactive_plot = "~{output_prefix}_~{pc1}_~{pc2}_3d_density.html"
     }
 
     runtime {
