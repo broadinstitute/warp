@@ -26,6 +26,10 @@ workflow TestscANVI {
       String genome = "hg38"
       Boolean output_max_probability = false
 
+      # Optional cap on SCVI/SCANVI training epochs, forwarded to scANVI (the training-Plumbing
+      # test sets this to 2 for a fast run; unset => the pipeline's container default of 500).
+      Int? max_epochs
+
       # Optional pre-trained SCANVI model (skip training) + compute overrides, forwarded to scANVI.
       # The pretrained Plumbing test sets scanvi_model + gpu_count=0 + small mem/cpu/disk.
       File? scanvi_model
@@ -58,6 +62,7 @@ workflow TestscANVI {
         ref_batch_column = ref_batch_column,
         genome           = genome,
         output_max_probability = output_max_probability,
+        max_epochs       = max_epochs,
         scanvi_model     = scanvi_model,
         gpu_count        = gpu_count,
         mem_size         = mem_size,
