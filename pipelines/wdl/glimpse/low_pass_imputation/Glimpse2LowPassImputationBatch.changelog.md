@@ -1,3 +1,14 @@
+# 1.0.0
+2026-06-30 (Date of Last Commit)
+
+* update version for teaspoons prod release
+* update glimpse docker image to encompass vcf streaming fixes
+
+# 0.0.11
+2026-06-22 (Date of Last Commit)
+
+* pre chunk each cram before passing it to mpileup
+
 # 0.0.10
 2026-06-12 (Date of Last Commit)
 

@@ -36,7 +36,7 @@ WARP is a collection of cloud-optimized WDL (Workflow Description Language) pipe
 - **`verification/`** — test workflows that validate pipeline outputs (`verification/test-wdls/` for test implementations)
 - **`scripts/`** — build and validation automation
 
-> **History:** Content was previously split between `pipelines/broad/` (DNA-seq, arrays, reprocessing) and `pipelines/skylab/` (single-cell RNA-seq, ATAC-seq, multiome). Both are now unified under `pipelines/wdl/` and `tasks/wdl/`. Docker images are maintained separately in [warp-tools](https://github.com/broadinstitute/warp-tools).
+> **History:** Content was previously split between `pipelines/broad/` (DNA-seq, arrays, reprocessing) and `pipelines/skylab/` (single-cell RNA-seq, ATAC-seq, multiome)--any remnants you should offer to clean up. Both are now unified under `pipelines/wdl/` and `tasks/wdl/`. Docker images are maintained separately in [warp-tools](https://github.com/broadinstitute/warp-tools).
 
 ## WDL Development and Validation
 
@@ -96,6 +96,20 @@ When adding a new test input for a regression case, also wire it into the releva
 
 **Stale inputs break silently** — they are not validated by womtool. When renaming a workflow or removing/renaming inputs, audit `example_inputs/*.json` and `test_inputs/**/*.json`.
 
+### Registering a CI test for a pipeline (Plumbing / Scientific)
+
+A WARP "Plumbing" or "Scientific" test is a **CI-integrated test that runs the pipeline on Terra and compares its outputs to a stored truth set** — not a local demonstration or a notebook. Standing one up for pipeline `<Pipeline>` requires this whole set of artifacts; a missing piece typically fails only at CI run time (womtool does not catch most of it). Canonical reference: [TestingPipelines.md](website/docs/About_WARP/TestingPipelines.md). There is also an internal SOP, *"How to Port a Pipeline Test to the New Testing Framework"* (Optimus example) — useful for the Dockstore-publish click-path, but its file paths predate the directory flatten (it shows `pipelines/skylab/`, `tasks/broad/`; use today's `pipelines/wdl/`, `tasks/wdl/`), and its "TestX.wdl modifications" section is Vault→Terra migration only, not relevant to a net-new test. The fastest way to author the Actions YAML and the test wrapper is to copy an existing pipeline's `test_<name>.yml` / `Test<Name>.wdl` and adapt.
+
+1. **Test input JSON(s)** — `pipelines/wdl/<name>/test_inputs/{Plumbing,Scientific}/<Case>.json`, keyed by the **pipeline's** input names (`<Pipeline>.foo`). Host the input data under `gs://pd-test-storage-public/<Pipeline>/input/{plumbing,scientific}/...`. Plumbing = tiny/fast/cheap (every PR); Scientific = realistic end-to-end (PRs to master, or on demand).
+2. **Test wrapper** — `verification/test-wdls/Test<Pipeline>.wdl`: imports the pipeline, `Verify<Pipeline>`, `Utilities`, and `TerraCopyFilesFromCloudToCloud`; declares **every pipeline input a test JSON might set** plus the framework-injected `truth_path`, `results_path`, `update_truth` (and `cloud_provider` if the pipeline takes it); sets `meta { allowNestedInputs: true }`. It calls the pipeline, gathers outputs into an `Array[String]`, copies them to `results_path`, copies to `truth_path` when `update_truth`, else runs `GetValidationInputs` and calls `Verify<Pipeline>`. **Forward every testable input** — an input the pipeline has but the wrapper omits crashes the moment a test JSON sets it (see *Test inputs* above).
+3. **Verification** — `verification/Verify<Pipeline>.wdl` compares each output to truth (tolerantly). Keep pipeline-specific compare tasks **here, not in the shared `verification/VerifyTasks.wdl`**, so editing them doesn't trip every other pipeline's path filter.
+4. **GitHub Actions entry point ("the buttons")** — `.github/workflows/test_<pipeline>.yml`: `on: pull_request` with a `paths:` filter scoped to the pipeline's files (pipeline dir, its tasks, `Verify<Pipeline>.wdl`, `Test<Pipeline>.wdl`, `TerraCopyFilesFromCloudToCloud.wdl`, the two workflow files, `firecloud_api.py`) **and** `workflow_dispatch` with inputs `useCallCache`, `updateTruth`, `testType` (choice Plumbing/Scientific), `truthBranch`. The job `uses: ./.github/workflows/warp_test_workflow.yml` with `pipeline_name: Test<Pipeline>`, `dockstore_pipeline_name: <Pipeline>`, `pipeline_dir`, those inputs, and `secrets: { PDT_TESTER_SA_B64, DOCKSTORE_TOKEN }`; `permissions: { contents: read, id-token: write, actions: write }`. (`warp_test_workflow.yml` is the shared reusable workflow: it creates the Terra method config, submits, polls, copies results, and runs verification when not updating truth.)
+5. **Dockstore registration *and publish*** — add a `Test<Pipeline>` entry (`name`, `subclass: WDL`, `primaryDescriptorPath: /verification/test-wdls/Test<Pipeline>.wdl`) to `.dockstore.yml` (the pipeline itself is usually already registered). Then **publish it in the Dockstore UI** — a manual step that's easy to forget and not caught by anything in-repo: wait ~5 min for Dockstore to ingest the new descriptor, go to the [Dockstore dashboard](https://dockstore.org/dashboard), find `warp/Test<Pipeline>` via the *Search Workflows* field, then **Versions → Actions → Set as Default Version → Publish**. The CI resolves the workflow by `dockstore_pipeline_name`, so an unpublished / no-default-version workflow makes the Terra method-config step fail.
+6. **Seed truth FIRST** — a brand-new test has no golden files. Run the Actions workflow manually (`workflow_dispatch`) with `updateTruth: true` and the right `truthBranch` to populate the truth bucket; only then do compare-runs pass. A compare-run before truth exists fails with nothing to diff.
+7. **Validate** every new/modified WDL with womtool. Note what womtool does **not** check: the Actions YAML, the JSON keys, the `.dockstore.yml` entry, and whether truth exists — all of which only surface at CI run time.
+
+If a pipeline ships only one test kind, pin it in the caller (e.g. scANVI is Scientific-only → `test_type: ${{ github.event.inputs.testType || 'Scientific' }}`, and `warp_test_workflow.yml` honors an explicit caller override over the branch-derived default).
+
 ## Changelog and Versioning
 
 Every pipeline carries a `String pipeline_version = "major.minor.patch"` and a cumulative `<PipelineName>.changelog.md`. For entry **format and language** follow the [changelog style guide](website/docs/contribution/contribute_to_warp/changelog_style.md); for what makes a change **major / minor / patch** follow [VersionAndReleasePipelines.md](website/docs/About_WARP/VersionAndReleasePipelines.md). The agent-operational rules below are not in those docs:
@@ -130,15 +144,11 @@ When a shared task changes, every workflow that imports it may need a version bu
 
 Pipelines support GCP/Azure via a `cloud_provider` input. The pattern varies by pipeline origin:
 
-**Broad-origin pipelines** (DNA-seq, arrays, genotyping) maintain dual docker registries and validate `cloud_provider` at runtime:
+**Broad-origin pipelines** (DNA-seq, arrays, genotyping) maintain docker registries and validate `cloud_provider` at runtime:
 
 ```wdl
-String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
-String gatk_docker_azure = "terrapublic.azurecr.io/gatk:4.6.1.0"
-String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
+String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
 ```
-
-**Skylab-origin pipelines** (Optimus, Multiome, ATAC-seq, PairedTag, SlideTags, SlideSeq, RNAWithUMIs, MultiSampleSmartSeq2) default `cloud_provider = "gcp"` and do **not** maintain Azure docker registries. Do not add Azure docker alternatives to these pipelines.
 
 **Error handling:** use the `ErrorWithMessage` task for input validation. For broad-origin pipelines validating `cloud_provider`:
 
@@ -247,13 +257,11 @@ Keep the higher version and delete the duplicate line.
 
 ## Agent-Specific Notes
 
-Conventions that have emerged from agent-driven sessions and that are not (or not yet) covered by the human-facing docs.
-
 ### `input_id` output prefix pattern
 
 When a pipeline emits per-sample artifacts, accept a `String input_id` workflow input and prefix every output filename with `~{input_id}_`. This matches the convention used by scANVI, Optimus, Multiome, and other Skylab-origin pipelines.
 
-### Optimus/Skylab chemistry and reference assets
+### Optimus chemistry and reference assets
 
 When adding support for a new 10x chemistry in Optimus:
 
@@ -261,7 +269,7 @@ When adding support for a new 10x chemistry in Optimus:
 - Optimus whitelist files live at `gs://gcp-public-data--broad-references/optimus_whitelists/`. Do **not** use the old `RNA/resources/` path (which contained a `febrary` typo and is incorrect).
 - Validate that inputs required by a given chemistry (e.g. `i1_fastq` for v4) are enforced via `ErrorWithMessage` when the chemistry version demands them.
 
-### When you discover a recurring agent mistake
+### When you discover a recurring agent mistake or lack of adherence
 
 Record it here, under *Agent-Specific Notes* — this file is the only home for agent guidance. Keep entries short and link out to the canonical reference rather than duplicating it. **Before adding a new note, check whether the information is already covered above or in a linked doc** — prefer a one-line reference over a duplicate section.
 
