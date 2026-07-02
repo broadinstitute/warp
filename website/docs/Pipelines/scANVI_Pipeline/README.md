@@ -27,6 +27,12 @@ scANVI annotates in two stages — an **unsupervised** representation-learning s
 
 This unsupervised → semi-supervised design is more robust than training a supervised classifier on the reference alone: SCVI first integrates query and reference into a common, batch-corrected space using all available cells, and SCANVI only has to learn the annotation boundaries **within** that shared space. Labels are transferred by propagating each query cell's `C_scANVI` prediction back onto the original matrices.
 
+#### How the models are trained
+
+Both models are trained by **minibatch stochastic gradient descent**. The full concatenated dataset (query + reference) is prepared and held in CPU/host memory, but each training step streams only a small **minibatch** of cells — scvi-tools' default `batch_size` is **128 cells** — to the GPU, runs the forward/backward pass, updates the model weights, and releases that minibatch before fetching the next. Because the GPU only ever holds one minibatch at a time, its memory footprint is set by *minibatch size × number of genes* and is essentially **independent of the total number of cells** in the dataset. This is what lets a large query be annotated on a single modest GPU while the full dataset lives in host RAM: the CPU node assembles and holds the data, and the GPU processes it 128 cells at a time.
+
+**Two meanings of "batch."** The `batch_size` above is the SGD minibatch — an optimization detail of how the data is fed to the GPU. It is distinct from the **batch covariate**, the experimental grouping (e.g., donor or sequencing library) that SCVI/SCANVI explicitly model in order to correct for it as technical variation. The models integrate *across* batch-covariate groups to remove batch effects, and they do so by reading the data in `batch_size`-cell minibatches — the same word, two unrelated concepts.
+
 :::tip Want to use scANVI for your publication?
 The pipeline is designed to consume the outputs of the [Multiome](../Multiome_Pipeline/README.md) and [PeakCalling](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/peak_calling) WARP pipelines. Cite the pipeline using the WARP citation in the [Citing](#citing-the-scanvi-pipeline) section below.
 :::
