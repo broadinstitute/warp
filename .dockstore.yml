@@ -344,6 +344,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/Testsnm3C.wdl
 
+  - name: TestscANVI
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestscANVI.wdl
+
   - name: TestUltimaGenomicsJointGenotyping
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestUltimaGenomicsJointGenotyping.wdl

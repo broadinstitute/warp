@@ -6,7 +6,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.10"
+    String pipeline_version = "1.0.0"
 
     input {
 
@@ -30,7 +30,7 @@ workflow Glimpse2LowPassImputationBatch {
         Int? glimpse_phase_cpu_override
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.1.0-c276764-1782839248"
     }
 
     # we need to define this here so that it can be used in nested scatters below. Cromwell doesn't understand optional inputs
@@ -44,20 +44,61 @@ workflow Glimpse2LowPassImputationBatch {
             cram_manifest = cram_manifest
     }
 
-    scatter(contig in contigs) {
-        File sites_vcf = reference_panel_prefix + "sites." + contig + ".vcf.gz"
-        File sites_vcf_index =reference_panel_prefix + "sites." + contig + ".vcf.gz.tbi"
-        File sites_table = reference_panel_prefix + "sites_table." + contig + ".gz"
-        File sites_table_index = reference_panel_prefix + "sites_table." + contig + ".gz.tbi"
-        File reference_chunks = reference_panel_prefix + "reference_chunks." + contig + ".txt"
+
+    # For each batch of samples, split every CRAM into per-contig sub-CRAMs (inner scatter),
+    # then transpose the result from [sample][contig] → [contig][sample]. This re-groups the
+    # files so that the downstream BcftoolsMpileup scatter (over contigs × batches) can receive
+    # all sample CRAMs for a given contig together.
+    # Final shape: crams_to_use[batch_index][contig_index] = Array[File] (one file per sample).
+    #
+    # i.e.
+    # crams_batches:
+    #  batch[0]: [sampleA.cram, sampleB.cram, sampleC.cram]
+    #  batch[1]: [sampleD.cram, sampleE.cram]
+    #
+    # SplitCramIntoContigChunks output (batch[0]):
+    #  sampleA → [chr1.cram, chr2.cram, chr3.cram]   ← one row per sample
+    #  sampleB → [chr1.cram, chr2.cram, chr3.cram]
+    #  sampleC → [chr1.cram, chr2.cram, chr3.cram]
+    #
+    # After transpose (batch[0]):
+    #  chr[0] → [sampleA_chr1.cram, sampleB_chr1.cram, sampleC_chr1.cram]
+    #  chr[1] → [sampleA_chr2.cram, sampleB_chr2.cram, sampleC_chr2.cram]
+    #  chr[2] → [sampleA_chr3.cram, sampleB_chr3.cram, sampleC_chr3.cram]
+    #
+    # Outer scatter collects these transposed arrays per sample batch
+
+    scatter(i in range(length(SplitCramManifestIntoBatchesOfStrings.crams_batches))) {
+        scatter(inner_index in range(length(SplitCramManifestIntoBatchesOfStrings.crams_batches[i]))) {
+            call SplitCramIntoContigChunks{
+                input:
+                    cram = SplitCramManifestIntoBatchesOfStrings.crams_batches[i][inner_index],
+                    cram_index = SplitCramManifestIntoBatchesOfStrings.cram_indices_batches[i][inner_index],
+                    contigs = contigs,
+                    ref_fasta = fasta,
+                    ref_fasta_index = fasta_index
+            }
+        }
+        Array[Array[File]] chromosome_grouped_chunked_crams = transpose(SplitCramIntoContigChunks.crams_chunked_by_contig)
+        Array[Array[File]] chromosome_grouped_chunked_cram_indices = transpose(SplitCramIntoContigChunks.cram_indices_chunked_by_contig)
+    }
+    Array[Array[Array[File]]] crams_to_use = chromosome_grouped_chunked_crams
+    Array[Array[Array[File]]] cram_indices_to_use = chromosome_grouped_chunked_cram_indices
+
+    scatter(contig_index in range(length(contigs))) {
+        File sites_vcf = reference_panel_prefix + "sites." + contigs[contig_index] + ".vcf.gz"
+        File sites_vcf_index =reference_panel_prefix + "sites." + contigs[contig_index] + ".vcf.gz.tbi"
+        File sites_table = reference_panel_prefix + "sites_table." + contigs[contig_index] + ".gz"
+        File sites_table_index = reference_panel_prefix + "sites_table." + contigs[contig_index] + ".gz.tbi"
+        File reference_chunks = reference_panel_prefix + "reference_chunks." + contigs[contig_index] + ".txt"
 
 
-        scatter(i in range(length(SplitCramManifestIntoBatchesOfStrings.crams_batches))) {
+        scatter(batch_index in range(length(SplitCramManifestIntoBatchesOfStrings.crams_batches))) {
             call BcftoolsMpileup {
                 input:
-                    crams = SplitCramManifestIntoBatchesOfStrings.crams_batches[i],
-                    cram_indices = SplitCramManifestIntoBatchesOfStrings.cram_indices_batches[i],
-                    sample_ids = SplitCramManifestIntoBatchesOfStrings.sample_ids_batches[i],
+                    crams = crams_to_use[batch_index][contig_index],
+                    cram_indices = cram_indices_to_use[batch_index][contig_index],
+                    sample_ids = SplitCramManifestIntoBatchesOfStrings.sample_ids_batches[batch_index],
                     fasta = fasta,
                     fasta_index = fasta_index,
                     call_indels = call_indels,
@@ -67,6 +108,7 @@ workflow Glimpse2LowPassImputationBatch {
             call BcftoolsCall {
                 input:
                     mpileup_bcf = BcftoolsMpileup.output_bcf,
+                    mpileup_bcf_index = BcftoolsMpileup.output_bcf_index,
                     sites_table = sites_table,
                     sites_table_index = sites_table_index,
             }
@@ -74,6 +116,7 @@ workflow Glimpse2LowPassImputationBatch {
             call BcftoolsNorm {
                 input:
                     calls_bcf = BcftoolsCall.output_bcf,
+                    calls_bcf_index = BcftoolsCall.output_bcf_index
             }
         }
 
@@ -269,6 +312,62 @@ task ComputeShardsAndMemoryPerShard {
     }
 }
 
+task SplitCramIntoContigChunks {
+    input {
+        File cram
+        File cram_index
+        Array[String] contigs
+
+        File ref_fasta
+        File ref_fasta_index
+    }
+    Int disk_size_gb = ceil(2.2*size(cram, "GiB") + size(ref_fasta, "GiB")) + 10
+
+    command <<<
+        set -euo pipefail
+
+        mkdir -p chunked
+
+        # Make the CRAM and CRAM index live next to eachother
+        ln -sf ~{cram} "$(basename ~{cram})"
+        ln -sf ~{cram_index} "$(basename ~{cram}).crai"
+
+        : > crams_chunked_by_contig.txt
+        : > cram_indices_chunked_by_contig.txt
+
+        i=0
+        for contig in ~{sep=' ' contigs}; do
+            output_cram=$(printf "chunked/%06d.cram" "${i}")
+
+            samtools view \
+                -C \
+                -T ~{ref_fasta} \
+                -o "${output_cram}" \
+                "$(basename ~{cram})" \
+                "${contig}"
+
+            samtools index "${output_cram}"
+
+            i=$((i + 1))
+        done
+    >>>
+
+    runtime {
+        docker : "us.gcr.io/broad-dsp-lrma/lr-gcloud-samtools:0.1.23.1"
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: "4 GiB"
+        cpu: 1
+        preemptible: 3
+        maxRetries: 1
+        noAddress: true
+    }
+
+    output {
+        Array[File] crams_chunked_by_contig = glob("chunked/*.cram")
+        Array[File] cram_indices_chunked_by_contig = glob("chunked/*.crai")
+    }
+}
+
 task BcftoolsMpileup {
     input {
         Array[File] crams
@@ -287,7 +386,7 @@ task BcftoolsMpileup {
         Int max_retries = 3
     }
 
-    Int disk_size_gb = ceil(1.5*size(crams, "GiB") + size(fasta, "GiB") + size(sites_vcf, "GiB")) + 10
+    Int disk_size_gb = ceil(2.5*size(crams, "GiB") + size(fasta, "GiB") + size(sites_vcf, "GiB")) + 10
 
     command <<<
         set -xeuo pipefail
@@ -299,7 +398,8 @@ task BcftoolsMpileup {
             echo "* ${crams[$i]} ${sample_ids[$i]}" >> sample_name_mapping.txt
         done
 
-        bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I" else ""} -G sample_name_mapping.txt --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -T ~{sites_vcf} -Ou -o mpileup.bcf ~{sep=" " crams}
+        bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I" else ""} -G sample_name_mapping.txt --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -T ~{sites_vcf} -Ob -o mpileup.bcf.gz ~{sep=" " crams}
+        bcftools index mpileup.bcf.gz
     >>>
 
     runtime {
@@ -313,13 +413,15 @@ task BcftoolsMpileup {
     }
 
     output {
-        File output_bcf = "mpileup.bcf"
+        File output_bcf = "mpileup.bcf.gz"
+        File output_bcf_index = "mpileup.bcf.gz.csi"
     }
 }
 
 task BcftoolsCall {
     input {
         File mpileup_bcf
+        File mpileup_bcf_index
 
         File sites_table
         File sites_table_index
@@ -335,7 +437,8 @@ task BcftoolsCall {
     command <<<
         set -xeuo pipefail
 
-        bcftools call -Aim -C alleles -T ~{sites_table} -Ou ~{mpileup_bcf} -o calls.bcf
+        bcftools call -Aim -C alleles -T ~{sites_table} -Oz ~{mpileup_bcf} -o calls.bcf.gz
+        bcftools index calls.bcf.gz
     >>>
 
     runtime {
@@ -349,13 +452,15 @@ task BcftoolsCall {
     }
 
     output {
-        File output_bcf = "calls.bcf"
+        File output_bcf = "calls.bcf.gz"
+        File output_bcf_index = "calls.bcf.gz.csi"
     }
 }
 
 task BcftoolsNorm {
     input {
         File calls_bcf
+        File calls_bcf_index
 
         Int mem_gb = 6
         Int cpu = 1
@@ -363,7 +468,7 @@ task BcftoolsNorm {
         Int max_retries = 3
     }
 
-    Int disk_size_gb = ceil(3*size(calls_bcf, "GiB")) + 10
+    Int disk_size_gb = ceil(2*size(calls_bcf, "GiB")) + 10
 
     command <<<
         set -xeuo pipefail
