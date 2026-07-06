@@ -2,7 +2,7 @@ version 1.0
 
 workflow QuotaConsumed {
     # if this changes, update the quota_consumed_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.6"
+    String pipeline_version = "1.0.0"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
