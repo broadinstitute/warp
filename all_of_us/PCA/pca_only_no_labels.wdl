@@ -64,6 +64,12 @@ workflow pca_only_no_labels {
             eigenvalues_tsv=create_hw_pca_training.pca_eigenvalues_tsv
     }
 
+    call plot_scree {
+        input:
+            eigenvalues_tsv=create_hw_pca_training.pca_eigenvalues_tsv,
+            output_prefix=final_output_prefix
+    }
+
     call plot_pca as plot_1_2 {
         input :
             output_prefix=final_output_prefix,
@@ -87,6 +93,7 @@ workflow pca_only_no_labels {
     output {
         File training_pca_labels_ht_tsv = create_hw_pca_training.pca_scores_tsv
         File training_pca_eigenvalues_tsv = create_hw_pca_training.pca_eigenvalues_tsv
+        File training_pca_scree_plot = plot_scree.training_pca_scree_plot
         File training_pca_scatter_plots_1_2 = plot_1_2.training_pca_scatter_plot
         File training_pca_scatter_plots_3_4 = plot_3_4.training_pca_scatter_plot
         File training_pca_hexbin_plots_1_2 = plot_1_2.training_pca_hexbin_plot
@@ -325,6 +332,68 @@ task compute_pct_variance {
     }
 }
 
+task plot_scree {
+    input {
+        File eigenvalues_tsv
+        String output_prefix
+
+        # Runtime parameters
+        Int disk_gb = 100
+        Int mem_gb = 8
+        Int cpu = 2
+    }
+
+    command <<<
+        set -e
+
+        python3 <<EOF
+        import numpy as np
+        import pandas as pd
+        import matplotlib.pyplot as plt
+
+        output_prefix = "~{output_prefix}"
+
+        # Read the eigenvalues produced by the training task.
+        df = pd.read_csv("~{eigenvalues_tsv}", sep="\t")
+        eigenvalues = np.array(df['eigenvalues'].tolist())
+
+        # Fraction of total variance explained by each principal component.
+        explained = eigenvalues / eigenvalues.sum()
+
+        # Scree plot: explained variance (%) vs PC index. The "elbow" where the
+        # curve levels off indicates how many PCs capture the meaningful structure.
+        plt.figure(figsize=(8, 5))
+        plt.plot(
+            range(1, len(explained) + 1),
+            explained * 100,
+            marker='o'
+        )
+        plt.xlabel("Principal Component")
+        plt.ylabel("Explained Variance (%)")
+        plt.title("Scree Plot")
+        plt.grid(True)
+
+        # Save a static PNG and close the figure (consistent with the other plots;
+        # plt.show() would do nothing in this headless task).
+        plt.tight_layout()
+        plt.savefig(f"{output_prefix}_scree.png")
+        plt.close()
+
+        EOF
+    >>>
+
+    output {
+        File training_pca_scree_plot = "~{output_prefix}_scree.png"
+    }
+
+    runtime {
+        docker: "faizanbashir/python-datascience:3.6"
+        memory: "${mem_gb} GB"
+        cpu: "${cpu}"
+        disks: "local-disk ${disk_gb} HDD"
+    }
+}
+
 task plot_pca {
     input {
         String output_prefix
@@ -391,9 +460,11 @@ task plot_pca {
 
         def plot_hexbin(df, pc1, pc2, output_figure_fname, pct_var=None):
             fig, ax = plt.subplots()
-            hb = ax.hexbin(df[f'PC{pc1}'], df[f'PC{pc2}'], gridsize=100, cmap='Blues', mincnt=1)
-            plt.colorbar(hb, ax=ax, label='Count')
-            plt.title('CDRv9 PCA (Hexbin Density)')
+            # Use a logarithmic color scale (bins='log' -> color encodes log10(count))
+            # so fine structure in low-density regions is visible alongside dense cores.
+            hb = ax.hexbin(df[f'PC{pc1}'], df[f'PC{pc2}'], gridsize=100, cmap='Blues', mincnt=1, bins='log')
+            plt.colorbar(hb, ax=ax, label='log10(count)')
+            plt.title('CDRv9 PCA (Hexbin Density, log scale)')
             if pct_var is not None:
                 pct_x = pct_var.get(pc1)
                 pct_y = pct_var.get(pc2)
