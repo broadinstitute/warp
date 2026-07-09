@@ -28,6 +28,12 @@ workflow scANVI {
       # GEX-only modes). When unset, the container default (500) is used.
       Int? max_epochs
 
+      # SCVI/SCANVI minibatch size (SGD). Default 128 (scvi-tools' own default). Lower it (e.g. 8)
+      # to fit a high-cardinality reference on a small GPU; raise it on a large-VRAM cloud GPU.
+      # Activation memory scales with (batch_size x number of labels). Forwarded to the container
+      # only when != 128, so the default path stays compatible with images predating the parameter.
+      Int batch_size = 128
+
       # Reference adaptation. When the reference is an AIT-schema atlas, these select
       # which obs columns become the cell-type label and the batch. When unset, AIT
       # references default to subclass/donor_id and PBMC-style references to
@@ -61,7 +67,7 @@ workflow scANVI {
 
   }
 
-  String pipeline_version = "2.0.0"
+  String pipeline_version = "2.1.0"
 
   # Docker image (same container for both tasks; only Task 2 gets GPUs attached)
   # Exposes run_gex_only_model for GEX-only mode (warp-tools/3rd-party-tools/scvi-scanvi).
@@ -91,6 +97,7 @@ workflow scANVI {
         ref_h5ad = PreprocessFilter.preprocessed_ref_h5ad,
         input_id = input_id,
         max_epochs = max_epochs,
+        batch_size = batch_size,
         output_max_probability = output_max_probability,
         scanvi_model = scanvi_model,
         gpu_count = gpu_count,
@@ -442,6 +449,7 @@ task MultiomeLabelTransfer {
         # Runtime attributes
         String input_id
         Int? max_epochs
+        Int batch_size = 128
         Boolean output_max_probability = false
         # Optional pre-trained SCANVI model (.tar.gz of a saved model dir); when provided, the task
         # loads it and predicts instead of training SCVI/SCANVI.
@@ -459,6 +467,7 @@ task MultiomeLabelTransfer {
         ref_h5ad: "Preprocessed reference h5ad file with cell type labels and modality tag."
         input_id: "Unique identifier prepended to all output filenames."
         max_epochs: "Optional cap on SCVI/SCANVI training epochs, applied to both multiome and GEX-only modes. When unset, the container default (500) is used."
+        batch_size: "SCVI/SCANVI minibatch size (SGD). Default 128. Lower it to fit a high-cardinality reference on a small GPU (activation memory scales with batch_size x number of labels); raise it on a large-VRAM cloud GPU. Non-default values require a container image whose training functions accept batch_size."
         output_max_probability: "When true, also write a `max_probability` obs column (the per-cell maximum SCANVI posterior probability, i.e. the assigned label's confidence) to every output h5ad."
         scanvi_model: "Optional .tar.gz of a saved SCANVI model directory (no bundled adata). When provided, the model is loaded and used to predict (no SCVI/SCANVI training). Valid when the model matches the incoming data/reference. The run still emits its model as scanvi_model_out."
         docker: "Docker image containing the scvi-scanvi runtime environment."
@@ -555,12 +564,15 @@ if scanvi_model_tar:
     print(f"  Model loaded in {timing_summary['Model Load']:.1f}s")
 else:
     print("Training SCVI and SCANVI models...")
-    # Optional epoch cap. Passed as a kwarg only when set, so the default path stays
-    # compatible with container images that predate the max_epochs parameter.
+    # Optional epoch cap + minibatch size. Each is passed as a kwarg only when set, so the default
+    # path stays compatible with container images that predate these parameters.
     max_epochs_val = "~{default='' max_epochs}".strip()
     train_kwargs = {"max_epochs": int(max_epochs_val)} if max_epochs_val else {}
+    batch_size_val = ~{batch_size}
+    if batch_size_val != 128:                       # forward only when overridden from the default
+        train_kwargs["batch_size"] = batch_size_val
     if train_kwargs:
-        print(f"  max_epochs override: {train_kwargs['max_epochs']}")
+        print(f"  training overrides: {train_kwargs}")
     if atac_present:
         data, vae, lvae = run_multi_model(gex, atac_activity, ref, **train_kwargs)
     else:
