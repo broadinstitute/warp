@@ -69,18 +69,19 @@ workflow Glimpse2SVImputationBatched {
     }
 
     scatter (k in range(length(pop_regions))) {
-        call PopAndMarginalizeCollisions { input:
-            posteriors_vcf = GLIMPSE2Ligate.ligated_vcf,
-            posteriors_vcf_idx = GLIMPSE2Ligate.ligated_vcf_idx,
-            panel_bubble_split_sites_only_vcf = panel_bubble_split_sites_only_vcf,
-            panel_bubble_split_sites_only_vcf_idx = panel_bubble_split_sites_only_vcf_idx,
-            panel_id_split_vcf_gz = panel_id_split_vcf_gz,
-            panel_id_split_vcf_gz_tbi = panel_id_split_vcf_gz_tbi,
-            pop_glimpse2_script = pop_glimpse2_script,
-            cargo_toml = pop_glimpse2_cargo_toml,
-            pop_glimpse2_binary = pop_glimpse2_binary,
-            region = pop_regions[k],
-            output_prefix = output_prefix + ".glimpse2.popped"
+        call PopAndMarginalizeCollisions {
+            input:
+                posteriors_vcf = GLIMPSE2Ligate.ligated_vcf,
+                posteriors_vcf_idx = GLIMPSE2Ligate.ligated_vcf_idx,
+                panel_bubble_split_sites_only_vcf = panel_bubble_split_sites_only_vcf,
+                panel_bubble_split_sites_only_vcf_idx = panel_bubble_split_sites_only_vcf_idx,
+                panel_id_split_vcf_gz = panel_id_split_vcf_gz,
+                panel_id_split_vcf_gz_tbi = panel_id_split_vcf_gz_tbi,
+                pop_glimpse2_script = pop_glimpse2_script,
+                cargo_toml = pop_glimpse2_cargo_toml,
+                pop_glimpse2_binary = pop_glimpse2_binary,
+                region = pop_regions[k],
+                output_prefix = output_prefix + ".glimpse2.popped"
         }
     }
 

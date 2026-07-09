@@ -90,7 +90,7 @@ workflow Glimpse2SVImputation {
     }
 
     # two-level localized hierarchical merge over entire chromosome
-    call MultilevelHierarchicallyPasteVcfsStreaming.HierarchicallyMergeVcfs as PastePreprocessPLsGVCFs {
+    call MultilevelHierarchicallyPasteVcfsStreaming.MultilevelHierarchicallyMergeVcfs as PastePreprocessPLsGVCFs {
         input:
             vcfs_array = PreprocessPLsGVCF.preprocessed_pls_vcf,
             vcf_idxs_array = PreprocessPLsGVCF.preprocessed_pls_vcf_idx,
