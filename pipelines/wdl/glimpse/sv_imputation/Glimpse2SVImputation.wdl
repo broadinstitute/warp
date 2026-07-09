@@ -6,6 +6,7 @@ import "./Glimpse2SVImputationBatched.wdl" as Glimpse2SVImputationBatched
 workflow Glimpse2SVImputation {
     String pipeline_version = "0.0.1"
     String batch_pipeline_version = "0.0.1"
+    String multi_level_paste_pipeline_version = "0.0.1"
 
     input {
         File? input_gvcfs_fofn
