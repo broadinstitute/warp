@@ -1,7 +1,8 @@
 # 2.1.0
 2026-07-09 (Date of Last Commit)
 
-* Added an optional batch_size input that sets the SCVI/SCANVI minibatch size in both multiome and GEX-only modes (defaults to the container value of 128 when unset). Lower it to fit a high-cardinality reference on a small GPU (SCANVI activation memory scales with batch_size x number of labels); raise it on a large-VRAM cloud GPU. Passed as a training kwarg only when set, so the default path is unchanged and stays compatible with container images that predate the parameter.
+* Added an optional batch_size input (default 128) that sets the SCVI/SCANVI minibatch size in both multiome and GEX-only modes. Lower it to fit a high-cardinality reference on a small GPU (SCANVI activation memory scales with batch_size x number of labels); raise it on a large-VRAM cloud GPU. Default 128 is scvi-tools' own default, so existing outputs are unchanged.
+* Updated the pinned scvi-scanvi docker image to a build whose training functions accept the batch_size parameter.
 
 # 2.0.0
 2026-06-30 (Date of Last Commit)
