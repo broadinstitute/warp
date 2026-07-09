@@ -32,7 +32,7 @@ workflow Glimpse2SVImputation {
         File paste_vcfs_binary
         Array[String] paste_regions
 
-        # inputs for Batched wdl
+        # inputs for Batched wdl (this is different than the wdl in github)
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
         File? pop_glimpse2_script               # heavily modified version of convert-to-biallelic.py
