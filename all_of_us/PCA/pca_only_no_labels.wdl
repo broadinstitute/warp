@@ -11,6 +11,11 @@ workflow pca_only_no_labels {
         Int? min_vcf_partitions_in
         Float alpha = 0.18
 
+        # PC pairs to plot. If omitted, defaults to plotting PC1 vs PC2 and PC3 vs PC4.
+        # If provided, ONLY the given pairs are plotted (include every pair you want).
+        # JSON form: [{"left":5,"right":6},{"left":7,"right":8}]
+        Array[Pair[Int, Int]]? pc_pairs
+
         # Optional ancestry-based subsetting. Provide BOTH together (or neither):
         #   - ancestry_list: TSV (with header) of ancestry predictions covering all samples.
         #     Must contain a 'research_id' column (sample ID) and an 'ancestry_pred_other'
@@ -66,42 +71,34 @@ workflow pca_only_no_labels {
 
     call plot_scree {
         input:
-            eigenvalues_tsv=create_hw_pca_training.pca_eigenvalues_tsv,
+            pct_variance_tsv=compute_pct_variance.pct_variance_explained_tsv,
             output_prefix=final_output_prefix
     }
 
-    call plot_pca as plot_1_2 {
-        input :
-            output_prefix=final_output_prefix,
-            pca_tsv=create_hw_pca_training.pca_scores_tsv,
-            pc1=1,
-            pc2=2, 
-            pct_variance_tsv=compute_pct_variance.pct_variance_explained_tsv, 
-            alpha=alpha
-    }
+    # Plot the requested PC pairs (defaulting to 1&2 and 3&4 when none are given).
+    Array[Pair[Int, Int]] pairs_to_plot = select_first([pc_pairs, [(1, 2), (3, 4)]])
 
-    call plot_pca as plot_3_4 {
-        input :
-            output_prefix=final_output_prefix,
-            pca_tsv=create_hw_pca_training.pca_scores_tsv,
-            pc1=3,
-            pc2=4, 
-            pct_variance_tsv=compute_pct_variance.pct_variance_explained_tsv, 
-            alpha=alpha
+    scatter (pair in pairs_to_plot) {
+        call plot_pca {
+            input :
+                output_prefix=final_output_prefix,
+                pca_tsv=create_hw_pca_training.pca_scores_tsv,
+                pc1=pair.left,
+                pc2=pair.right,
+                pct_variance_tsv=compute_pct_variance.pct_variance_explained_tsv,
+                alpha=alpha
+        }
     }
 
     output {
         File training_pca_labels_ht_tsv = create_hw_pca_training.pca_scores_tsv
         File training_pca_eigenvalues_tsv = create_hw_pca_training.pca_eigenvalues_tsv
         File training_pca_scree_plot = plot_scree.training_pca_scree_plot
-        File training_pca_scatter_plots_1_2 = plot_1_2.training_pca_scatter_plot
-        File training_pca_scatter_plots_3_4 = plot_3_4.training_pca_scatter_plot
-        File training_pca_hexbin_plots_1_2 = plot_1_2.training_pca_hexbin_plot
-        File training_pca_hexbin_plots_3_4 = plot_3_4.training_pca_hexbin_plot
-        File training_pca_3d_density_plots_1_2 = plot_1_2.training_pca_3d_density_plot
-        File training_pca_3d_density_plots_3_4 = plot_3_4.training_pca_3d_density_plot
-        File training_pca_3d_density_interactive_plots_1_2 = plot_1_2.training_pca_3d_density_interactive_plot
-        File training_pca_3d_density_interactive_plots_3_4 = plot_3_4.training_pca_3d_density_interactive_plot
+        # One entry per plotted PC pair (in the order of pc_pairs / the defaults).
+        # Individual files remain named by PC pair, e.g. <prefix>_1_2_scatter.png.
+        Array[File] training_pca_scatter_plots = plot_pca.training_pca_scatter_plot
+        Array[File] training_pca_hexbin_plots = plot_pca.training_pca_hexbin_plot
+        Array[File] training_pca_3d_density_interactive_plots = plot_pca.training_pca_3d_density_interactive_plot
     }
 }
 
@@ -301,6 +298,11 @@ task compute_pct_variance {
         import pandas as pd
 
         def compute_pct_variance(eigenvalues):
+            # NOTE: this normalizes by the sum of the COMPUTED eigenvalues (top
+            # num_pcs), not the total variance (trace / all eigenvalues). So each
+            # value is a PC's share of the retained eigenvalue mass, which sums to
+            # 100% over the selected PCs by construction -- it is NOT the true
+            # proportion of total variance explained. Labeled accordingly downstream.
             total = sum(eigenvalues)
             pct_var = [100 * v / total for v in eigenvalues]
             return pct_var
@@ -311,9 +313,9 @@ task compute_pct_variance {
 
         pct_var = compute_pct_variance(eigenvalues)
 
-        # Write out percent variance explained
+        # Write out each PC's proportion of variance among the computed PCs (%).
         with open("pct_variance_explained.tsv", "w") as f:
-            f.write("PC\tPercent_Variance_Explained\\n")
+            f.write("PC\tVariance_Proportion_Among_Computed_PCs_Pct\\n")
             for i, pv in enumerate(pct_var):
                 f.write(f"PC{i+1}\\t{pv}\\n")
 
@@ -334,7 +336,7 @@ task compute_pct_variance {
 
 task plot_scree {
     input {
-        File eigenvalues_tsv
+        File pct_variance_tsv
         String output_prefix
 
         # Runtime parameters
@@ -347,29 +349,27 @@ task plot_scree {
         set -e
 
         python3 <<EOF
-        import numpy as np
         import pandas as pd
         import matplotlib.pyplot as plt
 
         output_prefix = "~{output_prefix}"
 
-        # Read the eigenvalues produced by the training task.
-        df = pd.read_csv("~{eigenvalues_tsv}", sep="\t")
-        eigenvalues = np.array(df['eigenvalues'].tolist())
+        # Reuse the metric computed by compute_pct_variance (single source of truth)
+        # rather than recomputing from eigenvalues. Values are already the per-PC
+        # proportion of variance among the computed PCs, expressed as a percent.
+        df = pd.read_csv("~{pct_variance_tsv}", sep="\t")
+        pct = df['Variance_Proportion_Among_Computed_PCs_Pct'].tolist()
 
-        # Fraction of total variance explained by each principal component.
-        explained = eigenvalues / eigenvalues.sum()
-
-        # Scree plot: explained variance (%) vs PC index. The "elbow" where the
-        # curve levels off indicates how many PCs capture the meaningful structure.
+        # Scree plot vs PC index. The "elbow" where the curve levels off indicates
+        # how many PCs capture the meaningful structure.
         plt.figure(figsize=(8, 5))
         plt.plot(
-            range(1, len(explained) + 1),
-            explained * 100,
+            range(1, len(pct) + 1),
+            pct,
             marker='o'
         )
         plt.xlabel("Principal Component")
-        plt.ylabel("Explained Variance (%)")
+        plt.ylabel("Proportion of variance among computed PCs (%)")
         plt.title("Scree Plot")
         plt.grid(True)
 
@@ -422,7 +422,6 @@ task plot_pca {
         import pandas as pd
         import numpy as np
         import matplotlib.pyplot as plt
-        from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 - registers the '3d' projection on old matplotlib
         from scipy.ndimage import gaussian_filter
         import plotly.graph_objects as go
 
@@ -462,7 +461,8 @@ task plot_pca {
             fig, ax = plt.subplots()
             # Use a logarithmic color scale (bins='log' -> color encodes log10(count))
             # so fine structure in low-density regions is visible alongside dense cores.
-            hb = ax.hexbin(df[f'PC{pc1}'], df[f'PC{pc2}'], gridsize=100, cmap='Blues', mincnt=1, bins='log')
+            # viridis (purple->blue->green->yellow) matches the 3D density plot's colormap.
+            hb = ax.hexbin(df[f'PC{pc1}'], df[f'PC{pc2}'], gridsize=100, cmap='viridis', mincnt=1, bins='log')
             plt.colorbar(hb, ax=ax, label='log10(count)')
             plt.title('CDRv9 PCA (Hexbin Density, log scale)')
             if pct_var is not None:
@@ -480,69 +480,12 @@ task plot_pca {
             plt.savefig(output_figure_fname)
             plt.close()
 
-        def plot_3d_density(df, pc1, pc2, output_figure_fname, pct_var=None):
-            """3D surface plot of the smoothed log-density of two PCs."""
-            # Extract the two PCs of interest from the DataFrame
-            x = df[f'PC{pc1}']
-            y = df[f'PC{pc2}']
-
-            # Choose bin counts automatically with numpy's Freedman-Diaconis rule
-            # ('auto') rather than hardcoding. On 500k+ samples that rule can return
-            # thousands of bins, producing an unwieldy surface mesh, so we cap each
-            # axis at a sane maximum for a readable 3D surface.
-            max_bins = 200
-            nbins_x = min(len(np.histogram_bin_edges(x, bins='auto')) - 1, max_bins)
-            nbins_y = min(len(np.histogram_bin_edges(y, bins='auto')) - 1, max_bins)
-            counts, xedges, yedges = np.histogram2d(x, y, bins=[nbins_x, nbins_y])
-
-            # Log-density transform: compresses the dynamic range so dense and
-            # sparse regions are both visible on the surface
-            Z = np.log1p(counts)
-
-            # Smooth the log-density so the surface is continuous rather than jagged
-            Z = gaussian_filter(Z, sigma=1.5)
-
-            # Bin centers for the X and Y axes (edges -> centers)
-            xcenters = (xedges[:-1] + xedges[1:]) / 2
-            ycenters = (yedges[:-1] + yedges[1:]) / 2
-
-            # Build a meshgrid; transpose Z so its orientation matches X/Y
-            # (histogram2d indexes Z as [x, y], surface plots expect [y, x])
-            X, Y = np.meshgrid(xcenters, ycenters)
-            Z = Z.T
-
-            # Create the 3D surface plot
-            fig = plt.figure(figsize=(10, 8))
-            ax = fig.add_subplot(111, projection='3d')
-            surf = ax.plot_surface(X, Y, Z, cmap='viridis', linewidth=0, antialiased=True)
-            fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10, label='log(1 + density)')
-
-            ax.set_title('CDRv9 PCA (3D Density)')
-
-            # Same axis-labeling logic as the other plotting functions
-            if pct_var is not None:
-                pct_x = pct_var.get(pc1)
-                pct_y = pct_var.get(pc2)
-                xlabel = f"PC{pc1} ({pct_x:.2f}%)" if pct_x is not None else f"PC{pc1}"
-                ylabel = f"PC{pc2} ({pct_y:.2f}%)" if pct_y is not None else f"PC{pc2}"
-            else:
-                xlabel = f"PC{pc1}"
-                ylabel = f"PC{pc2}"
-
-            ax.set_xlabel(xlabel)
-            ax.set_ylabel(ylabel)
-            ax.set_zlabel('log(1 + density)')
-
-            # Save a static PNG and close the figure (consistent with the rest of the script)
-            plt.tight_layout()
-            plt.savefig(output_figure_fname)
-            plt.close()
-
         def plot_3d_density_interactive(df, pc1, pc2, output_figure_fname, pct_var=None):
             """Interactive (HTML) 3D surface plot of the smoothed log-density of two PCs.
 
-            Mirrors plot_3d_density's histogram / log-density / smoothing steps, but renders
-            with plotly so the surface can be rotated and zoomed in a browser.
+            Builds a 2D histogram, applies a log-density transform and Gaussian
+            smoothing, and renders the surface with plotly so it can be rotated and
+            zoomed in a browser.
             """
             # Extract the two PCs of interest from the DataFrame
             x = df[f'PC{pc1}']
@@ -609,10 +552,22 @@ task plot_pca {
 
         # Read and process data
         df = pd.read_csv("~{pca_tsv}", sep="\t")
+
+        # Validate the requested PC pair against the available score columns.
+        if pc1 == pc2:
+            raise ValueError(f'pc1 and pc2 must differ; both were {pc1}.')
+        available_pcs = [c for c in df.columns if c.startswith('PC')]
+        for pc in (pc1, pc2):
+            if f'PC{pc}' not in df.columns:
+                raise ValueError(
+                    f'Requested PC{pc} is not present in the scores (available: '
+                    f'{", ".join(available_pcs)}). Was num_pcs large enough?'
+                )
+
         pct_variance_df = pd.read_csv("~{pct_variance_tsv}", sep="\t")
         pct_variance_lookup = {
             int(str(label).replace("PC", "")): value
-            for label, value in zip(pct_variance_df['PC'], pct_variance_df['Percent_Variance_Explained'])
+            for label, value in zip(pct_variance_df['PC'], pct_variance_df['Variance_Proportion_Among_Computed_PCs_Pct'])
         }
 
         # Add pop labels since plot function expects them
@@ -626,11 +581,7 @@ task plot_pca {
         hexbin_figure_basename = f'{output_prefix}_{pc1}_{pc2}_hexbin.png'
         plot_hexbin(df, pc1, pc2, hexbin_figure_basename, pct_variance_lookup)
 
-        # 3) 3D smoothed log-density surface plot
-        density_3d_figure_basename = f'{output_prefix}_{pc1}_{pc2}_3d_density.png'
-        plot_3d_density(df, pc1, pc2, density_3d_figure_basename, pct_variance_lookup)
-
-        # 4) Interactive 3D density surface plot (HTML)
+        # 3) Interactive 3D density surface plot (HTML)
         density_3d_interactive_basename = f'{output_prefix}_{pc1}_{pc2}_3d_density.html'
         plot_3d_density_interactive(df, pc1, pc2, density_3d_interactive_basename, pct_variance_lookup)
 
@@ -640,7 +591,6 @@ task plot_pca {
     output {
         File training_pca_scatter_plot = "~{output_prefix}_~{pc1}_~{pc2}_scatter.png"
         File training_pca_hexbin_plot = "~{output_prefix}_~{pc1}_~{pc2}_hexbin.png"
-        File training_pca_3d_density_plot = "~{output_prefix}_~{pc1}_~{pc2}_3d_density.png"
         File training_pca_3d_density_interactive_plot = "~{output_prefix}_~{pc1}_~{pc2}_3d_density.html"
     }
 
