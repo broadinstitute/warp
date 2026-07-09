@@ -29,5 +29,5 @@ VariantCalling	 2.2.8	2026-01-21
 WholeGenomeGermlineSingleSample	 3.3.7	2026-01-21 
 WholeGenomeReprocessing	 3.3.7	2026-01-21 
 atac	 2.9.3	2025-09-19 
-scANVI	 2.1.0	2026-07-09
+scANVI	 2.1.0	2026-07-09 
 snm3C	 4.1.1	2025-09-19 
