@@ -20,10 +20,6 @@ workflow MultilevelHierarchicallyMergeVcfs {
         File paste_vcfs_binary
         String extra_merge_args = "--threads $(nproc) --info ID,RAF --format GT,DS,GP"
 
-        RuntimeAttr? l0_merge_runtime_attr_override
-        RuntimeAttr? l1_merge_runtime_attr_override
-        RuntimeAttr? l2_merge_runtime_attr_override
-
         String extra_concat_args = "--threads $(nproc) --naive"
     }
 
@@ -56,8 +52,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
                     region = region,
                     output_prefix = region_prefix + ".L0-" + i,
                     paste_vcfs_binary = paste_vcfs_binary,
-                    extra_args = "-r " + region + " " + extra_merge_args,
-                    runtime_attr_override = l0_merge_runtime_attr_override
+                    extra_args = "-r " + region + " " + extra_merge_args
             }
         }
 
@@ -86,8 +81,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
                         region = region,
                         output_prefix = region_prefix + ".L1-" + i,
                         paste_vcfs_binary = paste_vcfs_binary,
-                        extra_args = "-r " + region + " " + extra_merge_args,
-                        runtime_attr_override = l1_merge_runtime_attr_override
+                        extra_args = "-r " + region + " " + extra_merge_args
                 }
             }
         }
@@ -117,8 +111,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
                         region = region,
                         output_prefix = region_prefix + ".L2-" + i,
                         paste_vcfs_binary = paste_vcfs_binary,
-                        extra_args = "-r " + region + " " + extra_merge_args,
-                        runtime_attr_override = l2_merge_runtime_attr_override
+                        extra_args = "-r " + region + " " + extra_merge_args
                 }
             }
         }
