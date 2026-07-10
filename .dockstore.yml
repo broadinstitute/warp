@@ -98,7 +98,7 @@ workflows:
 
   - name: Glimpse2SVImputationBatch
     subclass: WDL
-    primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/Glimpse2SVImputationBatched.wdl
+    primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/Glimpse2SVImputationBatch.wdl
 
   - name: Glimpse2LowPassImputationQuotaConsumed
     subclass: WDL

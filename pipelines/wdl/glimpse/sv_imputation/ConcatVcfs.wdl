@@ -1,7 +1,7 @@
 version 1.0
 
 workflow ConcatVcfs {
-    # if this changes, update the conccat_vcfs_pipeline_version value in Glimpse2SVImputationBatched.wdl
+    # if this changes, update the concat_vcfs_pipeline_version value in Glimpse2SVImputationBatch.wdl
     String pipeline_version = "0.0.1"
 
     input {
