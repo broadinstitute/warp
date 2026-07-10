@@ -381,7 +381,7 @@ task MergeVcfs {
 
     #########################
     RuntimeAttr default_attr = object {
-        cpu_cores:          1,
+        cpu_cores:          2,
         mem_gb:             4,
         disk_gb:            disk_gb,
         boot_disk_gb:       10,

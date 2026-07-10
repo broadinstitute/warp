@@ -33,17 +33,21 @@ workflow Glimpse2SVImputation {
         Array[String] paste_regions
 
         # inputs for Batch wdl
+        File? remap_sample_names_file    # TSV with old_name new_name mappings
+
+        String chromosome
+        File genetic_maps_tsv
+        File chunked_panel_json
+
+        String extra_phase_args = "--thread $(nproc) --impute-reference-only-variants --keep-monomorphic-ref-sites --Kpbwt 1000 --main 10 --burnin 5 --err-imp 1E-3"
+
+        # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
         File? pop_glimpse2_script               # heavily modified version of convert-to-biallelic.py
         File? pop_glimpse2_cargo_toml
         File? pop_glimpse2_binary
 
-        String chromosome
-
-        File genetic_maps_tsv
-        File chunked_panel_json
-
-        File? remap_sample_names_file    # TSV with old_name new_name mappings
+        String glimpse2_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"    # enables checkpointing, but note this contains bcftools/htslib 1.16!
     }
 
     call PreprocessPLsGVCF.PreprocessPLsGVCF as PreProcessGVCFs {
