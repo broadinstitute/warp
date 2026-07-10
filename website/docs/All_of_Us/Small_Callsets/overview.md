@@ -6,7 +6,7 @@ className: aou-doc-page
 
 <div className="aou-folder-text">
 
-This section documents the All of Us small-callset workflows used to derive smaller, region-restricted callsets from a joint WGS VDS and export downstream analysis-ready formats.
+This section documents the All of Us small-callset workflows used to derive smaller, region-restricted callsets from a joint WGS VDS and export downstream analysis-ready formats. In this context, the three primary small callsets are: **Exome** (variants within exome-target BED intervals), **ClinVar** (variants at sites with ClinVar classification annotations), and **ACAF threshold** (common-variant sites selected using AoU VAT-derived thresholds, including per-ancestry `AC >= 100` or overall `max AF > 0.01`, as described in the QC/BED-generation notes).
 
 ## Quick Summary
 
