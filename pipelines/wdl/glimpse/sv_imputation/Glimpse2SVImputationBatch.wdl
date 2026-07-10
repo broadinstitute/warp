@@ -17,7 +17,7 @@ workflow Glimpse2SVImputationBatch {
         File genetic_maps_tsv
         File chunked_panel_json
 
-        String extra_phase_args = "--thread $(nproc) --impute-reference-only-variants --keep-monomorphic-ref-sites --Kpbwt 1000 --main 10 --burnin 5 --err-imp 1E-3"
+        String extra_phase_args
         String output_prefix
 
         # inputs for PopAndMarginalizeCollisions
@@ -26,7 +26,7 @@ workflow Glimpse2SVImputationBatch {
         File? pop_glimpse2_cargo_toml
         File? pop_glimpse2_binary
 
-        String glimpse2_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"    # enables checkpointing, but note this contains bcftools/htslib 1.16!
+        String glimpse2_docker
     }
 
     Map[String, String] genetic_maps_dict = read_map(genetic_maps_tsv)

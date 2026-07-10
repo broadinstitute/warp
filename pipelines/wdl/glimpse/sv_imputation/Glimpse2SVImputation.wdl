@@ -79,11 +79,13 @@ workflow Glimpse2SVImputation {
             chromosome = chromosome,
             genetic_maps_tsv = genetic_maps_tsv,
             chunked_panel_json = chunked_panel_json,
+            extra_phase_args = extra_phase_args,
             output_prefix = output_prefix,
             pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
             pop_glimpse2_script = pop_glimpse2_script,
             pop_glimpse2_cargo_toml = pop_glimpse2_cargo_toml,
-            pop_glimpse2_binary = pop_glimpse2_binary
+            pop_glimpse2_binary = pop_glimpse2_binary,
+            glimpse2_docker = glimpse2_docker
     }
 
     output {
