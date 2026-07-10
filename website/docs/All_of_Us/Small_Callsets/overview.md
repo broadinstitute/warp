@@ -44,6 +44,82 @@ The table below reflects the typical end-to-end run order for the current Small 
 * **Shared dependency:** both export branches depend on the split dense MatrixTable manifests produced by `SC4`.
 * **Execution model:** most workflows are WDL orchestration wrappers around Dataproc/Hail execution, with paired Python scripts implementing the transformation logic.
 
+## How BED files were created
+
+### ACAF BED (All Common Alleles/Frequencies)
+
+This BED is used to subset the full callset (500K samples) to variants that are common in at least one ancestry group or common overall for ACAF-level analyses.
+
+**Inclusion criteria (from VAT in BigQuery):**
+
+* A variant is included if **either** of these is true:
+  * Per-ancestry allele count threshold: `gvs_{ancestry}_ac >= 100` for **any** ancestry (OR across ancestries)
+  * Overall max AF threshold: `gvs_max_af > 0.01`
+
+```python
+ac_where_block = "(" + " OR ".join([f'(gvs_{a}_ac >=100)' for a in ancestries]) + ")"
+
+query = f"""
+SELECT DISTINCT contig, position
+FROM `{bq_table}`
+WHERE {ac_where_block}
+   OR (gvs_max_af > 0.01)
+ORDER BY contig, position
+"""
+```
+
+### ClinVar BED
+
+ClinVar BED positions are pulled from VAT where `clinvar_classification` is present.
+
+```python
+q = f"""SELECT DISTINCT contig, position
+FROM `{bq_table}`
+WHERE
+array_length(clinvar_classification) > 0
+ORDER BY contig,position
+"""
+
+vat_clinvar_df = (
+	bqclient.query(q)
+	.result()
+	.to_dataframe(
+		create_bqstorage_client=True,
+		progress_bar_type='tqdm',
+	)
+)
+```
+
+### Shared BED construction steps (ACAF + ClinVar)
+
+Queried positions are converted to 0-based, half-open BED coordinates:
+
+```python
+def create_vat_bed_df(vat_df: pd.DataFrame):
+	vat_bed_df = vat_df.copy(deep=True)
+	vat_bed_df['position_start'] = vat_bed_df['position'] - 1
+	vat_bed_df['position_end'] = vat_bed_df['position']
+	vat_bed_df = vat_bed_df.drop(columns='position')
+	return vat_bed_df
+```
+
+Then intervals are sorted and merged:
+
+```python
+def sort_and_merge_bed_file(bedfile: str, output_filename: str):
+	! echo "Before:" && wc -l {bedfile}
+	! ./bedtools sort -i {bedfile} | ./bedtools merge | sort --version-sort > {output_filename}
+	! echo "After:" && wc -l {output_filename}
+	! cut -f 1 {output_filename} | uniq
+```
+
+### Caveats
+
+* BEDs are position-based (`contig`, `position`) and do not preserve allele-level specificity.
+* At multi-allelic sites, if one allele qualifies, interval-based downstream filtering keeps the full site position.
+* The `AC >= 100` threshold is an absolute allele count (not frequency), so effective frequency threshold varies by ancestry sample size.
+* `bedtools merge` here uses exact overlap/adjacency behavior (no extra gap bridging without `-d`).
+
 ## Additional Processing Notes
 
 * **BED semantics:** the interval resources used here are position-based and do not preserve allele-level specificity.
