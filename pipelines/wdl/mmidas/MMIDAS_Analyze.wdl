@@ -168,17 +168,64 @@ task RestoreModel {
 
     ABS_OUT=$(realpath out)
 
-    # Patch checkpoints_manifest.json: rewrite output_dir to the local path.
-    # All checkpoint file paths in the manifest share this prefix.
-    cp "~{checkpoints_manifest}" out/checkpoints_manifest.json
-    ORIG_DIR=$(python3 -c "import json; print(json.load(open('out/checkpoints_manifest.json'))['output_dir'])")
-    sed -i "s|${ORIG_DIR}|${ABS_OUT}|g" out/checkpoints_manifest.json
+  # Normalize checkpoints_manifest.json to the local execution directory.
+  # Be resilient to legacy/new schema differences (e.g. missing output_dir).
+  python3 - <<CODE
+import glob
+import json
+import os
+import sys
 
-    # Patch evaluation_results.json: rewrite output_dir and selected_model path.
-    # selected_model is prefixed by output_dir so replacing the prefix is sufficient.
-    cp "~{evaluation_results_json}" out/evaluation_results.json
-    ORIG_EVAL=$(python3 -c "import json; print(json.load(open('out/evaluation_results.json'))['output_dir'])")
-    sed -i "s|${ORIG_EVAL}|${ABS_OUT}|g" out/evaluation_results.json
+src = "~{checkpoints_manifest}"
+dst = "out/checkpoints_manifest.json"
+abs_out = os.path.realpath("out")
+model_dir = os.path.join(abs_out, "model")
+
+with open(src) as fh:
+  manifest = json.load(fh)
+
+local_ckpts = sorted(glob.glob(os.path.join(model_dir, "*.pth")))
+if not local_ckpts:
+  print("ERROR: no .pth checkpoints found under out/model after extracting model_tar", file=sys.stderr)
+  sys.exit(1)
+
+manifest["output_dir"] = abs_out
+manifest["checkpoints"] = local_ckpts
+
+with open(dst, "w") as fh:
+  json.dump(manifest, fh, indent=2)
+CODE
+
+  # Normalize evaluation_results.json selected_model/output_dir paths.
+  python3 - <<CODE
+import glob
+import json
+import os
+
+src = "~{evaluation_results_json}"
+dst = "out/evaluation_results.json"
+abs_out = os.path.realpath("out")
+model_dir = os.path.join(abs_out, "model")
+local_ckpts = sorted(glob.glob(os.path.join(model_dir, "*.pth")))
+
+with open(src) as fh:
+  eval_results = json.load(fh)
+
+eval_results["output_dir"] = abs_out
+
+selected = eval_results.get("selected_model")
+if selected:
+  selected_base = os.path.basename(selected)
+  selected_local = os.path.join(model_dir, selected_base)
+  if os.path.exists(selected_local):
+    eval_results["selected_model"] = selected_local
+  elif local_ckpts:
+    # Fallback to last checkpoint if exact basename is unavailable.
+    eval_results["selected_model"] = local_ckpts[-1]
+
+with open(dst, "w") as fh:
+  json.dump(eval_results, fh, indent=2)
+CODE
 
     # Re-tar so downstream tasks receive a self-contained model bundle
     tar -czf model_dir.tar.gz -C out model/
