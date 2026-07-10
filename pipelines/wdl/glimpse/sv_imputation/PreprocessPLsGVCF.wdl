@@ -3,6 +3,9 @@ version 1.0
 import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelHierarchicallyPasteVcfsStreaming
 
 workflow PreprocessPLsGVCF {
+    # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
+    String pipeline_version = "0.0.1"
+    String multi_level_paste_pipeline_version = "0.0.1"
     input {
         File? input_gvcfs_fofn
         File? input_gvcf_idxs_fofn

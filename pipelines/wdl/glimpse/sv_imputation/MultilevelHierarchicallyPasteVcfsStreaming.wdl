@@ -3,7 +3,7 @@ version 1.0
 # NOTE: We assume we are merging squared-off single-sample VCFs (enforced by checking that the number of records in each VCF is identical when localizing shards with bcftools view)
 
 workflow MultilevelHierarchicallyMergeVcfs {
-    # if this changes, update the multi_level_paste_pipeline_version value in Glimpse2SVImputation.wdl
+    # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
     String pipeline_version = "0.0.1"
 
     input {
