@@ -70,6 +70,8 @@ workflow export_split_dense_MTs_to_plink_bed {
         String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.125"  # Docker image with Hail and Google Cloud SDK
     }
 
+    String pipeline_version = "aou_beta"
+
     call export_split_dense_MTs_to_plink_bed {
         # Task inputs mirror workflow inputs
         input:

@@ -32,6 +32,9 @@ workflow bgenix_bgen {
         File bgen_sample_fofn # Manifest file containing paths to all .sample files, contain sample information
                               # associated with the genotypes stored in the main .begn file.
     }
+
+    String pipeline_version = "aou_beta"
+
     # Variable assignments and operations on the input files
     String bgen_fofn_basename = basename(bgen_fofn) # bgen_fofn_basename will contain the base name (the file name
                                                     # without the directory path) of the bgen_fofn file

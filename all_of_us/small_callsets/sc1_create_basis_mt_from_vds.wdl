@@ -78,6 +78,8 @@ workflow filter_vds_to_MT_by_bed {
         String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.125"  # Docker image with Hail and Google Cloud SDK
     }
 
+    String pipeline_version = "aou_beta"
+
     call filter_vds_and_export_as_MT {
         # Task inputs mirror workflow inputs
         input:

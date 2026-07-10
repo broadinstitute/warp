@@ -72,6 +72,8 @@ workflow export_basis_MT_to_bed_dense_MTs {
         String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.125"  # Docker image with Hail and Google Cloud SDK
     }
 
+    String pipeline_version = "aou_beta"
+
     call export_basis_MT_to_bed_dense_MTs {
         # Task inputs mirror workflow inputs
         input:
