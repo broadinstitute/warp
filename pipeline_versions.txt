@@ -9,7 +9,8 @@ Glimpse2LowPassImputation	 1.0.0	2026-06-30
 Glimpse2LowPassImputationBatch	 1.0.0	2026-06-30 
 Glimpse2LowPassImputationQC	 1.0.4	2026-05-22 
 Glimpse2LowPassImputationQuotaConsumed	 1.0.0	2026-06-30 
-Glimpse2SVImputation	 0.0.1	2026-07-08
+Glimpse2SVImputation	 0.0.1	2026-07-08 
+Glimpse2SVImputationBatch	 0.0.1	2026-07-08 
 IlluminaGenotypingArray	 1.12.27	2026-01-21 
 Imputation	 1.1.23	2025-10-03 
 ImputationBeagle	 3.0.1	2026-02-23 
@@ -21,6 +22,7 @@ Optimus	 9.1.0	2026-05-15
 PairedTag	 3.0.1	2026-05-15 
 PeakCalling	 1.0.1	2025-08-11 
 Pipeline Name	Version	Date of Last Commit
+PreprocessPLsGVCF	 0.0.1	2026-07-08 
 RNAWithUMIsPipeline	 1.0.20	2026-01-21 
 ReblockGVCF	 2.4.4	2026-01-29 
 SlideSeq	 3.6.7	2026-05-15 
