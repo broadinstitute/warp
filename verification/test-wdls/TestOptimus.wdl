@@ -28,8 +28,10 @@ workflow TestOptimus {
     File? mt_genes
     String? soloMultiMappers
 
-    # Chemistry options include: 2 or 3
+    # Chemistry options include: 2, 3, or 4 (GEM-X)
     Int tenx_chemistry_version = 2
+    # For v4 only: "v4" (Cell Ranger 8.0/8.0.1 whitelist) or "v4_TRU" (Cell Ranger 9.0+; default when unspecified)
+    String? tenx_chemistry_subversion
     # Whitelist is selected based on the input tenx_chemistry_version
 
     # Emptydrops lower cutoff
@@ -79,6 +81,7 @@ workflow TestOptimus {
       tar_star_reference         = tar_star_reference,
       annotations_gtf            = annotations_gtf,
       tenx_chemistry_version     = tenx_chemistry_version,
+      tenx_chemistry_subversion  = tenx_chemistry_subversion,
       emptydrops_lower           = emptydrops_lower,
       force_no_check             = force_no_check,
       star_strand_mode           = star_strand_mode,
