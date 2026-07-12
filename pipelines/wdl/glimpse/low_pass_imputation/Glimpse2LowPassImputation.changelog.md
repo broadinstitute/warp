@@ -1,3 +1,8 @@
+# 1.0.1
+2026-07-12 (Date of Last Commit)
+
+* update batch subworkflow
+
 # 1.0.0
 2026-06-30 (Date of Last Commit)
 
