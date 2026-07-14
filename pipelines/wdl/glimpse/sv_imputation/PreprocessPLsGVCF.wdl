@@ -17,8 +17,6 @@ workflow PreprocessPLsGVCF {
         File? sample_names_map_file           # TSV map of entity_id (research_id) to id2 for AoU DRAGEN gVCFs;
         # Terra struggles with id2 as they are parsed as mixed strings/numbers
 
-        String output_prefix
-
         # inputs for PreprocessPLs
         File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
         File preprocess_panel_bubble_split_sites_only_vcf_idx
@@ -65,7 +63,7 @@ workflow PreprocessPLsGVCF {
                 panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
                 panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
                 sample_names = [sample_names_[j]],
-                output_prefix = output_prefix + ".sample-" + j + "." + sample_names_[j] + ".preprocessedPLs",
+                output_prefix = ".sample-" + j + "." + sample_names_[j] + ".preprocessedPLs",
                 extract_bubble_likelihoods_script = extract_bubble_likelihoods_script,
                 cargo_toml = extract_bubble_likelihoods_cargo_toml,
                 extract_bubble_likelihoods_binary = extract_bubble_likelihoods_binary,
@@ -82,7 +80,7 @@ workflow PreprocessPLsGVCF {
             batch_sizes = [50, 50],
             do_localization = [true, true],
             timeouts_min = [0, 0],
-            output_prefix = output_prefix + ".preprocessedPLs",
+            output_prefix = "preprocessedPLs.merged",
             paste_vcfs_binary = paste_vcfs_binary,
             extra_merge_args = "--threads $(nproc) --format GT,PL",
             extra_concat_args = "--threads $(nproc) --naive"
@@ -117,18 +115,18 @@ task MapSampleNames {
         # Use awk to load the TSV map into memory, then translate the entity IDs array in order
         awk 'BEGIN {FS="\t"; OFS="\t"}
         NR==FNR {
-        # First pass: read the map file into an array
-        map[$1] = $2;
-        next
+            # First pass: read the map file into an array
+            map[$1] = $2;
+            next
         }
         {
-        # Second pass: read the entity_ids file
-        if ($1 in map) {
-        print map[$1]
-        } else {
-        print "Error: ID " $1 " not found in map file" > "/dev/stderr"
-        exit 1
-        }
+            # Second pass: read the entity_ids file
+            if ($1 in map) {
+                print map[$1]
+            } else {
+                print "Error: ID " $1 " not found in map file" > "/dev/stderr"
+                exit 1
+            }
         }' ~{sample_names_map_file} ~{write_lines(entity_ids)} > mapped_names.txt
     >>>
 

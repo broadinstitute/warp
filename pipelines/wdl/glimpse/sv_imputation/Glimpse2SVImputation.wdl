@@ -59,7 +59,6 @@ workflow Glimpse2SVImputation {
         input_gvcf_idxs = input_gvcf_idxs,
         entity_ids = entity_ids,
         sample_names_map_file = sample_names_map_file,
-        output_prefix = output_prefix,
         preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
         preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
         extract_bubble_likelihoods_script = extract_bubble_likelihoods_script,
