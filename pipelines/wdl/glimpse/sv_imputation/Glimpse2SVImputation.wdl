@@ -39,8 +39,10 @@ workflow Glimpse2SVImputation {
         File genetic_maps_tsv
         File chunked_panel_json
 
-        String extra_phase_args = "--thread $(nproc) --impute-reference-only-variants --keep-monomorphic-ref-sites --Kpbwt 1000 --main 10 --burnin 5 --err-imp 1E-3"
-        Int? glimpse_phase_cpu
+        String extra_phase_args = "--impute-reference-only-variants --keep-monomorphic-ref-sites --Kpbwt 1000 --main 10 --burnin 5 --err-imp 1E-3"
+        
+        # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
+        Int? glimpse_phase_cpu_override
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
@@ -86,7 +88,7 @@ workflow Glimpse2SVImputation {
             pop_glimpse2_cargo_toml = pop_glimpse2_cargo_toml,
             pop_glimpse2_binary = pop_glimpse2_binary,
             glimpse2_docker = glimpse2_docker,
-            glimpse_phase_cpu = glimpse_phase_cpu
+            glimpse_phase_cpu_override = glimpse_phase_cpu_override
     }
 
     output {

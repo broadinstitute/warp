@@ -18,7 +18,9 @@ workflow Glimpse2SVImputationBatch {
         File chunked_panel_json
 
         String extra_phase_args
-        Int? glimpse_phase_cpu
+        # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
+        Int? glimpse_phase_cpu_override
+
         String output_prefix
 
         # inputs for PopAndMarginalizeCollisions
@@ -59,9 +61,9 @@ workflow Glimpse2SVImputationBatch {
                 extra_phase_args = extra_phase_args,
                 docker = glimpse2_docker,
                 runtime_attr_override = object {
-                    cpu_cores: glimpse_phase_cpu
+                    cpu_cores: glimpse_phase_cpu_override
                 },
-                cpu = glimpse_phase_cpu
+                threads = glimpse_phase_cpu_override
         }
     }
 
@@ -167,8 +169,8 @@ task GLIMPSE2Phase {
         File genetic_map
         String output_prefix
         Int seed = 15052011
-        Int cpu = 4
-        String? extra_phase_args = "--impute-reference-only-variants --keep-monomorphic-ref-sites --Kpbwt 1000 --main 10 --burnin 5 --err-imp 1E-3"
+        Int threads = 4
+        String? extra_phase_args
 
         String docker
 
@@ -185,7 +187,7 @@ task GLIMPSE2Phase {
                 -R ~{panel_split_chunk_bin} \
                 ~{extra_phase_args} \
                 --output ~{output_prefix}.raw.bcf \
-                --threads ~{cpu} \
+                --threads ~{threads} \
                 --seed ~{seed} \
                 --checkpoint-file-out checkpoint.bin"
 
