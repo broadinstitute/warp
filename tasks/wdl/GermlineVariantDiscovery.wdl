@@ -64,7 +64,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --max_alternate_alleles 3 \
       -variant_index_parameter 128000 \
       -variant_index_type LINEAR \
-      -contamination ~{default=0 contamination} \
+      -contamination ~{default="0" contamination} \
       --read_filter OverclippedRead
 
   }
@@ -72,7 +72,7 @@ task HaplotypeCaller_GATK35_GVCF {
     docker: docker
     preemptible: preemptible_tries
     memory: "10000 MiB"
-    cpu: "1"
+    cpu: 1
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
@@ -147,7 +147,7 @@ task HaplotypeCaller_GATK4_VCF {
       -I ~{input_bam} \
       -L ~{interval_list} \
       -O ~{output_file_name} \
-      -contamination ~{default=0 contamination} \
+      -contamination ~{default="0" contamination} \
       -G StandardAnnotation -G StandardHCAnnotation ~{true="-G AS_StandardAnnotation" false="" make_gvcf} \
       ~{true="--dragen-mode" false="" run_dragen_mode_variant_calling} \
       ~{false="--disable-spanning-event-genotyping" true="" use_spanning_event_genotyping} \
@@ -164,7 +164,7 @@ task HaplotypeCaller_GATK4_VCF {
     docker: gatk_docker
     preemptible: preemptible_tries
     memory: "~{memory_size_mb} MiB"
-    cpu: "2"
+    cpu: 2
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
   }
@@ -380,7 +380,7 @@ task CNNScoreVariants {
     docker: gatk_docker
     preemptible: preemptible_tries
     memory: "15000 MiB"
-    cpu: "2"
+    cpu: 2
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
   }
@@ -436,7 +436,7 @@ task FilterVariantTranches {
 
   runtime {
     memory: "7000 MiB"
-    cpu: "2"
+    cpu: 2
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries

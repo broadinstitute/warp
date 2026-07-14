@@ -75,7 +75,7 @@ task ConcatenateChromosomalVcfs {
     runtime {
         docker: bcftools_docker
         memory: "${memory_gb} GB"
-        cpu: "${cpu}"
+        cpu: cpu
         disk: "local-disk ${disk_gb} HDD"
         preemptible: num_preemptible_attempts
     }
@@ -155,7 +155,7 @@ task create_hw_pca_training {
     runtime {
         docker: "hailgenetics/hail:0.2.67"
         memory: "${mem_gb} GB"
-        cpu: "${cpu}"
+        cpu: cpu
         disks: "local-disk ${disk_gb} ${disk_type}" # large SSD is recommended for increased processing speed
     }
 }
@@ -244,7 +244,7 @@ task plot_pca {
     runtime {
         docker: "faizanbashir/python-datascience:3.6"
         memory: "${mem_gb} GB"
-        cpu: "${cpu}"
+        cpu: cpu
         disks: "local-disk ${disk_gb} HDD"
     }
 }

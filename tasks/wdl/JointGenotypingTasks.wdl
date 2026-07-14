@@ -301,7 +301,7 @@ task HardFilterAndMakeSitesOnlyVcf {
 
   runtime {
     memory: "~{machine_mem_mb} MiB"
-    cpu: "1"
+    cpu: 1
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size_gb + " HDD"
     preemptible: 1
@@ -363,7 +363,7 @@ task IndelsVariantRecalibrator {
 
   runtime {
     memory: "~{machine_mem_mb} MiB"
-    cpu: "2"
+    cpu: 2
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size_gb + " HDD"
     preemptible: 1
@@ -431,7 +431,7 @@ task SNPsVariantRecalibratorCreateModel {
 
   runtime {
     memory: "~{machine_mem_mb} MiB"
-    cpu: "2"
+    cpu: 2
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size_gb + " HDD"
     preemptible: 1
@@ -578,7 +578,7 @@ task GatherTranches {
 
   runtime {
     memory: "~{machine_mem_mb} MiB"
-    cpu: "2"
+    cpu: 2
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size_gb + " HDD"
     preemptible: 1
@@ -638,7 +638,7 @@ task ApplyRecalibration {
 
   runtime {
     memory: "~{machine_mem_mb} MiB"
-    cpu: "1"
+    cpu: 1
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size_gb + " HDD"
     preemptible: 1
@@ -685,7 +685,7 @@ task GatherVcfs {
 
   runtime {
     memory: "~{machine_mem_mb} MiB"
-    cpu: "1"
+    cpu: 1
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size_gb + " HDD"
     preemptible: 1
@@ -856,7 +856,7 @@ task GatherVariantCallingMetrics {
 
   runtime {
     memory: "~{machine_mem_mb} MiB"
-    cpu: "1"
+    cpu: 1
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size_gb + " HDD"
     preemptible: 1

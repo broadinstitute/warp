@@ -431,9 +431,9 @@ task ValidateSamFile {
       OUTPUT=~{report_filename} \
       REFERENCE_SEQUENCE=~{ref_fasta} \
       ~{"MAX_OUTPUT=" + max_output} \
-      IGNORE=~{default="null" sep=" IGNORE=" ignore} \
+      ~{sep=" " prefix("IGNORE=", select_first([ignore, ["null"]]))} \
       MODE=VERBOSE \
-      ~{default='SKIP_MATE_VALIDATION=false' true='SKIP_MATE_VALIDATION=true' false='SKIP_MATE_VALIDATION=false' is_outlier_data} \
+      ~{true='SKIP_MATE_VALIDATION=true' false='SKIP_MATE_VALIDATION=false' select_first([is_outlier_data, false])} \
       IS_BISULFITE_SEQUENCED=false
   }
   runtime {

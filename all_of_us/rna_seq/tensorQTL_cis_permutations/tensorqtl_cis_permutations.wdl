@@ -50,7 +50,7 @@ task tensorqtl_cis_permutations {
         memory: "~{memory}GB"
         disks: "local-disk ~{disk_space} HDD"
         bootDiskSizeGb: 25
-        cpu: "~{num_threads}"
+        cpu: num_threads
         preemptible: "~{num_preempt}"
         gpuType: "nvidia-tesla-p100"
         gpuCount: "~{num_gpus}"
