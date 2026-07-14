@@ -70,7 +70,7 @@ workflow scANVI {
 
   # Docker image (same container for both tasks; only Task 2 gets GPUs attached)
   # Exposes run_gex_only_model for GEX-only mode (warp-tools/3rd-party-tools/scvi-scanvi).
-  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:55c2e23900d6c451dc04eca886f80594b4cd63eb285e7073ce506275507bd179"
+  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:71e613b1df50e68979ac1a13436cf78c85811796adc3372df31e52ff813ad565"
   # Step 1: CPU-only preprocessing and filtering of all three h5ad inputs
   call PreprocessFilter {
       input:
@@ -635,7 +635,7 @@ if atac_present:
 # ── 6. Finalize SCANVI predictions ──────────────────────────────────────
 # finalize_output() adds downstream-required metadata and reformats:
 #   a. Adds placeholder metadata (biosample_id, donor_id, species,
-#      disease, organ, library_preparation_protocol, sex)
+#      disease, organ, library_preparation_protocol, data_modality, sex)
 #   b. Renames 'final_annotation' → 'celltype'
 #   c. Copies the count matrix into the .raw layer for SCP ingest
 print("Finalizing SCANVI predictions...")
