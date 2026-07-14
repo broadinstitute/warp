@@ -1,12 +1,12 @@
 version 1.0
 
-import "../../tasks/wdl/FastqProcessing.wdl" as FastqProcessing
-import "../../tasks/wdl/StarAlign.wdl" as StarAlign
-import "../../tasks/wdl/Metrics.wdl" as Metrics
-import "../../tasks/wdl/RunEmptyDrops.wdl" as RunEmptyDrops
-import "../../tasks/wdl/CheckInputs.wdl" as OptimusInputChecks
-import "../../tasks/wdl/H5adUtils.wdl" as H5adUtils
-import "../../tasks/wdl/Utilities.wdl" as utils
+import "../../../tasks/wdl/FastqProcessing.wdl" as FastqProcessing
+import "../../../tasks/wdl/StarAlign.wdl" as StarAlign
+import "../../../tasks/wdl/Metrics.wdl" as Metrics
+import "../../../tasks/wdl/RunEmptyDrops.wdl" as RunEmptyDrops
+import "../../../tasks/wdl/CheckInputs.wdl" as OptimusInputChecks
+import "../../../tasks/wdl/H5adUtils.wdl" as H5adUtils
+import "../../../tasks/wdl/Utilities.wdl" as utils
 import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 
 workflow Optimus {
