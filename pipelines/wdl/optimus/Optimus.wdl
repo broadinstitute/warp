@@ -47,6 +47,10 @@ workflow Optimus {
     Int tenx_chemistry_version
     # For v4 chemistry: "v4" (Cell Ranger v8.0/v8.0.1) or "v4_TRU" (Cell Ranger v9.0 and later; default when unspecified)
     String? tenx_chemistry_subversion
+    # REMINDER: if you add/change chemistry inputs here, the test WDLs that set them
+    # (verification/test-wdls/Test*.wdl, e.g. TestOptimus.wdl) must also declare and forward
+    # them — a test JSON input the wrapper doesn't forward is rejected at CI run time (womtool
+    # won't catch it). This applies to any Test wrapper for a pipeline updated to support v4.
     # Whitelist is selected based on tenx_chemistry_version (and tenx_chemistry_subversion for v4)
     File whitelist = checkOptimusInput.whitelist_out
 

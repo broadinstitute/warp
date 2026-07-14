@@ -27,6 +27,9 @@ workflow Multiome {
         File tar_star_reference
         File annotations_gtf
         File? mt_genes
+        # NOTE: V4 chemistry is not yet supported here. To add V4 support, also declare the
+        # optional String? tenx_chemistry_subversion input and forward BOTH chemistry inputs to
+        # Optimus (an unspecified subversion defaults to the v4_TRU whitelist; see Optimus.wdl).
         Int tenx_chemistry_version = 3
         Int emptydrops_lower = 100
         Boolean force_no_check = false
