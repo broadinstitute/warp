@@ -1,12 +1,12 @@
 version 1.0
 
-import "../../../tasks/wdl/FastqProcessing.wdl" as FastqProcessing
-import "../../../tasks/wdl/StarAlign.wdl" as StarAlign
-import "../../../tasks/wdl/Metrics.wdl" as Metrics
-import "../../../tasks/wdl/RunEmptyDrops.wdl" as RunEmptyDrops
-import "../../../tasks/wdl/CheckInputs.wdl" as OptimusInputChecks
-import "../../../tasks/wdl/H5adUtils.wdl" as H5adUtils
-import "../../../tasks/wdl/Utilities.wdl" as utils
+import "../../tasks/wdl/FastqProcessing.wdl" as FastqProcessing
+import "../../tasks/wdl/StarAlign.wdl" as StarAlign
+import "../../tasks/wdl/Metrics.wdl" as Metrics
+import "../../tasks/wdl/RunEmptyDrops.wdl" as RunEmptyDrops
+import "../../tasks/wdl/CheckInputs.wdl" as OptimusInputChecks
+import "../../tasks/wdl/H5adUtils.wdl" as H5adUtils
+import "../../tasks/wdl/Utilities.wdl" as utils
 import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 
 workflow Optimus {
@@ -265,6 +265,10 @@ workflow Optimus {
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
     File whitelist_input_used = final_whitelist_input
+    # Barcode whitelist path selected by checkOptimusInput (based on tenx_chemistry_version and
+    # tenx_chemistry_subversion for v4). Surfaced so verification can assert the selected whitelist,
+    # e.g. that an unspecified v4 subversion defaults to the v4_TRU whitelist.
+    String whitelist_used = checkOptimusInput.whitelist_out
    
     # Metrics outputs
     File cell_metrics = CellMetrics.cell_metrics
