@@ -2,6 +2,8 @@
 
 Single entry point for all agent-driven and AI-coding work in this repository. Start here. This file holds the agent-operational guidance; for the *rules* and *rationale* behind it, follow the links to the canonical human-facing docs below — those are the source of truth, so do not restate them here.
 
+> **Opening, updating, or merging pull requests is never an agent's job.** Do the work on a branch and push it when asked; the human opens and manages the PR. Also confirm a branch still exists before pushing to it — pushing to a deleted (e.g. post-merge) branch silently recreates it.
+
 ## Authoritative References
 
 | Topic | Document |
@@ -25,6 +27,7 @@ The human-facing docs are canonical for rules and rationale. Anything *agent-spe
 5. **Sub-workflow contract** — removing an input from a shared WDL requires removing it from every caller. See [Sub-workflow input contract](#sub-workflow-input-contract).
 6. **Stale example/test inputs** — when you rename a workflow or remove/rename inputs, audit `pipelines/wdl/<name>/example_inputs/*.json` and `test_inputs/**/*.json`; they break silently because they are not checked by womtool.
 7. **Touching a pipeline's interface** — also update the pipeline's docs page under `website/docs/Pipelines/<Name>_Pipeline/README.md` and run `yarn --cwd=website build` to catch broken links.
+8. **Documented defaults must match the code** — if a comment, `parameter_meta`, or README says an optional input "defaults to X when unspecified", make that default declarative (`select_first([input, "X"])` or a defaulted declaration) and verify the consuming code's unset path actually yields X. A `String?` interpolates to an empty string in bash, so a downstream `if/else` can silently encode the *opposite* default (as happened with Optimus `tenx_chemistry_subversion`); womtool checks types, not this, and tests that pin explicit values never exercise the default. Treat every prose "default" as a claim to verify against the code.
 
 ## Repository Structure
 
@@ -120,13 +123,14 @@ Every pipeline carries a `String pipeline_version = "major.minor.patch"` and a c
 
 ### Cascading version bumps
 
-When a shared task changes, every workflow that imports it may need a version bump. Either bump the version with a changelog note **or** add a bullet explicitly stating there is no functional impact on that pipeline. The concrete dependency chains:
+Editing a shared task (`tasks/wdl/*.wdl`) forces a version bump on **every** pipeline that imports it, directly or transitively. For each such pipeline update **three** things: the WDL's `String pipeline_version`, its `.changelog.md` (new entry — a plain "No functional impact" bullet is fine when the change can't affect it), and its line in `pipeline_versions.txt`.
 
-- `tasks/wdl/StarAlign.wdl` → **Optimus**, **SlideSeq**, **Multiome** (via Optimus), **PairedTag** (via Optimus), **SlideTags** (via Optimus), **MultiSampleSmartSeq2SingleNucleus**
-- `tasks/wdl/CheckInputs.wdl` → **Optimus** (via `checkOptimusInput`) and its wrappers (**Multiome**, **PairedTag**, **SlideTags**); also **MultiSampleSmartSeq2SingleNucleus** (via `checkInputArrays`, a separate task in the same file). Note: SlideSeq imports this file but never calls any of its tasks — changes to CheckInputs.wdl task signatures do not functionally affect SlideSeq through this import.
-- `tasks/wdl/Metrics.wdl` → Most Skylab-origin pipelines
+**Get the exact list from the tool — don't guess and don't rely on the chains below being current:** run `scripts/validate_release.sh -g origin/staging` (add `-i true` to also check changelogs). It prints `X.wdl has not been changed and needs updating` for every importer still missing a bump; fix and re-run until it says all are valid. This is exactly what the `WARP Validate Version` / `WARP Validate Changelog` CI checks run, so a local pass means those checks pass. **womtool does not catch this** — it validates call signatures, not changelogs.
 
-> **Important:** passing womtool validation is **not sufficient** to satisfy cascading bump requirements. Womtool only checks task call signatures — it does not enforce changelog updates. When CI reports "X.changelog.md has not been changed and needs to be updated", that is a cascading bump violation: patch-bump the WDL version, add a changelog entry (even "no functional impact"), and update `pipeline_versions.txt`.
+Known chains (a starting point; the script above is authoritative):
+- `tasks/wdl/CheckInputs.wdl` → **Optimus** (`checkOptimusInput`) + its wrappers **Multiome**, **PairedTag**, **SlideTags**; **MultiSampleSmartSeq2SingleNucleus** (`checkInputArrays`); **SlideSeq** imports it but calls nothing (→ "no functional impact").
+- `tasks/wdl/StarAlign.wdl` → **Optimus**, **SlideSeq**, **Multiome**, **PairedTag**, **SlideTags**, **MultiSampleSmartSeq2SingleNucleus**.
+- `tasks/wdl/Metrics.wdl` → most Skylab-origin pipelines.
 
 ## WDL Style
 

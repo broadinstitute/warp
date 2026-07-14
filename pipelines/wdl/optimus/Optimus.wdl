@@ -47,6 +47,10 @@ workflow Optimus {
     Int tenx_chemistry_version
     # For v4 chemistry: "v4" (Cell Ranger v8.0/v8.0.1) or "v4_TRU" (Cell Ranger v9.0 and later; default when unspecified)
     String? tenx_chemistry_subversion
+    # REMINDER: if you add/change chemistry inputs here, the test WDLs that set them
+    # (verification/test-wdls/Test*.wdl, e.g. TestOptimus.wdl) must also declare and forward
+    # them — a test JSON input the wrapper doesn't forward is rejected at CI run time (womtool
+    # won't catch it). This applies to any Test wrapper for a pipeline updated to support v4.
     # Whitelist is selected based on tenx_chemistry_version (and tenx_chemistry_subversion for v4)
     File whitelist = checkOptimusInput.whitelist_out
 
@@ -76,7 +80,7 @@ workflow Optimus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "9.1.0"
+  String pipeline_version = "9.2.0"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -261,6 +265,10 @@ workflow Optimus {
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
     File whitelist_input_used = final_whitelist_input
+    # Barcode whitelist path selected by checkOptimusInput (based on tenx_chemistry_version and
+    # tenx_chemistry_subversion for v4). Surfaced so verification can assert the selected whitelist,
+    # e.g. that an unspecified v4 subversion defaults to the v4_TRU whitelist.
+    String whitelist_used = checkOptimusInput.whitelist_out
    
     # Metrics outputs
     File cell_metrics = CellMetrics.cell_metrics
