@@ -50,7 +50,7 @@ task BcftoolsDosage {
     runtime {
         docker: "quay.io/eqtlcatalogue/susie-finemapping:v20.08.1"
         memory: "32G"
-        cpu: "${threads}"
+        cpu: threads
         disks: "local-disk 500 SSD"
     }
 

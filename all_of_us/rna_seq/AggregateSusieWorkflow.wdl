@@ -30,7 +30,7 @@ task AggregateSusie{
         docker: "ghcr.io/aou-multiomics-analysis/aggregate_susie:main@sha256:ede17b5112eadb765f22cdfbd2a987da96087a1e2f0ad224994c16f1af645443"
         disks: "local-disk 500 SSD"
         memory: "~{Memory}GB"
-        cpu: "~{NumThreads}"
+        cpu: NumThreads
     }
     
  
@@ -77,7 +77,7 @@ task AnnotateSusie {
         docker: "ghcr.io/aou-multiomics-analysis/aggregate_susie:main@sha256:ede17b5112eadb765f22cdfbd2a987da96087a1e2f0ad224994c16f1af645443"
         disks: "local-disk 500 SSD"
         memory: "~{Memory}GB"
-        cpu: "1"
+        cpu: 1
     }
 
 
