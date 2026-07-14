@@ -2,6 +2,8 @@
 
 Single entry point for all agent-driven and AI-coding work in this repository. Start here. This file holds the agent-operational guidance; for the *rules* and *rationale* behind it, follow the links to the canonical human-facing docs below — those are the source of truth, so do not restate them here.
 
+> **Opening, updating, or merging pull requests is never an agent's job.** Do the work on a branch and push it when asked; the human opens and manages the PR. Also confirm a branch still exists before pushing to it — pushing to a deleted (e.g. post-merge) branch silently recreates it.
+
 ## Authoritative References
 
 | Topic | Document |
@@ -25,6 +27,7 @@ The human-facing docs are canonical for rules and rationale. Anything *agent-spe
 5. **Sub-workflow contract** — removing an input from a shared WDL requires removing it from every caller. See [Sub-workflow input contract](#sub-workflow-input-contract).
 6. **Stale example/test inputs** — when you rename a workflow or remove/rename inputs, audit `pipelines/wdl/<name>/example_inputs/*.json` and `test_inputs/**/*.json`; they break silently because they are not checked by womtool.
 7. **Touching a pipeline's interface** — also update the pipeline's docs page under `website/docs/Pipelines/<Name>_Pipeline/README.md` and run `yarn --cwd=website build` to catch broken links.
+8. **Documented defaults must match the code** — if a comment, `parameter_meta`, or README says an optional input "defaults to X when unspecified", make that default declarative (`select_first([input, "X"])` or a defaulted declaration) and verify the consuming code's unset path actually yields X. A `String?` interpolates to an empty string in bash, so a downstream `if/else` can silently encode the *opposite* default (as happened with Optimus `tenx_chemistry_subversion`); womtool checks types, not this, and tests that pin explicit values never exercise the default. Treat every prose "default" as a claim to verify against the code.
 
 ## Repository Structure
 
