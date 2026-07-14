@@ -60,7 +60,8 @@ workflow Glimpse2SVImputationBatch {
                 docker = glimpse2_docker,
                 runtime_attr_override = object {
                     cpu_cores: glimpse_phase_cpu
-                }
+                },
+                cpu = glimpse_phase_cpu
         }
     }
 
@@ -166,6 +167,7 @@ task GLIMPSE2Phase {
         File genetic_map
         String output_prefix
         Int seed = 15052011
+        Int cpu = 4
         String? extra_phase_args = "--impute-reference-only-variants --keep-monomorphic-ref-sites --Kpbwt 1000 --main 10 --burnin 5 --err-imp 1E-3"
 
         String docker
