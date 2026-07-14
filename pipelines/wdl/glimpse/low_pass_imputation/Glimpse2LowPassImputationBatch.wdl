@@ -6,7 +6,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.1"
 
     input {
 
@@ -545,7 +545,7 @@ task GlimpsePhase {
 
         Int cpu = 4 # note that setting cpu > 1 will introduce non-determinism in GLIMPSE Phase due to multi-threading
         Int mem_gb = 16
-        Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 10)
+        Int disk_size_gb = ceil(0.5 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 10)
         Int preemptible = 30
         Int max_retries = 3
         String docker
