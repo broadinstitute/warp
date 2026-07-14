@@ -1,5 +1,6 @@
 version 1.0
-import  "https://raw.githubusercontent.com/AoU-Multiomics-Analysis/prepare_QTL/refs/heads/main/workflows/calculate_phenotypePCs.wdl" as ComputePCs
+# original workflow imported from AoU-multiomics repo
+# import  "https://raw.githubusercontent.com/AoU-Multiomics-Analysis/prepare_QTL/refs/heads/main/workflows/calculate_phenotypePCs.wdl" as ComputePCs
 
 task PrepareSpliceData {
     input {
