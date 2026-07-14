@@ -178,7 +178,7 @@ task sitesOnlyAndHQFilterVcf {
     runtime {
         docker:"us.gcr.io/broad-gatk/gatk:4.2.0.0"
         memory: "12 GB"
-        cpu: "4"
+        cpu: 4
         disks: "local-disk 100 HDD"
     }
 }
@@ -244,7 +244,7 @@ task merge_vcf_bgzs {
     runtime {
         docker: "mgibio/bcftools-cwl:1.12"
         memory: "120 GB"
-        cpu: "16"
+        cpu: 16
         disks: "local-disk 1500 HDD"
         bootDiskSizeGb: 1500
     }
@@ -303,7 +303,7 @@ task filter_by_sites_only {
     runtime {
         docker:"us.gcr.io/broad-gatk/gatk:4.2.0.0"
         memory: "7 GB"
-        cpu: "1"
+        cpu: 1
         disks: "local-disk 100 HDD"
     }
 }
@@ -340,7 +340,7 @@ task intersect_vcfs_as_sites_only {
     runtime {
         docker: "us.gcr.io/broad-gatk/gatk:4.2.0.0"
         memory: "7 GB"
-        cpu: "1"
+        cpu: 1
         disks: "local-disk 500 HDD"
     }
 }

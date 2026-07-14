@@ -50,7 +50,7 @@ task SortSam {
   runtime {
     docker: docker
     disks: "local-disk " + disk_size + " HDD"
-    cpu: "1"
+    cpu: 1
     memory: "${machine_mem_mb} MiB"
     preemptible: preemptible_tries
   }
