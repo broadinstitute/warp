@@ -1,3 +1,8 @@
+# 9.2.0
+2026-07-10 (Date of Last Commit)
+
+* Fixed v4 whitelist selection so an unspecified `tenx_chemistry_subversion` defaults to the `v4_TRU` (Cell Ranger v9.0+) whitelist, matching the documented behavior; only an explicit `"v4"` now selects the Cell Ranger v8.0/v8.0.1 whitelist
+
 # 9.1.0
 2026-05-15 (Date of Last Commit)
 

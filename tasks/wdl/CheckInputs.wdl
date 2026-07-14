@@ -125,11 +125,12 @@ task checkOptimusInput {
       echo 16C12M > read_struct.txt
     elif [[ ~{tenx_chemistry_version} == 4 ]]
       then
-      if [[ "~{tenx_chemistry_subversion}" == "v4_TRU" ]]
+      # v4 subversion selects the whitelist; unspecified defaults to v4_TRU (Cell Ranger v9.0+)
+      if [[ "~{tenx_chemistry_subversion}" == "v4" ]]
       then
-        WHITELIST="~{whitelist_v4_TRU}"
-      else
         WHITELIST="~{whitelist_v4}"
+      else
+        WHITELIST="~{whitelist_v4_TRU}"
       fi
       echo "WHITELIST:" $WHITELIST
       echo $WHITELIST > whitelist.txt

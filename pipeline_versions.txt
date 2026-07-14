@@ -14,7 +14,7 @@ ImputationBeagle	 3.0.1	2026-02-23
 JointGenotyping	 1.7.3	2025-08-11 
 MultiSampleSmartSeq2SingleNucleus	 2.2.7	2026-05-15 
 Multiome	 7.0.1	2026-05-15 
-Optimus	 9.1.0	2026-05-15 
+Optimus	 9.2.0	2026-07-10 
 PairedTag	 3.0.1	2026-05-15 
 PeakCalling	 1.0.1	2025-08-11 
 Pipeline Name	Version	Date of Last Commit
