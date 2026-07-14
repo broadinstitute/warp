@@ -88,7 +88,17 @@ workflow scANVI {
         docker = docker
   }
 
-  # Step 2: GPU-accelerated SCVI/SCANVI model training and label transfer
+  # GPU is attached only when gpu_count > 0. A CPU-only run (gpu_count = 0, e.g. the pretrained-
+  # model prediction path / Plumbing test) must OMIT the GPU runtime attributes entirely —
+  # Cromwell rejects gpuCount = 0 ("Expecting gpuCount runtime attribute value greater than 0").
+  # Passing these as optionals that are None when gpu_count = 0 makes Cromwell omit them.
+  if (gpu_count > 0) {
+    Int gpu_count_request = gpu_count
+    String gpu_type_request = "nvidia-tesla-t4"
+    String nvidia_driver_request = "535.104.05"
+  }
+
+  # Step 2: GPU-accelerated (or CPU-only when gpu_count = 0) SCVI/SCANVI training and label transfer
   call MultiomeLabelTransfer {
       input:
         gex_h5ad = PreprocessFilter.preprocessed_gex_h5ad,
@@ -99,7 +109,9 @@ workflow scANVI {
         batch_size = batch_size,
         output_max_probability = output_max_probability,
         scanvi_model = scanvi_model,
-        gpu_count = gpu_count,
+        gpu_count = gpu_count_request,
+        gpu_type = gpu_type_request,
+        nvidia_driver_version = nvidia_driver_request,
         mem_size = mem_size,
         nthreads = nthreads,
         disk_size = disk_size,
@@ -454,7 +466,11 @@ task MultiomeLabelTransfer {
         # loads it and predicts instead of training SCVI/SCANVI.
         File? scanvi_model
         String docker
-        Int gpu_count = 2
+        # GPU runtime attributes. All three are optional and set together by the workflow only when
+        # gpu_count > 0; when unset (CPU-only run), the runtime omits the GPU attributes entirely.
+        Int? gpu_count
+        String? gpu_type
+        String? nvidia_driver_version
         Int disk_size = 500
         Int mem_size = 120
         Int nthreads = 32
@@ -470,7 +486,9 @@ task MultiomeLabelTransfer {
         output_max_probability: "When true, also write a `max_probability` obs column (the per-cell maximum SCANVI posterior probability, i.e. the assigned label's confidence) to every output h5ad."
         scanvi_model: "Optional .tar.gz of a saved SCANVI model directory (no bundled adata). When provided, the model is loaded and used to predict (no SCVI/SCANVI training). Valid when the model matches the incoming data/reference. The run still emits its model as scanvi_model_out."
         docker: "Docker image containing the scvi-scanvi runtime environment."
-        gpu_count: "GPUs to request. Default 2 (training, or inference on large data). Set 0 for a CPU-only prediction run (e.g. the pretrained Plumbing test)."
+        gpu_count: "GPUs to request. Set by the workflow from its gpu_count input (default 2). Unset here (workflow gpu_count = 0) means a CPU-only run — the GPU runtime attributes are omitted."
+        gpu_type: "GPU type (set with gpu_count when GPUs are requested; unset for CPU-only runs)."
+        nvidia_driver_version: "NVIDIA driver version (set with gpu_count when GPUs are requested; unset for CPU-only runs)."
         disk_size: "Disk size in GB."
         mem_size: "Memory size in GB."
     }
@@ -569,6 +587,17 @@ else:
     max_epochs_val = "~{default='' max_epochs}".strip()
     train_kwargs = {"max_epochs": int(max_epochs_val)} if max_epochs_val else {}
     train_kwargs["batch_size"] = ~{batch_size}
+    # Forward only kwargs the container's training function actually accepts, so a WDL/image
+    # version skew (e.g. an image whose run_gex_only_model predates max_epochs/batch_size)
+    # degrades gracefully instead of raising "unexpected keyword argument".
+    import inspect
+    _train_fn = run_multi_model if atac_present else run_gex_only_model
+    _accepted = set(inspect.signature(_train_fn).parameters)
+    _dropped = sorted(k for k in train_kwargs if k not in _accepted)
+    if _dropped:
+        print(f"  WARNING: {_train_fn.__name__} in this image does not accept {_dropped}; "
+              f"ignoring them (rebuild/repin the container image to honor these inputs)")
+    train_kwargs = {k: v for k, v in train_kwargs.items() if k in _accepted}
     print(f"  training kwargs: {train_kwargs}")
     if atac_present:
         data, vae, lvae = run_multi_model(gex, atac_activity, ref, **train_kwargs)
@@ -669,9 +698,12 @@ CODE
         disks: "local-disk ${disk_size} SSD"
         memory: "${mem_size} GiB"
         cpu: nthreads
-        hardware_gpu_type: "nvidia-tesla-t4" # known to work with Terra
+        # GPU attributes (camelCase = portable across Cromwell/Terra/GCP). All optional and set
+        # together only when gpu_count > 0; when None (CPU-only run) Cromwell omits them, so no
+        # GPU is attached — avoids the "gpuCount must be > 0" error from passing gpuCount = 0.
+        gpuType: gpu_type
         gpuCount: gpu_count
-        nvidia_driver_version: "535.104.05" # compatible with CUDA 12.x and T4 GPUs, known to work with Terra
+        nvidiaDriverVersion: nvidia_driver_version
         maxRetries: 1
     }
 
