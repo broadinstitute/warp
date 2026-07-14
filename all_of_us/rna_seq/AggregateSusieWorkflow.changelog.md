@@ -1,6 +1,11 @@
-# aou_9.0.2
+# aou_9.0.3
+2026-05-11 (Date of Last Commit)
 
+* Removed unnecessary file list from aggregate task
+
+# aou_9.0.2
 2026-01-29 (Date of Last Commit)
+
 * Added set euo pipefail to tasks
 
 # aou_9.0.1
