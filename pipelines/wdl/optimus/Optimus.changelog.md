@@ -2,11 +2,13 @@
 2026-07-10 (Date of Last Commit)
 
 * Fixed v4 whitelist selection so an unspecified `tenx_chemistry_subversion` defaults to the `v4_TRU` (Cell Ranger v9.0+) whitelist, matching the documented behavior; only an explicit `"v4"` now selects the Cell Ranger v8.0/v8.0.1 whitelist
+* Made `checkOptimusInput` fail fast on an invalid `tenx_chemistry_subversion`: only `"v4"`, `"v4_TRU"`, or unspecified are accepted for v4 chemistry, and any other value now errors instead of silently selecting the v4_TRU whitelist
+* Surfaced the selected barcode whitelist as a new `whitelist_used` workflow output and added a `CompareStrings` verification (wired through TestOptimus/VerifyOptimus) so the selected whitelist can be regression-tested; this change is provenance-only and does not affect existing pipeline outputs
 
 # 9.1.0
 2026-05-15 (Date of Last Commit)
 
-* Added native support for 10x 3' v4 (GEM-X) chemistry by accepting `tenx_chemistry_version = 4`; added `tenx_chemistry_subversion` input (`"v4"` for Cell Ranger v8.0/v8.0.1, `"v4_TRU"` for Cell Ranger v9.0 and later) to select the correct barcode whitelist
+* Added native support for 10x 3' v4 (GEM-X) chemistry by accepting `tenx_chemistry_version = 4`; added `tenx_chemistry_subversion` input (`"v4"` for Cell Ranger v8.0/v8.0.1, `"v4_TRU"` for Cell Ranger v9.0+)
 * Added runtime check that `i1_fastq` is provided when `tenx_chemistry_version` is 4
 * Corrected barcode whitelist GCS paths to use the canonical `optimus_whitelists/` bucket prefix and fixed `febrary` → `february` typo in the v3 whitelist path
 * Removed all Azure cloud options (ACR docker prefixes, Azure whitelist URLs, Azure CellBender branch); `cloud_provider` input is retained and defaults to `"gcp"`
@@ -16,9 +18,9 @@
 # 9.0.0
 2026-04-02 (Date of Last Commit)
 
-* Removed the `count_exons` parameter and feature entirely; the previously-broken exon-counts layer is no longer produced. `sn_rna` mode now always emits a single whole-transcript count matrix (`GeneFull_Ex50pAS`). Removed the corresponding `*_sn_rna` / `*_exon` outputs from STARsoloFastq.
+* Removed the `count_exons` parameter and feature entirely; the previously-broken exon-counts layer is no longer produced. `sn_rna` mode now always emits a single whole-transcript count matrix (`GeneFull_Ex50pAS`)
 
-* Refactored `STARsoloFastq` to compute STAR parameters (`umi_len`, `cb_len`, `solo_features`, `solo_directory`) at the workflow level rather than inside bash. The `chemistry` task input was replaced with explicit `umi_len` and `cb_len` inputs. Added validation of `star_strand_mode` to `checkOptimusInput`. Parameterized the per-matrix output prefix (`OUTPUT_BASE`) so the `star_metrics.tar` artifact name is unique per matrix and no longer overwritten on subsequent matrix processing.
+* Refactored `STARsoloFastq` to compute STAR parameters (`umi_len`, `cb_len`, `solo_features`, `solo_directory`) at the workflow level rather than inside bash. The `chemistry` task input was replaced
 # 8.0.7
 2026-04-21 (Date of Last Commit)
 
@@ -28,7 +30,7 @@
 2026-02-24 (Date of Last Commit)
 
 * Added 1 new output to Optimus.wdl: whitelist_input_used; this output indicates the whitelist used. This change is provenance-only and introduces no functional changes to pipeline outputs
-* Added whitelist provenance tracking to OptimusH5adGeneration and SingleNucleusOptimusH5adOutput by storing the whitelist path in the h5ad unstructured metadata (.uns). This change is provenance-only and introduces no functional changes to pipeline outputs
+* Added whitelist provenance tracking to OptimusH5adGeneration and SingleNucleusOptimusH5adOutput by storing the whitelist path in the h5ad unstructured metadata (.uns). This change is provenance-only
 
 # 8.0.5
 2026-01-22 (Date of Last Commit)
@@ -60,11 +62,11 @@
 # 8.0.0
 2025-04-02 (Date of Last Commit)
 
-* Implemented a unified STARsolo execution strategy to ensure consistent and accurate cell barcode correction across the entire dataset. This update resolves discrepancies that previously arose from sharded (partitioned) processing, where each shard independently corrected barcodes using incomplete local priors. By consolidating barcode frequency calculations and applying correction globally, the pipeline now mirrors the behavior of DropSeq and Cell Ranger
+* Implemented a unified STARsolo execution strategy to ensure consistent and accurate cell barcode correction across the entire dataset. This update resolves discrepancies that previously arose from sharding
 * Removed boolean variable is_slidetags; no longer needed with new updates
 * Refactored the STAR alignment step and removed tasks FastqProcessing and MergeSortBamFiles
-* Added parameters for STARsoloFastq task, including cpu_platform_star, mem_size_star, cpu_star, disk_star, limitBAMsortRAM_star, and outBAMsortingBinsN_star, for dynamic allocation of resources depending on input size
-* Removed MergeStarOutput tasks; added necessary parts of MergeStarOutput task to the STAR alignment step (STARsoloFastq). Additional outputs added to STARsoloFastq task as a result; this includes row_index, col_index, sparse_counts, library_metrics, mtx_files, filtered_mtx_files and cell_reads_out
+* Added parameters for STARsoloFastq task, including cpu_platform_star, mem_size_star, cpu_star, disk_star, limitBAMsortRAM_star, and outBAMsortingBinsN_star, for dynamic allocation of resources during alignment
+* Removed MergeStarOutput tasks; added necessary parts of MergeStarOutput task to the STAR alignment step (STARsoloFastq). Additional outputs added to STARsoloFastq task as a result
 * Updated the STAR docker image to include Samtools and Python
 
 # 7.9.2
@@ -103,7 +105,7 @@
 # 7.8.1
 2024-11-04 (Date of Last Commit)
 
-* Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task should not affect the Optimus pipeline
+* Updated the tabix flag in JoinMultiomeBarcodes task in H5adUtils.wdl to use CSI instead of TBI indexing, which supports chromosomes larger than 512 Mbp; this task should not affect the Optimus workflow
 
 
 # 7.8.0
@@ -118,7 +120,7 @@
 # 7.7.0
 2024-09-24 (Date of Last Commit)
 
-* Added a python implementation of DoubletFinder to calculate doublet scores in gene expression data; percent doublets are now available as a library-level metric and individual doublet scores for cell barcodes are in the h5ad
+* Added a python implementation of DoubletFinder to calculate doublet scores in gene expression data; percent doublets are now available as a library-level metric and individual doublet scores for cells are in the h5ad
 * Updated gene_names in the final h5ad to be unique
 
 # 7.6.1
@@ -151,7 +153,7 @@
 # 7.3.0
 2024-07-09 (Date of Last Commit)
 
-* Added new optional input parameter of gex_nhash_id, a string identifier for a library aliquot that is echoed in the h5ad cell by gene matrix (in the data.uns) and the library metrics CSV output; default is set to null 
+* Added new optional input parameter of gex_nhash_id, a string identifier for a library aliquot that is echoed in the h5ad cell by gene matrix (in the data.uns) and the library metrics CSV output
 
 # 7.2.0
 2024-06-28 (Date of Last Commit)
@@ -234,7 +236,7 @@
 # 6.2.2
 2023-11-29 (Date of Last Commit)
 
-* Added the latest warp-tools docker to tasks in the Metrics, FastqProcessing and H5adUtils wdls; this incorporates new input parameter for number of output fastq files to fastqprocess and allows use of REFSEQ references
+* Added the latest warp-tools docker to tasks in the Metrics, FastqProcessing and H5adUtils wdls; this incorporates new input parameter for number of output fastq files to fastqprocess and allows for splitting
 
 # 6.2.0
 2023-11-03 (Date of Last Commit)
@@ -301,7 +303,7 @@
 # 5.7.4
 2023-03-27 (Date of Last Commit)
 
-* Removed the following columns from the gene metrics csv and the Loom as the counts were empty/incorrect: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, reads_mapped_intergenic, duplicate_reads. We also removed duplicate_reads from the cell metrics csv and the Loom
+* Removed the following columns from the gene metrics csv and the Loom as the counts were empty/incorrect: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, reads_mapped_intergenic
 
 
 # 5.7.3
@@ -377,7 +379,7 @@
 # 5.5.0
 2022-05-18 (Date of Last Commit)
 
-* Updated merge npz docker in StarAlign.wdl to fix a bug in the output loom matrix where gene names were inapporpriately assigned to counts. Any data previously processed with Optimus version 5.0.0 and above should be re-analyzed.
+* Updated merge npz docker in StarAlign.wdl to fix a bug in the output loom matrix where gene names were inapporpriately assigned to counts. Any data previously processed with Optimus version 5.0.0 or greater should be reprocessed
  
 
 # 5.4.3
@@ -449,7 +451,7 @@
 # 5.0.0
 2021-08-30 (Date of Last Commit)
 
-* Replaced STAR alignment with STARsolo and modified the structure of the WDL to utilize the UMI and barcode correction from STARsolo. In the new implementation of Optimus, STARsolo uses the FASTQ file as input and directly creates a count matrix file and a BAM file. No updates have been made to the inputs or outputs. The outputs for this version are identical to the outputs for the previous Optimus version. 
+* Replaced STAR alignment with STARsolo and modified the structure of the WDL to utilize the UMI and barcode correction from STARsolo. In the new implementation of Optimus, STARsolo uses the FASTQ files directly
 * Updated GoTC base image to AppSec approved 
 * Updated BWA version for GoTC image from 0.7.15.r1140 to 0.7.15
 
@@ -520,7 +522,7 @@
 
 2020-11-03 (Date of Last Commit)
 
-* Updated the docker for FastqProcessing task to version v0.3.12. This version of FastqProcessing solves 32 bit unsigned integer overflow error for large files and also disables checking of EOF magic string in BGZF files to accomodate fastq.gz file without this magic string 
+* Updated the docker for FastqProcessing task to version v0.3.12. This version of FastqProcessing solves 32 bit unsigned integer overflow error for large files and also disables checking of EOF marker
 
 # 4.1.5
 
@@ -671,7 +673,7 @@ Documentation has been updated
 
 2019-06-19 (Date of Last Commit)
 
-* This release is a backwards incompatible change for the Optimus pipeline. The output matrices now contain gencode v27 gene ids in addition to gene names to comply with outputs from other pipelines and expectations of downstream services
+* This release is a backwards incompatible change for the Optimus pipeline. The output matrices now contain gencode v27 gene ids in addition to gene names to comply with outputs from other pipelines
 
 # 1.2.0
 
