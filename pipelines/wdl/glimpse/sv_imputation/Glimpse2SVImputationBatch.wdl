@@ -17,7 +17,7 @@ workflow Glimpse2SVImputationBatch {
         File genetic_maps_tsv
         File chunked_panel_json
 
-        String extra_phase_args
+        String? extra_phase_args
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
         Int? glimpse_phase_cpu_override
 
