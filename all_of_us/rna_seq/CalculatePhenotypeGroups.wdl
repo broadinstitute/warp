@@ -45,7 +45,7 @@ workflow CalculatePhenotypeGroups  {
         Int disk_space 
         Int num_threads 
     }
-    String pipeline_version = "aou_9.0.0" 
+    String pipeline_version = "aou_9.0.2" 
     call PrepareSpliceData {
         input:
             memory = memory,
