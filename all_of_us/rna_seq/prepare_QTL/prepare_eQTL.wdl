@@ -30,7 +30,7 @@ task eqtl_prepare_expression {
         docker: "us.gcr.io/broad-gotc-prod/aou_rna_prepareqtl:0.0.1"
         memory: "${memory}GB"
         disks: "local-disk ${disk_space} HDD"
-        cpu: "${num_threads}"
+        cpu: num_threads
     }
 
     output {

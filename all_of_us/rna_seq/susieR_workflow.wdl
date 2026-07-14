@@ -73,7 +73,7 @@ task PrepInputs {
         disks: "local-disk 500 SSD"
         preemptible: "${NumPrempt}"
         memory: "2GB"
-        cpu: "1"
+        cpu: 1
     }
     
     output {
@@ -121,7 +121,7 @@ task susieR {
         disks: "local-disk 500 SSD"
         bootDiskSizeGb: 25
         preemptible: "${NumPrempt}"
-        cpu: "1"
+        cpu: 1
     }
 
     output {

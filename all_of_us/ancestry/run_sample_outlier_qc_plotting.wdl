@@ -100,7 +100,7 @@ task join_ancestry_to_demographics {
     runtime {
         docker: "hailgenetics/hail:0.2.67"
         memory: "7 GB"
-        cpu: "4"
+        cpu: 4
         disks: "local-disk 100 HDD"
     }
 }
@@ -144,7 +144,7 @@ task plot_first_pcs {
     runtime {
         docker: "hailgenetics/hail:0.2.67"
         memory: "7 GB"
-        cpu: "4"
+        cpu: 4
         disks: "local-disk 100 HDD"
     }
 }
@@ -246,7 +246,7 @@ task plot_metrics_and_fitting {
     runtime {
         docker: "hailgenetics/hail:0.2.67"
         memory: "26 GB"
-        cpu: "4"
+        cpu: 4
         disks: "local-disk 100 HDD"
     }
 }
