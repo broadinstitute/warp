@@ -185,6 +185,11 @@ Array[String] pipeline_outputs = flatten([
         truth_cell_metrics = GetCellMetrics.truth_file,
         test_library_metrics =  select_first([GetLibraryMetrics.results_file, ""]),
         truth_library_metrics = select_first([GetLibraryMetrics.truth_file, ""]),
+        # Surface the whitelist selected by the pipeline so verification can assert it
+        # (e.g. that an unspecified v4 subversion defaults to the v4_TRU whitelist).
+        # truth_whitelist_used is left unset until a corresponding truth value is available,
+        # so CompareStrings is skipped by default and existing truth data stays valid.
+        test_whitelist_used = Optimus.whitelist_used,
         done               = CopyToTestResults.done
     }
   }
