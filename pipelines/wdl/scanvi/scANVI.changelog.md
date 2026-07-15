@@ -4,7 +4,7 @@
 * Added an optional batch_size input (default 128) that sets the SCVI/SCANVI minibatch size in both multiome and GEX-only modes. Lower it to fit a high-cardinality reference on a small GPU (SCANVI activation memory scales with batch_size x number of labels); raise it on a large-VRAM cloud GPU. Default 128 is scvi-tools' own default, so existing outputs are unchanged.
 * Updated the pinned scvi-scanvi docker image to a build whose training functions accept the batch_size parameter.
 * Output metadata: added a `data_modality` obs field ("Simultaneous profiling of gene expression and open chromatin from the same cell.") and corrected the library-prep ontology label to "10x multiome" (`library_preparation_protocol` = "EFO_0030059", `library_preparation_protocol__ontology_label` = "10x multiome"), in the container's finalize_output.
-* Fixed the CPU-only (no-GPU) path: the label-transfer task now attaches the GPU runtime attributes (gpuCount/gpuType/nvidiaDriverVersion, camelCase for portability) only when gpu_count > 0. A run with gpu_count = 0 (e.g. the pretrained-model prediction path) omits them, instead of passing gpuCount = 0 which Cromwell rejects ("Expecting gpuCount runtime attribute value greater than 0").
+* Switched the label-transfer task's GPU runtime attributes to portable camelCase (gpuType/gpuCount/nvidiaDriverVersion) per WARP conventions.
 * Made max_epochs/batch_size forwarding resilient to container-image skew: the training call forwards only the kwargs the image's run_multi_model/run_gex_only_model actually accept (warning about any it does not), so an image predating those parameters no longer crashes with "unexpected keyword argument".
 
 # 2.0.0
