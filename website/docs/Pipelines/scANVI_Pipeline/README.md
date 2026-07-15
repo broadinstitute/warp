@@ -223,7 +223,7 @@ Both tasks use the same Docker image (pinned by digest). GPU and CUDA setup is h
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:71e613b1df50e68979ac1a13436cf78c85811796adc3372df31e52ff813ad565` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:3c6a32f7203a2b5fd82a4bedd00f8aca28807a54020d43b59b93e707d296c2e9` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk 1000 SSD` |
 | `memory` | `120 GiB` |
@@ -234,18 +234,22 @@ Both tasks use the same Docker image (pinned by digest). GPU and CUDA setup is h
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:71e613b1df50e68979ac1a13436cf78c85811796adc3372df31e52ff813ad565` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:3c6a32f7203a2b5fd82a4bedd00f8aca28807a54020d43b59b93e707d296c2e9` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk 500 SSD` |
 | `memory` | `120 GiB` |
 | `cpu` | 32 |
-| `hardware_gpu_type` | `nvidia-tesla-t4` |
-| `gpuCount` | 2 |
-| `nvidia_driver_version` | `535.104.05` |
+| `gpuType` | `nvidia-tesla-t4` |
+| `gpuCount` | `gpu_count` (default 2) |
+| `nvidiaDriverVersion` | `535.104.05` |
 | `maxRetries` | 1 |
 
 :::note GPU driver compatibility
 Driver version `535.104.05` is compatible with CUDA 12.x and NVIDIA T4 GPUs and has been verified working on GCP / Terra with the `scvi-scanvi` container.
+:::
+
+:::note CPU-only variant
+When `gpu_count = 0` the workflow routes to `MultiomeLabelTransferCpu` — an identical task with **no** GPU runtime attributes (Cromwell rejects `gpuCount = 0` and can't conditionally omit the GPU keys from one task). Both tasks run the same container command (`label_transfer_from_preprocessed.py`); scvi-tools auto-detects the accelerator, so it uses the GPU when present and CPU otherwise.
 :::
 
 ## Docker image
