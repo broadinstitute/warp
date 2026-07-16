@@ -1,7 +1,7 @@
 # 0.0.2
-2026-07-14 (Date of Last Commit)
+2026-07-16 (Date of Last Commit)
 
-* Set cpu and seed for GlimpsePhase
+* Set cpu/threads and seed for GlimpsePhase
 
 # 0.0.1
 2026-07-08 (Date of Last Commit)

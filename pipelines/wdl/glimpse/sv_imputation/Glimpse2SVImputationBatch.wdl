@@ -47,6 +47,10 @@ workflow Glimpse2SVImputationBatch {
     File panel_id_split_vcf_gz_tbi = pop_glimpse2_panel_resources[chromosome].panel_id_split_vcf_gz_tbi
     Array[String] pop_regions = select_first([pop_glimpse2_panel_resources[chromosome].pop_regions, output_regions])
 
+    # we need to define this here so that it can be used in nested scatters below. Cromwell doesn't understand optional inputs
+    # to tasks that are inside nested scatters, so we need to define a non-optional variable that we can use to pass the
+    # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
+    Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
 
     scatter (k in range(length(output_regions))) {
         call GLIMPSE2Phase as ChunkedGLIMPSE2Phase {
@@ -60,10 +64,7 @@ workflow Glimpse2SVImputationBatch {
                 output_prefix = output_prefix + ".shard-" + k + ".glimpse2.phased",
                 extra_phase_args = extra_phase_args,
                 docker = glimpse2_docker,
-                runtime_attr_override = object {
-                    cpu_cores: glimpse_phase_cpu_override
-                },
-                threads = glimpse_phase_cpu_override
+                threads = defined_glimpse_phase_cpu_override
         }
     }
 
@@ -213,7 +214,7 @@ task GLIMPSE2Phase {
 
     #########################
     RuntimeAttr default_attr = object {
-        cpu_cores:          4,
+        cpu_cores:          threads,
         mem_gb:             16,
         disk_gb:            disk_size_gb,
         boot_disk_gb:       10,
