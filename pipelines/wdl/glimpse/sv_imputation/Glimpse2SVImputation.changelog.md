@@ -1,3 +1,8 @@
+# 0.0.3
+2026-07-16 (Date of Last Commit)
+
+* Optional cpu override input for Glimpse Phase
+
 # 0.0.2
 2026-07-14 (Date of Last Commit)
 
