@@ -4,7 +4,7 @@ import "./ConcatVcfs.wdl" as ConcatVcfs
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.1"
+    String pipeline_version = "0.0.2"
     String concat_vcfs_pipeline_version = "0.0.1"
 
     input {
@@ -18,6 +18,7 @@ workflow Glimpse2SVImputationBatch {
         File chunked_panel_json
 
         String extra_phase_args
+        Int? glimpse_phase_cpu
         String output_prefix
 
         # inputs for PopAndMarginalizeCollisions
@@ -56,7 +57,10 @@ workflow Glimpse2SVImputationBatch {
                 genetic_map = genetic_map,
                 output_prefix = output_prefix + ".shard-" + k + ".glimpse2.phased",
                 extra_phase_args = extra_phase_args,
-                docker = glimpse2_docker
+                docker = glimpse2_docker,
+                runtime_attr_override = object {
+                    cpu_cores: glimpse_phase_cpu
+                }
         }
     }
 
