@@ -165,6 +165,7 @@ task GLIMPSE2Phase {
         String output_region
         File genetic_map
         String output_prefix
+        Int seed = 15052011
         String? extra_phase_args = "--thread $(nproc) --impute-reference-only-variants --keep-monomorphic-ref-sites --Kpbwt 1000 --main 10 --burnin 5 --err-imp 1E-3"
 
         String docker
@@ -182,6 +183,8 @@ task GLIMPSE2Phase {
                 -R ~{panel_split_chunk_bin} \
                 ~{extra_phase_args} \
                 --output ~{output_prefix}.raw.bcf \
+                --threads ~{cpu} \
+                --seed ~{seed} \
                 --checkpoint-file-out checkpoint.bin"
 
         if [ -s "checkpoint.bin" ]; then
