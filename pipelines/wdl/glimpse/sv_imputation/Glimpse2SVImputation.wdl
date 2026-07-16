@@ -4,8 +4,8 @@ import "./PreprocessPLsGVCF.wdl" as PreprocessPLsGVCF
 import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.1"
-    String preprocess_pls_gvcf_pipeline_version = "0.0.1"
+    String pipeline_version = "0.0.2"
+    String preprocess_pls_gvcf_pipeline_version = "0.0.2"
     String batch_pipeline_version = "0.0.1"
 
     input {
@@ -59,7 +59,6 @@ workflow Glimpse2SVImputation {
         input_gvcf_idxs = input_gvcf_idxs,
         entity_ids = entity_ids,
         sample_names_map_file = sample_names_map_file,
-        output_prefix = output_prefix,
         preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
         preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
         extract_bubble_likelihoods_script = extract_bubble_likelihoods_script,
