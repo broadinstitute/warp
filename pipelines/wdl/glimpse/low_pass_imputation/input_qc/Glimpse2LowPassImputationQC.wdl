@@ -229,6 +229,18 @@ task ValidateCramsAndIndicesAndSampleIds {
         else:
             print("CRAM paths are unique.")
 
+        # Validate that each cram-crai pair has matching basenames
+        mismatched_basename_pairs = []
+        for cram, crai in zip(crams, cram_indices):
+            cram_basename = cram.split('/')[-1].replace('.cram', '')
+            crai_basename = crai.split('/')[-1].replace('.crai', '')
+            if cram_basename != crai_basename:
+                mismatched_basename_pairs.append(f"{cram} and {crai}")
+        if mismatched_basename_pairs:
+            qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(mismatched_basename_pairs), 'CRAM-CRAI pair')} with mismatched basenames", mismatched_basename_pairs))
+        else:
+            print("All CRAM-CRAI pairs have matching basenames.")
+
         # Ensure that all CRAM files are less than the maximum file size allowed
         max_cram_file_size_gb = ~{max_cram_file_size_gb}
         billing_project = "~{billing_project}"
