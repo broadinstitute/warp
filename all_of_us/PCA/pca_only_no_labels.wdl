@@ -24,7 +24,7 @@ workflow pca_only_no_labels {
         File? ancestry_list
         String? ancestry
     }
-    String pipeline_version = "beta_0.0.0"
+    String pipeline_version = "aou_9.0.0"
 
     # check that the number of VCF files matches the number of index files and that both are non-zero. Fail if either is 0 or they are different lengths.
     if (length(hq_sites_vcf_files) != length(hq_sites_vcf_indices) || (length(hq_sites_vcf_files) == 0)) {
