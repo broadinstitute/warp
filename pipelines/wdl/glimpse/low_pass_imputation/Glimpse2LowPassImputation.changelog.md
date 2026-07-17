@@ -1,3 +1,15 @@
+# 1.0.1
+2026-07-12 (Date of Last Commit)
+
+* update batch sub-workflow
+
+# 1.0.0
+2026-06-30 (Date of Last Commit)
+
+* update glimpse docker image to encompass vcf streaming fixes
+* update batch subworkflow
+* update version for teaspoons prod release
+
 # 0.0.21
 2026-06-22 (Date of Last Commit)
 

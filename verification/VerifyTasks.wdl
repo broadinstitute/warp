@@ -286,7 +286,7 @@ def compare_metrics(test_file, truth_file):
             # Calculate the allowable difference based on the threshold
             allowable_diff = value_b * threshold
             if diff > allowable_diff:
-                print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%. The allowable difference is {allowable_diff} and the actual difference is {diff}.")
+                print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%. The allowable difference is {allowable_diff} and the difference is {diff}")
                 exit_code = 1
             else:
                 print(f"Metric {metric_a} is within the threshold.")
@@ -858,5 +858,25 @@ task CompareH5Files {
   }
 }
 
+task CompareStrings {
+  input {
+    String test_string
+    String truth_string
+  }
 
+  command <<<
+    if [[ "~{test_string}" == "~{truth_string}" ]]; then
+      echo "Strings match: ~{test_string}"
+    else
+      echo "ERROR: Strings differ. Test: \"~{test_string}\" Truth: \"~{truth_string}\"" >&2
+      exit 1
+    fi
+  >>>
 
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: 3
+  }
+}

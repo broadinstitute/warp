@@ -6,7 +6,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "0.0.11"
+    String pipeline_version = "1.0.1"
 
     input {
 
@@ -30,7 +30,7 @@ workflow Glimpse2LowPassImputationBatch {
         Int? glimpse_phase_cpu_override
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.1.0-c276764-1782839248"
     }
 
     # we need to define this here so that it can be used in nested scatters below. Cromwell doesn't understand optional inputs
@@ -545,7 +545,7 @@ task GlimpsePhase {
 
         Int cpu = 4 # note that setting cpu > 1 will introduce non-determinism in GLIMPSE Phase due to multi-threading
         Int mem_gb = 16
-        Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 10)
+        Int disk_size_gb = ceil(0.5 * size(input_vcf, "GiB") + size(reference_chunk, "GiB") + 10)
         Int preemptible = 30
         Int max_retries = 3
         String docker

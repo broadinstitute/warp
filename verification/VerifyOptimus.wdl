@@ -20,6 +20,12 @@ workflow VerifyOptimus {
     File test_library_metrics
     File truth_library_metrics
 
+    # Barcode whitelist path selected by the pipeline (Optimus.whitelist_used).
+    # Optional/gated: only compared when both test and truth values are provided,
+    # so existing verification calls that do not pass these remain valid.
+    String? test_whitelist_used
+    String? truth_whitelist_used
+
     Boolean? done
   }
 
@@ -53,4 +59,15 @@ workflow VerifyOptimus {
             test_text_file = test_library_metrics,
             truth_text_file = truth_library_metrics
 }
+
+  # Assert the selected barcode whitelist matches truth when both are provided.
+  # This exercises whitelist selection (e.g. that an unspecified v4 subversion
+  # defaults to the v4_TRU whitelist) without requiring existing callers to change.
+  if (defined(test_whitelist_used) && defined(truth_whitelist_used)) {
+    call VerifyTasks.CompareStrings as CompareWhitelistUsed {
+      input:
+        test_string  = select_first([test_whitelist_used]),
+        truth_string = select_first([truth_whitelist_used])
+    }
+  }
 }

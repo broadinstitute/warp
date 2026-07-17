@@ -12,6 +12,10 @@ verification/test-wdls/__pycache__/
 # VSCode project settings
 .vscode
 *.code-workspace
+.devcontainer
+
+# ai 
+.claude
 
 # python virtual environments
 venv/
@@ -22,3 +26,14 @@ venv/
 
 # Ignore generated credentials from google-github-actions/auth
 gha-creds-*.json
+
+# Claude Code local config/state
+.claude/
+
+# Local scANVI GPU test artifacts (run locally, kept out of version control)
+.cache/
+scanvi_gpu_test/
+*.h5ad
+
+# Personal devcontainer (references local NAS mount + GPU; not shared)
+.devcontainer/devcontainer.json
