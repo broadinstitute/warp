@@ -4,10 +4,10 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "1.0.1"
+    String pipeline_version = "1.0.2"
     String batch_pipeline_version = "1.0.1"
     String quota_consumed_version = "1.0.0"
-    String input_qc_version = "1.0.4"
+    String input_qc_version = "1.0.5"
 
     input {
         # if multiple data types are provided, the workflow will prioritize cram/cram_indicies/sample_ids first, then cram manifest

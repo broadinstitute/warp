@@ -1,3 +1,8 @@
+# 1.0.5
+2026-07-17 (Date of Last Commit)
+
+* Add check for matching cram and crai basenames
+
 # 1.0.4
 2026-05-22 (Date of Last Commit)
 
