@@ -4,7 +4,7 @@ version 1.0
 
 workflow MultilevelHierarchicallyMergeVcfs {
     # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "0.0.1"
+    String pipeline_version = "0.0.2"
 
     input {
         Array[String]? vcfs_array
