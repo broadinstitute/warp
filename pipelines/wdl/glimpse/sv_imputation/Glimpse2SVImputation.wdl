@@ -24,12 +24,8 @@ workflow Glimpse2SVImputation {
 
         File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
         File preprocess_panel_bubble_split_sites_only_vcf_idx
-        File? extract_bubble_likelihoods_script
-        File? extract_bubble_likelihoods_cargo_toml
-        File? extract_bubble_likelihoods_binary
         String? extract_bubble_likelihoods_extra_args
 
-        File paste_vcfs_binary
         Array[String] paste_regions
 
         # inputs for Batch wdl
@@ -64,11 +60,7 @@ workflow Glimpse2SVImputation {
         sample_names_map_file = sample_names_map_file,
         preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
         preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
-        extract_bubble_likelihoods_script = extract_bubble_likelihoods_script,
-        extract_bubble_likelihoods_cargo_toml = extract_bubble_likelihoods_cargo_toml,
-        extract_bubble_likelihoods_binary = extract_bubble_likelihoods_binary,
         extract_bubble_likelihoods_extra_args = extract_bubble_likelihoods_extra_args,
-        paste_vcfs_binary = paste_vcfs_binary,
         paste_regions = paste_regions
 
     }
