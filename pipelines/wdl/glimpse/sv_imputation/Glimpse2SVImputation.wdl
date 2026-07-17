@@ -42,9 +42,6 @@ workflow Glimpse2SVImputation {
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
-        File? pop_glimpse2_script               # heavily modified version of convert-to-biallelic.py
-        File? pop_glimpse2_cargo_toml
-        File? pop_glimpse2_binary
 
         String glimpse2_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"    # enables checkpointing, but note this contains bcftools/htslib 1.16!
     }
@@ -76,9 +73,6 @@ workflow Glimpse2SVImputation {
             extra_phase_args = extra_phase_args,
             output_prefix = output_prefix,
             pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
-            pop_glimpse2_script = pop_glimpse2_script,
-            pop_glimpse2_cargo_toml = pop_glimpse2_cargo_toml,
-            pop_glimpse2_binary = pop_glimpse2_binary,
             glimpse2_docker = glimpse2_docker,
             glimpse_phase_cpu_override = glimpse_phase_cpu_override
     }
