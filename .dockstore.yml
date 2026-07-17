@@ -91,6 +91,14 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationBatch.wdl
 
+  - name: Glimpse2SVImputation
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/Glimpse2SVImputation.wdl
+
+  - name: Glimpse2SVImputationBatch
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/Glimpse2SVImputationBatch.wdl
+
   - name: Glimpse2LowPassImputationQuotaConsumed
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationQuotaConsumed.wdl
@@ -249,6 +257,30 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/snm3C/snm3C.wdl
 
+  - name: sc1_create_basis_mt_from_vds
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/small_callsets/sc1_create_basis_mt_from_vds.wdl
+
+  - name: sc2_export_basis_mt_to_dense_bed_mts
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/small_callsets/sc2_export_basis_mt_to_dense_bed_mts.wdl
+
+  - name: sc4_export_dense_bed_MTs_to_split_dense_MTs
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/small_callsets/sc4_export_dense_bed_MTs_to_split_dense_MTs.wdl
+
+  - name: sc5_export_split_dense_bed_MTs_to_bgen
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/small_callsets/sc5_export_split_dense_bed_MTs_to_bgen.wdl
+
+  - name: sc5_2_bgenix_index
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/small_callsets/sc5_2_bgenix_index.wdl
+
+  - name: sc6_export_split_dense_bed_MTs_to_plink_bed
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/small_callsets/sc6_export_split_dense_bed_MTs_to_plink_bed.wdl
+
   - name: SplitMultisampleVcf
     subclass: WDL
 
@@ -354,6 +386,10 @@ workflows:
   - name: Testsnm3C
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/Testsnm3C.wdl
+
+  - name: TestscANVI
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestscANVI.wdl
 
   - name: TestUltimaGenomicsJointGenotyping
     subclass: WDL

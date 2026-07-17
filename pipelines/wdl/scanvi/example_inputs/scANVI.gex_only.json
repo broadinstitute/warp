@@ -1,0 +1,5 @@
+{
+  "scANVI.input_id": "10k_PBMC_gex_only",
+  "scANVI.gex_h5ad": "gs://broad-gotc-test-storage/Multiome/truth/scientific/10k_PBMC/10k_PBMC_gex.h5ad",
+  "scANVI.ref_h5ad": "gs://broad-gotc-test-storage/ScviScanvi/input/pbmc_reference.h5ad"
+}
