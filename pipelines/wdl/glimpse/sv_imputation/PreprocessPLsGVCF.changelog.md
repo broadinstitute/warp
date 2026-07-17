@@ -1,7 +1,7 @@
 # 0.0.3
 2026-07-17 (Date of Last Commit)
 
-* Updated tasks to use the official sv-imputation-rust-tools docker images
+* Updated tasks to use the official sv-imputation-rust-tools docker image
 * sv-imputation-rust-tools contains the 3 rust binaries and tasks have been updated accordingly
   to use the binaries from this image instead of building them in the pipeline
 
