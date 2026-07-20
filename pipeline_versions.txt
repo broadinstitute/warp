@@ -1,7 +1,7 @@
 ArrayImputationQC	 1.3.0	2026-02-04 
 ArrayImputationQuotaConsumed	 1.1.0	2025-09-29 
 BuildIndices	 5.1.1	2026-05-20 
-ConcatVcfs	 0.0.1	2026-07-08 
+ConcatVcfs	 0.0.2	2026-07-17 
 CramToUnmappedBams	 1.1.3	2024-08-02 
 ExomeGermlineSingleSample	 3.2.7	2026-01-21 
 ExomeReprocessing	 3.3.7	2026-01-21 
@@ -9,20 +9,20 @@ Glimpse2LowPassImputation	 1.0.1	2026-07-12
 Glimpse2LowPassImputationBatch	 1.0.1	2026-07-12 
 Glimpse2LowPassImputationQC	 1.0.4	2026-05-22 
 Glimpse2LowPassImputationQuotaConsumed	 1.0.0	2026-06-30 
-Glimpse2SVImputation	 0.0.3	2026-07-16 
-Glimpse2SVImputationBatch	 0.0.2	2026-07-16 
+Glimpse2SVImputation	 0.0.4	2026-07-17 
+Glimpse2SVImputationBatch	 0.0.3	2026-07-17 
 IlluminaGenotypingArray	 1.12.27	2026-01-21 
 Imputation	 1.1.23	2025-10-03 
 ImputationBeagle	 3.0.1	2026-02-23 
 JointGenotyping	 1.7.3	2025-08-11 
 MultiSampleSmartSeq2SingleNucleus	 2.2.8	2026-07-10 
-MultilevelHierarchicallyPasteVcfsStreaming	 0.0.1	2026-07-08 
+MultilevelHierarchicallyPasteVcfsStreaming	 0.0.2	2026-07-17 
 Multiome	 7.0.2	2026-07-10 
 Optimus	 9.2.0	2026-07-10 
 PairedTag	 3.0.2	2026-07-10 
 PeakCalling	 1.0.1	2025-08-11 
 Pipeline Name	Version	Date of Last Commit
-PreprocessPLsGVCF	 0.0.2	2026-07-14 
+PreprocessPLsGVCF	 0.0.3	2026-07-17 
 RNAWithUMIsPipeline	 1.0.20	2026-01-21 
 ReblockGVCF	 2.4.4	2026-01-29 
 SlideSeq	 3.6.8	2026-07-10 

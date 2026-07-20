@@ -2,7 +2,7 @@ version 1.0
 
 workflow ConcatVcfs {
     # if this changes, update the concat_vcfs_pipeline_version value in Glimpse2SVImputationBatch.wdl
-    String pipeline_version = "0.0.1"
+    String pipeline_version = "0.0.2"
 
     input {
         Array[File] vcfs
@@ -142,7 +142,7 @@ task ConcatVcfs {
         disk_type:          "SSD",
         preemptible_tries:  2,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-dsp-lrma/lr-gcloud-samtools:0.1.23"
+        docker:             "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {

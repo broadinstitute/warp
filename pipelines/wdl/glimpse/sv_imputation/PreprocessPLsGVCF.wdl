@@ -4,8 +4,8 @@ import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelHierarchi
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.2"
-    String multi_level_paste_pipeline_version = "0.0.1"
+    String pipeline_version = "0.0.3"
+    String multi_level_paste_pipeline_version = "0.0.2"
     input {
         File? input_gvcfs_fofn
         File? input_gvcf_idxs_fofn
@@ -20,12 +20,8 @@ workflow PreprocessPLsGVCF {
         # inputs for PreprocessPLs
         File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
         File preprocess_panel_bubble_split_sites_only_vcf_idx
-        File? extract_bubble_likelihoods_script
-        File? extract_bubble_likelihoods_cargo_toml
-        File? extract_bubble_likelihoods_binary
         String? extract_bubble_likelihoods_extra_args
 
-        File paste_vcfs_binary
         Array[String] paste_regions
     }
 
@@ -64,9 +60,6 @@ workflow PreprocessPLsGVCF {
                 panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
                 sample_names = [sample_names_[j]],
                 output_prefix = ".sample-" + j + "." + sample_names_[j] + ".preprocessedPLs",
-                extract_bubble_likelihoods_script = extract_bubble_likelihoods_script,
-                cargo_toml = extract_bubble_likelihoods_cargo_toml,
-                extract_bubble_likelihoods_binary = extract_bubble_likelihoods_binary,
                 extra_args = extract_bubble_likelihoods_extra_args
         }
     }
@@ -81,7 +74,6 @@ workflow PreprocessPLsGVCF {
             do_localization = [true, true],
             timeouts_min = [0, 0],
             output_prefix = "preprocessedPLs.merged",
-            paste_vcfs_binary = paste_vcfs_binary,
             extra_merge_args = "--threads $(nproc) --format GT,PL",
             extra_concat_args = "--threads $(nproc) --naive"
     }
@@ -154,9 +146,6 @@ task PreprocessPLs {
         Array[String] sample_names
         String output_prefix
 
-        File? extract_bubble_likelihoods_script
-        File? cargo_toml
-        File? extract_bubble_likelihoods_binary
         String? extra_args = "--window 15000 --cap-pl 30 --scale-pl 5.0 --threads $(nproc)"
 
         RuntimeAttr? runtime_attr_override
@@ -169,20 +158,7 @@ task PreprocessPLs {
     command <<<
         set -euxo pipefail
 
-        if [ -n "~{extract_bubble_likelihoods_binary}" ]; then
-            EXTRACT_BIN="~{extract_bubble_likelihoods_binary}"
-            chmod +x $EXTRACT_BIN
-        else
-            mkdir -p extract-bubble-PLs/src
-            cp ~{extract_bubble_likelihoods_script} extract-bubble-PLs/src/main.rs
-            cp ~{cargo_toml} extract-bubble-PLs
-            cd extract-bubble-PLs
-            cargo build --release
-            cd ..
-            EXTRACT_BIN="./extract-bubble-PLs/target/release/extract-bubble-PLs"
-        fi
-
-        $EXTRACT_BIN ~{mode} \
+        /usr/local/bin/extract-bubble-PLs ~{mode} \
             ~{panel_bubble_split_sites_only_vcf}##idx##~{panel_bubble_split_sites_only_vcf_idx} \
             ~{input_vcf}##idx##~{input_vcf_idx} \
             ~{output_prefix}.bcf \
@@ -210,7 +186,7 @@ task PreprocessPLs {
         use_ssd:            true,
         preemptible_tries:  2,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-dsde-methods/slee/lrma-aou2-panel-creation-rust:v1"
+        docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.0.0-5dc0f19-1784328222"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {

@@ -1,3 +1,10 @@
+# 0.0.3
+2026-07-17 (Date of Last Commit)
+
+* Updated tasks to use the official bcftools-vcftools and sv-imputation-rust-tools docker images
+* sv-imputation-rust-tools contains the 3 rust binaries and tasks have been updated accordingly 
+to use the binaries from this image instead of building them in the pipeline
+
 # 0.0.2
 2026-07-16 (Date of Last Commit)
 
