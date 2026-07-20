@@ -29,8 +29,8 @@ workflow Glimpse2LowPassImputationBatch {
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing
         Int? glimpse_phase_cpu_override
 
-        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.1.0-c276764-1782839248"
+        String gatk_docker
+        String glimpse_docker
     }
 
     # we need to define this here so that it can be used in nested scatters below. Cromwell doesn't understand optional inputs
