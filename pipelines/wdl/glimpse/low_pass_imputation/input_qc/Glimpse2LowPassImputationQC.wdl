@@ -233,7 +233,7 @@ task ValidateCramsAndIndicesAndSampleIds {
         mismatched_basename_pairs = []
         for cram, crai in zip(crams, cram_indices):
             cram_basename = cram.split('/')[-1].replace('.cram', '')
-            crai_basename = crai.split('/')[-1].replace('.crai', '')
+            crai_basename = crai.split('/')[-1].replace('.cram.crai', '')
             if cram_basename != crai_basename:
                 mismatched_basename_pairs.append(f"{cram} and {crai}")
         if mismatched_basename_pairs:
