@@ -50,7 +50,7 @@ workflow Glimpse2SVImputation {
         File? pop_glimpse2_cargo_toml
         File? pop_glimpse2_binary
 
-        String glimpse2_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"    # enables checkpointing, but note this contains bcftools/htslib 1.16!
+        String glimpse2_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:for-scale-test-8671138"    # enables checkpointing, but note this contains bcftools/htslib 1.16!
     }
 
     call PreprocessPLsGVCF.PreprocessPLsGVCF as PreProcessGVCFs {
