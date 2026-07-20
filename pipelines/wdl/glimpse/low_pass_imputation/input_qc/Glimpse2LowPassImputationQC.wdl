@@ -215,11 +215,11 @@ task ValidateCramsAndIndicesAndSampleIds {
         else:
             print("All CRAM files have the correct .cram extension.")
 
-        cram_indices_with_wrong_extension = [c for c in cram_indices if not c.endswith('.crai')]
+        cram_indices_with_wrong_extension = [c for c in cram_indices if not c.endswith('.cram.crai')]
         if cram_indices_with_wrong_extension:
-            qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(cram_indices_with_wrong_extension), 'CRAM index file')} without a .crai extension", cram_indices_with_wrong_extension))
+            qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(cram_indices_with_wrong_extension), 'CRAM index file')} without a .cram.crai extension", cram_indices_with_wrong_extension))
         else:
-            print("All CRAM index files have the correct .crai extension.")
+            print("All CRAM index files have the correct .cram.crai extension.")
 
         # Validate that cram paths are unique
         unique_crams = set(crams)
@@ -232,8 +232,8 @@ task ValidateCramsAndIndicesAndSampleIds {
         # Validate that each cram-crai pair has matching basenames
         mismatched_basename_pairs = []
         for cram, crai in zip(crams, cram_indices):
-            cram_basename = cram.split('/')[-1].replace('.cram', '')
-            crai_basename = crai.split('/')[-1].replace('.cram.crai', '')
+            cram_basename = cram.split('/')[-1].removesuffix('.cram')
+            crai_basename = crai.split('/')[-1].removesuffix('.cram.crai')
             if cram_basename != crai_basename:
                 mismatched_basename_pairs.append(f"{cram} and {crai}")
         if mismatched_basename_pairs:
