@@ -4,9 +4,9 @@ import "./PreprocessPLsGVCF.wdl" as PreprocessPLsGVCF
 import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.1"
-    String preprocess_pls_gvcf_pipeline_version = "0.0.1"
-    String batch_pipeline_version = "0.0.1"
+    String pipeline_version = "0.0.3"
+    String preprocess_pls_gvcf_pipeline_version = "0.0.2"
+    String batch_pipeline_version = "0.0.2"
 
     input {
         # inputs for Preprocessign wdl
@@ -39,7 +39,10 @@ workflow Glimpse2SVImputation {
         File genetic_maps_tsv
         File chunked_panel_json
 
-        String extra_phase_args = "--thread $(nproc) --impute-reference-only-variants --keep-monomorphic-ref-sites --Kpbwt 1000 --main 10 --burnin 5 --err-imp 1E-3"
+        String extra_phase_args = "--impute-reference-only-variants --keep-monomorphic-ref-sites --Kpbwt 1000 --main 10 --burnin 5 --err-imp 1E-3"
+        
+        # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
+        Int? glimpse_phase_cpu_override
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
@@ -59,7 +62,6 @@ workflow Glimpse2SVImputation {
         input_gvcf_idxs = input_gvcf_idxs,
         entity_ids = entity_ids,
         sample_names_map_file = sample_names_map_file,
-        output_prefix = output_prefix,
         preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
         preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
         extract_bubble_likelihoods_script = extract_bubble_likelihoods_script,
@@ -85,7 +87,8 @@ workflow Glimpse2SVImputation {
             pop_glimpse2_script = pop_glimpse2_script,
             pop_glimpse2_cargo_toml = pop_glimpse2_cargo_toml,
             pop_glimpse2_binary = pop_glimpse2_binary,
-            glimpse2_docker = glimpse2_docker
+            glimpse2_docker = glimpse2_docker,
+            glimpse_phase_cpu_override = glimpse_phase_cpu_override
     }
 
     output {
