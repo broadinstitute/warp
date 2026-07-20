@@ -4,8 +4,8 @@ import "./ConcatVcfs.wdl" as ConcatVcfs
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.3"
-    String concat_vcfs_pipeline_version = "0.0.2"
+    String pipeline_version = "0.0.4"
+    String concat_vcfs_pipeline_version = "0.0.3"
 
     input {
         File input_preprocessed_joint_vcf
@@ -227,6 +227,7 @@ task GLIMPSE2Phase {
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
         checkpointFile:         "checkpoint.bin"
+        noAddress: true
     }
 }
 
@@ -277,6 +278,7 @@ task GLIMPSE2Ligate {
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
     }
 }
 
@@ -335,6 +337,7 @@ task PopAndMarginalizeCollisions {
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
     }
 }
 
@@ -381,5 +384,6 @@ task RemapSampleNames {
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
     }
 }
