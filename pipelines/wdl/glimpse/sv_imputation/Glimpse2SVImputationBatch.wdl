@@ -4,8 +4,8 @@ import "./ConcatVcfs.wdl" as ConcatVcfs
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.2"
-    String concat_vcfs_pipeline_version = "0.0.1"
+    String pipeline_version = "0.0.3"
+    String concat_vcfs_pipeline_version = "0.0.2"
 
     input {
         File input_preprocessed_joint_vcf
@@ -25,9 +25,6 @@ workflow Glimpse2SVImputationBatch {
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
-        File? pop_glimpse2_script               # heavily modified version of convert-to-biallelic.py
-        File? pop_glimpse2_cargo_toml
-        File? pop_glimpse2_binary
 
         String glimpse2_docker
     }
@@ -85,9 +82,6 @@ workflow Glimpse2SVImputationBatch {
                 panel_bubble_split_sites_only_vcf_idx = panel_bubble_split_sites_only_vcf_idx,
                 panel_id_split_vcf_gz = panel_id_split_vcf_gz,
                 panel_id_split_vcf_gz_tbi = panel_id_split_vcf_gz_tbi,
-                pop_glimpse2_script = pop_glimpse2_script,
-                cargo_toml = pop_glimpse2_cargo_toml,
-                pop_glimpse2_binary = pop_glimpse2_binary,
                 region = pop_regions[k],
                 output_prefix = output_prefix + ".glimpse2.popped"
         }
@@ -297,10 +291,6 @@ task PopAndMarginalizeCollisions {
         File panel_id_split_vcf_gz           # panel popping script currently requires vcf.gz, so we also use that here
         File panel_id_split_vcf_gz_tbi
 
-        File? pop_glimpse2_script             # modified version of convert-to-biallelic.py translated to Rust
-        File? cargo_toml
-        File? pop_glimpse2_binary
-
         String region
         String output_prefix
 
@@ -312,24 +302,11 @@ task PopAndMarginalizeCollisions {
     command <<<
         set -euox pipefail
 
-        if [ -n "~{pop_glimpse2_binary}" ]; then
-            POP_BIN="~{pop_glimpse2_binary}"
-            chmod +x $POP_BIN
-        else
-            mkdir -p pop-glimpse2/src/bin
-            cp ~{pop_glimpse2_script} pop-glimpse2/src/bin/pop-glimpse2.rs
-            cp ~{cargo_toml} pop-glimpse2
-            cd pop-glimpse2
-            cargo build --release
-            cd ..
-            POP_BIN="./pop-glimpse2/target/release/pop-glimpse2"
-        fi
-
         # this now only works for pop-glimpse2-joint-opt.rs;
         # the sort may also be extraneous, but we keep it in to guard against getting out of sync with the popped panel
         bcftools view -r ~{region} --regions-overlap 0 ~{panel_bubble_split_sites_only_vcf} -Oz -o panel.bubble.split.sites.shard.vcf.gz
         bcftools view -r ~{region} --regions-overlap 0 ~{posteriors_vcf} | \
-            $POP_BIN ~{panel_id_split_vcf_gz} panel.bubble.split.sites.shard.vcf.gz | \
+            /usr/local/bin/pop-glimpse2 ~{panel_id_split_vcf_gz} panel.bubble.split.sites.shard.vcf.gz | \
             bcftools sort --max-mem=2G -W -Ob -o ~{output_prefix}.bcf
     >>>
 
@@ -347,7 +324,7 @@ task PopAndMarginalizeCollisions {
         use_ssd:            true,
         preemptible_tries:  2,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-dsde-methods/slee/lrma-aou2-panel-creation-rust:v1"
+        docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.0.0-5dc0f19-1784328222"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
@@ -393,7 +370,7 @@ task RemapSampleNames {
         use_ssd:            true,
         preemptible_tries:  2,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-dsp-lrma/lr-gcloud-samtools:0.1.23"
+        docker:             "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
