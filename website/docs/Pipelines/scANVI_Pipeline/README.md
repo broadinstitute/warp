@@ -262,6 +262,10 @@ All scANVI pipeline releases are documented in the [scANVI changelog](https://gi
 
 ## Citing the scANVI Pipeline
 
+If you use the scANVI Pipeline in your research, please identify the pipeline in your methods section using the [scANVI SciCrunch resource identifier](https://rrid.site/resolver/SCR_028705).
+
+- Ex: *scANVI Pipeline (RRID:SCR_028705)*
+
 When citing WARP, please use the following:
 
 Kylee Degatano, Aseel Awdeh, Robert Sidney Cox III, Wes Dingman, George Grant, Farzaneh Khajouei, Elizabeth Kiernan, Kishori Konwar, Kaylee L Mathews, Kevin Palis, Nikelle Petrillo, Geraldine Van der Auwera, Chengchen (Rex) Wang, Jessica Way. "Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis." _Bioinformatics_, 2025; [https://doi.org/10.1093/bioinformatics/btaf494](https://doi.org/10.1093/bioinformatics/btaf494)
