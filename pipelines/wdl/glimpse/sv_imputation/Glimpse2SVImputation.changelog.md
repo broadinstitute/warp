@@ -1,3 +1,8 @@
+# 0.0.5
+2026-07-21 (Date of Last Commit)
+
+* Updated both `preprocess_pls_gvcf_pipeline_version` and `batch_pipeline_version` to 0.0.4
+
 # 0.0.4
 2026-07-17 (Date of Last Commit)
 
