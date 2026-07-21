@@ -13,7 +13,7 @@ struct RuntimeAttr {
 
 workflow RunRemovePhasedSamples {
   meta {
-    description: "Scatter Dataproc jobs over input MT paths and run remove_phased_samples.py on each shard."
+    description: "Scatter Dataproc jobs over input MT paths and run remove_phased_samples.py on each shard, with optional chrX mode."
     allowNestedInputs: true
   }
 
@@ -22,6 +22,8 @@ workflow RunRemovePhasedSamples {
     Array[String] input_mt_paths
     String remove_samples_tsv
     String remove_id_col = "research_id"
+    Boolean run_chrX = false
+    String? participant_sex_tsv
     String? metadata_vcf_or_header
     Boolean write_out_mt = false
     Boolean overwrite = false
@@ -53,6 +55,8 @@ workflow RunRemovePhasedSamples {
         input_mt_path = path,
         remove_samples_tsv = remove_samples_tsv,
         remove_id_col = remove_id_col,
+        run_chrX = run_chrX,
+        participant_sex_tsv = participant_sex_tsv,
         metadata_vcf_or_header = metadata_vcf_or_header,
         write_out_mt = write_out_mt,
         overwrite = overwrite,
@@ -87,6 +91,8 @@ task RemovePhasedSamplesOnDataproc {
     String input_mt_path
     String remove_samples_tsv
     String remove_id_col
+    Boolean run_chrX = false
+    String? participant_sex_tsv
     String? metadata_vcf_or_header
     Boolean write_out_mt
     Boolean overwrite
@@ -158,6 +164,14 @@ task RemovePhasedSamplesOnDataproc {
     import uuid
     from google.cloud import dataproc_v1 as dataproc
 
+    run_chrx = "~{run_chrX}".lower() == "true"
+    participant_sex_tsv = "~{if defined(participant_sex_tsv) then select_first([participant_sex_tsv]) else ""}"
+
+    if run_chrx and not participant_sex_tsv:
+        raise Exception("run_chrX=true requires participant_sex_tsv to be provided.")
+
+    sex_tsv_arg = f"--sex-tsv {participant_sex_tsv}" if run_chrx else ""
+
     cluster_prefix = "~{mt_output_stem}".lower().replace("_", "-").replace(".", "-")
     cluster_prefix = cluster_prefix[:20] if len(cluster_prefix) > 20 else cluster_prefix
     cluster_name = f"rmph-{cluster_prefix}-hail-step1-{str(uuid.uuid4())[0:13]}"
@@ -192,6 +206,7 @@ task RemovePhasedSamplesOnDataproc {
                 --mt-path ~{input_mt_path} \
                 --remove-samples-tsv ~{remove_samples_tsv} \
                 --remove-id-col ~{remove_id_col} \
+                {sex_tsv_arg} \
                 --out-vcf ~{output_filtered_vcf_url} \
                 --spark-executor-cores ~{executor_cores} \
                 --spark-executor-memory ~{executor_memory} \
