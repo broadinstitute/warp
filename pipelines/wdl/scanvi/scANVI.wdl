@@ -28,6 +28,11 @@ workflow scANVI {
       # GEX-only modes). When unset, the container default (500) is used.
       Int? max_epochs
 
+      # SCVI/SCANVI minibatch size (SGD). Default 128 (scvi-tools' own default, reproducing prior
+      # behavior). Lower it (e.g. 8) to fit a high-cardinality reference on a small GPU; raise it on
+      # a large-VRAM cloud GPU. Activation memory scales with (batch_size x number of labels).
+      Int batch_size = 128
+
       # Reference adaptation. When the reference is an AIT-schema atlas, these select
       # which obs columns become the cell-type label and the batch. When unset, AIT
       # references default to subclass/donor_id and PBMC-style references to
@@ -61,11 +66,11 @@ workflow scANVI {
 
   }
 
-  String pipeline_version = "2.0.0"
+  String pipeline_version = "2.1.0"
 
   # Docker image (same container for both tasks; only Task 2 gets GPUs attached)
   # Exposes run_gex_only_model for GEX-only mode (warp-tools/3rd-party-tools/scvi-scanvi).
-  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:635d4391d50cba9bd58f1fc41b10d8e1c61285a73bde75371815ce9a0db3430c"
+  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:3c6a32f7203a2b5fd82a4bedd00f8aca28807a54020d43b59b93e707d296c2e9"
   # Step 1: CPU-only preprocessing and filtering of all three h5ad inputs
   call PreprocessFilter {
       input:
@@ -83,28 +88,54 @@ workflow scANVI {
         docker = docker
   }
 
-  # Step 2: GPU-accelerated SCVI/SCANVI model training and label transfer
-  call MultiomeLabelTransfer {
-      input:
-        gex_h5ad = PreprocessFilter.preprocessed_gex_h5ad,
-        atac_activity_h5ad = PreprocessFilter.preprocessed_atac_activity_h5ad,
-        ref_h5ad = PreprocessFilter.preprocessed_ref_h5ad,
-        input_id = input_id,
-        max_epochs = max_epochs,
-        output_max_probability = output_max_probability,
-        scanvi_model = scanvi_model,
-        gpu_count = gpu_count,
-        mem_size = mem_size,
-        nthreads = nthreads,
-        disk_size = disk_size,
-        docker = docker
+  # Step 2: SCVI/SCANVI model training + label transfer. Both tasks run the SAME container command
+  # (label_transfer_from_preprocessed.py); they differ ONLY in the runtime GPU attributes, which
+  # Cromwell cannot conditionally omit from a single task. So route by gpu_count: > 0 -> the GPU task,
+  # 0 -> the CPU-only task (e.g. the pretrained-model prediction path). scvi-tools auto-detects the
+  # accelerator, so the code path is identical either way.
+  if (gpu_count > 0) {
+    call MultiomeLabelTransfer {
+        input:
+          gex_h5ad = PreprocessFilter.preprocessed_gex_h5ad,
+          atac_activity_h5ad = PreprocessFilter.preprocessed_atac_activity_h5ad,
+          ref_h5ad = PreprocessFilter.preprocessed_ref_h5ad,
+          input_id = input_id,
+          max_epochs = max_epochs,
+          batch_size = batch_size,
+          output_max_probability = output_max_probability,
+          scanvi_model = scanvi_model,
+          gpu_count = gpu_count,
+          mem_size = mem_size,
+          nthreads = nthreads,
+          disk_size = disk_size,
+          docker = docker
+    }
+  }
+  if (gpu_count == 0) {
+    call MultiomeLabelTransferCpu {
+        input:
+          gex_h5ad = PreprocessFilter.preprocessed_gex_h5ad,
+          atac_activity_h5ad = PreprocessFilter.preprocessed_atac_activity_h5ad,
+          ref_h5ad = PreprocessFilter.preprocessed_ref_h5ad,
+          input_id = input_id,
+          max_epochs = max_epochs,
+          batch_size = batch_size,
+          output_max_probability = output_max_probability,
+          scanvi_model = scanvi_model,
+          mem_size = mem_size,
+          nthreads = nthreads,
+          disk_size = disk_size,
+          docker = docker
+    }
   }
 
   output {
-      File scanvi_predictions_h5ad = MultiomeLabelTransfer.scanvi_predictions_h5ad
-      File? atac_annotated_h5ad = MultiomeLabelTransfer.atac_annotated_h5ad
-      File gex_annotated_h5ad = MultiomeLabelTransfer.gex_annotated_h5ad
-      File scanvi_model_out = MultiomeLabelTransfer.scanvi_model_out
+      # Exactly one of the two tasks runs; select_first picks whichever produced each output.
+      File scanvi_predictions_h5ad = select_first([MultiomeLabelTransfer.scanvi_predictions_h5ad, MultiomeLabelTransferCpu.scanvi_predictions_h5ad])
+      # atac_annotated_h5ad is optional (multiome mode only), so use a defined() ternary rather than select_first.
+      File? atac_annotated_h5ad = if defined(MultiomeLabelTransfer.atac_annotated_h5ad) then MultiomeLabelTransfer.atac_annotated_h5ad else MultiomeLabelTransferCpu.atac_annotated_h5ad
+      File gex_annotated_h5ad = select_first([MultiomeLabelTransfer.gex_annotated_h5ad, MultiomeLabelTransferCpu.gex_annotated_h5ad])
+      File scanvi_model_out = select_first([MultiomeLabelTransfer.scanvi_model_out, MultiomeLabelTransferCpu.scanvi_model_out])
       String pipeline_version_out = pipeline_version
   }
 }
@@ -425,12 +456,16 @@ CODE
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Task 2: MultiomeLabelTransfer (GPU)
+# Task 2: MultiomeLabelTransfer — SCVI/SCANVI model training + label transfer.
 #
-# Receives preprocessed h5ad files and runs model training + label transfer:
-#   - SCVI unsupervised latent space learning
-#   - SCANVI semi-supervised label transfer
-#   - Outputs annotated GEX, ATAC, and SCANVI prediction h5ad files
+# Runs label_transfer_from_preprocessed.py in the container on the PreprocessFilter outputs
+# (obtain the SCANVI model — load a supplied one or train — transfer labels, finalize metadata,
+# write annotated matrices + predictions + minimal model). Two variants that are IDENTICAL except
+# for the runtime GPU attributes (Cromwell cannot conditionally omit them from a single task):
+#   - MultiomeLabelTransfer     requests a GPU (gpu_count > 0)
+#   - MultiomeLabelTransferCpu  is CPU-only (gpu_count = 0, e.g. the pretrained-model prediction path)
+# scvi-tools auto-detects the accelerator, so the command is identical for both. KEEP the two tasks'
+# input / command / output blocks IN SYNC.
 # ──────────────────────────────────────────────────────────────────────────────
 task MultiomeLabelTransfer {
     input {
@@ -442,6 +477,7 @@ task MultiomeLabelTransfer {
         # Runtime attributes
         String input_id
         Int? max_epochs
+        Int batch_size = 128
         Boolean output_max_probability = false
         # Optional pre-trained SCANVI model (.tar.gz of a saved model dir); when provided, the task
         # loads it and predicts instead of training SCVI/SCANVI.
@@ -459,199 +495,26 @@ task MultiomeLabelTransfer {
         ref_h5ad: "Preprocessed reference h5ad file with cell type labels and modality tag."
         input_id: "Unique identifier prepended to all output filenames."
         max_epochs: "Optional cap on SCVI/SCANVI training epochs, applied to both multiome and GEX-only modes. When unset, the container default (500) is used."
+        batch_size: "SCVI/SCANVI minibatch size (SGD). Default 128 (reproduces prior behavior). Lower it to fit a high-cardinality reference on a small GPU (activation memory scales with batch_size x number of labels); raise it on a large-VRAM cloud GPU."
         output_max_probability: "When true, also write a `max_probability` obs column (the per-cell maximum SCANVI posterior probability, i.e. the assigned label's confidence) to every output h5ad."
         scanvi_model: "Optional .tar.gz of a saved SCANVI model directory (no bundled adata). When provided, the model is loaded and used to predict (no SCVI/SCANVI training). Valid when the model matches the incoming data/reference. The run still emits its model as scanvi_model_out."
         docker: "Docker image containing the scvi-scanvi runtime environment."
-        gpu_count: "GPUs to request. Default 2 (training, or inference on large data). Set 0 for a CPU-only prediction run (e.g. the pretrained Plumbing test)."
+        gpu_count: "GPUs to request. Default 2 (training, or inference on large data)."
         disk_size: "Disk size in GB."
         mem_size: "Memory size in GB."
     }
 
     command <<<
         set -euo pipefail
-
-        python3 <<CODE
-import sys
-import time
-import pandas as pd
-import scanpy as sc
-import anndata as ad
-
-# PyTorch 2.6 flipped torch.load(weights_only) to True by default, which breaks scvi-tools 1.2
-# model loading (the checkpoint pickles numpy globals). Any model loaded here is produced by this
-# same pipeline (trusted), so force weights_only=False for all torch.load calls.
-import os, glob, tarfile, torch
-_orig_torch_load = torch.load
-def _torch_load_compat(*a, **k):
-    k.setdefault("weights_only", False)
-    return _orig_torch_load(*a, **k)
-torch.load = _torch_load_compat
-
-# ── Import ONLY model-training and label-transfer functions ───────────────
-# We import specific functions from the container script so that main()
-# (which re-runs all preprocessing) is NEVER called.  The three functions
-# imported here operate entirely on already-preprocessed AnnData objects.
-sys.path.insert(0, "/usr/local")
-from multiome_label_transfer import (
-    run_multi_model,
-    run_gex_only_model,
-    transfer_labels,
-    finalize_output,
-)
-
-# ATAC activity is optional. When PreprocessFilter ran in GEX-only mode it does
-# not emit an ATAC activity file, so this path is empty and we train/annotate
-# from GEX + reference alone via run_gex_only_model.
-atac_path = "~{default='' atac_activity_h5ad}".strip()
-atac_present = bool(atac_path)
-print(f"Mode: {'multiome (GEX + ATAC)' if atac_present else 'GEX-only (no ATAC)'}")
-
-# ── 1. Load preprocessed h5ad files ──────────────────────────────────────
-# These files were fully preprocessed by the PreprocessFilter task:
-#   - GEX: filtered to STARsolo cell calls, min-count filtered, batch-
-#     labeled, modality-tagged (subset to shared barcodes in multiome mode)
-#   - ATAC activity (multiome only): gene activity matrix (converted from
-#     cell-by-bin by snapatac2), batch-labeled, modality-tagged
-#   - Reference: annotated with final_annotation and modality tag
-# NO additional filtering, reindexing, or gene-activity conversion needed.
-print("Loading preprocessed inputs (no re-preprocessing)...")
-gex           = sc.read_h5ad("~{gex_h5ad}")
-ref           = sc.read_h5ad("~{ref_h5ad}")
-print(f"  GEX:           {gex.shape}")
-print(f"  Reference:     {ref.shape}")
-atac_activity = None
-if atac_present:
-    atac_activity = sc.read_h5ad(atac_path)
-    print(f"  ATAC activity: {atac_activity.shape}")
-
-timing_summary = {}
-
-# ── 2. Obtain the SCANVI model: load a supplied one, else train ──────────
-# If a pre-trained SCANVI model is supplied, LOAD it and predict (no SCVI/SCANVI training) —
-# valid when the model matches the incoming data/reference. Otherwise run_multi_model() /
-# run_gex_only_model() concatenate query+reference (join='inner'), filter_genes(min_cells=5),
-# pick 5000 batch-aware HVGs, and train SCVI then SCANVI (returns data, vae, lvae).
-scanvi_model_tar = "~{default='' scanvi_model}".strip()
-start = time.time()
-if scanvi_model_tar:
-    import scvi
-    print(f"Loading supplied SCANVI model (skip training): {scanvi_model_tar}")
-    extract_dir = "scanvi_model_in"
-    with tarfile.open(scanvi_model_tar) as tf:
-        tf.extractall(extract_dir)
-    model_dir = os.path.dirname(glob.glob(f"{extract_dir}/**/model.pt", recursive=True)[0])
-    # Rebuild the concat exactly as training does (so genes/labels line up), align it to the
-    # model's saved gene set, and load. No training is performed.
-    if atac_present:
-        adatas, keys = [gex, atac_activity, ref], ["rna_unannotated", "atac_unannotated", "rna_annotated"]
-    else:
-        adatas, keys = [gex, ref], ["rna_unannotated", "rna_annotated"]
-    data = ad.concat(adatas, join="inner", label="modality", keys=keys, index_unique="_")
-    sc.pp.filter_genes(data, min_cells=5)
-    data.obs["celltype_scanvi"] = "Unknown"
-    scvi.model.SCANVI.prepare_query_anndata(data, model_dir)   # subset/pad to the model's var_names
-    lvae = scvi.model.SCANVI.load(model_dir, adata=data)
-    timing_summary['Model Load'] = time.time() - start
-    print(f"  Model loaded in {timing_summary['Model Load']:.1f}s")
-else:
-    print("Training SCVI and SCANVI models...")
-    # Optional epoch cap. Passed as a kwarg only when set, so the default path stays
-    # compatible with container images that predate the max_epochs parameter.
-    max_epochs_val = "~{default='' max_epochs}".strip()
-    train_kwargs = {"max_epochs": int(max_epochs_val)} if max_epochs_val else {}
-    if train_kwargs:
-        print(f"  max_epochs override: {train_kwargs['max_epochs']}")
-    if atac_present:
-        data, vae, lvae = run_multi_model(gex, atac_activity, ref, **train_kwargs)
-    else:
-        data, vae, lvae = run_gex_only_model(gex, ref, **train_kwargs)
-    timing_summary['Model Training'] = time.time() - start
-    print(f"  Model training complete in {timing_summary['Model Training']:.1f}s")
-
-# ── 3. Transfer labels using the trained SCANVI model ────────────────────
-# transfer_labels() performs the following steps:
-#   a. Predicts cell-type labels (C_scANVI) for every cell using SCANVI
-#   b. Extracts the SCANVI latent representation (X_scANVI)
-#   c. Computes a neighborhood graph and UMAP from the latent space
-#   d. Writes intermediate labeled AnnData (adata_scanvi_labels.h5ad)
-#   e. Returns a UMAP plot and the updated AnnData object
-print("Transferring labels with SCANVI...")
-start = time.time()
-plot, data = transfer_labels(data, lvae)
-timing_summary['Label Transfer'] = time.time() - start
-print(f"  Label transfer complete in {timing_summary['Label Transfer']:.1f}s")
-
-# ── 3b. Optional per-cell label confidence (max posterior probability) ───
-# When enabled, record the maximum SCANVI posterior probability per cell — the
-# confidence of the assigned C_scANVI label — via lvae.predict(soft=True) row max.
-# Stored as obs['max_probability'] on the concatenated object and propagated to
-# every output below. Off by default, so existing outputs are unchanged.
-output_max_probability = ~{true='True' false='False' output_max_probability}
-if output_max_probability:
-    print("Computing per-cell max label probability (SCANVI predict soft=True)...")
-    soft_probs = lvae.predict(data, soft=True)
-    data.obs['max_probability'] = soft_probs.max(axis=1).astype('float32')
-
-# ── 4. Propagate predicted labels back to original matrices ──────────────
-# ad.concat (called inside the training functions) appended modality-key
-# suffixes to obs_names (e.g. "barcode_rna_unannotated",
-# "barcode_atac_unannotated"). We use those suffixed names to look up each
-# cell's SCANVI prediction (C_scANVI) in the concatenated object and copy it
-# into the original preprocessed GEX (and, in multiome mode, ATAC) objects.
-print("Propagating predicted labels to GEX matrix...")
-gex.obs['final_annotation'] = data.obs.loc[
-    gex.obs_names + '_rna_unannotated']['C_scANVI'].to_numpy()
-if output_max_probability:
-    gex.obs['max_probability'] = data.obs.loc[
-        gex.obs_names + '_rna_unannotated']['max_probability'].to_numpy()
-if atac_present:
-    print("Propagating predicted labels to ATAC matrix...")
-    atac_activity.obs['final_annotation'] = data.obs.loc[
-        atac_activity.obs_names + '_atac_unannotated']['C_scANVI'].to_numpy()
-    if output_max_probability:
-        atac_activity.obs['max_probability'] = data.obs.loc[
-            atac_activity.obs_names + '_atac_unannotated']['max_probability'].to_numpy()
-
-# ── 5. Write annotated GEX (and ATAC) matrices ──────────────────────────
-# These outputs mirror what main() in the container script produces,
-# but are built from the already-preprocessed inputs.
-input_id = "~{input_id}"
-print(f"Writing annotated matrices (input_id={input_id})...")
-gex.write(f"{input_id}_gex_annotated_matrix.h5ad")
-print(f"  {input_id}_gex_annotated_matrix.h5ad:  {gex.shape}")
-if atac_present:
-    atac_activity.write(f"{input_id}_atac_annotated_matrix.h5ad")
-    print(f"  {input_id}_atac_annotated_matrix.h5ad: {atac_activity.shape}")
-
-# ── 6. Finalize SCANVI predictions ──────────────────────────────────────
-# finalize_output() adds downstream-required metadata and reformats:
-#   a. Adds placeholder metadata (biosample_id, donor_id, species,
-#      disease, organ, library_preparation_protocol, sex)
-#   b. Renames 'final_annotation' → 'celltype'
-#   c. Copies the count matrix into the .raw layer for SCP ingest
-print("Finalizing SCANVI predictions...")
-final_data = finalize_output(data)
-final_data.write(f"{input_id}_SCANVI_predictions.h5ad")
-print(f"  {input_id}_SCANVI_predictions.h5ad:    {final_data.shape}")
-
-# ── 7. Always emit the minimal SCANVI model (no bundled adata) ───────────
-# Saved without adata (~tens of MB), tar'd in the command below, output as scanvi_model_out.
-# Same .tar.gz format as the `scanvi_model` input, so this output can feed a later run.
-print("Saving minimal SCANVI model (no adata)...")
-lvae.save("scanvi_model_out", save_anndata=False, overwrite=True)
-
-# ── Timing summary ───────────────────────────────────────────────────────
-timing_df = pd.DataFrame(
-    [(step, f"{elapsed:.2f}s") for step, elapsed in timing_summary.items()],
-    columns=["Step", "Time"]
-)
-print("\nTiming Summary:")
-print(timing_df.to_string(index=False))
-print("\nMultiomeLabelTransfer complete.")
-CODE
-        # Bundle the minimal saved SCANVI model dir (same .tar.gz format as the scanvi_model input,
-        # so this output can be fed back into a later run).
-        tar czf "~{input_id}_scanvi_model.tar.gz" scanvi_model_out
+        python3 /usr/local/label_transfer_from_preprocessed.py \
+            --gex ~{gex_h5ad} \
+            --ref ~{ref_h5ad} \
+            --input-id ~{input_id} \
+            --batch-size ~{batch_size} \
+            ~{if defined(atac_activity_h5ad) then "--atac " + select_first([atac_activity_h5ad]) else ""} \
+            ~{if defined(scanvi_model) then "--scanvi-model " + select_first([scanvi_model]) else ""} \
+            ~{if defined(max_epochs) then "--max-epochs " + select_first([max_epochs]) else ""} \
+            ~{true="--output-max-probability" false="" output_max_probability}
     >>>
 
     runtime {
@@ -660,9 +523,77 @@ CODE
         disks: "local-disk ${disk_size} SSD"
         memory: "${mem_size} GiB"
         cpu: nthreads
-        hardware_gpu_type: "nvidia-tesla-t4" # known to work with Terra
+        # camelCase GPU keys = portable across Cromwell/Terra/GCP (per WARP conventions).
+        gpuType: "nvidia-tesla-t4"           # known to work with Terra
         gpuCount: gpu_count
-        nvidia_driver_version: "535.104.05" # compatible with CUDA 12.x and T4 GPUs, known to work with Terra
+        nvidiaDriverVersion: "535.104.05"    # compatible with CUDA 12.x and T4 GPUs
+        maxRetries: 1
+    }
+
+    output {
+        File scanvi_predictions_h5ad = "~{input_id}_SCANVI_predictions.h5ad"
+        File? atac_annotated_h5ad    = "~{input_id}_atac_annotated_matrix.h5ad"
+        File gex_annotated_h5ad      = "~{input_id}_gex_annotated_matrix.h5ad"
+        File scanvi_model_out        = "~{input_id}_scanvi_model.tar.gz"
+    }
+}
+
+
+# CPU-only variant of MultiomeLabelTransfer: identical inputs/command/outputs, but NO GPU runtime
+# attributes and no gpu_count input. Selected by the workflow when gpu_count = 0 (e.g. the
+# pretrained-model prediction path). Keep in sync with MultiomeLabelTransfer above.
+task MultiomeLabelTransferCpu {
+    input {
+        # Preprocessed h5ad files from PreprocessFilter
+        File gex_h5ad
+        File? atac_activity_h5ad
+        File ref_h5ad
+
+        # Runtime attributes
+        String input_id
+        Int? max_epochs
+        Int batch_size = 128
+        Boolean output_max_probability = false
+        File? scanvi_model
+        String docker
+        Int disk_size = 500
+        Int mem_size = 120
+        Int nthreads = 32
+    }
+
+    parameter_meta {
+        gex_h5ad: "Preprocessed gene expression h5ad file (filtered, batch-labeled, modality-tagged)."
+        atac_activity_h5ad: "Optional preprocessed ATAC gene activity h5ad file. If omitted, GEX-only mode."
+        ref_h5ad: "Preprocessed reference h5ad file with cell type labels and modality tag."
+        input_id: "Unique identifier prepended to all output filenames."
+        max_epochs: "Optional cap on SCVI/SCANVI training epochs. When unset, the container default (500) is used."
+        batch_size: "SCVI/SCANVI minibatch size (SGD). Default 128."
+        output_max_probability: "When true, also write a `max_probability` obs column to every output h5ad."
+        scanvi_model: "Optional .tar.gz of a saved SCANVI model directory (no bundled adata). When provided, the model is loaded and used to predict (no SCVI/SCANVI training)."
+        docker: "Docker image containing the scvi-scanvi runtime environment."
+        disk_size: "Disk size in GB."
+        mem_size: "Memory size in GB."
+    }
+
+    command <<<
+        set -euo pipefail
+        python3 /usr/local/label_transfer_from_preprocessed.py \
+            --gex ~{gex_h5ad} \
+            --ref ~{ref_h5ad} \
+            --input-id ~{input_id} \
+            --batch-size ~{batch_size} \
+            ~{if defined(atac_activity_h5ad) then "--atac " + select_first([atac_activity_h5ad]) else ""} \
+            ~{if defined(scanvi_model) then "--scanvi-model " + select_first([scanvi_model]) else ""} \
+            ~{if defined(max_epochs) then "--max-epochs " + select_first([max_epochs]) else ""} \
+            ~{true="--output-max-probability" false="" output_max_probability}
+    >>>
+
+    runtime {
+        docker: docker
+        bootDiskSizeGb: 20
+        disks: "local-disk ${disk_size} SSD"
+        memory: "${mem_size} GiB"
+        cpu: nthreads
         maxRetries: 1
     }
 

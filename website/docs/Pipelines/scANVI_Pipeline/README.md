@@ -78,6 +78,7 @@ Example input JSON files are available in the [`example_inputs`](https://github.
 | `atac_filename` | String | Expected ATAC h5ad filename in the input bucket. Optional: if absent from the bucket, the pipeline runs in GEX-only mode. | `"atac.h5ad"` |
 | `ref_filename` | String | Expected reference h5ad filename in the input bucket. | `"ref.h5ad"` |
 | `max_epochs` | Int? | Optional cap on SCVI/SCANVI training epochs, applied in both multiome and GEX-only modes. When unset, the container default (500) is used. | — |
+| `batch_size` | Int | SCVI/SCANVI minibatch size (the SGD minibatch described above). Lower it to fit a high-cardinality reference on a small GPU (activation memory scales with `batch_size` × number of labels); raise it on a large-VRAM cloud GPU. | `128` |
 | `ref_label_column` | String? | Reference `obs` column to use as the cell-type label. When unset, defaults to `subclass` for AIT references and `final_annotation` otherwise. | — |
 | `ref_batch_column` | String? | Reference `obs` column to use as the batch. When unset, defaults to `donor_id` for AIT references and `batch` otherwise. | — |
 | `genome` | String | Genome for the ATAC cell-by-bin → gene-activity conversion (multiome only): `hg38` (default), `mm10`, or `mm39`. | `"hg38"` |
@@ -222,7 +223,7 @@ Both tasks use the same Docker image (pinned by digest). GPU and CUDA setup is h
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:635d4391d50cba9bd58f1fc41b10d8e1c61285a73bde75371815ce9a0db3430c` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:3c6a32f7203a2b5fd82a4bedd00f8aca28807a54020d43b59b93e707d296c2e9` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk 1000 SSD` |
 | `memory` | `120 GiB` |
@@ -233,19 +234,45 @@ Both tasks use the same Docker image (pinned by digest). GPU and CUDA setup is h
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:635d4391d50cba9bd58f1fc41b10d8e1c61285a73bde75371815ce9a0db3430c` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:3c6a32f7203a2b5fd82a4bedd00f8aca28807a54020d43b59b93e707d296c2e9` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk 500 SSD` |
 | `memory` | `120 GiB` |
 | `cpu` | 32 |
-| `hardware_gpu_type` | `nvidia-tesla-t4` |
-| `gpuCount` | 2 |
-| `nvidia_driver_version` | `535.104.05` |
+| `gpuType` | `nvidia-tesla-t4` |
+| `gpuCount` | `gpu_count` (default 2) |
+| `nvidiaDriverVersion` | `535.104.05` |
 | `maxRetries` | 1 |
 
 :::note GPU driver compatibility
 Driver version `535.104.05` is compatible with CUDA 12.x and NVIDIA T4 GPUs and has been verified working on GCP / Terra with the `scvi-scanvi` container.
 :::
+
+:::note CPU-only variant
+When `gpu_count = 0` the workflow routes to `MultiomeLabelTransferCpu` — an identical task with **no** GPU runtime attributes (Cromwell rejects `gpuCount = 0` and can't conditionally omit the GPU keys from one task). Both tasks run the same container command (`label_transfer_from_preprocessed.py`); scvi-tools auto-detects the accelerator, so it uses the GPU when present and CPU otherwise.
+:::
+
+## Example run costs
+
+The table below reports representative Terra costs for scANVI runs across three references — mouse hippocampus, human neocortex, and PBMC — in both training and CPU-inference modes. Costs are from single runs on GCP `us-central1` (training on **2× NVIDIA T4** GPUs; inference CPU-only via `gpu_count = 0`) and will vary with region, machine type, preemption, and dataset. "Cells labelled" is the number of query cells annotated (after PreprocessFilter; for multiome, after the GEX↔ATAC shared-barcode intersection); "Reference" is the annotated `ref_h5ad`.
+
+| Dataset (reference) | Mode | Compute | Cost | Cells labelled | Cost / cell | Cost / 1k cells | Query input | Cost / GB (query) | Reference (cells / GB) |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| Mouse hippocampus (AIT) | train | 2× T4 GPU | $26.34 | 24,078 | $0.001094 | $1.09 | 0.53 GB | $49.85 | 250,734 / 12.87 |
+| Mouse hippocampus (AIT) | inference | CPU | $0.56 | 24,078 | $0.0000233 | $0.02 | 1.69 GB | $0.33 | 250,734 / 12.87 |
+| Human neocortex (AIT) | train | 2× T4 GPU | $2.51 | 6,018 | $0.000417 | $0.42 | 0.32 GB | $7.98 | 47,432 / 4.97 |
+| Human neocortex (AIT) | inference | CPU | $0.33 | 6,018 | $0.0000548 | $0.05 | 0.32 GB | $1.05 | 47,432 / 4.97 |
+| 10k PBMC (multiome) | train | 2× T4 GPU | $3.64 | 911 | $0.003996 | $4.00 | 0.04 GB GEX + 0.96 GB ATAC | $100.14 † | 33,506 / 2.06 |
+| 10k PBMC (GEX-only) | train | 2× T4 GPU | $3.38 | 934 | $0.003619 | $3.62 | 0.04 GB | $92.98 | 33,506 / 2.06 |
+
+† GEX file only; $3.66/GB when counting GEX + ATAC input together.
+
+Takeaways:
+
+- **Inference is far cheaper than training.** Loading a saved model and predicting on CPU (`scanvi_model` supplied, `gpu_count = 0`) cost 8–47× less than the equivalent training run.
+- **Training cost tracks the reference, not the query.** The largest query (1.69 GB, mouse inference) was among the cheapest runs; training cost scales with reference size (mouse 250,734-cell / 12.87 GB → $26.34 vs human 47,432 / 4.97 GB → $2.51).
+- **Per-cell cost rises as the query shrinks**, because the fixed reference-load / training cost is amortized over fewer labelled cells (e.g. PBMC's ~900-cell queries are the highest cost/cell).
+- **Multiome and GEX-only cost about the same** ($3.64 vs $3.38) — the ATAC branch adds little.
 
 ## Docker image
 
@@ -256,6 +283,10 @@ The `scvi-scanvi` image is maintained in [warp-tools](https://github.com/broadin
 All scANVI pipeline releases are documented in the [scANVI changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/scanvi/scANVI.changelog.md).
 
 ## Citing the scANVI Pipeline
+
+If you use the scANVI Pipeline in your research, please identify the pipeline in your methods section using the [scANVI SciCrunch resource identifier](https://rrid.site/resolver/SCR_028705).
+
+- Ex: *scANVI Pipeline (RRID:SCR_028705)*
 
 When citing WARP, please use the following:
 
