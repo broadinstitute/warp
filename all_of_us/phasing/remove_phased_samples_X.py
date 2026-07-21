@@ -101,8 +101,8 @@ def parse_args():
 
     parser.add_argument(
         "--sex-col",
-        default="sex",
-        help="Column in sex TSV containing the sex value. Default: sex.",
+        default="sex_at_birth",
+        help="Column in sex TSV containing the sex value. Default: sex_at_birth.",
     )
 
     parser.add_argument(
