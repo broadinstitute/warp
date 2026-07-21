@@ -62,8 +62,10 @@ def build_default_metadata():
 def parse_args():
     parser = argparse.ArgumentParser(
         description=(
-            "Remove samples from a phased Hail MatrixTable, remove dead ALT alleles, "
-            "recompute AC/AF/AN/HC, carry forward GQ/AVSAD, and export VCF."
+            "Remove samples from a phased chrX Hail MatrixTable, temporarily collapse "
+            "male non-PAR genotypes to haploid for metric recalculation, remove dead "
+            "ALT alleles, recompute AC/AF/AN/HC, restore homozygous diploid male GT "
+            "for export, and carry forward GQ/AVSAD."
         )
     )
 
@@ -83,6 +85,48 @@ def parse_args():
         "--remove-id-col",
         default="research_id",
         help="Column in removal TSV matching mt.s. Default: research_id.",
+    )
+
+    parser.add_argument(
+        "--sex-tsv",
+        required=True,
+        help="TSV containing sex info for every sample remaining in the MT.",
+    )
+
+    parser.add_argument(
+        "--sex-id-col",
+        default="research_id",
+        help="Column in sex TSV matching mt.s. Default: research_id.",
+    )
+
+    parser.add_argument(
+        "--sex-col",
+        default="sex",
+        help="Column in sex TSV containing the sex value. Default: sex.",
+    )
+
+    parser.add_argument(
+        "--male-values",
+        default="M,Male,MALE",
+        help="Comma-separated list of sex values that indicate male.",
+    )
+
+    parser.add_argument(
+        "--test-2kb-region",
+        action="store_true",
+        help=(
+            "If set, filter rows to a small chrX interval before processing. "
+            "Useful for quick test runs."
+        ),
+    )
+
+    parser.add_argument(
+        "--test-interval",
+        default="chrX:1-2000",
+        help=(
+            "Interval used when --test-2kb-region is set. "
+            "Default: chrX:1-2000."
+        ),
     )
 
     parser.add_argument(
@@ -223,12 +267,17 @@ def main():
     effective_tmp_dir = get_effective_tmp_dir(args)
 
     spark_conf = build_spark_conf(args)
+    male_values = {value.strip().lower() for value in args.male_values.split(",") if value.strip()}
 
-    print(f"[remove_phased_samples] mt_path={args.mt_path}")
-    print(f"[remove_phased_samples] remove_samples_tsv={args.remove_samples_tsv}")
-    print(f"[remove_phased_samples] out_vcf={args.out_vcf}")
-    print(f"[remove_phased_samples] tmp_dir={effective_tmp_dir}")
-    print(f"[remove_phased_samples] spark_conf={spark_conf}")
+    print(f"[remove_phased_samples_X] mt_path={args.mt_path}")
+    print(f"[remove_phased_samples_X] remove_samples_tsv={args.remove_samples_tsv}")
+    print(f"[remove_phased_samples_X] sex_tsv={args.sex_tsv}")
+    print(f"[remove_phased_samples_X] test_2kb_region={args.test_2kb_region}")
+    if args.test_2kb_region:
+        print(f"[remove_phased_samples_X] test_interval={args.test_interval}")
+    print(f"[remove_phased_samples_X] out_vcf={args.out_vcf}")
+    print(f"[remove_phased_samples_X] tmp_dir={effective_tmp_dir}")
+    print(f"[remove_phased_samples_X] spark_conf={spark_conf}")
 
     init_kwargs = {
         "default_reference": "GRCh38",
@@ -244,6 +293,16 @@ def main():
     # 1. Read input MatrixTable
     # ------------------------------------------------------------
     mt = hl.read_matrix_table(args.mt_path)
+
+    # ------------------------------------------------------------
+    # 1b. Optional test filter to a small chrX interval
+    # ------------------------------------------------------------
+    if args.test_2kb_region:
+        test_interval = hl.parse_locus_interval(
+            args.test_interval,
+            reference_genome="GRCh38",
+        )
+        mt = hl.filter_intervals(mt, [test_interval])
 
     # ------------------------------------------------------------
     # 2. Import removal list
@@ -268,7 +327,54 @@ def main():
     )
 
     # ------------------------------------------------------------
-    # 4. Recompute call stats after sample removal
+    # 4. Annotate sex and convert male non-PAR chrX calls to haploid
+    # ------------------------------------------------------------
+    sex_types = {
+        args.sex_id_col: hl.tstr,
+    }
+
+    sex_ht = hl.import_table(
+        args.sex_tsv,
+        key=args.sex_id_col,
+        types=sex_types,
+        impute=False,
+    )
+
+    sex_ht = sex_ht.annotate(
+        is_male=hl.if_else(
+            hl.is_defined(sex_ht[args.sex_col]),
+            hl.literal(male_values).contains(hl.str(sex_ht[args.sex_col]).lower()),
+            hl.missing(hl.tbool),
+        )
+    )
+
+    mt = mt.annotate_cols(
+        is_male=sex_ht[mt.s].is_male
+    )
+
+    n_missing_sex = mt.aggregate_cols(
+        hl.agg.count_where(~hl.is_defined(mt.is_male))
+    )
+    if n_missing_sex > 0:
+        raise ValueError(
+            f"{n_missing_sex} sample(s) in the MT (after removal) have no matching "
+            f"entry in --sex-tsv."
+        )
+
+    mt = mt.annotate_rows(
+        in_x_nonpar=mt.locus.in_x_nonpar()
+    )
+
+    mt = mt.annotate_entries(
+        GT=hl.case()
+        .when(~(mt.is_male & mt.in_x_nonpar), mt.GT)
+        .when(~hl.is_defined(mt.GT), mt.GT)
+        .when(mt.GT.is_het(), hl.missing(hl.tcall))
+        .default(hl.call(mt.GT[0], phased=mt.GT.phased))
+    )
+
+    # ------------------------------------------------------------
+    # 5. Recompute call stats after sample removal
     # ------------------------------------------------------------
     # hl.agg.call_stats returns arrays that include REF at index 0.
     mt = mt.annotate_rows(
@@ -276,7 +382,7 @@ def main():
     )
 
     # ------------------------------------------------------------
-    # 5. Remove dead ALT alleles
+    # 6. Remove dead ALT alleles
     # ------------------------------------------------------------
     # Keep REF allele i == 0.
     # Keep ALT alleles only if recomputed AC > 0.
@@ -286,7 +392,7 @@ def main():
     )
 
     # ------------------------------------------------------------
-    # 6. Reindex GT after allele filtering
+    # 7. Reindex GT after allele filtering
     # ------------------------------------------------------------
     # filter_alleles creates old_to_new and new_to_old mappings.
     # Preserve phasing.
@@ -310,19 +416,19 @@ def main():
     )
 
     # ------------------------------------------------------------
-    # 7. Remove rows that became REF-only
+    # 8. Remove rows that became REF-only
     # ------------------------------------------------------------
     mt_filtered = mt_filtered.filter_rows(
         hl.len(mt_filtered.alleles) > 1
     )
 
     # ------------------------------------------------------------
-    # 8. Recompute final variant QC after allele removal / GT reindexing
+    # 9. Recompute final variant QC after allele removal / GT reindexing
     # ------------------------------------------------------------
     mt_filtered = hl.variant_qc(mt_filtered)
 
     # ------------------------------------------------------------
-    # 9. Write final VCF-compatible INFO field
+    # 10. Write final VCF-compatible INFO field
     # ------------------------------------------------------------
     # AC and AF are sliced [1:] because Hail includes REF at index 0,
     # while VCF INFO/AC and INFO/AF are ALT-indexed.
@@ -342,26 +448,56 @@ def main():
     )
 
     # ------------------------------------------------------------
-    # 10. Drop temporary Hail fields
+    # 11. Restore homozygous diploid GT for male non-PAR samples
+    # ------------------------------------------------------------
+    mt_filtered = mt_filtered.annotate_entries(
+        GT=hl.if_else(
+            mt_filtered.is_male & mt_filtered.in_x_nonpar,
+            hl.if_else(
+                hl.is_defined(mt_filtered.GT),
+                hl.if_else(
+                    mt_filtered.GT.ploidy == 1,
+                    hl.call(
+                        mt_filtered.GT[0],
+                        mt_filtered.GT[0],
+                        phased=mt_filtered.GT.phased,
+                    ),
+                    mt_filtered.GT,
+                ),
+                hl.missing(hl.tcall),
+            ),
+            mt_filtered.GT,
+        )
+    )
+
+    # ------------------------------------------------------------
+    # 12. Drop temporary Hail fields
     # ------------------------------------------------------------
     fields_to_drop = [
         "cs",
         "variant_qc",
+        "is_male",
+        "in_x_nonpar",
         "old_to_new",
         "new_to_old",
         "old_locus",
         "old_alleles",
     ]
 
-    existing_fields_to_drop = [
+    existing_row_fields_to_drop = [
         field for field in fields_to_drop
         if field in mt_filtered.row
     ]
 
-    mt_filtered = mt_filtered.drop(*existing_fields_to_drop)
+    existing_col_fields_to_drop = [
+        field for field in fields_to_drop
+        if field in mt_filtered.col and field not in existing_row_fields_to_drop
+    ]
+
+    mt_filtered = mt_filtered.drop(*existing_row_fields_to_drop, *existing_col_fields_to_drop)
 
     # ------------------------------------------------------------
-    # 11. Optionally write final MatrixTable
+    # 13. Optionally write final MatrixTable
     # ------------------------------------------------------------
     if args.out_mt_path:
         mt_filtered.write(
@@ -370,7 +506,7 @@ def main():
         )
 
     # ------------------------------------------------------------
-    # 12. Export final VCF
+    # 14. Export final VCF
     # ------------------------------------------------------------
     if args.metadata_vcf_or_header:
         metadata = hl.get_vcf_metadata(args.metadata_vcf_or_header)
