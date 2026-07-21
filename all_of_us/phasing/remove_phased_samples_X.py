@@ -361,6 +361,12 @@ def main():
             f"entry in --sex-tsv."
         )
 
+    if args.test_2kb_region:
+        n_males = mt.aggregate_cols(
+            hl.agg.count_where(mt.is_male)
+        )
+        print(f"[remove_phased_samples_X] test_mode_males_marked={n_males}")
+
     mt = mt.annotate_rows(
         in_x_nonpar=mt.locus.in_x_nonpar()
     )
