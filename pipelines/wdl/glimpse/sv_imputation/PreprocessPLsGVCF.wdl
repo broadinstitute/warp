@@ -4,8 +4,8 @@ import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelHierarchi
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.3"
-    String multi_level_paste_pipeline_version = "0.0.2"
+    String pipeline_version = "0.0.4"
+    String multi_level_paste_pipeline_version = "0.0.3"
     input {
         File? input_gvcfs_fofn
         File? input_gvcf_idxs_fofn
@@ -132,6 +132,7 @@ task MapSampleNames {
         memory: "4 GB"
         disks: "local-disk 10 HDD"
         preemptible: 3
+        noAddress: true
     }
 }
 
@@ -197,5 +198,6 @@ task PreprocessPLs {
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
     }
 }
