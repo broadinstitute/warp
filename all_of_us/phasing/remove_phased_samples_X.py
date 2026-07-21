@@ -379,10 +379,10 @@ def main():
         print(f"[remove_phased_samples_X] test_mode_males_marked={n_males}")
 
         if args.test_male_count_tsv:
-            male_count_ht = hl.utils.range_table(1, n_partitions=1).annotate(
+            male_count_ht = hl.utils.range_table(1, n_partitions=1).key_by().select(
                 test_interval=args.test_interval,
                 males_marked=n_males,
-            ).drop("idx")
+            )
             male_count_ht.export(args.test_male_count_tsv, header=True)
             print(f"[remove_phased_samples_X] wrote_test_male_count_tsv={args.test_male_count_tsv}")
 
