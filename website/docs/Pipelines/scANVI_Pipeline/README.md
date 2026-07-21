@@ -252,6 +252,28 @@ Driver version `535.104.05` is compatible with CUDA 12.x and NVIDIA T4 GPUs and 
 When `gpu_count = 0` the workflow routes to `MultiomeLabelTransferCpu` — an identical task with **no** GPU runtime attributes (Cromwell rejects `gpuCount = 0` and can't conditionally omit the GPU keys from one task). Both tasks run the same container command (`label_transfer_from_preprocessed.py`); scvi-tools auto-detects the accelerator, so it uses the GPU when present and CPU otherwise.
 :::
 
+## Example run costs
+
+The table below reports representative Terra costs for scANVI runs across three references — mouse hippocampus, human neocortex, and PBMC — in both training and CPU-inference modes. Costs are from single runs on GCP `us-central1` (training on **2× NVIDIA T4** GPUs; inference CPU-only via `gpu_count = 0`) and will vary with region, machine type, preemption, and dataset. "Cells labelled" is the number of query cells annotated (after PreprocessFilter; for multiome, after the GEX↔ATAC shared-barcode intersection); "Reference" is the annotated `ref_h5ad`.
+
+| Dataset (reference) | Mode | Compute | Cost | Cells labelled | Cost / cell | Cost / 1k cells | Query input | Cost / GB (query) | Reference (cells / GB) |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| Mouse hippocampus (AIT) | train | 2× T4 GPU | $26.34 | 24,078 | $0.001094 | $1.09 | 0.53 GB | $49.85 | 250,734 / 12.87 |
+| Mouse hippocampus (AIT) | inference | CPU | $0.56 | 24,078 | $0.0000233 | $0.02 | 1.69 GB | $0.33 | 250,734 / 12.87 |
+| Human neocortex (AIT) | train | 2× T4 GPU | $2.51 | 6,018 | $0.000417 | $0.42 | 0.32 GB | $7.98 | 47,432 / 4.97 |
+| Human neocortex (AIT) | inference | CPU | $0.33 | 6,018 | $0.0000548 | $0.05 | 0.32 GB | $1.05 | 47,432 / 4.97 |
+| 10k PBMC (multiome) | train | 2× T4 GPU | $3.64 | 911 | $0.003996 | $4.00 | 0.04 GB GEX + 0.96 GB ATAC | $100.14 † | 33,506 / 2.06 |
+| 10k PBMC (GEX-only) | train | 2× T4 GPU | $3.38 | 934 | $0.003619 | $3.62 | 0.04 GB | $92.98 | 33,506 / 2.06 |
+
+† GEX file only; $3.66/GB when counting GEX + ATAC input together.
+
+Takeaways:
+
+- **Inference is far cheaper than training.** Loading a saved model and predicting on CPU (`scanvi_model` supplied, `gpu_count = 0`) cost 8–47× less than the equivalent training run.
+- **Training cost tracks the reference, not the query.** The largest query (1.69 GB, mouse inference) was among the cheapest runs; training cost scales with reference size (mouse 250,734-cell / 12.87 GB → $26.34 vs human 47,432 / 4.97 GB → $2.51).
+- **Per-cell cost rises as the query shrinks**, because the fixed reference-load / training cost is amortized over fewer labelled cells (e.g. PBMC's ~900-cell queries are the highest cost/cell).
+- **Multiome and GEX-only cost about the same** ($3.64 vs $3.38) — the ATAC branch adds little.
+
 ## Docker image
 
 The `scvi-scanvi` image is maintained in [warp-tools](https://github.com/broadinstitute/warp-tools/tree/develop/3rd-party-tools/scvi-scanvi). Key libraries: scvi-tools 1.2, snapatac2 2.7, scanpy, anndata.
