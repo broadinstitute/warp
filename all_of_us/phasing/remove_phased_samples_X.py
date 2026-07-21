@@ -130,6 +130,15 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--test-male-count-tsv",
+        default=None,
+        help=(
+            "Optional output TSV path for test mode male count summary. "
+            "Writes one row with test_interval and males_marked."
+        ),
+    )
+
+    parser.add_argument(
         "--out-vcf",
         required=True,
         help="Output VCF path, usually ending in .vcf.bgz.",
@@ -275,6 +284,8 @@ def main():
     print(f"[remove_phased_samples_X] test_2kb_region={args.test_2kb_region}")
     if args.test_2kb_region:
         print(f"[remove_phased_samples_X] test_interval={args.test_interval}")
+        if args.test_male_count_tsv:
+            print(f"[remove_phased_samples_X] test_male_count_tsv={args.test_male_count_tsv}")
     print(f"[remove_phased_samples_X] out_vcf={args.out_vcf}")
     print(f"[remove_phased_samples_X] tmp_dir={effective_tmp_dir}")
     print(f"[remove_phased_samples_X] spark_conf={spark_conf}")
@@ -366,6 +377,14 @@ def main():
             hl.agg.count_where(mt.is_male)
         )
         print(f"[remove_phased_samples_X] test_mode_males_marked={n_males}")
+
+        if args.test_male_count_tsv:
+            male_count_ht = hl.utils.range_table(1, n_partitions=1).annotate(
+                test_interval=args.test_interval,
+                males_marked=n_males,
+            ).drop("idx")
+            male_count_ht.export(args.test_male_count_tsv, header=True)
+            print(f"[remove_phased_samples_X] wrote_test_male_count_tsv={args.test_male_count_tsv}")
 
     mt = mt.annotate_rows(
         in_x_nonpar=mt.locus.in_x_nonpar()
