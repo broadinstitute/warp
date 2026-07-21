@@ -1,3 +1,10 @@
+# aou_9.0.2
+2026-07-21 (Date of Last Commit)
+
+* Added run_chrX workflow and task inputs with default false behavior
+* Added optional participant_sex_tsv input and required it when run_chrX is true
+* Updated the Dataproc submit command to pass participant sex TSV to chrX runs
+
 # aou_9.0.1
 2026-06-24 (Date of Last Commit)
 

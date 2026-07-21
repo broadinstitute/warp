@@ -46,7 +46,7 @@ workflow RunRemovePhasedSamples {
     String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.134"
   }
 
-  String pipeline_version = "aou_9.0.1"
+  String pipeline_version = "aou_9.0.2"
   String output_bucket_path_with_trailing_slash = sub(output_bucket_path, "/$", "") + "/"
 
   scatter (path in input_mt_paths) {
