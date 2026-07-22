@@ -2,6 +2,8 @@
 
 Single entry point for all agent-driven and AI-coding work in this repository. Start here. This file holds the agent-operational guidance; for the *rules* and *rationale* behind it, follow the links to the canonical human-facing docs below — those are the source of truth, so do not restate them here.
 
+> **Opening, updating, or merging pull requests is never an agent's job.** Do the work on a branch and push it when asked; the human opens and manages the PR. Also confirm a branch still exists before pushing to it — pushing to a deleted (e.g. post-merge) branch silently recreates it.
+
 ## Authoritative References
 
 | Topic | Document |
@@ -25,6 +27,7 @@ The human-facing docs are canonical for rules and rationale. Anything *agent-spe
 5. **Sub-workflow contract** — removing an input from a shared WDL requires removing it from every caller. See [Sub-workflow input contract](#sub-workflow-input-contract).
 6. **Stale example/test inputs** — when you rename a workflow or remove/rename inputs, audit `pipelines/wdl/<name>/example_inputs/*.json` and `test_inputs/**/*.json`; they break silently because they are not checked by womtool.
 7. **Touching a pipeline's interface** — also update the pipeline's docs page under `website/docs/Pipelines/<Name>_Pipeline/README.md` and run `yarn --cwd=website build` to catch broken links.
+8. **Documented defaults must match the code** — if a comment, `parameter_meta`, or README says an optional input "defaults to X when unspecified", make that default declarative (`select_first([input, "X"])` or a defaulted declaration) and verify the consuming code's unset path actually yields X. A `String?` interpolates to an empty string in bash, so a downstream `if/else` can silently encode the *opposite* default (as happened with Optimus `tenx_chemistry_subversion`); womtool checks types, not this, and tests that pin explicit values never exercise the default. Treat every prose "default" as a claim to verify against the code.
 
 ## Repository Structure
 
@@ -105,7 +108,7 @@ A WARP "Plumbing" or "Scientific" test is a **CI-integrated test that runs the p
 3. **Verification** — `verification/Verify<Pipeline>.wdl` compares each output to truth (tolerantly). Keep pipeline-specific compare tasks **here, not in the shared `verification/VerifyTasks.wdl`**, so editing them doesn't trip every other pipeline's path filter.
 4. **GitHub Actions entry point ("the buttons")** — `.github/workflows/test_<pipeline>.yml`: `on: pull_request` with a `paths:` filter scoped to the pipeline's files (pipeline dir, its tasks, `Verify<Pipeline>.wdl`, `Test<Pipeline>.wdl`, `TerraCopyFilesFromCloudToCloud.wdl`, the two workflow files, `firecloud_api.py`) **and** `workflow_dispatch` with inputs `useCallCache`, `updateTruth`, `testType` (choice Plumbing/Scientific), `truthBranch`. The job `uses: ./.github/workflows/warp_test_workflow.yml` with `pipeline_name: Test<Pipeline>`, `dockstore_pipeline_name: <Pipeline>`, `pipeline_dir`, those inputs, and `secrets: { PDT_TESTER_SA_B64, DOCKSTORE_TOKEN }`; `permissions: { contents: read, id-token: write, actions: write }`. (`warp_test_workflow.yml` is the shared reusable workflow: it creates the Terra method config, submits, polls, copies results, and runs verification when not updating truth.)
 5. **Dockstore registration *and publish*** — add a `Test<Pipeline>` entry (`name`, `subclass: WDL`, `primaryDescriptorPath: /verification/test-wdls/Test<Pipeline>.wdl`) to `.dockstore.yml` (the pipeline itself is usually already registered). Then **publish it in the Dockstore UI** — a manual step that's easy to forget and not caught by anything in-repo: wait ~5 min for Dockstore to ingest the new descriptor, go to the [Dockstore dashboard](https://dockstore.org/dashboard), find `warp/Test<Pipeline>` via the *Search Workflows* field, then **Versions → Actions → Set as Default Version → Publish**. The CI resolves the workflow by `dockstore_pipeline_name`, so an unpublished / no-default-version workflow makes the Terra method-config step fail.
-6. **Seed truth FIRST** — a brand-new test has no golden files. Run the Actions workflow manually (`workflow_dispatch`) with `updateTruth: true` and the right `truthBranch` to populate the truth bucket; only then do compare-runs pass. A compare-run before truth exists fails with nothing to diff.
+6. **Seed truth FIRST** — a brand-new test has no golden files. Run the Actions workflow manually (`workflow_dispatch`) with `updateTruth: true` and the right `truthBranch` to populate the truth bucket; only then do compare-runs pass. A compare-run before truth exists fails with nothing to diff. The truth path is keyed by the **test JSON's filename**, not `input_id`: `gs://pd-test-storage-public/<Pipeline>/truth/<plumbing|scientific>/<truthBranch>/<JSON-basename>/` (e.g. `mouse_v4_snRNA_example.json` → `.../mouse_v4_snRNA_example/`). So changing only `input_id` overwrites the *same* truth key; renaming the JSON file starts a fresh one.
 7. **Validate** every new/modified WDL with womtool. Note what womtool does **not** check: the Actions YAML, the JSON keys, the `.dockstore.yml` entry, and whether truth exists — all of which only surface at CI run time.
 
 If a pipeline ships only one test kind, pin it in the caller (e.g. scANVI is Scientific-only → `test_type: ${{ github.event.inputs.testType || 'Scientific' }}`, and `warp_test_workflow.yml` honors an explicit caller override over the branch-derived default).
@@ -120,13 +123,14 @@ Every pipeline carries a `String pipeline_version = "major.minor.patch"` and a c
 
 ### Cascading version bumps
 
-When a shared task changes, every workflow that imports it may need a version bump. Either bump the version with a changelog note **or** add a bullet explicitly stating there is no functional impact on that pipeline. The concrete dependency chains:
+Editing a shared task (`tasks/wdl/*.wdl`) forces a version bump on **every** pipeline that imports it, directly or transitively. For each such pipeline update **three** things: the WDL's `String pipeline_version`, its `.changelog.md` (new entry — a plain "No functional impact" bullet is fine when the change can't affect it), and its line in `pipeline_versions.txt`.
 
-- `tasks/wdl/StarAlign.wdl` → **Optimus**, **SlideSeq**, **Multiome** (via Optimus), **PairedTag** (via Optimus), **SlideTags** (via Optimus), **MultiSampleSmartSeq2SingleNucleus**
-- `tasks/wdl/CheckInputs.wdl` → **Optimus** (via `checkOptimusInput`) and its wrappers (**Multiome**, **PairedTag**, **SlideTags**); also **MultiSampleSmartSeq2SingleNucleus** (via `checkInputArrays`, a separate task in the same file). Note: SlideSeq imports this file but never calls any of its tasks — changes to CheckInputs.wdl task signatures do not functionally affect SlideSeq through this import.
-- `tasks/wdl/Metrics.wdl` → Most Skylab-origin pipelines
+**Get the exact list from the tool — don't guess and don't rely on the chains below being current:** run `scripts/validate_release.sh -g origin/staging` (add `-i true` to also check changelogs). It prints `X.wdl has not been changed and needs updating` for every importer still missing a bump; fix and re-run until it says all are valid. This is exactly what the `WARP Validate Version` / `WARP Validate Changelog` CI checks run, so a local pass means those checks pass. **womtool does not catch this** — it validates call signatures, not changelogs.
 
-> **Important:** passing womtool validation is **not sufficient** to satisfy cascading bump requirements. Womtool only checks task call signatures — it does not enforce changelog updates. When CI reports "X.changelog.md has not been changed and needs to be updated", that is a cascading bump violation: patch-bump the WDL version, add a changelog entry (even "no functional impact"), and update `pipeline_versions.txt`.
+Known chains (a starting point; the script above is authoritative):
+- `tasks/wdl/CheckInputs.wdl` → **Optimus** (`checkOptimusInput`) + its wrappers **Multiome**, **PairedTag**, **SlideTags**; **MultiSampleSmartSeq2SingleNucleus** (`checkInputArrays`); **SlideSeq** imports it but calls nothing (→ "no functional impact").
+- `tasks/wdl/StarAlign.wdl` → **Optimus**, **SlideSeq**, **Multiome**, **PairedTag**, **SlideTags**, **MultiSampleSmartSeq2SingleNucleus**.
+- `tasks/wdl/Metrics.wdl` → most Skylab-origin pipelines.
 
 ## WDL Style
 
@@ -206,7 +210,7 @@ The branch model (develop/staging/master) and how the smart test system selects 
   ```
 
   When adding a regression test input, wire its path into the relevant workflow so CI picks it up.
-- **Test WDL naming** — test workflows follow strict naming: `Test<PipelineName>.wdl` in `verification/test-wdls/`. They import the main pipeline and the verification workflow, use `GetValidationInputs` tasks to compare test vs truth outputs, and include an `update_truth` boolean for refreshing golden files.
+- **Test WDL naming & contract** — see [*Registering a CI test for a pipeline*](#registering-a-ci-test-for-a-pipeline-plumbing--scientific) above for the full `Test<Pipeline>.wdl` contract (naming, imports, `GetValidationInputs`, `update_truth`).
 - **Release builds** — `./scripts/build_pipeline_release.sh -w pipeline.wdl -v version -o output_dir`.
 
 ## Git Merge Conflict Resolution
@@ -268,6 +272,14 @@ When adding support for a new 10x chemistry in Optimus:
 - Use `tenx_chemistry_version` (Integer, e.g. `4`) for the major chemistry version and `tenx_chemistry_subversion` (optional String, e.g. `"v4_TRU"`) for whitelist variant selection within that version.
 - Optimus whitelist files live at `gs://gcp-public-data--broad-references/optimus_whitelists/`. Do **not** use the old `RNA/resources/` path (which contained a `febrary` typo and is incorrect).
 - Validate that inputs required by a given chemistry (e.g. `i1_fastq` for v4) are enforced via `ErrorWithMessage` when the chemistry version demands them.
+
+### Sizing Optimus test data
+
+Shrink Plumbing/Scientific inputs by subsetting reads to a genomic **region** (e.g. one chromosome), which keeps the called-cell count high. Do **not** subsample down to a handful of **barcodes**: the library-level doublet step sets its KNN neighbor count to `k = round(min(100, n_called_cells × 0.01))`, so below ~50 cells `k` becomes `0` and the run dies with sklearn's `n_neighbors ... Got 0` error. Keep ≥~500 called cells. See the [Minimum cell count warning](website/docs/Pipelines/Optimus_Pipeline/README.md).
+
+### Jupyter notebooks
+
+Never hand-write `.ipynb` JSON. Build notebooks programmatically with `nbformat` (markdown + code cells as plain strings), then **execute** them with `jupyter nbconvert --to notebook --execute --inplace …` so the delivered notebook has its figures and tables rendered inline. If the (often containerized) environment lacks `nbconvert`/`ipykernel`, install them there first — a scientific report container with `scanpy`/`matplotlib` usually has network for `pip`. **Deliver an *executed* notebook or stop and ask** — never ship an unexecuted notebook or one assembled by hand.
 
 ### When you discover a recurring agent mistake or lack of adherence
 
