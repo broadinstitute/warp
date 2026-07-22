@@ -67,7 +67,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/exome/ExomeReprocessing.wdl
 
-
   - name: FilterMTAndExportToVCF
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/MTtoVCF/FilterMTAndExportToVCF.wdl
@@ -159,6 +158,18 @@ workflows:
   - name: MitoPostProcessing
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/merge/mito_post_processing.wdl
+
+  - name: MMIDAS_Analyze
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/mmidas/MMIDAS_Analyze.wdl
+
+  - name: MMIDAS_DataPrep
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/mmidas/MMIDAS_DataPrep.wdl
+
+  - name: MMIDAS_Train
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/mmidas/MMIDAS_Train.wdl
 
   - name: Multiome
     subclass: WDL

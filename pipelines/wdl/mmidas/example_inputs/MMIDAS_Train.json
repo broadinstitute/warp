@@ -1,0 +1,21 @@
+{
+  "MMIDAS_Train.preprocessed_h5ad": "gs://your-bucket/Mouse_ALM-VISp_cpm.h5ad",
+
+  "MMIDAS_Train.n_categories":  120,
+  "MMIDAS_Train.state_dim":     2,
+  "MMIDAS_Train.n_arm":         2,
+  "MMIDAS_Train.latent_dim":    10,
+  "MMIDAS_Train.fc_dim":        100,
+  "MMIDAS_Train.n_epoch":       10000,
+  "MMIDAS_Train.n_epoch_p":     1000,
+  "MMIDAS_Train.max_prun_it":   14,
+  "MMIDAS_Train.min_con":       0.99,
+  "MMIDAS_Train.batch_size":    5000,
+  "MMIDAS_Train.seed":          0,
+
+  "MMIDAS_Train.k_select_thr":  0.95,
+
+  "MMIDAS_Train.run_augmenter": false,
+
+  "MMIDAS_Train.train_gpu":     1
+}

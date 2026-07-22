@@ -15,6 +15,9 @@ IlluminaGenotypingArray	 1.12.27	2026-01-21
 Imputation	 1.1.23	2025-10-03 
 ImputationBeagle	 3.0.1	2026-02-23 
 JointGenotyping	 1.7.3	2025-08-11 
+MMIDAS_Analyze	 MMIDAS_Analyze Changelog	
+MMIDAS_DataPrep	 MMIDAS_DataPrep Changelog	
+MMIDAS_Train	 MMIDAS_Train Changelog	
 MultiSampleSmartSeq2SingleNucleus	 2.2.8	2026-07-10 
 MultilevelHierarchicallyPasteVcfsStreaming	 0.0.3	2026-07-21 
 Multiome	 7.0.2	2026-07-10 
