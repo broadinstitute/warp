@@ -23,6 +23,8 @@ workflow RunRemovePhasedSamples {
     String remove_samples_tsv
     String remove_id_col = "research_id"
     Boolean run_chrX = false
+    Boolean? test_2kb_region
+    String? test_interval
     String? participant_sex_tsv
     String? metadata_vcf_or_header
     Boolean write_out_mt = false
@@ -56,6 +58,8 @@ workflow RunRemovePhasedSamples {
         remove_samples_tsv = remove_samples_tsv,
         remove_id_col = remove_id_col,
         run_chrX = run_chrX,
+        test_2kb_region = test_2kb_region,
+        test_interval = test_interval,
         participant_sex_tsv = participant_sex_tsv,
         metadata_vcf_or_header = metadata_vcf_or_header,
         write_out_mt = write_out_mt,
@@ -92,6 +96,8 @@ task RemovePhasedSamplesOnDataproc {
     String remove_samples_tsv
     String remove_id_col
     Boolean run_chrX = false
+    Boolean? test_2kb_region
+    String? test_interval
     String? participant_sex_tsv
     String? metadata_vcf_or_header
     Boolean write_out_mt
@@ -165,12 +171,16 @@ task RemovePhasedSamplesOnDataproc {
     from google.cloud import dataproc_v1 as dataproc
 
     run_chrx = "~{run_chrX}".lower() == "true"
+    test_2kb_region = "~{if defined(test_2kb_region) then select_first([test_2kb_region]) else "false"}".lower() == "true"
+    test_interval = "~{if defined(test_interval) then select_first([test_interval]) else ""}"
     participant_sex_tsv = "~{if defined(participant_sex_tsv) then select_first([participant_sex_tsv]) else ""}"
 
     if run_chrx and not participant_sex_tsv:
         raise Exception("run_chrX=true requires participant_sex_tsv to be provided.")
 
     sex_tsv_arg = f"--sex-tsv {participant_sex_tsv}" if run_chrx else ""
+    test_2kb_arg = "--test-2kb-region" if (run_chrx and test_2kb_region) else ""
+    test_interval_arg = f"--test-interval {test_interval}" if (run_chrx and test_interval) else ""
 
     cluster_prefix = "~{mt_output_stem}".lower().replace("_", "-").replace(".", "-")
     cluster_prefix = cluster_prefix[:20] if len(cluster_prefix) > 20 else cluster_prefix
@@ -207,6 +217,8 @@ task RemovePhasedSamplesOnDataproc {
                 --remove-samples-tsv ~{remove_samples_tsv} \
                 --remove-id-col ~{remove_id_col} \
                 {sex_tsv_arg} \
+                {test_2kb_arg} \
+                {test_interval_arg} \
                 --out-vcf ~{output_filtered_vcf_url} \
                 --spark-executor-cores ~{executor_cores} \
                 --spark-executor-memory ~{executor_memory} \
