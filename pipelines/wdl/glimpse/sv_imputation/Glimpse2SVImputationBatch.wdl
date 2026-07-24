@@ -181,7 +181,7 @@ task GLIMPSE2Phase {
         }
     }
 
-    Int disk_size_gb = 50        # TODO pass shard-specific or autoscaled values (for latter, note that only a shard of input_vcf is used)
+    Int disk_size_gb = ceil(0.5 * size(input_vcf, "GiB") + 10)
 
     command <<<
         set -euxo pipefail
