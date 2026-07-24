@@ -43,7 +43,7 @@ workflow Glimpse2SVImputation {
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
 
-        String glimpse2_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"    # enables checkpointing, but note this contains bcftools/htslib 1.16!
+        String glimpse2_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.2.0-8671138-1784681771"
     }
 
     call PreprocessPLsGVCF.PreprocessPLsGVCF as PreProcessGVCFs {
