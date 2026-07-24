@@ -1,3 +1,9 @@
+# 0.0.7
+2026-07-24 (Date of Last Commit)
+
+* Update Glimpse2 docker image to tag `imputation-glimpse2:1.2.0-8671138-1784681771`
+* Update `batch_pipeline_version` to 0.0.6
+
 # 0.0.6
 2026-07-23 (Date of Last Commit)
 

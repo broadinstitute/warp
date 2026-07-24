@@ -1,3 +1,8 @@
+# 0.0.6
+2026-07-24 (Date of Last Commit)
+
+* Update Glimpse2Phase task to stream input BCF file instead of localizing it
+
 # 0.0.5
 2026-07-23 (Date of Last Commit)
 
