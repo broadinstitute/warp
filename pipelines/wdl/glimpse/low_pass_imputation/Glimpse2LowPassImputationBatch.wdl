@@ -549,6 +549,8 @@ task GlimpsePhase {
         Int preemptible = 30
         Int max_retries = 3
         String docker
+        File monitoring_script = "gs://fc-secure-070f3cd7-c0bc-4125-90e4-7962a696cc72/monitoring_script/cromwell_monitoring_script2.sh"
+        String gcs_monitoring_output_base = "gs://fc-secure-a64b4a9a-eae4-4767-b95f-8ab54b8f31e7/monitoring_logs/"
     }
 
     parameter_meta {
@@ -562,6 +564,30 @@ task GlimpsePhase {
 
     command <<<
         set -euo pipefail
+
+        # Generate UUID for this task execution
+        TASK_UUID=$(python3 -c "import uuid; print(str(uuid.uuid4()))")
+        echo "Task UUID: $TASK_UUID"
+
+        GCS_MONITORING_OUTPUT_PATH="~{gcs_monitoring_output_base}$TASK_UUID.monitoring.log"
+
+        # Make monitoring script executable
+        chmod +x ~{monitoring_script}
+
+        # Start monitoring script in background
+        ~{monitoring_script} > monitoring.log 2>&1 &
+        MONITOR_PID=$!
+
+        # Start background process to copy monitoring log to GCS
+        (
+            while true; do
+                if [ -f "monitoring.log" ]; then
+                    gsutil -m cp monitoring.log "$GCS_MONITORING_OUTPUT_PATH" 2>/dev/null || true
+                fi
+                sleep 30  # Copy every 30 seconds
+            done
+        ) &
+        COPY_PID=$!
 
         export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
 
@@ -580,14 +606,15 @@ task GlimpsePhase {
             cmd="$cmd --checkpoint-file-in checkpoint.bin"
         fi
 
-
-
         #check for read error which corresponds exactly to end of cram/bam block.
         #This currently triggers a warning message from htslib, but doesn't return any error.
         #We need to make sure that stderr is maintained since cromwell looks for oom strings
         #in stderr
 
         eval $cmd 2> >(tee glimpse_stderr.log >&2)
+
+        # Kill background processes
+        kill $MONITOR_PID $COPY_PID 2>/dev/null || true
 
         if grep -q "EOF marker is absent" glimpse_stderr.log; then
             echo "An input file appears to be truncated.  This may be either a truly truncated file which needs to be fixed, or a networking error which can just be retried."
