@@ -181,7 +181,7 @@ task GLIMPSE2Phase {
         }
     }
 
-    Int disk_size_gb = ceil(0.5 * size(input_vcf, "GiB") + 10)
+    Int disk_size_gb = ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 10)
 
     command <<<
         set -euxo pipefail
