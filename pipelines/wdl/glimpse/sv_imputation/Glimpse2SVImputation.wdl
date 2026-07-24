@@ -4,9 +4,9 @@ import "./PreprocessPLsGVCF.wdl" as PreprocessPLsGVCF
 import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.6"
     String preprocess_pls_gvcf_pipeline_version = "0.0.4"
-    String batch_pipeline_version = "0.0.4"
+    String batch_pipeline_version = "0.0.5"
 
     input {
         # inputs for Preprocessign wdl
@@ -29,9 +29,7 @@ workflow Glimpse2SVImputation {
         Array[String] paste_regions
 
         # inputs for Batch wdl
-        File? remap_sample_names_file    # TSV with old_name new_name mappings
-
-        String chromosome
+        Array[String] chromosomes
         File genetic_maps_tsv
         File chunked_panel_json
 
@@ -66,8 +64,7 @@ workflow Glimpse2SVImputation {
         input:
             input_preprocessed_joint_vcf = PreProcessGVCFs.preprocessed_pls_vcf,
             input_preprocessed_joint_vcf_idx = PreProcessGVCFs.preprocessed_pls_vcf_idx,
-            remap_sample_names_file = remap_sample_names_file,
-            chromosome = chromosome,
+            chromosomes = chromosomes,
             genetic_maps_tsv = genetic_maps_tsv,
             chunked_panel_json = chunked_panel_json,
             extra_phase_args = extra_phase_args,
@@ -78,10 +75,10 @@ workflow Glimpse2SVImputation {
     }
 
     output {
-        File glimpse2_bubble_posteriors_vcf = Glimpse2SVImputationBatch.glimpse2_bubble_posteriors_vcf
-        File glimpse2_bubble_posteriors_vcf_idx = Glimpse2SVImputationBatch.glimpse2_bubble_posteriors_vcf_idx
-        File glimpse2_popped_posteriors_vcf = Glimpse2SVImputationBatch.glimpse2_popped_posteriors_vcf
-        File glimpse2_popped_posteriors_vcf_idx = Glimpse2SVImputationBatch.glimpse2_popped_posteriors_vcf_idx
+        Array[File] glimpse2_bubble_posteriors_vcf = Glimpse2SVImputationBatch.glimpse2_bubble_posteriors_vcf
+        Array[File] glimpse2_bubble_posteriors_vcf_idx = Glimpse2SVImputationBatch.glimpse2_bubble_posteriors_vcf_idx
+        Array[File] glimpse2_popped_posteriors_vcf = Glimpse2SVImputationBatch.glimpse2_popped_posteriors_vcf
+        Array[File] glimpse2_popped_posteriors_vcf_idx = Glimpse2SVImputationBatch.glimpse2_popped_posteriors_vcf_idx
     }
 }
 
