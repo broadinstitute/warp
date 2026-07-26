@@ -569,7 +569,8 @@ task GlimpsePhase {
         TASK_UUID=$(python3 -c "import uuid; print(str(uuid.uuid4()))")
         echo "Task UUID: $TASK_UUID"
 
-        GCS_MONITORING_OUTPUT_PATH="~{gcs_monitoring_output_base}$TASK_UUID.monitoring.log"
+        GCS_MONITORING_OUTPUT_PATH="~{gcs_monitoring_output_base}$TASK_UUID/monitoring.log"
+        echo "Monitoring destination: ${GCS_MONITORING_OUTPUT_PATH}"
 
         # Make monitoring script executable
         chmod +x ~{monitoring_script}
@@ -578,16 +579,34 @@ task GlimpsePhase {
         ~{monitoring_script} > monitoring.log 2>&1 &
         MONITOR_PID=$!
 
-        # Start background process to copy monitoring log to GCS
+        # Best-effort periodic upload loop with visible diagnostics
         (
+            set +e
             while true; do
-                if [ -f "monitoring.log" ]; then
-                    gsutil -m cp monitoring.log "$GCS_MONITORING_OUTPUT_PATH" 2>/dev/null || true
+              if [[ -s monitoring.log ]]; then
+                gsutil cp monitoring.log "${GCS_MONITORING_FILE}"
+                RC=$?
+                if [[ ${RC} -ne 0 ]]; then
+                  echo "[monitor-upload] gsutil cp failed rc=${RC} at $(date -u +%FT%TZ)" >&2
                 fi
-                sleep 30  # Copy every 30 seconds
+              fi
+              sleep 30
             done
         ) &
         COPY_PID=$!
+        # Ensure background jobs are cleaned up and final copy is attempted
+        cleanup() {
+            set +e
+            kill "${MONITOR_PID}" "${COPY_PID}" 2>/dev/null || true
+            wait "${MONITOR_PID}" "${COPY_PID}" 2>/dev/null || true
+
+            if [[ -f monitoring.log ]]; then
+              echo "[monitor-upload] final copy attempt to ${GCS_MONITORING_FILE}" >&2
+              gsutil cp monitoring.log "${GCS_MONITORING_FILE}" || \
+                echo "[monitor-upload] final copy failed at $(date -u +%FT%TZ)" >&2
+            fi
+        }
+        trap cleanup EXIT
 
         export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
 
