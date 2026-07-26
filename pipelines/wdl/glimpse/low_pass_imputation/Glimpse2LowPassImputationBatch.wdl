@@ -550,7 +550,7 @@ task GlimpsePhase {
         Int max_retries = 3
         String docker
         File monitoring_script = "gs://fc-secure-070f3cd7-c0bc-4125-90e4-7962a696cc72/monitoring_script/cromwell_monitoring_script2.sh"
-        String gcs_monitoring_output_base = "gs://fc-secure-a64b4a9a-eae4-4767-b95f-8ab54b8f31e7/monitoring_logs/"
+        String gcs_monitoring_output_base_folder = "gs://fc-secure-a64b4a9a-eae4-4767-b95f-8ab54b8f31e7/monitoring_logs/"
     }
 
     parameter_meta {
@@ -569,8 +569,8 @@ task GlimpsePhase {
         TASK_UUID=$(python3 -c "import uuid; print(str(uuid.uuid4()))")
         echo "Task UUID: $TASK_UUID"
 
-        GCS_MONITORING_OUTPUT_PATH="~{gcs_monitoring_output_base}$TASK_UUID/monitoring.log"
-        echo "Monitoring destination: ${GCS_MONITORING_OUTPUT_PATH}"
+        GCS_MONITORING_OUTPUT_FILE="~{gcs_monitoring_output_base_folder}$TASK_UUID/monitoring.log"
+        echo "Monitoring destination: ${GCS_MONITORING_OUTPUT_FILE}"
 
         # Make monitoring script executable
         chmod +x ~{monitoring_script}
@@ -584,7 +584,7 @@ task GlimpsePhase {
             set +e
             while true; do
               if [[ -s monitoring.log ]]; then
-                gsutil cp monitoring.log "${GCS_MONITORING_FILE}"
+                gsutil cp monitoring.log "${GCS_MONITORING_PATH}"
                 RC=$?
                 if [[ ${RC} -ne 0 ]]; then
                   echo "[monitor-upload] gsutil cp failed rc=${RC} at $(date -u +%FT%TZ)" >&2
@@ -601,8 +601,8 @@ task GlimpsePhase {
             wait "${MONITOR_PID}" "${COPY_PID}" 2>/dev/null || true
 
             if [[ -f monitoring.log ]]; then
-              echo "[monitor-upload] final copy attempt to ${GCS_MONITORING_FILE}" >&2
-              gsutil cp monitoring.log "${GCS_MONITORING_FILE}" || \
+              echo "[monitor-upload] final copy attempt to ${GCS_MONITORING_PATH}" >&2
+              gsutil cp monitoring.log "${GCS_MONITORING_PATH}" || \
                 echo "[monitor-upload] final copy failed at $(date -u +%FT%TZ)" >&2
             fi
         }
