@@ -584,7 +584,7 @@ task GlimpsePhase {
             set +e
             while true; do
               if [[ -s monitoring.log ]]; then
-                gsutil cp monitoring.log "${GCS_MONITORING_PATH}"
+                gsutil cp monitoring.log "${GCS_MONITORING_OUTPUT_FILE}"
                 RC=$?
                 if [[ ${RC} -ne 0 ]]; then
                   echo "[monitor-upload] gsutil cp failed rc=${RC} at $(date -u +%FT%TZ)" >&2
@@ -601,8 +601,8 @@ task GlimpsePhase {
             wait "${MONITOR_PID}" "${COPY_PID}" 2>/dev/null || true
 
             if [[ -f monitoring.log ]]; then
-              echo "[monitor-upload] final copy attempt to ${GCS_MONITORING_PATH}" >&2
-              gsutil cp monitoring.log "${GCS_MONITORING_PATH}" || \
+              echo "[monitor-upload] final copy attempt to ${GCS_MONITORING_OUTPUT_FILE}" >&2
+              gsutil cp monitoring.log "${GCS_MONITORING_OUTPUT_FILE}" || \
                 echo "[monitor-upload] final copy failed at $(date -u +%FT%TZ)" >&2
             fi
         }
