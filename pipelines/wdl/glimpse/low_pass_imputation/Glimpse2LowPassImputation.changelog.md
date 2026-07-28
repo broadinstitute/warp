@@ -2,6 +2,7 @@
 2026-07-28 (Date of Last Commit)
 
 * update docker image used for glimpse. This will include runtime optimizations
+* change deafult sample batch size to 500
 
 # 1.0.2
 2026-07-20 (Date of Last Commit)
