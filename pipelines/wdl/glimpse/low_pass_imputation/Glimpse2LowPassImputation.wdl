@@ -36,7 +36,7 @@ workflow Glimpse2LowPassImputation {
         Int calling_batch_size = 100
 
         # batch size used by this gateway workflow to split very large sample lists
-        Int sample_batch_size = 1000
+        Int sample_batch_size = 500
 
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
         Int? glimpse_phase_cpu_override
