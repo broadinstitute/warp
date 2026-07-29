@@ -1,3 +1,8 @@
+# 0.0.5
+2026-07-29 (Date of Last Commit)
+
+* Remove leading `.` from `output_prefix` in `PreprocessPLsGVCF` task call
+
 # 0.0.4
 2026-07-21 (Date of Last Commit)
 
