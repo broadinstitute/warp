@@ -1,3 +1,9 @@
+# 0.0.6
+2026-07-23 (Date of Last Commit)
+
+* Update workflow to process array of chromosomes instead of just one
+* remove now unused remapping input
+
 # 0.0.5
 2026-07-21 (Date of Last Commit)
 
