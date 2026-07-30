@@ -16,9 +16,7 @@ workflow Glimpse2SVImputation {
 
         Array[File]? input_gvcfs
         Array[File]? input_gvcf_idxs
-        Array[String]? entity_ids
-        File? sample_names_map_file           # TSV map of entity_id (research_id) to id2 for AoU DRAGEN gVCFs;
-                                              # Terra struggles with id2 as they are parsed as mixed strings/numbers
+        Array[String]? sample_names
 
         String output_prefix
 
@@ -51,8 +49,7 @@ workflow Glimpse2SVImputation {
         sample_names_file = sample_names_file,
         input_gvcfs = input_gvcfs,
         input_gvcf_idxs = input_gvcf_idxs,
-        entity_ids = entity_ids,
-        sample_names_map_file = sample_names_map_file,
+        sample_names = sample_names,
         preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
         preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
         extract_bubble_likelihoods_extra_args = extract_bubble_likelihoods_extra_args,

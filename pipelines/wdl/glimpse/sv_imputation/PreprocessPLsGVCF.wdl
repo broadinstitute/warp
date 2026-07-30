@@ -13,9 +13,7 @@ workflow PreprocessPLsGVCF {
 
         Array[File]? input_gvcfs
         Array[File]? input_gvcf_idxs
-        Array[String]? entity_ids
-        File? sample_names_map_file           # TSV map of entity_id (research_id) to id2 for AoU DRAGEN gVCFs;
-        # Terra struggles with id2 as they are parsed as mixed strings/numbers
+        Array[String]? sample_names
 
         # inputs for PreprocessPLs
         File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
@@ -38,17 +36,7 @@ workflow PreprocessPLsGVCF {
     if (defined(sample_names_file)) {
         Array[String] parsed_sample_names = read_lines(select_first([sample_names_file]))
     }
-
-    # Replaced map scatter with a bash task call
-    if (defined(entity_ids) && defined(sample_names_map_file)) {
-        call MapSampleNames {
-            input:
-                entity_ids = select_first([entity_ids]),
-                sample_names_map_file = select_first([sample_names_map_file])
-        }
-    }
-
-    Array[String] sample_names_ = select_first([MapSampleNames.mapped_sample_names, parsed_sample_names])
+    Array[String] sample_names_ = select_first([sample_names, parsed_sample_names])
 
     scatter (j in range(length(input_gvcfs_))) {
         call PreprocessPLs as PreprocessPLsGVCF {
@@ -93,47 +81,6 @@ struct RuntimeAttr {
     Int? preemptible_tries
     Int? max_retries
     String? docker
-}
-
-task MapSampleNames {
-    input {
-        Array[String] entity_ids
-        File sample_names_map_file
-    }
-
-    command <<<
-        set -euo pipefail
-
-        # Use awk to load the TSV map into memory, then translate the entity IDs array in order
-        awk 'BEGIN {FS="\t"; OFS="\t"}
-        NR==FNR {
-            # First pass: read the map file into an array
-            map[$1] = $2;
-            next
-        }
-        {
-            # Second pass: read the entity_ids file
-            if ($1 in map) {
-                print map[$1]
-            } else {
-                print "Error: ID " $1 " not found in map file" > "/dev/stderr"
-                exit 1
-            }
-        }' ~{sample_names_map_file} ~{write_lines(entity_ids)} > mapped_names.txt
-    >>>
-
-    output {
-        Array[String] mapped_sample_names = read_lines("mapped_names.txt")
-    }
-
-    runtime {
-        docker: "ubuntu:22.04"
-        cpu: 1
-        memory: "4 GB"
-        disks: "local-disk 10 HDD"
-        preemptible: 3
-        noAddress: true
-    }
 }
 
 task PreprocessPLs {
