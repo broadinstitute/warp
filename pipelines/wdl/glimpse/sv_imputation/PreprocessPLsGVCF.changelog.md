@@ -1,3 +1,8 @@
+# 0.0.5
+2026-07-30 (Date of Last Commit)
+
+* remove sample_map_file input and associated logic/task to simplify the worklow a little
+
 # 0.0.4
 2026-07-21 (Date of Last Commit)
 
