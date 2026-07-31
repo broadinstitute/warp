@@ -1,7 +1,7 @@
 # 0.0.7
 2026-07-30 (Date of Last Commit)
 
-* rename entity_ids input to sample_names
+* rename entity_ids input to sample_ids
 * remove sample_names_map_file input as preprocess no longer uses it
 
 # 0.0.6
