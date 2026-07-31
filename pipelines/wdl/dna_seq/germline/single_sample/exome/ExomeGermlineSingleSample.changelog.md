@@ -1,3 +1,8 @@
+# 3.2.8
+2026-07-31 (Date of Last Commit)
+
+* Increased memory for the Dragmap alignment task (SamToFastqAndDragmapAndMba) to prevent out-of-memory failures; this does not affect the outputs of the pipeline
+
 # 3.2.7
 2026-01-21 (Date of Last Commit)
 
