@@ -669,7 +669,16 @@ task CompareH5adFilesGEX {
             print(y.sum())
             if x == "doublet_score":
                 print("Doublet score is allowed to be different")
-            else: 
+            elif x.startswith("emptydrops_"):
+                # EmptyDrops is Monte-Carlo stochastic; the WARP nondeterminism catalog
+                # allows these columns to vary within 1%. Gate on the column-sum rel diff.
+                denom = abs(y.sum()) if y.sum() != 0 else 1
+                rel = abs(z.sum() - y.sum()) / denom
+                if rel <= 0.01:
+                    print("%s column sums within 1%% tolerance (rel diff %.4f%%); allowed" % (x, rel*100))
+                else:
+                    exit("Cell Metric %s sums differ by %.4f%%, exceeds 1%% tolerance" % (x, rel*100))
+            else:
                 exit("Cell Metric does not match")
     print("Comparing test gene metrics to truth gene metrics using truth as ref")
     for x in truth.var.columns:
