@@ -1,3 +1,14 @@
+# 0.0.6
+2026-07-23 (Date of Last Commit)
+
+* Update workflow to process array of chromosomes instead of just one
+* remove now unused remapping input
+
+# 0.0.5
+2026-07-21 (Date of Last Commit)
+
+* Updated both `preprocess_pls_gvcf_pipeline_version` and `batch_pipeline_version` to 0.0.4
+
 # 0.0.4
 2026-07-17 (Date of Last Commit)
 

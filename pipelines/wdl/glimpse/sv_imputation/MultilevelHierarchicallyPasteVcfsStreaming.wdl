@@ -4,7 +4,7 @@ version 1.0
 
 workflow MultilevelHierarchicallyMergeVcfs {
     # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "0.0.2"
+    String pipeline_version = "0.0.3"
 
     input {
         Array[String]? vcfs_array
@@ -204,6 +204,7 @@ task CreateBatches {
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
     }
 }
 
@@ -367,6 +368,7 @@ task MergeVcfs {
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
     }
 }
 
@@ -417,5 +419,6 @@ task ConcatVcfs {
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
     }
 }
