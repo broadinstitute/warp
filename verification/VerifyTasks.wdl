@@ -498,6 +498,82 @@ task CompareCompressedTextFiles {
 
 }
 
+task CompareGeneMetricsWithTolerance {
+  # Wide metrics CSV compare (gene_metrics.csv style), keyed by the id column (col 0),
+  # order-insensitive. Every column must match EXACTLY except `tolerated_columns`, which are
+  # float metrics with known summation-order nondeterminism (e.g. genomic_read_quality_variance)
+  # and are compared with a relative tolerance. Drop-in replacement for CompareCompressedTextFiles
+  # on the gene-metrics comparison; cell/UMI metrics keep the exact diff.
+  input {
+    File test_zip
+    File truth_zip
+    Array[String] tolerated_columns = ["genomic_read_quality_variance", "genomic_read_quality_mean"]
+    Float relative_tolerance = 0.0001
+  }
+
+  Float file_size = size(test_zip, "GiB") + size(truth_zip, "GiB")
+  Int disk_size = ceil(file_size * 4) + 20
+
+  command <<<
+python3 <<CODE
+import csv, gzip, sys
+
+tol_cols = [c for c in "~{sep=',' tolerated_columns}".split(",") if c]
+rtol = float("~{relative_tolerance}")
+
+def load(path):
+    with gzip.open(path, "rt", newline="") as fh:
+        rows = list(csv.reader(fh))
+    return rows[0], {r[0]: r for r in rows[1:]}
+
+th, td = load("~{truth_zip}")
+sh, sd = load("~{test_zip}")
+
+if th != sh:
+    sys.exit("Header mismatch:\n truth=%s\n test =%s" % (th, sh))
+if set(td) != set(sd):
+    only_t = list(set(td) - set(sd))[:5]
+    only_s = list(set(sd) - set(td))[:5]
+    sys.exit("Row-id set differs. truth-only=%s test-only=%s" % (only_t, only_s))
+
+tol_idx = set(th.index(c) for c in tol_cols if c in th)
+print("Tolerated columns (rtol %g): %s" % (rtol, sorted(c for c in tol_cols if c in th)))
+
+fails = 0
+for rid, trow in td.items():
+    srow = sd[rid]
+    if len(trow) != len(srow):
+        print("Column count differs for %s" % rid); fails += 1; continue
+    for i in range(len(trow)):
+        tv, sv = trow[i], srow[i]
+        if tv == sv:
+            continue
+        if i in tol_idx:
+            try:
+                a, b = float(sv), float(tv)
+            except ValueError:
+                print("%s %s: non-numeric mismatch %r vs %r" % (rid, th[i], sv, tv)); fails += 1; continue
+            denom = abs(b) if b != 0 else 1.0
+            rel = abs(a - b) / denom
+            if rel > rtol:
+                print("%s %s: %s vs %s rel %.3e > %g" % (rid, th[i], sv, tv, rel, rtol)); fails += 1
+        else:
+            print("%s %s: %s vs %s (exact column differs)" % (rid, th[i], sv, tv)); fails += 1
+
+if fails:
+    sys.exit("%d metric mismatch(es) beyond tolerance" % fails)
+print("Gene metrics match within tolerance")
+CODE
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "8 GiB"
+    preemptible: 3
+  }
+}
+
 task CompareLooms {
 
   input {
@@ -696,13 +772,19 @@ task CompareH5adFilesGEX {
     test.var_names_make_unique()
     truth.var_names_make_unique()
     genes_correct=True
+    # Float gene metrics with known summation-order nondeterminism: compare with a relative
+    # tolerance instead of strict equality (kept in sync with CompareGeneMetricsWithTolerance).
+    tolerated_var = {"genomic_read_quality_variance", "genomic_read_quality_mean"}
     for x in truth.var.columns:
         z = test.var[x]
         y = truth.var[x]
         if z.equals(y)==False:
-            print("Gene metric does not match after making gene names unique")
-            print(x)
-            genes_correct=False
+            if x in tolerated_var and np.allclose(z.astype(float), y.astype(float), rtol=1e-4, atol=0):
+                print("Gene metric %s differs but within 1e-4 relative tolerance; allowed" % x)
+            else:
+                print("Gene metric does not match after making gene names unique")
+                print(x)
+                genes_correct=False
     print("Done")
     print("If no warning above Done, gene metrics match now that they are unique")
 
