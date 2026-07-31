@@ -12,11 +12,11 @@ workflow Glimpse2SVImputation {
         # inputs for Preprocessign wdl
         File? input_gvcfs_fofn
         File? input_gvcf_idxs_fofn
-        File? sample_names_file          # order of sample names must match that of gVCFs
+        File? sample_ids_file          # order of sample ids must match that of gVCFs
 
         Array[File]? input_gvcfs
         Array[File]? input_gvcf_idxs
-        Array[String]? sample_names
+        Array[String]? sample_ids
 
         String output_prefix
 
@@ -46,10 +46,10 @@ workflow Glimpse2SVImputation {
         input:
         input_gvcfs_fofn = input_gvcfs_fofn,
         input_gvcf_idxs_fofn = input_gvcf_idxs_fofn,
-        sample_names_file = sample_names_file,
+        sample_ids_file = sample_ids_file,
         input_gvcfs = input_gvcfs,
         input_gvcf_idxs = input_gvcf_idxs,
-        sample_names = sample_names,
+        sample_ids = sample_ids,
         preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
         preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
         extract_bubble_likelihoods_extra_args = extract_bubble_likelihoods_extra_args,

@@ -9,11 +9,11 @@ workflow PreprocessPLsGVCF {
     input {
         File? input_gvcfs_fofn
         File? input_gvcf_idxs_fofn
-        File? sample_names_file          # order of sample names must match that of gVCFs
+        File? sample_ids_file          # order of sample names must match that of gVCFs
 
         Array[File]? input_gvcfs
         Array[File]? input_gvcf_idxs
-        Array[String]? sample_names
+        Array[String]? sample_ids
 
         # inputs for PreprocessPLs
         File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
@@ -33,10 +33,10 @@ workflow PreprocessPLsGVCF {
     }
     Array[File] input_gvcf_idxs_ = select_first([input_gvcf_idxs, parsed_gvcf_idxs])
 
-    if (defined(sample_names_file)) {
-        Array[String] parsed_sample_names = read_lines(select_first([sample_names_file]))
+    if (defined(sample_ids_file)) {
+        Array[String] parsed_sample_ids = read_lines(select_first([sample_ids_file]))
     }
-    Array[String] sample_names_ = select_first([sample_names, parsed_sample_names])
+    Array[String] sample_ids_ = select_first([sample_ids, parsed_sample_ids])
 
     scatter (j in range(length(input_gvcfs_))) {
         call PreprocessPLs as PreprocessPLsGVCF {
@@ -46,8 +46,8 @@ workflow PreprocessPLsGVCF {
                 mode = "gvcf",
                 panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
                 panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
-                sample_names = [sample_names_[j]],
-                output_prefix = ".sample-" + j + "." + sample_names_[j] + ".preprocessedPLs",
+                sample_names = [sample_ids_[j]],
+                output_prefix = ".sample-" + j + "." + sample_ids_[j] + ".preprocessedPLs",
                 extra_args = extract_bubble_likelihoods_extra_args
         }
     }
