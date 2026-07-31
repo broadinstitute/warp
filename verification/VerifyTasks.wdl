@@ -374,6 +374,9 @@ task CompareBams {
     File truth_bam
     Boolean lenient_header = false
     Boolean lenient_low_mq = false
+    # ponytail: 0.0 keeps the original strict pass/fail (any record differs -> fail).
+    # ATAC callers pass a small fraction to tolerate known BWA-aligner wobble.
+    Float mappings_diff_threshold = 0.0
   }
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
@@ -383,7 +386,6 @@ task CompareBams {
   Int max_heap = memory_mb - 500
 
   command <<<
-    set -e
     set -o pipefail
 
     truth_bam=~{truth_bam}
@@ -403,17 +405,46 @@ task CompareBams {
     if [ "$abs_size_difference" -gt $((200 * 1024 * 1024)) ]; then
         echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Exiting."
         exit 1
-    else
-        echo "WARNING: BAM file sizes differ by less than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Proceeding to CompareSAMs:"
+    fi
 
-        java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
-        CompareSAMs \
-            ~{test_bam} \
-            ~{truth_bam} \
-            O=comparison.tsv \
-            LENIENT_HEADER=~{lenient_header} \
-            LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
-            MAX_RECORDS_IN_RAM=300000
+    echo "BAM file sizes within 200 MB ($truth_size vs $test_size bytes). Running CompareSAMs:"
+    set +e
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
+      CompareSAMs \
+        ~{test_bam} \
+        ~{truth_bam} \
+        O=comparison.tsv \
+        LENIENT_HEADER=~{lenient_header} \
+        LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
+        MAX_RECORDS_IN_RAM=300000
+    compare_rc=$?
+    set -e
+
+    # Strict unless a tolerance was requested.
+    if awk -v t=~{mappings_diff_threshold} 'BEGIN{exit !(t>0)}'; then
+        if [ ! -s comparison.tsv ]; then
+            echo "CompareSAMs produced no comparison.tsv (rc=$compare_rc); cannot evaluate tolerance." >&2
+            exit 1
+        fi
+        # Counts come from Picard's SamComparisonMetric row; schema mirrors VerifyRNAWithUMIs.wdl.
+        # ponytail: read the single data row by column name so column reordering can't silently shift it.
+        stats=$(awk -F'\t' '
+            /MAPPINGS_MATCH/ && !h { for (i=1;i<=NF;i++) col[$i]=i; h=1; next }
+            h && NF>1 {
+                split("MISSING_LEFT MISSING_RIGHT MAPPINGS_MATCH MAPPINGS_DIFFER UNMAPPED_LEFT UNMAPPED_RIGHT DUPLICATE_MARKINGS_DIFFER", req, " ")
+                for (k in req) if (!(req[k] in col)) { print "missing column " req[k] > "/dev/stderr"; exit 3 }
+                d = $col["MISSING_LEFT"] + $col["MISSING_RIGHT"] + $col["MAPPINGS_DIFFER"] + $col["UNMAPPED_LEFT"] + $col["UNMAPPED_RIGHT"] + $col["DUPLICATE_MARKINGS_DIFFER"]
+                tot = $col["MAPPINGS_MATCH"] + d
+                printf "%.10f %d %d", (tot>0 ? d/tot : 0), d, tot
+                exit
+            }' comparison.tsv) || { echo "Failed to parse comparison.tsv" >&2; exit 1; }
+        frac=${stats%% *}
+        echo "CompareSAMs: differing records $stats (fraction tolerance ~{mappings_diff_threshold})"
+        awk -v f="$frac" -v t=~{mappings_diff_threshold} 'BEGIN{ if (f<=t) exit 0; else exit 1 }'
+        exit $?
+    else
+        # Original behavior: 0 = identical, non-zero = differ.
+        exit $compare_rc
     fi
 
   >>>

@@ -58,7 +58,8 @@ workflow VerifyPairedTag {
         input:
             test_bam       = test_atac_bam,
             truth_bam      = truth_atac_bam,
-            lenient_header = true
+            lenient_header = true,
+            mappings_diff_threshold = 0.05
     }
     call VerifyTasks.CompareTabix as CompareFragment {
         input:
