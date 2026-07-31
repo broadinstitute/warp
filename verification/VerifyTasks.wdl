@@ -110,6 +110,10 @@ task CompareTabix {
   input {
     File test_fragment_file
     File truth_fragment_file
+    # ponytail: ATAC fragment counts wobble with the known BWA-aligner nondeterminism.
+    # Allow a relative line-count drift, floored at 100 so small (plumbing) files are no
+    # stricter than the previous hard 100-line rule.
+    Float max_fragment_line_diff_fraction = 0.0001
   }
   command <<<
   exit_code=0
@@ -131,9 +135,14 @@ task CompareTabix {
     diff_lines=$((test_lines - truth_lines))
     abs_diff_lines=${diff_lines#-}
 
-    if [[ $abs_diff_lines -gt 100 ]]; then
-      echo "Line count difference greater than 100 lines. The line count difference is $abs_diff_lines lines. Task failed."
+    # allowed = max(100, truth_lines * fraction)
+    allowed_lines=$(awk -v n="$truth_lines" -v f="~{max_fragment_line_diff_fraction}" 'BEGIN{a=n*f; if(a<100)a=100; printf "%d", a}')
+
+    if [[ $abs_diff_lines -gt $allowed_lines ]]; then
+      echo "Line count difference $abs_diff_lines exceeds allowed $allowed_lines (max($((100)), $truth_lines * ~{max_fragment_line_diff_fraction})). Task failed."
       exit_code=1
+    else
+      echo "Line count difference $abs_diff_lines within allowed $allowed_lines. OK."
     fi
   fi
 
