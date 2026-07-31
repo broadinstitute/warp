@@ -14,6 +14,7 @@ workflow Glimpse2SVImputationBatch {
         Array[String] chromosomes
         File genetic_maps_tsv
         File chunked_panel_json
+        File ref_dict
 
         String? extra_phase_args
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
@@ -73,11 +74,21 @@ workflow Glimpse2SVImputationBatch {
                 docker = glimpse2_docker
         }
 
+        # Update VCF header with reference dictionary
+        call UpdateHeader {
+            input:
+                bcf_to_reheader = GLIMPSE2Ligate.ligated_vcf,
+                bcf_to_get_header_from = input_preprocessed_joint_vcf,
+                ref_dict = ref_dict,
+                output_basename = output_prefix  + ".glimpse2.bubble.updated_header",
+                docker = glimpse2_docker
+        }
+
         scatter (k in range(length(pop_regions))) {
             call PopAndMarginalizeCollisions {
                 input:
-                    posteriors_vcf = GLIMPSE2Ligate.ligated_vcf,
-                    posteriors_vcf_idx = GLIMPSE2Ligate.ligated_vcf_idx,
+                    posteriors_vcf = UpdateHeader.output_bcf,
+                    posteriors_vcf_idx = UpdateHeader.output_bcf_index,
                     panel_bubble_split_sites_only_vcf = panel_bubble_split_sites_only_vcf,
                     panel_bubble_split_sites_only_vcf_idx = panel_bubble_split_sites_only_vcf_idx,
                     panel_id_split_vcf_gz = panel_id_split_vcf_gz,
@@ -173,7 +184,7 @@ task GLIMPSE2Phase {
                 --input-gl ~{input_vcf} \
                 -R ~{panel_split_chunk_bin} \
                 ~{extra_phase_args} \
-                --output ~{output_prefix}.raw.bcf \
+                --output ~{output_prefix}.bcf \
                 --threads ~{threads} \
                 --seed ~{seed} \
                 --checkpoint-file-out checkpoint.bin"
@@ -193,13 +204,7 @@ task GLIMPSE2Phase {
             exit 1
         fi
 
-        # take input VCF header and add GLIMPSE INFO and FORMAT lines (GLIMPSE header only contains a single chromosome and breaks bcftools concat --naive)
-        bcftools view --no-version -h ~{input_vcf} | grep '^##' > input.header.txt
-        bcftools view --no-version -h ~{output_prefix}.raw.bcf | grep -E '^##INFO|^##FORMAT|^##NMAIN|^##FPLOIDY' > glimpse2.header.txt
-        bcftools view --no-version -h ~{input_vcf} | grep '^#CHROM' > input.columns.txt
-        cat input.header.txt glimpse2.header.txt input.columns.txt > header.txt
-        bcftools reheader -h header.txt ~{output_prefix}.raw.bcf -o ~{output_prefix}.bcf
-        bcftools index ~{output_prefix}.bcf
+        bcftools index -f ~{output_prefix}.bcf
     >>>
 
     output {
@@ -283,7 +288,6 @@ task GLIMPSE2Ligate {
     }
 }
 
-
 task PopAndMarginalizeCollisions {
     input {
         # all VCFs should be split to biallelic
@@ -339,5 +343,60 @@ task PopAndMarginalizeCollisions {
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
         noAddress: true
+    }
+}
+
+task UpdateHeader {
+    input {
+        File bcf_to_reheader
+        File bcf_to_get_header_from
+        File ref_dict
+        String output_basename
+
+        Int mem_gb = 2
+        Int cpu = 1
+        Int disk_size_gb = ceil(2.1 * size(bcf_to_reheader, "GiB") + 10)
+        Int max_retries = 1
+        String docker
+    }
+
+    parameter_meta {
+        bcf_to_get_header_from : {
+            localization_optional : true
+        }
+    }
+
+    command <<<
+        set -xeuo pipefail
+
+        export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
+
+        # Set correct reference dictionary
+
+        # take input VCF header and add GLIMPSE INFO and FORMAT lines (GLIMPSE header only contains a single chromosome and breaks bcftools concat --naive)
+        bcftools view --no-version -h ~{bcf_to_get_header_from} | grep '^##' > input.header.txt
+        bcftools view --no-version -h ~{bcf_to_reheader} | grep -E '^##INFO|^##FORMAT|^##NMAIN|^##FPLOIDY' > glimpse2.header.txt
+        bcftools view --no-version -h ~{bcf_to_reheader} | grep '^#CHROM' > glimpse2.columns.txt
+        cat input.header.txt glimpse2.header.txt glimpse2.columns.txt > header.vcf
+
+        java -jar /picard.jar UpdateVcfSequenceDictionary -I header.vcf --SD ~{ref_dict} -O updated_header.vcf
+
+        bcftools reheader -h updated_header.vcf ~{bcf_to_reheader} -o ~{output_basename}.bcf
+        bcftools index ~{output_basename}.bcf
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk " + disk_size_gb + " SSD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        maxRetries: max_retries
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        File output_bcf = "~{output_basename}.bcf"
+        File output_bcf_index = "~{output_basename}.bcf.csi"
     }
 }
