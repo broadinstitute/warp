@@ -558,7 +558,7 @@ task CompareH5adFilesATAC {
   input {
     File truth_h5ad
     File test_h5ad
-    String docker = "python:3.10.0-buster"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.6.1"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
     Int memory_gb = 32
   }
@@ -567,8 +567,6 @@ task CompareH5adFilesATAC {
 
     set -eo pipefail
 
-    pip3 install anndata
-    
     python3 <<CODE
     
     import anndata as ad
@@ -635,7 +633,7 @@ task CompareH5adFilesGEX {
   input {
     File truth_h5ad
     File test_h5ad
-    String docker = "python:3.10.0-buster"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.6.1"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
     Int memory_gb = 32
   }
@@ -644,8 +642,6 @@ task CompareH5adFilesGEX {
 
     set -eo pipefail
 
-    pip3 install anndata
-    
     python3 <<CODE
     
     import anndata as ad
