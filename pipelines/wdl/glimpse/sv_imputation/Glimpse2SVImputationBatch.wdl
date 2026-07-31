@@ -4,7 +4,7 @@ import "./ConcatVcfs.wdl" as ConcatVcfs
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.6"
     String concat_vcfs_pipeline_version = "0.0.3"
 
     input {
@@ -121,7 +121,6 @@ struct RuntimeAttr {
 }
 
 struct ChunkedPanelChromosome {
-    String chunks_tsv
     Array[String] input_regions
     Array[String] output_regions
     Array[String] panel_split_chunk_bins
