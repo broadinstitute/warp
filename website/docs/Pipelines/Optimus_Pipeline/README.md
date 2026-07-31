@@ -82,6 +82,18 @@ However, it can take in multiple sets of FASTQs for a sample that has been split
 :::
 
 
+:::warning Minimum cell count
+
+Optimus is not designed for extremely small inputs and will fail if too few cells are called. During h5ad generation, the library-level doublet-detection step (`add_library_tso_doublets.py`) builds a k-nearest-neighbors graph over the cells called by STARsolo, choosing the neighbor count as `k = round(min(100, n_called_cells × 0.01))`. When fewer than roughly 50 cells are called, `k` rounds down to `0` and the run fails with a scikit-learn error:
+
+```
+InvalidParameterError: The 'n_neighbors' parameter of KNeighborsTransformer must be an int in the range [1, inf) or None. Got 0 instead.
+```
+
+Just above that threshold the same step's highly-variable-gene selection (`seurat_v3`) and PCA also become numerically unstable. Real single-cell and single-nucleus libraries contain thousands of cells and are never affected — this only matters for heavily downsampled data (for example, the WARP Plumbing test inputs, which retain ~500–2,000 cells for exactly this reason). Provide at least ~500 called cells to stay safely clear of the limit.
+
+:::
+
 #### Additional reference inputs
 
 The example configuration files also contain metadata for the reference files, described in the table below.
@@ -342,6 +354,11 @@ We are immensely grateful to the members of the [Human Cell Atlas Data Coordinat
 :::note Question Can I run Optimus in Terra?
 
 Yes! We have a Terra workspace that is preconfigured with the latest Optimus workflow and is preloaded with human and mouse sample data. You can access the [workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline). You will need a Google account to set up Terra. Please see [Terra Support](https://support.terra.bio/hc/en-us) for documents on getting started.
+:::
+
+:::note Question Is there a minimum number of cells required to run Optimus?
+
+Yes. The library-level doublet-detection step derives its k-nearest-neighbors neighbor count from the number of STARsolo-called cells as `k = round(min(100, n_cells × 0.01))`. If fewer than roughly 50 cells are called, `k` becomes `0` and the run fails with a scikit-learn `InvalidParameterError` (`The 'n_neighbors' parameter of KNeighborsTransformer must be an int in the range [1, inf) or None. Got 0 instead.`). At very low but nonzero `k`, the same step's `highly_variable_genes` (`seurat_v3`) selection and PCA are also numerically unstable. Real single-cell/single-nucleus libraries have thousands of cells and are unaffected; this only matters for heavily downsampled data. Use at least ~500 called cells to stay safely clear of the limit.
 :::
 
 :::note Question Is the output count matrix filtered or normalized?

@@ -1,3 +1,8 @@
+# 2.2.8
+2026-07-10 (Date of Last Commit)
+
+* No functional impact; version bump only for the shared `CheckInputs.wdl` edit (this pipeline uses `checkInputArrays`, not the modified `checkOptimusInput` task)
+
 # 2.2.7
 2026-05-15 (Date of Last Commit)
 

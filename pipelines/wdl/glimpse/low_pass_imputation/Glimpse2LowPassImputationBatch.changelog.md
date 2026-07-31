@@ -1,3 +1,14 @@
+# 1.0.2
+2026-07-28 (Date of Last Commit)
+
+* increase disk provided to glimpse phase task
+* remove glimpse docker image default value
+
+# 1.0.1
+2026-07-12 (Date of Last Commit)
+
+* lower disk provided to glimpse phase task
+
 # 1.0.0
 2026-06-30 (Date of Last Commit)
 

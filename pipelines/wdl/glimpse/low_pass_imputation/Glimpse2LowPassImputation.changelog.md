@@ -1,3 +1,19 @@
+# 1.0.3
+2026-07-28 (Date of Last Commit)
+
+* update docker image used for glimpse. This will include runtime optimizations
+* change default sample batch size to 500
+
+# 1.0.2
+2026-07-20 (Date of Last Commit)
+
+* Update Input QC workflow version
+
+# 1.0.1
+2026-07-12 (Date of Last Commit)
+
+* update batch sub-workflow
+
 # 1.0.0
 2026-06-30 (Date of Last Commit)
 

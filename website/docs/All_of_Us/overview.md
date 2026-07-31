@@ -26,6 +26,7 @@ The following All of Us analysis areas are currently available or in-progress in
 * [PCA](https://github.com/broadinstitute/warp/blob/develop/all_of_us/PCA/README.md)
 * [Phasing](https://github.com/broadinstitute/warp/blob/develop/all_of_us/phasing/README.md)
 * [RNA-seq](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/README.md)
+* [Small Callsets](./Small_Callsets/overview.md)
 
 ## Versioning and Changelogs
 
