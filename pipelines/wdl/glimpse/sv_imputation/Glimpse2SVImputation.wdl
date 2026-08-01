@@ -4,21 +4,19 @@ import "./PreprocessPLsGVCF.wdl" as PreprocessPLsGVCF
 import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.6"
-    String preprocess_pls_gvcf_pipeline_version = "0.0.4"
-    String batch_pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.8"
+    String preprocess_pls_gvcf_pipeline_version = "0.0.5"
+    String batch_pipeline_version = "0.0.6"
 
     input {
         # inputs for Preprocessign wdl
         File? input_gvcfs_fofn
         File? input_gvcf_idxs_fofn
-        File? sample_names_file          # order of sample names must match that of gVCFs
+        File? sample_ids_file          # order of sample ids must match that of gVCFs
 
         Array[File]? input_gvcfs
         Array[File]? input_gvcf_idxs
-        Array[String]? entity_ids
-        File? sample_names_map_file           # TSV map of entity_id (research_id) to id2 for AoU DRAGEN gVCFs;
-                                              # Terra struggles with id2 as they are parsed as mixed strings/numbers
+        Array[String]? sample_ids
 
         String output_prefix
 
@@ -48,11 +46,10 @@ workflow Glimpse2SVImputation {
         input:
         input_gvcfs_fofn = input_gvcfs_fofn,
         input_gvcf_idxs_fofn = input_gvcf_idxs_fofn,
-        sample_names_file = sample_names_file,
+        sample_ids_file = sample_ids_file,
         input_gvcfs = input_gvcfs,
         input_gvcf_idxs = input_gvcf_idxs,
-        entity_ids = entity_ids,
-        sample_names_map_file = sample_names_map_file,
+        sample_ids = sample_ids,
         preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
         preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
         extract_bubble_likelihoods_extra_args = extract_bubble_likelihoods_extra_args,
