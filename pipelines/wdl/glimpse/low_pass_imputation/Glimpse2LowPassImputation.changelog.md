@@ -1,7 +1,7 @@
 # 1.0.4
 2026-08-01 (Date of Last Commit)
 
-* update docker image used for glimpse, which includes the latest version of bcftools
+* update docker image used for glimpse, which updates the version of bcftools from v1.21 to v1.24
 
 # 1.0.3
 2026-07-28 (Date of Last Commit)
