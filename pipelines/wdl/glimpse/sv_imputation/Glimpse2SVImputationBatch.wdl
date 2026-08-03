@@ -195,8 +195,8 @@ task GLIMPSE2Phase {
         disk_gb:            disk_size_gb,
         boot_disk_gb:       10,
         use_ssd:            true,
-        preemptible_tries:  10,
-        max_retries:        1,
+        preemptible_tries:  30,
+        max_retries:        3,
         docker:             docker
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
