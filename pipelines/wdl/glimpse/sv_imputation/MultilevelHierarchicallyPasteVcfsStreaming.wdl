@@ -4,7 +4,7 @@ version 1.0
 
 workflow MultilevelHierarchicallyMergeVcfs {
     # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "0.0.1"
+    String pipeline_version = "0.0.3"
 
     input {
         Array[String]? vcfs_array
@@ -17,7 +17,6 @@ workflow MultilevelHierarchicallyMergeVcfs {
         Array[Int] timeouts_min  # Timeouts in minutes per level. Set to 0 to disable. e.g., [720, 720]
         String output_prefix
 
-        File paste_vcfs_binary
         String extra_merge_args = "--threads $(nproc) --info ID,RAF --format GT,DS,GP"
 
         String extra_concat_args = "--threads $(nproc) --naive"
@@ -51,7 +50,6 @@ workflow MultilevelHierarchicallyMergeVcfs {
                     timeout_min = timeouts_min[0],
                     region = region,
                     output_prefix = region_prefix + ".L0-" + i,
-                    paste_vcfs_binary = paste_vcfs_binary,
                     extra_args = "-r " + region + " " + extra_merge_args
             }
         }
@@ -80,7 +78,6 @@ workflow MultilevelHierarchicallyMergeVcfs {
                         timeout_min = timeouts_min[1],
                         region = region,
                         output_prefix = region_prefix + ".L1-" + i,
-                        paste_vcfs_binary = paste_vcfs_binary,
                         extra_args = "-r " + region + " " + extra_merge_args
                 }
             }
@@ -110,7 +107,6 @@ workflow MultilevelHierarchicallyMergeVcfs {
                         timeout_min = timeouts_min[2],
                         region = region,
                         output_prefix = region_prefix + ".L2-" + i,
-                        paste_vcfs_binary = paste_vcfs_binary,
                         extra_args = "-r " + region + " " + extra_merge_args
                 }
             }
@@ -131,7 +127,6 @@ workflow MultilevelHierarchicallyMergeVcfs {
                     timeout_min = 0,
                     region = region,
                     output_prefix = region_prefix + ".final",
-                    paste_vcfs_binary = paste_vcfs_binary,
                     extra_args = "-r " + region + " " + extra_merge_args
             }
         }
@@ -198,7 +193,7 @@ task CreateBatches {
         disk_type:          "HDD",
         preemptible_tries:  2,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-dsp-lrma/lr-gcloud-samtools:0.1.23"
+        docker:             "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
@@ -209,6 +204,7 @@ task CreateBatches {
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
     }
 }
 
@@ -223,10 +219,6 @@ task MergeVcfs {
         String? region
         String output_prefix
         String? extra_args
-
-        File? cargo_toml
-        File? paste_vcfs_script
-        File? paste_vcfs_binary
 
         RuntimeAttr? runtime_attr_override
     }
@@ -337,27 +329,11 @@ task MergeVcfs {
         ) &
         HEARTBEAT_PID=$!
 
-        if [ -n "~{paste_vcfs_binary}" ]; then
-            PASTE_BIN="~{paste_vcfs_binary}"
-            chmod +x $PASTE_BIN
-        else
-            # ==========================================
-            # ON-THE-FLY RUST COMPILATION
-            # ==========================================
-            mkdir -p paste-vcfs/src
-            mv ~{cargo_toml} paste-vcfs/Cargo.toml
-            mv ~{paste_vcfs_script} paste-vcfs/src/main.rs
-            cd paste-vcfs
-            CARGO_BUILD_JOBS=$(nproc) cargo build --release
-            cd ..
-            PASTE_BIN="./paste-vcfs/target/release/paste-vcfs"
-        fi
-
         # ==========================================
         # EXECUTE CUSTOM MERGE
         # ==========================================
         # Execute the compiled tool, pasting positional inputs straight from our list
-        $PASTE_BIN \
+        /usr/local/bin/paste-vcfs \
             ~{extra_args} \
             -o ~{output_prefix}.bcf \
             $(cat merge_list.txt)
@@ -381,7 +357,7 @@ task MergeVcfs {
         disk_type:          "SSD",
         preemptible_tries:  3,
         max_retries:        0,
-        docker:             "us.gcr.io/broad-dsde-methods/slee/lrma-aou2-panel-creation-rust:v1"
+        docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.0.0-5dc0f19-1784328222"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
@@ -392,6 +368,7 @@ task MergeVcfs {
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
     }
 }
 
@@ -431,7 +408,7 @@ task ConcatVcfs {
         disk_type:          "SSD",
         preemptible_tries:  3,
         max_retries:        0,
-        docker:             "us.gcr.io/broad-dsp-lrma/lr-gcloud-samtools:0.1.23"
+        docker:             "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
@@ -442,5 +419,6 @@ task ConcatVcfs {
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
     }
 }

@@ -4,28 +4,22 @@ import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelHierarchi
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.2"
-    String multi_level_paste_pipeline_version = "0.0.1"
+    String pipeline_version = "0.0.5"
+    String multi_level_paste_pipeline_version = "0.0.3"
     input {
         File? input_gvcfs_fofn
         File? input_gvcf_idxs_fofn
-        File? sample_names_file          # order of sample names must match that of gVCFs
+        File? sample_ids_file          # order of sample names must match that of gVCFs
 
         Array[File]? input_gvcfs
         Array[File]? input_gvcf_idxs
-        Array[String]? entity_ids
-        File? sample_names_map_file           # TSV map of entity_id (research_id) to id2 for AoU DRAGEN gVCFs;
-        # Terra struggles with id2 as they are parsed as mixed strings/numbers
+        Array[String]? sample_ids
 
         # inputs for PreprocessPLs
         File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
         File preprocess_panel_bubble_split_sites_only_vcf_idx
-        File? extract_bubble_likelihoods_script
-        File? extract_bubble_likelihoods_cargo_toml
-        File? extract_bubble_likelihoods_binary
         String? extract_bubble_likelihoods_extra_args
 
-        File paste_vcfs_binary
         Array[String] paste_regions
     }
 
@@ -39,20 +33,10 @@ workflow PreprocessPLsGVCF {
     }
     Array[File] input_gvcf_idxs_ = select_first([input_gvcf_idxs, parsed_gvcf_idxs])
 
-    if (defined(sample_names_file)) {
-        Array[String] parsed_sample_names = read_lines(select_first([sample_names_file]))
+    if (defined(sample_ids_file)) {
+        Array[String] parsed_sample_ids = read_lines(select_first([sample_ids_file]))
     }
-
-    # Replaced map scatter with a bash task call
-    if (defined(entity_ids) && defined(sample_names_map_file)) {
-        call MapSampleNames {
-            input:
-                entity_ids = select_first([entity_ids]),
-                sample_names_map_file = select_first([sample_names_map_file])
-        }
-    }
-
-    Array[String] sample_names_ = select_first([MapSampleNames.mapped_sample_names, parsed_sample_names])
+    Array[String] sample_ids_ = select_first([sample_ids, parsed_sample_ids])
 
     scatter (j in range(length(input_gvcfs_))) {
         call PreprocessPLs as PreprocessPLsGVCF {
@@ -62,11 +46,8 @@ workflow PreprocessPLsGVCF {
                 mode = "gvcf",
                 panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
                 panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
-                sample_names = [sample_names_[j]],
-                output_prefix = ".sample-" + j + "." + sample_names_[j] + ".preprocessedPLs",
-                extract_bubble_likelihoods_script = extract_bubble_likelihoods_script,
-                cargo_toml = extract_bubble_likelihoods_cargo_toml,
-                extract_bubble_likelihoods_binary = extract_bubble_likelihoods_binary,
+                sample_names = [sample_ids_[j]],
+                output_prefix = ".sample-" + j + "." + sample_ids_[j] + ".preprocessedPLs",
                 extra_args = extract_bubble_likelihoods_extra_args
         }
     }
@@ -81,7 +62,6 @@ workflow PreprocessPLsGVCF {
             do_localization = [true, true],
             timeouts_min = [0, 0],
             output_prefix = "preprocessedPLs.merged",
-            paste_vcfs_binary = paste_vcfs_binary,
             extra_merge_args = "--threads $(nproc) --format GT,PL",
             extra_concat_args = "--threads $(nproc) --naive"
     }
@@ -103,46 +83,6 @@ struct RuntimeAttr {
     String? docker
 }
 
-task MapSampleNames {
-    input {
-        Array[String] entity_ids
-        File sample_names_map_file
-    }
-
-    command <<<
-        set -euo pipefail
-
-        # Use awk to load the TSV map into memory, then translate the entity IDs array in order
-        awk 'BEGIN {FS="\t"; OFS="\t"}
-        NR==FNR {
-            # First pass: read the map file into an array
-            map[$1] = $2;
-            next
-        }
-        {
-            # Second pass: read the entity_ids file
-            if ($1 in map) {
-                print map[$1]
-            } else {
-                print "Error: ID " $1 " not found in map file" > "/dev/stderr"
-                exit 1
-            }
-        }' ~{sample_names_map_file} ~{write_lines(entity_ids)} > mapped_names.txt
-    >>>
-
-    output {
-        Array[String] mapped_sample_names = read_lines("mapped_names.txt")
-    }
-
-    runtime {
-        docker: "ubuntu:22.04"
-        cpu: 1
-        memory: "4 GB"
-        disks: "local-disk 10 HDD"
-        preemptible: 3
-    }
-}
-
 task PreprocessPLs {
     input {
         File input_vcf
@@ -154,9 +94,6 @@ task PreprocessPLs {
         Array[String] sample_names
         String output_prefix
 
-        File? extract_bubble_likelihoods_script
-        File? cargo_toml
-        File? extract_bubble_likelihoods_binary
         String? extra_args = "--window 15000 --cap-pl 30 --scale-pl 5.0 --threads $(nproc)"
 
         RuntimeAttr? runtime_attr_override
@@ -169,20 +106,7 @@ task PreprocessPLs {
     command <<<
         set -euxo pipefail
 
-        if [ -n "~{extract_bubble_likelihoods_binary}" ]; then
-            EXTRACT_BIN="~{extract_bubble_likelihoods_binary}"
-            chmod +x $EXTRACT_BIN
-        else
-            mkdir -p extract-bubble-PLs/src
-            cp ~{extract_bubble_likelihoods_script} extract-bubble-PLs/src/main.rs
-            cp ~{cargo_toml} extract-bubble-PLs
-            cd extract-bubble-PLs
-            cargo build --release
-            cd ..
-            EXTRACT_BIN="./extract-bubble-PLs/target/release/extract-bubble-PLs"
-        fi
-
-        $EXTRACT_BIN ~{mode} \
+        /usr/local/bin/extract-bubble-PLs ~{mode} \
             ~{panel_bubble_split_sites_only_vcf}##idx##~{panel_bubble_split_sites_only_vcf_idx} \
             ~{input_vcf}##idx##~{input_vcf_idx} \
             ~{output_prefix}.bcf \
@@ -210,7 +134,7 @@ task PreprocessPLs {
         use_ssd:            true,
         preemptible_tries:  2,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-dsde-methods/slee/lrma-aou2-panel-creation-rust:v1"
+        docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.0.0-5dc0f19-1784328222"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
@@ -221,5 +145,6 @@ task PreprocessPLs {
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
     }
 }
