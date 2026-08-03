@@ -1,3 +1,8 @@
+# 0.0.6
+2026-07-31 (Date of Last Commit)
+
+* removed unused `chunks_tsv` field from `ChunkedPanelChromosome` struct
+
 # 0.0.5
 2026-07-23 (Date of Last Commit)
 
