@@ -4,7 +4,7 @@ import "./ConcatVcfs.wdl" as ConcatVcfs
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.6"
+    String pipeline_version = "0.0.7"
     String concat_vcfs_pipeline_version = "0.0.3"
 
     input {
