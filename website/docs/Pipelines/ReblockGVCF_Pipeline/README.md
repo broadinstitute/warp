@@ -71,9 +71,9 @@ To see specific tool parameters, select the task WDL link in the table; then fin
 
 | Task | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [ErrorWithMessage](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/Utilities.wdl) | bash | bash | Confirms that `cloud_provider` is either `"gcp"` or `"aws"`; if not, the workflow fails with an informative error message. |
-| [Reblock](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/GermlineVariantDiscovery.wdl) | ReblockGVCF | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Reblocks the single-sample GVCF, merging reference-confidence blocks (with quality-approximation and floored GQ blocks) and applying any optional annotation-keep/remove, tree-score, and filter-to-genotype settings; outputs the reblocked GVCF and its index. |
-| [ValidateVCF](https://github.com/broadinstitute/warp/blob/develop/tasks/wdl/Qc.wdl) | ValidateVariants | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Validates the reblocked GVCF against the reference to confirm it is well-formed. |
+| [ErrorWithMessage](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Utilities.wdl) | bash | bash | Confirms that `cloud_provider` is either `"gcp"` or `"aws"`; if not, the workflow fails with an informative error message. |
+| [Reblock](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/GermlineVariantDiscovery.wdl) | ReblockGVCF | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Reblocks the single-sample GVCF, merging reference-confidence blocks (with quality-approximation and floored GQ blocks) and applying any optional annotation-keep/remove, tree-score, and filter-to-genotype settings; outputs the reblocked GVCF and its index. |
+| [ValidateVCF](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Qc.wdl) | ValidateVariants | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Validates the reblocked GVCF against the reference to confirm it is well-formed. |
 
 ## Outputs
 
@@ -90,7 +90,6 @@ The reblocked GVCF is the recommended input to the [JointGenotyping pipeline](..
 
 Reblocking is a lightweight, single-sample operation, so per-sample runtime and cost are small relative to downstream joint calling. Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
 
-<!-- TODO: Replace with measured Terra benchmarks. -->
 
 | Sample type | Time | Cost $ |
 | --- | --- | --- |
