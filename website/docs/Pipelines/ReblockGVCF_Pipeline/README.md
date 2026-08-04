@@ -84,8 +84,8 @@ The following table lists the output variables and files produced by the pipelin
 
 | Output name | Filename, if applicable | Output format and description |
 | ------ | ------ | ------ |
-| reblocked_gvcf | `<sample>.rb.g.vcf.gz` | The reblocked single-sample GVCF file. |
-| reblocked_gvcf_index | `<sample>.rb.g.vcf.gz.tbi` | Index for the reblocked GVCF. |
+| reblocked_gvcf | `<gvcf_basename>.rb.g.vcf.gz` | The reblocked single-sample GVCF file. |
+| reblocked_gvcf_index | `<gvcf_basename>.rb.g.vcf.gz.tbi` | Index for the reblocked GVCF. |
 
 The reblocked GVCF is the recommended input to the [JointGenotyping pipeline](../JointGenotyping/README.md) (list each sample's reblocked GVCF in the joint-genotyping sample map).
 
