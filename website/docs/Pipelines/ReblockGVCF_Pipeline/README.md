@@ -9,7 +9,7 @@ slug: /Pipelines/ReblockGVCF_Pipeline/README
 | :----: | :---: | :----: | :--------------: |
 | [ReblockGVCF_v2.4.4](https://github.com/broadinstitute/warp/releases) | August, 2026 | [WARP Pipelines](mailto:warp@broadinstitute.org) | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
-![ReblockGVCF_diagram](./pipeline.png)
+<img src={require('./pipeline.png').default} alt="ReblockGVCF_diagram" width="50%" />
 
 ## Introduction to the ReblockGVCF workflow
 
@@ -94,7 +94,7 @@ Reblocking is a lightweight, single-sample operation, so per-sample runtime and 
 
 | Sample type | Time | Cost $ |
 | --- | --- | --- |
-| _Whole genome GVCF (example)_ | _TBD_ | _TBD_ |
+| _Whole genome GVCF (example)_ | 1h 27m | $0.04 |
 
 For guidance on controlling cloud costs, see [this article](https://support.terra.bio/hc/en-us/articles/360029748111).
 
