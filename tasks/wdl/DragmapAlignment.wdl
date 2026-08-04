@@ -34,7 +34,11 @@ task SamToFastqAndDragmapAndMba {
     String docker = "us.gcr.io/broad-gotc-prod/dragmap:1.1.2-1.2.1-2.26.10-1.11-1643839530"
     Int cpu = 16
     Float disk_multiplier = 8
-    Int memory_mb = 40960
+    # dragmap's hg38 hash table (~40 GB resident) plus samtools/OS overhead OOM-killed
+    # dragen-os on the old 40960 (40 GiB) VM for full scientific WGS read groups, which
+    # surfaced as exit-1 (empty pipe into samtools) and VMReportingTimeout(50002). 64 GiB
+    # leaves ample headroom above the table.
+    Int memory_mb = 65536
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
