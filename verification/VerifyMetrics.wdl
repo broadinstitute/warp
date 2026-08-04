@@ -79,13 +79,38 @@ task CompareMetricFiles {
   }
 
   command <<<
-    java -Xmx3g -Dpicard.useLegacyParser=false  -jar /usr/picard/picard.jar \
-      CompareMetrics \
-      --INPUT ~{file1} \
-      --INPUT ~{file2} \
-      --OUTPUT ~{output_file} \
-      ~{true="--METRICS_TO_IGNORE" false="" length(metrics_to_ignore) > 0} ~{default="" sep=" --METRICS_TO_IGNORE " metrics_to_ignore} \
-      ~{sep=" " extra_args}
+    # ponytail: CrosscheckMetric embeds absolute BAM paths (LEFT_FILE/RIGHT_FILE) that
+    # carry the submission id + SortSampleBam attempt-N, so they differ every run; and
+    # Picard emits read-group rows in a non-deterministic order. Picard CompareMetrics
+    # diffs by row index across all columns, so both show up as spurious failures.
+    # Compare this metric type order- and path-insensitively instead; everything else
+    # keeps the exact Picard comparison.
+    # ponytail: column indices 13 (LEFT_FILE) / 19 (RIGHT_FILE) are fixed by the
+    # CrosscheckMetric bean; if Picard reorders those fields, update the cut list.
+    if grep -q "picard.fingerprint.CrosscheckMetric" ~{file1}; then
+      normalize () {
+        grep -v '^#' "$1" | awk 'NF' | grep -v '^LEFT_GROUP_VALUE' | cut -f1-12,14-18 | sort
+      }
+      if diff <(normalize ~{file1}) <(normalize ~{file2}) > crosscheck.diff; then
+        echo "Metrics are equal" > ~{output_file}
+      else
+        {
+          echo "Comparison of picard.fingerprint.CrosscheckMetric metrics between ~{file1} and ~{file2}"
+          echo ""
+          echo "Metrics are NOT equal (order- and file-path-insensitive comparison)"
+          echo ""
+          cat crosscheck.diff
+        } > ~{output_file}
+      fi
+    else
+      java -Xmx3g -Dpicard.useLegacyParser=false  -jar /usr/picard/picard.jar \
+        CompareMetrics \
+        --INPUT ~{file1} \
+        --INPUT ~{file2} \
+        --OUTPUT ~{output_file} \
+        ~{true="--METRICS_TO_IGNORE" false="" length(metrics_to_ignore) > 0} ~{default="" sep=" --METRICS_TO_IGNORE " metrics_to_ignore} \
+        ~{sep=" " extra_args}
+    fi
   >>>
 
   runtime {
