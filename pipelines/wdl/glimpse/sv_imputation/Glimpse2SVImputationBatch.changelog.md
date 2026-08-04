@@ -1,3 +1,9 @@
+# 0.0.6
+2026-08-04 (Date of Last Commit)
+
+* Added optional `info_filter_for_inclusion` input; when > 0.0, filters both the bubble and popped
+  posteriors VCFs to exclude variants with an INFO score below the given threshold
+
 # 0.0.5
 2026-07-23 (Date of Last Commit)
 

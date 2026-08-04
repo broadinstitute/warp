@@ -1,3 +1,9 @@
+# 0.0.7
+2026-08-04 (Date of Last Commit)
+
+* Added optional `info_filter_for_inclusion` input to filter output VCFs by GLIMPSE2 INFO score
+* Updated `batch_pipeline_version` to 0.0.6
+
 # 0.0.6
 2026-07-23 (Date of Last Commit)
 

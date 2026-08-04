@@ -4,7 +4,7 @@ import "./ConcatVcfs.wdl" as ConcatVcfs
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.6"
     String concat_vcfs_pipeline_version = "0.0.3"
 
     input {
@@ -23,6 +23,9 @@ workflow Glimpse2SVImputationBatch {
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
+
+        # Optional filter: variants with INFO score below this threshold will be excluded from the output VCFs
+        Float info_filter_for_inclusion = 0.0
 
         String glimpse2_docker
     }
@@ -99,13 +102,36 @@ workflow Glimpse2SVImputationBatch {
                 do_sort_shard = false,
                 extra_args_shard = ""
         }
+
+        if (info_filter_for_inclusion > 0.0) {
+            call FilterVcfByInfo as FilterBubblePosteriorsByInfo {
+                input:
+                    vcf = GLIMPSE2Ligate.ligated_vcf,
+                    vcf_idx = GLIMPSE2Ligate.ligated_vcf_idx,
+                    info_threshold = info_filter_for_inclusion,
+                    output_prefix = output_prefix + ".glimpse2.bubble.info_filtered"
+            }
+
+            call FilterVcfByInfo as FilterPoppedPosteriorsByInfo {
+                input:
+                    vcf = ConcatPopAndMarginalizeCollisions.concatenated_vcf,
+                    vcf_idx = ConcatPopAndMarginalizeCollisions.concatenated_vcf_idx,
+                    info_threshold = info_filter_for_inclusion,
+                    output_prefix = output_prefix + ".glimpse2.popped.info_filtered"
+            }
+        }
+
+        File filtered_bubble_posteriors_vcf = select_first([FilterBubblePosteriorsByInfo.output_vcf, GLIMPSE2Ligate.ligated_vcf])
+        File filtered_bubble_posteriors_vcf_idx = select_first([FilterBubblePosteriorsByInfo.output_vcf_idx, GLIMPSE2Ligate.ligated_vcf_idx])
+        File filtered_popped_posteriors_vcf = select_first([FilterPoppedPosteriorsByInfo.output_vcf, ConcatPopAndMarginalizeCollisions.concatenated_vcf])
+        File filtered_popped_posteriors_vcf_idx = select_first([FilterPoppedPosteriorsByInfo.output_vcf_idx, ConcatPopAndMarginalizeCollisions.concatenated_vcf_idx])
     }
 
     output {
-        Array[File] glimpse2_bubble_posteriors_vcf = GLIMPSE2Ligate.ligated_vcf
-        Array[File] glimpse2_bubble_posteriors_vcf_idx =GLIMPSE2Ligate.ligated_vcf_idx
-        Array[File] glimpse2_popped_posteriors_vcf =ConcatPopAndMarginalizeCollisions.concatenated_vcf
-        Array[File] glimpse2_popped_posteriors_vcf_idx = ConcatPopAndMarginalizeCollisions.concatenated_vcf_idx
+        Array[File] glimpse2_bubble_posteriors_vcf = filtered_bubble_posteriors_vcf
+        Array[File] glimpse2_bubble_posteriors_vcf_idx = filtered_bubble_posteriors_vcf_idx
+        Array[File] glimpse2_popped_posteriors_vcf = filtered_popped_posteriors_vcf
+        Array[File] glimpse2_popped_posteriors_vcf_idx = filtered_popped_posteriors_vcf_idx
     }
 }
 
@@ -264,6 +290,56 @@ task GLIMPSE2Ligate {
     }
 }
 
+
+task FilterVcfByInfo {
+    input {
+        File vcf
+        File vcf_idx
+        Float info_threshold
+        String output_prefix
+
+        String docker = "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+
+        RuntimeAttr? runtime_attr_override
+    }
+
+    Int disk_gb = 10 + 2 * ceil(size(vcf, "GiB"))
+
+    command <<<
+        set -euo pipefail
+
+        bcftools filter -i 'INFO/INFO >= ~{info_threshold}' -Ob -o ~{output_prefix}.bcf ~{vcf}
+        bcftools index -c ~{output_prefix}.bcf
+    >>>
+
+    output {
+        File output_vcf = "~{output_prefix}.bcf"
+        File output_vcf_idx = "~{output_prefix}.bcf.csi"
+    }
+
+    #########################
+    RuntimeAttr default_attr = object {
+        cpu_cores:          1,
+        mem_gb:             4,
+        disk_gb:            disk_gb,
+        boot_disk_gb:       10,
+        use_ssd:            true,
+        preemptible_tries:  3,
+        max_retries:        1,
+        docker:             docker
+    }
+    RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
+    runtime {
+        cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
+        memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
+        disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + if select_first([runtime_attr.use_ssd, default_attr.use_ssd]) then " SSD" else " HDD"
+        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
+        preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
+        maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
+        docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
+    }
+}
 
 task PopAndMarginalizeCollisions {
     input {
