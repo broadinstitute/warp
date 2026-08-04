@@ -103,7 +103,7 @@ All ReblockGVCF pipeline releases are documented in the [ReblockGVCF changelog](
 
 ## Citing the ReblockGVCF Pipeline
 
-If you use the ReblockGVCF Pipeline in your research, please consider citing our preprint:
+If you use the ReblockGVCF Pipeline in your research, please consider citing our publication:
 
 Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Kiernan, E., Konwar, K., Mathews, K.L., Palis, K., et al. Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis. Bioinformatics 2025; btaf494. https://doi.org/10.1093/bioinformatics/btaf494
 
