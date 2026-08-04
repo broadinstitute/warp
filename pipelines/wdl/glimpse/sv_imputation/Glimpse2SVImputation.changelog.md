@@ -1,9 +1,25 @@
-# 0.0.7
-2026-07-29 (Date of Last Commit)
+# 0.0.10
+??? (Date of Last Commit)
 
 * Update Glimpse2 docker image to tag `imputation-glimpse2:1.2.0-8671138-1784681771`
 * Update `batch_pipeline_version` to 0.0.6
 * Update `preprocess_pls_gvcf_pipeline_version` to 0.0.5
+
+# 0.0.9
+2026-08-03 (Date of Last Commit)
+
+* Updated batch_pipeline_version to 0.0.7
+
+# 0.0.8
+2026-07-31 (Date of Last Commit)
+
+* update batch_pipeline_version
+
+# 0.0.7
+2026-07-30 (Date of Last Commit)
+
+* rename entity_ids input to sample_ids
+* remove sample_names_map_file input as preprocess no longer uses it
 
 # 0.0.6
 2026-07-23 (Date of Last Commit)

@@ -4,7 +4,7 @@ import "./ConcatVcfs.wdl" as ConcatVcfs
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.6"
+    String pipeline_version = "0.0.8"
     String concat_vcfs_pipeline_version = "0.0.3"
 
     input {
@@ -121,7 +121,6 @@ struct RuntimeAttr {
 }
 
 struct ChunkedPanelChromosome {
-    String chunks_tsv
     Array[String] input_regions
     Array[String] output_regions
     Array[String] panel_split_chunk_bins
@@ -215,8 +214,8 @@ task GLIMPSE2Phase {
         disk_gb:            disk_size_gb,
         boot_disk_gb:       10,
         use_ssd:            true,
-        preemptible_tries:  10,
-        max_retries:        1,
+        preemptible_tries:  30,
+        max_retries:        3,
         docker:             docker
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
