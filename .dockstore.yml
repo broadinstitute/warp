@@ -320,6 +320,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestGlimpse2LowPassImputationQC.wdl
 
+  - name: TestGlimpse2SVImputation
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestGlimpse2SVImputation.wdl
+
   - name: TestIlluminaGenotypingArray
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestIlluminaGenotypingArray.wdl
