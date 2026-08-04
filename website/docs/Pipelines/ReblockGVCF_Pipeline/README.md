@@ -9,10 +9,7 @@ slug: /Pipelines/ReblockGVCF_Pipeline/README
 | :----: | :---: | :----: | :--------------: |
 | [ReblockGVCF_v2.4.4](https://github.com/broadinstitute/warp/releases) | August, 2026 | [WARP Pipelines](mailto:warp@broadinstitute.org) | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
-<!-- TODO: Add a ReblockGVCF workflow diagram image here once available, e.g.:
-![ReblockGVCF workflow diagram](./reblockgvcf_diagram.png)
--->
-*A workflow diagram for the ReblockGVCF pipeline will be added here.*
+![ReblockGVCF_diagram](./pipeline.png)
 
 ## Introduction to the ReblockGVCF workflow
 
