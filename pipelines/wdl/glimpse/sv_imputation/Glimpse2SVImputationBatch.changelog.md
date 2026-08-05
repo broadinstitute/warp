@@ -1,3 +1,18 @@
+# 0.0.8
+2026-08-04 (Date of Last Commit)
+
+* Update Glimpse2Phase task to stream input BCF file instead of localizing it
+
+# 0.0.7
+2026-08-03 (Date of Last Commit)
+
+* Updated Glimpse2Phase task max retries and preemptible count
+
+# 0.0.6
+2026-07-31 (Date of Last Commit)
+
+* removed unused `chunks_tsv` field from `ChunkedPanelChromosome` struct
+
 # 0.0.5
 2026-07-23 (Date of Last Commit)
 

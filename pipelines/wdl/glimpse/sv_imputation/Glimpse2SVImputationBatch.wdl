@@ -4,7 +4,7 @@ import "./ConcatVcfs.wdl" as ConcatVcfs
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.8"
     String concat_vcfs_pipeline_version = "0.0.3"
 
     input {
@@ -121,7 +121,6 @@ struct RuntimeAttr {
 }
 
 struct ChunkedPanelChromosome {
-    String chunks_tsv
     Array[String] input_regions
     Array[String] output_regions
     Array[String] panel_split_chunk_bins
@@ -154,10 +153,21 @@ task GLIMPSE2Phase {
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_size_gb = 50        # TODO pass shard-specific or autoscaled values (for latter, note that only a shard of input_vcf is used)
+    parameter_meta {
+        input_vcf: {
+            localization_optional: true
+        }
+        input_vcf_idx: {
+            localization_optional: true
+        }
+    }
+
+    Int disk_size_gb = ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 10)
 
     command <<<
         set -euxo pipefail
+
+        export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
 
         cmd="/bin/GLIMPSE2_phase \
                 --input-gl ~{input_vcf} \
@@ -172,7 +182,16 @@ task GLIMPSE2Phase {
             cmd="$cmd --checkpoint-file-in checkpoint.bin"
         fi
 
-        eval "$cmd"
+        # Check for read error which corresponds exactly to end of cram/bam block.
+        # This currently triggers a warning message from htslib, but doesn't return any error.
+        # We need to make sure that stderr is maintained since Cromwell looks for oom strings
+        # in stderr
+        eval "$cmd" 2> >(tee glimpse_stderr.log >&2)
+
+        if grep -q "EOF marker is absent" glimpse_stderr.log; then
+            echo "An input file appears to be truncated. This may be either a truly truncated file which needs to be fixed, or a networking error which can just be retried."
+            exit 1
+        fi
 
         # take input VCF header and add GLIMPSE INFO and FORMAT lines (GLIMPSE header only contains a single chromosome and breaks bcftools concat --naive)
         bcftools view --no-version -h ~{input_vcf} | grep '^##' > input.header.txt
@@ -195,8 +214,8 @@ task GLIMPSE2Phase {
         disk_gb:            disk_size_gb,
         boot_disk_gb:       10,
         use_ssd:            true,
-        preemptible_tries:  10,
-        max_retries:        1,
+        preemptible_tries:  30,
+        max_retries:        3,
         docker:             docker
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])

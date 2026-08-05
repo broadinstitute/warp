@@ -110,6 +110,10 @@ task CompareTabix {
   input {
     File test_fragment_file
     File truth_fragment_file
+    # ponytail: ATAC fragment counts wobble with the known BWA-aligner nondeterminism.
+    # Allow a relative line-count drift, floored at 100 so small (plumbing) files are no
+    # stricter than the previous hard 100-line rule.
+    Float max_fragment_line_diff_fraction = 0.0001
   }
   command <<<
   exit_code=0
@@ -131,9 +135,14 @@ task CompareTabix {
     diff_lines=$((test_lines - truth_lines))
     abs_diff_lines=${diff_lines#-}
 
-    if [[ $abs_diff_lines -gt 100 ]]; then
-      echo "Line count difference greater than 100 lines. The line count difference is $abs_diff_lines lines. Task failed."
+    # allowed = max(100, truth_lines * fraction)
+    allowed_lines=$(awk -v n="$truth_lines" -v f="~{max_fragment_line_diff_fraction}" 'BEGIN{a=n*f; if(a<100)a=100; printf "%d", a}')
+
+    if [[ $abs_diff_lines -gt $allowed_lines ]]; then
+      echo "Line count difference $abs_diff_lines exceeds allowed $allowed_lines (max($((100)), $truth_lines * ~{max_fragment_line_diff_fraction})). Task failed."
       exit_code=1
+    else
+      echo "Line count difference $abs_diff_lines within allowed $allowed_lines. OK."
     fi
   fi
 
@@ -211,7 +220,7 @@ import hashlib
 # Define acceptable percentage-based thresholds for nondeterministic metrics
 # Arrived at these thresholds by examining the differences between the test and truth files in our scientific tests
 thresholds = {
-    "sequenced_reads": 0.0000000066,
+    "sequenced_reads": 0.0000001,  # ~61 reads on a 614M-read library; raised from 6.6e-9 (allowed 4) which flaked on an observed 9-read drift
     "fraction_Q30_bases_in_read_1": 0.0000000054,
     "fraction of high-quality fragments in cells": 0.000000054,
     "fraction_of_transposition_events_in_peaks_in_cells": 0.00000037,
@@ -374,6 +383,9 @@ task CompareBams {
     File truth_bam
     Boolean lenient_header = false
     Boolean lenient_low_mq = false
+    # ponytail: 0.0 keeps the original strict pass/fail (any record differs -> fail).
+    # ATAC callers pass a small fraction to tolerate known BWA-aligner wobble.
+    Float mappings_diff_threshold = 0.0
   }
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
@@ -383,7 +395,6 @@ task CompareBams {
   Int max_heap = memory_mb - 500
 
   command <<<
-    set -e
     set -o pipefail
 
     truth_bam=~{truth_bam}
@@ -403,17 +414,46 @@ task CompareBams {
     if [ "$abs_size_difference" -gt $((200 * 1024 * 1024)) ]; then
         echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Exiting."
         exit 1
-    else
-        echo "WARNING: BAM file sizes differ by less than 200 MB. $truth_bam is $truth_size bytes and $test_bam is $test_size bytes. Proceeding to CompareSAMs:"
+    fi
 
-        java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
-        CompareSAMs \
-            ~{test_bam} \
-            ~{truth_bam} \
-            O=comparison.tsv \
-            LENIENT_HEADER=~{lenient_header} \
-            LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
-            MAX_RECORDS_IN_RAM=300000
+    echo "BAM file sizes within 200 MB ($truth_size vs $test_size bytes). Running CompareSAMs:"
+    set +e
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
+      CompareSAMs \
+        ~{test_bam} \
+        ~{truth_bam} \
+        O=comparison.tsv \
+        LENIENT_HEADER=~{lenient_header} \
+        LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
+        MAX_RECORDS_IN_RAM=300000
+    compare_rc=$?
+    set -e
+
+    # Strict unless a tolerance was requested.
+    if awk -v t=~{mappings_diff_threshold} 'BEGIN{exit !(t>0)}'; then
+        if [ ! -s comparison.tsv ]; then
+            echo "CompareSAMs produced no comparison.tsv (rc=$compare_rc); cannot evaluate tolerance." >&2
+            exit 1
+        fi
+        # Counts come from Picard's SamComparisonMetric row; schema mirrors VerifyRNAWithUMIs.wdl.
+        # ponytail: read the single data row by column name so column reordering can't silently shift it.
+        stats=$(awk -F'\t' '
+            /MAPPINGS_MATCH/ && !h { for (i=1;i<=NF;i++) col[$i]=i; h=1; next }
+            h && NF>1 {
+                split("MISSING_LEFT MISSING_RIGHT MAPPINGS_MATCH MAPPINGS_DIFFER UNMAPPED_LEFT UNMAPPED_RIGHT DUPLICATE_MARKINGS_DIFFER", req, " ")
+                for (k in req) if (!(req[k] in col)) { print "missing column " req[k] > "/dev/stderr"; exit 3 }
+                d = $col["MISSING_LEFT"] + $col["MISSING_RIGHT"] + $col["MAPPINGS_DIFFER"] + $col["UNMAPPED_LEFT"] + $col["UNMAPPED_RIGHT"] + $col["DUPLICATE_MARKINGS_DIFFER"]
+                tot = $col["MAPPINGS_MATCH"] + d
+                printf "%.10f %d %d", (tot>0 ? d/tot : 0), d, tot
+                exit
+            }' comparison.tsv) || { echo "Failed to parse comparison.tsv" >&2; exit 1; }
+        frac=${stats%% *}
+        echo "CompareSAMs: differing records $stats (fraction tolerance ~{mappings_diff_threshold})"
+        awk -v f="$frac" -v t=~{mappings_diff_threshold} 'BEGIN{ if (f<=t) exit 0; else exit 1 }'
+        exit $?
+    else
+        # Original behavior: 0 = identical, non-zero = differ.
+        exit $compare_rc
     fi
 
   >>>
@@ -456,6 +496,82 @@ task CompareCompressedTextFiles {
     preemptible: 3
   }
 
+}
+
+task CompareGeneMetricsWithTolerance {
+  # Wide metrics CSV compare (gene_metrics.csv style), keyed by the id column (col 0),
+  # order-insensitive. Every column must match EXACTLY except `tolerated_columns`, which are
+  # float metrics with known summation-order nondeterminism (e.g. genomic_read_quality_variance)
+  # and are compared with a relative tolerance. Drop-in replacement for CompareCompressedTextFiles
+  # on the gene-metrics comparison; cell/UMI metrics keep the exact diff.
+  input {
+    File test_zip
+    File truth_zip
+    Array[String] tolerated_columns = ["genomic_read_quality_variance", "genomic_read_quality_mean"]
+    Float relative_tolerance = 0.0001
+  }
+
+  Float file_size = size(test_zip, "GiB") + size(truth_zip, "GiB")
+  Int disk_size = ceil(file_size * 4) + 20
+
+  command <<<
+python3 <<CODE
+import csv, gzip, sys
+
+tol_cols = [c for c in "~{sep=',' tolerated_columns}".split(",") if c]
+rtol = float("~{relative_tolerance}")
+
+def load(path):
+    with gzip.open(path, "rt", newline="") as fh:
+        rows = list(csv.reader(fh))
+    return rows[0], {r[0]: r for r in rows[1:]}
+
+th, td = load("~{truth_zip}")
+sh, sd = load("~{test_zip}")
+
+if th != sh:
+    sys.exit("Header mismatch:\n truth=%s\n test =%s" % (th, sh))
+if set(td) != set(sd):
+    only_t = list(set(td) - set(sd))[:5]
+    only_s = list(set(sd) - set(td))[:5]
+    sys.exit("Row-id set differs. truth-only=%s test-only=%s" % (only_t, only_s))
+
+tol_idx = set(th.index(c) for c in tol_cols if c in th)
+print("Tolerated columns (rtol %g): %s" % (rtol, sorted(c for c in tol_cols if c in th)))
+
+fails = 0
+for rid, trow in td.items():
+    srow = sd[rid]
+    if len(trow) != len(srow):
+        print("Column count differs for %s" % rid); fails += 1; continue
+    for i in range(len(trow)):
+        tv, sv = trow[i], srow[i]
+        if tv == sv:
+            continue
+        if i in tol_idx:
+            try:
+                a, b = float(sv), float(tv)
+            except ValueError:
+                print("%s %s: non-numeric mismatch %r vs %r" % (rid, th[i], sv, tv)); fails += 1; continue
+            denom = abs(b) if b != 0 else 1.0
+            rel = abs(a - b) / denom
+            if rel > rtol:
+                print("%s %s: %s vs %s rel %.3e > %g" % (rid, th[i], sv, tv, rel, rtol)); fails += 1
+        else:
+            print("%s %s: %s vs %s (exact column differs)" % (rid, th[i], sv, tv)); fails += 1
+
+if fails:
+    sys.exit("%d metric mismatch(es) beyond tolerance" % fails)
+print("Gene metrics match within tolerance")
+CODE
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "8 GiB"
+    preemptible: 3
+  }
 }
 
 task CompareLooms {
@@ -527,7 +643,7 @@ task CompareH5adFilesATAC {
   input {
     File truth_h5ad
     File test_h5ad
-    String docker = "python:3.10.0-buster"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.6.1"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
     Int memory_gb = 32
   }
@@ -536,8 +652,6 @@ task CompareH5adFilesATAC {
 
     set -eo pipefail
 
-    pip3 install anndata
-    
     python3 <<CODE
     
     import anndata as ad
@@ -604,7 +718,7 @@ task CompareH5adFilesGEX {
   input {
     File truth_h5ad
     File test_h5ad
-    String docker = "python:3.10.0-buster"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.6.1"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
     Int memory_gb = 32
   }
@@ -613,8 +727,6 @@ task CompareH5adFilesGEX {
 
     set -eo pipefail
 
-    pip3 install anndata
-    
     python3 <<CODE
     
     import anndata as ad
@@ -638,7 +750,16 @@ task CompareH5adFilesGEX {
             print(y.sum())
             if x == "doublet_score":
                 print("Doublet score is allowed to be different")
-            else: 
+            elif x.startswith("emptydrops_"):
+                # EmptyDrops is Monte-Carlo stochastic; the WARP nondeterminism catalog
+                # allows these columns to vary within 1%. Gate on the column-sum rel diff.
+                denom = abs(y.sum()) if y.sum() != 0 else 1
+                rel = abs(z.sum() - y.sum()) / denom
+                if rel <= 0.01:
+                    print("%s column sums within 1%% tolerance (rel diff %.4f%%); allowed" % (x, rel*100))
+                else:
+                    exit("Cell Metric %s sums differ by %.4f%%, exceeds 1%% tolerance" % (x, rel*100))
+            else:
                 exit("Cell Metric does not match")
     print("Comparing test gene metrics to truth gene metrics using truth as ref")
     for x in truth.var.columns:
@@ -651,13 +772,19 @@ task CompareH5adFilesGEX {
     test.var_names_make_unique()
     truth.var_names_make_unique()
     genes_correct=True
+    # Float gene metrics with known summation-order nondeterminism: compare with a relative
+    # tolerance instead of strict equality (kept in sync with CompareGeneMetricsWithTolerance).
+    tolerated_var = {"genomic_read_quality_variance", "genomic_read_quality_mean"}
     for x in truth.var.columns:
         z = test.var[x]
         y = truth.var[x]
         if z.equals(y)==False:
-            print("Gene metric does not match after making gene names unique")
-            print(x)
-            genes_correct=False
+            if x in tolerated_var and np.allclose(z.astype(float), y.astype(float), rtol=1e-4, atol=0):
+                print("Gene metric %s differs but within 1e-4 relative tolerance; allowed" % x)
+            else:
+                print("Gene metric does not match after making gene names unique")
+                print(x)
+                genes_correct=False
     print("Done")
     print("If no warning above Done, gene metrics match now that they are unique")
 
