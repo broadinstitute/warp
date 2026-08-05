@@ -262,7 +262,7 @@ task GLIMPSE2Ligate {
     #########################
     RuntimeAttr default_attr = object {
         cpu_cores:          2,
-        mem_gb:             24,
+        mem_gb:             18,
         disk_gb:            disk_size_gb,
         boot_disk_gb:       10,
         use_ssd:            true,
