@@ -10,7 +10,7 @@ struct RuntimeAttr {
 
 workflow MitoPostProcessing {
     meta {
-        description: "Runs mito post-processing from the cleaned notebook: exports filtered VCF, sample metadata TSV, and all generated plots as SVG."
+        description: "Runs mito post-processing: exports filtered VCF and sample metadata TSV."
         allowNestedInputs: true
     }
 
@@ -38,14 +38,6 @@ workflow MitoPostProcessing {
         File filtered_vcf                      = RunMitoPostProcessing.filtered_vcf
         File filtered_vcf_tbi                  = RunMitoPostProcessing.filtered_vcf_tbi
         File sample_metadata_tsv               = RunMitoPostProcessing.sample_metadata_tsv
-
-        File variants_per_sample_svg           = RunMitoPostProcessing.variants_per_sample_svg
-        File mito_cn_distribution_svg          = RunMitoPostProcessing.mito_cn_distribution_svg
-        File variant_allele_frequency_svg      = RunMitoPostProcessing.variant_allele_frequency_svg
-        File variant_af_and_allele_fraction_svg = RunMitoPostProcessing.variant_af_and_allele_fraction_svg
-        File numt_fp_by_mtcn_svg               = RunMitoPostProcessing.numt_fp_by_mtcn_svg
-        File haplogroup_heteroplasmy_svg       = RunMitoPostProcessing.haplogroup_heteroplasmy_svg
-        File haplogroup_homoplasmy_svg         = RunMitoPostProcessing.haplogroup_homoplasmy_svg
     }
 }
 
@@ -73,22 +65,14 @@ task RunMitoPostProcessing {
 
         python3 /opt/mito_plot_filter.py \
             --input-path  "~{input_path}" \
-            --output-path "~{output_path}" \
-            --output-base "~{output_base}"
+            --output-root "~{output_path}" \
+            --basename    "~{output_base}"
     >>>
 
     output {
-        File filtered_vcf                       = "~{output_base}.vcf.bgz"
-        File filtered_vcf_tbi                   = "~{output_base}.vcf.bgz.tbi"
-        File sample_metadata_tsv                = "~{output_base}_metadata.tsv"
-
-        File variants_per_sample_svg            = "~{output_base}.variants_per_sample.svg"
-        File mito_cn_distribution_svg           = "~{output_base}.mito_cn_distribution.svg"
-        File variant_allele_frequency_svg       = "~{output_base}.variant_allele_frequency.svg"
-        File variant_af_and_allele_fraction_svg = "~{output_base}.variant_af_and_allele_fraction.svg"
-        File numt_fp_by_mtcn_svg                = "~{output_base}.numt_fp_by_mtcn.svg"
-        File haplogroup_heteroplasmy_svg        = "~{output_base}.haplogroup_heteroplasmy.svg"
-        File haplogroup_homoplasmy_svg          = "~{output_base}.haplogroup_homoplasmy.svg"
+        File filtered_vcf                       = "~{output_base}.filtered.vcf.gz"
+        File filtered_vcf_tbi                   = "~{output_base}.filtered.vcf.gz.tbi"
+        File sample_metadata_tsv                = "~{output_base}.metadata.tsv"
     }
 
     runtime {
