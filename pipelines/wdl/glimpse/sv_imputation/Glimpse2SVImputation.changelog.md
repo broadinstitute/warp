@@ -1,3 +1,10 @@
+# 0.0.10
+2026-08-04 (Date of Last Commit)
+
+* Update Glimpse2 docker image to tag `imputation-glimpse2:1.2.0-8671138-1784681771`
+* Update `batch_pipeline_version` to 0.0.8
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.6
+
 # 0.0.9
 2026-08-03 (Date of Last Commit)
 
