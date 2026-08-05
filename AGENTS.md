@@ -54,6 +54,20 @@ import "../../../structs/dna_seq/DNASeqStructs.wdl"
 
 Import path errors are the most common validation failure.
 
+### Unused imports
+
+womtool does **not** flag an `import "..." as NS` whose namespace is never used, so dead imports accumulate (they make a reader chase a dependency that isn't there). Scan for them:
+
+```bash
+scripts/find_unused_wdl_imports.sh
+```
+
+It skips `structs/` imports — WDL references struct types by bare name, so those legitimately have no `NS.` usage.
+
+**Removing a dead import from a pipeline or shared `tasks/wdl/` WDL is still a WDL change**, so it forces a patch bump + changelog (+ cascade for shared tasks) — see [Cascading version bumps](#cascading-version-bumps). Dead imports in `verification/**` are free to drop. So don't do a repo-wide sweep in one PR: clean the `verification/**` ones anytime, and fold each pipeline/task import removal into that pipeline's **next** real change so it shares an already-required bump. Known debt as of this writing (run the scan for the current list): `atac.wdl` (`Merge`), `UltimaGenomicsWholeGenomeGermline.wdl` (`InternalTasks`, `QC`, `UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates`, `UltimaGenomicsWholeGenomeGermlineQC`), `UltimaGenomicsWholeGenomeCramOnly.wdl` (`VariantDiscoverTasks`), `Optimus.wdl` (`FastqProcessing`), `PairedTag.wdl` (`H5adUtils`), `SlideSeq.wdl` (`OptimusInputChecks`), `tasks/wdl/SplitLargeReadGroup.wdl` (`Utils`).
+
+**Future CI wiring (not done — deliberately):** the test system is currently flaky, so this stays a manual scan rather than a gate. When CI is trusted, add it as an **advisory** (non-blocking, `continue-on-error`) job first so it reports without failing PRs; promote to a blocking check only once the known debt above is cleared and the signal is proven quiet.
+
 ### Sub-workflow input contract
 
 A WDL file defines a **single input contract for all callers**. You cannot expose an input to one workflow but hide it from another that imports the same WDL. To remove a parameter from one consumer, you must remove it from the shared task/sub-workflow **and** from every caller.
