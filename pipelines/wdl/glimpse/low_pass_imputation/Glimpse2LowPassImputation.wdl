@@ -42,7 +42,7 @@ workflow Glimpse2LowPassImputation {
         Int? glimpse_phase_cpu_override
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:mb-tsps-1128-update-lpwgs-bcftools"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.3.0-8671138-1785933808"
         String docker_merge = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
     }
 
