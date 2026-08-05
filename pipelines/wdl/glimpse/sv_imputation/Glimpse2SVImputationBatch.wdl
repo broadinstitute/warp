@@ -70,7 +70,7 @@ workflow Glimpse2SVImputationBatch {
             input:
                 phased_vcfs = ChunkedGLIMPSE2Phase.phased_vcf,
                 phased_vcf_idxs = ChunkedGLIMPSE2Phase.phased_vcf_idx,
-                output_prefix = output_prefix + "." + chromosome + ".glimpse2.bubble",
+                output_prefix = output_prefix + ".glimpse2.bubble",
                 docker = glimpse2_docker
         }
 
@@ -80,7 +80,7 @@ workflow Glimpse2SVImputationBatch {
                 bcf_to_reheader = GLIMPSE2Ligate.ligated_vcf,
                 bcf_to_get_header_from = input_preprocessed_joint_vcf,
                 ref_dict = ref_dict,
-                output_basename = output_prefix  + ".glimpse2.bubble.updated_header",
+                output_basename = output_prefix +  "." + chromosome + ".glimpse2.bubble.updated_header",
                 docker = glimpse2_docker
         }
 
@@ -113,8 +113,8 @@ workflow Glimpse2SVImputationBatch {
     }
 
     output {
-        Array[File] glimpse2_bubble_posteriors_vcf = GLIMPSE2Ligate.ligated_vcf
-        Array[File] glimpse2_bubble_posteriors_vcf_idx = GLIMPSE2Ligate.ligated_vcf_idx
+        Array[File] glimpse2_bubble_posteriors_vcf = UpdateHeader.output_bcf
+        Array[File] glimpse2_bubble_posteriors_vcf_idx = UpdateHeader.output_bcf_index
         Array[File] glimpse2_popped_posteriors_vcf =ConcatPopAndMarginalizeCollisions.concatenated_vcf
         Array[File] glimpse2_popped_posteriors_vcf_idx = ConcatPopAndMarginalizeCollisions.concatenated_vcf_idx
     }
