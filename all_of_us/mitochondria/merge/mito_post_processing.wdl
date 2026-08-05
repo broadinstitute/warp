@@ -19,7 +19,7 @@ workflow MitoPostProcessing {
         String input_path
         String output_base
 
-        String hail_docker = "us.gcr.io/broad-gotc-prod/aou_mitochondria_post:0.0.6"
+        String hail_docker = "us.gcr.io/broad-gotc-prod/aou_mitochondria_post:0.0.7"
         RuntimeAttr? runtime_attr_override
     }
 
@@ -70,8 +70,8 @@ task RunMitoPostProcessing {
     >>>
 
     output {
-        File filtered_vcf                       = "~{output_base}.filtered.vcf.gz"
-        File filtered_vcf_tbi                   = "~{output_base}.filtered.vcf.gz.tbi"
+        File filtered_vcf                       = "~{output_base}.filtered.vcf.bgz"
+        File filtered_vcf_tbi                   = "~{output_base}.filtered.vcf.bgz.tbi"
         File sample_metadata_tsv                = "~{output_base}.metadata.tsv"
     }
 
