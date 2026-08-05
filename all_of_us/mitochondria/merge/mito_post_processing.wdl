@@ -19,11 +19,11 @@ workflow MitoPostProcessing {
         String input_path
         String output_base
 
-        String hail_docker = "us.gcr.io/broad-gotc-prod/aou_mitochondria_post:0.0.5"
+        String hail_docker = "us.gcr.io/broad-gotc-prod/aou_mitochondria_post:0.0.6"
         RuntimeAttr? runtime_attr_override
     }
 
-    String pipeline_version = "aou_9.0.0"
+    String pipeline_version = "aou_9.0.1"
 
     call RunMitoPostProcessing {
         input:
