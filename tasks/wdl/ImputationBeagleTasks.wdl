@@ -1017,8 +1017,8 @@ task SelectVariantRecordsOnly {
   command {
     set -e -o pipefail
 
-    # keep alt sites (i.e. remove DS=0 hom ref sites)
-    bcftools view -i 'GT[*]="alt" || DS[*]>0' -Oz -o ~{basename}.vcf.gz ~{vcf}
+    # keep alt sites (i.e. remove hom ref sites)
+    bcftools view -i 'GT[*]="alt"' -Oz -o ~{basename}.vcf.gz ~{vcf}
   }
 
   runtime {
@@ -1058,7 +1058,7 @@ task CreateHomRefSitesOnlyVcf {
     bcftools view -h ~{vcf} | grep -v "^##" | cut -f1-8 >> ~{basename}.vcf
 
     # append first 8 columns of hom ref sites to previously stored header
-    bcftools query -e 'GT[*]="alt" || DS[*]>0' -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO\n' ~{vcf} >> ~{basename}.vcf
+    bcftools query -e 'GT[*]="alt"' -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO\n' ~{vcf} >> ~{basename}.vcf
 
     bgzip ~{basename}.vcf
   }
