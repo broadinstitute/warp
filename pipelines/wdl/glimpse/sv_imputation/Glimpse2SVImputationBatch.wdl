@@ -4,7 +4,7 @@ import "./ConcatVcfs.wdl" as ConcatVcfs
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.9"
     String concat_vcfs_pipeline_version = "0.0.3"
 
     input {
@@ -14,6 +14,7 @@ workflow Glimpse2SVImputationBatch {
         Array[String] chromosomes
         File genetic_maps_tsv
         File chunked_panel_json
+        File ref_dict
 
         String? extra_phase_args
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
@@ -73,11 +74,21 @@ workflow Glimpse2SVImputationBatch {
                 docker = glimpse2_docker
         }
 
+        # Update VCF header with reference dictionary
+        call UpdateHeader {
+            input:
+                bcf_to_reheader = GLIMPSE2Ligate.ligated_vcf,
+                bcf_to_get_header_from = input_preprocessed_joint_vcf,
+                ref_dict = ref_dict,
+                output_basename = output_prefix +  "." + chromosome + ".glimpse2.bubble.updated_header",
+                docker = glimpse2_docker
+        }
+
         scatter (k in range(length(pop_regions))) {
             call PopAndMarginalizeCollisions {
                 input:
-                    posteriors_vcf = GLIMPSE2Ligate.ligated_vcf,
-                    posteriors_vcf_idx = GLIMPSE2Ligate.ligated_vcf_idx,
+                    posteriors_vcf = UpdateHeader.output_bcf,
+                    posteriors_vcf_idx = UpdateHeader.output_bcf_index,
                     panel_bubble_split_sites_only_vcf = panel_bubble_split_sites_only_vcf,
                     panel_bubble_split_sites_only_vcf_idx = panel_bubble_split_sites_only_vcf_idx,
                     panel_id_split_vcf_gz = panel_id_split_vcf_gz,
@@ -91,7 +102,7 @@ workflow Glimpse2SVImputationBatch {
             input:
                 vcfs = PopAndMarginalizeCollisions.popped_vcf,
                 vcf_idxs = PopAndMarginalizeCollisions.popped_vcf_idx,
-                output_prefix = output_prefix + ".glimpse2.popped",
+                output_prefix = output_prefix + "." + chromosome + ".glimpse2.popped",
                 do_bcf = true,
                 do_sort = false,
                 extra_args = "--threads $(nproc) --naive",
@@ -102,8 +113,8 @@ workflow Glimpse2SVImputationBatch {
     }
 
     output {
-        Array[File] glimpse2_bubble_posteriors_vcf = GLIMPSE2Ligate.ligated_vcf
-        Array[File] glimpse2_bubble_posteriors_vcf_idx =GLIMPSE2Ligate.ligated_vcf_idx
+        Array[File] glimpse2_bubble_posteriors_vcf = UpdateHeader.output_bcf
+        Array[File] glimpse2_bubble_posteriors_vcf_idx = UpdateHeader.output_bcf_index
         Array[File] glimpse2_popped_posteriors_vcf =ConcatPopAndMarginalizeCollisions.concatenated_vcf
         Array[File] glimpse2_popped_posteriors_vcf_idx = ConcatPopAndMarginalizeCollisions.concatenated_vcf_idx
     }
@@ -121,7 +132,6 @@ struct RuntimeAttr {
 }
 
 struct ChunkedPanelChromosome {
-    String chunks_tsv
     Array[String] input_regions
     Array[String] output_regions
     Array[String] panel_split_chunk_bins
@@ -154,16 +164,27 @@ task GLIMPSE2Phase {
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_size_gb = 50        # TODO pass shard-specific or autoscaled values (for latter, note that only a shard of input_vcf is used)
+    parameter_meta {
+        input_vcf: {
+            localization_optional: true
+        }
+        input_vcf_idx: {
+            localization_optional: true
+        }
+    }
+
+    Int disk_size_gb = ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 10)
 
     command <<<
         set -euxo pipefail
+
+        export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
 
         cmd="/bin/GLIMPSE2_phase \
                 --input-gl ~{input_vcf} \
                 -R ~{panel_split_chunk_bin} \
                 ~{extra_phase_args} \
-                --output ~{output_prefix}.raw.bcf \
+                --output ~{output_prefix}.bcf \
                 --threads ~{threads} \
                 --seed ~{seed} \
                 --checkpoint-file-out checkpoint.bin"
@@ -172,15 +193,18 @@ task GLIMPSE2Phase {
             cmd="$cmd --checkpoint-file-in checkpoint.bin"
         fi
 
-        eval "$cmd"
+        # Check for read error which corresponds exactly to end of cram/bam block.
+        # This currently triggers a warning message from htslib, but doesn't return any error.
+        # We need to make sure that stderr is maintained since Cromwell looks for oom strings
+        # in stderr
+        eval "$cmd" 2> >(tee glimpse_stderr.log >&2)
 
-        # take input VCF header and add GLIMPSE INFO and FORMAT lines (GLIMPSE header only contains a single chromosome and breaks bcftools concat --naive)
-        bcftools view --no-version -h ~{input_vcf} | grep '^##' > input.header.txt
-        bcftools view --no-version -h ~{output_prefix}.raw.bcf | grep -E '^##INFO|^##FORMAT|^##NMAIN|^##FPLOIDY' > glimpse2.header.txt
-        bcftools view --no-version -h ~{input_vcf} | grep '^#CHROM' > input.columns.txt
-        cat input.header.txt glimpse2.header.txt input.columns.txt > header.txt
-        bcftools reheader -h header.txt ~{output_prefix}.raw.bcf -o ~{output_prefix}.bcf
-        bcftools index ~{output_prefix}.bcf
+        if grep -q "EOF marker is absent" glimpse_stderr.log; then
+            echo "An input file appears to be truncated. This may be either a truly truncated file which needs to be fixed, or a networking error which can just be retried."
+            exit 1
+        fi
+
+        bcftools index -f ~{output_prefix}.bcf
     >>>
 
     output {
@@ -195,8 +219,8 @@ task GLIMPSE2Phase {
         disk_gb:            disk_size_gb,
         boot_disk_gb:       10,
         use_ssd:            true,
-        preemptible_tries:  10,
-        max_retries:        1,
+        preemptible_tries:  30,
+        max_retries:        3,
         docker:             docker
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
@@ -264,7 +288,6 @@ task GLIMPSE2Ligate {
     }
 }
 
-
 task PopAndMarginalizeCollisions {
     input {
         # all VCFs should be split to biallelic
@@ -320,5 +343,60 @@ task PopAndMarginalizeCollisions {
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
         noAddress: true
+    }
+}
+
+task UpdateHeader {
+    input {
+        File bcf_to_reheader
+        File bcf_to_get_header_from
+        File ref_dict
+        String output_basename
+
+        Int mem_gb = 2
+        Int cpu = 1
+        Int disk_size_gb = ceil(2.1 * size(bcf_to_reheader, "GiB") + 10)
+        Int max_retries = 1
+        String docker
+    }
+
+    parameter_meta {
+        bcf_to_get_header_from : {
+            localization_optional : true
+        }
+    }
+
+    command <<<
+        set -xeuo pipefail
+
+        export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
+
+        # Set correct reference dictionary
+
+        # take input VCF header and add GLIMPSE INFO and FORMAT lines (GLIMPSE header only contains a single chromosome and breaks bcftools concat --naive)
+        bcftools view --no-version -h ~{bcf_to_get_header_from} | grep '^##' > input.header.txt
+        bcftools view --no-version -h ~{bcf_to_reheader} | grep -E '^##INFO|^##FORMAT|^##NMAIN|^##FPLOIDY' > glimpse2.header.txt
+        bcftools view --no-version -h ~{bcf_to_reheader} | grep '^#CHROM' > glimpse2.columns.txt
+        cat input.header.txt glimpse2.header.txt glimpse2.columns.txt > header.vcf
+
+        java -jar /picard.jar UpdateVcfSequenceDictionary -I header.vcf --SD ~{ref_dict} -O updated_header.vcf
+
+        bcftools reheader -h updated_header.vcf ~{bcf_to_reheader} -o ~{output_basename}.bcf
+        bcftools index ~{output_basename}.bcf
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk " + disk_size_gb + " SSD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        maxRetries: max_retries
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        File output_bcf = "~{output_basename}.bcf"
+        File output_bcf_index = "~{output_basename}.bcf.csi"
     }
 }

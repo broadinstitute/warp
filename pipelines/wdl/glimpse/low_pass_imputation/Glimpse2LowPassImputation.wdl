@@ -4,8 +4,8 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "1.0.3"
-    String batch_pipeline_version = "1.0.2"
+    String pipeline_version = "1.0.4"
+    String batch_pipeline_version = "1.0.3"
     String quota_consumed_version = "1.0.0"
     String input_qc_version = "1.0.5"
 
@@ -42,7 +42,7 @@ workflow Glimpse2LowPassImputation {
         Int? glimpse_phase_cpu_override
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.2.0-8671138-1784681771"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.3.0-8671138-1785933808"
         String docker_merge = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
     }
 

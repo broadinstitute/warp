@@ -1,3 +1,8 @@
+# 1.0.3
+2026-08-01 (Date of Last Commit)
+
+* update bcftools docker image from v1.21 to v1.24
+
 # 1.0.2
 2026-07-28 (Date of Last Commit)
 
