@@ -4,9 +4,9 @@ import "./PreprocessPLsGVCF.wdl" as PreprocessPLsGVCF
 import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.11"
+    String pipeline_version = "0.0.12"
     String preprocess_pls_gvcf_pipeline_version = "0.0.6"
-    String batch_pipeline_version = "0.0.9"
+    String batch_pipeline_version = "0.0.10"
 
     input {
         # inputs for Preprocessign wdl

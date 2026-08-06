@@ -1,3 +1,8 @@
+# 0.0.12
+2026-08-06 (Date of Last Commit)
+
+* Update batch_pipeline_version to 0.0.10
+
 # 0.0.11
 2026-08-05 (Date of Last Commit)
 
