@@ -28,6 +28,7 @@ workflow TestGlimpse2SVImputation {
         # inputs for Batch wdl
         Array[String] chromosomes
         File genetic_maps_tsv
+        File ref_dict
         File chunked_panel_json
 
         String? extra_phase_args
@@ -66,6 +67,7 @@ workflow TestGlimpse2SVImputation {
         chromosomes = chromosomes,
         genetic_maps_tsv = genetic_maps_tsv,
         chunked_panel_json = chunked_panel_json,
+        ref_dict = ref_dict,
         extra_phase_args = extra_phase_args,
         glimpse_phase_cpu_override = glimpse_phase_cpu_override,
         pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
