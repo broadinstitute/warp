@@ -35,9 +35,9 @@ workflow MitoPostProcessing {
     }
 
     output {
-        File filtered_vcf                      = RunMitoPostProcessing.filtered_vcf
-        File filtered_vcf_tbi                  = RunMitoPostProcessing.filtered_vcf_tbi
-        File sample_metadata_tsv               = RunMitoPostProcessing.sample_metadata_tsv
+        String filtered_vcf        = RunMitoPostProcessing.filtered_vcf
+        String filtered_vcf_tbi    = RunMitoPostProcessing.filtered_vcf_tbi
+        String sample_metadata_tsv = RunMitoPostProcessing.sample_metadata_tsv
     }
 }
 
@@ -79,9 +79,9 @@ task RunMitoPostProcessing {
     >>>
 
     output {
-        File filtered_vcf                       = "~{output_base}.filtered.vcf.bgz"
-        File filtered_vcf_tbi                   = "~{output_base}.filtered.vcf.bgz.tbi"
-        File sample_metadata_tsv                = "~{output_base}.metadata.tsv"
+        String filtered_vcf        = "~{output_path}/~{output_base}.filtered.vcf.bgz"
+        String filtered_vcf_tbi    = "~{output_path}/~{output_base}.filtered.vcf.bgz.tbi"
+        String sample_metadata_tsv = "~{output_path}/~{output_base}.metadata.tsv"
     }
 
     runtime {
