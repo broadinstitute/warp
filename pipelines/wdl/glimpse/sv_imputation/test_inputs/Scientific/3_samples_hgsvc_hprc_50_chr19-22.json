@@ -1,0 +1,26 @@
+{
+    "Glimpse2SVImputation.output_prefix": "3_samples_hgsvc_hprc_50_panel",
+    "Glimpse2SVImputation.input_gvcfs": [
+        "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/NA21106.hard-filtered.vcf.gz",
+        "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/NA21110.hard-filtered.vcf.gz",
+        "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/NA21144.hard-filtered.vcf.gz"
+    ],
+    "Glimpse2SVImputation.input_gvcf_idxs": [
+        "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/NA21106.hard-filtered.vcf.gz.tbi",
+        "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/NA21110.hard-filtered.vcf.gz.tbi",
+        "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/NA21144.hard-filtered.vcf.gz.tbi"
+    ],
+    "Glimpse2SVImputation.sample_ids": [
+        "NA21106", 
+        "NA21110",
+        "NA21144"
+    ],
+    "Glimpse2SVImputation.preprocess_panel_bubble_split_sites_only_vcf": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/auxiliary_files/hgsvc-hprc-50.panel.reduced_panel_bubble_split_simple_sites.sorted.bcf",
+    "Glimpse2SVImputation.preprocess_panel_bubble_split_sites_only_vcf_idx": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/auxiliary_files/hgsvc-hprc-50.panel.reduced_panel_bubble_split_simple_sites.sorted.bcf.csi",
+    "Glimpse2SVImputation.paste_regions": ["chr19,chr20", "chr21,chr22"],
+    "Glimpse2SVImputation.chromosomes": ["chr19", "chr20", "chr21", "chr22"],
+    "Glimpse2SVImputation.genetic_maps_tsv": "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/b38_genetic_map.tsv",
+    "Glimpse2SVImputation.chunked_panel_json": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/json/hgsvc-hprc-50.chunked_panel.json",
+    "Glimpse2SVImputation.pop_glimpse2_panel_resources_json": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/json/hgsvc-hprc-50.panel.pop_panel_resources.json",
+    "Glimpse2SVImputation.glimpse_phase_cpu_override": 1
+}
