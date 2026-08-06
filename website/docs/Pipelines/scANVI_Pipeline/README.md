@@ -34,7 +34,7 @@ Both models are trained by **minibatch stochastic gradient descent**. The full c
 **Two meanings of "batch."** The `batch_size` above is the SGD minibatch — an optimization detail of how the data is fed to the GPU. It is distinct from the **batch covariate**, the experimental grouping (e.g., donor or sequencing library) that SCVI/SCANVI explicitly model in order to correct for it as technical variation. The models integrate *across* batch-covariate groups to remove batch effects, and they do so by reading the data in `batch_size`-cell minibatches — the same word, two unrelated concepts.
 
 :::tip Want to use scANVI for your publication?
-The pipeline is designed to consume the outputs of the [Multiome](../Multiome_Pipeline/README.md) and [PeakCalling](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/peak_calling) WARP pipelines. Cite the pipeline using the WARP citation in the [Citing](#citing-the-scanvi-pipeline) section below.
+The pipeline is designed to consume the outputs of the [Multiome](../Multiome_Pipeline/README.md) and [PeakCalling](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/peak_calling) WARP pipelines. Identify it in your methods section with its SciCrunch resource identifier, *scANVI Pipeline (RRID:SCR_028705)*, and cite the pipeline using the WARP citation in the [Citing](#citing-the-scanvi-pipeline) section below.
 :::
 
 ## Quickstart table
@@ -256,6 +256,10 @@ The `scvi-scanvi` image is maintained in [warp-tools](https://github.com/broadin
 All scANVI pipeline releases are documented in the [scANVI changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/scanvi/scANVI.changelog.md).
 
 ## Citing the scANVI Pipeline
+
+If you use the scANVI Pipeline in your research, please identify the pipeline in your methods section using the [scANVI SciCrunch resource identifier](https://rrid.site/data/record/nlx_144509-1/SCR_028705/resolver?q=scANVI&l=scANVI&i=rrid:scr_028705).
+
+* Ex: *scANVI Pipeline (RRID:SCR_028705)*
 
 When citing WARP, please use the following:
 
