@@ -1,3 +1,9 @@
+# 0.0.9
+2026-08-05 (Date of Last Commit)
+
+* move re-headering commands from glimpsephase task to their own task
+* add UpdateVcfSequenceDictionary to new reheadering task to keep contig header consistent across runs
+
 # 0.0.8
 2026-08-04 (Date of Last Commit)
 
