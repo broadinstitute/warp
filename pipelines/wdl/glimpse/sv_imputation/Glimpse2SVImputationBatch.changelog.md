@@ -1,7 +1,7 @@
 # 0.0.10
 2026-08-06 (Date of Last Commit)
 
-* Update Glimpse2Ligate task memory to 18gb 
+* Update Glimpse2Ligate task memory to 18gb
 
 # 0.0.9
 2026-08-05 (Date of Last Commit)
