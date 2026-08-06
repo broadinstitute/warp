@@ -19,7 +19,7 @@ workflow MitoPostProcessing {
         String input_path
         String output_base
 
-        String hail_docker = "us.gcr.io/broad-gotc-prod/aou_mitochondria_post:0.0.7"
+        String hail_docker = "us.gcr.io/broad-gotc-prod/aou_mitochondria_post:0.0.8"
         RuntimeAttr? runtime_attr_override
     }
 
@@ -63,10 +63,19 @@ task RunMitoPostProcessing {
     command <<<
         set -euo pipefail
 
+        # Hail's Spark/JVM backend spills temporary data to TMPDIR.  In Cromwell,
+        # /tmp is on the small OS boot disk, not the provisioned SSD.  Redirect
+        # both the JVM tmpdir and Hail's own tmp_dir to the execution directory,
+        # which IS on the provisioned disk.
+        mkdir -p hail_tmp
+        export TMPDIR="$(pwd)/hail_tmp"
+        export JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=$(pwd)/hail_tmp"
+
         python3 /opt/mito_plot_filter.py \
             --input-path  "~{input_path}" \
             --output-root "~{output_path}" \
-            --basename    "~{output_base}"
+            --basename    "~{output_base}" \
+            --tmp-dir     "$(pwd)/hail_tmp"
     >>>
 
     output {
