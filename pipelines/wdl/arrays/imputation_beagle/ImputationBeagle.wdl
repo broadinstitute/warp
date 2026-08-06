@@ -320,25 +320,39 @@ workflow ImputationBeagle {
 
     Array[File] chunk_variants_only_vcfs = select_all(SelectVariantRecordsOnly.output_vcf)
     Array[File] chunk_hom_ref_sites_only_vcfs = select_all(CreateHomRefSitesOnlyVcf.output_vcf)
+
+    call beagleTasks.GatherVcfsNoIndex as GatherVariantsOnlyContigVcfs {
+      input:
+        input_vcfs = chunk_variants_only_vcfs,
+        output_vcf_basename = output_basename + "." + contigs_to_process[contig_index] + ".imputed",
+        gatk_docker = gatk_docker
+    }
+
+    call beagleTasks.GatherVcfsNoIndex as GatherHomRefSitesOnlyContigVcfs {
+      input:
+        input_vcfs = chunk_hom_ref_sites_only_vcfs,
+        output_vcf_basename = output_basename + "." + contigs_to_process[contig_index] + ".imputed.hom_ref_sites_only",
+        gatk_docker = gatk_docker
+    }
   }
 
-  call beagleTasks.GatherVcfsNoIndex {
+  call beagleTasks.GatherVcfsNoIndex as GatherVariantsOnlyVcfs {
     input:
-      input_vcfs = flatten(chunk_variants_only_vcfs),
+      input_vcfs = GatherVariantsOnlyContigVcfs.output_vcf,
       output_vcf_basename = output_basename + ".imputed",
       gatk_docker = gatk_docker
   }
 
   call beagleTasks.CreateVcfIndex as CreateIndexForGatheredVcf {
     input:
-      vcf_input = GatherVcfsNoIndex.output_vcf,
+      vcf_input = GatherVariantsOnlyVcfs.output_vcf,
       gatk_docker = gatk_docker,
       preemptible = 0
   }
 
   call beagleTasks.GatherVcfsNoIndex as GatherHomRefSitesOnlyVcfs {
     input:
-      input_vcfs = flatten(chunk_hom_ref_sites_only_vcfs),
+      input_vcfs = GatherHomRefSitesOnlyContigVcfs.output_vcf,
       output_vcf_basename = output_basename + ".imputed.hom_ref_sites_only",
       gatk_docker = gatk_docker
   }
