@@ -4,9 +4,9 @@ import "./PreprocessPLsGVCF.wdl" as PreprocessPLsGVCF
 import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.10"
+    String pipeline_version = "0.0.11"
     String preprocess_pls_gvcf_pipeline_version = "0.0.6"
-    String batch_pipeline_version = "0.0.8"
+    String batch_pipeline_version = "0.0.9"
 
     input {
         # inputs for Preprocessign wdl
@@ -29,6 +29,7 @@ workflow Glimpse2SVImputation {
         # inputs for Batch wdl
         Array[String] chromosomes
         File genetic_maps_tsv
+        File ref_dict
         File chunked_panel_json
 
         String extra_phase_args = "--impute-reference-only-variants --keep-monomorphic-ref-sites --Kpbwt 1000 --main 10 --burnin 5 --err-imp 1E-3"
@@ -63,6 +64,7 @@ workflow Glimpse2SVImputation {
             input_preprocessed_joint_vcf_idx = PreProcessGVCFs.preprocessed_pls_vcf_idx,
             chromosomes = chromosomes,
             genetic_maps_tsv = genetic_maps_tsv,
+            ref_dict = ref_dict,
             chunked_panel_json = chunked_panel_json,
             extra_phase_args = extra_phase_args,
             output_prefix = output_prefix,
