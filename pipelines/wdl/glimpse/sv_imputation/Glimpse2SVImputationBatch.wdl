@@ -4,7 +4,7 @@ import "./ConcatVcfs.wdl" as ConcatVcfs
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.9"
+    String pipeline_version = "0.0.10"
     String concat_vcfs_pipeline_version = "0.0.3"
 
     input {
@@ -267,7 +267,7 @@ task GLIMPSE2Ligate {
     #########################
     RuntimeAttr default_attr = object {
         cpu_cores:          2,
-        mem_gb:             12,
+        mem_gb:             18,
         disk_gb:            disk_size_gb,
         boot_disk_gb:       10,
         use_ssd:            true,
