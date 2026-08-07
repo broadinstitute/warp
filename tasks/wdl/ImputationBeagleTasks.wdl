@@ -1005,7 +1005,7 @@ task SelectVariantRecordsOnly {
     File vcf
     File vcf_index
     String basename
-    Float ds_cutoff = 0
+    Float ds_cutoff
 
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
     Int cpu = 1
@@ -1041,6 +1041,7 @@ task CreateHomRefSitesOnlyVcf {
   input {
     File vcf
     File vcf_index
+    Float ds_cutoff
     String basename
 
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
@@ -1059,7 +1060,7 @@ task CreateHomRefSitesOnlyVcf {
     bcftools view -h ~{vcf} | grep -v "^##" | cut -f1-8 >> ~{basename}.vcf
 
     # append first 8 columns of hom ref sites to previously stored header
-    bcftools query -e 'GT[*]="alt" || DS[*]>0' -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO\n' ~{vcf} >> ~{basename}.vcf
+    bcftools query -e 'GT[*]="alt" || DS[*]>~{ds_cutoff}' -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO\n' ~{vcf} >> ~{basename}.vcf
 
     bgzip ~{basename}.vcf
   }

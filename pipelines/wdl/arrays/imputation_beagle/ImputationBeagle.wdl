@@ -25,6 +25,8 @@ workflow ImputationBeagle {
     String? pipeline_header_line # optional additional header lines to add to the output VCF
     Float? min_dr2_for_inclusion # minimum dr2 to include a variant in the output vcf, applied after reannotation
 
+    Float ds_cutoff = 0 # minimum DS to include a variant in the output vcf, applied after reannotation. If not defined, defaults to 0
+
     # file extensions used to find reference panel files
     String bref3_suffix = ".bref3"
     String unique_variant_ids_suffix = ".unique_variants"
@@ -307,6 +309,7 @@ workflow ImputationBeagle {
         input:
           vcf = UpdateHeader.output_vcf,
           vcf_index = UpdateHeader.output_vcf_index,
+          ds_cutoff = ds_cutoff,
           basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header.only_variants",
       }
 
@@ -314,6 +317,7 @@ workflow ImputationBeagle {
         input:
           vcf = UpdateHeader.output_vcf,
           vcf_index = UpdateHeader.output_vcf_index,
+          ds_cutoff = ds_cutoff,
           basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header.only_hom_ref.sites_only",
       }
     }
