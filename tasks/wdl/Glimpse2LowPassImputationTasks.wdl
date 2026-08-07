@@ -282,6 +282,7 @@ task SelectVariantRecordsOnly {
     input {
         File vcf
         File? vcf_index
+        Float ds_cutoff
         String basename
 
         Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
@@ -296,7 +297,7 @@ task SelectVariantRecordsOnly {
         set -e -o pipefail
 
         # keep alt sites (i.e. remove hom ref sites)
-        bcftools view -i 'GT[*]="alt"' -Oz -o ~{basename}.vcf.gz ~{vcf}
+        bcftools view -i 'GT[*]="alt" || DS[*]>~{ds_cutoff}' -Oz -o ~{basename}.vcf.gz ~{vcf}
     }
 
     runtime {
@@ -318,6 +319,7 @@ task CreateHomRefSitesOnlyVcf {
     input {
         File vcf
         File? vcf_index
+        Float ds_cutoff
         String basename
 
         Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
@@ -336,7 +338,7 @@ task CreateHomRefSitesOnlyVcf {
         bcftools view -h ~{vcf} | grep -v "^##" | cut -f1-8 >> ~{basename}.vcf
 
         # append first 8 columns of hom ref sites to previously stored header
-        bcftools query -e 'GT[*]="alt"' -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO\n' ~{vcf} >> ~{basename}.vcf
+        bcftools query -e 'GT[*]="alt" || DS[*]>~{ds_cutoff}' -f '%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%FILTER\t%INFO\n' ~{vcf} >> ~{basename}.vcf
 
         bgzip ~{basename}.vcf
     }

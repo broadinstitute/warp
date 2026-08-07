@@ -19,6 +19,8 @@ workflow Glimpse2LowPassImputation {
         # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCF
         Float info_filter_for_inclusion = 0.0
 
+        Float ds_cutoff = 0 # minimum DS to include a variant in the output vcf, applied after reannotation. If not defined, defaults to 0
+
         Array[String] contigs
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
         String reference_panel_prefix
@@ -136,6 +138,7 @@ workflow Glimpse2LowPassImputation {
         call Glimpse2LowPassImputationTasks.SelectVariantRecordsOnly as SelectContigVariants {
             input:
                 vcf = filtered_contig_vcf,
+                ds_cutoff = ds_cutoff,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_variants"
         }
 
@@ -152,6 +155,7 @@ workflow Glimpse2LowPassImputation {
         call Glimpse2LowPassImputationTasks.CreateHomRefSitesOnlyVcf as CreateContigHomRefVcf {
             input:
                 vcf = filtered_contig_vcf,
+                ds_cutoff = ds_cutoff,
                 basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_hom_ref.sites_only"
         }
 
