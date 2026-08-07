@@ -1005,6 +1005,7 @@ task SelectVariantRecordsOnly {
     File vcf
     File vcf_index
     String basename
+    Float ds_cutoff = 0
 
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
     Int cpu = 1
@@ -1018,7 +1019,7 @@ task SelectVariantRecordsOnly {
     set -e -o pipefail
 
     # keep alt sites (i.e. remove DS=0 hom ref sites)
-    bcftools view -i 'GT[*]="alt" || DS[*]>0' -Oz -o ~{basename}.vcf.gz ~{vcf}
+    bcftools view -i 'GT[*]="alt" || DS[*]>~{ds_cutoff}' -Oz -o ~{basename}.vcf.gz ~{vcf}
   }
 
   runtime {
