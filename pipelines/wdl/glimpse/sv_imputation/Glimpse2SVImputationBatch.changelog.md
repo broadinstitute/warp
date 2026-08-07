@@ -1,3 +1,19 @@
+# 0.0.10
+2026-08-06 (Date of Last Commit)
+
+* Update Glimpse2Ligate task memory to 18gb
+
+# 0.0.9
+2026-08-05 (Date of Last Commit)
+
+* move re-headering commands from glimpsephase task to their own task
+* add UpdateVcfSequenceDictionary to new reheadering task to keep contig header consistent across runs
+
+# 0.0.8
+2026-08-04 (Date of Last Commit)
+
+* Update Glimpse2Phase task to stream input BCF file instead of localizing it
+
 # 0.0.7
 2026-08-03 (Date of Last Commit)
 
