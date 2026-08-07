@@ -1,3 +1,9 @@
+# 0.0.13
+2026-08-07 (Date of Last Commit)
+
+* Added optional `info_filter_for_inclusion` input to filter output VCFs by INFO score
+* Updated batch_pipeline_version to 0.0.11
+
 # 0.0.12
 2026-08-06 (Date of Last Commit)
 

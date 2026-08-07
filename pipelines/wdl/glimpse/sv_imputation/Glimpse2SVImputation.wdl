@@ -4,9 +4,9 @@ import "./PreprocessPLsGVCF.wdl" as PreprocessPLsGVCF
 import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.12"
+    String pipeline_version = "0.0.13"
     String preprocess_pls_gvcf_pipeline_version = "0.0.6"
-    String batch_pipeline_version = "0.0.10"
+    String batch_pipeline_version = "0.0.11"
 
     input {
         # inputs for Preprocessign wdl
@@ -40,6 +40,9 @@ workflow Glimpse2SVImputation {
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
 
+        # Optional filter: variants with INFO score below this threshold will be excluded from the output VCFs
+        Float info_filter_for_inclusion = 0.0
+
         String glimpse2_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.2.0-8671138-1784681771"
     }
 
@@ -69,6 +72,7 @@ workflow Glimpse2SVImputation {
             extra_phase_args = extra_phase_args,
             output_prefix = output_prefix,
             pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
+            info_filter_for_inclusion = info_filter_for_inclusion,
             glimpse2_docker = glimpse2_docker,
             glimpse_phase_cpu_override = glimpse_phase_cpu_override
     }

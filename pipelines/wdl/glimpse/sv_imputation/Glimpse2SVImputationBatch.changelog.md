@@ -1,3 +1,8 @@
+# 0.0.11
+2026-08-07 (Date of Last Commit)
+
+* Added optional `info_filter_for_inclusion` input to filter output VCFs by INFO score
+
 # 0.0.10
 2026-08-06 (Date of Last Commit)
 
