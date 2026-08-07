@@ -7,7 +7,7 @@ workflow MMIDAS_Train {
     allowNestedInputs: true
   }
 
-  String pipeline_version = "1.0.0"
+  String pipeline_version = "1.1.0"
 
   input {
     # ── Input data ───────────────────────────────────────────────────────────
@@ -52,7 +52,7 @@ workflow MMIDAS_Train {
     Float   k_select_thr           = 0.95
 
     # ── Runtime ──────────────────────────────────────────────────────────────
-  String  docker                 = "us.gcr.io/broad-gotc-prod/mmidas:dev-jw-mmidas"
+  String  docker                 = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786046379"
     Int     train_disk_size        = 200
     Int     train_mem_size         = 64
     Int     train_cpu              = 8
@@ -138,10 +138,20 @@ workflow MMIDAS_Train {
     # ── Human-review outputs ─────────────────────────────────────────────────
     # Download evaluation_results.json, inspect the consensus heatmap and
     # K-selection curve, then supply evaluation_results_json to MMIDAS_Analyze.
+    #
+    # Before continuing, check these three fields in evaluation_results.json:
+    #   k_selection_met_threshold — false means no checkpoint reached
+    #     k_select_thr and model_order came from a fallback, not a selection.
+    #   n_populated_categories    — categories with at least one cell assigned.
+    #     model_order counts categories that survived pruning, which can stay
+    #     high while the model routes every cell into a handful of them.
+    #   collapse_warning          — non-null when the two disagree badly.
+    # Do not launch MMIDAS_Analyze on a model that fails these.
     File   evaluation_results_json = Evaluate.evaluation_results_json
     File   checkpoints_manifest    = TrainMixVAE.checkpoints_manifest
     File   model_tar               = TrainMixVAE.model_tar
     Array[File] evaluation_figures = Evaluate.evaluation_figures
+    File   summary_performance     = Evaluate.summary_performance
 
     # ── Optional augmenter ───────────────────────────────────────────────────
     File?  augmenter_checkpoint    = TrainAugmenter.augmenter_checkpoint
@@ -423,6 +433,11 @@ task Evaluate {
   output {
     File        evaluation_results_json = "out/evaluation_results.json"
     Array[File] evaluation_figures      = glob("out/*.png")
+    # evaluation_results.json names this pickle in its "summary_pickle" field.
+    # Without delocalizing it the reference dangles, and the per-checkpoint
+    # consensus/reconstruction values behind the K-selection decision are lost
+    # when the VM is torn down.
+    File        summary_performance     = glob("out/summary_performance_K_*.p")[0]
   }
 
   runtime {

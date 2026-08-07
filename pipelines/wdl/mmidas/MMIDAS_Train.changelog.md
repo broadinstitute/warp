@@ -1,6 +1,16 @@
-# MMIDAS_Train Changelog
+# 1.1.0
+2026-08-06 (Date of Last Commit)
 
-## 1.0.0
-2026-06-24
+* Fixed checkpoint selection in 03a_evaluate.py. When K_selection found no checkpoint meeting k_select_thr, the fallback computed the correct model_order but failed to load the matching checkpoint: model_order == n_categories maps to pruning round 0, which is the before_pruning file rather than a nonexistent after_pruning_0, and the secondary fallback sorted checkpoint paths as strings so round 9 sorted after round 14. evaluation_results.json reported a model_order read off an arbitrarily chosen checkpoint. Checkpoint lookup is now keyed on the pruning round numerically and covered by a regression test.
+* evaluation_results.json gains fields the human-review step needs and previously could not see: k_selection_met_threshold, k_selection_suggested_model_order, n_populated_categories, n_populated_categories_per_arm, and collapse_warning. model_order counts categories that survived pruning, which stays high even when the model assigns every cell to a handful of them; n_populated_categories is the number that reflects whether the run is usable.
+* Evaluate now delocalizes summary_performance_K_*.p as the summary_performance output. evaluation_results.json named this file in its summary_pickle field but it was never a task output, so the reference dangled and the per-checkpoint consensus values behind the K-selection decision were lost with the VM.
+* checkpoints_manifest.json now lists checkpoints in pruning-round order rather than lexicographic order, which had after_pruning_10..14 preceding after_pruning_1..9.
+* Restored the consensus half of the pruning stop condition in mmidas.cpl_mixvae.train, which was commented out. min_con had no effect and pruning always ran exactly max_prun_it rounds. Each round now logs the min/mean/max inter-arm consensus over surviving categories, and the per-epoch log prints the maximum-entropy reference value next to Entropy so a collapsed categorical posterior is visible during training rather than three workflows later.
+* Fixed a latent crash in mmidas.utils.cluster_analysis.K_selection. Its guard is `if thr > max(consensus)`, so the selection branch runs whenever max(consensus) >= thr, but the selection itself used a strict `>`. When max(consensus) == thr exactly, the candidate index array came back empty and the next line raised "ValueError: max() arg is an empty sequence". The comparison now uses >= so it agrees with the guard and the empty case is unreachable. Behaviour when no checkpoint reaches thr is unchanged: K_selection still returns None, and 03a_evaluate.py records that as k_selection_met_threshold: false.
+* The Docker image now installs the mmidas package from a pinned revision of the fork rather than a copy of a local directory, so any published image can be rebuilt from source. See "Docker image provenance" in dashboard.md.
+* Updated the Docker image to us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786046379
 
-- Initial release. Runs optional UDAGAN VAE-GAN augmenter training (02a), cpl-mixVAE model training with iterative category pruning (02b), and checkpoint evaluation with K-selection (03a). Outputs `evaluation_results.json` and consensus figures for human review before running `MMIDAS_Analyze`.
+# 1.0.0
+2026-06-24 (Date of Last Commit)
+
+* Initial release. Runs optional UDAGAN VAE-GAN augmenter training (02a), cpl-mixVAE model training with iterative category pruning (02b), and checkpoint evaluation with K-selection (03a). Outputs evaluation_results.json and consensus figures for human review before running MMIDAS_Analyze.

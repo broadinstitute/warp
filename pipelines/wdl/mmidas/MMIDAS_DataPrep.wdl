@@ -7,7 +7,7 @@ workflow MMIDAS_DataPrep {
     allowNestedInputs: true
   }
 
-  String pipeline_version = "1.0.0"
+  String pipeline_version = "1.0.1"
 
   input {
     # ── Raw Allen Brain Atlas Smart-seq files ────────────────────────────────
@@ -16,7 +16,7 @@ workflow MMIDAS_DataPrep {
     File alm_exon_matrix    # mouse_ALM_2018-06-14_exon-matrix.csv
     File alm_samples        # mouse_ALM_2018-06-14_samples-columns.csv
     File genes_rows         # mouse_ALM_2018-06-14_genes-rows.csv  (full gene list)
-    File selected_genes     # genes_SS_ALM-VISp.csv  (selected gene subset ~1252 genes)
+    File selected_genes     # genes_SS_ALM-VISp.csv  (selected gene subset, 5032 genes)
 
     # ── Output filename ──────────────────────────────────────────────────────
     String output_basename = "Mouse_ALM-VISp_cpm"
@@ -26,7 +26,7 @@ workflow MMIDAS_DataPrep {
     String neuronal_classes = "GABAergic,Glutamatergic"
 
     # ── Runtime ──────────────────────────────────────────────────────────────
-  String docker    = "us.gcr.io/broad-gotc-prod/mmidas:dev-jw-mmidas"
+  String docker    = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786046379"
     Int    disk_size = 100
     Int    mem_size  = 32
     Int    cpu       = 4
@@ -90,7 +90,7 @@ task DataPrep {
     alm_exon_matrix:  "Raw ALM exon count matrix CSV (genes × cells)."
     alm_samples:      "ALM cell metadata CSV (samples-columns)."
     genes_rows:       "Full gene list CSV (genes-rows) matching the count matrices."
-    selected_genes:   "Selected gene subset CSV (~1252 genes for Smart-seq ALM/VISp)."
+    selected_genes:   "Selected gene subset CSV (5032 genes for Smart-seq ALM/VISp)."
     output_basename:  "Basename for the output .h5ad file (no extension)."
     remove_clusters:  "Comma-separated cluster names to exclude (e.g. 'Low Quality,CR Lhx5')."
     neuronal_classes: "Comma-separated cell classes to retain (default: GABAergic,Glutamatergic)."

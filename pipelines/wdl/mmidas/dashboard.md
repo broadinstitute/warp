@@ -48,7 +48,7 @@ The raw files expected by `MMIDAS_DataPrep` are:
 | `mouse_ALM_2018-06-14_exon-matrix.csv` | ALM raw exon counts (genes × cells) |
 | `mouse_ALM_2018-06-14_samples-columns.csv` | ALM per-cell metadata |
 | `mouse_ALM_2018-06-14_genes-rows.csv` | Full gene list (must contain a `gene_symbol` column) |
-| `genes_SS_ALM-VISp.csv` | Selected ~1,252-gene subset used for training (must contain a `genes` column) |
+| `genes_SS_ALM-VISp.csv` | Selected 5,032-gene subset used for training (must contain a `genes` column) |
 
 Optional reference files used by `MMIDAS_Analyze`:
 
@@ -115,6 +115,16 @@ These files are provided in the workspace bucket and referenced by the example i
 
 **Human-review checkpoint:** after this workflow finishes, download `evaluation_results.json` and the evaluation figures and confirm the recommended `model_order` is biologically sensible **before** launching `MMIDAS_Analyze`. The evaluation JSON and the model tarball are the hand-off files to the next stage.
 
+Three fields in `evaluation_results.json` decide whether the run is usable at all, and none of them is `model_order`:
+
+| Field | Reject the run if |
+| --- | --- |
+| `k_selection_met_threshold` | `false` — no checkpoint reached `k_select_thr`, so `model_order` came from a fallback rather than a selection |
+| `n_populated_categories` | far below `model_order` — `model_order` counts categories that survived pruning, which stays high even when the model routes every cell into a handful of them |
+| `collapse_warning` | non-null — the two above disagree badly enough that downstream Analyze figures will be dominated by empty categories |
+
+`avg_consensus` should also be at or above `k_select_thr`. A run with high `model_order` and near-zero `avg_consensus` has not found reproducible categories; it has failed to train its discrete latent. In the training log, watch the per-epoch `Entropy` against the `uniform=` value printed next to it — an `Entropy` that stays pinned at `uniform` while the reconstruction loss falls means the categorical variable never committed and no amount of pruning will fix it.
+
 **Detail for the detail-inclined.** The model is a *coupled* mixture VAE: two (or more) arms encode the same cell independently, and the training loss penalizes disagreement between the arms' categorical assignments (`lam`/`lam_pc` coupling factors). Only categories the arms agree on survive pruning, which is what makes the discovered categories reproducible rather than an artifact of a single run — this consensus-across-arms idea is the core contribution of the MMIDAS method (Marghi et al., 2024; see [Citation and Credit](#citation-and-credit)). Each cell also gets a low-dimensional continuous **state** variable (`state_dim`) that captures within-type variation. Reconstruction can use `MSE` or `ZINB` loss (`training_mode`).
 
 **What does it require as input?**
@@ -132,7 +142,7 @@ Key inputs (all hyperparameters have production defaults):
 | `training_mode` | String | `MSE` | Reconstruction loss (`MSE` or `ZINB`) |
 | `n_epoch` / `n_epoch_p` | Int | `10000` / `1000` | Epochs before pruning / per pruning round |
 | `max_prun_it` | Int | `14` | Maximum pruning iterations |
-| `min_con` | Float | `0.99` | Minimum inter-arm consensus to keep a category |
+| `min_con` | Float | `0.99` | Inter-arm consensus at which pruning stops early. Pruning continues while any surviving category is below this, up to `max_prun_it` rounds |
 | `k_select_thr` | Float | `0.95` | Consensus threshold used to recommend `model_order` |
 | `batch_size` | Int | `5000` | Mini-batch size |
 | `seed` | Int | `0` | Random seed |
@@ -146,6 +156,7 @@ Key inputs (all hyperparameters have production defaults):
 | --- | --- | --- |
 | `evaluation_results_json` | File | **Review this.** Recommended `model_order`, selected model, and metrics |
 | `evaluation_figures` | Array[File] | Consensus heatmaps and K-selection curves for review |
+| `summary_performance` | File | Per-checkpoint consensus / reconstruction pickle behind the K-selection decision |
 | `checkpoints_manifest` | File | Manifest of all model checkpoints and architecture settings |
 | `model_tar` | File | Tarball of all trained checkpoints |
 | `augmenter_checkpoint` | File? | Augmenter model (only if `run_augmenter = true`) |
@@ -226,7 +237,7 @@ The workflows are pre-configured with the example inputs in this workspace (see 
 Recommended order:
 
 1. Run **MMIDAS_Train** on the provided example `.h5ad` (or your own contract-compliant `.h5ad`).
-2. **Review** `evaluation_results.json` and the evaluation figures; confirm `model_order`.
+2. **Review** `evaluation_results.json` and the evaluation figures; check `k_selection_met_threshold`, `n_populated_categories` and `collapse_warning`, then confirm `model_order`.
 3. Run **MMIDAS_Analyze**, passing the `checkpoints_manifest`, `model_tar`, and reviewed `evaluation_results_json` from step 1.
 
 If you want to reproduce the example end-to-end from the raw Allen CSVs, run **MMIDAS_DataPrep** first to produce the `.h5ad` — but remember this step only works for the Allen ALM/VISp files.
@@ -281,6 +292,47 @@ The scientific method, algorithms, and original software are the intellectual wo
 - MMIDAS source scripts and Docker image: [warp-tools](https://github.com/broadinstitute/warp-tools) (`3rd-party-tools/mmidas/`).
 - WARP repository: [broadinstitute/warp](https://github.com/broadinstitute/warp).
 - For Terra-specific documentation and support, see [Terra Support](https://support.terra.bio/hc/en-us).
+
+### Docker image provenance
+
+The `mmidas` image bundles two independently-maintained pieces of code:
+
+1. The **pipeline scripts** (`01_data_prep.py` … `05_state_traversal.py`), which live in
+   `warp-tools/3rd-party-tools/mmidas/` and are version-controlled and reviewed there.
+2. The **`mmidas` Python package** — a fork of
+   [AllenInstitute/MMIDAS](https://github.com/AllenInstitute/MMIDAS) containing the model itself
+   (`cpl_mixvae.py`, `eval.py`, `utils/`). Several pipeline behaviours are implemented only here:
+   the pruning loop and its `min_con` stop condition, `K_selection`, and the `.h5ad` loader that
+   supplies gene identifiers for KEGG pathway mapping.
+
+The second piece is installed from a **pinned revision** of
+[jessicaway/MMIDAS](https://github.com/jessicaway/MMIDAS), so any published image can be rebuilt
+from source by anyone. `docker_build.sh` resolves the tag in `MMIDAS_GIT_REF` (default `warp-v1`)
+to the immutable commit it points at, fetches that commit's release tarball, and records both:
+
+| Where | What |
+| --- | --- |
+| Image labels | `MMIDAS_GIT_URL`, `MMIDAS_GIT_REF`, `MMIDAS_SHA` |
+| `docker_versions.tsv` | a second column, `<ref>@<sha>`, next to each image tag |
+
+To see exactly which model code an image contains:
+
+```bash
+docker inspect --format '{{json .Config.Labels}}' us.gcr.io/broad-gotc-prod/mmidas:<tag>
+```
+
+**To pick up new MMIDAS changes:** commit and push them to the fork, move or add a tag, then
+rebuild with `./docker_build.sh --mmidas-ref <tag>` (a full 40-character commit SHA also works).
+The build fails before doing any work if the ref does not resolve or the tarball is not fetchable.
+
+Images built before `warp-v1` are listed in `docker_versions.tsv` with the revision `unrecorded`.
+Those were built by copying a local, uncommitted working tree and **cannot be reproduced**; do not
+treat them as a known quantity.
+
+The fork carries four changes on top of upstream `0963ca7`: packaging so the subpackages install, a
+headless-plotting fix and a threshold-comparison fix in `K_selection`, the gene-identifier fix in
+`load_data`, and the restored consensus-based pruning stop in `train`. The last two are candidates
+for upstreaming to AllenInstitute/MMIDAS.
 
 ---
 
