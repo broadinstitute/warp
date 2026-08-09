@@ -4,7 +4,7 @@ import "./ConcatVcfs.wdl" as ConcatVcfs
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.10"
+    String pipeline_version = "0.0.11"
     String concat_vcfs_pipeline_version = "0.0.3"
 
     input {
@@ -173,7 +173,7 @@ task GLIMPSE2Phase {
         }
     }
 
-    Int disk_size_gb = ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 10)
+    Int disk_size_gb = ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 30)
 
     command <<<
         set -euxo pipefail

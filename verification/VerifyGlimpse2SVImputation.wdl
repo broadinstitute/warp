@@ -20,10 +20,6 @@ import "../verification/VerifyTasks.wdl" as Tasks
 
 workflow VerifyGlimpse2SVImputation {
   input {
-    # bubble posteriors vcf, one per chromosome
-    Array[File] truth_bubble_posteriors_vcf
-    Array[File] test_bubble_posteriors_vcf
-
     # popped posteriors vcf, one per chromosome
     Array[File] truth_popped_posteriors_vcf
     Array[File] test_popped_posteriors_vcf
@@ -31,13 +27,6 @@ workflow VerifyGlimpse2SVImputation {
     Boolean? done
   }
 
-  scatter (idx in range(length(truth_bubble_posteriors_vcf))) {
-    call Tasks.CompareVcfs as CompareBubblePosteriorsVcfs {
-      input:
-        file1 = truth_bubble_posteriors_vcf[idx],
-        file2 = test_bubble_posteriors_vcf[idx]
-    }
-  }
 
   scatter (idx in range(length(truth_popped_posteriors_vcf))) {
     call Tasks.CompareVcfs as ComparePoppedPosteriorsVcfs {

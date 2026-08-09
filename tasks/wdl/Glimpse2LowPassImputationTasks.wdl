@@ -107,6 +107,7 @@ task ExtractAnnotations {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        noAddress: true
     }
 
     output {
@@ -132,6 +133,8 @@ task RecomputeAndAnnotate {
     }
 
     command <<<
+        set -euo pipefail
+
         cat <<EOF > script.py
 import pandas as pd
 import numpy as np
@@ -197,6 +200,7 @@ EOF
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        noAddress: true
     }
 
     output {
@@ -239,6 +243,7 @@ task MergeQCMetrics {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        noAddress: true
     }
 }
 
