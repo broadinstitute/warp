@@ -68,6 +68,20 @@ It skips `structs/` imports — WDL references struct types by bare name, so tho
 
 **Future CI wiring (not done — deliberately):** the test system is currently flaky, so this stays a manual scan rather than a gate. When CI is trusted, add it as an **advisory** (non-blocking, `continue-on-error`) job first so it reports without failing PRs; promote to a blocking check only once the known debt above is cleared and the signal is proven quiet.
 
+### Stale CI path filters
+
+Each `.github/workflows/test_*.yml` has a `paths:` filter enumerating the WDLs whose changes should trigger that pipeline's test. The filter is maintained by hand, so it drifts out of sync with what the Test WDL actually imports — a watched file gets renamed/deleted (the filter then watches a dead or *wrong* file), or a new sub-workflow/task import is added but never watched. Either way the test silently stops firing on the edits that matter. Scan for both:
+
+```bash
+scripts/find_stale_ci_path_filters.sh
+```
+
+It reports `DEAD` (watched path missing / points at the wrong file) and `BLIND` (imported by the test but not covered by any watched path or `dir/**` glob) per workflow, and flags any workflow that doesn't resolve to exactly one Test WDL.
+
+**These are CI-only changes** — editing a workflow's `paths:` filter touches no WDL, so there's no version bump or changelog cascade. Fix them anytime; they don't need to ride a pipeline's next real change the way [unused imports](#unused-imports) do.
+
+**Future CI wiring (not done — deliberately):** same rationale as the unused-import scan above — the test system is flaky, so this stays a manual scan. When CI is trusted, wire it as an **advisory** (`continue-on-error`) job before ever making it blocking.
+
 ### Sub-workflow input contract
 
 A WDL file defines a **single input contract for all callers**. You cannot expose an input to one workflow but hide it from another that imports the same WDL. To remove a parameter from one consumer, you must remove it from the shared task/sub-workflow **and** from every caller.
