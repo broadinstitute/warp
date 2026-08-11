@@ -1,3 +1,8 @@
+# 0.0.11
+2026-08-09 (Date of Last Commit)
+
+* increase Glimpse2Phase task disk size by 20GB
+
 # 0.0.10
 2026-08-06 (Date of Last Commit)
 

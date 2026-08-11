@@ -17,6 +17,8 @@ workflow TestGlimpse2SVImputation {
         Array[File]? input_gvcf_idxs
         Array[String]? sample_ids
 
+        Int sample_batch_size = 500
+
         String output_prefix
 
         File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
@@ -59,6 +61,7 @@ workflow TestGlimpse2SVImputation {
         input_gvcfs = input_gvcfs,
         input_gvcf_idxs = input_gvcf_idxs,
         sample_ids = sample_ids,
+        sample_batch_size = sample_batch_size,
         output_prefix = output_prefix,
         preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
         preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
@@ -75,10 +78,8 @@ workflow TestGlimpse2SVImputation {
     }
 
 
-    # Collect all of the pipeline outputs into single Array[String]
+    # Collect all pipeline outputs into a single Array[String]
     Array[String] pipeline_outputs = flatten([
-                                    Glimpse2SVImputation.glimpse2_bubble_posteriors_vcf,
-                                    Glimpse2SVImputation.glimpse2_bubble_posteriors_vcf_idx,
                                     Glimpse2SVImputation.glimpse2_popped_posteriors_vcf,
                                     Glimpse2SVImputation.glimpse2_popped_posteriors_vcf_idx
     ])
@@ -101,12 +102,6 @@ workflow TestGlimpse2SVImputation {
 
     # This is achieved by passing each desired file/array[files] to GetValidationInputs
     if (!update_truth){
-        call Utilities.GetValidationInputs as GetBubblePosteriorsVcfs {
-          input:
-            input_files = Glimpse2SVImputation.glimpse2_bubble_posteriors_vcf,
-            results_path = results_path,
-            truth_path = truth_path
-        }
         call Utilities.GetValidationInputs as GetPoppedPosteriorsVcfs {
           input:
             input_files = Glimpse2SVImputation.glimpse2_popped_posteriors_vcf,
@@ -116,8 +111,6 @@ workflow TestGlimpse2SVImputation {
 
       call VerifyGlimpse2SVImputation.VerifyGlimpse2SVImputation as Verify {
         input:
-          truth_bubble_posteriors_vcf = GetBubblePosteriorsVcfs.truth_files,
-          test_bubble_posteriors_vcf = GetBubblePosteriorsVcfs.results_files,
           truth_popped_posteriors_vcf = GetPoppedPosteriorsVcfs.truth_files,
           test_popped_posteriors_vcf = GetPoppedPosteriorsVcfs.results_files,
           done = CopyToTestResults.done

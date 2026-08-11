@@ -1,3 +1,12 @@
+# 0.0.13
+2026-08-09 (Date of Last Commit)
+
+* Add array-input sample batching for `input_gvcfs`, `input_gvcf_idxs`, and `sample_ids`.
+* Support FOFN input path (`input_gvcfs_fofn`, `input_gvcf_idxs_fofn`, `sample_ids_file`) as a single batch.
+* Run `PreprocessPLsGVCF` and `Glimpse2SVImputationBatch` per sample batch.
+* Merge per-chromosome popped outputs across batches and recompute cohort-level `AF` and `INFO`.
+* Emit only `glimpse2_popped_posteriors_vcf` outputs from the top-level workflow.
+
 # 0.0.12
 2026-08-06 (Date of Last Commit)
 
