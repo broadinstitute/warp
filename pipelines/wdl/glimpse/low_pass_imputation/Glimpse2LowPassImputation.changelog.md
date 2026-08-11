@@ -1,3 +1,8 @@
+# 1.0.5
+2026-08-09 (Date of Last Commit)
+
+* update tasks to have `noAddress: true`
+
 # 1.0.4
 2026-08-01 (Date of Last Commit)
 
