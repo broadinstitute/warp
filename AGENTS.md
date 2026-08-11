@@ -168,6 +168,7 @@ Known chains (a starting point; the script above is authoritative):
 - **Version declaration:** WDL files declare `version 1.0`.
 - **Formatting:** 2-space indentation; blank lines to separate logical sections; no strict line-length limit.
 - **Naming:** tasks and call aliases use `UpperCamelCase`; variables use `lowercase_underscore` (Python style).
+- **File naming:** never bake a lifecycle qualifier — `Updated`, `New`, `Old`, `Final`, `V2`, `Deprecated`, ... — into a WDL filename or its `workflow` name; that's changelog language, not identity. It shows up when a WDL is replaced but the replacement keeps a disambiguating suffix instead of being renamed once the original is deleted. Fix: delete the dead file and rename the replacement in the same change, updating every reference — the `import` path, the `as` alias, any call-site namespace, and CI `paths:` filters (see [Stale CI path filters](#stale-ci-path-filters)). Example: `verification/VerifyCramToUnmappedBamsUpdated.wdl` outlived the `VerifyCramToUnmappedBams.wdl` it had replaced; a stale-migration artifact caught and fixed in #1913.
 - **Workflow input block order:** required inputs first, optional inputs with defaults second, runtime-configuration parameters last.
 - **Task section order:** input → command → output → runtime. In `command` blocks, put one input argument per line for clarity.
 - **`meta { allowNestedInputs: true }`** — include for Terra compatibility.
