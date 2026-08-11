@@ -5,7 +5,7 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.13"
+    String pipeline_version = "0.0.14"
     String preprocess_pls_gvcf_pipeline_version = "0.0.6"
     String batch_pipeline_version = "0.0.11"
 
@@ -41,6 +41,9 @@ workflow Glimpse2SVImputation {
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
+
+        # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCFs
+        Float info_filter_for_inclusion = 0.0
 
         String glimpse2_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.2.0-8671138-1784681771"
         String merge_docker = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
@@ -138,9 +141,20 @@ workflow Glimpse2SVImputation {
 
         File final_popped_contig_vcf = select_first([RecomputePoppedAfInfo.merged_imputed_vcf, popped_bcfs_for_contig[0]])
 
+        if (info_filter_for_inclusion > 0.0) {
+            call Glimpse2SVImputationTasks.FilterVcfByInfo as FilterPoppedContigByInfo {
+                input:
+                    vcf = final_popped_contig_vcf,
+                    info_threshold = info_filter_for_inclusion,
+                    output_prefix = output_prefix + "." + chromosomes[contig_idx] + ".glimpse2.popped.info_filtered"
+            }
+        }
+
+        File final_filtered_popped_contig_vcf = select_first([FilterPoppedContigByInfo.output_vcf, final_popped_contig_vcf])
+
         call Glimpse2SVImputationTasks.CreateVcfIndexAndMd5 as IndexFinalPoppedContig {
             input:
-                vcf_input = final_popped_contig_vcf,
+                vcf_input = final_filtered_popped_contig_vcf,
                 output_basename = output_prefix + "." + chromosomes[contig_idx],
                 gatk_docker = gatk_docker,
                 preemptible = 0

@@ -264,6 +264,39 @@ task CreateVcfIndexAndMd5 {
     }
 }
 
+task FilterVcfByInfo {
+    input {
+        File vcf
+        Float info_threshold
+        String output_prefix
+
+        String docker = "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        Int disk_size_gb = ceil(2.2 * size(vcf, "GiB") + 20)
+        Int mem_gb = 4
+        Int cpu = 1
+        Int preemptible = 3
+    }
+
+    command <<<
+        set -euo pipefail
+
+        bcftools filter -i 'INFO/INFO >= ~{info_threshold}' -O z -o ~{output_prefix}.vcf.gz ~{vcf}
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+        noAddress: true
+    }
+
+    output {
+        File output_vcf = "~{output_prefix}.vcf.gz"
+    }
+}
+
 task SplitGvcfInputsIntoBatches {
     input {
         Array[String] input_gvcfs
