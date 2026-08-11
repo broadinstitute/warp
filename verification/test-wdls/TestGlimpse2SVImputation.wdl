@@ -17,6 +17,8 @@ workflow TestGlimpse2SVImputation {
         Array[File]? input_gvcf_idxs
         Array[String]? sample_ids
 
+        Int sample_batch_size = 500
+
         String output_prefix
 
         File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
@@ -59,6 +61,7 @@ workflow TestGlimpse2SVImputation {
         input_gvcfs = input_gvcfs,
         input_gvcf_idxs = input_gvcf_idxs,
         sample_ids = sample_ids,
+        sample_batch_size = sample_batch_size,
         output_prefix = output_prefix,
         preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
         preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
