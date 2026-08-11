@@ -14,7 +14,7 @@ on:
       # tasks from the pipeline WDL and their dependencies
       - 'tasks/wdl/Utilities.wdl'
       # verification WDL and its dependencies
-      - 'verification/VerifyCramToUnmappedBamsUpdated.wdl'
+      - 'verification/VerifyCramToUnmappedBams.wdl'
       # test WDL and its dependencies
       - 'verification/test-wdls/TestCramToUnmappedBams.wdl'
       - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
