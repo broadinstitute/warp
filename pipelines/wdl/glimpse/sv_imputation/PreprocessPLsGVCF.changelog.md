@@ -1,3 +1,9 @@
+# 0.0.7
+2026-08-11 (Date of Last Commit)
+
+* Replace per-sample array and FOFN inputs with a single `gvcf_manifest` input that is then parsed inside the workflow.
+* Emit the parsed sample count so callers can use it directly without re-counting manifest rows.
+
 # 0.0.6
 2026-08-04 (Date of Last Commit)
 
