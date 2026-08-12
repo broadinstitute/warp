@@ -1,3 +1,9 @@
+# 0.0.12
+2026-08-12 (Date of Last Commit)
+
+* Remove preemptible tries for `GLIMPSE2Ligate` task (merging task, not worth restarting on preemption)
+* Lower `PopAndMarginalizeCollisions` task memory to 6 GiB
+
 # 0.0.11
 2026-08-09 (Date of Last Commit)
 

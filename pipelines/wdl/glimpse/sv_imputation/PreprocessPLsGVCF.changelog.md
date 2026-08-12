@@ -1,3 +1,8 @@
+# 0.0.7
+2026-08-12 (Date of Last Commit)
+
+* Lower `PreprocessPLs` task memory to 2 GiB and increase preemptible tries to 4
+
 # 0.0.6
 2026-08-04 (Date of Last Commit)
 
