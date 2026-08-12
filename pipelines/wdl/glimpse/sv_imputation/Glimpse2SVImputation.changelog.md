@@ -1,3 +1,11 @@
+# 0.0.15
+2026-08-12 (Date of Last Commit)
+
+* Replace top-level FOFN inputs with a `gvcf_manifest` input that expects `gvcf_path`, `gvcf_index_path`, and `sample_id` columns to exist.
+* Batch samples from the manifest, while still converting array inputs into a manifest internally for compatibility.
+* Pass each manifest batch directly into `PreprocessPLsGVCF`, which now parses the manifest internally.
+* Use the sample count emitted by `PreprocessPLsGVCF` instead of counting manifest rows in the top-level workflow.
+
 # 0.0.14
 2026-08-11 (Date of Last Commit)
 
