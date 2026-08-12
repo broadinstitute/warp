@@ -1,3 +1,8 @@
+# 0.0.12
+2026-08-12 (Date of Last Commit)
+
+* remove use of concat wdl and replace it with concat task from shared task wdl
+
 # 0.0.11
 2026-08-09 (Date of Last Commit)
 

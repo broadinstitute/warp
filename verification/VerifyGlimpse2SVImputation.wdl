@@ -32,7 +32,8 @@ workflow VerifyGlimpse2SVImputation {
     call Tasks.CompareVcfs as ComparePoppedPosteriorsVcfs {
       input:
         file1 = truth_popped_posteriors_vcf[idx],
-        file2 = test_popped_posteriors_vcf[idx]
+        file2 = test_popped_posteriors_vcf[idx],
+        patternForLinesToExcludeFromComparison = "##"
     }
   }
 
