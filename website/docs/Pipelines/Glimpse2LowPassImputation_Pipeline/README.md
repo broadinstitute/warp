@@ -3,14 +3,14 @@ sidebar_position: 1
 slug: /Pipelines/Glimpse2LowpassImputation_Pipeline/README
 ---
 
-# GLIMPSE2 Low Pass Imputation Overview
+# GLIMPSE2 Low-Pass Imputation Overview
 
 |                                                      Pipeline Version                                                      | Date Updated |        Documentation Author        |                             Questions or Feedback                              |
 |:--------------------------------------------------------------------------------------------------------------------------:|:------------:|:----------------------------------:|:------------------------------------------------------------------------------:|
 | [Glimpse2LowPassImputation_v0.0.10 (pre-release)](https://github.com/broadinstitute/warp/releases?q=Glimpse&expanded=true) |  May, 2026   | Terra Scientific Pipeline Services | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
 
-## Introduction to the GLIMPSE2 Low Pass Imputation pipeline
-The GLIMPSE2 Low Pass Imputation pipeline imputes missing genotypes from a list of low-pass CRAM/CRAI files (or a sample manifest pointing to GCS file paths) using a large genomic reference panel. It uses GLIMPSE2 as the imputation tool. Overall, the pipeline splits samples into batches, performs variant calling and imputation on each batch across genomic chunks, and merges the results into a final multi-sample VCF. It outputs the imputed VCF along with key imputation metrics.
+## Introduction to the GLIMPSE2 Low-Pass Imputation pipeline
+The GLIMPSE2 Low-Pass Imputation pipeline imputes missing genotypes from a list of low-pass CRAM/CRAI files (or a sample manifest pointing to GCS file paths) using a large genomic reference panel. It uses GLIMPSE2 as the imputation tool. Overall, the pipeline splits samples into batches, performs variant calling and imputation on each batch across genomic chunks, and merges the results into a final multi-sample VCF. It outputs the imputed VCF along with key imputation metrics.
 
 ## GLIMPSE2 Low-Pass Imputation Summary
 
@@ -182,7 +182,7 @@ The `InputQC` workflow validates CRAM-based inputs supplied by the `cram_manifes
 
 ## Citing the Imputation Pipeline
 
-If you use the GLIMPSE2 Low Pass Imputation Pipeline in your research, please consider citing our preprint:
+If you use the GLIMPSE2 Low-Pass Imputation Pipeline in your research, please consider citing our preprint:
 
 Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Kiernan, E., Konwar, K., Mathews, K.L., Palis, K., et al. Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis. Bioinformatics 2025; btaf494. https://doi.org/10.1093/bioinformatics/btaf494
  
