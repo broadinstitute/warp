@@ -1,3 +1,8 @@
+# 1.0.4
+2026-08-12 (Date of Last Commit)
+
+* Add hyphen to "low pass" -> "low-pass" in workflow header comment
+
 # 1.0.3
 2026-08-01 (Date of Last Commit)
 
