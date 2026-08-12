@@ -1,3 +1,8 @@
+# 0.0.14
+2026-08-11 (Date of Last Commit)
+
+* Add optional `info_filter_for_inclusion` input; when set above 0.0, variants with INFO score below the threshold are excluded from the final per-chromosome popped output VCFs.
+
 # 0.0.13
 2026-08-09 (Date of Last Commit)
 
