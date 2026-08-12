@@ -7,7 +7,7 @@ workflow MMIDAS_Analyze {
     allowNestedInputs: true
   }
 
-  String pipeline_version = "1.1.0"
+  String pipeline_version = "1.1.1"
 
   input {
     # ── Inputs from MMIDAS_Train (after human review) ─────────────────────────
@@ -38,7 +38,7 @@ workflow MMIDAS_Analyze {
     Int    seed         = 0
 
     # ── Runtime ──────────────────────────────────────────────────────────────
-  String docker           = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786046379"
+  String docker           = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786468785"
     Int    analyze_disk_size = 200
     Int    analyze_mem_size  = 64
     Int    analyze_cpu       = 8

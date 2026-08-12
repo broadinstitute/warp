@@ -273,6 +273,103 @@ For more information about controlling Cloud costs, see [this article](https://s
 
 ---
 
+## Fidelity to the original MMIDAS analysis
+
+These workflows are a **port**, not a reimplementation or an improvement: the goal is that running
+them in Terra does what running the authors' notebooks does. The
+[MMIDAS repo](https://github.com/AllenInstitute/MMIDAS) ships its notebooks with outputs saved, so
+the authors' results for the example dataset are recorded and can be compared against directly.
+
+**Reference values for Mouse ALM/VISp:**
+
+| Quantity | Reference | Source |
+| --- | --- | --- |
+| matrix shape | 22,365 × 5,032 | `1_data_prep.ipynb` |
+| reference t-types | 115 | `2_train.ipynb` data summary |
+| pruning rounds | 42 | `3_evaluation.ipynb` (checkpoints `after_pruning_1..42`) |
+| `model_order` | **92** | `3_evaluation.ipynb`; hardcoded in notebooks 4 and 5 |
+| `avg_consensus` | 0.939 (test cells) / 0.954 (K-selection) | `3_evaluation.ipynb` |
+
+`MMIDAS_output_validation.ipynb` checks a run against these under **Stage 6 — Reference
+comparison**. Its checks are labelled `plumbing` (did the workflow execute), `fidelity` (does it
+match the reference), and `advisory` (is the model any good) — only the first two decide the
+verdict. A run that reproduces the reference is a success even if the advisory items complain.
+
+### Where the training defaults come from
+
+The reference notebooks pass only `n_categories`, `state_dim`, `n_arm` and `latent_dim` to
+`cpl_mixVAE.init_model()` and let everything else fall to that function's defaults. `MMIDAS_Train`'s
+defaults follow those, with training-loop values (`n_epoch`, `n_epoch_p`, `max_prun_it`) taken from
+`tutorials/train_mixvae.py`, since `2_train.ipynb`'s `n_epoch = 10` is a walkthrough demo rather than
+the configuration that produced the published model.
+
+Two of these matter enough to call out:
+
+- **`max_prun_it` bounds which answers are reachable.** Pruning removes one category per round, so
+  the smallest `model_order` a run can produce is `n_categories - max_prun_it`. Reaching the
+  reference `model_order` of 92 from `n_categories = 120` requires 28 rounds; the default is 42, the
+  number the reference used. Lowering it below 28 puts the published answer *outside the search
+  space*, and no amount of training will recover it.
+- **`tau` is tied to `n_categories`.** `init_model` documents it as "usually equals to
+  1/n_categories" — about 0.0083 at `n_categories = 120`. The default here is the library's 0.005.
+  Do not carry over `tutorials/train_mixvae.py`'s `0.1`: that script's `n_categories` default is 15,
+  where 0.1 is roughly 1/K. At K=120 it leaves the categorical posterior far too soft to reach the
+  consensus the reference reports.
+
+`min_con` is **reporting only**. The consensus-based pruning stop is commented out in
+`mmidas/cpl_mixvae.py::train` upstream, so pruning always runs the full `max_prun_it`; every
+reference invocation behaves this way. Do not enable it — with `min_con = 0.99` it halts pruning as
+soon as one category is reproducible, which stops short of the depth the published results rely on.
+
+### Validate cheaply before paying for the full run
+
+`max_prun_it = 42` at `n_epoch_p = 10000` is roughly **4.5 days on an `nvidia-tesla-t4` (~$110)**,
+measured at 0.90 s/epoch and $1.00/hr. `TrainMixVAE` runs with `preemptible: 0` and has no resume
+path, so a failure late in that run is expensive.
+
+`example_inputs/MMIDAS_Train.staged_validation.json` is the same configuration with
+`n_epoch_p = 1000` — **13 hours, about $13**. It differs from the reference config in that one field
+only. Use it first:
+
+| Config | Epochs | Time | Cost |
+| --- | --- | --- | --- |
+| `MMIDAS_Train.staged_validation.json` | 52,000 | 13 h | ~$13 |
+| `MMIDAS_Train.json` (reference) | 430,000 | 4.5 days | ~$110 |
+
+The staged run still has `max_prun_it = 42`, so `model_order = 92` is inside the search space
+(the floor is `120 - 42 = 78`). What it buys is a cheap answer to the one open question — whether the
+categorical posterior commits once `tau` is scaled to `n_categories`.
+
+**There is an even earlier decision point.** The categorical posterior's behaviour is visible in the
+`TrainMixVAE` log from the first epochs, before any pruning happens:
+
+```
+Entropy: -9.0249 (uniform=-9.5750)
+```
+
+`uniform` is the value that column takes when both arms' categorical posteriors are flat, i.e. the
+discrete latent carries no information. If `Entropy` is still pinned near `uniform` at the end of the
+pre-pruning phase (the first `n_epoch = 10000` epochs, ~2.5 h, ~$2.50), the temperature change did
+not work and there is no point continuing — kill the run rather than paying for 42 pruning rounds on
+a collapsed model. If it has moved substantially toward 0, let it finish.
+
+### Known divergences from the notebooks
+
+Two differences are unavoidable in a generic workflow and are deliberate:
+
+| Divergence | Why |
+| --- | --- |
+| **State-traversal category selection.** `5_state_traversal.ipynb` hardcodes `selected_c = [80, 119, 1, 13, 92, 25, 55, 110, 62, 69, 31]`. The workflow instead selects the `n_selected_cats` most-populated categories. | A workflow cannot reproduce a hand-picked list chosen by inspection. Selecting by population at least guarantees the figures show categories the model actually uses. |
+| **Train/test split seeding.** `2_train.ipynb` calls `get_loaders` without a `seed`, so its split is random and unrecoverable. The workflow seeds it (`seed = 0`). | An unseeded split makes a workflow non-reproducible run to run. This is why an exact numerical match to the reference is not expected, and why the validation notebook compares `model_order` within a tolerance and `avg_consensus` against a range. |
+
+One further note: the pipeline scripts import `load_data` from `mmidas.utils.data_tools`, whereas the
+reference notebooks import it from `mmidas.utils.dataloader`. Both read `adata.X` and the `var` index
+identically, so the expression matrix handed to training is the same; `dataloader` additionally
+derives `cluster_id` / `c_onehot` helpers that the notebooks use for their own plots and the
+workflow scripts compute where needed.
+
+---
+
 ## Citation and Credit
 
 MMIDAS is the work of its original authors. If you use these workflows in your research, please cite the original publication:

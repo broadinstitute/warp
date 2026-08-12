@@ -7,7 +7,7 @@ workflow MMIDAS_Train {
     allowNestedInputs: true
   }
 
-  String pipeline_version = "1.1.0"
+  String pipeline_version = "1.2.0"
 
   input {
     # ── Input data ───────────────────────────────────────────────────────────
@@ -23,15 +23,27 @@ workflow MMIDAS_Train {
     Int     augmenter_batch_size   = 512
 
     # ── cpl-mixVAE architecture ───────────────────────────────────────────────
+    #
+    # Defaults track the reference analysis in the MMIDAS repo. The reference
+    # notebooks (notebooks/2_train.ipynb, 3_evaluation.ipynb) pass only
+    # n_categories, state_dim, n_arm and latent_dim to cpl_mixVAE.init_model()
+    # and let everything else fall to that function's own defaults, so the values
+    # below are those defaults unless noted.
     Int     n_categories           = 120
     Int     state_dim              = 2
     Int     n_arm                  = 2
     Int     latent_dim             = 10
     Int     fc_dim                 = 100
-    Float   x_drop                 = 0.25
+    Float   x_drop                 = 0.0     # init_model default. Was 0.25, which
+                                             # is tutorials/train_mixvae.py's p_drop.
     Float   s_drop                 = 0.0
     Float   temp                   = 1.0
-    Float   tau                    = 0.1
+    # tau is the categorical softmax temperature. init_model documents it as
+    # "usually equals to 1/n_categories" and defaults to 0.005; at n_categories
+    # 120 that is ~0.0083. Was 0.1, carried over from
+    # tutorials/train_mixvae.py, whose n_categories default is 15 (1/15 ~ 0.067).
+    # At K=120 a tau of 0.1 leaves the categorical posterior far too soft.
+    Float   tau                    = 0.005
     Float   beta                   = 1.0
     Float   lam                    = 1.0
     Float   lam_pc                 = 1.0
@@ -39,20 +51,32 @@ workflow MMIDAS_Train {
 
     # ── cpl-mixVAE training ───────────────────────────────────────────────────
     Int     n_epoch                = 10000
-    Int     n_epoch_p              = 1000
+    Int     n_epoch_p              = 10000   # tutorials/train_mixvae.py value.
+                                             # Was 1000: 10x less training per
+                                             # pruning round than the reference.
+    # min_con is reporting-only. The consensus stop condition is commented out
+    # upstream, so pruning always runs the full max_prun_it -- see
+    # mmidas/cpl_mixvae.py::train.
     Float   min_con                = 0.99
-    Int     max_prun_it            = 14
+    # The reference model directory holds pruning checkpoints 1-42, and its
+    # published model_order of 92 is round 28 (n_categories - model_order).
+    # Pruning removes one category per round, so max_prun_it caps the smallest
+    # reachable model_order at n_categories - max_prun_it. At the previous value
+    # of 14 the floor was 106 and 92 was outside the search space entirely.
+    Int     max_prun_it            = 42
     Float   lr                     = 0.001
     Int     batch_size             = 5000
     Int     n_aug_smp              = 0
     Float   train_size             = 0.9
+    # The reference calls get_loaders without a seed, so its train/test split is
+    # unrecoverable. Seeded here for reproducibility -- a deliberate divergence.
     Int     seed                   = 0
 
     # ── Evaluation ────────────────────────────────────────────────────────────
     Float   k_select_thr           = 0.95
 
     # ── Runtime ──────────────────────────────────────────────────────────────
-  String  docker                 = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786046379"
+  String  docker                 = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786468785"
     Int     train_disk_size        = 200
     Int     train_mem_size         = 64
     Int     train_cpu              = 8

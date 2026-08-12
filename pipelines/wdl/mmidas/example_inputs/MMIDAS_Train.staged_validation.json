@@ -7,7 +7,7 @@
   "MMIDAS_Train.latent_dim":    10,
   "MMIDAS_Train.fc_dim":        100,
   "MMIDAS_Train.n_epoch":       10000,
-  "MMIDAS_Train.n_epoch_p":     10000,
+  "MMIDAS_Train.n_epoch_p":     1000,
   "MMIDAS_Train.max_prun_it":   42,
   "MMIDAS_Train.min_con":       0.99,
   "MMIDAS_Train.tau":           0.005,

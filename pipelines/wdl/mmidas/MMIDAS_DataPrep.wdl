@@ -7,7 +7,7 @@ workflow MMIDAS_DataPrep {
     allowNestedInputs: true
   }
 
-  String pipeline_version = "1.0.1"
+  String pipeline_version = "1.0.2"
 
   input {
     # ── Raw Allen Brain Atlas Smart-seq files ────────────────────────────────
@@ -26,9 +26,9 @@ workflow MMIDAS_DataPrep {
     String neuronal_classes = "GABAergic,Glutamatergic"
 
     # ── Runtime ──────────────────────────────────────────────────────────────
-  String docker    = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786046379"
+  String docker    = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786468785"
     Int    disk_size = 100
-    Int    mem_size  = 32
+    Int    mem_size  = 48
     Int    cpu       = 4
   }
 

@@ -1,3 +1,9 @@
+# 1.1.1
+2026-08-11 (Date of Last Commit)
+
+* Documented the two unavoidable divergences from the reference notebooks in dashboard.md: 5_state_traversal.ipynb hardcodes a hand-picked selected_c list that a generic workflow cannot reproduce, and the reference train/test split is unseeded and therefore unrecoverable.
+* Updated the Docker image to us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786468785 (MMIDAS pinned at warp-v2, which reverts the min_con pruning stop to upstream behaviour).
+
 # 1.1.0
 2026-08-06 (Date of Last Commit)
 

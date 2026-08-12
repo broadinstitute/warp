@@ -37,7 +37,7 @@ per-sample GVCFs
 (1) Generate a sample map   ← a 2-column list: sample name → GVCF path
       │  sample_map.tsv
       ▼
-(2) JointGenotyping    ← joint calling + VQSR filtering (+ QC metrics, fingerprinting)
+(2) JointGenotyping    ← joint calling + VETS filtering (+ QC metrics, fingerprinting)
       │  <callset_name>.vcf.gz  (filtered, multi-sample)
       ▼
 (3) Hand off to seqr
@@ -113,24 +113,24 @@ For a full, step-by-step description of every task and tool the pipeline runs, s
 
 The workflow accepts **nested inputs** (`allowNestedInputs: true`), so you generally only need to set `sample_name_map` and `callset_name` and leave everything else at the workspace defaults.
 
-### Variant filtering: VQSR (default)
+### Variant filtering: VETS (recommended) vs. VQSR
 
-By default the pipeline filters variants using **VQSR** (Variant Quality Score Recalibration), the long-standing [GATK Best Practices](https://gatk.broadinstitute.org/hc/en-us/articles/360035531612) method. VQSR builds a statistical model of what "real" SNPs and indels look like using trusted resource files (HapMap, Omni, 1000G, Mills, etc.), then flags likely-artifact sites in the `FILTER` column. **For most users, leave the defaults as-is** and VQSR will be used.
+The pipeline can filter variants with either of two methods:
 
-### Advanced filtering options (optional)
+- **VETS (Variant Extract-Train-Score)** — the newer GATK filtering method. It produces **better-quality filtering results** *and* **runs faster** than VQSR. **This workspace is pre-configured to use VETS** (`run_vets = true`), and we recommend keeping it that way. VETS trains its model over a `targets_interval_list`, which is already provided in this workspace.
+- **VQSR (Variant Quality Score Recalibration)** — the long-standing [GATK Best Practices](https://gatk.broadinstitute.org/hc/en-us/articles/360035531612) method. It builds a statistical model of what "real" SNPs and indels look like using trusted resource files (HapMap, Omni, 1000G, Mills, etc.), then flags likely-artifact sites in the `FILTER` column. It still works well, but is **slower** and generally **less performant** than VETS.
 
-You can change the filtering/genotyping strategy if you have a specific reason to:
+> **Important — pipeline default vs. this workspace's setting:** The JointGenotyping *pipeline's* built-in default is **VQSR** (`run_vets = false`). However, **this workspace overrides that default and is set to run VETS** (`run_vets = true`). Unless you explicitly change `run_vets` to `false`, your run will use **VETS** — which is what we recommend, for the better results and faster runtime.
 
-- **VETS** (Variant Extract-Train-Score) — a newer filtering approach. Enable with `run_vets = true`. Requires a `targets_interval_list`.
-- **GnarlyGenotyper** — a faster, "quick and dirty" joint genotyping method. Enable with `use_gnarly_genotyper = true`.
+### Advanced option (optional)
 
-If you are new to joint calling, we recommend starting with the **default VQSR** path and only exploring these once you are comfortable.
+- **GnarlyGenotyper** — a faster, "quick and dirty" joint genotyping method. Enable with `use_gnarly_genotyper = true`. Most users should leave this off.
 
 ### To run it in Terra
 
 1. Go to the **Workflows** tab and select the **JointGenotyping** workflow.
 2. Choose your `sample_set` data table as the root entity and select your cohort.
-3. Confirm `sample_name_map` and `callset_name` are set; leave the reference inputs and filtering options at their defaults for a standard VQSR run.
+3. Confirm `sample_name_map` and `callset_name` are set; leave the reference inputs and filtering options at their workspace defaults for a standard **VETS** run (VETS is enabled by default in this workspace).
 4. Launch the workflow and monitor progress in the **Job History** tab.
 
 ---

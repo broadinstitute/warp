@@ -1,3 +1,9 @@
+# 1.0.2
+2026-08-11 (Date of Last Commit)
+
+* Confirmed stage 1 is a faithful port of notebooks/1_data_prep.ipynb: same filters, same normalize-then-subset order, the same two t-type renames, gene symbols on var_names, and the same final shape of (22365, 5032) with 115 t-types. No code change.
+* Updated the Docker image to us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786468785 (MMIDAS pinned at warp-v2).
+
 # 1.0.1
 2026-08-06 (Date of Last Commit)
 

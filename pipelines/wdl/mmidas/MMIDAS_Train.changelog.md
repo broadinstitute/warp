@@ -1,3 +1,16 @@
+# 1.2.0
+2026-08-11 (Date of Last Commit)
+
+* Corrected training defaults that prevented the workflow from reproducing the published MMIDAS analysis. The goal of these workflows is a faithful port of the authors' notebooks, and several defaults had been carried over from tutorials/train_mixvae.py, whose own defaults are tuned for that script's n_categories of 15 rather than the 120 used for Mouse ALM/VISp.
+* max_prun_it 14 -> 42. Pruning removes one category per round, so max_prun_it caps the smallest reachable model_order at n_categories - max_prun_it. The reference analysis reports model_order 92, which is pruning round 28 of the 42 it ran; at 14 the floor was 106 and the published answer was outside the search space entirely. No amount of retraining could have reproduced it.
+* tau 0.1 -> 0.005. cpl_mixVAE.init_model documents tau as "usually equals to 1/n_categories" (about 0.0083 at K=120) and defaults to 0.005, which the reference notebooks use by omission. The previous 0.1 is roughly 1/K for the tutorial script's K=15; at K=120 it leaves the categorical softmax far too soft.
+* x_drop 0.25 -> 0.0, matching init_model's default. The reference notebooks do not pass it; 0.25 was tutorials/train_mixvae.py's p_drop.
+* n_epoch_p 1000 -> 10000, matching tutorials/train_mixvae.py. Each pruning round previously trained for a tenth as long as the reference.
+* Reverted the min_con pruning stop condition introduced in 1.1.0. It is commented out upstream and every reference invocation runs with it disabled, so enabling it diverged from all of them -- and with min_con 0.99 it would halt pruning as soon as one category became reproducible, stopping short of the depth the published model_order relies on. min_con is now reporting-only, as upstream intends. The per-round consensus logging and the maximum-entropy reference beside the per-epoch Entropy are retained; both are stdout only.
+* NOTE ON RUNTIME: 42 pruning rounds at 10000 epochs each is roughly 4.5 days on an nvidia-tesla-t4 (~$110 at 0.90 s/epoch and $1.00/hr), against about 6 hours for the previous defaults. TrainMixVAE runs with preemptible 0 and has no resume path, so a late failure is costly.
+* Added example_inputs/MMIDAS_Train.staged_validation.json: the same configuration with n_epoch_p 1000 instead of 10000, giving a 13 hour / ~$13 run. It keeps max_prun_it 42, so the reference model_order of 92 stays inside the search space, and is intended as a cheap check on whether the categorical posterior commits under the corrected tau before committing to the full-length run. See "Validate cheaply before paying for the full run" in dashboard.md, which also notes that the per-epoch Entropy column answers that question ~2.5 hours in, before any pruning begins.
+* Updated the Docker image to us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786468785
+
 # 1.1.0
 2026-08-06 (Date of Last Commit)
 
