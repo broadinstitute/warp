@@ -1,0 +1,402 @@
+version 1.0
+
+import "./ConcatVcfs.wdl" as ConcatVcfs
+
+workflow Glimpse2SVImputationBatch {
+    # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
+    String pipeline_version = "0.0.11"
+    String concat_vcfs_pipeline_version = "0.0.3"
+
+    input {
+        File input_preprocessed_joint_vcf
+        File input_preprocessed_joint_vcf_idx
+
+        Array[String] chromosomes
+        File genetic_maps_tsv
+        File chunked_panel_json
+        File ref_dict
+
+        String? extra_phase_args
+        # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
+        Int? glimpse_phase_cpu_override
+
+        String output_prefix
+
+        # inputs for PopAndMarginalizeCollisions
+        File pop_glimpse2_panel_resources_json
+
+        String glimpse2_docker
+    }
+
+    Map[String, String] genetic_maps_dict = read_map(genetic_maps_tsv)
+    Map[String, PopAndMarginalizePanelResourcesChromosome] pop_glimpse2_panel_resources = read_json(pop_glimpse2_panel_resources_json)
+
+    # we need to define this here so that it can be used in nested scatters below. Cromwell doesn't understand optional inputs
+    # to tasks that are inside nested scatters, so we need to define a non-optional variable that we can use to pass the
+    # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
+    Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
+
+    scatter (chromosome in chromosomes) {
+        String genetic_map = genetic_maps_dict[chromosome]
+
+        Map[String, ChunkedPanelChromosome] chunked_panel = read_json(chunked_panel_json)
+        Array[String] input_regions = chunked_panel[chromosome].input_regions
+        Array[String] output_regions = chunked_panel[chromosome].output_regions
+        Array[File] panel_split_chunk_bins = chunked_panel[chromosome].panel_split_chunk_bins
+
+        File panel_bubble_split_sites_only_vcf = pop_glimpse2_panel_resources[chromosome].panel_bubble_split_sites_only_vcf
+        File panel_bubble_split_sites_only_vcf_idx = pop_glimpse2_panel_resources[chromosome].panel_bubble_split_sites_only_vcf_idx
+        File panel_id_split_vcf_gz = pop_glimpse2_panel_resources[chromosome].panel_id_split_vcf_gz
+        File panel_id_split_vcf_gz_tbi = pop_glimpse2_panel_resources[chromosome].panel_id_split_vcf_gz_tbi
+        Array[String] pop_regions = select_first([pop_glimpse2_panel_resources[chromosome].pop_regions, output_regions])
+
+        scatter (k in range(length(output_regions))) {
+            call GLIMPSE2Phase as ChunkedGLIMPSE2Phase {
+                input:
+                    input_vcf = input_preprocessed_joint_vcf,
+                    input_vcf_idx = input_preprocessed_joint_vcf_idx,
+                    panel_split_chunk_bin = panel_split_chunk_bins[k],
+                    input_region = input_regions[k],
+                    output_region = output_regions[k],
+                    genetic_map = genetic_map,
+                    output_prefix = output_prefix + ".shard-" + k + ".glimpse2.phased",
+                    extra_phase_args = extra_phase_args,
+                    docker = glimpse2_docker,
+                    threads = defined_glimpse_phase_cpu_override
+            }
+        }
+
+        call GLIMPSE2Ligate {
+            input:
+                phased_vcfs = ChunkedGLIMPSE2Phase.phased_vcf,
+                phased_vcf_idxs = ChunkedGLIMPSE2Phase.phased_vcf_idx,
+                output_prefix = output_prefix + ".glimpse2.bubble",
+                docker = glimpse2_docker
+        }
+
+        # Update VCF header with reference dictionary
+        call UpdateHeader {
+            input:
+                bcf_to_reheader = GLIMPSE2Ligate.ligated_vcf,
+                bcf_to_get_header_from = input_preprocessed_joint_vcf,
+                ref_dict = ref_dict,
+                output_basename = output_prefix +  "." + chromosome + ".glimpse2.bubble.updated_header",
+                docker = glimpse2_docker
+        }
+
+        scatter (k in range(length(pop_regions))) {
+            call PopAndMarginalizeCollisions {
+                input:
+                    posteriors_vcf = UpdateHeader.output_bcf,
+                    posteriors_vcf_idx = UpdateHeader.output_bcf_index,
+                    panel_bubble_split_sites_only_vcf = panel_bubble_split_sites_only_vcf,
+                    panel_bubble_split_sites_only_vcf_idx = panel_bubble_split_sites_only_vcf_idx,
+                    panel_id_split_vcf_gz = panel_id_split_vcf_gz,
+                    panel_id_split_vcf_gz_tbi = panel_id_split_vcf_gz_tbi,
+                    region = pop_regions[k],
+                    output_prefix = output_prefix + ".glimpse2.popped"
+            }
+        }
+
+        call ConcatVcfs.ConcatVcfs as ConcatPopAndMarginalizeCollisions {
+            input:
+                vcfs = PopAndMarginalizeCollisions.popped_vcf,
+                vcf_idxs = PopAndMarginalizeCollisions.popped_vcf_idx,
+                output_prefix = output_prefix + "." + chromosome + ".glimpse2.popped",
+                do_bcf = true,
+                do_sort = false,
+                extra_args = "--threads $(nproc) --naive",
+                regions = [],
+                do_sort_shard = false,
+                extra_args_shard = ""
+        }
+    }
+
+    output {
+        Array[File] glimpse2_bubble_posteriors_vcf = UpdateHeader.output_bcf
+        Array[File] glimpse2_bubble_posteriors_vcf_idx = UpdateHeader.output_bcf_index
+        Array[File] glimpse2_popped_posteriors_vcf =ConcatPopAndMarginalizeCollisions.concatenated_vcf
+        Array[File] glimpse2_popped_posteriors_vcf_idx = ConcatPopAndMarginalizeCollisions.concatenated_vcf_idx
+    }
+}
+
+struct RuntimeAttr {
+    Float? mem_gb
+    Int? cpu_cores
+    Int? disk_gb
+    Int? boot_disk_gb
+    Boolean? use_ssd
+    Int? preemptible_tries
+    Int? max_retries
+    String? docker
+}
+
+struct ChunkedPanelChromosome {
+    Array[String] input_regions
+    Array[String] output_regions
+    Array[String] panel_split_chunk_bins
+}
+
+struct PopAndMarginalizePanelResourcesChromosome {
+    String panel_bubble_split_sites_only_vcf
+    String panel_bubble_split_sites_only_vcf_idx
+    String panel_id_split_vcf_gz
+    String panel_id_split_vcf_gz_tbi
+    Array[String]? pop_regions              # non-overlapping, if not provided then GLIMPSE2 chunks will be used
+}
+
+# checkpoint implementation borrowed from https://github.com/broadinstitute/palantir-workflows/blob/main/GlimpseImputationPipeline/Glimpse2Imputation.wdl
+task GLIMPSE2Phase {
+    input {
+        File input_vcf
+        File input_vcf_idx
+        File panel_split_chunk_bin
+        String input_region
+        String output_region
+        File genetic_map
+        String output_prefix
+        Int seed = 15052011
+        Int threads = 4
+        String? extra_phase_args
+
+        String docker
+
+        RuntimeAttr? runtime_attr_override
+    }
+
+    parameter_meta {
+        input_vcf: {
+            localization_optional: true
+        }
+        input_vcf_idx: {
+            localization_optional: true
+        }
+    }
+
+    Int disk_size_gb = ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 30)
+
+    command <<<
+        set -euxo pipefail
+
+        export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
+
+        cmd="/bin/GLIMPSE2_phase \
+                --input-gl ~{input_vcf} \
+                -R ~{panel_split_chunk_bin} \
+                ~{extra_phase_args} \
+                --output ~{output_prefix}.bcf \
+                --threads ~{threads} \
+                --seed ~{seed} \
+                --checkpoint-file-out checkpoint.bin"
+
+        if [ -s "checkpoint.bin" ]; then
+            cmd="$cmd --checkpoint-file-in checkpoint.bin"
+        fi
+
+        # Check for read error which corresponds exactly to end of cram/bam block.
+        # This currently triggers a warning message from htslib, but doesn't return any error.
+        # We need to make sure that stderr is maintained since Cromwell looks for oom strings
+        # in stderr
+        eval "$cmd" 2> >(tee glimpse_stderr.log >&2)
+
+        if grep -q "EOF marker is absent" glimpse_stderr.log; then
+            echo "An input file appears to be truncated. This may be either a truly truncated file which needs to be fixed, or a networking error which can just be retried."
+            exit 1
+        fi
+
+        bcftools index -f ~{output_prefix}.bcf
+    >>>
+
+    output {
+        File phased_vcf = "~{output_prefix}.bcf"
+        File phased_vcf_idx = "~{output_prefix}.bcf.csi"
+    }
+
+    #########################
+    RuntimeAttr default_attr = object {
+        cpu_cores:          threads,
+        mem_gb:             16,
+        disk_gb:            disk_size_gb,
+        boot_disk_gb:       10,
+        use_ssd:            true,
+        preemptible_tries:  30,
+        max_retries:        3,
+        docker:             docker
+    }
+    RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
+    runtime {
+        cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
+        memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
+        disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + if select_first([runtime_attr.use_ssd, default_attr.use_ssd]) then " SSD" else " HDD"
+        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
+        preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
+        maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
+        docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        checkpointFile:         "checkpoint.bin"
+        noAddress: true
+    }
+}
+
+task GLIMPSE2Ligate {
+    input {
+        Array[File] phased_vcfs
+        Array[File] phased_vcf_idxs
+        String output_prefix
+
+        String docker
+
+        RuntimeAttr? runtime_attr_override
+    }
+
+    Int disk_size_gb = 2 * ceil(size(phased_vcfs, "GB")) + 10
+
+    command <<<
+        set -euox pipefail
+
+        /bin/GLIMPSE2_ligate --input ~{write_lines(phased_vcfs)} --output ~{output_prefix}.bcf --threads $(nproc)
+
+        # the index generated by ligate appears to be corrupt for both bcf and vcf.gz output (possibly due to https://github.com/samtools/htslib/issues/1740), so we regenerate with bcftools
+        bcftools index -f ~{output_prefix}.bcf
+    >>>
+
+    output {
+        File ligated_vcf = "~{output_prefix}.bcf"
+        File ligated_vcf_idx = "~{output_prefix}.bcf.csi"
+    }
+
+    #########################
+    RuntimeAttr default_attr = object {
+        cpu_cores:          2,
+        mem_gb:             18,
+        disk_gb:            disk_size_gb,
+        boot_disk_gb:       10,
+        use_ssd:            true,
+        preemptible_tries:  2,
+        max_retries:        1,
+        docker:             docker
+    }
+    RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
+    runtime {
+        cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
+        memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
+        disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + if select_first([runtime_attr.use_ssd, default_attr.use_ssd]) then " SSD" else " HDD"
+        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
+        preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
+        maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
+        docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
+    }
+}
+
+task PopAndMarginalizeCollisions {
+    input {
+        # all VCFs should be split to biallelic
+        File posteriors_vcf
+        File posteriors_vcf_idx
+        File panel_bubble_split_sites_only_vcf          # for annotation of INFO fields
+        File panel_bubble_split_sites_only_vcf_idx
+        File panel_id_split_vcf_gz           # panel popping script currently requires vcf.gz, so we also use that here
+        File panel_id_split_vcf_gz_tbi
+
+        String region
+        String output_prefix
+
+        RuntimeAttr? runtime_attr_override
+    }
+
+    Int disk_gb = 10 + 3 * ceil(size([posteriors_vcf, panel_bubble_split_sites_only_vcf, panel_id_split_vcf_gz], "GB"))
+
+    command <<<
+        set -euox pipefail
+
+        # this now only works for pop-glimpse2-joint-opt.rs;
+        # the sort may also be extraneous, but we keep it in to guard against getting out of sync with the popped panel
+        bcftools view -r ~{region} --regions-overlap 0 ~{panel_bubble_split_sites_only_vcf} -Oz -o panel.bubble.split.sites.shard.vcf.gz
+        bcftools view -r ~{region} --regions-overlap 0 ~{posteriors_vcf} | \
+            /usr/local/bin/pop-glimpse2 ~{panel_id_split_vcf_gz} panel.bubble.split.sites.shard.vcf.gz | \
+            bcftools sort --max-mem=2G -W -Ob -o ~{output_prefix}.bcf
+    >>>
+
+    output {
+        File popped_vcf = "~{output_prefix}.bcf"
+        File popped_vcf_idx = "~{output_prefix}.bcf.csi"
+    }
+
+    #########################
+    RuntimeAttr default_attr = object {
+        cpu_cores:          2,
+        mem_gb:             12,
+        disk_gb:            disk_gb,
+        boot_disk_gb:       10,
+        use_ssd:            true,
+        preemptible_tries:  2,
+        max_retries:        1,
+        docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.0.0-5dc0f19-1784328222"
+    }
+    RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
+    runtime {
+        cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
+        memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
+        disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + if select_first([runtime_attr.use_ssd, default_attr.use_ssd]) then " SSD" else " HDD"
+        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
+        preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
+        maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
+        docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
+    }
+}
+
+task UpdateHeader {
+    input {
+        File bcf_to_reheader
+        File bcf_to_get_header_from
+        File ref_dict
+        String output_basename
+
+        Int mem_gb = 2
+        Int cpu = 1
+        Int disk_size_gb = ceil(2.1 * size(bcf_to_reheader, "GiB") + 10)
+        Int max_retries = 1
+        String docker
+    }
+
+    parameter_meta {
+        bcf_to_get_header_from : {
+            localization_optional : true
+        }
+    }
+
+    command <<<
+        set -xeuo pipefail
+
+        export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
+
+        # Set correct reference dictionary
+
+        # take input VCF header and add GLIMPSE INFO and FORMAT lines (GLIMPSE header only contains a single chromosome and breaks bcftools concat --naive)
+        bcftools view --no-version -h ~{bcf_to_get_header_from} | grep '^##' > input.header.txt
+        bcftools view --no-version -h ~{bcf_to_reheader} | grep -E '^##INFO|^##FORMAT|^##NMAIN|^##FPLOIDY' > glimpse2.header.txt
+        bcftools view --no-version -h ~{bcf_to_reheader} | grep '^#CHROM' > glimpse2.columns.txt
+        cat input.header.txt glimpse2.header.txt glimpse2.columns.txt > header.vcf
+
+        java -jar /picard.jar UpdateVcfSequenceDictionary -I header.vcf --SD ~{ref_dict} -O updated_header.vcf
+
+        bcftools reheader -h updated_header.vcf ~{bcf_to_reheader} -o ~{output_basename}.bcf
+        bcftools index ~{output_basename}.bcf
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk " + disk_size_gb + " SSD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        maxRetries: max_retries
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        File output_bcf = "~{output_basename}.bcf"
+        File output_bcf_index = "~{output_basename}.bcf.csi"
+    }
+}

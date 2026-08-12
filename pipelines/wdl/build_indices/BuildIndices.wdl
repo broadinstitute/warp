@@ -25,7 +25,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.1.0"
+  String pipeline_version = "5.1.1"
 
   parameter_meta {
     annotations_gtf: "the annotation file"
@@ -505,6 +505,7 @@ task BuildStarSingleNucleus {
   String annotation_gtf_modified = "~{gtf_prefix}v~{gtf_annotation_version}.annotation.gtf"
 
   command <<<
+    set -euxo pipefail
     # Decompress GTF if gzipped, otherwise copy to expected output name
     if [[ "~{annotation_gtf}" == *.gz ]]; then
         echo "Detected gzipped GTF file, decompressing..."
@@ -514,10 +515,18 @@ task BuildStarSingleNucleus {
         cp ~{annotation_gtf} ~{annotation_gtf_modified}
     fi
 
+    if [[ "~{genome_fa}" == *.gz ]]; then
+        echo "Detected gzipped FASTA file, decompressing..."
+        gunzip -c ~{genome_fa} > genome.fa
+    else
+        echo "FASTA file is not compressed, copying..."
+        cp ~{genome_fa} genome.fa
+    fi
+
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
-    --genomeFastaFiles ~{genome_fa} \
+    --genomeFastaFiles genome.fa \
     --sjdbGTFfile ~{annotation_gtf_modified} \
     --sjdbOverhang 100 \
     --runThreadN 16 \

@@ -1,0 +1,5 @@
+{
+  "scANVI.input_id": "10k_PBMC_gex_only",
+  "scANVI.gex_h5ad": "gs://pd-test-storage-public/scANVI/input/scientific/10k_PBMC/10k_PBMC_gex.h5ad",
+  "scANVI.ref_h5ad": "gs://pd-test-storage-public/scANVI/input/scientific/10k_PBMC/pbmc_reference.h5ad"
+}

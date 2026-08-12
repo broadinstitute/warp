@@ -1,3 +1,13 @@
+# 2.2.8
+2026-07-10 (Date of Last Commit)
+
+* No functional impact; version bump only for the shared `CheckInputs.wdl` edit (this pipeline uses `checkInputArrays`, not the modified `checkOptimusInput` task)
+
+# 2.2.7
+2026-05-15 (Date of Last Commit)
+
+* Updated shared dependency CheckInputs.wdl to support 10x v4 (GEM-X) chemistry; no functional impact on MultiSampleSmartSeq2SingleNucleus outputs (only `checkInputArrays` is used from this task file)
+
 # 2.2.6
 2026-04-02 (Date of Last Commit)
 

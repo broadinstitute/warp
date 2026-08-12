@@ -1,3 +1,28 @@
+# 1.0.5
+2026-07-20 (Date of Last Commit)
+
+* Add check for matching cram and crai basenames
+
+# 1.0.4
+2026-05-22 (Date of Last Commit)
+
+* Adds an optional pipeline_header_line input to the WDL
+
+# 1.0.3
+2026-05-20 (Date of Last Commit)
+
+* Added optional `info_filter_for_inclusion` input for interface consistency with main pipeline; not used by QC
+
+# 1.0.2
+2026-05-20 (Date of Last Commit)
+
+* Add check for correct reference alignment in input CRAMs
+
+# 1.0.1
+2026-05-11 (Date of Last Commit)
+
+* Use cram_manifest if provided instead of crams/cram_indices/sample_ids input arrays
+
 # 1.0.0
 2026-04-15 (Date of Last Commit)
 
