@@ -1,10 +1,12 @@
 version 1.0
 
+import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
+
 # NOTE: We assume we are merging squared-off single-sample VCFs (enforced by checking that the number of records in each VCF is identical when localizing shards with bcftools view)
 
 workflow MultilevelHierarchicallyMergeVcfs {
     # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "0.0.3"
+    String pipeline_version = "0.0.4"
 
     input {
         Array[String]? vcfs_array
@@ -137,17 +139,17 @@ workflow MultilevelHierarchicallyMergeVcfs {
     }
 
     # concatenate all regions together
-    call ConcatVcfs {
+    call Glimpse2SVImputationTasks.ConcatBcfs {
         input:
-            vcfs = final_region_vcf,
-            vcf_idxs = final_region_idx,
+            bcfs = final_region_vcf,
+            bcf_idxs = final_region_idx,
             output_prefix = output_prefix,
             extra_args = extra_concat_args
     }
 
     output {
-        File merged_vcf = ConcatVcfs.concatenated_vcf
-        File merged_vcf_idx = ConcatVcfs.concatenated_vcf_idx
+        File merged_vcf = ConcatBcfs.concatenated_bcf
+        File merged_vcf_idx = ConcatBcfs.concatenated_bcf_idx
     }
 }
 
@@ -358,57 +360,6 @@ task MergeVcfs {
         preemptible_tries:  3,
         max_retries:        0,
         docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.0.0-5dc0f19-1784328222"
-    }
-    RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
-    runtime {
-        cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
-        memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
-        disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + " " + select_first([runtime_attr.disk_type, default_attr.disk_type])
-        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
-        preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
-        maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
-        docker:                 select_first([runtime_attr.docker,            default_attr.docker])
-        noAddress: true
-    }
-}
-
-task ConcatVcfs {
-    input{
-        Array[File] vcfs
-        Array[File] vcf_idxs
-        String output_prefix
-        String? extra_args
-
-        RuntimeAttr? runtime_attr_override
-    }
-
-    Int disk_gb = 10 + 2 * ceil(size(vcfs, "GiB"))
-
-    command <<<
-        set -euox pipefail
-
-        bcftools concat \
-            -f ~{write_lines(vcfs)} \
-            ~{extra_args} \
-            -Ob -o ~{output_prefix}.bcf
-        bcftools index ~{output_prefix}.bcf
-    >>>
-
-    output {
-        File concatenated_vcf = "~{output_prefix}.bcf"
-        File concatenated_vcf_idx = "~{output_prefix}.bcf.csi"
-    }
-
-    #########################
-    RuntimeAttr default_attr = object {
-        cpu_cores:          1,
-        mem_gb:             4,
-        disk_gb:            disk_gb,
-        boot_disk_gb:       10,
-        disk_type:          "SSD",
-        preemptible_tries:  3,
-        max_retries:        0,
-        docker:             "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {

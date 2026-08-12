@@ -443,3 +443,40 @@ task ParseVcfManifestIntoArrays {
     }
 }
 
+task ConcatBcfs {
+    input{
+        Array[File] bcfs
+        Array[File] bcf_idxs
+        String output_prefix
+        String? extra_args
+    }
+
+    Int disk_gb = ceil(2.1 * size(bcfs, "GiB")) + 10
+
+    command <<<
+        set -euox pipefail
+
+        bcftools concat \
+            -f ~{write_lines(bcfs)} \
+            ~{extra_args} \
+            -Ob -o ~{output_prefix}.bcf
+        bcftools index ~{output_prefix}.bcf
+    >>>
+
+    output {
+        File concatenated_bcf = "~{output_prefix}.bcf"
+        File concatenated_bcf_idx = "~{output_prefix}.bcf.csi"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "4 GiB"
+        disks: "local-disk " + disk_gb + " SSD"
+        bootDiskSizeGb: 10
+        preemptible: 3
+        maxRetries: 0
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        noAddress: true
+    }
+}
+

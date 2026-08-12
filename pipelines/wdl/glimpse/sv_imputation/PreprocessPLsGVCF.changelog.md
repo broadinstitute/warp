@@ -1,3 +1,8 @@
+# 0.0.8
+2026-08-12 (Date of Last Commit)
+
+* update multi_level_paste_pipeline_version to 0.0.4
+
 # 0.0.7
 2026-08-11 (Date of Last Commit)
 
