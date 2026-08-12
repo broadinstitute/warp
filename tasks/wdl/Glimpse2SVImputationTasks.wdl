@@ -430,7 +430,7 @@ task ParseVcfManifestIntoArrays {
     runtime {
         docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
         cpu: 1
-        memory: "1 GiB"
+        memory: "4 GiB"
         disks: "local-disk 10 HDD"
         preemptible: 3
         noAddress: true
