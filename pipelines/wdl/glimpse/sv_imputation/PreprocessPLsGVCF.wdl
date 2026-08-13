@@ -1,19 +1,14 @@
 version 1.0
 
 import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelHierarchicallyPasteVcfsStreaming
+import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.6"
-    String multi_level_paste_pipeline_version = "0.0.3"
+    String pipeline_version = "0.0.8"
+    String multi_level_paste_pipeline_version = "0.0.4"
     input {
-        File? input_gvcfs_fofn
-        File? input_gvcf_idxs_fofn
-        File? sample_ids_file          # order of sample names must match that of gVCFs
-
-        Array[File]? input_gvcfs
-        Array[File]? input_gvcf_idxs
-        Array[String]? sample_ids
+        File input_gvcf_manifest
 
         # inputs for PreprocessPLs
         File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
@@ -23,31 +18,21 @@ workflow PreprocessPLsGVCF {
         Array[String] paste_regions
     }
 
-    if (defined(input_gvcfs_fofn)) {
-        Array[File] parsed_gvcfs = read_lines(select_first([input_gvcfs_fofn]))
+    call Glimpse2SVImputationTasks.ParseVcfManifestIntoArrays as ParseInputManifest {
+        input:
+            gvcf_manifest = input_gvcf_manifest
     }
-    Array[File] input_gvcfs_ = select_first([input_gvcfs, parsed_gvcfs])
 
-    if (defined(input_gvcf_idxs_fofn)) {
-        Array[File] parsed_gvcf_idxs = read_lines(select_first([input_gvcf_idxs_fofn]))
-    }
-    Array[File] input_gvcf_idxs_ = select_first([input_gvcf_idxs, parsed_gvcf_idxs])
-
-    if (defined(sample_ids_file)) {
-        Array[String] parsed_sample_ids = read_lines(select_first([sample_ids_file]))
-    }
-    Array[String] sample_ids_ = select_first([sample_ids, parsed_sample_ids])
-
-    scatter (j in range(length(input_gvcfs_))) {
+    scatter (j in range(length(ParseInputManifest.input_gvcfs))) {
         call PreprocessPLs as PreprocessPLsGVCF {
             input:
-                input_vcf = input_gvcfs_[j],
-                input_vcf_idx = input_gvcf_idxs_[j],
+                input_vcf = ParseInputManifest.input_gvcfs[j],
+                input_vcf_idx = ParseInputManifest.input_gvcf_idxs[j],
                 mode = "gvcf",
                 panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
                 panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
-                sample_names = [sample_ids_[j]],
-                output_prefix = "sample-" + j + "." + sample_ids_[j] + ".preprocessedPLs",
+                sample_names = [ParseInputManifest.sample_ids[j]],
+                output_prefix = "sample-" + j + "." + ParseInputManifest.sample_ids[j] + ".preprocessedPLs",
                 extra_args = extract_bubble_likelihoods_extra_args
         }
     }
@@ -69,6 +54,7 @@ workflow PreprocessPLsGVCF {
     output {
         File preprocessed_pls_vcf = PastePreprocessPLsGVCFs.merged_vcf
         File preprocessed_pls_vcf_idx = PastePreprocessPLsGVCFs.merged_vcf_idx
+        Int num_samples = length(ParseInputManifest.sample_ids)
     }
 }
 

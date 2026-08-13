@@ -8,14 +8,10 @@ import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 workflow TestGlimpse2SVImputation {
 
     input {
-        # inputs for Preprocessing wdl
-        File? input_gvcfs_fofn
-        File? input_gvcf_idxs_fofn
-        File? sample_ids_file          # order of sample ids must match that of gVCFs
-
         Array[File]? input_gvcfs
         Array[File]? input_gvcf_idxs
         Array[String]? sample_ids
+        File? gvcf_manifest
 
         Int sample_batch_size = 500
 
@@ -41,6 +37,8 @@ workflow TestGlimpse2SVImputation {
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
 
+        Float? info_filter_for_inclusion
+
         String? glimpse2_docker
 
         # These values will be determined and injected into the inputs by the scala test framework
@@ -55,12 +53,10 @@ workflow TestGlimpse2SVImputation {
 
     call Glimpse2SVImputation.Glimpse2SVImputation {
       input:
-        input_gvcfs_fofn = input_gvcfs_fofn,
-        input_gvcf_idxs_fofn = input_gvcf_idxs_fofn,
-        sample_ids_file = sample_ids_file,
         input_gvcfs = input_gvcfs,
         input_gvcf_idxs = input_gvcf_idxs,
         sample_ids = sample_ids,
+        gvcf_manifest = gvcf_manifest,
         sample_batch_size = sample_batch_size,
         output_prefix = output_prefix,
         preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
@@ -74,6 +70,7 @@ workflow TestGlimpse2SVImputation {
         extra_phase_args = extra_phase_args,
         glimpse_phase_cpu_override = glimpse_phase_cpu_override,
         pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
+        info_filter_for_inclusion = info_filter_for_inclusion,
         glimpse2_docker = glimpse2_docker,
     }
 
