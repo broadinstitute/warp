@@ -5,9 +5,9 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.16"
-    String preprocess_pls_gvcf_pipeline_version = "0.0.8"
-    String batch_pipeline_version = "0.0.12"
+    String pipeline_version = "0.0.17"
+    String preprocess_pls_gvcf_pipeline_version = "0.0.9"
+    String batch_pipeline_version = "0.0.13"
 
     input {
         # if both array inputs and gvcf_manifest are provided, array inputs take precedence
@@ -32,7 +32,7 @@ workflow Glimpse2SVImputation {
         File chunked_panel_json
 
         String extra_phase_args = "--impute-reference-only-variants --keep-monomorphic-ref-sites --Kpbwt 1000 --main 10 --burnin 5 --err-imp 1E-3"
-        
+
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
         Int? glimpse_phase_cpu_override
 
