@@ -1,3 +1,8 @@
+# 1.0.6
+2026-08-12 (Date of Last Commit)
+
+* Update `batch_pipeline_version` to 1.0.4 to pick up wording fix ("low pass" -> "low-pass") in `Glimpse2LowPassImputationBatch` header comment
+
 # 1.0.5
 2026-08-09 (Date of Last Commit)
 

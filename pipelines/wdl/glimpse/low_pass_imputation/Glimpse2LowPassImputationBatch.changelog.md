@@ -1,3 +1,8 @@
+# 1.0.4
+2026-08-12 (Date of Last Commit)
+
+* Add hyphen to "low pass" -> "low-pass" in workflow header comment
+
 # 1.0.3
 2026-08-01 (Date of Last Commit)
 
@@ -74,4 +79,4 @@
 # 0.0.1
 2026-04-30 (Date of Last Commit)
 
-* initial implementation of low pass imputation batch wdl. this wdl will run the low pass imputation workflow on a batch of samples.
+* initial implementation of low-pass imputation batch wdl. this wdl will run the low-pass imputation workflow on a batch of samples.

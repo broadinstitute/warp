@@ -1,12 +1,12 @@
 version 1.0
 
-# This workflow performs low pass imputation using GLIMPSE2. It's designed to scale
+# This workflow performs low-pass imputation using GLIMPSE2. It's designed to scale
 # to approximately 1000 samples and be used as a subworkflow for Glimpse2LowPassImputation.wdl,
 # which can handle larger sample sizes by splitting into batches and then merging results.
 
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.3"
+    String pipeline_version = "1.0.4"
 
     input {
 
