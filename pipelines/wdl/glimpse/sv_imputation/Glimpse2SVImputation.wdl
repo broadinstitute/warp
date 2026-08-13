@@ -5,19 +5,16 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.14"
-    String preprocess_pls_gvcf_pipeline_version = "0.0.6"
-    String batch_pipeline_version = "0.0.11"
+    String pipeline_version = "0.0.16"
+    String preprocess_pls_gvcf_pipeline_version = "0.0.8"
+    String batch_pipeline_version = "0.0.12"
 
     input {
-        # inputs for Preprocessign wdl
-        File? input_gvcfs_fofn
-        File? input_gvcf_idxs_fofn
-        File? sample_ids_file          # order of sample ids must match that of gVCFs
-
+        # if both array inputs and gvcf_manifest are provided, array inputs take precedence
         Array[File]? input_gvcfs
         Array[File]? input_gvcf_idxs
         Array[String]? sample_ids
+        File? gvcf_manifest
         Int sample_batch_size = 500
 
         String output_prefix
@@ -50,42 +47,30 @@ workflow Glimpse2SVImputation {
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     }
 
-    # Determine which input path is being used
     Boolean using_arrays = defined(input_gvcfs) && defined(input_gvcf_idxs) && defined(sample_ids)
-    Boolean using_fofns = defined(input_gvcfs_fofn) && defined(input_gvcf_idxs_fofn) && defined(sample_ids_file)
 
-    # If using FOFNs, wrap them as single-batch inputs; if using arrays, batch them
     if (using_arrays) {
-        call Glimpse2SVImputationTasks.SplitGvcfInputsIntoBatches {
+        call Glimpse2SVImputationTasks.ConvertInputArraysToManifest {
             input:
-                input_gvcfs = select_first([input_gvcfs]),
-                input_gvcf_idxs = select_first([input_gvcf_idxs]),
-                sample_ids = select_first([sample_ids]),
-                batch_size = sample_batch_size
+                gvcf_paths = select_first([input_gvcfs]),
+                gvcf_index_paths = select_first([input_gvcf_idxs]),
+                sample_ids = select_first([sample_ids])
         }
     }
 
-    if (using_fofns) {
-        call WrapFofnsAsSingleBatch {
-            input:
-                input_gvcfs_fofn = select_first([input_gvcfs_fofn]),
-                input_gvcf_idxs_fofn = select_first([input_gvcf_idxs_fofn]),
-                sample_ids_file = select_first([sample_ids_file])
-        }
+    # if neither the full array input set nor gvcf_manifest is provided the workflow will fail at runtime
+    File gvcf_manifest_to_use = select_first([ConvertInputArraysToManifest.output_manifest, gvcf_manifest])
+
+    call Glimpse2SVImputationTasks.SplitVcfManifestIntoBatches as SplitIntoSampleBatches {
+        input:
+            batch_size = sample_batch_size,
+            gvcf_manifest = gvcf_manifest_to_use
     }
 
-    Array[File] gvcf_fofn_batches = select_first([SplitGvcfInputsIntoBatches.gvcf_fofn_batches, WrapFofnsAsSingleBatch.gvcf_fofn_batch])
-    Array[File] gvcf_idx_fofn_batches = select_first([SplitGvcfInputsIntoBatches.gvcf_idx_fofn_batches, WrapFofnsAsSingleBatch.gvcf_idx_fofn_batch])
-    Array[File] sample_ids_batches = select_first([SplitGvcfInputsIntoBatches.sample_ids_batches, WrapFofnsAsSingleBatch.sample_ids_batch])
-
-    scatter (batch_idx in range(length(gvcf_fofn_batches))) {
-        Int batch_num_samples = length(read_lines(sample_ids_batches[batch_idx]))
-
+    scatter (batch_idx in range(length(SplitIntoSampleBatches.gvcf_manifest_batches))) {
         call PreprocessPLsGVCF.PreprocessPLsGVCF as PreProcessGVCFsBatch {
             input:
-                input_gvcfs_fofn = gvcf_fofn_batches[batch_idx],
-                input_gvcf_idxs_fofn = gvcf_idx_fofn_batches[batch_idx],
-                sample_ids_file = sample_ids_batches[batch_idx],
+                input_gvcf_manifest = SplitIntoSampleBatches.gvcf_manifest_batches[batch_idx],
                 preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
                 preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
                 extract_bubble_likelihoods_extra_args = extract_bubble_likelihoods_extra_args,
@@ -112,7 +97,7 @@ workflow Glimpse2SVImputation {
         Array[File] popped_bcfs_for_contig = transpose(RunBatch.glimpse2_popped_posteriors_vcf)[contig_idx]
         Array[File] popped_bcf_idxs_for_contig = transpose(RunBatch.glimpse2_popped_posteriors_vcf_idx)[contig_idx]
 
-        if (length(gvcf_fofn_batches) > 1) {
+        if (length(SplitIntoSampleBatches.gvcf_manifest_batches) > 1) {
             scatter (batch_annot_idx in range(length(popped_bcfs_for_contig))) {
                 call Glimpse2SVImputationTasks.ExtractAnnotations as ExtractPoppedAnnotations {
                     input:
@@ -133,7 +118,7 @@ workflow Glimpse2SVImputation {
                 input:
                     merged_vcf = MergePoppedContigVcfs.output_vcf,
                     annotations = ExtractPoppedAnnotations.annotations,
-                    num_samples = batch_num_samples,
+                    num_samples = PreProcessGVCFsBatch.num_samples,
                     output_basename = output_prefix + "." + chromosomes[contig_idx] + ".glimpse2.popped.merged.reannotated",
                     docker_merge = merge_docker
             }
@@ -167,34 +152,3 @@ workflow Glimpse2SVImputation {
     }
 }
 
-task WrapFofnsAsSingleBatch {
-    input {
-        File input_gvcfs_fofn
-        File input_gvcf_idxs_fofn
-        File sample_ids_file
-    }
-
-    command <<<
-        set -euo pipefail
-
-        # Copy FOFNs and sample IDs file as single-batch files with standardized naming
-        cp ~{input_gvcfs_fofn} gvcf_batch_0000.fofn
-        cp ~{input_gvcf_idxs_fofn} gvcf_idx_batch_0000.fofn
-        cp ~{sample_ids_file} sample_ids_batch_0000.txt
-    >>>
-
-    runtime {
-        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
-        cpu: 1
-        memory: "1 GiB"
-        disks: "local-disk 10 HDD"
-        preemptible: 3
-        noAddress: true
-    }
-
-    output {
-        Array[File] gvcf_fofn_batch = glob("gvcf_batch_0000.fofn")
-        Array[File] gvcf_idx_fofn_batch = glob("gvcf_idx_batch_0000.fofn")
-        Array[File] sample_ids_batch = glob("sample_ids_batch_0000.txt")
-    }
-}

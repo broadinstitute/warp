@@ -2,7 +2,7 @@ version 1.0
 
 
 import "../../pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as CramToUnmappedBams
-import "../../verification/VerifyCramToUnmappedBamsUpdated.wdl" as VerifyCramToUnmappedBamsUpdated
+import "../../verification/VerifyCramToUnmappedBams.wdl" as VerifyCramToUnmappedBams
 import "../../tasks/wdl/Utilities.wdl" as Utilities
 import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
@@ -78,7 +78,7 @@ workflow TestCramToUnmappedBams {
             truth_path = truth_path
         }
 
-      call VerifyCramToUnmappedBamsUpdated.VerifyCramToUnmappedBams as Verify {
+      call VerifyCramToUnmappedBams.VerifyCramToUnmappedBams as Verify {
         input:
           truth_bam = GetBam.truth_files, 
           test_bam = GetBam.results_files,

@@ -297,54 +297,89 @@ task FilterVcfByInfo {
     }
 }
 
-task SplitGvcfInputsIntoBatches {
+task SplitVcfManifestIntoBatches {
     input {
-        Array[String] input_gvcfs
-        Array[String] input_gvcf_idxs
-        Array[String] sample_ids
         Int batch_size
+        File gvcf_manifest
+    }
+
+    command <<<
+        cat <<EOF > script.py
+        import sys
+        import pandas as pd
+
+        batch_size = ~{batch_size}
+
+        df = pd.read_csv("~{gvcf_manifest}", sep='\t')
+
+        required_cols = ['sample_id', 'gvcf_path', 'gvcf_index_path']
+        missing_cols = [col for col in required_cols if col not in df.columns]
+        if missing_cols:
+            print(f"Missing required columns in the VCF manifest: {', '.join(missing_cols)}.", file=sys.stderr)
+            sys.exit(1)
+
+        if df[required_cols].isnull().any().any():
+            print("The VCF manifest contains empty values in required columns.", file=sys.stderr)
+            sys.exit(1)
+
+        if len(df) == 0:
+            print("The VCF manifest must contain at least one row.", file=sys.stderr)
+            sys.exit(1)
+
+        chunk_num = 0
+        for i in range(0, len(df), batch_size):
+            df_chunk = df[i : i + batch_size]
+            df_chunk.to_csv(f"chunk_{chunk_num:04d}.tsv", sep='\t', index=False)
+            chunk_num += 1
+
+        EOF
+        python3 script.py
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        memory: "1 GiB"
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        Array[File] gvcf_manifest_batches = glob("chunk_*")
+    }
+}
+
+task ConvertInputArraysToManifest {
+    input {
+        Array[String] sample_ids
+        Array[String] gvcf_paths
+        Array[String] gvcf_index_paths
+        String output_filename = "manifest.tsv"
     }
 
     command <<<
         set -euo pipefail
 
-        cat <<EOF > script.py
-import sys
+        python3 << 'EOF'
+        import sys
 
-gvcfs = ['~{sep="', '" input_gvcfs}']
-gvcf_idxs = ['~{sep="', '" input_gvcf_idxs}']
-sample_ids = ['~{sep="', '" sample_ids}']
-batch_size = ~{batch_size}
+        sample_ids = ['~{sep="', '" sample_ids}']
+        gvcf_paths = ['~{sep="', '" gvcf_paths}']
+        gvcf_index_paths = ['~{sep="', '" gvcf_index_paths}']
 
-if not (len(gvcfs) == len(gvcf_idxs) == len(sample_ids)):
-    print(
-        f"input_gvcfs ({len(gvcfs)}), input_gvcf_idxs ({len(gvcf_idxs)}), and sample_ids ({len(sample_ids)}) must have identical lengths.",
-        file=sys.stderr,
-    )
-    sys.exit(1)
+        if not (len(sample_ids) == len(gvcf_paths) == len(gvcf_index_paths)):
+            print(
+                f"ERROR: Input arrays have different lengths: sample_ids={len(sample_ids)}, gvcf_paths={len(gvcf_paths)}, gvcf_index_paths={len(gvcf_index_paths)}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
-if batch_size < 1:
-    print(f"batch_size must be > 0, got {batch_size}", file=sys.stderr)
-    sys.exit(1)
-
-batch_num = 0
-for i in range(0, len(gvcfs), batch_size):
-    gvcf_chunk = gvcfs[i : i + batch_size]
-    gvcf_idx_chunk = gvcf_idxs[i : i + batch_size]
-    sample_id_chunk = sample_ids[i : i + batch_size]
-
-    with open(f"gvcf_batch_{batch_num:04d}.fofn", "w") as gvcf_out:
-        gvcf_out.write("\n".join(gvcf_chunk) + "\n")
-
-    with open(f"gvcf_idx_batch_{batch_num:04d}.fofn", "w") as idx_out:
-        idx_out.write("\n".join(gvcf_idx_chunk) + "\n")
-
-    with open(f"sample_ids_batch_{batch_num:04d}.txt", "w") as sample_out:
-        sample_out.write("\n".join(sample_id_chunk) + "\n")
-
-    batch_num += 1
-EOF
-        python3 script.py
+        with open('~{output_filename}', 'w') as f:
+            f.write("sample_id\tgvcf_path\tgvcf_index_path\n")
+            for sample_id, gvcf_path, gvcf_index_path in zip(sample_ids, gvcf_paths, gvcf_index_paths):
+                f.write(f"{sample_id}\t{gvcf_path}\t{gvcf_index_path}\n")
+        EOF
     >>>
 
     runtime {
@@ -357,9 +392,91 @@ EOF
     }
 
     output {
-        Array[File] gvcf_fofn_batches = glob("gvcf_batch_*.fofn")
-        Array[File] gvcf_idx_fofn_batches = glob("gvcf_idx_batch_*.fofn")
-        Array[File] sample_ids_batches = glob("sample_ids_batch_*.txt")
+        File output_manifest = "~{output_filename}"
+    }
+}
+
+task ParseVcfManifestIntoArrays {
+    input {
+        File gvcf_manifest
+    }
+
+    command <<<
+        set -euo pipefail
+
+        cat <<EOF > script.py
+        import sys
+        import pandas as pd
+
+        df = pd.read_csv("~{gvcf_manifest}", sep='\t')
+
+        required_cols = ['sample_id', 'gvcf_path', 'gvcf_index_path']
+        missing_cols = [col for col in required_cols if col not in df.columns]
+        if missing_cols:
+            print(f"Missing required columns in the VCF manifest: {', '.join(missing_cols)}.", file=sys.stderr)
+            sys.exit(1)
+
+        if df[required_cols].isnull().any().any():
+            print("The VCF manifest contains empty values in required columns.", file=sys.stderr)
+            sys.exit(1)
+
+        df['gvcf_path'].to_csv('gvcf_paths.txt', index=False, header=False)
+        df['gvcf_index_path'].to_csv('gvcf_index_paths.txt', index=False, header=False)
+        df['sample_id'].to_csv('sample_ids.txt', index=False, header=False)
+        EOF
+        python3 script.py
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        memory: "4 GiB"
+        disks: "local-disk 10 HDD"
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        Array[File] input_gvcfs = read_lines("gvcf_paths.txt")
+        Array[File] input_gvcf_idxs = read_lines("gvcf_index_paths.txt")
+        Array[String] sample_ids = read_lines("sample_ids.txt")
+    }
+}
+
+task ConcatBcfs {
+    input{
+        Array[File] bcfs
+        Array[File] bcf_idxs
+        String output_prefix
+        String? extra_args
+    }
+
+    Int disk_gb = ceil(2.1 * size(bcfs, "GiB")) + 10
+
+    command <<<
+        set -euox pipefail
+
+        bcftools concat \
+            -f ~{write_lines(bcfs)} \
+            ~{extra_args} \
+            -Ob -o ~{output_prefix}.bcf
+        bcftools index ~{output_prefix}.bcf
+    >>>
+
+    output {
+        File concatenated_bcf = "~{output_prefix}.bcf"
+        File concatenated_bcf_idx = "~{output_prefix}.bcf.csi"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "4 GiB"
+        disks: "local-disk " + disk_gb + " SSD"
+        bootDiskSizeGb: 10
+        preemptible: 3
+        maxRetries: 0
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        noAddress: true
     }
 }
 

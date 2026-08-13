@@ -1,3 +1,8 @@
+# 0.0.4
+2026-08-12 (Date of Last Commit)
+
+* moved concat task to a shared task wdl so the batch wdl can use it
+
 # 0.0.3
 2026-07-21 (Date of Last Commit)
 

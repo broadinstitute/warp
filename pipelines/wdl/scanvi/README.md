@@ -37,3 +37,11 @@ Set `scANVI.output_max_probability` to `true` to add a `max_probability` obs col
 ## Versioning
 
 See [scANVI.changelog.md](scANVI.changelog.md) for the full release history.
+
+## Citing
+
+If you use the scANVI Pipeline in your research, please identify the pipeline in your methods section using the [scANVI SciCrunch resource identifier](https://rrid.site/data/record/nlx_144509-1/SCR_028705/resolver?q=scANVI&l=scANVI&i=rrid:scr_028705).
+
+* Ex: *scANVI Pipeline (RRID:SCR_028705)*
+
+See [Citing the scANVI Pipeline](https://broadinstitute.github.io/warp/docs/Pipelines/scANVI_Pipeline/README#citing-the-scanvi-pipeline) for the full WARP citation.
