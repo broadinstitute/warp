@@ -4,7 +4,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.12"
+    String pipeline_version = "0.0.13"
 
     input {
         File input_preprocessed_joint_vcf
@@ -265,7 +265,7 @@ task GLIMPSE2Ligate {
         disk_gb:            disk_size_gb,
         boot_disk_gb:       10,
         use_ssd:            true,
-        preemptible_tries:  2,
+        preemptible_tries:  0,
         max_retries:        1,
         docker:             docker
     }
@@ -319,7 +319,7 @@ task PopAndMarginalizeCollisions {
     #########################
     RuntimeAttr default_attr = object {
         cpu_cores:          2,
-        mem_gb:             12,
+        mem_gb:             6,
         disk_gb:            disk_gb,
         boot_disk_gb:       10,
         use_ssd:            true,
