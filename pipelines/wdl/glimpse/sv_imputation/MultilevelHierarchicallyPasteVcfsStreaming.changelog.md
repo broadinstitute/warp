@@ -1,3 +1,8 @@
+# 0.0.5
+2026-08-13 (Date of Last Commit)
+
+* Remove background heartbeat monitor logging from merge task
+
 # 0.0.4
 2026-08-12 (Date of Last Commit)
 

@@ -1,3 +1,8 @@
+# 0.0.10
+2026-08-13 (Date of Last Commit)
+
+* Update `multi_level_paste_pipeline_version` to 0.0.5 to pick up removal of background heartbeat monitor logging from merge task
+
 # 0.0.9
 2026-08-13 (Date of Last Commit)
 
