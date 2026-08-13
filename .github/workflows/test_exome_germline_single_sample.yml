@@ -35,6 +35,10 @@ on:
       - '.github/workflows/test_exome_germline_single_sample.yml'
       - '.github/workflows/warp_test_workflow.yml'
       - 'scripts/firecloud_api/firecloud_api.py'
+      # dependencies imported by the test WDL but previously unwatched
+      - 'tasks/wdl/Alignment.wdl'
+      - 'tasks/wdl/DragmapAlignment.wdl'
+      - 'tasks/wdl/SplitLargeReadGroup.wdl'
 
 
   # Allows you to run this workflow manually from the Actions tab
