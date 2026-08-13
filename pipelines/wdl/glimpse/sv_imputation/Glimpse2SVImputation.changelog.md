@@ -1,7 +1,12 @@
+# 0.0.17
+2026-08-13 (Date of Last Commit)
+
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.7 and `batch_pipeline_version` to 0.0.12 for resource optimizations in `PreprocessPLs`, `GLIMPSE2Ligate`, and `PopAndMarginalizeCollisions` tasks
+
 # 0.0.16
 2026-08-12 (Date of Last Commit)
 
-* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.7 and `batch_pipeline_version` to 0.0.12 for resource optimizations in `PreprocessPLs`, `GLIMPSE2Ligate`, and `PopAndMarginalizeCollisions` tasks
+* update batch_pipeline_version to 0.0.12 and preprocess_pls_gvcf_pipeline_version to 0.0.8
 
 # 0.0.15
 2026-08-12 (Date of Last Commit)

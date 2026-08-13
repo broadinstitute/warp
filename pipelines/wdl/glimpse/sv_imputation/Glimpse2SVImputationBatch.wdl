@@ -1,11 +1,10 @@
 version 1.0
 
-import "./ConcatVcfs.wdl" as ConcatVcfs
+import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.12"
-    String concat_vcfs_pipeline_version = "0.0.3"
+    String pipeline_version = "0.0.13"
 
     input {
         File input_preprocessed_joint_vcf
@@ -98,25 +97,20 @@ workflow Glimpse2SVImputationBatch {
             }
         }
 
-        call ConcatVcfs.ConcatVcfs as ConcatPopAndMarginalizeCollisions {
+        call Glimpse2SVImputationTasks.ConcatBcfs as ConcatPopAndMarginalizeCollisions {
             input:
-                vcfs = PopAndMarginalizeCollisions.popped_vcf,
-                vcf_idxs = PopAndMarginalizeCollisions.popped_vcf_idx,
+                bcfs = PopAndMarginalizeCollisions.popped_vcf,
+                bcf_idxs = PopAndMarginalizeCollisions.popped_vcf_idx,
                 output_prefix = output_prefix + "." + chromosome + ".glimpse2.popped",
-                do_bcf = true,
-                do_sort = false,
                 extra_args = "--threads $(nproc) --naive",
-                regions = [],
-                do_sort_shard = false,
-                extra_args_shard = ""
         }
     }
 
     output {
         Array[File] glimpse2_bubble_posteriors_vcf = UpdateHeader.output_bcf
         Array[File] glimpse2_bubble_posteriors_vcf_idx = UpdateHeader.output_bcf_index
-        Array[File] glimpse2_popped_posteriors_vcf =ConcatPopAndMarginalizeCollisions.concatenated_vcf
-        Array[File] glimpse2_popped_posteriors_vcf_idx = ConcatPopAndMarginalizeCollisions.concatenated_vcf_idx
+        Array[File] glimpse2_popped_posteriors_vcf =ConcatPopAndMarginalizeCollisions.concatenated_bcf
+        Array[File] glimpse2_popped_posteriors_vcf_idx = ConcatPopAndMarginalizeCollisions.concatenated_bcf_idx
     }
 }
 

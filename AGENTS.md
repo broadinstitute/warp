@@ -54,6 +54,34 @@ import "../../../structs/dna_seq/DNASeqStructs.wdl"
 
 Import path errors are the most common validation failure.
 
+### Unused imports
+
+womtool does **not** flag an `import "..." as NS` whose namespace is never used, so dead imports accumulate (they make a reader chase a dependency that isn't there). Scan for them:
+
+```bash
+scripts/find_unused_wdl_imports.sh
+```
+
+It skips `structs/` imports — WDL references struct types by bare name, so those legitimately have no `NS.` usage.
+
+**Removing a dead import from a pipeline or shared `tasks/wdl/` WDL is still a WDL change**, so it forces a patch bump + changelog (+ cascade for shared tasks) — see [Cascading version bumps](#cascading-version-bumps). Dead imports in `verification/**` are free to drop. So don't do a repo-wide sweep in one PR: clean the `verification/**` ones anytime, and fold each pipeline/task import removal into that pipeline's **next** real change so it shares an already-required bump. Known debt as of this writing (run the scan for the current list): `atac.wdl` (`Merge`), `UltimaGenomicsWholeGenomeGermline.wdl` (`InternalTasks`, `QC`, `UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates`, `UltimaGenomicsWholeGenomeGermlineQC`), `UltimaGenomicsWholeGenomeCramOnly.wdl` (`VariantDiscoverTasks`), `Optimus.wdl` (`FastqProcessing`), `PairedTag.wdl` (`H5adUtils`), `SlideSeq.wdl` (`OptimusInputChecks`), `tasks/wdl/SplitLargeReadGroup.wdl` (`Utils`).
+
+**Future CI wiring (not done — deliberately):** the test system is currently flaky, so this stays a manual scan rather than a gate. When CI is trusted, add it as an **advisory** (non-blocking, `continue-on-error`) job first so it reports without failing PRs; promote to a blocking check only once the known debt above is cleared and the signal is proven quiet.
+
+### Stale CI path filters
+
+Each `.github/workflows/test_*.yml` has a `paths:` filter enumerating the WDLs whose changes should trigger that pipeline's test. The filter is maintained by hand, so it drifts out of sync with what the Test WDL actually imports — a watched file gets renamed/deleted (the filter then watches a dead or *wrong* file), or a new sub-workflow/task import is added but never watched. Either way the test silently stops firing on the edits that matter. Scan for both:
+
+```bash
+scripts/find_stale_ci_path_filters.sh
+```
+
+It reports `DEAD` (watched path missing / points at the wrong file) and `BLIND` (imported by the test but not covered by any watched path or `dir/**` glob) per workflow, and flags any workflow that doesn't resolve to exactly one Test WDL.
+
+**These are CI-only changes** — editing a workflow's `paths:` filter touches no WDL, so there's no version bump or changelog cascade. Fix them anytime; they don't need to ride a pipeline's next real change the way [unused imports](#unused-imports) do.
+
+**Future CI wiring (not done — deliberately):** same rationale as the unused-import scan above — the test system is flaky, so this stays a manual scan. When CI is trusted, wire it as an **advisory** (`continue-on-error`) job before ever making it blocking.
+
 ### Sub-workflow input contract
 
 A WDL file defines a **single input contract for all callers**. You cannot expose an input to one workflow but hide it from another that imports the same WDL. To remove a parameter from one consumer, you must remove it from the shared task/sub-workflow **and** from every caller.
@@ -140,6 +168,7 @@ Known chains (a starting point; the script above is authoritative):
 - **Version declaration:** WDL files declare `version 1.0`.
 - **Formatting:** 2-space indentation; blank lines to separate logical sections; no strict line-length limit.
 - **Naming:** tasks and call aliases use `UpperCamelCase`; variables use `lowercase_underscore` (Python style).
+- **File naming:** never bake a lifecycle qualifier — `Updated`, `New`, `Old`, `Final`, `V2`, `Deprecated`, ... — into a WDL filename or its `workflow` name; that's changelog language, not identity. It shows up when a WDL is replaced but the replacement keeps a disambiguating suffix instead of being renamed once the original is deleted. Fix: delete the dead file and rename the replacement in the same change, updating every reference — the `import` path, the `as` alias, any call-site namespace, and CI `paths:` filters (see [Stale CI path filters](#stale-ci-path-filters)). Example: `verification/VerifyCramToUnmappedBamsUpdated.wdl` outlived the `VerifyCramToUnmappedBams.wdl` it had replaced; a stale-migration artifact caught and fixed in #1913.
 - **Workflow input block order:** required inputs first, optional inputs with defaults second, runtime-configuration parameters last.
 - **Task section order:** input → command → output → runtime. In `command` blocks, put one input argument per line for clarity.
 - **`meta { allowNestedInputs: true }`** — include for Terra compatibility.
