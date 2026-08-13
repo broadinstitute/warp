@@ -317,20 +317,6 @@ task MergeVcfs {
             echo "SUCCESS: All localized subsets perfectly match at $EXPECTED_RECORDS records."
         fi
 
-        # Start a zero-overhead background heartbeat monitor
-        (
-            echo "Starting merge monitoring..." >&2
-            while true; do
-                if [ -f "~{output_prefix}.bcf" ]; then
-                    # Fetch the human-readable file size safely
-                    SIZE=$(ls -lh "~{output_prefix}.bcf" | awk '{print $5}')
-                    echo "[Heartbeat] ~{output_prefix}.bcf is currently $SIZE..." >&2
-                fi
-                sleep 60
-            done
-        ) &
-        HEARTBEAT_PID=$!
-
         # ==========================================
         # EXECUTE CUSTOM MERGE
         # ==========================================
@@ -341,8 +327,6 @@ task MergeVcfs {
             $(cat merge_list.txt)
 
         bcftools index ~{output_prefix}.bcf
-
-        kill $HEARTBEAT_PID || true
     >>>
 
     output {

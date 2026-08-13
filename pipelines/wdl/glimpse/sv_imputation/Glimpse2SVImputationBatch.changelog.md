@@ -1,3 +1,8 @@
+# 0.0.14
+2026-08-13 (Date of Last Commit)
+
+* Update `concat_vcfs_pipeline_version` to 0.0.4 to pick up removal of background heartbeat monitor logging from `ConcatVcfs` task
+
 # 0.0.13
 2026-08-13 (Date of Last Commit)
 
