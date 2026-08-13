@@ -4,13 +4,13 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "0.0.19"
-    String batch_pipeline_version = "0.0.9"
-    String quota_consumed_version = "0.0.5"
-    String input_qc_version = "1.0.4"
+    String pipeline_version = "1.0.6"
+    String batch_pipeline_version = "1.0.4"
+    String quota_consumed_version = "1.0.0"
+    String input_qc_version = "1.0.5"
 
     input {
-        # if multiple data types are provided, the workflow will prioritize cram_manifest first, then crams/cram_indices/sample_ids
+        # if multiple data types are provided, the workflow will prioritize cram/cram_indicies/sample_ids first, then cram manifest
         Array[File]? crams
         Array[File]? cram_indices
         Array[String]? sample_ids
@@ -36,45 +36,40 @@ workflow Glimpse2LowPassImputation {
         Int calling_batch_size = 100
 
         # batch size used by this gateway workflow to split very large sample lists
-        Int sample_batch_size = 1000
+        Int sample_batch_size = 500
 
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
         Int? glimpse_phase_cpu_override
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
-        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.0.0-2cee597-1778869818"
+        String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.3.0-8671138-1785933808"
         String docker_merge = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
     }
 
-    if (defined(cram_manifest)) {
-        call Glimpse2LowPassImputationTasks.ConvertCramManifestToInputArrays {
+    if (defined(crams)) {
+        call Glimpse2LowPassImputationTasks.ConvertInputArraysToManifest {
             input:
-                cram_manifest = select_first([cram_manifest])
+                cram_paths = select_first([crams]),
+                cram_index_paths = select_first([cram_indices]),
+                sample_ids = select_first([sample_ids])
         }
     }
 
     # if neither crams (and cram_indices and sample_ids) nor cram_manifest is provided the workflow will fail at runtime
-    Array[String] crams_to_use = select_first([ConvertCramManifestToInputArrays.crams, crams])
-    Array[String] cram_indices_to_use = select_first([ConvertCramManifestToInputArrays.cram_indices, cram_indices])
-    Array[String] sample_ids_to_use = select_first([ConvertCramManifestToInputArrays.sample_ids, sample_ids])
+    File cram_manifest_to_use = select_first([ConvertInputArraysToManifest.output_manifest, cram_manifest])
 
-    call Glimpse2LowPassImputationBatch.SplitIntoBatches as SplitIntoSampleBatches {
+    call Glimpse2LowPassImputationTasks.SplitCramManifestIntoBatches as SplitIntoSampleBatches {
         input:
             batch_size = sample_batch_size,
-            crams = crams_to_use,
-            cram_indices = cram_indices_to_use,
-            sample_ids = sample_ids_to_use
+            cram_manifest = cram_manifest_to_use
     }
 
-    scatter(batch_idx in range(length(SplitIntoSampleBatches.crams_batches))) {
-        Int batch_sample_count = length(SplitIntoSampleBatches.sample_ids_batches[batch_idx])
+    scatter(batch_idx in range(length(SplitIntoSampleBatches.cram_manifest_batches))) {
         call Glimpse2LowPassImputationBatch.Glimpse2LowPassImputationBatch as RunBatch {
             input:
                 contigs = contigs,
                 reference_panel_prefix = reference_panel_prefix,
-                crams = SplitIntoSampleBatches.crams_batches[batch_idx],
-                cram_indices = SplitIntoSampleBatches.cram_indices_batches[batch_idx],
-                sample_ids = SplitIntoSampleBatches.sample_ids_batches[batch_idx],
+                cram_manifest = SplitIntoSampleBatches.cram_manifest_batches[batch_idx],
                 fasta = fasta,
                 fasta_index = fasta_index,
                 output_basename = output_basename + ".batch_" + batch_idx,
@@ -96,7 +91,7 @@ workflow Glimpse2LowPassImputation {
 
         # For multiple batches: paste sample columns together, recompute AF/INFO as weighted averages.
         # For a single batch: skip both steps since the batch VCF already has correct annotations.
-        if (length(SplitIntoSampleBatches.crams_batches) > 1) {
+        if (length(SplitIntoSampleBatches.cram_manifest_batches) > 1) {
             # Extract AF and INFO annotations from each batch before merging so they can be recalculated
             scatter(batch_annot_idx in range(length(batch_vcfs_for_contig))) {
                 call Glimpse2LowPassImputationTasks.ExtractAnnotations {
@@ -118,7 +113,7 @@ workflow Glimpse2LowPassImputation {
                 input:
                     merged_vcf = MergeContigVcfs.output_vcf,
                     annotations = ExtractAnnotations.annotations,
-                    num_samples = batch_sample_count,
+                    num_samples = RunBatch.total_samples,
                     output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated",
                     docker_merge = docker_merge
             }

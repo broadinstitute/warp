@@ -1,3 +1,8 @@
+# 2.0.2
+2026-07-10 (Date of Last Commit)
+
+* Bumped for the shared `checkOptimusInput` change: an unspecified `tenx_chemistry_subversion` now defaults to the `v4_TRU` (Cell Ranger v9.0+) whitelist; affects v4 runs only
+
 # 2.0.1
 2026-05-15 (Date of Last Commit)
 

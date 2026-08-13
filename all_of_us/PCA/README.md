@@ -1,97 +1,99 @@
 # PCA Analysis Pipeline
-The following pipeline is used to perform Principal Component Analysis (PCA) on genomic variant data without population labels.
+
+The following pipeline performs Principal Component Analysis (PCA) on genomic variant data without population labels.
 
 ## pca_only_no_labels
-#### Background
 
-This WDL workflow performs Principal Component Analysis on genomic variant data from BGZ-compressed VCF files.
-It uses Hail for efficient processing of large-scale genomic datasets and generates PCA scores along with visualization plots.
-The workflow is designed for exploratory analysis of population structure in genomic data without requiring pre-existing population labels.
+### Background
+
+This WDL workflow performs Hardy-Weinberg equilibrium normalized PCA on genomic variant data from BGZ-compressed VCF files, using [Hail](https://hail.is/) for large-scale processing. It is designed for exploratory analysis of population structure without requiring pre-existing population labels, and it produces both tabular results (scores and eigenvalues) and a set of visualization plots.
 
 Key characteristics:
-- Processes BGZ-compressed VCF files with indices
-- Performs Hardy-Weinberg equilibrium normalized PCA
-- Generates configurable number of principal components
-- Creates scatter plots for visualization of PC1 vs PC2
-- Handles large datasets with configurable partitioning
-- Outputs both tabular results and visualization plots
+- Accepts one or more BGZ-compressed VCF files (with indices); concatenates them when more than one is provided.
+- Optionally subsets the cohort to a single predicted ancestry before training.
+- Performs Hardy-Weinberg equilibrium normalized PCA for a configurable number of components.
+- Emits a scores TSV, an eigenvalues TSV, a scree plot, and per-PC-pair scatter, hexbin, and interactive 3D density plots.
 
-#### Inputs
-Analysis Parameters:
-- `Array[File] hq_sites_vcf_files` – Array of BGZ-compressed VCF files containing variant data
-- `Array[File] hq_sites_vcf_indices` – Array of index files corresponding to the BGZ-compressed VCF files
-- `String final_output_prefix` – Prefix for all output filenames
-- `Int num_pcs` – Number of principal components to compute
-- `Int? min_vcf_partitions_in` – Optional minimum number of partitions for VCF processing (default: 200)
+### Inputs
 
-#### Step 1. ConcatenateChromosomalVcfs
-- Input Validation: Ensures all input VCF files are properly formatted and indexed
-- VCF Concatenation: Combines per-chromosome BGZ-compressed VCF files into a single file
-- Indexing: Creates a `.tbi` index file for the concatenated VCF
-- Resource Management: Configured with high memory and disk requirements for large-scale processing
+- `Array[File] hq_sites_vcf_files` – BGZ-compressed VCF files containing variant data (assumed to be in chromosomal order when more than one).
+- `Array[File] hq_sites_vcf_indices` – Index files (`.tbi`) corresponding to `hq_sites_vcf_files`. Must be the same length as `hq_sites_vcf_files` and non-empty.
+- `String final_output_prefix` – Prefix for all output filenames.
+- `Int num_pcs` – Number of principal components to compute.
+- `Int? min_vcf_partitions_in` – Optional minimum number of partitions for VCF import (default: 100).
+- `Float alpha` – Scatter-plot point opacity (default: 0.18).
+- `Array[Pair[Int, Int]]? pc_pairs` – Optional list of PC pairs to plot. If omitted, defaults to PC1 vs PC2 and PC3 vs PC4. If provided, **only** the given pairs are plotted (include every pair you want — it replaces, not extends, the defaults). JSON form: `[{"left":5,"right":6},{"left":7,"right":8}]`.
+- `File? ancestry_list` – Optional TSV (with header) of ancestry predictions covering all samples. Must contain a `research_id` column (sample ID) and an `ancestry_pred_other` column (ancestry label); other columns are ignored. **Provide together with `ancestry`.**
+- `String? ancestry` – Which `ancestry_pred_other` value to subset to (e.g. `"eur"`). **Provide together with `ancestry_list`.**
 
-Technical Details:
-- Uses `bcftools concat` for efficient concatenation
-- Ensures output is BGZ-compressed and indexed for downstream compatibility
-- Configured with 128 GB memory and 1 TB disk space
+Providing exactly one of `ancestry_list` / `ancestry` (but not both) is an error. Providing neither runs PCA on the full cohort.
+
+### Workflow steps
+
+#### Input validation
+Fails early (via `Utilities.ErrorWithMessage`) if `hq_sites_vcf_files` and `hq_sites_vcf_indices` are empty or differ in length.
+
+#### Step 1. ConcatenateChromosomalVcfs (conditional)
+Runs **only when more than one** VCF file is provided; a single input VCF is used directly.
+- Concatenates the per-chromosome BGZ VCFs into a single file with `bcftools concat` and creates a `.tbi` index with `bcftools index`.
+- Output basename defaults to `<final_output_prefix>_autosomes.vcf.gz`.
 
 #### Step 2. create_hw_pca_training
-- Input Validation: Ensures BGZ file and index are properly formatted and accessible
-- VCF Import: Loads the BGZ-compressed VCF file into Hail with specified minimum partitions
-- PCA Computation: Performs Hardy-Weinberg equilibrium normalized PCA on genotype data
-- Data Export: Flattens PCA scores and exports results as a TSV file
-- Resource Management: Uses high-memory configuration for processing large datasets
+- Imports the (concatenated or single) BGZ VCF into Hail with the requested minimum partitions.
+- **Optional ancestry subsetting:** when `ancestry_list` + `ancestry` are supplied, the MatrixTable columns are subset to the samples whose `ancestry_pred_other` equals the requested ancestry, **before** any training. Sample IDs are matched exactly between the table's `research_id` and the VCF sample name (`s`). This step hard-fails with a descriptive error if the ancestry matches no rows, if any listed sample is absent from the MatrixTable, or if there is zero overlap.
+- Runs Hail's `hwe_normalized_pca` (loadings not computed) for `num_pcs` components.
+- Exports per-sample scores (columns `s`, `PC1`…`PC{num_pcs}`) and the eigenvalues as TSVs.
 
-Technical Details:
-- Uses Hail's `hwe_normalized_pca` function for population structure analysis
-- Processes genotype (GT) field from VCF data
-- Exports eigenvalues and scores but not loadings for efficiency
-- Configured with 240 GB memory and 48 CPUs for large-scale processing
+#### Step 3. compute_pct_variance
+- Reads the eigenvalues and computes, for each PC, `100 * eigenvalue / sum(computed eigenvalues)`.
+- **Note on interpretation:** this normalizes by the sum of the *computed* (top-`num_pcs`) eigenvalues, not the total variance (trace / all eigenvalues). Each value is therefore a PC's share of the *retained* eigenvalue mass — it sums to 100% over the selected PCs by construction and is **not** the true proportion of total variance explained. It is labeled "Proportion of variance among computed PCs (%)" throughout, with column header `Variance_Proportion_Among_Computed_PCs_Pct`.
 
-#### Step 3. plot_pca
-- Data Loading: Reads the PCA results TSV file into a pandas DataFrame
-- Score Parsing: Converts string representations of score arrays back to numeric arrays
-- Label Assignment: Assigns "No label" to all samples since no population labels are available
-- Visualization: Creates scatter plots comparing specified principal components
-- Plot Generation: Saves publication-ready PNG plots with proper labeling and legends
+#### Step 4. plot_scree
+- Reads the `compute_pct_variance` output directly (single source of truth) and plots the per-PC value vs PC index as a scree plot. The "elbow" where the curve levels off indicates how many PCs capture meaningful structure.
 
-Technical Details:
-- Validates PC indices to ensure they are positive (1-indexed)
-- Uses matplotlib for high-quality scientific plotting
-- Applies rainbow color scheme for potential future categorical data
-- Generates scatter plots with 2-point markers for clarity
+#### Step 5. plot_pca (scattered over PC pairs)
+Runs once per plotted PC pair and produces, for each pair:
+- A **scatter** plot (`<prefix>_<pc1>_<pc2>_scatter.png`).
+- A **hexbin** density plot on a logarithmic color scale using the viridis colormap (`<prefix>_<pc1>_<pc2>_hexbin.png`).
+- An **interactive 3D density** surface as self-contained HTML (`<prefix>_<pc1>_<pc2>_3d_density.html`).
 
-#### Outputs
+Axis labels include the per-PC variance proportion (e.g. `PC1 (12.34%)`). Each requested pair is validated in-task: `pc1` and `pc2` must differ, and both must exist among the computed PCs (otherwise the task fails with a clear message).
 
-- `File concatenated_vcf` – BGZ-compressed VCF file containing combined data from all chromosomes
-- `File concatenated_vcf_idx` – Index file for the concatenated VCF
-- `File training_pca_labels_ht_tsv` – TSV file containing PCA scores for all samples
-- `File training_pca_labels_tsv_plots` – PNG plot file showing PC1 vs PC2 scatter plot
+### Outputs
 
-#### Runtime Requirements
+- `File training_pca_labels_ht_tsv` – TSV of PCA scores for all samples (columns `s`, `PC1`…`PC{num_pcs}`).
+- `File training_pca_eigenvalues_tsv` – TSV of PCA eigenvalues.
+- `File training_pca_scree_plot` – Scree plot PNG (proportion of variance among computed PCs, %).
+- `Array[File] training_pca_scatter_plots` – One scatter-plot PNG per plotted PC pair, ordered to match `pc_pairs` (or the defaults). Files are named by pair, e.g. `<prefix>_1_2_scatter.png`.
+- `Array[File] training_pca_hexbin_plots` – One log-scale hexbin density PNG per plotted PC pair.
+- `Array[File] training_pca_3d_density_interactive_plots` – One interactive 3D density HTML per plotted PC pair.
 
-**ConcatenateChromosomalVcfs task:**
+### Runtime requirements
+
+**ConcatenateChromosomalVcfs** (only when >1 VCF):
 - Docker: `mgibio/bcftools-cwl:1.12`
-- Memory: 128 GB
-- CPU: 16 cores
-- Disk: 1 TB HDD
+- Memory: 128 GB · CPU: 16 · Disk: 1.5 TB HDD
 
-**create_hw_pca_training task:**
-- Docker: `hailgenetics/hail:0.2.67`
-- Memory: 240 GB
-- CPU: 48 cores
-- Disk: 1 TB SSD
+**create_hw_pca_training:**
+- Docker: `hailgenetics/hail:0.2.134-py3.11`
+- Memory: 512 GB · CPU: 48 · Disk: 2 TB SSD
+- Reserves ~50 GB for the OS/Python and assigns the remainder to the Spark driver heap via `SPARK_DRIVER_MEMORY`.
 
-**plot_pca task:**
+**compute_pct_variance:**
+- Docker: `us.gcr.io/broad-gotc-prod/warp-tools:2.6.1`
+- Memory: 16 GB · CPU: 2 · Disk: 250 GB HDD
+
+**plot_scree:**
 - Docker: `faizanbashir/python-datascience:3.6`
-- Memory: 16 GB
-- CPU: 2 cores
-- Disk: 500 GB HDD
+- Memory: 8 GB · CPU: 2 · Disk: 100 GB HDD
 
-#### Usage Notes
+**plot_pca:**
+- Docker: `faizanbashir/python-datascience:3.6`
+- Memory: 16 GB · CPU: 2 · Disk: 500 GB HDD
 
-- The workflow is optimized for large-scale genomic datasets
-- BGZ files are processed with localization_optional flag for improved performance
-- Default partitioning of 200 can be adjusted based on dataset size
-- Plot generation defaults to PC1 vs PC2 but can be configured for other component pairs
-- All samples receive "No label" designation since this workflow doesn't use population labels
+### Usage notes
+
+- **Ancestry subsetting** requires `ancestry_list` and `ancestry` to be supplied together, with `ancestry` matching an `ancestry_pred_other` value exactly (case-sensitive). Because runs are per-ancestry, set `final_output_prefix` per run (e.g. include the ancestry) so outputs don't collide, and ensure the `research_id` values match the VCF sample names exactly — mismatches hard-fail with counts and example IDs rather than silently corrupting results.
+- **PC pairs:** plotting defaults to PC1 vs PC2 and PC3 vs PC4; set `pc_pairs` to plot a different set (it replaces the defaults). Both PCs in a pair must be within `1..num_pcs`.
+- **Network dependency:** `plot_pca` installs `plotly==5.18.0` via `pip` at task runtime (it is not in the plotting image) to render the interactive 3D HTML. The task will fail if the compute environment has no PyPI egress.
+- All samples receive a placeholder "No label" designation since this workflow does not use population labels.

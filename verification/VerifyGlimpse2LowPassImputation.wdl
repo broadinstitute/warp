@@ -4,7 +4,7 @@ import "../verification/VerifyTasks.wdl" as Tasks
 
 ## Copyright Broad Institute, 2018
 ##
-## This WDL script is designed to verify (compare) the outputs of Glimpse2 Low Pass Impuation wdl.
+## This WDL script is designed to verify (compare) the outputs of Glimpse2 Low-Pass Impuation wdl.
 ##
 ##
 ## Runtime parameters are optimized for Broad's Google Cloud Platform implementation.

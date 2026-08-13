@@ -1,3 +1,8 @@
+# 1.0.5
+2026-07-20 (Date of Last Commit)
+
+* Add check for matching cram and crai basenames
+
 # 1.0.4
 2026-05-22 (Date of Last Commit)
 
@@ -21,7 +26,7 @@
 # 1.0.0
 2026-04-15 (Date of Last Commit)
 
-* Initial release of pipeline to perform QC checks on inputs to the Low Pass Imputation pipeline using GLIMPSE2.
+* Initial release of pipeline to perform QC checks on inputs to the Low-Pass Imputation pipeline using GLIMPSE2.
 * Checks include:
   - If manifest input, all required columns are present
   - Same number of CRAMs, CRAM indices, and sample IDs provided

@@ -10,7 +10,8 @@ declare -a -r SKIP=(            # Skip these directories.
     .idea
 )
 declare -r CROMWELL=https://github.com/broadinstitute/cromwell
-declare -r WOMTOOL=$CROMWELL/releases/download/54/womtool-54.jar
+declare -r WOMTOOL=$CROMWELL/releases/download/92/womtool-92.jar
+
 
 declare -r BW='\033[0m'         # Black or white, the default.
 blue () {

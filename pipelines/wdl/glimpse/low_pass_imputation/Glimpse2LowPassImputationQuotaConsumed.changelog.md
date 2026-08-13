@@ -1,3 +1,13 @@
+# 1.0.0
+2026-06-30 (Date of Last Commit)
+
+* update version for teaspoons prod release
+
+# 0.0.6
+2026-06-13 (Date of Last Commit)
+
+* remove unused import
+
 # 0.0.5
 2026-05-22 (Date of Last Commit)
 
@@ -21,4 +31,4 @@
 # 0.0.1
 2026-04-02 (Date of Last Commit)
 
-* first draft of quota consumed wdl for low pass imputation.  checks the size of the cram array input or the number of crams in the manifest file
+* first draft of quota consumed wdl for low-pass imputation.  checks the size of the cram array input or the number of crams in the manifest file

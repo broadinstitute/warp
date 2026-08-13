@@ -1,3 +1,51 @@
+# 1.0.6
+2026-08-12 (Date of Last Commit)
+
+* Update `batch_pipeline_version` to 1.0.4 to pick up wording fix ("low pass" -> "low-pass") in `Glimpse2LowPassImputationBatch` header comment
+
+# 1.0.5
+2026-08-09 (Date of Last Commit)
+
+* update tasks to have `noAddress: true`
+
+# 1.0.4
+2026-08-01 (Date of Last Commit)
+
+* update docker image used for glimpse, which updates the version of bcftools from v1.21 to v1.24
+
+# 1.0.3
+2026-07-28 (Date of Last Commit)
+
+* update docker image used for glimpse. This will include runtime optimizations
+* change default sample batch size to 500
+
+# 1.0.2
+2026-07-20 (Date of Last Commit)
+
+* Update Input QC workflow version
+
+# 1.0.1
+2026-07-12 (Date of Last Commit)
+
+* update batch sub-workflow
+
+# 1.0.0
+2026-06-30 (Date of Last Commit)
+
+* update glimpse docker image to encompass vcf streaming fixes
+* update batch subworkflow
+* update version for teaspoons prod release
+
+# 0.0.21
+2026-06-22 (Date of Last Commit)
+
+* update batch subworkflow
+
+# 0.0.20
+2026-06-12 (Date of Last Commit)
+
+* use file manifest instead of input arrays for submitting batches to reduce metadata writing
+
 # 0.0.19
 2026-06-03 (Date of Last Commit)
 
