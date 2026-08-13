@@ -7,7 +7,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 workflow Glimpse2SVImputation {
     String pipeline_version = "0.0.18"
     String preprocess_pls_gvcf_pipeline_version = "0.0.9"
-    String batch_pipeline_version = "0.0.14"
+    String batch_pipeline_version = "0.0.13"
 
     input {
         # if both array inputs and gvcf_manifest are provided, array inputs take precedence
