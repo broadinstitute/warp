@@ -1,7 +1,7 @@
 # 0.0.18
 2026-08-13 (Date of Last Commit)
 
-* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.7 and `batch_pipeline_version` to 0.0.12 to pick up removal of background heartbeat monitor logging from merge/concat tasks
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.10 and `batch_pipeline_version` to 0.0.14 to pick up removal of background heartbeat monitor logging from merge/concat tasks
 
 # 0.0.17
 2026-08-13 (Date of Last Commit)
