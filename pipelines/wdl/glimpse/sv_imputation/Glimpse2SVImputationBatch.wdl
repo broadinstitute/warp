@@ -298,7 +298,7 @@ task PopAndMarginalizeCollisions {
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_gb = ceil(3*size(posteriors_vcf)) + ceil(size([panel_bubble_split_sites_only_vcf, panel_id_split_vcf_gz], "GB")) + 10
+    Int disk_gb = ceil(3*size(posteriors_vcf, "GB")) + ceil(size([panel_bubble_split_sites_only_vcf, panel_id_split_vcf_gz], "GB")) + 10
 
     command <<<
         set -euox pipefail
