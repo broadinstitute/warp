@@ -100,7 +100,7 @@ Imports the (concatenated or single) BGZF VCF into Hail with the requested minim
 Reads the eigenvalues and computes, for each PC, `100 × eigenvalue / sum(computed eigenvalues)`.
 
 :::note Interpretation
-This normalizes by the sum of the *computed* (top-`num_pcs`) eigenvalues, **not** the total variance (trace / all eigenvalues). Each value is therefore a PC's share of the *retained* eigenvalue mass — it sums to 100% over the selected PCs by construction and is **not** the true proportion of total variance explained. It is labeled "Proportion of variance among computed PCs (%)" throughout, with column header `Variance_Proportion_Among_Computed_PCs_Pct`.
+For each retained PC, the proportion of variance is calculated as that PC's eigenvalue divided by the sum of eigenvalues among the `k` computed PCs (`k` = `num_pcs`). Each value is therefore that PC's share of the **retained eigenvalue mass** — it sums to 100% over the selected PCs by construction — and is **not** the true proportion of total genome-wide variance, since only the top `k` components were computed (it does not normalize by the trace / all eigenvalues). This same metric is used consistently for the plot axis labels and the scree plot. It is labeled "Proportion of variance among computed PCs (%)" throughout, with column header `Variance_Proportion_Among_Computed_PCs_Pct`.
 :::
 
 ### 5. plot_scree
