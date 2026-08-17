@@ -1,3 +1,8 @@
+# 0.0.14
+2026-08-17 (Date of Last Commit)
+
+* make all task disk sizes dynamic and set bootDiskSizeGb to 0
+
 # 0.0.13
 2026-08-13 (Date of Last Commit)
 

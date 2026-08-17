@@ -1,3 +1,9 @@
+# 0.0.19
+2026-08-17 (Date of Last Commit)
+
+* make all task disk sizes dynamic and set bootDiskSizeGb to 0
+* update default value of sample_batch_size to 1000
+
 # 0.0.18
 2026-08-13 (Date of Last Commit)
 

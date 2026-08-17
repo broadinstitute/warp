@@ -5,8 +5,8 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.10"
-    String multi_level_paste_pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.11"
+    String multi_level_paste_pipeline_version = "0.0.6"
     input {
         File input_gvcf_manifest
 
@@ -85,7 +85,7 @@ task PreprocessPLs {
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_size_gb = 10 + 2 * ceil(size([input_vcf, panel_bubble_split_sites_only_vcf], "GB"))
+    Int disk_size_gb = ceil(2*size([input_vcf, panel_bubble_split_sites_only_vcf], "GB")) + 10
 
     File sample_names_list = write_lines(sample_names)
 
@@ -116,7 +116,7 @@ task PreprocessPLs {
         cpu_cores:          1,
         mem_gb:             2,
         disk_gb:            disk_size_gb,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         use_ssd:            true,
         preemptible_tries:  4,
         max_retries:        1,

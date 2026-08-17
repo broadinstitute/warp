@@ -4,7 +4,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.13"
+    String pipeline_version = "0.0.14"
 
     input {
         File input_preprocessed_joint_vcf
@@ -167,7 +167,7 @@ task GLIMPSE2Phase {
         }
     }
 
-    Int disk_size_gb = ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 30)
+    Int disk_size_gb = ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 40)
 
     command <<<
         set -euxo pipefail
@@ -211,7 +211,7 @@ task GLIMPSE2Phase {
         cpu_cores:          threads,
         mem_gb:             16,
         disk_gb:            disk_size_gb,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         use_ssd:            true,
         preemptible_tries:  30,
         max_retries:        3,
@@ -242,7 +242,7 @@ task GLIMPSE2Ligate {
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_size_gb = 2 * ceil(size(phased_vcfs, "GB")) + 10
+    Int disk_size_gb = ceil(2.1*size(phased_vcfs, "GB")) + 10
 
     command <<<
         set -euox pipefail
@@ -263,7 +263,7 @@ task GLIMPSE2Ligate {
         cpu_cores:          2,
         mem_gb:             18,
         disk_gb:            disk_size_gb,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         use_ssd:            true,
         preemptible_tries:  0,
         max_retries:        1,
@@ -298,7 +298,7 @@ task PopAndMarginalizeCollisions {
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_gb = 10 + 3 * ceil(size([posteriors_vcf, panel_bubble_split_sites_only_vcf, panel_id_split_vcf_gz], "GB"))
+    Int disk_gb = ceil(3*size(posteriors_vcf, "GB")) + ceil(size([panel_bubble_split_sites_only_vcf, panel_id_split_vcf_gz], "GB")) + 10
 
     command <<<
         set -euox pipefail
@@ -319,9 +319,9 @@ task PopAndMarginalizeCollisions {
     #########################
     RuntimeAttr default_attr = object {
         cpu_cores:          2,
-        mem_gb:             6,
+        mem_gb:             8,
         disk_gb:            disk_gb,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         use_ssd:            true,
         preemptible_tries:  2,
         max_retries:        1,
@@ -349,7 +349,7 @@ task UpdateHeader {
 
         Int mem_gb = 2
         Int cpu = 1
-        Int disk_size_gb = ceil(2.1 * size(bcf_to_reheader, "GiB") + 10)
+        Int disk_size_gb = ceil(2.1 * size(bcf_to_reheader, "GiB")) + 10
         Int max_retries = 1
         String docker
     }
@@ -382,6 +382,7 @@ task UpdateHeader {
     runtime {
         docker: docker
         disks: "local-disk " + disk_size_gb + " SSD"
+        bootDiskSizeGb: 0
         memory: mem_gb + " GiB"
         cpu: cpu
         maxRetries: max_retries
