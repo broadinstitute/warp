@@ -102,16 +102,7 @@ workflow Glimpse2SVImputationBatch {
                 bcfs = PopAndMarginalizeCollisions.popped_vcf,
                 bcf_idxs = PopAndMarginalizeCollisions.popped_vcf_idx,
                 output_prefix = output_prefix + "." + chromosome + ".glimpse2.popped",
-<<<<<<< HEAD
-                extra_args = "--threads $(nproc) --naive",
-=======
-                do_bcf = true,
-                do_sort = false,
                 extra_args = "--naive",
-                regions = [],
-                do_sort_shard = false,
-                extra_args_shard = ""
->>>>>>> 5fb919db1 (initial)
         }
     }
 
