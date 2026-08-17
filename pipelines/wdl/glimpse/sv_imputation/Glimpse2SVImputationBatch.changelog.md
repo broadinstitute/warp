@@ -1,3 +1,9 @@
+# 0.0.14
+2026-08-17 (Date of Last Commit)
+
+* Replace `$(nproc)` in `GLIMPSE2Ligate` with an explicit `cpu` task input referenced directly in the `--threads` argument, so thread count always matches the task's allocated cpu
+* Remove hardcoded `--threads` from `ConcatPopAndMarginalizeCollisions` call's `extra_args`, now supplied automatically by the `ConcatVcfs` task
+
 # 0.0.13
 2026-08-13 (Date of Last Commit)
 

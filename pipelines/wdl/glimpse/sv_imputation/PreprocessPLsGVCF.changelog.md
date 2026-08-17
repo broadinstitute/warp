@@ -1,3 +1,10 @@
+# 0.0.11
+2026-08-17 (Date of Last Commit)
+
+* Replace `$(nproc)` in `PreprocessPLs` task with an explicit `cpu` input referenced directly in the `--threads` argument, so thread count always matches the task's allocated cpu
+* Remove hardcoded `--threads` from paste/concat args passed to the merge sub-workflow, now supplied automatically by its tasks
+* Update `multi_level_paste_pipeline_version` to 0.0.6
+
 # 0.0.10
 2026-08-13 (Date of Last Commit)
 

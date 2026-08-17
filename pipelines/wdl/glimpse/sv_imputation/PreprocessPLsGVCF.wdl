@@ -5,8 +5,8 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.10"
-    String multi_level_paste_pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.11"
+    String multi_level_paste_pipeline_version = "0.0.6"
     input {
         File input_gvcf_manifest
 
@@ -47,8 +47,8 @@ workflow PreprocessPLsGVCF {
             do_localization = [true, true],
             timeouts_min = [0, 0],
             output_prefix = "preprocessedPLs.merged",
-            extra_merge_args = "--threads $(nproc) --format GT,PL",
-            extra_concat_args = "--threads $(nproc) --naive"
+            extra_merge_args = "--format GT,PL",
+            extra_concat_args = "--naive"
     }
 
     output {
@@ -80,7 +80,8 @@ task PreprocessPLs {
         Array[String] sample_names
         String output_prefix
 
-        String? extra_args = "--window 15000 --cap-pl 30 --scale-pl 5.0 --threads $(nproc)"
+        String? extra_args = "--window 15000 --cap-pl 30 --scale-pl 5.0"
+        Int cpu = 1
 
         RuntimeAttr? runtime_attr_override
     }
@@ -98,6 +99,7 @@ task PreprocessPLs {
             ~{output_prefix}.bcf \
             ~{"--region " + output_region} \
             --samples ~{sample_names_list} \
+            --threads ~{cpu} \
             ~{extra_args}
 
         bcftools index ~{output_prefix}.bcf
@@ -113,8 +115,13 @@ task PreprocessPLs {
 
     #########################
     RuntimeAttr default_attr = object {
+<<<<<<< HEAD
         cpu_cores:          1,
         mem_gb:             2,
+=======
+        cpu_cores:          cpu,
+        mem_gb:             4,
+>>>>>>> 5fb919db1 (initial)
         disk_gb:            disk_size_gb,
         boot_disk_gb:       10,
         use_ssd:            true,

@@ -1,3 +1,8 @@
+# 0.0.6
+2026-08-17 (Date of Last Commit)
+
+* Replace `$(nproc)` usages (`--threads` args and download parallelism) with an explicit `cpu` task input on `MergeVcfs` and `ConcatVcfs`, referenced directly in the command, so concurrency always matches the task's allocated cpu
+
 # 0.0.5
 2026-08-13 (Date of Last Commit)
 
