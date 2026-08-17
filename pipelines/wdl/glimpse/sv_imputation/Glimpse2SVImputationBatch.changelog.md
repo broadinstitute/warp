@@ -1,7 +1,12 @@
+# 0.0.15
+2026-08-17 (Date of Last Commit)
+
+* Adds an optional pipeline_header_line input to the WDL
+
 # 0.0.14
 2026-08-17 (Date of Last Commit)
 
-* Adds an optional pipeline_header_line input to the WDL 
+* make all task disk sizes dynamic and set bootDiskSizeGb to 0
 
 # 0.0.13
 2026-08-13 (Date of Last Commit)
