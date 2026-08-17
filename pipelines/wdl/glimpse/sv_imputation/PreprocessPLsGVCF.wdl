@@ -86,7 +86,7 @@ task PreprocessPLs {
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_size_gb = 10 + 2 * ceil(size([input_vcf, panel_bubble_split_sites_only_vcf], "GB"))
+    Int disk_size_gb = ceil(2*size([input_vcf, panel_bubble_split_sites_only_vcf], "GB")) + 10
 
     File sample_names_list = write_lines(sample_names)
 
@@ -118,7 +118,7 @@ task PreprocessPLs {
         cpu_cores:          cpu,
         mem_gb:             2,
         disk_gb:            disk_size_gb,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         use_ssd:            true,
         preemptible_tries:  4,
         max_retries:        1,

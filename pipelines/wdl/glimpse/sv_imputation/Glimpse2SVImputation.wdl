@@ -15,7 +15,7 @@ workflow Glimpse2SVImputation {
         Array[File]? input_gvcf_idxs
         Array[String]? sample_ids
         File? gvcf_manifest
-        Int sample_batch_size = 500
+        Int sample_batch_size = 1000
 
         String output_prefix
 

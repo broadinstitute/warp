@@ -189,9 +189,9 @@ task CreateBatches {
     #########################
     RuntimeAttr default_attr = object {
         cpu_cores:          1,
-        mem_gb:             4,
+        mem_gb:             2,
         disk_gb:            10,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         disk_type:          "HDD",
         preemptible_tries:  2,
         max_retries:        1,
@@ -227,7 +227,7 @@ task MergeVcfs {
     }
 
     # Dynamically sizes disk if localizing, defaults to 50GB if streaming
-    Int disk_gb = if length(vcfs_localize) > 0 then 10 + 2 * ceil(size(vcfs_localize, "GiB")) else 50
+    Int disk_gb = if length(vcfs_localize) > 0 then ceil(2.1*size(vcfs_localize, "GiB")) + 10 else ceil(1.1*size(vcfs_localize, "GiB")) + 10
 
     command <<<
         set -euox pipefail
@@ -341,7 +341,7 @@ task MergeVcfs {
         cpu_cores:          cpu,
         mem_gb:             4,
         disk_gb:            disk_gb,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         disk_type:          "SSD",
         preemptible_tries:  3,
         max_retries:        0,
