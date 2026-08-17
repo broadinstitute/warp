@@ -115,13 +115,8 @@ task PreprocessPLs {
 
     #########################
     RuntimeAttr default_attr = object {
-<<<<<<< HEAD
-        cpu_cores:          1,
-        mem_gb:             2,
-=======
         cpu_cores:          cpu,
-        mem_gb:             4,
->>>>>>> 5fb919db1 (initial)
+        mem_gb:             2,
         disk_gb:            disk_size_gb,
         boot_disk_gb:       10,
         use_ssd:            true,
