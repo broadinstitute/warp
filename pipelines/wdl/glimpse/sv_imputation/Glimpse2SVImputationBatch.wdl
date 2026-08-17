@@ -4,7 +4,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.13"
+    String pipeline_version = "0.0.14"
 
     input {
         File input_preprocessed_joint_vcf
@@ -23,6 +23,9 @@ workflow Glimpse2SVImputationBatch {
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
+
+        # optional additional header line to add to the output VCF
+        String? pipeline_header_line
 
         String glimpse2_docker
     }
@@ -80,7 +83,8 @@ workflow Glimpse2SVImputationBatch {
                 bcf_to_get_header_from = input_preprocessed_joint_vcf,
                 ref_dict = ref_dict,
                 output_basename = output_prefix +  "." + chromosome + ".glimpse2.bubble.updated_header",
-                docker = glimpse2_docker
+                docker = glimpse2_docker,
+                pipeline_header_line = pipeline_header_line
         }
 
         scatter (k in range(length(pop_regions))) {
@@ -346,6 +350,7 @@ task UpdateHeader {
         File bcf_to_get_header_from
         File ref_dict
         String output_basename
+        String? pipeline_header_line
 
         Int mem_gb = 2
         Int cpu = 1
@@ -372,6 +377,13 @@ task UpdateHeader {
         bcftools view --no-version -h ~{bcf_to_reheader} | grep -E '^##INFO|^##FORMAT|^##NMAIN|^##FPLOIDY' > glimpse2.header.txt
         bcftools view --no-version -h ~{bcf_to_reheader} | grep '^#CHROM' > glimpse2.columns.txt
         cat input.header.txt glimpse2.header.txt glimpse2.columns.txt > header.vcf
+
+        # Add pipeline_header_line if provided
+        if [ -n "~{default="" pipeline_header_line}" ]; then
+            TOTAL_LINES=$(wc -l < "header.vcf")
+            REMOVED_COMMENT_CHARACTER_HEADER_LINE=$(echo "~{pipeline_header_line}" | sed 's/^#*//')
+            sed -i "${TOTAL_LINES}i\##${REMOVED_COMMENT_CHARACTER_HEADER_LINE}" header.vcf
+        fi
 
         java -jar /picard.jar UpdateVcfSequenceDictionary -I header.vcf --SD ~{ref_dict} -O updated_header.vcf
 
