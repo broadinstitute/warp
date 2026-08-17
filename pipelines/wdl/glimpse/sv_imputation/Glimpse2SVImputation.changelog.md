@@ -1,7 +1,7 @@
 # 0.0.19
 2026-08-17 (Date of Last Commit)
 
-* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.11 and `batch_pipeline_version` to 0.0.12 to pick up replacement of `$(nproc)` with explicit `cpu` task inputs across nested tasks, so thread counts always match each task's allocated cpu
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.11 and `batch_pipeline_version` to 0.0.14 to pick up replacement of `$(nproc)` with explicit `cpu` task inputs across nested tasks, so thread counts always match each task's allocated cpu
 
 # 0.0.18
 2026-08-13 (Date of Last Commit)
