@@ -371,7 +371,7 @@ task ValidateGvcfInput {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+        docker: "us.gcr.io/broad-dsp-lrma/lr-gcloud-samtools:0.1.23.1"
         cpu: 1
         disks: "local-disk 10 HDD"
         memory: "4 GiB"
