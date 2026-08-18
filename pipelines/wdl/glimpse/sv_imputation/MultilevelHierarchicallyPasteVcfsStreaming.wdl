@@ -6,7 +6,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow MultilevelHierarchicallyMergeVcfs {
     # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "0.0.6"
+    String pipeline_version = "0.0.7"
 
     input {
         Array[String]? vcfs_array
@@ -19,9 +19,9 @@ workflow MultilevelHierarchicallyMergeVcfs {
         Array[Int] timeouts_min  # Timeouts in minutes per level. Set to 0 to disable. e.g., [720, 720]
         String output_prefix
 
-        String extra_merge_args = "--threads $(nproc) --info ID,RAF --format GT,DS,GP"
+        String extra_merge_args = "--info ID,RAF --format GT,DS,GP"
 
-        String extra_concat_args = "--threads $(nproc) --naive"
+        String extra_concat_args = "--naive"
     }
 
     Array[String] vcfs_in = if defined(vcfs_array) then select_first([vcfs_array]) else read_lines(select_first([vcfs_fofn]))
@@ -221,6 +221,7 @@ task MergeVcfs {
         String? region
         String output_prefix
         String? extra_args
+        Int cpu = 2
 
         RuntimeAttr? runtime_attr_override
     }
@@ -247,7 +248,7 @@ task MergeVcfs {
                 | awk '{print $1"##idx##"$2}' > remote_list.txt
 
             # Prepend the line number (NR) using awk, separated by a pipe, and pass to xargs
-            awk '{print NR"|"$0}' remote_list.txt | xargs -P $(nproc) -I {} bash -c '
+            awk '{print NR"|"$0}' remote_list.txt | xargs -P ~{cpu} -I {} bash -c '
                 set -euox pipefail
 
                 # Split the line number and the URL
@@ -322,6 +323,7 @@ task MergeVcfs {
         # ==========================================
         # Execute the compiled tool, pasting positional inputs straight from our list
         /usr/local/bin/paste-vcfs \
+            --threads ~{cpu} \
             ~{extra_args} \
             -o ~{output_prefix}.bcf \
             $(cat merge_list.txt)
@@ -336,7 +338,7 @@ task MergeVcfs {
 
     #########################
     RuntimeAttr default_attr = object {
-        cpu_cores:          2,
+        cpu_cores:          cpu,
         mem_gb:             4,
         disk_gb:            disk_gb,
         boot_disk_gb:       0,
