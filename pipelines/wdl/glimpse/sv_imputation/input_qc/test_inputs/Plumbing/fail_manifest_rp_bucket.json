@@ -1,0 +1,12 @@
+{
+  "Glimpse2SVImputationQC.output_prefix": "plumbing_test",
+  "Glimpse2SVImputationQC.gvcf_manifest": "gs://pd-test-storage-public/Glimpse2SVImputationQC/input/plumbing/manifests/gvcfManifestPassQC.tsv",
+  "Glimpse2SVImputationQC.preprocess_panel_bubble_split_sites_only_vcf": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/auxiliary_files/hgsvc-hprc-50.panel.reduced_panel_bubble_split_simple_sites.sorted.bcf",
+  "Glimpse2SVImputationQC.preprocess_panel_bubble_split_sites_only_vcf_idx": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/auxiliary_files/hgsvc-hprc-50.panel.reduced_panel_bubble_split_simple_sites.sorted.bcf.csi",
+  "Glimpse2SVImputationQC.paste_regions": ["chr19,chr20", "chr21,chr22"],
+  "Glimpse2SVImputationQC.chromosomes": ["chr19", "chr20", "chr21", "chr22"],
+  "Glimpse2SVImputationQC.genetic_maps_tsv": "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/b38_genetic_map.tsv",
+  "Glimpse2SVImputationQC.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+  "Glimpse2SVImputationQC.chunked_panel_json": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/json/hgsvc-hprc-50.chunked_panel.json",
+  "Glimpse2SVImputationQC.pop_glimpse2_panel_resources_json": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/json/hgsvc-hprc-50.panel.pop_panel_resources.json"
+}
