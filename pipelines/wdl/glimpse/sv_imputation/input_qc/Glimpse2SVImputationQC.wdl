@@ -26,6 +26,7 @@ workflow InputQC {
 
         # used for warp tests only (which use inputs in an RP bucket). service does not support RP buckets and will not provide this input.
         String? billing_project_for_rp
+        Int? max_file_size_gb_override
 
         # optional additional header line to add to the output VCF
         String? pipeline_header_line
@@ -35,6 +36,7 @@ workflow InputQC {
         input:
             gvcf_manifest = gvcf_manifest,
             billing_project_for_rp = billing_project_for_rp
+            max_gvcf_file_size_gb = max_file_size_gb_override
     }
 
     # only validate individual GVCF contents if the manifest itself passed QC
@@ -121,7 +123,7 @@ task ValidateGvcfManifest {
             missing_cols = [col for col in required_cols if col not in df.columns]
 
             if missing_cols:
-                write_outputs([f"Missing required column(s) in the GVCF manifest: {', '.join(missing_cols)}."])
+                write_outputs([f"Missing required column header(s) in the GVCF manifest: {', '.join(missing_cols)}."])
             elif len(df) == 0:
                 write_outputs(["The GVCF manifest must contain at least one row."])
             elif df[required_cols].isnull().any().any():
@@ -140,7 +142,7 @@ task ValidateGvcfManifest {
                 # Ensure all GVCFs and indices have the expected extensions
                 gvcfs_with_wrong_extension = [g for g in gvcf_paths if not g.endswith('.vcf.gz')]
                 if gvcfs_with_wrong_extension:
-                    qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(gvcfs_with_wrong_extension), 'GVCF file')} that do not have a .vcf.gz extension", gvcfs_with_wrong_extension))
+                    qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(gvcfs_with_wrong_extension), 'GVCF file')} without a .vcf.gz extension", gvcfs_with_wrong_extension))
                 else:
                     print("All GVCF files have the correct .vcf.gz extension.")
 
@@ -306,6 +308,8 @@ task ValidateGvcfInput {
                 --validation-type-to-exclude ALL \
                 ~{"--gcs-project-for-requester-pays " + billing_project_for_rp} \
                 2> gatk_output.txt
+
+            cat gatk_output.txt
 
             if grep -q "incompatible contigs" gatk_output.txt; then
                 echo "GVCF file $gvcf has contigs incompatible with the expected reference dictionary ($ref_dict_basename)."
