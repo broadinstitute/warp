@@ -317,10 +317,10 @@ task ValidateGvcfInput {
             # Ensure the PL and GT FORMAT annotations are declared in the header
             header=$(bcftools view -h "$gvcf")
             missing_format_fields=()
-            if ! echo "$header" | grep -q '^##FORMAT=<ID=PL'; then
+            if ! (echo "$header" | grep -q '^##FORMAT=<ID=PL'); then
                 missing_format_fields+=("PL")
             fi
-            if ! echo "$header" | grep -q '^##FORMAT=<ID=GT'; then
+            if ! (echo "$header" | grep -q '^##FORMAT=<ID=GT'); then
                 missing_format_fields+=("GT")
             fi
             if [ ${#missing_format_fields[@]} -gt 0 ]; then
