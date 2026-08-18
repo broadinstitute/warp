@@ -317,7 +317,7 @@ task SplitVcfManifestIntoBatches {
 
         df = pd.read_csv("~{gvcf_manifest}", sep='\t')
 
-        required_cols = ['sample_id', 'gvcf_path', 'gvcf_index_path']
+        required_cols = ['gvcf_path', 'gvcf_index_path']
         missing_cols = [col for col in required_cols if col not in df.columns]
         if missing_cols:
             print(f"Missing required columns in the VCF manifest: {', '.join(missing_cols)}.", file=sys.stderr)
