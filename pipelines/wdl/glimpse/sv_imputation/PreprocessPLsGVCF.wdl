@@ -31,8 +31,7 @@ workflow PreprocessPLsGVCF {
                 mode = "gvcf",
                 panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
                 panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
-                sample_names = [ParseInputManifest.sample_ids[j]],
-                output_prefix = "sample-" + j + "." + ParseInputManifest.sample_ids[j] + ".preprocessedPLs",
+                output_prefix = "sample-" + j + ".preprocessedPLs",
                 extra_args = extract_bubble_likelihoods_extra_args
         }
     }
@@ -54,7 +53,7 @@ workflow PreprocessPLsGVCF {
     output {
         File preprocessed_pls_vcf = PastePreprocessPLsGVCFs.merged_vcf
         File preprocessed_pls_vcf_idx = PastePreprocessPLsGVCFs.merged_vcf_idx
-        Int num_samples = length(ParseInputManifest.sample_ids)
+        Int num_samples = length(ParseInputManifest.input_gvcfs)
     }
 }
 
@@ -77,7 +76,6 @@ task PreprocessPLs {
         File panel_bubble_split_sites_only_vcf
         File panel_bubble_split_sites_only_vcf_idx
         String? output_region
-        Array[String] sample_names
         String output_prefix
 
         String? extra_args = "--window 15000 --cap-pl 30 --scale-pl 5.0"
@@ -88,17 +86,35 @@ task PreprocessPLs {
 
     Int disk_size_gb = ceil(2*size([input_vcf, panel_bubble_split_sites_only_vcf], "GB")) + 10
 
-    File sample_names_list = write_lines(sample_names)
-
     command <<<
         set -euxo pipefail
+
+        # Extract sample name from GVCF header and validate there is exactly one sample
+        bcftools query -l ~{input_vcf} > sample_names.txt
+        # Count non-empty lines (grep -c returns count even without trailing newline)
+        num_samples=$(grep -c . sample_names.txt || echo "0")
+
+        if [ "$num_samples" -ne 1 ]; then
+            echo "ERROR: GVCF must contain exactly one sample, but found $num_samples samples in ~{input_vcf}" >&2
+            if [ "$num_samples" -eq 0 ]; then
+                echo "No samples found in the GVCF header" >&2
+            else
+                echo "Samples found:" >&2
+                cat sample_names.txt >&2
+            fi
+            exit 1
+        fi
+
+        sample_name=$(cat sample_names.txt)
+        echo "Processing sample: $sample_name"
+        mv sample_names.txt sample_name.txt
 
         /usr/local/bin/extract-bubble-PLs ~{mode} \
             ~{panel_bubble_split_sites_only_vcf}##idx##~{panel_bubble_split_sites_only_vcf_idx} \
             ~{input_vcf}##idx##~{input_vcf_idx} \
             ~{output_prefix}.bcf \
             ~{"--region " + output_region} \
-            --samples ~{sample_names_list} \
+            --samples sample_name.txt \
             --threads ~{cpu} \
             ~{extra_args}
 
