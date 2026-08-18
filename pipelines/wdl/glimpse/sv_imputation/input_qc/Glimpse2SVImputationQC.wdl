@@ -316,14 +316,22 @@ task ValidateGvcfInput {
 
             # Ensure the PL and GT FORMAT annotations are declared in the header.
             # ID is not guaranteed to be the first attribute inside <...> (e.g. bcftools-normalized
-            # headers often add an IDX= attribute before ID=), so match ID= at any position and
-            # require an exact match (terminated by ',' or '>') rather than a prefix match.
-            header=$(bcftools view -h "$gvcf")
+            # headers often add an IDX= attribute before ID=), so match ID= at any position within
+            # the FORMAT line and require an exact match (terminated by ',' or '>') rather than a
+            # prefix match. This is done as two plain (non-extended) greps, rather than a single
+            # grep -E with a repeated group, since the grep bundled in this task's docker image
+            # does not reliably support extended regex.
+            header=$(bcftools view -h "$gvcf" 2> bcftools_stderr.txt)
+            if ! echo "$header" | grep -q '^##fileformat='; then
+                echo "WARNING: bcftools did not return a valid-looking VCF header for $gvcf; treating as missing PL/GT. bcftools stderr:"
+                cat bcftools_stderr.txt
+            fi
+            format_lines=$(echo "$header" | grep '^##FORMAT=<')
             missing_format_fields=()
-            if ! (echo "$header" | grep -qE '^##FORMAT=<([^,>]*,)*ID=PL[,>]'); then
+            if ! echo "$format_lines" | grep -q 'ID=PL[,>]'; then
                 missing_format_fields+=("PL")
             fi
-            if ! (echo "$header" | grep -qE '^##FORMAT=<([^,>]*,)*ID=GT[,>]'); then
+            if ! echo "$format_lines" | grep -q 'ID=GT[,>]'; then
                 missing_format_fields+=("GT")
             fi
             if [ ${#missing_format_fields[@]} -gt 0 ]; then
