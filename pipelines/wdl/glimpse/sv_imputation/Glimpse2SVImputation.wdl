@@ -5,9 +5,9 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.20"
+    String pipeline_version = "0.0.21"
     String preprocess_pls_gvcf_pipeline_version = "0.0.12"
-    String batch_pipeline_version = "0.0.15"
+    String batch_pipeline_version = "0.0.16"
 
     input {
         # if both array inputs and gvcf_manifest are provided, array inputs take precedence
@@ -41,6 +41,9 @@ workflow Glimpse2SVImputation {
 
         # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCFs
         Float info_filter_for_inclusion = 0.0
+
+        # optional additional header line to add to the output VCF
+        String? pipeline_header_line
 
         String glimpse2_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.2.0-8671138-1784681771"
         String merge_docker = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
@@ -89,7 +92,8 @@ workflow Glimpse2SVImputation {
                 output_prefix = output_prefix + ".batch_" + batch_idx,
                 pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
                 glimpse2_docker = glimpse2_docker,
-                glimpse_phase_cpu_override = glimpse_phase_cpu_override
+                glimpse_phase_cpu_override = glimpse_phase_cpu_override,
+                pipeline_header_line = pipeline_header_line
         }
     }
 

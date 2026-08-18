@@ -1,3 +1,9 @@
+# 0.0.21
+2026-08-18 (Date of Last Commit)
+
+* Adds an optional pipeline_header_line input to the WDL
+* Update `batch_pipeline_version` to 0.0.16
+
 # 0.0.20
 2026-08-17 (Date of Last Commit)
 
