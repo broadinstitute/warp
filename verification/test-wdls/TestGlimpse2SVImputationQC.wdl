@@ -27,6 +27,7 @@ workflow TestGlimpse2SVImputationQC {
 
         # for warp testing only
         String? billing_project_for_rp
+        Int? max_file_size_gb_override
 
         String? pipeline_header_line
 
@@ -54,6 +55,7 @@ workflow TestGlimpse2SVImputationQC {
         pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
         info_filter_for_inclusion = info_filter_for_inclusion,
         billing_project_for_rp = billing_project_for_rp,
+        max_file_size_gb_override = max_file_size_gb_override,
         pipeline_header_line = pipeline_header_line
     }
 
