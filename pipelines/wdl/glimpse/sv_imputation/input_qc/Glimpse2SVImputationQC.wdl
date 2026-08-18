@@ -35,7 +35,7 @@ workflow InputQC {
     call ValidateGvcfManifest {
         input:
             gvcf_manifest = gvcf_manifest,
-            billing_project_for_rp = billing_project_for_rp
+            billing_project_for_rp = billing_project_for_rp,
             max_gvcf_file_size_gb = max_file_size_gb_override
     }
 
