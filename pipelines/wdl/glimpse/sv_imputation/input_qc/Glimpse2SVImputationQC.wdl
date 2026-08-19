@@ -292,6 +292,7 @@ task ValidateGvcfInput {
 
         gvcfs_with_incompatible_contigs=()
         gvcfs_with_missing_format_fields=()
+        gvcfs_with_missing_gvcf_block_lines=()
         gvcf_check_count=0
 
         # this task assumes the manifest check has already confirmed that all GVCFs exist and are accessible
@@ -299,14 +300,15 @@ task ValidateGvcfInput {
             gvcf_check_count=$((gvcf_check_count + 1))
             echo "Validating GVCF file: $gvcf"
 
+            # stream in header only
+            bcftools view -Ov -h "$gvcf" > header.vcf
+
             # --validation-type-to-exclude ALL skips variant-level validation and only checks that the
             # VCF header's sequence dictionary is compatible with the provided reference dictionary
             gatk ValidateVariants \
-                -V "$gvcf" \
-                --validate-GVCF true \
+                -V header.vcf \
                 --sequence-dictionary ~{ref_dict} \
                 --validation-type-to-exclude ALL \
-                ~{"--gcs-project-for-requester-pays " + billing_project_for_rp} \
                 2> gatk_output.txt
 
             cat gatk_output.txt
@@ -318,9 +320,17 @@ task ValidateGvcfInput {
                 echo "GVCF file $gvcf has contigs compatible with the expected reference dictionary."
             fi
 
+            # Ensure the header contains multiple GVCFBlock lines (a single line likely indicates
+            # a malformed or incomplete GVCF, since real GVCFs declare one block per depth bin)
+            gvcf_block_count=$(grep -c '##GVCFBlock' header.vcf || true)
+            if [ "$gvcf_block_count" -le 1 ]; then
+                gvcfs_with_missing_gvcf_block_lines+=("$gvcf")
+            else
+                echo "GVCF file $gvcf includes $gvcf_block_count ##GVCFBlock lines in its header."
+            fi
+
             # Ensure the PL and GT FORMAT annotations are declared in the header.
-            header=$(bcftools view -h "$gvcf")
-            format_lines=$(echo "$header" | grep '^##FORMAT=<')
+            format_lines=$(cat header.vcf | grep '^##FORMAT=<')
             missing_format_fields=()
             if ! echo "$format_lines" | grep -q 'ID=PL[,>]'; then
                 missing_format_fields+=("PL")
@@ -336,7 +346,7 @@ task ValidateGvcfInput {
             fi
 
             # if we've found more than MAX_ITEMS_IN_ERROR_MESSAGES gvcfs with issues, we can stop checking the rest of the gvcfs because the error messages will be truncated anyway
-            total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_missing_format_fields[@]} ))
+            total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_missing_gvcf_block_lines[@]} + ${#gvcfs_with_missing_format_fields[@]} ))
             if [ "$total_issue_count" -gt "$MAX_ITEMS_IN_ERROR_MESSAGES" ]; then
                 echo "Found more than $MAX_ITEMS_IN_ERROR_MESSAGES GVCF files with issues; skipping validation of remaining GVCF files"
                 break
@@ -354,6 +364,14 @@ task ValidateGvcfInput {
             append_aggregated_message "Found $n_bad_contig_gvcfs GVCF file$pluralized with contigs incompatible with the expected reference dictionary ($ref_dict_basename)" "${gvcfs_with_incompatible_contigs[@]}"
         else
             echo "All checked GVCF files have contigs compatible with the expected reference dictionary."
+        fi
+
+        n_missing_gvcf_block_lines=${#gvcfs_with_missing_gvcf_block_lines[@]}
+        if [ "$n_missing_gvcf_block_lines" -ne 0 ]; then
+            if [ "$n_missing_gvcf_block_lines" -eq 1 ]; then pluralized=""; else pluralized="s"; fi
+            append_aggregated_message "Found $n_missing_gvcf_block_lines GVCF file$pluralized missing multiple ##GVCFBlock header lines" "${gvcfs_with_missing_gvcf_block_lines[@]}"
+        else
+            echo "All checked GVCF files contain multiple ##GVCFBlock header lines."
         fi
 
         n_missing_format_gvcfs=${#gvcfs_with_missing_format_fields[@]}
@@ -376,7 +394,7 @@ task ValidateGvcfInput {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-dsp-lrma/lr-gcloud-samtools:0.1.23.1"
+        docker: "us.gcr.io/broad-gotc-prod/gatk-bcftools-gcloud:1.0.0-4.2.6.1-1.24-1787155398 "
         cpu: 1
         disks: "local-disk 10 HDD"
         memory: "4 GiB"
