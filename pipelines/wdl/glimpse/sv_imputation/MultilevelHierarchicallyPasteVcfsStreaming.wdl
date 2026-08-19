@@ -6,7 +6,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow MultilevelHierarchicallyMergeVcfs {
     # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.7"
 
     input {
         Array[String]? vcfs_array
@@ -19,9 +19,9 @@ workflow MultilevelHierarchicallyMergeVcfs {
         Array[Int] timeouts_min  # Timeouts in minutes per level. Set to 0 to disable. e.g., [720, 720]
         String output_prefix
 
-        String extra_merge_args = "--threads $(nproc) --info ID,RAF --format GT,DS,GP"
+        String extra_merge_args = "--info ID,RAF --format GT,DS,GP"
 
-        String extra_concat_args = "--threads $(nproc) --naive"
+        String extra_concat_args = "--naive"
     }
 
     Array[String] vcfs_in = if defined(vcfs_array) then select_first([vcfs_array]) else read_lines(select_first([vcfs_fofn]))
@@ -189,9 +189,9 @@ task CreateBatches {
     #########################
     RuntimeAttr default_attr = object {
         cpu_cores:          1,
-        mem_gb:             4,
+        mem_gb:             2,
         disk_gb:            10,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         disk_type:          "HDD",
         preemptible_tries:  2,
         max_retries:        1,
@@ -221,12 +221,13 @@ task MergeVcfs {
         String? region
         String output_prefix
         String? extra_args
+        Int cpu = 2
 
         RuntimeAttr? runtime_attr_override
     }
 
     # Dynamically sizes disk if localizing, defaults to 50GB if streaming
-    Int disk_gb = if length(vcfs_localize) > 0 then 10 + 2 * ceil(size(vcfs_localize, "GiB")) else 50
+    Int disk_gb = if length(vcfs_localize) > 0 then ceil(2.1*size(vcfs_localize, "GiB")) + 10 else ceil(1.1*size(vcfs_localize, "GiB")) + 10
 
     command <<<
         set -euox pipefail
@@ -247,7 +248,7 @@ task MergeVcfs {
                 | awk '{print $1"##idx##"$2}' > remote_list.txt
 
             # Prepend the line number (NR) using awk, separated by a pipe, and pass to xargs
-            awk '{print NR"|"$0}' remote_list.txt | xargs -P $(nproc) -I {} bash -c '
+            awk '{print NR"|"$0}' remote_list.txt | xargs -P ~{cpu} -I {} bash -c '
                 set -euox pipefail
 
                 # Split the line number and the URL
@@ -322,6 +323,7 @@ task MergeVcfs {
         # ==========================================
         # Execute the compiled tool, pasting positional inputs straight from our list
         /usr/local/bin/paste-vcfs \
+            --threads ~{cpu} \
             ~{extra_args} \
             -o ~{output_prefix}.bcf \
             $(cat merge_list.txt)
@@ -336,10 +338,10 @@ task MergeVcfs {
 
     #########################
     RuntimeAttr default_attr = object {
-        cpu_cores:          2,
+        cpu_cores:          cpu,
         mem_gb:             4,
         disk_gb:            disk_gb,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         disk_type:          "SSD",
         preemptible_tries:  3,
         max_retries:        0,

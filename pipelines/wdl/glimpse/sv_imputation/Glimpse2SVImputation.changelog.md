@@ -1,3 +1,20 @@
+# 0.0.21
+2026-08-18 (Date of Last Commit)
+
+* Adds an optional pipeline_header_line input to the WDL
+* Update `batch_pipeline_version` to 0.0.16
+
+# 0.0.20
+2026-08-17 (Date of Last Commit)
+
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.11 and `batch_pipeline_version` to 0.0.14 to pick up replacement of `$(nproc)` with explicit `cpu` task inputs across nested tasks, so thread counts always match each task's allocated cpu
+
+# 0.0.19
+2026-08-17 (Date of Last Commit)
+
+* make all task disk sizes dynamic and set bootDiskSizeGb to 0
+* update default value of sample_batch_size to 1000
+
 # 0.0.18
 2026-08-13 (Date of Last Commit)
 

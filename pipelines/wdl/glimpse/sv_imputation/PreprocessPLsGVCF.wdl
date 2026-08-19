@@ -5,8 +5,8 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.10"
-    String multi_level_paste_pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.12"
+    String multi_level_paste_pipeline_version = "0.0.7"
     input {
         File input_gvcf_manifest
 
@@ -47,8 +47,8 @@ workflow PreprocessPLsGVCF {
             do_localization = [true, true],
             timeouts_min = [0, 0],
             output_prefix = "preprocessedPLs.merged",
-            extra_merge_args = "--threads $(nproc) --format GT,PL",
-            extra_concat_args = "--threads $(nproc) --naive"
+            extra_merge_args = "--format GT,PL",
+            extra_concat_args = "--naive"
     }
 
     output {
@@ -80,12 +80,13 @@ task PreprocessPLs {
         Array[String] sample_names
         String output_prefix
 
-        String? extra_args = "--window 15000 --cap-pl 30 --scale-pl 5.0 --threads $(nproc)"
+        String? extra_args = "--window 15000 --cap-pl 30 --scale-pl 5.0"
+        Int cpu = 1
 
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_size_gb = 10 + 2 * ceil(size([input_vcf, panel_bubble_split_sites_only_vcf], "GB"))
+    Int disk_size_gb = ceil(2*size([input_vcf, panel_bubble_split_sites_only_vcf], "GB")) + 10
 
     File sample_names_list = write_lines(sample_names)
 
@@ -98,6 +99,7 @@ task PreprocessPLs {
             ~{output_prefix}.bcf \
             ~{"--region " + output_region} \
             --samples ~{sample_names_list} \
+            --threads ~{cpu} \
             ~{extra_args}
 
         bcftools index ~{output_prefix}.bcf
@@ -113,10 +115,10 @@ task PreprocessPLs {
 
     #########################
     RuntimeAttr default_attr = object {
-        cpu_cores:          1,
+        cpu_cores:          cpu,
         mem_gb:             2,
         disk_gb:            disk_size_gb,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         use_ssd:            true,
         preemptible_tries:  4,
         max_retries:        1,
