@@ -60,7 +60,7 @@ task ValidateGvcfManifest {
     input {
         File gvcf_manifest
 
-        Int max_gvcf_file_size_gb = 50
+        Int max_gvcf_file_size_gb = 10
         String? billing_project_for_rp # if set, will use this to check file sizes for requester pays buckets. if not set and input is in a RP bucket, the check will fail
     }
 
@@ -140,11 +140,11 @@ task ValidateGvcfManifest {
                     print("GVCF paths are unique.")
 
                 # Ensure all GVCFs and indices have the expected extensions
-                gvcfs_with_wrong_extension = [g for g in gvcf_paths if not g.endswith('.vcf.gz')]
+                gvcfs_with_wrong_extension = [g for g in gvcf_paths if not g.endswith('vcf.gz')]
                 if gvcfs_with_wrong_extension:
-                    qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(gvcfs_with_wrong_extension), 'GVCF file')} without a .vcf.gz extension", gvcfs_with_wrong_extension))
+                    qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(gvcfs_with_wrong_extension), 'GVCF file')} without a vcf.gz extension", gvcfs_with_wrong_extension))
                 else:
-                    print("All GVCF files have the correct .vcf.gz extension.")
+                    print("All GVCF files have the correct vcf.gz extension.")
 
                 gvcf_indices_with_wrong_extension = [g for g in gvcf_index_paths if not g.endswith('.tbi')]
                 if gvcf_indices_with_wrong_extension:
