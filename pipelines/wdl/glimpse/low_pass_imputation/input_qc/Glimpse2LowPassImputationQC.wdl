@@ -382,8 +382,6 @@ task ValidateCramContents {
             echo "  $chrom: ${ref_md5sums[$chrom]}"
         done
 
-        crams_with_bad_or_missing_md5sums=()
-        crams_with_multiple_samples=()
         MAX_ITEMS_IN_ERROR_MESSAGES=5
         cpu_count=~{cpu}
 
@@ -467,16 +465,8 @@ task ValidateCramContents {
         # Merge every worker's partial results back into single lists before applying the final,
         # truncated aggregate message (same truncation behavior as before, just applied once at the
         # end instead of while looping through CRAMs one at a time).
-        for f in results/*_bad_md5sum.txt; do
-            while IFS= read -r line; do
-                [ -n "$line" ] && crams_with_bad_or_missing_md5sums+=("$line")
-            done < "$f"
-        done
-        for f in results/*_multi_sample.txt; do
-            while IFS= read -r line; do
-                [ -n "$line" ] && crams_with_multiple_samples+=("$line")
-            done < "$f"
-        done
+        mapfile -t crams_with_bad_or_missing_md5sums < <(cat results/*_bad_md5sum.txt 2>/dev/null)
+        mapfile -t crams_with_multiple_samples < <(cat results/*_multi_sample.txt 2>/dev/null)
 
         # if crams_with_bad_or_missing_md5sums is not empty, write an error message to qc_messages.txt
         n_bad_crams=${#crams_with_bad_or_missing_md5sums[@]}
