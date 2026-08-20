@@ -114,9 +114,8 @@ task PreprocessPLs {
     >>>
 
     output {
-        String sample_name = read_string("sample_name.txt")
-        File preprocessed_pls_vcf = "~{output_prefix}.~{sample_name}.preprocessedPLs.bcf"
-        File preprocessed_pls_vcf_idx = "~{output_prefix}.~{sample_name}.preprocessedPLs.bcf.csi"
+        File preprocessed_pls_vcf = "~{output_prefix}.~{read_string('sample_name.txt')}.preprocessedPLs.bcf"
+        File preprocessed_pls_vcf_idx = "~{output_prefix}.~{read_string('sample_name.txt')}.preprocessedPLs.bcf.csi"
     }
 
     #########################
