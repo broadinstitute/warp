@@ -335,8 +335,6 @@ task ValidateGvcfInput {
                     --verbosity ERROR \
                     2> "gatk_output_${worker_id}.txt"
 
-                cat "gatk_output_${worker_id}.txt"
-
                 if grep -q "incompatible contigs" "gatk_output_${worker_id}.txt"; then
                     echo "[worker $worker_id] GVCF file $gvcf has contigs incompatible with the expected reference dictionary ($ref_dict_basename)."
                     gvcfs_with_incompatible_contigs+=("$gvcf")
