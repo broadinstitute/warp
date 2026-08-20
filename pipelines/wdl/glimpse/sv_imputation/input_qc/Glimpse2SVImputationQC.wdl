@@ -306,12 +306,23 @@ task ValidateGvcfInput {
             local gvcfs_with_incompatible_contigs=()
             local gvcfs_with_missing_gvcf_block_lines=()
             local gvcfs_with_missing_format_fields=()
+            local gvcfs_with_multiple_samples=()
 
             while IFS= read -r gvcf; do
                 [ -z "$gvcf" ] && continue
                 echo "[worker $worker_id] Validating GVCF file: $gvcf"
 
                 bcftools view -Ov -h "$gvcf" > "header_${worker_id}.vcf"
+
+                # check that the GVCF contains data for exactly one sample (the #CHROM header line
+                # lists sample names starting at column 10, after the 9 fixed VCF columns)
+                sample_count=$(awk -F'\t' '/^#CHROM/ { print NF - 9; exit }' "header_${worker_id}.vcf")
+                if [ "$sample_count" -ne 1 ]; then
+                    echo "[worker $worker_id] GVCF file $gvcf contains data for $sample_count samples; expected exactly 1."
+                    gvcfs_with_multiple_samples+=("$gvcf")
+                else
+                    echo "[worker $worker_id] GVCF file $gvcf contains data for exactly 1 sample."
+                fi
 
                 # --validation-type-to-exclude ALL skips variant-level validation and only checks that the
                 # VCF header's sequence dictionary is compatible with the provided reference dictionary
@@ -355,7 +366,7 @@ task ValidateGvcfInput {
                 fi
 
                 # stop early once this worker's own chunk already has enough issues to fill a truncated message
-                total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_missing_gvcf_block_lines[@]} + ${#gvcfs_with_missing_format_fields[@]} ))
+                total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_missing_gvcf_block_lines[@]} + ${#gvcfs_with_missing_format_fields[@]} + ${#gvcfs_with_multiple_samples[@]} ))
                 if [ "$total_issue_count" -gt "$MAX_ITEMS_IN_ERROR_MESSAGES" ]; then
                     echo "[worker $worker_id] found more than $MAX_ITEMS_IN_ERROR_MESSAGES GVCF files with issues in this chunk; skipping the rest of this worker's chunk"
                     break
@@ -380,6 +391,11 @@ task ValidateGvcfInput {
             else
                 : > "results/${worker_id}_missing_format.txt"
             fi
+            if [ ${#gvcfs_with_multiple_samples[@]} -gt 0 ]; then
+                printf '%s\n' "${gvcfs_with_multiple_samples[@]}" > "results/${worker_id}_multi_sample.txt"
+            else
+                : > "results/${worker_id}_multi_sample.txt"
+            fi
         }
 
         worker_id=0
@@ -394,6 +410,7 @@ task ValidateGvcfInput {
         mapfile -t gvcfs_with_incompatible_contigs < <(cat results/*_incompatible_contigs.txt 2>/dev/null)
         mapfile -t gvcfs_with_missing_gvcf_block_lines < <(cat results/*_missing_gvcf_block.txt 2>/dev/null)
         mapfile -t gvcfs_with_missing_format_fields < <(cat results/*_missing_format.txt 2>/dev/null)
+        mapfile -t gvcfs_with_multiple_samples < <(cat results/*_multi_sample.txt 2>/dev/null)
 
         n_bad_contig_gvcfs=${#gvcfs_with_incompatible_contigs[@]}
         if [ "$n_bad_contig_gvcfs" -ne 0 ]; then
@@ -417,6 +434,14 @@ task ValidateGvcfInput {
             append_aggregated_message "Found $n_missing_format_gvcfs GVCF file$pluralized missing the required PL and/or GT FORMAT annotation(s) in its header" "${gvcfs_with_missing_format_fields[@]}"
         else
             echo "All checked GVCF files declare the expected PL and GT FORMAT annotations in their headers."
+        fi
+
+        n_multi_sample_gvcfs=${#gvcfs_with_multiple_samples[@]}
+        if [ "$n_multi_sample_gvcfs" -ne 0 ]; then
+            if [ "$n_multi_sample_gvcfs" -eq 1 ]; then pluralized=""; else pluralized="s"; fi
+            append_aggregated_message "Found $n_multi_sample_gvcfs GVCF file$pluralized containing data for more than one sample" "${gvcfs_with_multiple_samples[@]}"
+        else
+            echo "All checked GVCF files contain data for exactly one sample."
         fi
 
         # passes_qc is true if qc_messages is empty
