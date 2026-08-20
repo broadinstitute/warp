@@ -332,7 +332,7 @@ task ValidateGvcfInput {
                     -V "header_${worker_id}.vcf" \
                     --sequence-dictionary ~{ref_dict} \
                     --validation-type-to-exclude ALL \
-                    --VERBOSITY ERROR \
+                    --verbosity ERROR \
                     2> "gatk_output_${worker_id}.txt"
 
                 cat "gatk_output_${worker_id}.txt"
