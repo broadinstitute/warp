@@ -140,11 +140,11 @@ task ValidateGvcfManifest {
                     print("GVCF paths are unique.")
 
                 # Ensure all GVCFs and indices have the expected extensions
-                gvcfs_with_wrong_extension = [g for g in gvcf_paths if not g.endswith('vcf.gz')]
+                gvcfs_with_wrong_extension = [g for g in gvcf_paths if not (g.endswith('.vcf.gz') or g.endswith('.gvcf.gz'))]
                 if gvcfs_with_wrong_extension:
-                    qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(gvcfs_with_wrong_extension), 'GVCF file')} without a vcf.gz extension", gvcfs_with_wrong_extension))
+                    qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(gvcfs_with_wrong_extension), 'GVCF file')} without a .vcf.gz or .gvcf.gz extension", gvcfs_with_wrong_extension))
                 else:
-                    print("All GVCF files have the correct vcf.gz extension.")
+                    print("All GVCF files have the correct .vcf.gz or .gvcf.gz extension.")
 
                 gvcf_indices_with_wrong_extension = [g for g in gvcf_index_paths if not g.endswith('.tbi')]
                 if gvcf_indices_with_wrong_extension:
@@ -246,6 +246,7 @@ task ValidateGvcfInput {
         File ref_dict
 
         String? billing_project_for_rp # if set, will use this to access GVCFs in requester pays buckets. if not set and input is in a RP bucket, the check will fail
+        Int cpu = 4
     }
 
     String billing_project = select_first([billing_project_for_rp, ""])
@@ -253,6 +254,7 @@ task ValidateGvcfInput {
 
     command <<<
         set -uo pipefail
+        shopt -s nullglob
 
         # set up auth for accessing files using bcftools
         export GCS_OAUTH_TOKEN=`gcloud auth application-default print-access-token`
@@ -266,10 +268,9 @@ task ValidateGvcfInput {
         touch qc_messages.txt
 
         ref_dict_basename="~{ref_dict_basename}"
+        cpu_count=~{cpu}
 
         MAX_ITEMS_IN_ERROR_MESSAGES=5
-        # to limit runtime of this task, we will only check the first MAX_GVCFS_TO_CHECK GVCFs
-        MAX_GVCFS_TO_CHECK=100
 
         # Appends a truncated, comma-separated summary of $2... to qc_messages.txt, prefixed by $1, if any items are given.
         append_aggregated_message() {
@@ -290,72 +291,140 @@ task ValidateGvcfInput {
             fi
         }
 
+        # Split the full GVCF list into $cpu_count round-robin chunks, one per worker, so we can
+        # validate all GVCFs in parallel using the CPUs available to this VM instead of checking
+        # them one at a time. Done in plain bash (rather than via `split -n`) since that flag's
+        # behavior/availability isn't guaranteed to be consistent across environments.
+        printf '%s\n' ~{sep=' ' gvcfs} > all_gvcfs.txt
+        mkdir -p chunks results
+        for i in $(seq 0 $((cpu_count - 1))); do
+            : > "chunks/chunk_${i}.txt"
+        done
+        chunk_idx=0
+        while IFS= read -r gvcf; do
+            [ -z "$gvcf" ] && continue
+            echo "$gvcf" >> "chunks/chunk_$(( chunk_idx % cpu_count )).txt"
+            chunk_idx=$((chunk_idx + 1))
+        done < all_gvcfs.txt
+
+        # Validates every GVCF listed in $1 (one path per line), writing this worker's list of
+        # problem GVCFs for each check to results/${2}_<check>.txt. Stops early once this worker's
+        # own chunk has already accumulated more than MAX_ITEMS_IN_ERROR_MESSAGES issues, since the
+        # final aggregated message (built after all workers finish) is truncated to that many
+        # examples anyway.
+        check_gvcf_chunk() {
+            local chunk_file="$1"
+            local worker_id="$2"
+
+            local gvcfs_with_incompatible_contigs=()
+            local gvcfs_with_missing_gvcf_block_lines=()
+            local gvcfs_with_missing_format_fields=()
+
+            while IFS= read -r gvcf; do
+                [ -z "$gvcf" ] && continue
+                echo "[worker $worker_id] Validating GVCF file: $gvcf"
+
+                bcftools view -Ov -h "$gvcf" > "header_${worker_id}.vcf"
+
+                # --validation-type-to-exclude ALL skips variant-level validation and only checks that the
+                # VCF header's sequence dictionary is compatible with the provided reference dictionary
+                gatk ValidateVariants \
+                    -V "header_${worker_id}.vcf" \
+                    --sequence-dictionary ~{ref_dict} \
+                    --validation-type-to-exclude ALL \
+                    --VERBOSITY ERROR \
+                    2> "gatk_output_${worker_id}.txt"
+
+                cat "gatk_output_${worker_id}.txt"
+
+                if grep -q "incompatible contigs" "gatk_output_${worker_id}.txt"; then
+                    echo "[worker $worker_id] GVCF file $gvcf has contigs incompatible with the expected reference dictionary ($ref_dict_basename)."
+                    gvcfs_with_incompatible_contigs+=("$gvcf")
+                else
+                    echo "[worker $worker_id] GVCF file $gvcf has contigs compatible with the expected reference dictionary."
+                fi
+
+                # Ensure the header contains multiple GVCFBlock lines (a single line likely indicates
+                # a malformed or incomplete GVCF, since real GVCFs declare one block per depth bin)
+                gvcf_block_count=$(grep -c '##GVCFBlock' "header_${worker_id}.vcf" || true)
+                if [ "$gvcf_block_count" -le 1 ]; then
+                    gvcfs_with_missing_gvcf_block_lines+=("$gvcf")
+                else
+                    echo "[worker $worker_id] GVCF file $gvcf includes $gvcf_block_count ##GVCFBlock lines in its header."
+                fi
+
+                # Ensure the PL and GT FORMAT annotations are declared in the header.
+                format_lines=$(grep '^##FORMAT=<' "header_${worker_id}.vcf")
+                missing_format_fields=()
+                if ! echo "$format_lines" | grep -q 'ID=PL[,>]'; then
+                    missing_format_fields+=("PL")
+                fi
+                if ! echo "$format_lines" | grep -q 'ID=GT[,>]'; then
+                    missing_format_fields+=("GT")
+                fi
+                if [ ${#missing_format_fields[@]} -gt 0 ]; then
+                    echo "[worker $worker_id] GVCF file $gvcf is missing expected FORMAT annotation(s) in its header: ${missing_format_fields[*]}"
+                    gvcfs_with_missing_format_fields+=("$gvcf")
+                else
+                    echo "[worker $worker_id] GVCF file $gvcf declares the expected PL and GT FORMAT annotations in its header."
+                fi
+
+                # stop early once this worker's own chunk already has enough issues to fill a truncated message
+                total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_missing_gvcf_block_lines[@]} + ${#gvcfs_with_missing_format_fields[@]} ))
+                if [ "$total_issue_count" -gt "$MAX_ITEMS_IN_ERROR_MESSAGES" ]; then
+                    echo "[worker $worker_id] found more than $MAX_ITEMS_IN_ERROR_MESSAGES GVCF files with issues in this chunk; skipping the rest of this worker's chunk"
+                    break
+                fi
+            done < "$chunk_file"
+
+            # Write each result list to its own file, one path per line (or leave the file empty).
+            # The length is checked before expanding "${arr[@]}", since expanding a zero-element
+            # array directly is unsafe under `set -u` on some older bash versions.
+            if [ ${#gvcfs_with_incompatible_contigs[@]} -gt 0 ]; then
+                printf '%s\n' "${gvcfs_with_incompatible_contigs[@]}" > "results/${worker_id}_incompatible_contigs.txt"
+            else
+                : > "results/${worker_id}_incompatible_contigs.txt"
+            fi
+            if [ ${#gvcfs_with_missing_gvcf_block_lines[@]} -gt 0 ]; then
+                printf '%s\n' "${gvcfs_with_missing_gvcf_block_lines[@]}" > "results/${worker_id}_missing_gvcf_block.txt"
+            else
+                : > "results/${worker_id}_missing_gvcf_block.txt"
+            fi
+            if [ ${#gvcfs_with_missing_format_fields[@]} -gt 0 ]; then
+                printf '%s\n' "${gvcfs_with_missing_format_fields[@]}" > "results/${worker_id}_missing_format.txt"
+            else
+                : > "results/${worker_id}_missing_format.txt"
+            fi
+        }
+
+        worker_id=0
+        for chunk_file in chunks/chunk_*; do
+            check_gvcf_chunk "$chunk_file" "$worker_id" &
+            worker_id=$((worker_id + 1))
+        done
+        wait
+
+        # Merge every worker's partial results back into single lists before applying the final,
+        # truncated aggregate message (same truncation behavior as before, just applied once at the
+        # end instead of while looping through GVCFs one at a time).
         gvcfs_with_incompatible_contigs=()
-        gvcfs_with_missing_format_fields=()
         gvcfs_with_missing_gvcf_block_lines=()
-        gvcf_check_count=0
+        gvcfs_with_missing_format_fields=()
 
-        # this task assumes the manifest check has already confirmed that all GVCFs exist and are accessible
-        for gvcf in ~{sep=' ' gvcfs}; do
-            gvcf_check_count=$((gvcf_check_count + 1))
-            echo "Validating GVCF file: $gvcf"
-
-            # stream in header only
-            bcftools view -Ov -h "$gvcf" > header.vcf
-
-            # --validation-type-to-exclude ALL skips variant-level validation and only checks that the
-            # VCF header's sequence dictionary is compatible with the provided reference dictionary
-            gatk ValidateVariants \
-                -V header.vcf \
-                --sequence-dictionary ~{ref_dict} \
-                --validation-type-to-exclude ALL \
-                2> gatk_output.txt
-
-            cat gatk_output.txt
-
-            if grep -q "incompatible contigs" gatk_output.txt; then
-                echo "GVCF file $gvcf has contigs incompatible with the expected reference dictionary ($ref_dict_basename)."
-                gvcfs_with_incompatible_contigs+=("$gvcf")
-            else
-                echo "GVCF file $gvcf has contigs compatible with the expected reference dictionary."
-            fi
-
-            # Ensure the header contains multiple GVCFBlock lines (a single line likely indicates
-            # a malformed or incomplete GVCF, since real GVCFs declare one block per depth bin)
-            gvcf_block_count=$(grep -c '##GVCFBlock' header.vcf || true)
-            if [ "$gvcf_block_count" -le 1 ]; then
-                gvcfs_with_missing_gvcf_block_lines+=("$gvcf")
-            else
-                echo "GVCF file $gvcf includes $gvcf_block_count ##GVCFBlock lines in its header."
-            fi
-
-            # Ensure the PL and GT FORMAT annotations are declared in the header.
-            format_lines=$(cat header.vcf | grep '^##FORMAT=<')
-            missing_format_fields=()
-            if ! echo "$format_lines" | grep -q 'ID=PL[,>]'; then
-                missing_format_fields+=("PL")
-            fi
-            if ! echo "$format_lines" | grep -q 'ID=GT[,>]'; then
-                missing_format_fields+=("GT")
-            fi
-            if [ ${#missing_format_fields[@]} -gt 0 ]; then
-                echo "GVCF file $gvcf is missing expected FORMAT annotation(s) in its header: ${missing_format_fields[*]}"
-                gvcfs_with_missing_format_fields+=("$gvcf")
-            else
-                echo "GVCF file $gvcf declares the expected PL and GT FORMAT annotations in its header."
-            fi
-
-            # if we've found more than MAX_ITEMS_IN_ERROR_MESSAGES gvcfs with issues, we can stop checking the rest of the gvcfs because the error messages will be truncated anyway
-            total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_missing_gvcf_block_lines[@]} + ${#gvcfs_with_missing_format_fields[@]} ))
-            if [ "$total_issue_count" -gt "$MAX_ITEMS_IN_ERROR_MESSAGES" ]; then
-                echo "Found more than $MAX_ITEMS_IN_ERROR_MESSAGES GVCF files with issues; skipping validation of remaining GVCF files"
-                break
-            fi
-            # if we've checked more than MAX_GVCFS_TO_CHECK gvcfs, we will stop to limit runtime of this task
-            if [ "$gvcf_check_count" -ge "$MAX_GVCFS_TO_CHECK" ]; then
-                echo "Checked $MAX_GVCFS_TO_CHECK GVCF files; stopping further checks to limit runtime of this task"
-                break
-            fi
+        for f in results/*_incompatible_contigs.txt; do
+            while IFS= read -r line; do
+                [ -n "$line" ] && gvcfs_with_incompatible_contigs+=("$line")
+            done < "$f"
+        done
+        for f in results/*_missing_gvcf_block.txt; do
+            while IFS= read -r line; do
+                [ -n "$line" ] && gvcfs_with_missing_gvcf_block_lines+=("$line")
+            done < "$f"
+        done
+        for f in results/*_missing_format.txt; do
+            while IFS= read -r line; do
+                [ -n "$line" ] && gvcfs_with_missing_format_fields+=("$line")
+            done < "$f"
         done
 
         n_bad_contig_gvcfs=${#gvcfs_with_incompatible_contigs[@]}
@@ -395,7 +464,7 @@ task ValidateGvcfInput {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/gatk-bcftools-gcloud:1.0.0-4.2.6.1-1.24-1787155398 "
-        cpu: 1
+        cpu: cpu
         disks: "local-disk 10 HDD"
         memory: "4 GiB"
         maxRetries: 2
