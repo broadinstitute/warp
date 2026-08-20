@@ -96,7 +96,6 @@ task PreprocessPLs {
 
         if [ "$num_samples" -ne 1 ]; then
             echo "ERROR: GVCF must contain exactly one sample, but found $num_samples samples in ~{input_vcf}" >&2
-            [ "$num_samples" -eq 0 ] && echo "No samples found in the GVCF header" >&2 || cat sample_name.txt >&2
             exit 1
         fi
 
