@@ -389,19 +389,12 @@ task ValidateCramContents {
 
         # Split the full CRAM list into $cpu_count round-robin chunks, one per worker, so we can
         # validate all CRAMs in parallel using the CPUs available to this VM instead of checking
-        # them one at a time. Done in plain bash (rather than via `split -n`) since that flag's
-        # behavior/availability isn't guaranteed to be consistent across environments.
+        # them one at a time. `r/N` distributes lines round-robin across chunks (rather than
+        # contiguous line ranges), gracefully creating empty chunk files when there are fewer
+        # CRAMs than workers; `-d`/`--additional-suffix` keep the chunks/chunk_* glob below working.
         printf '%s\n' ~{sep=' ' crams} > all_crams.txt
         mkdir -p chunks results
-        for i in $(seq 0 $((cpu_count - 1))); do
-            : > "chunks/chunk_${i}.txt"
-        done
-        chunk_idx=0
-        while IFS= read -r cram; do
-            [ -z "$cram" ] && continue
-            echo "$cram" >> "chunks/chunk_$(( chunk_idx % cpu_count )).txt"
-            chunk_idx=$((chunk_idx + 1))
-        done < all_crams.txt
+        split -n "r/${cpu_count}" -d --additional-suffix=.txt all_crams.txt chunks/chunk_
 
         # Validates every CRAM listed in $1 (one path per line), writing this worker's list of
         # problem CRAMs for each check to results/<worker_id>_<check>.txt. Stops early once this
