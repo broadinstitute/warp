@@ -92,6 +92,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationBatch.wdl
 
+  - name: Glimpse2LowPassImputationQuotaConsumed
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationQuotaConsumed.wdl
+
   - name: Glimpse2SVImputation
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/Glimpse2SVImputation.wdl
@@ -100,9 +104,9 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/Glimpse2SVImputationBatch.wdl
 
-  - name: Glimpse2LowPassImputationQuotaConsumed
+  - name: Glimpse2SVImputationQuotaConsumed
     subclass: WDL
-    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationQuotaConsumed.wdl
+    primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/Glimpse2SVImputationQuotaConsumed.wdl
 
   - name: GetWgsMedianCoverage
     subclass: WDL

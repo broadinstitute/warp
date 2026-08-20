@@ -5,9 +5,10 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.21"
+    String pipeline_version = "0.0.22"
     String preprocess_pls_gvcf_pipeline_version = "0.0.12"
     String batch_pipeline_version = "0.0.16"
+    String quota_consumed_version = "0.0.1"
 
     input {
         # if both array inputs and gvcf_manifest are provided, array inputs take precedence
