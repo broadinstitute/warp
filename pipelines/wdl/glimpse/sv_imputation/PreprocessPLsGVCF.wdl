@@ -89,17 +89,8 @@ task PreprocessPLs {
     command <<<
         set -euxo pipefail
 
-        # Extract sample name from GVCF header and validate there is exactly one sample
+        # Extract sample name from GVCF header
         bcftools query -l ~{input_vcf} > sample_name.txt
-        # Count non-empty lines (grep -c returns count even without trailing newline)
-        num_samples=$(grep -c . sample_name.txt || echo "0")
-
-        if [ "$num_samples" -ne 1 ]; then
-            echo "ERROR: GVCF must contain exactly one sample, but found $num_samples samples in ~{input_vcf}" >&2
-            exit 1
-        fi
-
-        echo "Processing sample: $(cat sample_name.txt)"
 
         /usr/local/bin/extract-bubble-PLs ~{mode} \
             ~{panel_bubble_split_sites_only_vcf}##idx##~{panel_bubble_split_sites_only_vcf_idx} \
