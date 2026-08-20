@@ -102,7 +102,7 @@ task ValidateGvcfManifest {
                 for value in filtered:
                     f.write(f"{value}\n")
 
-        def write_outputs(qc_messages, gvcfs=None, gvcf_indices=None):
+        def write_outputs(qc_messages, gvcfs=None):
             with open(qc_messages_filename, 'w') as f:
                 f.write('\n'.join(qc_messages) if qc_messages else '')
             with open(passes_qc_filename, 'w') as f:
@@ -111,10 +111,6 @@ task ValidateGvcfManifest {
                 write_column(gvcfs, gvcfs_filename)
             else:
                 open(gvcfs_filename, 'w').close()
-            if gvcf_indices is not None:
-                write_column(gvcf_indices, gvcf_indices_filename)
-            else:
-                open(gvcf_indices_filename, 'w').close()
 
         try:
             df = pd.read_csv("~{gvcf_manifest}", sep='\t')
@@ -213,7 +209,7 @@ task ValidateGvcfManifest {
                 else:
                     print(f"All GVCF files are within the maximum allowed file size of {max_gvcf_file_size_gb}GB.")
 
-                write_outputs(qc_messages, gvcf_paths, gvcf_index_paths)
+                write_outputs(qc_messages, gvcf_paths)
 
         except Exception as e:
             write_outputs([f"Error reading GVCF manifest: {str(e)}."])
@@ -233,7 +229,6 @@ task ValidateGvcfManifest {
 
     output {
         Array[String] gvcfs = read_lines("gvcfs.txt")
-        Array[String] gvcf_indices = read_lines("gvcf_indices.txt")
         Boolean passes_qc = read_boolean("passes_qc.txt")
         String qc_messages = read_string("qc_messages.txt")
     }
@@ -254,6 +249,7 @@ task ValidateGvcfInput {
 
     command <<<
         set -uo pipefail
+        # the following causes unmatched glob expressions (e.g. *.txt) to expand to nothing rather than the literal string "*.txt"
         shopt -s nullglob
 
         # set up auth for accessing files using bcftools
@@ -293,19 +289,12 @@ task ValidateGvcfInput {
 
         # Split the full GVCF list into $cpu_count round-robin chunks, one per worker, so we can
         # validate all GVCFs in parallel using the CPUs available to this VM instead of checking
-        # them one at a time. Done in plain bash (rather than via `split -n`) since that flag's
-        # behavior/availability isn't guaranteed to be consistent across environments.
+        # them one at a time. `r/N` distributes lines round-robin across chunks (rather than
+        # contiguous line ranges), gracefully creating empty chunk files when there are fewer
+        # GVCFs than workers; `-d`/`--additional-suffix` keep the chunks/chunk_* glob below working.
         printf '%s\n' ~{sep=' ' gvcfs} > all_gvcfs.txt
         mkdir -p chunks results
-        for i in $(seq 0 $((cpu_count - 1))); do
-            : > "chunks/chunk_${i}.txt"
-        done
-        chunk_idx=0
-        while IFS= read -r gvcf; do
-            [ -z "$gvcf" ] && continue
-            echo "$gvcf" >> "chunks/chunk_$(( chunk_idx % cpu_count )).txt"
-            chunk_idx=$((chunk_idx + 1))
-        done < all_gvcfs.txt
+        split -n "r/${cpu_count}" -d --additional-suffix=.txt all_gvcfs.txt chunks/chunk_
 
         # Validates every GVCF listed in $1 (one path per line), writing this worker's list of
         # problem GVCFs for each check to results/${2}_<check>.txt. Stops early once this worker's
