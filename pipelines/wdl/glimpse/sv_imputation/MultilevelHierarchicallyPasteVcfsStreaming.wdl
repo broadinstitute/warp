@@ -191,7 +191,6 @@ task CreateBatches {
         cpu_cores:          1,
         mem_gb:             2,
         disk_gb:            10,
-        boot_disk_gb:       0,
         disk_type:          "HDD",
         preemptible_tries:  2,
         max_retries:        1,
@@ -202,7 +201,6 @@ task CreateBatches {
         cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
         memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
         disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + " " + select_first([runtime_attr.disk_type, default_attr.disk_type])
-        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
@@ -341,7 +339,6 @@ task MergeVcfs {
         cpu_cores:          cpu,
         mem_gb:             4,
         disk_gb:            disk_gb,
-        boot_disk_gb:       0,
         disk_type:          "SSD",
         preemptible_tries:  3,
         max_retries:        0,
@@ -352,7 +349,6 @@ task MergeVcfs {
         cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
         memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
         disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + " " + select_first([runtime_attr.disk_type, default_attr.disk_type])
-        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])

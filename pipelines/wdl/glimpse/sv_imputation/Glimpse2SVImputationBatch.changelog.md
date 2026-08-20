@@ -1,3 +1,8 @@
+# 0.0.19
+2026-08-28 (Date of Last Commit)
+
+* optionally use base glimpse phase memory from chunk panel json if available, otherwise default to 16 GB.
+
 # 0.0.18
 2026-08-27 (Date of Last Commit)
 
