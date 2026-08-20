@@ -5,7 +5,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.12"
+    String pipeline_version = "0.0.13"
     String multi_level_paste_pipeline_version = "0.0.7"
     input {
         File input_gvcf_manifest
