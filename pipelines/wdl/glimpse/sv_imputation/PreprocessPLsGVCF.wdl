@@ -31,7 +31,7 @@ workflow PreprocessPLsGVCF {
                 mode = "gvcf",
                 panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
                 panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
-                output_prefix = "sample-" + j + ".preprocessedPLs",
+                output_prefix = "sample-" + j,
                 extra_args = extract_bubble_likelihoods_extra_args
         }
     }
@@ -90,26 +90,33 @@ task PreprocessPLs {
         set -euxo pipefail
 
         # Extract sample name from GVCF header
-        bcftools query -l ~{input_vcf} > sample_name.txt
+        sample_name=$(bcftools query -l ~{input_vcf})
+
+        # Write sample name to file for extract-bubble-PLs tool and output naming
+        echo "$sample_name" > sample_name.txt
+
+        # Create final output prefix combining index and sample name
+        final_output_prefix="~{output_prefix}.${sample_name}.preprocessedPLs"
 
         /usr/local/bin/extract-bubble-PLs ~{mode} \
             ~{panel_bubble_split_sites_only_vcf}##idx##~{panel_bubble_split_sites_only_vcf_idx} \
             ~{input_vcf}##idx##~{input_vcf_idx} \
-            ~{output_prefix}.bcf \
+            ${final_output_prefix}.bcf \
             ~{"--region " + output_region} \
             --samples sample_name.txt \
             --threads ~{cpu} \
             ~{extra_args}
 
-        bcftools index ~{output_prefix}.bcf
+        bcftools index ${final_output_prefix}.bcf
 
         echo "Number of bubble alleles extracted..."
-        bcftools index -n ~{output_prefix}.bcf
+        bcftools index -n ${final_output_prefix}.bcf
     >>>
 
     output {
-        File preprocessed_pls_vcf = "~{output_prefix}.bcf"
-        File preprocessed_pls_vcf_idx = "~{output_prefix}.bcf.csi"
+        String sample_name = read_string("sample_name.txt")
+        File preprocessed_pls_vcf = "~{output_prefix}.~{sample_name}.preprocessedPLs.bcf"
+        File preprocessed_pls_vcf_idx = "~{output_prefix}.~{sample_name}.preprocessedPLs.bcf.csi"
     }
 
     #########################
