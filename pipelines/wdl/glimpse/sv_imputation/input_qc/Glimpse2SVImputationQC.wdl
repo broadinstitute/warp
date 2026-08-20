@@ -26,7 +26,6 @@ workflow InputQC {
 
         # used for warp tests only (which use inputs in an RP bucket). service does not support RP buckets and will not provide this input.
         String? billing_project_for_rp
-        Int? max_file_size_gb_override
 
         # optional additional header line to add to the output VCF
         String? pipeline_header_line
@@ -35,8 +34,7 @@ workflow InputQC {
     call ValidateGvcfManifest {
         input:
             gvcf_manifest = gvcf_manifest,
-            billing_project_for_rp = billing_project_for_rp,
-            max_gvcf_file_size_gb = max_file_size_gb_override
+            billing_project_for_rp = billing_project_for_rp
     }
 
     # only validate individual GVCF contents if the manifest itself passed QC
@@ -392,27 +390,10 @@ task ValidateGvcfInput {
         wait
 
         # Merge every worker's partial results back into single lists before applying the final,
-        # truncated aggregate message (same truncation behavior as before, just applied once at the
-        # end instead of while looping through GVCFs one at a time).
-        gvcfs_with_incompatible_contigs=()
-        gvcfs_with_missing_gvcf_block_lines=()
-        gvcfs_with_missing_format_fields=()
-
-        for f in results/*_incompatible_contigs.txt; do
-            while IFS= read -r line; do
-                [ -n "$line" ] && gvcfs_with_incompatible_contigs+=("$line")
-            done < "$f"
-        done
-        for f in results/*_missing_gvcf_block.txt; do
-            while IFS= read -r line; do
-                [ -n "$line" ] && gvcfs_with_missing_gvcf_block_lines+=("$line")
-            done < "$f"
-        done
-        for f in results/*_missing_format.txt; do
-            while IFS= read -r line; do
-                [ -n "$line" ] && gvcfs_with_missing_format_fields+=("$line")
-            done < "$f"
-        done
+        # truncated aggregate message
+        mapfile -t gvcfs_with_incompatible_contigs < <(cat results/*_incompatible_contigs.txt 2>/dev/null)
+        mapfile -t gvcfs_with_missing_gvcf_block_lines < <(cat results/*_missing_gvcf_block.txt 2>/dev/null)
+        mapfile -t gvcfs_with_missing_format_fields < <(cat results/*_missing_format.txt 2>/dev/null)
 
         n_bad_contig_gvcfs=${#gvcfs_with_incompatible_contigs[@]}
         if [ "$n_bad_contig_gvcfs" -ne 0 ]; then

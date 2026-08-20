@@ -9,6 +9,5 @@
   "Glimpse2SVImputationQC.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
   "Glimpse2SVImputationQC.chunked_panel_json": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/json/hgsvc-hprc-50.chunked_panel.json",
   "Glimpse2SVImputationQC.pop_glimpse2_panel_resources_json": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/json/hgsvc-hprc-50.panel.pop_panel_resources.json",
-  "Glimpse2SVImputationQC.billing_project_for_rp": "terra-f8e3de20",
-  "Glimpse2SVImputationQC.max_file_size_gb_override": "5"
+  "Glimpse2SVImputationQC.billing_project_for_rp": "terra-f8e3de20"
 }
