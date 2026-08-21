@@ -118,7 +118,7 @@ task PreprocessPLs {
         mem_gb:             2,
         disk_gb:            disk_size_gb,
         boot_disk_gb:       0,
-        use_ssd:            true,
+        use_ssd:            false,
         preemptible_tries:  4,
         max_retries:        1,
         docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.0.0-5dc0f19-1784328222"
