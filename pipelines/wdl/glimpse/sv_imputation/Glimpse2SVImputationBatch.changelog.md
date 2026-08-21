@@ -1,3 +1,8 @@
+# 0.0.17
+2026-08-20 (Date of Last Commit)
+
+* Updated Glimpse2SVImputationTasks dependency (sample_ids no longer required as a input)
+
 # 0.0.16
 2026-08-18 (Date of Last Commit)
 

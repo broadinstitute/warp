@@ -1,3 +1,9 @@
+# 0.0.13
+2026-08-20 (Date of Last Commit)
+
+* Remove `sample_names` input from `PreprocessPLs` task. The sample name will now be obtained from GVCF file
+* * Update `multi_level_paste_pipeline_version` to 0.0.8
+
 # 0.0.12
 2026-08-17 (Date of Last Commit)
 

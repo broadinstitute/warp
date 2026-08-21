@@ -5,15 +5,14 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.21"
-    String preprocess_pls_gvcf_pipeline_version = "0.0.12"
-    String batch_pipeline_version = "0.0.16"
+    String pipeline_version = "0.0.22"
+    String preprocess_pls_gvcf_pipeline_version = "0.0.13"
+    String batch_pipeline_version = "0.0.17"
 
     input {
         # if both array inputs and gvcf_manifest are provided, array inputs take precedence
         Array[File]? input_gvcfs
         Array[File]? input_gvcf_idxs
-        Array[String]? sample_ids
         File? gvcf_manifest
         Int sample_batch_size = 1000
 
@@ -50,14 +49,13 @@ workflow Glimpse2SVImputation {
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     }
 
-    Boolean using_arrays = defined(input_gvcfs) && defined(input_gvcf_idxs) && defined(sample_ids)
+    Boolean using_arrays = defined(input_gvcfs) && defined(input_gvcf_idxs)
 
     if (using_arrays) {
         call Glimpse2SVImputationTasks.ConvertInputArraysToManifest {
             input:
                 gvcf_paths = select_first([input_gvcfs]),
-                gvcf_index_paths = select_first([input_gvcf_idxs]),
-                sample_ids = select_first([sample_ids])
+                gvcf_index_paths = select_first([input_gvcf_idxs])
         }
     }
 

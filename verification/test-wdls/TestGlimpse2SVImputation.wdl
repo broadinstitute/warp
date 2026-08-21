@@ -10,7 +10,6 @@ workflow TestGlimpse2SVImputation {
     input {
         Array[File]? input_gvcfs
         Array[File]? input_gvcf_idxs
-        Array[String]? sample_ids
         File? gvcf_manifest
 
         Int sample_batch_size = 500
@@ -55,7 +54,6 @@ workflow TestGlimpse2SVImputation {
       input:
         input_gvcfs = input_gvcfs,
         input_gvcf_idxs = input_gvcf_idxs,
-        sample_ids = sample_ids,
         gvcf_manifest = gvcf_manifest,
         sample_batch_size = sample_batch_size,
         output_prefix = output_prefix,
