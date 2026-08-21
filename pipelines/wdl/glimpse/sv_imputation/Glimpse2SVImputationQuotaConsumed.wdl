@@ -9,7 +9,7 @@ workflow QuotaConsumed {
         File gvcf_manifest
         String output_prefix
 
-        # remaining inputs kept for interface consistency with Glimpse2SVImputation.wdl; not all are used by QC
+        # remaining inputs kept for interface consistency with Glimpse2SVImputation.wdl; not all are used by this wdl
         File preprocess_panel_bubble_split_sites_only_vcf
         File preprocess_panel_bubble_split_sites_only_vcf_idx
 
@@ -23,9 +23,6 @@ workflow QuotaConsumed {
         File pop_glimpse2_panel_resources_json
 
         Float? info_filter_for_inclusion
-
-        # used for warp tests only (which use inputs in an RP bucket). service does not support RP buckets and will not provide this input.
-        String? billing_project_for_rp
 
         # optional additional header line to add to the output VCF
         String? pipeline_header_line
