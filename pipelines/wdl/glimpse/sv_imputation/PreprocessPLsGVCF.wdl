@@ -5,8 +5,8 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.12"
-    String multi_level_paste_pipeline_version = "0.0.7"
+    String pipeline_version = "0.0.13"
+    String multi_level_paste_pipeline_version = "0.0.8"
     input {
         File input_gvcf_manifest
 
@@ -31,8 +31,7 @@ workflow PreprocessPLsGVCF {
                 mode = "gvcf",
                 panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
                 panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
-                sample_names = [ParseInputManifest.sample_ids[j]],
-                output_prefix = "sample-" + j + "." + ParseInputManifest.sample_ids[j] + ".preprocessedPLs",
+                output_prefix = "sample-" + j,
                 extra_args = extract_bubble_likelihoods_extra_args
         }
     }
@@ -54,7 +53,7 @@ workflow PreprocessPLsGVCF {
     output {
         File preprocessed_pls_vcf = PastePreprocessPLsGVCFs.merged_vcf
         File preprocessed_pls_vcf_idx = PastePreprocessPLsGVCFs.merged_vcf_idx
-        Int num_samples = length(ParseInputManifest.sample_ids)
+        Int num_samples = length(ParseInputManifest.input_gvcfs)
     }
 }
 
@@ -77,7 +76,6 @@ task PreprocessPLs {
         File panel_bubble_split_sites_only_vcf
         File panel_bubble_split_sites_only_vcf_idx
         String? output_region
-        Array[String] sample_names
         String output_prefix
 
         String? extra_args = "--window 15000 --cap-pl 30 --scale-pl 5.0"
@@ -88,17 +86,18 @@ task PreprocessPLs {
 
     Int disk_size_gb = ceil(2*size([input_vcf, panel_bubble_split_sites_only_vcf], "GB")) + 10
 
-    File sample_names_list = write_lines(sample_names)
-
     command <<<
         set -euxo pipefail
+
+        # Extract sample name from GVCF header and write to file for extract-bubble-PLs tool
+        bcftools query -l ~{input_vcf} > sample_name.txt
 
         /usr/local/bin/extract-bubble-PLs ~{mode} \
             ~{panel_bubble_split_sites_only_vcf}##idx##~{panel_bubble_split_sites_only_vcf_idx} \
             ~{input_vcf}##idx##~{input_vcf_idx} \
             ~{output_prefix}.bcf \
             ~{"--region " + output_region} \
-            --samples ~{sample_names_list} \
+            --samples sample_name.txt \
             --threads ~{cpu} \
             ~{extra_args}
 

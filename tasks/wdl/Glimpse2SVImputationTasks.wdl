@@ -317,7 +317,7 @@ task SplitVcfManifestIntoBatches {
 
         df = pd.read_csv("~{gvcf_manifest}", sep='\t')
 
-        required_cols = ['sample_id', 'gvcf_path', 'gvcf_index_path']
+        required_cols = ['gvcf_path', 'gvcf_index_path']
         missing_cols = [col for col in required_cols if col not in df.columns]
         if missing_cols:
             print(f"Missing required columns in the VCF manifest: {', '.join(missing_cols)}.", file=sys.stderr)
@@ -358,7 +358,6 @@ task SplitVcfManifestIntoBatches {
 
 task ConvertInputArraysToManifest {
     input {
-        Array[String] sample_ids
         Array[String] gvcf_paths
         Array[String] gvcf_index_paths
         String output_filename = "manifest.tsv"
@@ -370,21 +369,20 @@ task ConvertInputArraysToManifest {
         python3 << 'EOF'
         import sys
 
-        sample_ids = ['~{sep="', '" sample_ids}']
         gvcf_paths = ['~{sep="', '" gvcf_paths}']
         gvcf_index_paths = ['~{sep="', '" gvcf_index_paths}']
 
-        if not (len(sample_ids) == len(gvcf_paths) == len(gvcf_index_paths)):
+        if not (len(gvcf_paths) == len(gvcf_index_paths)):
             print(
-                f"ERROR: Input arrays have different lengths: sample_ids={len(sample_ids)}, gvcf_paths={len(gvcf_paths)}, gvcf_index_paths={len(gvcf_index_paths)}",
+                f"ERROR: Input arrays have different lengths: gvcf_paths={len(gvcf_paths)}, gvcf_index_paths={len(gvcf_index_paths)}",
                 file=sys.stderr,
             )
             sys.exit(1)
 
         with open('~{output_filename}', 'w') as f:
-            f.write("sample_id\tgvcf_path\tgvcf_index_path\n")
-            for sample_id, gvcf_path, gvcf_index_path in zip(sample_ids, gvcf_paths, gvcf_index_paths):
-                f.write(f"{sample_id}\t{gvcf_path}\t{gvcf_index_path}\n")
+            f.write("gvcf_path\tgvcf_index_path\n")
+            for gvcf_path, gvcf_index_path in zip(gvcf_paths, gvcf_index_paths):
+                f.write(f"{gvcf_path}\t{gvcf_index_path}\n")
         EOF
     >>>
 
@@ -417,7 +415,7 @@ task ParseVcfManifestIntoArrays {
 
         df = pd.read_csv("~{gvcf_manifest}", sep='\t')
 
-        required_cols = ['sample_id', 'gvcf_path', 'gvcf_index_path']
+        required_cols = ['gvcf_path', 'gvcf_index_path']
         missing_cols = [col for col in required_cols if col not in df.columns]
         if missing_cols:
             print(f"Missing required columns in the VCF manifest: {', '.join(missing_cols)}.", file=sys.stderr)
@@ -429,7 +427,6 @@ task ParseVcfManifestIntoArrays {
 
         df['gvcf_path'].to_csv('gvcf_paths.txt', index=False, header=False)
         df['gvcf_index_path'].to_csv('gvcf_index_paths.txt', index=False, header=False)
-        df['sample_id'].to_csv('sample_ids.txt', index=False, header=False)
         EOF
         python3 script.py
     >>>
@@ -447,7 +444,6 @@ task ParseVcfManifestIntoArrays {
     output {
         Array[File] input_gvcfs = read_lines("gvcf_paths.txt")
         Array[File] input_gvcf_idxs = read_lines("gvcf_index_paths.txt")
-        Array[String] sample_ids = read_lines("sample_ids.txt")
     }
 }
 

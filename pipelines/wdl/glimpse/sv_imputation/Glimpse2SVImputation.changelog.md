@@ -1,7 +1,14 @@
+# 0.0.23
+2026-08-21 (Date of Last Commit)
+
+* Add new QuotaConsumed wdl
+
 # 0.0.22
 2026-08-20 (Date of Last Commit)
 
-* Add new QuotaConsumed wdl 
+* Remove `sample_ids` input from workflow. The sample name will now be obtained from GVCF file
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.13
+* Remove `sample_ids` from `ConvertInputArraysToManifest` task
 
 # 0.0.21
 2026-08-18 (Date of Last Commit)
