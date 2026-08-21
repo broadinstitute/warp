@@ -89,33 +89,27 @@ task PreprocessPLs {
     command <<<
         set -euxo pipefail
 
-        # Extract sample name from GVCF header
-        sample_name=$(bcftools query -l ~{input_vcf})
-
-        # Write sample name to file for extract-bubble-PLs tool and output naming
-        echo "$sample_name" > sample_name.txt
-
-        # Create final output prefix combining index and sample name
-        final_output_prefix="~{output_prefix}.${sample_name}.preprocessedPLs"
+        # Extract sample name from GVCF header and write to file for extract-bubble-PLs tool
+        bcftools query -l ~{input_vcf} > sample_name.txt
 
         /usr/local/bin/extract-bubble-PLs ~{mode} \
             ~{panel_bubble_split_sites_only_vcf}##idx##~{panel_bubble_split_sites_only_vcf_idx} \
             ~{input_vcf}##idx##~{input_vcf_idx} \
-            ${final_output_prefix}.bcf \
+            ~{output_prefix}.bcf \
             ~{"--region " + output_region} \
             --samples sample_name.txt \
             --threads ~{cpu} \
             ~{extra_args}
 
-        bcftools index ${final_output_prefix}.bcf
+        bcftools index ~{output_prefix}.bcf
 
         echo "Number of bubble alleles extracted..."
-        bcftools index -n ${final_output_prefix}.bcf
+        bcftools index -n ~{output_prefix}.bcf
     >>>
 
     output {
-        File preprocessed_pls_vcf = "~{output_prefix}.~{read_string('sample_name.txt')}.preprocessedPLs.bcf"
-        File preprocessed_pls_vcf_idx = "~{output_prefix}.~{read_string('sample_name.txt')}.preprocessedPLs.bcf.csi"
+        File preprocessed_pls_vcf = "~{output_prefix}.bcf"
+        File preprocessed_pls_vcf_idx = "~{output_prefix}.bcf.csi"
     }
 
     #########################
