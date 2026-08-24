@@ -314,13 +314,16 @@ task ValidateGvcfInput {
                 echo "GVCF file $gvcf has contigs compatible with the expected reference dictionary."
             fi
 
-            # Ensure the PL and GT FORMAT annotations are declared in the header
+            # Ensure the PL and GT FORMAT annotations are declared in the header.
+            # ID is not guaranteed to be the first attribute inside <...> (e.g. bcftools-normalized
+            # headers often add an IDX= attribute before ID=), so match ID= at any position and
+            # require an exact match (terminated by ',' or '>') rather than a prefix match.
             header=$(bcftools view -h "$gvcf")
             missing_format_fields=()
-            if ! (echo "$header" | grep -q '^##FORMAT=<ID=PL'); then
+            if ! (echo "$header" | grep -qE '^##FORMAT=<([^,>]*,)*ID=PL[,>]'); then
                 missing_format_fields+=("PL")
             fi
-            if ! (echo "$header" | grep -q '^##FORMAT=<ID=GT'); then
+            if ! (echo "$header" | grep -qE '^##FORMAT=<([^,>]*,)*ID=GT[,>]'); then
                 missing_format_fields+=("GT")
             fi
             if [ ${#missing_format_fields[@]} -gt 0 ]; then
