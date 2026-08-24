@@ -26,7 +26,7 @@ workflow MMIDAS_DataPrep {
     String neuronal_classes = "GABAergic,Glutamatergic"
 
     # ── Runtime ──────────────────────────────────────────────────────────────
-  String docker    = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786468785"
+  String docker    = "us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1787578739"
     Int    disk_size = 100
     Int    mem_size  = 48
     Int    cpu       = 4

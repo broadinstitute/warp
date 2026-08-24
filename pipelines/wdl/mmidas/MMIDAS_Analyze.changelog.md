@@ -1,8 +1,17 @@
+# 1.1.2
+2026-08-21 (Date of Last Commit)
+
+* Fixed the confusion-matrix heatmaps (conf_Ttype_*.png, conf_ConsType_*.png) in 04_clusterability.py. The classification pickles store conf_mat as raw integer counts (0 to 860, rows summing to 164-546) but the heatmap colour scale is fixed to [0, 1], so every non-zero cell saturated to the darkest blue: a single misassigned cell rendered identically to a correct diagonal entry of 860. The figures were pure black-and-white noise and carried no information. Rows are now normalised to fractions before plotting, matching notebooks/3_evaluation.ipynb, which divides each row by its sum. On the K=89 run this turns 550 uniformly-dark cells into a diagonal averaging 0.94 against an off-diagonal averaging 0.0007.
+* Widened the accuracy bar chart (classAcc_RF_K_*.png). At the previous width the three group labels ran together as "t-typesT CategoriesT Categories".
+* Category annotations in 05_state_traversal.py are no longer ambiguous. _label_for_cat truncated the dominant t-type at its first space, so "L6 IT Car3" and "L6 CT Nxph2" both became "L6" and a ten-panel figure could be labelled L6, Pvalb, L6, L6, L4, Vip, L6, L6, Pvalb, Pvalb with no way to tell the categories apart. Labels now carry the category number, e.g. "c34 L6".
+* State-scatter highlight colours no longer collide with the background. _default_palette used tab10, whose 8th entry is grey (#7f7f7f) against a #dbdbde background, so the 8th selected category's panel looked empty. Switched to husl, which is evenly spaced around the hue circle and returns no neutrals.
+* All four are figure-rendering changes only. No model, no numeric output, and no upstream mmidas change: the MMIDAS package stays pinned at warp-v2. Re-running MMIDAS_Analyze is sufficient; MMIDAS_DataPrep and MMIDAS_Train outputs are unaffected.
+
 # 1.1.1
 2026-08-11 (Date of Last Commit)
 
 * Documented the two unavoidable divergences from the reference notebooks in dashboard.md: 5_state_traversal.ipynb hardcodes a hand-picked selected_c list that a generic workflow cannot reproduce, and the reference train/test split is unseeded and therefore unrecoverable.
-* Updated the Docker image to us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1786468785 (MMIDAS pinned at warp-v2, which reverts the min_con pruning stop to upstream behaviour).
+* Updated the Docker image to us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1787578739 (MMIDAS pinned at warp-v2, which reverts the min_con pruning stop to upstream behaviour).
 
 # 1.1.0
 2026-08-06 (Date of Last Commit)
