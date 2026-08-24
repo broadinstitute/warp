@@ -39,11 +39,15 @@ workflow InputQC {
 
     # only validate individual GVCF contents if the manifest itself passed QC
     if (ValidateGvcfManifest.passes_qc) {
+        Int n_gvcfs = length(ValidateGvcfManifest.gvcfs)
+        Int cpu = if (n_gvcfs < 1000) then 8 else 16
+
         call ValidateGvcfInput {
             input:
                 gvcfs = ValidateGvcfManifest.gvcfs,
                 ref_dict = ref_dict,
-                billing_project_for_rp = billing_project_for_rp
+                billing_project_for_rp = billing_project_for_rp,
+                cpu = cpu
         }
     }
 
@@ -239,7 +243,7 @@ task ValidateGvcfInput {
         File ref_dict
 
         String? billing_project_for_rp # if set, will use this to access GVCFs in requester pays buckets. if not set and input is in a RP bucket, the check will fail
-        Int cpu = 4
+        Int cpu = 8
     }
 
     String billing_project = select_first([billing_project_for_rp, ""])
