@@ -304,9 +304,9 @@ task ValidateGvcfInput {
             local worker_id="$2"
 
             local gvcfs_with_incompatible_contigs=()
-            local gvcfs_with_missing_gvcf_block_lines=()
             local gvcfs_with_missing_format_fields=()
             local gvcfs_with_multiple_samples=()
+            local gvcf_sample_ids=()
 
             while IFS= read -r gvcf; do
                 [ -z "$gvcf" ] && continue
@@ -314,15 +314,17 @@ task ValidateGvcfInput {
 
                 bcftools view -Ov -h "$gvcf" > "header_${worker_id}.vcf"
 
-                # check that the GVCF contains data for exactly one sample (the #CHROM header line
-                # lists sample names starting at column 10, after the 9 fixed VCF columns)
-                sample_count=$(awk -F'\t' '/^#CHROM/ { print NF - 9; exit }' "header_${worker_id}.vcf")
+                # check that the GVCF contains data for exactly one sample, and record its sample
+                # ID so we can check for sample IDs duplicated across GVCFs once all workers finish
+                mapfile -t sample_ids_in_gvcf < <(bcftools query -l "header_${worker_id}.vcf")
+                sample_count=${#sample_ids_in_gvcf[@]}
                 if [ "$sample_count" -ne 1 ]; then
                     echo "[worker $worker_id] GVCF file $gvcf contains data for $sample_count samples; expected exactly 1."
                     gvcfs_with_multiple_samples+=("$gvcf")
                 else
                     echo "[worker $worker_id] GVCF file $gvcf contains data for exactly 1 sample."
                 fi
+                gvcf_sample_ids+=("${sample_ids_in_gvcf[@]}")
 
                 # --validation-type-to-exclude ALL skips variant-level validation and only checks that the
                 # VCF header's sequence dictionary is compatible with the provided reference dictionary
@@ -340,16 +342,7 @@ task ValidateGvcfInput {
                     echo "[worker $worker_id] GVCF file $gvcf has contigs compatible with the expected reference dictionary."
                 fi
 
-                # Ensure the header contains multiple GVCFBlock lines (a single line likely indicates
-                # a malformed or incomplete GVCF, since real GVCFs declare one block per depth bin)
-                gvcf_block_count=$(grep -c '##GVCFBlock' "header_${worker_id}.vcf" || true)
-                if [ "$gvcf_block_count" -le 1 ]; then
-                    gvcfs_with_missing_gvcf_block_lines+=("$gvcf")
-                else
-                    echo "[worker $worker_id] GVCF file $gvcf includes $gvcf_block_count ##GVCFBlock lines in its header."
-                fi
-
-                # Ensure the PL and GT FORMAT annotations are declared in the header.
+                # Ensure the PL, GT, and MIN_DP FORMAT/ID annotations are declared in the header.
                 format_lines=$(grep '^##FORMAT=<' "header_${worker_id}.vcf")
                 missing_format_fields=()
                 if ! echo "$format_lines" | grep -q 'ID=PL[,>]'; then
@@ -358,15 +351,18 @@ task ValidateGvcfInput {
                 if ! echo "$format_lines" | grep -q 'ID=GT[,>]'; then
                     missing_format_fields+=("GT")
                 fi
+                if ! echo "$format_lines" | grep -q 'ID=MIN_DP[,>]'; then
+                    missing_format_fields+=("MIN_DP")
+                fi
                 if [ ${#missing_format_fields[@]} -gt 0 ]; then
-                    echo "[worker $worker_id] GVCF file $gvcf is missing expected FORMAT annotation(s) in its header: ${missing_format_fields[*]}"
+                    echo "[worker $worker_id] GVCF file $gvcf is missing expected FORMAT/ID annotation(s) in its header: ${missing_format_fields[*]}"
                     gvcfs_with_missing_format_fields+=("$gvcf")
                 else
-                    echo "[worker $worker_id] GVCF file $gvcf declares the expected PL and GT FORMAT annotations in its header."
+                    echo "[worker $worker_id] GVCF file $gvcf declares the expected PL, GT, and MIN_DP FORMAT annotations in its header."
                 fi
 
                 # stop early once this worker's own chunk already has enough issues to fill a truncated message
-                total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_missing_gvcf_block_lines[@]} + ${#gvcfs_with_missing_format_fields[@]} + ${#gvcfs_with_multiple_samples[@]} ))
+                total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_missing_format_fields[@]} + ${#gvcfs_with_multiple_samples[@]} ))
                 if [ "$total_issue_count" -gt "$MAX_ITEMS_IN_ERROR_MESSAGES" ]; then
                     echo "[worker $worker_id] found more than $MAX_ITEMS_IN_ERROR_MESSAGES GVCF files with issues in this chunk; skipping the rest of this worker's chunk"
                     break
@@ -381,11 +377,6 @@ task ValidateGvcfInput {
             else
                 : > "results/${worker_id}_incompatible_contigs.txt"
             fi
-            if [ ${#gvcfs_with_missing_gvcf_block_lines[@]} -gt 0 ]; then
-                printf '%s\n' "${gvcfs_with_missing_gvcf_block_lines[@]}" > "results/${worker_id}_missing_gvcf_block.txt"
-            else
-                : > "results/${worker_id}_missing_gvcf_block.txt"
-            fi
             if [ ${#gvcfs_with_missing_format_fields[@]} -gt 0 ]; then
                 printf '%s\n' "${gvcfs_with_missing_format_fields[@]}" > "results/${worker_id}_missing_format.txt"
             else
@@ -395,6 +386,11 @@ task ValidateGvcfInput {
                 printf '%s\n' "${gvcfs_with_multiple_samples[@]}" > "results/${worker_id}_multi_sample.txt"
             else
                 : > "results/${worker_id}_multi_sample.txt"
+            fi
+            if [ ${#gvcf_sample_ids[@]} -gt 0 ]; then
+                printf '%s\n' "${gvcf_sample_ids[@]}" > "results/${worker_id}_sample_ids.txt"
+            else
+                : > "results/${worker_id}_sample_ids.txt"
             fi
         }
 
@@ -408,41 +404,45 @@ task ValidateGvcfInput {
         # Merge every worker's partial results back into single lists before applying the final,
         # truncated aggregate message
         mapfile -t gvcfs_with_incompatible_contigs < <(cat results/*_incompatible_contigs.txt 2>/dev/null)
-        mapfile -t gvcfs_with_missing_gvcf_block_lines < <(cat results/*_missing_gvcf_block.txt 2>/dev/null)
         mapfile -t gvcfs_with_missing_format_fields < <(cat results/*_missing_format.txt 2>/dev/null)
         mapfile -t gvcfs_with_multiple_samples < <(cat results/*_multi_sample.txt 2>/dev/null)
+        mapfile -t all_gvcf_sample_ids < <(cat results/*_sample_ids.txt 2>/dev/null)
+        mapfile -t duplicate_sample_ids < <(printf '%s\n' "${all_gvcf_sample_ids[@]}" | sort | uniq -d)
 
-        n_bad_contig_gvcfs=${#gvcfs_with_incompatible_contigs[@]}
-        if [ "$n_bad_contig_gvcfs" -ne 0 ]; then
-            if [ "$n_bad_contig_gvcfs" -eq 1 ]; then pluralized=""; else pluralized="s"; fi
-            append_aggregated_message "Found $n_bad_contig_gvcfs GVCF file$pluralized with contigs incompatible with the expected reference dictionary ($ref_dict_basename)" "${gvcfs_with_incompatible_contigs[@]}"
-        else
-            echo "All checked GVCF files have contigs compatible with the expected reference dictionary."
-        fi
+        # Reports the outcome of one QC check: if any items are given, pluralizes $1 ("GVCF file",
+        # "sample ID", ...) as needed and appends "Found N <subject(s)> <predicate>" to
+        # qc_messages.txt (truncated via append_aggregated_message); otherwise echoes $3 as-is.
+        report_check_result() {
+            local subject="$1"
+            local predicate="$2"
+            local success_message="$3"
+            shift 3
+            local items=("$@")
+            local n_items=${#items[@]}
+            if [ "$n_items" -eq 0 ]; then
+                echo "$success_message"
+                return
+            fi
+            local pluralized=""
+            [ "$n_items" -ne 1 ] && pluralized="s"
+            append_aggregated_message "Found $n_items $subject$pluralized $predicate" "${items[@]}"
+        }
 
-        n_missing_gvcf_block_lines=${#gvcfs_with_missing_gvcf_block_lines[@]}
-        if [ "$n_missing_gvcf_block_lines" -ne 0 ]; then
-            if [ "$n_missing_gvcf_block_lines" -eq 1 ]; then pluralized=""; else pluralized="s"; fi
-            append_aggregated_message "Found $n_missing_gvcf_block_lines GVCF file$pluralized missing multiple ##GVCFBlock header lines" "${gvcfs_with_missing_gvcf_block_lines[@]}"
-        else
-            echo "All checked GVCF files contain multiple ##GVCFBlock header lines."
-        fi
+        report_check_result "GVCF file" "with contigs incompatible with the expected reference dictionary ($ref_dict_basename)" \
+            "All checked GVCF files have contigs compatible with the expected reference dictionary." \
+            "${gvcfs_with_incompatible_contigs[@]}"
 
-        n_missing_format_gvcfs=${#gvcfs_with_missing_format_fields[@]}
-        if [ "$n_missing_format_gvcfs" -ne 0 ]; then
-            if [ "$n_missing_format_gvcfs" -eq 1 ]; then pluralized=""; else pluralized="s"; fi
-            append_aggregated_message "Found $n_missing_format_gvcfs GVCF file$pluralized missing the required PL and/or GT FORMAT annotation(s) in its header" "${gvcfs_with_missing_format_fields[@]}"
-        else
-            echo "All checked GVCF files declare the expected PL and GT FORMAT annotations in their headers."
-        fi
+        report_check_result "GVCF file" "missing the required PL, GT, and/or MIN_DP FORMAT/ID annotation(s) in its header" \
+            "All checked GVCF files declare the expected PL, GT, and MIN_DP FORMAT/ID annotations in their headers." \
+            "${gvcfs_with_missing_format_fields[@]}"
 
-        n_multi_sample_gvcfs=${#gvcfs_with_multiple_samples[@]}
-        if [ "$n_multi_sample_gvcfs" -ne 0 ]; then
-            if [ "$n_multi_sample_gvcfs" -eq 1 ]; then pluralized=""; else pluralized="s"; fi
-            append_aggregated_message "Found $n_multi_sample_gvcfs GVCF file$pluralized containing data for more than one sample" "${gvcfs_with_multiple_samples[@]}"
-        else
-            echo "All checked GVCF files contain data for exactly one sample."
-        fi
+        report_check_result "GVCF file" "containing data for more than one sample" \
+            "All checked GVCF files contain data for exactly one sample." \
+            "${gvcfs_with_multiple_samples[@]}"
+
+        report_check_result "sample ID" "appearing in more than one GVCF" \
+            "All GVCF sample IDs are unique across the provided GVCFs." \
+            "${duplicate_sample_ids[@]}"
 
         # passes_qc is true if qc_messages is empty
         if [ ! -s qc_messages.txt ]; then
