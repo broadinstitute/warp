@@ -51,7 +51,8 @@ task CountGvcfsFromManifest {
     command <<<
         set -e -o pipefail
 
-        grep -E "\.(vcf|gvcf)\.gz" ~{gvcf_manifest} | wc -l > gvcf_manifest_count.txt
+        # grep -c exits with code 1 when no matches are found, so we output 0 instead of failing
+        grep -c -E "\.(vcf|gvcf)\.gz" ~{gvcf_manifest} > gvcf_manifest_count.txt || echo "0" > gvcf_manifest_count.txt
     >>>
 
     output {

@@ -1,3 +1,8 @@
+# 1.0.7
+2026-08-24 (Date of Last Commit)
+
+* Update `quota_consumed_version` to 1.0.1
+
 # 1.0.6
 2026-08-12 (Date of Last Commit)
 
