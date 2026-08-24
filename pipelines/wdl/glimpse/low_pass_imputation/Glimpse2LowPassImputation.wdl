@@ -10,10 +10,9 @@ workflow Glimpse2LowPassImputation {
     String input_qc_version = "1.1.0"
 
     input {
-        # if multiple data types are provided, the workflow will prioritize cram/cram_indicies/sample_ids first, then cram manifest
+        # if multiple data types are provided, the workflow will prioritize cram/cram_indices first, then cram manifest
         Array[File]? crams
         Array[File]? cram_indices
-        Array[String]? sample_ids
         File? cram_manifest
         String output_basename
         # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCF
@@ -50,12 +49,11 @@ workflow Glimpse2LowPassImputation {
         call Glimpse2LowPassImputationTasks.ConvertInputArraysToManifest {
             input:
                 cram_paths = select_first([crams]),
-                cram_index_paths = select_first([cram_indices]),
-                sample_ids = select_first([sample_ids])
+                cram_index_paths = select_first([cram_indices])
         }
     }
 
-    # if neither crams (and cram_indices and sample_ids) nor cram_manifest is provided the workflow will fail at runtime
+    # if neither crams (and cram_indices) nor cram_manifest is provided the workflow will fail at runtime
     File cram_manifest_to_use = select_first([ConvertInputArraysToManifest.output_manifest, cram_manifest])
 
     call Glimpse2LowPassImputationTasks.SplitCramManifestIntoBatches as SplitIntoSampleBatches {
