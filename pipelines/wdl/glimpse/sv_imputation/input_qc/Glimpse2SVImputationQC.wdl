@@ -346,7 +346,7 @@ task ValidateGvcfInput {
                     echo "[worker $worker_id] GVCF file $gvcf has contigs compatible with the expected reference dictionary."
                 fi
 
-                # Ensure the PL, GT, and MIN_DP FORMAT/ID annotations are declared in the header.
+                # Ensure the PL and GT FORMAT/ID annotations are declared in the header.
                 format_lines=$(grep '^##FORMAT=<' "header_${worker_id}.vcf")
                 missing_format_fields=()
                 if ! echo "$format_lines" | grep -q 'ID=PL[,>]'; then
@@ -355,14 +355,11 @@ task ValidateGvcfInput {
                 if ! echo "$format_lines" | grep -q 'ID=GT[,>]'; then
                     missing_format_fields+=("GT")
                 fi
-                if ! echo "$format_lines" | grep -q 'ID=MIN_DP[,>]'; then
-                    missing_format_fields+=("MIN_DP")
-                fi
                 if [ ${#missing_format_fields[@]} -gt 0 ]; then
                     echo "[worker $worker_id] GVCF file $gvcf is missing expected FORMAT/ID annotation(s) in its header: ${missing_format_fields[*]}"
                     gvcfs_with_missing_format_fields+=("$gvcf")
                 else
-                    echo "[worker $worker_id] GVCF file $gvcf declares the expected PL, GT, and MIN_DP FORMAT annotations in its header."
+                    echo "[worker $worker_id] GVCF file $gvcf declares the expected PL and GT FORMAT/ID annotations in its header."
                 fi
 
                 # stop early once this worker's own chunk already has enough issues to fill a truncated message
@@ -436,8 +433,8 @@ task ValidateGvcfInput {
             "All checked GVCF files have contigs compatible with the expected reference dictionary." \
             "${gvcfs_with_incompatible_contigs[@]}"
 
-        report_check_result "GVCF file" "missing the required PL, GT, and/or MIN_DP FORMAT/ID annotation(s) in its header" \
-            "All checked GVCF files declare the expected PL, GT, and MIN_DP FORMAT/ID annotations in their headers." \
+        report_check_result "GVCF file" "missing the required PL and/or GT FORMAT/ID annotation(s) in its header" \
+            "All checked GVCF files declare the expected PL and GT FORMAT/ID annotations in their headers." \
             "${gvcfs_with_missing_format_fields[@]}"
 
         report_check_result "GVCF file" "containing data for more than one sample" \
