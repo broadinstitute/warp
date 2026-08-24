@@ -185,7 +185,7 @@ task ValidateCramsAndIndicesAndSampleIds {
             return f"{number} {subject}" if number == 1 else f"{number} {subject}s"
 
         # Validate that the number of CRAMs and CRAIs match
-        if num_crams != num_cram_indices or num_crams:
+        if num_crams != num_cram_indices:
             qc_messages.append(f"Found different numbers of CRAMs ({num_crams}) and CRAM index files ({num_cram_indices}).")
         else:
             print(f"Number of CRAMs and CRAM index files match: found {num_crams} of each.")
