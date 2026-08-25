@@ -916,12 +916,11 @@ task MergeFragmentFilesAndCalculateMetrics {
     atac_nhash_id = "~{atac_nhash_id}"
     expected_cells = ~{atac_expected_cells}
 
-    adata = pp.import_fragments(
+    adata = pp.import_data(
         "~{input_id}.fragments.sorted.tsv.gz",
+        chrom_sizes=chrom_size_dict,
         min_num_fragments=0,
         file="temp_metrics.h5ad",
-        chrom_sizes=chrom_size_dict,
-        gene_anno=atac_gtf,
     )
     snapatac2.metrics.tsse(adata, atac_gtf, exclude_chroms=mito_list)
     qc["Targeting"]["TSS_enrichment_score"] = adata.uns['library_tsse']
