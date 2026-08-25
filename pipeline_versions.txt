@@ -9,7 +9,7 @@ Glimpse2LowPassImputation	 1.1.0	2026-08-24
 Glimpse2LowPassImputationBatch	 1.1.0	2026-08-24 
 Glimpse2LowPassImputationQC	 1.1.0	2026-08-20 
 Glimpse2LowPassImputationQuotaConsumed	 1.0.1	2026-08-24 
-Glimpse2SVImputation	 0.0.22	2026-08-20 
+Glimpse2SVImputation	 0.0.24	2026-08-24 
 Glimpse2SVImputationBatch	 0.0.17	2026-08-20 
 Glimpse2SVImputationQC	 0.0.1	2026-08-24 
 Glimpse2SVImputationQuotaConsumed	 0.0.1	2026-08-24 
