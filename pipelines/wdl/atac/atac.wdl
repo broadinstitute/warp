@@ -799,7 +799,7 @@ task ConcatenateBamChunks {
 
   command <<<
     set -euo pipefail
-    samtools cat -o "~{input_id}.bam" ~{sep=' ' bam_chunks}
+    /usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools cat -o "~{input_id}.bam" ~{sep=' ' bam_chunks}
   >>>
 
   runtime {
