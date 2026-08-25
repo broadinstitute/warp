@@ -2,28 +2,51 @@ version 1.0
 
 # Docker fixed to quay.io/biocontainers/htslib@sha256:ff9d466929dc2d587128afc213fc4516d
 
-#task splitPhenotypeBed {
-#    input {
-#        File TensorQTLPermutations
-#    }
+# InputMappingTsv: tab-separated, one row per ancestry, with a header row containing at least:
+#   mapping_inputs_id (ancestry code: AFR, AMR, COMB, EUR, SAS, EAS, MID), GenotypeDosage,
+#   GenotypeDosagei, PhenotypePCsOut, PlinkAF, QtlCovariates, Sample_list, VCF, cis_qtl,
+#   genotype_pcs, pgen, phenotype_bed, psam, pvar. Only the columns consumed below are read;
+# each cell (other than mapping_inputs_id) must be a gs:// path to the corresponding file.
+task ParseInputMapping {
+    input {
+        File InputMappingTsv
+        String Ancestry
+    }
+    command <<<
+        set -euo pipefail
+        python3 <<CODE
+        import csv
 
-    #String baseName = basename(PhenotypeBed, ".gz")
+        cols = ["GenotypeDosage", "GenotypeDosagei", "QtlCovariates", "Sample_list", "phenotype_bed", "cis_qtl"]
+        with open("~{InputMappingTsv}") as f:
+            reader = csv.DictReader(f, delimiter="\t")
+            for row in reader:
+                if row["mapping_inputs_id"] == "~{Ancestry}":
+                    for col in cols:
+                        with open(f"{col}.txt", "w") as out:
+                            out.write(row[col].strip())
+                    break
+            else:
+                raise ValueError("No row found for mapping_inputs_id '~{Ancestry}' in InputMappingTsv")
+        CODE
+    >>>
 
-#    command <<<
-#        zcat ~{TensorQTLPermutations} | awk '$18 < 0.05' | head -n 100  > significant_qtls.txt 
-#        awk 'NR==1 {header=$0; next} {out=$1".txt"; print header > out; print >> out}' significant_qtls.txt 
-#    >>>
-#
-#    output {
-#        Array[File] splitFiles = glob("*.txt")
-#    }
-#    runtime {
-#        docker: "quay.io/biocontainers/htslib:1.22.1--h566b1c6_0"
-#        disks: "local-disk 500 SSD"
-#        memory: "2GB"
-#        cpu: "1"
-#    }
-#}
+    runtime {
+        docker: "quay.io/biocontainers/htslib@sha256:ff9d466929dc2d587128afc213fc4516d936ccc5e7fa39f39d3769f76b471293"
+        disks: "local-disk 10 SSD"
+        memory: "2GB"
+        cpu: "1"
+    }
+
+    output {
+        String GenotypeDosagePath = read_string("GenotypeDosage.txt")
+        String GenotypeDosageIndexPath = read_string("GenotypeDosagei.txt")
+        String QTLCovariatesPath = read_string("QtlCovariates.txt")
+        String SampleListPath = read_string("Sample_list.txt")
+        String PhenotypeBedPath = read_string("phenotype_bed.txt")
+        String TensorQTLPermutationsPath = read_string("cis_qtl.txt")
+    }
+}
 
 task PrepInputs {
     input {
@@ -168,12 +191,8 @@ task susieR {
 
 workflow susieR_workflow {
     input {
-        File GenotypeDosages
-        File GenotypeDosageIndex
-        File QTLCovariates
-        File TensorQTLPermutations
-        File SampleList
-        File PhenotypeBed
+        File InputMappingTsv
+        String Ancestry
         Int CisDistance
         File susie_rscript
         Int memory
@@ -181,15 +200,21 @@ workflow susieR_workflow {
         String OutputPrefix
         String PhenotypeID
     }
-    String pipeline_version = "aou_9.0.0"
+    String pipeline_version = "aou_9.1.0"
+
+    call ParseInputMapping {
+        input:
+            InputMappingTsv = InputMappingTsv,
+            Ancestry = Ancestry
+    }
 
     call PrepInputs {
         input:
-            TensorQTLPermutations = TensorQTLPermutations,
+            TensorQTLPermutations = ParseInputMapping.TensorQTLPermutationsPath,
             PhenotypeID = PhenotypeID,
-            GenotypeDosages = GenotypeDosages,
-            GenotypeDosageIndex = GenotypeDosageIndex,
-            PhenotypeBed = PhenotypeBed,
+            GenotypeDosages = ParseInputMapping.GenotypeDosagePath,
+            GenotypeDosageIndex = ParseInputMapping.GenotypeDosageIndexPath,
+            PhenotypeBed = ParseInputMapping.PhenotypeBedPath,
             NumPrempt = NumPrempt
     }
 
@@ -197,10 +222,10 @@ workflow susieR_workflow {
         input:
             GenotypeDosages = PrepInputs.SubsetDosages,
             GenotypeDosageIndex = PrepInputs.SubsetDosagesIndex,
-            QTLCovariates = QTLCovariates,
+            QTLCovariates = ParseInputMapping.QTLCovariatesPath,
             TensorQTLPermutations = PrepInputs.SubsetPermutationPvals,
-            SampleList = SampleList,
-            PhenotypeBed = PhenotypeBed ,
+            SampleList = ParseInputMapping.SampleListPath,
+            PhenotypeBed = ParseInputMapping.PhenotypeBedPath,
             CisDistance = CisDistance,
             OutputPrefix = PhenotypeID,
             susie_rscript = susie_rscript,
@@ -209,12 +234,7 @@ workflow susieR_workflow {
 
         }
     
-    #call MergeSusie {
-    #    input:
-    #        SusieOutput = susieR.SusieParquet,
-    #        OutputPrefix = OutputPrefix 
-    #
-    #} 
+
     output {
         File SusieParquet = susieR.SusieParquet
         File SusielbfParquet = susieR.lbfParquet
