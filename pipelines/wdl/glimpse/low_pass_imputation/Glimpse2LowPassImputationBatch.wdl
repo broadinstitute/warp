@@ -437,7 +437,7 @@ task BcftoolsCall {
     command <<<
         set -xeuo pipefail
 
-        bcftools call -Aim -C alleles -T ~{sites_table} -Oz ~{mpileup_bcf} -o calls.bcf.gz
+        bcftools call -Am -C alleles -T ~{sites_table} -Oz ~{mpileup_bcf} -o calls.bcf.gz
         bcftools index calls.bcf.gz
     >>>
 
