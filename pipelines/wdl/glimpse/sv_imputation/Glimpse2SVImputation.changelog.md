@@ -1,3 +1,8 @@
+# 0.0.23
+2026-08-24 (Date of Last Commit)
+
+* Add new QuotaConsumed wdl
+
 # 0.0.22
 2026-08-20 (Date of Last Commit)
 

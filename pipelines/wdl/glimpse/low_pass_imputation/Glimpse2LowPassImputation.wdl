@@ -4,9 +4,9 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "1.0.6"
+    String pipeline_version = "1.0.7"
     String batch_pipeline_version = "1.0.4"
-    String quota_consumed_version = "1.0.0"
+    String quota_consumed_version = "1.0.1"
     String input_qc_version = "1.0.5"
 
     input {
