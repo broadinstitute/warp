@@ -845,8 +845,19 @@ task MergeFragmentFilesAndCalculateMetrics {
     set -euo pipefail
     set -x
 
-    echo "Concatenating and sorting per-chunk fragment files"
-    zcat ~{sep=' ' fragment_files} | sort -k1,1V -k2,2n > "~{input_id}.fragments.sorted.tsv"
+    echo "Concatenating per-chunk fragment files"
+    zcat ~{sep=' ' fragment_files} > "~{input_id}.fragments.tsv"
+
+    # Each chunk's fragment file is barcode-sorted on its own (from make_fragment_file), but
+    # chunks are hash buckets, not barcode ranges, so the concatenation is not globally
+    # barcode-sorted. snapatac2's import_data requires barcode order, so re-sort explicitly
+    # before import; the genomic-coordinate sort below is only for the final fragment_file
+    # output and is independent of what gets fed to import_data.
+    echo "Sorting merged fragment file by barcode for snapatac2 import"
+    LC_ALL=C sort -k4,4 "~{input_id}.fragments.tsv" > "~{input_id}.fragments.barcode_sorted.tsv"
+
+    echo "Sorting merged fragment file by genomic coordinate for the final output"
+    sort -k1,1V -k2,2n "~{input_id}.fragments.tsv" > "~{input_id}.fragments.sorted.tsv"
     bgzip "~{input_id}.fragments.sorted.tsv"
     tabix -s 1 -b 2 -e 3 -C "~{input_id}.fragments.sorted.tsv.gz"
 
@@ -917,7 +928,7 @@ task MergeFragmentFilesAndCalculateMetrics {
     expected_cells = ~{atac_expected_cells}
 
     adata = pp.import_data(
-        "~{input_id}.fragments.sorted.tsv.gz",
+        "~{input_id}.fragments.barcode_sorted.tsv",
         chrom_sizes=chrom_size_dict,
         min_num_fragments=0,
         file="temp_metrics.h5ad",
