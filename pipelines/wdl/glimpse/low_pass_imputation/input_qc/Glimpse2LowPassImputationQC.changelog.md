@@ -1,3 +1,10 @@
+# 1.1.0
+2026-08-20 (Date of Last Commit)
+
+* Remove sample_id column expectation from manifest check
+* Check all CRAM files instead of only the first 100
+* Add check for a single sample in each CRAM (no multi-sample CRAM inputs)
+
 # 1.0.5
 2026-07-20 (Date of Last Commit)
 

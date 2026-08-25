@@ -1,3 +1,9 @@
+# 1.1.0
+2026-08-20 (Date of Last Commit)
+
+* Remove sample_id input; infer sample_id from CRAM input in `mpileup` task
+* Update input_qc_version for supporting QC changes
+
 # 1.0.7
 2026-08-24 (Date of Last Commit)
 

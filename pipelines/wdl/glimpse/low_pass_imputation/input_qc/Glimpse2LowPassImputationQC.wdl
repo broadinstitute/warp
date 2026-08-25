@@ -2,7 +2,7 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.5"
+    String pipeline_version = "1.1.0"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
@@ -34,7 +34,6 @@ workflow InputQC {
             input:
                 crams = ConvertCramManifestToInputArrays.crams,
                 cram_indices = ConvertCramManifestToInputArrays.cram_indices,
-                sample_ids = ConvertCramManifestToInputArrays.sample_ids,
                 billing_project_for_rp = billing_project_for_rp
         }
     }
@@ -72,7 +71,6 @@ task ConvertCramManifestToInputArrays {
         passes_qc_filename = "passes_qc.txt"
         crams_filename = "crams.txt"
         cram_indices_filename = "cram_indices.txt"
-        sample_ids_filename = "sample_ids.txt"
 
         def write_column(column_data, filename):
             """Write column to file, with each value stripped of leading/trailing whitespace."""
@@ -86,7 +84,7 @@ task ConvertCramManifestToInputArrays {
             df = pd.read_csv("~{cram_manifest}", sep='\t')
 
             # Check for required columns
-            required_cols = ['sample_id', 'cram_path', 'cram_index_path']
+            required_cols = ['cram_path', 'cram_index_path']
             missing_cols = [col for col in required_cols if col not in df.columns]
 
             if missing_cols:
@@ -98,10 +96,8 @@ task ConvertCramManifestToInputArrays {
                 # Create empty output files
                 open(crams_filename, 'w').close()
                 open(cram_indices_filename, 'w').close()
-                open(sample_ids_filename, 'w').close()
             else:
                 # Write to output files, stripping leading/trailing whitespace from each value
-                write_column(df['sample_id'], sample_ids_filename)
                 write_column(df['cram_path'], crams_filename)
                 write_column(df['cram_index_path'], cram_indices_filename)
 
@@ -121,7 +117,6 @@ task ConvertCramManifestToInputArrays {
             # Create empty output files
             open(crams_filename, 'w').close()
             open(cram_indices_filename, 'w').close()
-            open(sample_ids_filename, 'w').close()
 
         EOF
         python3 script.py
@@ -140,7 +135,6 @@ task ConvertCramManifestToInputArrays {
     output {
         Array[String] crams = read_lines("crams.txt")
         Array[String] cram_indices = read_lines("cram_indices.txt")
-        Array[String] sample_ids = read_lines("sample_ids.txt")
         Boolean passes_qc = read_boolean("passes_qc.txt")
         String qc_messages = read_string("qc_messages.txt")
     }
@@ -151,7 +145,6 @@ task ValidateCramsAndIndicesAndSampleIds {
     input {
         Array[String] crams
         Array[String] cram_indices
-        Array[String] sample_ids
 
         Int max_cram_file_size_gb = 10
         String? billing_project_for_rp # if set, will use this to check file sizes for requester pays buckets. if not set and input is in a RP bucket, and check will fail
@@ -168,18 +161,15 @@ task ValidateCramsAndIndicesAndSampleIds {
         qc_messages = []
 
         # Parse WDL arrays from space-separated strings
-        parsed_sample_ids = """~{sep=' ' sample_ids}""".split()
         parsed_crams = """~{sep=' ' crams}""".split()
         parsed_cram_indices = """~{sep=' ' cram_indices}""".split()
 
         # remove empty strings
-        sample_ids = [s for s in parsed_sample_ids if s]
         crams = [c for c in parsed_crams if c]
         cram_indices = [c for c in parsed_cram_indices if c]
 
         num_crams = len(crams)
         num_cram_indices = len(cram_indices)
-        num_sample_ids = len(sample_ids)
 
         MAX_ITEMS_IN_ERROR_MESSAGES = 5
 
@@ -194,19 +184,11 @@ task ValidateCramsAndIndicesAndSampleIds {
             """Helper function to return a properly pluralized phrase based on the number provided, e.g. '1 CRAM file' or '2 CRAM files'."""
             return f"{number} {subject}" if number == 1 else f"{number} {subject}s"
 
-        # Validate that the number of CRAMs, CRAIs, and sample IDs match
-        if num_crams != num_cram_indices or num_crams != num_sample_ids:
-            qc_messages.append(f"Found different numbers of CRAMs ({num_crams}), CRAM index files ({num_cram_indices}), and sample IDs ({num_sample_ids}).")
+        # Validate that the number of CRAMs and CRAIs match
+        if num_crams != num_cram_indices or num_crams:
+            qc_messages.append(f"Found different numbers of CRAMs ({num_crams}) and CRAM index files ({num_cram_indices}).")
         else:
-            print(f"Number of CRAMs, CRAM index files, and sample IDs match: found {num_crams} of each.")
-
-        # Validate that sample IDs are unique
-        unique_sample_ids = set(sample_ids)
-        if len(unique_sample_ids) != num_sample_ids:
-            duplicates = [sid for sid in unique_sample_ids if sample_ids.count(sid) > 1]
-            qc_messages.append(create_error_message_with_item_list(f"Found {pluralize(len(duplicates), 'duplicate sample ID')}", duplicates))
-        else:
-            print("Sample IDs are unique.")
+            print(f"Number of CRAMs and CRAM index files match: found {num_crams} of each.")
 
         # Ensure all crams end with .cram and all cram indices end with .crai
         crams_with_wrong_extension = [c for c in crams if not c.endswith('.cram')]
@@ -350,6 +332,7 @@ task ValidateCramContents {
         Array[String] contigs
         File ref_dict
         String? billing_project_for_rp
+        Int cpu = 4
     }
 
     String billing_project = select_first([billing_project_for_rp, ""])
@@ -400,38 +383,106 @@ task ValidateCramContents {
         done
 
         crams_with_bad_or_missing_md5sums=()
+        crams_with_multiple_samples=()
         MAX_ITEMS_IN_ERROR_MESSAGES=5
-        cram_check_count=0
-        MAX_CRAMS_TO_CHECK=100 # to limit runtime of this task, we will only check the first 100 crams for the expected md5sums
-        # read cram headers to validate that they contain the expected reference alignment MD5sums
-        for cram in ~{sep=' ' crams}; do
-            cram_check_count=$((cram_check_count + 1))
-            echo "Validating CRAM file: $cram"
-            header=$(samtools view -H "$cram")
-            cram_ok=true
-            for chrom in "${!ref_md5sums[@]}"; do
-                expected_md5=${ref_md5sums[$chrom]}
-                echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"
-                if ! echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"; then
-                    echo "CRAM file $cram is missing expected reference alignment MD5 for contig $chrom or it does not match the expected value."
-                    crams_with_bad_or_missing_md5sums+=("$cram")
-                    cram_ok=false
-                    break # no need to check other contigs for this cram if one is already missing or has a bad md5sum
+        cpu_count=~{cpu}
+
+        # Split the full CRAM list into $cpu_count round-robin chunks, one per worker, so we can
+        # validate all CRAMs in parallel using the CPUs available to this VM instead of checking
+        # them one at a time. Done in plain bash (rather than via `split -n`) since that flag's
+        # behavior/availability isn't guaranteed to be consistent across environments.
+        printf '%s\n' ~{sep=' ' crams} > all_crams.txt
+        mkdir -p chunks results
+        for i in $(seq 0 $((cpu_count - 1))); do
+            : > "chunks/chunk_${i}.txt"
+        done
+        chunk_idx=0
+        while IFS= read -r cram; do
+            [ -z "$cram" ] && continue
+            echo "$cram" >> "chunks/chunk_$(( chunk_idx % cpu_count )).txt"
+            chunk_idx=$((chunk_idx + 1))
+        done < all_crams.txt
+
+        # Validates every CRAM listed in $1 (one path per line), writing this worker's list of
+        # problem CRAMs for each check to results/<worker_id>_<check>.txt. Stops early once this
+        # worker's own chunk has already accumulated more than MAX_ITEMS_IN_ERROR_MESSAGES issues,
+        # since the final aggregated message (built after all workers finish) is truncated to that
+        # many examples anyway.
+        check_cram_chunk() {
+            local chunk_file="$1"
+            local worker_id="$2"
+
+            local worker_crams_with_bad_or_missing_md5sums=()
+            local worker_crams_with_multiple_samples=()
+
+            while IFS= read -r cram; do
+                [ -z "$cram" ] && continue
+                echo "[worker $worker_id] Validating CRAM file: $cram"
+                header=$(samtools view -H "$cram")
+
+                # check that cram is single-sample
+                n_samples=$(echo "$header" | grep '^@RG' | grep -o 'SM:[^\t]*' | sort -u | wc -l)
+                if [ "$n_samples" -ne 1 ]; then
+                    echo "[worker $worker_id] CRAM file $cram contains data for $n_samples samples; expected exactly 1."
+                    worker_crams_with_multiple_samples+=("$cram")
                 fi
-            done
-            if [ "$cram_ok" = true ]; then
-                echo "CRAM file $cram contains expected reference alignment MD5sums for all expected contigs"
+
+                cram_ok=true
+                for chrom in "${!ref_md5sums[@]}"; do
+                    expected_md5=${ref_md5sums[$chrom]}
+                    if ! echo "$header" | grep -q "SN:$chrom.*M5:$expected_md5"; then
+                        echo "[worker $worker_id] CRAM file $cram is missing expected reference alignment MD5 for contig $chrom or it does not match the expected value."
+                        worker_crams_with_bad_or_missing_md5sums+=("$cram")
+                        cram_ok=false
+                        break # no need to check other contigs for this cram if one is already missing or has a bad md5sum
+                    fi
+                done
+                if [ "$cram_ok" = true ]; then
+                    echo "[worker $worker_id] CRAM file $cram contains expected reference alignment MD5sums for all expected contigs"
+                fi
+
+                # stop early once this worker's own chunk already has enough issues to fill a truncated message
+                total_issue_count=$(( ${#worker_crams_with_bad_or_missing_md5sums[@]} + ${#worker_crams_with_multiple_samples[@]} ))
+                if [ "$total_issue_count" -gt "$MAX_ITEMS_IN_ERROR_MESSAGES" ]; then
+                    echo "[worker $worker_id] found more than $MAX_ITEMS_IN_ERROR_MESSAGES CRAM files with issues in this chunk; skipping the rest of this worker's chunk"
+                    break
+                fi
+            done < "$chunk_file"
+
+            # Write each result list to its own file, one path per line (or leave the file empty).
+            # The length is checked before expanding "${arr[@]}", since expanding a zero-element
+            # array directly is unsafe under `set -u` on some older bash versions.
+            if [ ${#worker_crams_with_bad_or_missing_md5sums[@]} -gt 0 ]; then
+                printf '%s\n' "${worker_crams_with_bad_or_missing_md5sums[@]}" > "results/${worker_id}_bad_md5sum.txt"
+            else
+                : > "results/${worker_id}_bad_md5sum.txt"
             fi
-            # if we've found more than MAX_ITEMS_IN_ERROR_MESSAGES crams with bad or missing md5sums, we can stop checking the rest of the crams because the error message will be truncated anyway
-            if [ ${#crams_with_bad_or_missing_md5sums[@]} -gt $((MAX_ITEMS_IN_ERROR_MESSAGES)) ]; then
-                echo "Found more than $((MAX_ITEMS_IN_ERROR_MESSAGES)) CRAM files with bad or missing reference alignment MD5sums; skipping validation of remaining CRAM files"
-                break
+            if [ ${#worker_crams_with_multiple_samples[@]} -gt 0 ]; then
+                printf '%s\n' "${worker_crams_with_multiple_samples[@]}" > "results/${worker_id}_multi_sample.txt"
+            else
+                : > "results/${worker_id}_multi_sample.txt"
             fi
-            # if we've checked more than MAX_CRAMS_TO_CHECK crams, we will stop to limit runtime of this task
-            if [ $cram_check_count -ge $MAX_CRAMS_TO_CHECK ]; then
-                echo "Checked $MAX_CRAMS_TO_CHECK CRAM files; stopping further checks to limit runtime of this task"
-                break
-            fi
+        }
+
+        worker_id=0
+        for chunk_file in chunks/chunk_*; do
+            check_cram_chunk "$chunk_file" "$worker_id" &
+            worker_id=$((worker_id + 1))
+        done
+        wait
+
+        # Merge every worker's partial results back into single lists before applying the final,
+        # truncated aggregate message (same truncation behavior as before, just applied once at the
+        # end instead of while looping through CRAMs one at a time).
+        for f in results/*_bad_md5sum.txt; do
+            while IFS= read -r line; do
+                [ -n "$line" ] && crams_with_bad_or_missing_md5sums+=("$line")
+            done < "$f"
+        done
+        for f in results/*_multi_sample.txt; do
+            while IFS= read -r line; do
+                [ -n "$line" ] && crams_with_multiple_samples+=("$line")
+            done < "$f"
         done
 
         # if crams_with_bad_or_missing_md5sums is not empty, write an error message to qc_messages.txt
@@ -461,6 +512,23 @@ task ValidateCramContents {
             echo "All CRAM files contain the expected reference alignment MD5sums for the expected contigs."
         fi
 
+        # if crams_with_multiple_samples is not empty, write an error message to qc_messages.txt
+        n_multi_sample_crams=${#crams_with_multiple_samples[@]}
+        if [ $n_multi_sample_crams -ne 0 ]; then
+            {
+                if [ $n_multi_sample_crams -eq 1 ]; then
+                    pluralized=""
+                else
+                    pluralized="s"
+                fi
+                joined=$(IFS=","; echo "${crams_with_multiple_samples[*]}")
+                list_to_show="${joined//,/, }" # Replaces every ',' with ', '
+                echo "Found $n_multi_sample_crams CRAM file$pluralized containing data for more than one sample: $list_to_show"
+            } >> qc_messages.txt
+        else
+            echo "All CRAM files contain data for exactly one sample."
+        fi
+
         # passes_qc is true if qc_messages is empty
         if [ ! -s qc_messages.txt ]; then
             echo "true" > passes_qc.txt
@@ -474,7 +542,7 @@ task ValidateCramContents {
 
     runtime {
         docker: "us.gcr.io/broad-dsp-lrma/lr-gcloud-samtools:0.1.23.1"
-        cpu: 1
+        cpu: cpu
         disks: "local-disk 10 HDD"
         memory: "4 GiB"
         maxRetries: 2
