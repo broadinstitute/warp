@@ -89,7 +89,7 @@ task ConvertCramManifestToInputArrays {
 
             if missing_cols:
                 with open(qc_messages_filename, 'w') as qc_file:
-                    qc_file.write(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.")
+                    qc_file.write(f"Missing required column header(s) in the CRAM manifest: {', '.join(missing_cols)}.")
                 with open(passes_qc_filename, 'w') as f:
                     f.write("false")
 
