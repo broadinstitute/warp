@@ -8,8 +8,9 @@ Glimpse2LowPassImputation	 1.0.7	2026-08-24
 Glimpse2LowPassImputationBatch	 1.0.4	2026-08-12 
 Glimpse2LowPassImputationQC	 1.0.5	2026-07-20 
 Glimpse2LowPassImputationQuotaConsumed	 1.0.1	2026-08-24 
-Glimpse2SVImputation	 0.0.23	2026-08-24 
+Glimpse2SVImputation	 0.0.24	2026-08-24 
 Glimpse2SVImputationBatch	 0.0.17	2026-08-20 
+Glimpse2SVImputationQC	 0.0.1	2026-08-24 
 Glimpse2SVImputationQuotaConsumed	 0.0.1	2026-08-24 
 IlluminaGenotypingArray	 1.12.27	2026-01-21 
 Imputation	 1.1.23	2025-10-03 

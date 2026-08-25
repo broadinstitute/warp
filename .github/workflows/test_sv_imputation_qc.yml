@@ -1,4 +1,4 @@
-name: Test Glimpse2SVImputation
+name: Test Glimpse2SVImputationQC
 
 # Controls when the workflow will run
 on:
@@ -9,15 +9,12 @@ on:
     # SET PIPELINE SPECIFIC PATHS HERE #
     ####################################
     paths:
-      - 'pipelines/wdl/glimpse/sv_imputation/**'
-      - '!pipelines/wdl/glimpse/sv_imputation/input_qc/**'
-      - 'tasks/wdl/Glimpse2SVImputationTasks.wdl'
-      - 'verification/VerifyGlimpse2SVImputation.wdl'
-      - 'verification/test-wdls/TestGlimpse2SVImputation.wdl'
-      - 'verification/VerifyTasks.wdl'
+      - 'pipelines/wdl/glimpse/sv_imputation/input_qc/**'
+      - 'verification/VerifyGlimpse2SVImputationQC.wdl'
+      - 'verification/test-wdls/TestGlimpse2SVImputationQC.wdl'
       - 'tasks/wdl/Utilities.wdl'
       - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
-      - '.github/workflows/test_sv_imputation.yml'
+      - '.github/workflows/test_sv_imputation_qc.yml'
       - '.github/workflows/warp_test_workflow.yml'
 
 
@@ -46,9 +43,9 @@ on:
 
 env:
   # pipeline configuration
-  PIPELINE_NAME: TestGlimpse2SVImputation
-  DOCKSTORE_PIPELINE_NAME: Glimpse2SVImputation
-  PIPELINE_DIR: "pipelines/wdl/glimpse/sv_imputation/"
+  PIPELINE_NAME: TestGlimpse2SVImputationQC
+  DOCKSTORE_PIPELINE_NAME: Glimpse2SVImputationQC
+  PIPELINE_DIR: "pipelines/wdl/glimpse/sv_imputation/input_qc"
 
   # workspace configuration
   TESTING_WORKSPACE: WARP Tests
@@ -60,16 +57,16 @@ env:
 
 
 jobs:
-  TestGlimpse2SVImputation:
+  TestGlimpse2SVImputationQC:
     permissions:
       contents: 'read'
       id-token: 'write'
       actions: write
     uses: ./.github/workflows/warp_test_workflow.yml
     with:
-      pipeline_name: TestGlimpse2SVImputation
-      dockstore_pipeline_name: Glimpse2SVImputation
-      pipeline_dir: pipelines/wdl/glimpse/sv_imputation
+      pipeline_name: TestGlimpse2SVImputationQC
+      dockstore_pipeline_name: Glimpse2SVImputationQC
+      pipeline_dir: pipelines/wdl/glimpse/sv_imputation/input_qc
       use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
       update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
       test_type: ${{ github.event.inputs.testType }}

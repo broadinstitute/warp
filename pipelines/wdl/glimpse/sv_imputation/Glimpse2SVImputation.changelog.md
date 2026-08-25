@@ -1,3 +1,8 @@
+# 0.0.24
+2026-08-24 (Date of Last Commit)
+
+* Add input_qc_version to match new Glimspe2SVImputationQC wdl version
+
 # 0.0.23
 2026-08-24 (Date of Last Commit)
 

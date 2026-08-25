@@ -104,6 +104,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/Glimpse2SVImputationBatch.wdl
 
+  - name: Glimpse2SVImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/input_qc/Glimpse2SVImputationQC.wdl
+  
   - name: Glimpse2SVImputationQuotaConsumed
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/Glimpse2SVImputationQuotaConsumed.wdl
@@ -327,6 +331,10 @@ workflows:
   - name: TestGlimpse2SVImputation
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestGlimpse2SVImputation.wdl
+
+  - name: TestGlimpse2SVImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestGlimpse2SVImputationQC.wdl
 
   - name: TestIlluminaGenotypingArray
     subclass: WDL
