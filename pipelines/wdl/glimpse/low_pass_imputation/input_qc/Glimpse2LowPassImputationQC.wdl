@@ -405,18 +405,28 @@ task ValidateCramContents {
 
             local worker_crams_with_bad_or_missing_md5sums=()
             local worker_crams_with_multiple_samples=()
+            local worker_cram_sample_ids=()
 
             while IFS= read -r cram; do
                 [ -z "$cram" ] && continue
                 echo "[worker $worker_id] Validating CRAM file: $cram"
                 header=$(samtools view -H "$cram")
 
-                # check that cram is single-sample
-                n_samples=$(echo "$header" | grep '^@RG' | grep -o 'SM:[^\t]*' | sort -u | wc -l)
+                # check that cram is single-sample, and record its sample ID(s) so we can check for
+                # sample IDs duplicated across CRAMs once all workers finish. -P (Perl regex) is
+                # needed for two reasons here: (1) without it, `\t` inside a `[^\t]` bracket
+                # expression isn't recognized as an actual tab, so the match would run to the end of
+                # the line instead of stopping at the next field, swallowing subsequent @RG fields
+                # (e.g. LB, PL) into the sample ID; (2) it enables \K, which discards everything
+                # matched before it from the output, so -o prints just the ID after "SM:" without a
+                # separate sed strip.
+                mapfile -t sample_ids_in_cram < <(echo "$header" | grep '^@RG' | grep -oP 'SM:\K[^\t]*' | sort -u)
+                n_samples=${#sample_ids_in_cram[@]}
                 if [ "$n_samples" -ne 1 ]; then
                     echo "[worker $worker_id] CRAM file $cram contains data for $n_samples samples; expected exactly 1."
                     worker_crams_with_multiple_samples+=("$cram")
                 fi
+                worker_cram_sample_ids+=("${sample_ids_in_cram[@]}")
 
                 cram_ok=true
                 for chrom in "${!ref_md5sums[@]}"; do
@@ -453,6 +463,11 @@ task ValidateCramContents {
             else
                 : > "results/${worker_id}_multi_sample.txt"
             fi
+            if [ ${#worker_cram_sample_ids[@]} -gt 0 ]; then
+                printf '%s\n' "${worker_cram_sample_ids[@]}" > "results/${worker_id}_sample_ids.txt"
+            else
+                : > "results/${worker_id}_sample_ids.txt"
+            fi
         }
 
         worker_id=0
@@ -467,6 +482,8 @@ task ValidateCramContents {
         # end instead of while looping through CRAMs one at a time).
         mapfile -t crams_with_bad_or_missing_md5sums < <(cat results/*_bad_md5sum.txt 2>/dev/null)
         mapfile -t crams_with_multiple_samples < <(cat results/*_multi_sample.txt 2>/dev/null)
+        mapfile -t all_cram_sample_ids < <(cat results/*_sample_ids.txt 2>/dev/null)
+        mapfile -t duplicate_sample_ids < <(printf '%s\n' "${all_cram_sample_ids[@]}" | sort | uniq -d)
 
         # if crams_with_bad_or_missing_md5sums is not empty, write an error message to qc_messages.txt
         n_bad_crams=${#crams_with_bad_or_missing_md5sums[@]}
@@ -510,6 +527,23 @@ task ValidateCramContents {
             } >> qc_messages.txt
         else
             echo "All CRAM files contain data for exactly one sample."
+        fi
+
+        # if duplicate_sample_ids is not empty, write an error message to qc_messages.txt
+        n_duplicate_sample_ids=${#duplicate_sample_ids[@]}
+        if [ $n_duplicate_sample_ids -ne 0 ]; then
+            {
+                if [ $n_duplicate_sample_ids -eq 1 ]; then
+                    pluralized=""
+                else
+                    pluralized="s"
+                fi
+                joined=$(IFS=","; echo "${duplicate_sample_ids[*]}")
+                list_to_show="${joined//,/, }" # Replaces every ',' with ', '
+                echo "Found $n_duplicate_sample_ids sample ID$pluralized appearing in more than one CRAM: $list_to_show"
+            } >> qc_messages.txt
+        else
+            echo "All CRAM sample IDs are unique across the provided CRAMs."
         fi
 
         # passes_qc is true if qc_messages is empty
