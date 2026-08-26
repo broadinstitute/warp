@@ -426,7 +426,11 @@ task ValidateCramContents {
                     echo "[worker $worker_id] CRAM file $cram contains data for $n_samples samples; expected exactly 1."
                     worker_crams_with_multiple_samples+=("$cram")
                 fi
-                worker_cram_sample_ids+=("${sample_ids_in_cram[@]}")
+                # record each (sample ID, CRAM) pair so that once all workers finish, we can report
+                # not just which sample IDs are duplicated across CRAMs but which CRAMs they came from
+                for sample_id in "${sample_ids_in_cram[@]}"; do
+                    worker_cram_sample_ids+=("$sample_id"$'\t'"$cram")
+                done
 
                 cram_ok=true
                 for chrom in "${!ref_md5sums[@]}"; do
@@ -482,8 +486,18 @@ task ValidateCramContents {
         # end instead of while looping through CRAMs one at a time).
         mapfile -t crams_with_bad_or_missing_md5sums < <(cat results/*_bad_md5sum.txt 2>/dev/null)
         mapfile -t crams_with_multiple_samples < <(cat results/*_multi_sample.txt 2>/dev/null)
-        mapfile -t all_cram_sample_ids < <(cat results/*_sample_ids.txt 2>/dev/null)
-        mapfile -t duplicate_sample_ids < <(printf '%s\n' "${all_cram_sample_ids[@]}" | sort | uniq -d)
+        mapfile -t all_cram_sample_id_pairs < <(cat results/*_sample_ids.txt 2>/dev/null)
+
+        # Group the (sample ID, CRAM) pairs by sample ID, and report only sample IDs associated with
+        # more than one distinct CRAM, formatted as "sample_id (cram_1, cram_2)". `sort -u` first
+        # collapses exact-duplicate pairs (e.g. the same CRAM's ID appearing twice due to multiple
+        # @RG lines) so the count reflects distinct CRAMs, not repeated mentions of the same one.
+        mapfile -t duplicate_sample_id_descriptions < <(
+            printf '%s\n' "${all_cram_sample_id_pairs[@]}" | sort -u | awk -F'\t' '
+                { crams[$1] = (crams[$1] == "" ? $2 : crams[$1] ", " $2); count[$1]++ }
+                END { for (id in count) if (count[id] > 1) print id " (" crams[id] ")" }
+            ' | sort
+        )
 
         # if crams_with_bad_or_missing_md5sums is not empty, write an error message to qc_messages.txt
         n_bad_crams=${#crams_with_bad_or_missing_md5sums[@]}
@@ -529,8 +543,8 @@ task ValidateCramContents {
             echo "All CRAM files contain data for exactly one sample."
         fi
 
-        # if duplicate_sample_ids is not empty, write an error message to qc_messages.txt
-        n_duplicate_sample_ids=${#duplicate_sample_ids[@]}
+        # if duplicate_sample_id_descriptions is not empty, write an error message to qc_messages.txt
+        n_duplicate_sample_ids=${#duplicate_sample_id_descriptions[@]}
         if [ $n_duplicate_sample_ids -ne 0 ]; then
             {
                 if [ $n_duplicate_sample_ids -eq 1 ]; then
@@ -538,9 +552,12 @@ task ValidateCramContents {
                 else
                     pluralized="s"
                 fi
-                joined=$(IFS=","; echo "${duplicate_sample_ids[*]}")
-                list_to_show="${joined//,/, }" # Replaces every ',' with ', '
-                echo "Found $n_duplicate_sample_ids sample ID$pluralized appearing in more than one CRAM: $list_to_show"
+                # each description already contains its own ", "-separated CRAM list, so join with a
+                # literal ", " directly rather than the "replace every comma" trick used above (that
+                # would also mangle the commas inside each description's CRAM list)
+                list_to_show=$(printf '%s, ' "${duplicate_sample_id_descriptions[@]}")
+                list_to_show="${list_to_show%, }" # strip the trailing ", " left by the printf loop
+                echo "Found $n_duplicate_sample_ids duplicate sample ID$pluralized across CRAMs: $list_to_show"
             } >> qc_messages.txt
         else
             echo "All CRAM sample IDs are unique across the provided CRAMs."
