@@ -433,7 +433,7 @@ task ConvertInputArraysToManifest {
         # Write TSV with headers
         with open('~{output_filename}', 'w') as f:
             f.write("cram_path\tcram_index_path\n")
-            for i, (cram_path, cram_index_path) in enumerate(zip(cram_paths, cram_index_paths)):
+            for cram_path, cram_index_path in zip(cram_paths, cram_index_paths):
                 f.write(f"{cram_path}\t{cram_index_path}\n")
         EOF
     >>>
