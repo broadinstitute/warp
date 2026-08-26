@@ -32,7 +32,7 @@ task ParseInputMapping {
     >>>
 
     runtime {
-        docker: "quay.io/biocontainers/htslib@sha256:ff9d466929dc2d587128afc213fc4516d936ccc5e7fa39f39d3769f76b471293"
+        docker: "python:3.11-slim"
         disks: "local-disk 10 SSD"
         memory: "2GB"
         cpu: "1"
