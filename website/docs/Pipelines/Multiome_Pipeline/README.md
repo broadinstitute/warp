@@ -84,6 +84,9 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | run_cellbender | Optional boolean used to determine if the Optimus (GEX) pipeline should run CellBender on the output gene expression h5ad file, `h5ad_output_file_gex`; default is "false".  | Boolean |
 | run_peak_calling | Optional boolean used to determine if the ATAC pipeline should run Peak Calling; default is `false`. When set to true, the pipeline takes the ATAC h5ad produced by the JoinBarcodes task and performs peak calling to produce a cell by bin matrix and a cell by peak matrix. | Boolean |
 | vm_size | String defining the Azure virtual machine family for the workflow (default: "Standard_M128s"). | String |
+| num_threads_bwa | Optional integer defining the number of threads for the ATAC BWA-mem2 alignment task; used to size the compute VM (default: 128). | Int |
+| mem_size_bwa | Optional integer defining the memory in GB for the ATAC BWA-mem2 alignment task; used to size the compute VM (default: 512). | Int |
+| cpu_platform_bwa | Optional string defining the minimum CPU platform for the ATAC BWA-mem2 alignment task (default: "Intel Ice Lake"). | String |
 
 
 #### Sample inputs for analyses in a Terra Workspace
