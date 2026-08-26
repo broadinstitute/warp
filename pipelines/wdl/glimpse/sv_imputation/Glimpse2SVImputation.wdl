@@ -5,11 +5,11 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.24"
+    String pipeline_version = "0.0.25"
     String preprocess_pls_gvcf_pipeline_version = "0.0.13"
     String batch_pipeline_version = "0.0.17"
-    String quota_consumed_version = "0.0.1"
-    String input_qc_version = "0.0.1"
+    String quota_consumed_version = "0.0.2"
+    String input_qc_version = "0.0.2"
 
     input {
         # if both array inputs and gvcf_manifest are provided, array inputs take precedence
@@ -18,7 +18,7 @@ workflow Glimpse2SVImputation {
         File? gvcf_manifest
         Int sample_batch_size = 1000
 
-        String output_prefix
+        String output_basename
 
         File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
         File preprocess_panel_bubble_split_sites_only_vcf_idx
@@ -151,8 +151,8 @@ workflow Glimpse2SVImputation {
     }
 
     output {
-        Array[File] glimpse2_popped_posteriors_vcf = IndexFinalPoppedContig.output_vcf
-        Array[File] glimpse2_popped_posteriors_vcf_idx = IndexFinalPoppedContig.output_vcf_index
+        Array[File] imputed_vcf = IndexFinalPoppedContig.output_vcf
+        Array[File] imputed_vcf_index = IndexFinalPoppedContig.output_vcf_index
     }
 }
 

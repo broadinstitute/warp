@@ -1,3 +1,9 @@
+# 0.0.25
+2026-08-26 (Date of Last Commit)
+
+* Rename input `output_prefix` to `output_basename`
+* Rename outputs `glimpse2_popped_posteriors_vcf` to `imputed_vcf` and `glimpse2_popped_posteriors_vcf_idx` to `imputed_vcf_index`
+
 # 0.0.24
 2026-08-24 (Date of Last Commit)
 
