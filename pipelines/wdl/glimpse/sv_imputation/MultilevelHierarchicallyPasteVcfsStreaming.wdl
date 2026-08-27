@@ -6,7 +6,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow MultilevelHierarchicallyMergeVcfs {
     # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "0.0.8"
+    String pipeline_version = "0.0.9"
 
     input {
         Array[String]? vcfs_array
@@ -17,7 +17,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
         Array[Int] batch_sizes  # Parameterizable hierarchical levels, e.g., [100, 50]
         Array[Boolean] do_localization # Whether to localize at each corresponding level
         Array[Int] timeouts_min  # Timeouts in minutes per level. Set to 0 to disable. e.g., [720, 720]
-        String output_prefix
+        String output_basename
 
         String extra_merge_args = "--info ID,RAF --format GT,DS,GP"
 
@@ -37,7 +37,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
     # Scatter by region FIRST to isolate chunks and reduce combinatorial explosion
     scatter (j in range(length(regions))) {
         String region = regions[j]
-        String region_prefix = output_prefix + ".region-" + j
+        String region_prefix = output_basename + ".region-" + j
 
         # ==========================================
         # LEVEL 0
@@ -51,7 +51,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
                     vcf_idxs_stream = if !do_localization[0] then read_lines(L0_Batches.vcf_idx_batch_fofns[i]) else [],
                     timeout_min = timeouts_min[0],
                     region = region,
-                    output_prefix = region_prefix + ".L0-" + i,
+                    output_basename = region_prefix + ".L0-" + i,
                     extra_args = "-r " + region + " " + extra_merge_args
             }
         }
@@ -79,7 +79,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
                         vcf_idxs_stream = if !do_localization[1] then read_lines(L1_Batches.vcf_idx_batch_fofns[i]) else [],
                         timeout_min = timeouts_min[1],
                         region = region,
-                        output_prefix = region_prefix + ".L1-" + i,
+                        output_basename = region_prefix + ".L1-" + i,
                         extra_args = "-r " + region + " " + extra_merge_args
                 }
             }
@@ -108,7 +108,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
                         vcf_idxs_stream = if !do_localization[2] then read_lines(L2_Batches.vcf_idx_batch_fofns[i]) else [],
                         timeout_min = timeouts_min[2],
                         region = region,
-                        output_prefix = region_prefix + ".L2-" + i,
+                        output_basename = region_prefix + ".L2-" + i,
                         extra_args = "-r " + region + " " + extra_merge_args
                 }
             }
@@ -128,7 +128,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
                     vcf_idxs_localize = l2_idxs,
                     timeout_min = 0,
                     region = region,
-                    output_prefix = region_prefix + ".final",
+                    output_basename = region_prefix + ".final",
                     extra_args = "-r " + region + " " + extra_merge_args
             }
         }
@@ -143,7 +143,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
         input:
             bcfs = final_region_vcf,
             bcf_idxs = final_region_idx,
-            output_prefix = output_prefix,
+            output_basename = output_basename,
             extra_args = extra_concat_args
     }
 
@@ -219,7 +219,7 @@ task MergeVcfs {
 
         Int timeout_min
         String? region
-        String output_prefix
+        String output_basename
         String? extra_args
         Int cpu = 2
 
@@ -325,15 +325,15 @@ task MergeVcfs {
         /usr/local/bin/paste-vcfs \
             --threads ~{cpu} \
             ~{extra_args} \
-            -o ~{output_prefix}.bcf \
+            -o ~{output_basename}.bcf \
             $(cat merge_list.txt)
 
-        bcftools index ~{output_prefix}.bcf
+        bcftools index ~{output_basename}.bcf
     >>>
 
     output {
-        File merged_vcf = "~{output_prefix}.bcf"
-        File merged_vcf_idx = "~{output_prefix}.bcf.csi"
+        File merged_vcf = "~{output_basename}.bcf"
+        File merged_vcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################

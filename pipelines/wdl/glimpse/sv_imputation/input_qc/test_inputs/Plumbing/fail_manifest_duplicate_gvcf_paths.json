@@ -1,5 +1,5 @@
 {
-  "Glimpse2SVImputationQC.output_prefix": "fail_manifest_duplicate_gvcf_paths",
+  "Glimpse2SVImputationQC.output_basename": "fail_manifest_duplicate_gvcf_paths",
   "Glimpse2SVImputationQC.gvcf_manifest": "gs://pd-test-storage-public/Glimpse2SVImputationQC/input/plumbing/manifests/fakeGvcfManifestDuplicateGvcfPaths.tsv",
   "Glimpse2SVImputationQC.preprocess_panel_bubble_split_sites_only_vcf": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/auxiliary_files/hgsvc-hprc-50.panel.reduced_panel_bubble_split_simple_sites.sorted.bcf",
   "Glimpse2SVImputationQC.preprocess_panel_bubble_split_sites_only_vcf_idx": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/auxiliary_files/hgsvc-hprc-50.panel.reduced_panel_bubble_split_simple_sites.sorted.bcf.csi",
