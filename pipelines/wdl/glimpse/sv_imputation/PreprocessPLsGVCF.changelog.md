@@ -1,3 +1,9 @@
+# 0.0.14
+2026-08-27 (Date of Last Commit)
+
+* Rename input `output_prefix` to `output_basename`
+* Update `multi_level_paste_pipeline_version` to 0.0.9
+
 # 0.0.13
 2026-08-20 (Date of Last Commit)
 

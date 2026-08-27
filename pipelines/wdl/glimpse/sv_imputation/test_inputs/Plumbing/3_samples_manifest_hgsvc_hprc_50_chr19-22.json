@@ -1,5 +1,5 @@
 {
-    "Glimpse2SVImputation.output_prefix": "3_samples_manifest_hgsvc_hprc_50_plumbing_test",
+    "Glimpse2SVImputation.output_basename": "3_samples_manifest_hgsvc_hprc_50_plumbing_test",
     "Glimpse2SVImputation.gvcf_manifest": "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/manifests/3_sample_manifest.tsv",
     "Glimpse2SVImputation.preprocess_panel_bubble_split_sites_only_vcf": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/auxiliary_files/hgsvc-hprc-50.panel.reduced_panel_bubble_split_simple_sites.sorted.bcf",
     "Glimpse2SVImputation.preprocess_panel_bubble_split_sites_only_vcf_idx": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/auxiliary_files/hgsvc-hprc-50.panel.reduced_panel_bubble_split_simple_sites.sorted.bcf.csi",

@@ -5,11 +5,11 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.24"
-    String preprocess_pls_gvcf_pipeline_version = "0.0.13"
-    String batch_pipeline_version = "0.0.17"
-    String quota_consumed_version = "0.0.1"
-    String input_qc_version = "0.0.1"
+    String pipeline_version = "0.0.25"
+    String preprocess_pls_gvcf_pipeline_version = "0.0.14"
+    String batch_pipeline_version = "0.0.18"
+    String quota_consumed_version = "0.0.2"
+    String input_qc_version = "0.0.2"
 
     input {
         # if both array inputs and gvcf_manifest are provided, array inputs take precedence
@@ -18,7 +18,7 @@ workflow Glimpse2SVImputation {
         File? gvcf_manifest
         Int sample_batch_size = 1000
 
-        String output_prefix
+        String output_basename
 
         File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
         File preprocess_panel_bubble_split_sites_only_vcf_idx
@@ -89,7 +89,7 @@ workflow Glimpse2SVImputation {
                 ref_dict = ref_dict,
                 chunked_panel_json = chunked_panel_json,
                 extra_phase_args = extra_phase_args,
-                output_prefix = output_prefix + ".batch_" + batch_idx,
+                output_basename = output_basename + ".batch_" + batch_idx,
                 pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
                 glimpse2_docker = glimpse2_docker,
                 glimpse_phase_cpu_override = glimpse_phase_cpu_override,
@@ -115,7 +115,7 @@ workflow Glimpse2SVImputation {
             call Glimpse2SVImputationTasks.MergeSampleChunksVcfsWithPaste as MergePoppedContigVcfs {
                 input:
                     input_vcfs = popped_bcfs_for_contig,
-                    output_vcf_basename = output_prefix + "." + chromosomes[contig_idx] + ".glimpse2.popped.merged"
+                    output_vcf_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.merged"
             }
 
             call Glimpse2SVImputationTasks.RecomputeAndAnnotate as RecomputePoppedAfInfo {
@@ -123,7 +123,7 @@ workflow Glimpse2SVImputation {
                     merged_vcf = MergePoppedContigVcfs.output_vcf,
                     annotations = ExtractPoppedAnnotations.annotations,
                     num_samples = PreProcessGVCFsBatch.num_samples,
-                    output_basename = output_prefix + "." + chromosomes[contig_idx] + ".glimpse2.popped.merged.reannotated",
+                    output_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.merged.reannotated",
                     docker_merge = merge_docker
             }
         }
@@ -135,7 +135,7 @@ workflow Glimpse2SVImputation {
                 input:
                     vcf = final_popped_contig_vcf,
                     info_threshold = info_filter_for_inclusion,
-                    output_prefix = output_prefix + "." + chromosomes[contig_idx] + ".glimpse2.popped.info_filtered"
+                    output_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.info_filtered"
             }
         }
 
@@ -144,15 +144,15 @@ workflow Glimpse2SVImputation {
         call Glimpse2SVImputationTasks.CreateVcfIndexAndMd5 as IndexFinalPoppedContig {
             input:
                 vcf_input = final_filtered_popped_contig_vcf,
-                output_basename = output_prefix + "." + chromosomes[contig_idx],
+                output_basename = output_basename + "." + chromosomes[contig_idx],
                 gatk_docker = gatk_docker,
                 preemptible = 0
         }
     }
 
     output {
-        Array[File] glimpse2_popped_posteriors_vcf = IndexFinalPoppedContig.output_vcf
-        Array[File] glimpse2_popped_posteriors_vcf_idx = IndexFinalPoppedContig.output_vcf_index
+        Array[File] imputed_vcf = IndexFinalPoppedContig.output_vcf
+        Array[File] imputed_vcf_index = IndexFinalPoppedContig.output_vcf_index
     }
 }
 

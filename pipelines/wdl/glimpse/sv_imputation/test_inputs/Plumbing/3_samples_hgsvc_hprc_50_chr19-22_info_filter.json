@@ -1,5 +1,5 @@
 {
-  "Glimpse2SVImputation.output_prefix": "3_samples_hgsvc_hprc_50_info_filter_plumbing_test",
+  "Glimpse2SVImputation.output_basename": "3_samples_hgsvc_hprc_50_info_filter_plumbing_test",
   "Glimpse2SVImputation.input_gvcfs": [
     "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/NA21106.hard-filtered.vcf.gz",
     "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/NA21110.hard-filtered.vcf.gz",

@@ -272,7 +272,7 @@ task FilterVcfByInfo {
     input {
         File vcf
         Float info_threshold
-        String output_prefix
+        String output_basename
 
         String docker = "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
         Int disk_size_gb = ceil(2.2 * size(vcf, "GiB") + 20)
@@ -284,7 +284,7 @@ task FilterVcfByInfo {
     command <<<
         set -euo pipefail
 
-        bcftools filter -i 'INFO/INFO >= ~{info_threshold}' -O z -o ~{output_prefix}.vcf.gz ~{vcf}
+        bcftools filter -i 'INFO/INFO >= ~{info_threshold}' -O z -o ~{output_basename}.vcf.gz ~{vcf}
     >>>
 
     runtime {
@@ -298,7 +298,7 @@ task FilterVcfByInfo {
     }
 
     output {
-        File output_vcf = "~{output_prefix}.vcf.gz"
+        File output_vcf = "~{output_basename}.vcf.gz"
     }
 }
 
@@ -451,7 +451,7 @@ task ConcatBcfs {
     input{
         Array[File] bcfs
         Array[File] bcf_idxs
-        String output_prefix
+        String output_basename
         String? extra_args
     }
 
@@ -463,13 +463,13 @@ task ConcatBcfs {
         bcftools concat \
             -f ~{write_lines(bcfs)} \
             ~{extra_args} \
-            -Ob -o ~{output_prefix}.bcf
-        bcftools index ~{output_prefix}.bcf
+            -Ob -o ~{output_basename}.bcf
+        bcftools index ~{output_basename}.bcf
     >>>
 
     output {
-        File concatenated_bcf = "~{output_prefix}.bcf"
-        File concatenated_bcf_idx = "~{output_prefix}.bcf.csi"
+        File concatenated_bcf = "~{output_basename}.bcf"
+        File concatenated_bcf_idx = "~{output_basename}.bcf.csi"
     }
 
     runtime {
