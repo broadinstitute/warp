@@ -1,3 +1,8 @@
+# 0.0.18
+2026-08-27 (Date of Last Commit)
+
+* Rename input `output_prefix` to `output_basename`
+
 # 0.0.17
 2026-08-20 (Date of Last Commit)
 

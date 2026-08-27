@@ -5,8 +5,8 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.13"
-    String multi_level_paste_pipeline_version = "0.0.8"
+    String pipeline_version = "0.0.14"
+    String multi_level_paste_pipeline_version = "0.0.9"
     input {
         File input_gvcf_manifest
 
@@ -31,7 +31,7 @@ workflow PreprocessPLsGVCF {
                 mode = "gvcf",
                 panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
                 panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
-                output_prefix = "sample-" + j,
+                output_basename = "sample-" + j,
                 extra_args = extract_bubble_likelihoods_extra_args
         }
     }
@@ -45,7 +45,7 @@ workflow PreprocessPLsGVCF {
             batch_sizes = [50, 50],
             do_localization = [true, true],
             timeouts_min = [0, 0],
-            output_prefix = "preprocessedPLs.merged",
+            output_basename = "preprocessedPLs.merged",
             extra_merge_args = "--format GT,PL",
             extra_concat_args = "--naive"
     }
@@ -76,7 +76,7 @@ task PreprocessPLs {
         File panel_bubble_split_sites_only_vcf
         File panel_bubble_split_sites_only_vcf_idx
         String? output_region
-        String output_prefix
+        String output_basename
 
         String? extra_args = "--window 15000 --cap-pl 30 --scale-pl 5.0"
         Int cpu = 1
@@ -95,21 +95,21 @@ task PreprocessPLs {
         /usr/local/bin/extract-bubble-PLs ~{mode} \
             ~{panel_bubble_split_sites_only_vcf}##idx##~{panel_bubble_split_sites_only_vcf_idx} \
             ~{input_vcf}##idx##~{input_vcf_idx} \
-            ~{output_prefix}.bcf \
+            ~{output_basename}.bcf \
             ~{"--region " + output_region} \
             --samples sample_name.txt \
             --threads ~{cpu} \
             ~{extra_args}
 
-        bcftools index ~{output_prefix}.bcf
+        bcftools index ~{output_basename}.bcf
 
         echo "Number of bubble alleles extracted..."
-        bcftools index -n ~{output_prefix}.bcf
+        bcftools index -n ~{output_basename}.bcf
     >>>
 
     output {
-        File preprocessed_pls_vcf = "~{output_prefix}.bcf"
-        File preprocessed_pls_vcf_idx = "~{output_prefix}.bcf.csi"
+        File preprocessed_pls_vcf = "~{output_basename}.bcf"
+        File preprocessed_pls_vcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
