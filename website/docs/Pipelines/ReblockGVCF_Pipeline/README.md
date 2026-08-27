@@ -7,7 +7,7 @@ slug: /Pipelines/ReblockGVCF_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [ReblockGVCF_v2.4.4](https://github.com/broadinstitute/warp/releases) | August, 2026 | [WARP Pipelines](mailto:warp@broadinstitute.org) | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.changelog.md) for version information. | See changelog | [WARP Pipelines](mailto:warp@broadinstitute.org) | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues).  |
 
 <img src={require('./pipeline.png').default} alt="ReblockGVCF_diagram" width="50%" />
 

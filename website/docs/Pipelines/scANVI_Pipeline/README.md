@@ -7,7 +7,7 @@ slug: /Pipelines/scANVI_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [scANVI_v2.0.0](https://github.com/broadinstitute/warp/releases?q=scANVI&expanded=true) | July, 2026 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/scanvi/scANVI.changelog.md) for version information. | See changelog | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues)  |
 
 ## Introduction to the scANVI workflow
 
