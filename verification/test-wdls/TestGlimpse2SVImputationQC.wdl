@@ -9,7 +9,7 @@ workflow TestGlimpse2SVImputationQC {
 
     input {
         File gvcf_manifest
-        String output_prefix
+        String output_basename
 
         File preprocess_panel_bubble_split_sites_only_vcf
         File preprocess_panel_bubble_split_sites_only_vcf_idx
@@ -43,7 +43,7 @@ workflow TestGlimpse2SVImputationQC {
     call Glimpse2SVImputationQC.InputQC {
       input:
         gvcf_manifest = gvcf_manifest,
-        output_prefix = output_prefix,
+        output_basename = output_basename,
         preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
         preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
         paste_regions = paste_regions,
