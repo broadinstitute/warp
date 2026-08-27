@@ -83,8 +83,13 @@ workflow MMIDAS_Train {
     Int     eval_disk_size         = 100
     Int     eval_mem_size          = 32
     Int     eval_cpu               = 4
-    # Set train_gpu to 1 to attach a GPU to the training task.
-    # On Terra use: {"nvidia_tesla_t4": 1} in the runtime attributes.
+    # Set train_gpu to 1 to attach a GPU to the training task. That is the only
+    # thing you need to set: the TrainMixVAE runtime block below already
+    # declares gpuCount and gpuType ("nvidia-tesla-t4"), and passes --cuda to
+    # the training script. There is nothing to configure on the Terra side.
+    #
+    # If a GPU task fails to schedule, the cause is GCP GPU quota for the region
+    # on the project behind your Terra billing project, not a workflow setting.
     Int     train_gpu              = 0
   }
 

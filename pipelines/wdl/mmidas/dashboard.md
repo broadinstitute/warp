@@ -31,7 +31,19 @@ This workspace has three example workflows:
 raw CSVs ──► MMIDAS_DataPrep ──► .h5ad ──► MMIDAS_Train ──► (human review) ──► MMIDAS_Analyze ──► figures
              (example only)                 model + eval                        classification +
                                             checkpoints                          state traversal
+                                                  │                                    │
+                                                  └────────────┬───────────────────────┘
+                                                               ▼
+                                              MMIDAS_output_validation.ipynb
+                                              (checks the whole chain end to end)
 ```
+
+A notebook, `MMIDAS_output_validation.ipynb`, validates a completed set of runs — see
+[Validating a run](#validating-a-run--mmidas_output_validationipynb). Before your first run on your
+own data, read
+[Tuning for your own data](#tuning-for-your-own-data--read-this-before-your-first-run): three of the
+training defaults are specific to the example dataset and will silently produce a useless model if
+carried over unchanged.
 
 ---
 
@@ -123,7 +135,9 @@ Three fields in `evaluation_results.json` decide whether the run is usable at al
 | `n_populated_categories` | far below `model_order` — `model_order` counts categories that survived pruning, which stays high even when the model routes every cell into a handful of them |
 | `collapse_warning` | non-null — the two above disagree badly enough that downstream Analyze figures will be dominated by empty categories |
 
-`avg_consensus` should also be at or above `k_select_thr`. A run with high `model_order` and near-zero `avg_consensus` has not found reproducible categories; it has failed to train its discrete latent. In the training log, watch the per-epoch `Entropy` against the `uniform=` value printed next to it — an `Entropy` that stays pinned at `uniform` while the reconstruction loss falls means the categorical variable never committed and no amount of pruning will fix it.
+`avg_consensus` should also be at or above `k_select_thr`. A run with high `model_order` and near-zero `avg_consensus` has not found reproducible categories; it has failed to train its discrete latent. In the training log, watch the per-epoch `Entropy` against the `uniform=` value printed next to it — an `Entropy` that stays pinned at `uniform` while the reconstruction loss falls means the categorical variable never committed and no amount of pruning will fix it. The usual cause is `tau` being too large for your `n_categories`; see [Tuning for your own data](#tuning-for-your-own-data--read-this-before-your-first-run).
+
+After `MMIDAS_Analyze` completes, run `MMIDAS_output_validation.ipynb` to check the whole chain automatically rather than eyeballing the JSON — see [Validating a run](#validating-a-run--mmidas_output_validationipynb).
 
 **Detail for the detail-inclined.** The model is a *coupled* mixture VAE: two (or more) arms encode the same cell independently, and the training loss penalizes disagreement between the arms' categorical assignments (`lam`/`lam_pc` coupling factors). Only categories the arms agree on survive pruning, which is what makes the discovered categories reproducible rather than an artifact of a single run — this consensus-across-arms idea is the core contribution of the MMIDAS method (Marghi et al., 2024; see [Citation and Credit](#citation-and-credit)). Each cell also gets a low-dimensional continuous **state** variable (`state_dim`) that captures within-type variation. Reconstruction can use `MSE` or `ZINB` loss (`training_mode`).
 
@@ -148,7 +162,9 @@ Key inputs (all hyperparameters have production defaults):
 | `seed` | Int | `0` | Random seed |
 | `train_gpu` | Int | `0` | Set to `1` to attach a GPU (see note below) |
 
-> **GPU note.** Training is much faster on a GPU. Set `train_gpu = 1` to attach an `nvidia-tesla-t4`. On Terra, also enable GPU in the runtime/quota settings for your project.
+> **GPU note.** Training is much faster on a GPU — the measured benchmarks above assume one. Set `train_gpu = 1` and that is all: the `TrainMixVAE` task's runtime block already declares `gpuCount` and `gpuType: "nvidia-tesla-t4"` and passes `--cuda` to the training script. There is **no GPU setting to enable in Terra** for workflow submissions — Terra's Cloud Environment has GPU options, but those apply to interactive notebooks and RStudio, not to Cromwell workflow tasks.
+>
+> The one thing that can block a GPU task is **GCP quota**: the Google project behind your Terra billing project needs available GPU quota in the execution region, or the task will fail to schedule rather than fall back to CPU. If that happens, raise it with Terra support — billing-project quotas are not adjustable from the Terra UI.
 
 **What does it return as output?**
 
@@ -225,6 +241,111 @@ Notes:
 
 ---
 
+## Tuning for your own data — read this before your first run
+
+The defaults in these workflows are tuned for the example dataset (Mouse ALM/VISp, 22,365 cells,
+5,032 genes, 115 reference t-types, `n_categories = 120`). Three of them are **not** safe to carry
+over to a different dataset or a different `n_categories`, and getting them wrong produces a run
+that completes successfully and reports plausible-looking numbers while being useless.
+
+### 1. `tau` must be rescaled whenever you change `n_categories`
+
+This is the single most important parameter to get right. `tau` is the categorical softmax
+temperature, and `cpl_mixVAE.init_model` documents it as *"usually equals to 1/n_categories"*.
+
+| `n_categories` | Appropriate `tau` |
+| --- | --- |
+| 15 | ~0.067 |
+| 50 | ~0.020 |
+| **120 (this workspace)** | **~0.008 — default is 0.005** |
+| 250 | ~0.004 |
+
+If `tau` is too large for your `n_categories`, the categorical posterior stays nearly flat and the
+model reconstructs entirely through the continuous state variable, ignoring the discrete categories
+it is supposed to be learning. We hit exactly this: with `tau = 0.1` at `n_categories = 120` (a
+value that is roughly correct for `n_categories = 15`), a full training run produced
+
+- `avg_consensus` **0.026** instead of ~0.97,
+- **11** populated categories out of 120,
+- a `model_order` that was meaningless.
+
+The same run with `tau = 0.005` gave `avg_consensus` 0.969 and 89 of 89 categories populated. The
+failure is silent unless you look: nothing errors, and `model_order` still comes back a plausible
+number.
+
+**How to tell within the first few hours.** The `TrainMixVAE` log prints, every epoch:
+
+```
+Entropy: -0.8030 (uniform=-9.5750)
+```
+
+`uniform` is the value `Entropy` takes when both arms' categorical posteriors are completely flat —
+i.e. the discrete latent carries no information. Watch the gap:
+
+- `Entropy` **moving decisively away from `uniform`** → the categorical variable is committing. Good.
+- `Entropy` **pinned near `uniform`** while the reconstruction loss falls → collapse. Kill the run
+  and lower `tau`. This is visible at the end of the pre-pruning phase, roughly 2.5 hours in, long
+  before pruning starts.
+
+For reference, the healthy run moved from −9.57 to −0.80 (about 1.5 effective categories per cell);
+the collapsed run only reached −9.02 (about 91 of 120 — essentially no commitment).
+
+### 2. `max_prun_it` bounds which answers are even reachable
+
+Pruning removes **one** category per round, so the smallest `model_order` a run can produce is:
+
+```
+n_categories - max_prun_it
+```
+
+If the number of cell types in your data falls below that floor, no amount of training will find it —
+the answer is outside the search space. With the defaults (`n_categories = 120`,
+`max_prun_it = 42`) the reachable range is **78–120**. If you expect ~30 types from
+`n_categories = 120`, you need `max_prun_it` ≥ 90.
+
+Set `n_categories` generously above your expected type count and `max_prun_it` large enough that
+your plausible range sits comfortably inside the reachable window.
+
+### 3. Runtime and cost scale with `max_prun_it × n_epoch_p`
+
+Total epochs are `n_epoch + max_prun_it × n_epoch_p`, and at ~0.9 s/epoch on an `nvidia-tesla-t4`
+(~$1.00/hr) that dominates everything else in the pipeline:
+
+| `n_epoch_p` | Total epochs | Time | Cost |
+| --- | --- | --- | --- |
+| 1,000 (`MMIDAS_Train.staged_validation.json`) | 52,000 | ~14 h | **~$14** |
+| 10,000 (`MMIDAS_Train.json`, reference value) | 430,000 | ~5 d | **~$120** |
+
+**Run the staged configuration first.** On the example data the cheap run reached
+`avg_consensus 0.969` and `model_order 89`, matching the published analysis — the 10× longer
+configuration was not needed. Round-by-round consensus in a full-length run plateaued by round 2
+and then moved only within noise for 17 more rounds.
+
+### 4. There is no resume — protect against losing a long run
+
+`TrainMixVAE` writes `model.tar.gz` only when the task **completes**. If it is aborted (a cost cap,
+a timeout, a manual cancel), the intermediate checkpoints are lost with the VM and the run must
+start over. `preemptible` is already `0` so the VM will not be reclaimed mid-run, but:
+
+- **Set Terra cost caps above the expected spend** (≥ ~$25 for the staged config, ≥ ~$150 for the
+  full-length one). We lost ~2 days and ~$50 of a full-length run to a forgotten cap.
+- 4–5 days is within the usual 7-day GCP task ceiling, but only just. Confirm your project does not
+  impose a shorter limit before launching the full-length configuration.
+
+### 5. Smaller things worth knowing
+
+| Parameter / behaviour | What to know |
+| --- | --- |
+| `min_con` | **Reporting only.** The consensus-based pruning stop is commented out upstream, so pruning always runs the full `max_prun_it`. Do not expect `min_con` to halt anything. |
+| `k_select_thr` | If no checkpoint reaches it, `K_selection` returns nothing and `Evaluate` falls back to the un-pruned checkpoint. Check `k_selection_met_threshold` in `evaluation_results.json` — `false` means `model_order` came from a fallback, not a selection. |
+| `kegg_toml` | Optional. Omit it and `n_pathways` is 0 with no pathway figures — expected, not a failure. Supply it and confirm `n_pathways > 0`; zero pathways *with* a `kegg_toml` means gene-name lookup failed. |
+| `htree_file` | Optional; enables taxonomy ordering in stage 03c. |
+| `n_selected_cats` | Capped at the number of *populated* categories, so the manifest may report fewer than you asked for. |
+| Run-to-run variation | Training is **not** bit-reproducible even with a fixed `seed`, because GPU reductions are non-deterministic. Two runs of the identical configuration diverged enough that the two arms swapped which one converged better. Expect `model_order` to move by a few categories between runs. |
+| `Classify` retries | This task has retried on three consecutive runs (10-fold random forest over the full cell set). It succeeds on retry, but its outputs land in `call-Classify/attempt-N/` rather than `call-Classify/`. |
+
+---
+
 ## Running the Workflows
 
 The workflows are pre-configured with the example inputs in this workspace (see the `example_inputs/` JSON files). For each workflow:
@@ -246,28 +367,40 @@ If you want to reproduce the example end-to-end from the raw Allen CSVs, run **M
 
 ## Time and Cost Estimates
 
-<!-- TODO: Populate with measured benchmarks from Terra runs. -->
-
-Benchmarks below are placeholders to be filled in once measured on Terra. Training time depends heavily on GPU vs. CPU, `n_epoch`, `max_prun_it`, and dataset size.
+Measured on Terra with the example dataset (22,365 cells x 5,032 genes). Training dominates; the
+other two stages are minor by comparison.
 
 ### MMIDAS_DataPrep
 
-| Dataset | Cells | Genes | Time | Cost $ |
+| Dataset | Cells | Genes | Time | Cost |
 | --- | --- | --- | --- | --- |
-| Mouse ALM-VISp (example) | _TBD_ | ~1,252 | _TBD_ | _TBD_ |
+| Mouse ALM-VISp (example) | 22,365 | 5,032 | ~25 min | < $1 |
+
+Note this stage needs `mem_size = 48` GiB: it holds the full 22,439 x 45,768 count matrix in memory
+before subsetting to the selected genes. The earlier default of 32 GiB was not enough.
 
 ### MMIDAS_Train
 
-| Dataset | GPU | n_epoch | max_prun_it | Time | Cost $ |
-| --- | --- | --- | --- | --- | --- |
-| Mouse ALM-VISp (example) | T4 | 10000 | 14 | _TBD_ | _TBD_ |
-| Mouse ALM-VISp (example) | CPU only | 10000 | 14 | _TBD_ | _TBD_ |
+Measured at ~0.9 s/epoch on an `nvidia-tesla-t4` at ~$1.00/hr, with total epochs
+`n_epoch + max_prun_it x n_epoch_p`.
+
+| Config | GPU | n_epoch | n_epoch_p | max_prun_it | Total epochs | Time | Cost |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `MMIDAS_Train.staged_validation.json` | T4 | 10,000 | 1,000 | 42 | 52,000 | ~14 h | **~$14** |
+| `MMIDAS_Train.json` (reference values) | T4 | 10,000 | 10,000 | 42 | 430,000 | ~5 d | **~$120** |
+
+Run the staged configuration first — see
+[Validate cheaply before paying for the full run](#validate-cheaply-before-paying-for-the-full-run).
+CPU-only training was not benchmarked; it is impractical at these epoch counts.
 
 ### MMIDAS_Analyze
 
-| Dataset | Time | Cost $ |
+| Dataset | Time | Cost |
 | --- | --- | --- |
-| Mouse ALM-VISp (example) | _TBD_ | _TBD_ |
+| Mouse ALM-VISp (example) | ~1 h | < $2 |
+
+CPU only, no GPU. Cheap enough to re-run freely, which matters because it is the stage you re-run
+when figures or downstream analysis change without retraining.
 
 For more information about controlling Cloud costs, see [this article](https://support.terra.bio/hc/en-us/articles/360029748111).
 
@@ -290,10 +423,22 @@ the authors' results for the example dataset are recorded and can be compared ag
 | `model_order` | **92** | `3_evaluation.ipynb`; hardcoded in notebooks 4 and 5 |
 | `avg_consensus` | 0.939 (test cells) / 0.954 (K-selection) | `3_evaluation.ipynb` |
 
+**Measured result for the validated run in this workspace:**
+
+| Quantity | Reference | This workspace | |
+| --- | --- | --- | --- |
+| matrix shape | 22,365 × 5,032 | 22,365 × 5,032 | match |
+| reference t-types | 115 | 115 | match |
+| pruning rounds | 42 | 42 | match |
+| `model_order` | 92 | **89** | within tolerance (3 pruning rounds) |
+| `avg_consensus` | 0.939 / 0.954 | **0.9692** | above the published value |
+| populated categories | 92 (all) | **89 of 89** (both arms) | all populated |
+| K-selection met `k_select_thr` | yes | **yes** | no fallback |
+
 `MMIDAS_output_validation.ipynb` checks a run against these under **Stage 6 — Reference
-comparison**. Its checks are labelled `plumbing` (did the workflow execute), `fidelity` (does it
-match the reference), and `advisory` (is the model any good) — only the first two decide the
-verdict. A run that reproduces the reference is a success even if the advisory items complain.
+comparison**; see [Validating a run](#validating-a-run--mmidas_output_validationipynb) for how to
+point it at your own submissions and what the check labels mean. Where the results *do* differ, see
+[Where the results differ from the published analysis](#where-the-results-differ-from-the-published-analysis).
 
 ### Where the training defaults come from
 
@@ -367,6 +512,99 @@ reference notebooks import it from `mmidas.utils.dataloader`. Both read `adata.X
 identically, so the expression matrix handed to training is the same; `dataloader` additionally
 derives `cluster_id` / `c_onehot` helpers that the notebooks use for their own plots and the
 workflow scripts compute where needed.
+
+### Where the results differ from the published analysis
+
+The validated run reproduces the reference within tolerance, but three things do not match exactly.
+None indicates a broken port; all three are worth knowing before you present results.
+
+**1. `model_order` 89 vs the published 92.** Three pruning rounds apart. Two causes, neither
+fixable: the reference train/test split was unseeded, and GPU training is not bit-reproducible even
+at a fixed seed. Two runs of our own identical configuration diverged enough that the two encoder
+arms swapped which one converged better. Expect a few categories of movement between runs, and do
+not treat any single `model_order` as *the* answer.
+
+**2. t-type classification accuracy is further below the PCA baseline than in the reference.**
+This is the one metric that does not match well:
+
+| | PCA-100 | MMIDAS-10 | gap |
+| --- | --- | --- | --- |
+| Reference (`4_clusterability.ipynb`) | ~84.5% | ~73.5% | **~0.11** |
+| This run | 90.9% | 66.2% | **0.247** |
+
+Our PCA baseline does *better* than the reference's and our MMIDAS embedding does *worse*, so the
+gap is roughly double. Every comparison points the same direction as the reference — PCA wins on the
+115 reference t-types, the 10-dimensional MMIDAS embedding wins decisively on MMIDAS's own
+categories (94.7% vs 64.8%) — so this reads as a magnitude difference in a downstream metric rather
+than a fidelity failure. Two caveats on the comparison itself: this metric has ~0.05 fold-to-fold
+spread, and the reference numbers were **read off a bar chart by eye** because
+`4_clusterability.ipynb` prints no values. The validation notebook reports this as *advisory* for
+exactly those reasons.
+
+Note also that a gap here is expected by design: a 10-dimensional embedding is not attempting to
+beat a 100-component PCA basis at recovering 115 reference labels.
+
+**3. The accuracy bar chart has fewer groups than the reference's.** The reference plots three label
+sets — t-types, *Merged t-types*, and MMIDAS T Categories. The workflow plots t-types and the
+per-arm MMIDAS categories, omitting the merged-t-type group (reference t-types collapsed down to
+`model_order` groups). The two groups that do appear match the reference's layout and direction.
+
+---
+
+## Validating a run — `MMIDAS_output_validation.ipynb`
+
+The workspace includes a notebook that checks a completed set of runs end to end. Point it at your
+three submissions, run it top to bottom, and it reports what passed, what failed, and which figures
+still need a human eye. It is the fastest way to know whether a run is trustworthy before you build
+analysis on top of it.
+
+**Pointing it at your run.** The Config cell holds three constants — `DATAPREP_RUN`, `TRAIN_RUN`,
+`ANALYZE_RUN` — each a Terra submission/workflow path. Everything else is derived, so repointing at
+a new run is three lines. Figure lists are given as `gs://` prefixes and globbed, not enumerated.
+
+**Two traps when copying paths from Terra:**
+
+- A Terra output path contains **two** UUIDs — the submission ID and the workflow ID — and the bucket
+  name contains a third (`fc-<uuid>`). Pasting the bucket's UUID where the workflow ID belongs
+  produces a path that looks right and fails with an opaque `gsutil` error. If Stage 0 reports tasks
+  as unreadable, check this first.
+- `Classify` output lives under `call-Classify/attempt-N/` when that task retries, which it has done
+  on every run so far. The notebook discovers the attempt automatically; you only supply the call
+  directory.
+
+**Checks are labelled by what they answer**, and only the first two decide the verdict:
+
+| Kind | Question | On failure |
+| --- | --- | --- |
+| `plumbing` | Did the workflow execute correctly? Files present, shapes consistent, manifests mutually agreeing, all stages consuming the same inputs. | The port is broken. Fix before interpreting anything. |
+| `fidelity` | Does this run reproduce the published analysis? Compared against values recorded in the reference notebooks. | The port runs but not the way the authors ran it. |
+| `advisory` | Is the model any good? Soft metrics with wide run-to-run spread, or comparisons against figures read by eye. | Informational. Never fatal. |
+
+A run that reproduces the reference is a success even if advisory items complain — and a run with
+better-looking numbers that does *not* reproduce the reference is not.
+
+**Result for the validated example run:** 47/48 — `plumbing 35/35`, `fidelity 8/8`, `advisory 4/5`,
+verdict *"the workflow executed correctly and matches the reference analysis within tolerance"*. The
+single advisory failure is the t-type accuracy gap described above.
+
+**What it cannot tell you.** The checks confirm figures exist, are distinct from one another, and are
+not drawn over empty categories. They cannot tell you a figure is drawn on the wrong scale — a
+mis-scaled colour map passes all three. That is what the `[REVIEW]` items are for, and they are worth
+actually looking at: an earlier round of this workspace shipped confusion matrices that rendered as
+black-and-white noise (raw counts plotted against a 0–1 colour scale) and every automated check
+passed.
+
+**Things to check by eye in the `[REVIEW]` figures:**
+
+| Figure | Healthy | Suspicious |
+| --- | --- | --- |
+| `consensus_T1_vs_T2` | strong diagonal spanning the full category range | a handful of scattered points — the arms are not agreeing |
+| `norm_consensus_T1_vs_T2` | bright diagonal on a dark field | a mostly dark matrix — no reproducible categories |
+| `state_mu_K_*_arm_*` | visibly separated clusters | one undifferentiated blob, or far fewer groups than `model_order` |
+| `SC_K_*` | most categories above zero, MMIDAS curves near or above the t-type reference | curves hugging zero; or an x-axis spanning a single value, which means the figure is broken rather than the model |
+| `classAcc_RF_K_*` | read the **t-types** group — that is MMIDAS vs PCA on reference labels | the `T Categories` groups classify the model's own labels, so ~95% there is near-circular and proves little |
+| `conf_*` | tight diagonal with faint off-diagonal detail | large square blocks (reference types collapsing together), or pure black-and-white with no intermediate shades (a plotting-scale bug, not a model result) |
+| `state_mu_arm_0_c_*` | highlighted category is a coherent coloured cluster with the traversal path running through it | a single dot, or an invisible highlight |
 
 ---
 
@@ -449,6 +687,10 @@ All code provided in this workspace is released under the WDL open source code l
 
 ## Workspace Change Log
 
-| Date | Change | Author |
-| --- | --- | --- |
-| _TBD_ | Initial MMIDAS example workspace documentation. | _TBD_ |
+| Date | Change |
+| --- | --- |
+| 2026-08-26 | Documented dataset-specific tuning (`tau` scaling with `n_categories`, `max_prun_it` bounding reachable `model_order`, runtime/cost scaling, no-resume exposure). Recorded the validated result against the published analysis and where it differs. Added the validation-notebook section. Replaced placeholder cost estimates with measured Terra numbers. |
+| 2026-08-21 | Figure fixes in `MMIDAS_Analyze` (`1.1.2`): confusion matrices row-normalised before plotting, accuracy bar chart widened, state-traversal category labels made unique, highlight palette no longer collides with the background. |
+| 2026-08-11 | Corrected training defaults to match the reference analysis (`tau`, `x_drop`, `n_epoch_p`, `max_prun_it`); reverted the `min_con` pruning stop to upstream behaviour. Pinned the Docker build to a tagged MMIDAS revision so images are reproducible. |
+| 2026-08-06 | Fixed KEGG pathway mapping, checkpoint selection in `03a_evaluate.py`, state-traversal category selection, and the silhouette figure. Added review fields to `evaluation_results.json`. |
+| 2026-06-24 | Initial MMIDAS example workspace documentation. |
