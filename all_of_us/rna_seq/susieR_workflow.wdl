@@ -11,6 +11,7 @@ task ParseInputMapping {
     input {
         File InputMappingTsv
         String Ancestry
+        Int NumPrempt
     }
     command <<<
         set -euo pipefail
@@ -34,6 +35,7 @@ task ParseInputMapping {
     runtime {
         docker: "python:3.11-slim"
         disks: "local-disk 10 SSD"
+        preemptible: "${NumPrempt}"
         memory: "2GB"
         cpu: "1"
     }
