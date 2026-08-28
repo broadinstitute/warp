@@ -47,6 +47,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/convert_vcf_to_plink_bed.wdl
 
+  - name: CreateVcfIndex
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/phasing/CreateVcfIndex.wdl
+
   - name: CramToUnmappedBams
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
@@ -75,6 +79,10 @@ workflows:
   - name: FilterandQCVariants
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
+
+  - name: RemovePhasedSamples
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/phasing/remove_phased_samples.wdl
 
   - name: FixItFelixAndVariantCall
     subclass: WDL
