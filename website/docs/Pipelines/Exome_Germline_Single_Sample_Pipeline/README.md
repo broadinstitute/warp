@@ -7,7 +7,7 @@ slug: /Pipelines/Exome_Germline_Single_Sample_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [ExomeGermlineSingleSample_v3.1.19](https://github.com/broadinstitute/warp/releases?q=ExomeGermlineSingleSample_v3.0.0&expanded=true) | March, 2024 | Elizabeth Kiernan | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.changelog.md) for version information. | See changelog | Elizabeth Kiernan | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues).  |
 
 
 The Exome Germline Single Sample pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human exome sequencing data.

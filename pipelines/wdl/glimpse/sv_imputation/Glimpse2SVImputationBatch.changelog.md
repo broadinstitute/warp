@@ -1,3 +1,29 @@
+# 0.0.18
+2026-08-27 (Date of Last Commit)
+
+* Rename input `output_prefix` to `output_basename`
+
+# 0.0.17
+2026-08-20 (Date of Last Commit)
+
+* Updated Glimpse2SVImputationTasks dependency (sample_ids no longer required as a input)
+
+# 0.0.16
+2026-08-18 (Date of Last Commit)
+
+* Adds an optional pipeline_header_line input to the WDL
+
+# 0.0.15
+2026-08-17 (Date of Last Commit)
+
+* Replace `$(nproc)` in `GLIMPSE2Ligate` with an explicit `cpu` task input referenced directly in the `--threads` argument, so thread count always matches the task's allocated cpu
+* Remove hardcoded `--threads` from `ConcatPopAndMarginalizeCollisions` call's `extra_args`, now supplied automatically by the `ConcatVcfs` task
+
+# 0.0.14
+2026-08-17 (Date of Last Commit)
+
+* make all task disk sizes dynamic and set bootDiskSizeGb to 0
+
 # 0.0.13
 2026-08-13 (Date of Last Commit)
 

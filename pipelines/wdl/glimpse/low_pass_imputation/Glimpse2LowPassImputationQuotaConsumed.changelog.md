@@ -1,3 +1,8 @@
+# 1.0.1
+2026-08-24 (Date of Last Commit)
+
+* Update task to output 0 if there are no matching crams in the manifest file
+
 # 1.0.0
 2026-06-30 (Date of Last Commit)
 

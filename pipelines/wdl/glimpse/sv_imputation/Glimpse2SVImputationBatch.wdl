@@ -4,7 +4,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.13"
+    String pipeline_version = "0.0.18"
 
     input {
         File input_preprocessed_joint_vcf
@@ -19,10 +19,13 @@ workflow Glimpse2SVImputationBatch {
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
         Int? glimpse_phase_cpu_override
 
-        String output_prefix
+        String output_basename
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
+
+        # optional additional header line to add to the output VCF
+        String? pipeline_header_line
 
         String glimpse2_docker
     }
@@ -58,7 +61,7 @@ workflow Glimpse2SVImputationBatch {
                     input_region = input_regions[k],
                     output_region = output_regions[k],
                     genetic_map = genetic_map,
-                    output_prefix = output_prefix + ".shard-" + k + ".glimpse2.phased",
+                    output_basename = output_basename + ".shard-" + k + ".glimpse2.phased",
                     extra_phase_args = extra_phase_args,
                     docker = glimpse2_docker,
                     threads = defined_glimpse_phase_cpu_override
@@ -69,7 +72,7 @@ workflow Glimpse2SVImputationBatch {
             input:
                 phased_vcfs = ChunkedGLIMPSE2Phase.phased_vcf,
                 phased_vcf_idxs = ChunkedGLIMPSE2Phase.phased_vcf_idx,
-                output_prefix = output_prefix + ".glimpse2.bubble",
+                output_basename = output_basename + ".glimpse2.bubble",
                 docker = glimpse2_docker
         }
 
@@ -79,8 +82,9 @@ workflow Glimpse2SVImputationBatch {
                 bcf_to_reheader = GLIMPSE2Ligate.ligated_vcf,
                 bcf_to_get_header_from = input_preprocessed_joint_vcf,
                 ref_dict = ref_dict,
-                output_basename = output_prefix +  "." + chromosome + ".glimpse2.bubble.updated_header",
-                docker = glimpse2_docker
+                output_basename = output_basename +  "." + chromosome + ".glimpse2.bubble.updated_header",
+                docker = glimpse2_docker,
+                pipeline_header_line = pipeline_header_line
         }
 
         scatter (k in range(length(pop_regions))) {
@@ -93,7 +97,7 @@ workflow Glimpse2SVImputationBatch {
                     panel_id_split_vcf_gz = panel_id_split_vcf_gz,
                     panel_id_split_vcf_gz_tbi = panel_id_split_vcf_gz_tbi,
                     region = pop_regions[k],
-                    output_prefix = output_prefix + ".glimpse2.popped"
+                    output_basename = output_basename + ".glimpse2.popped"
             }
         }
 
@@ -101,8 +105,8 @@ workflow Glimpse2SVImputationBatch {
             input:
                 bcfs = PopAndMarginalizeCollisions.popped_vcf,
                 bcf_idxs = PopAndMarginalizeCollisions.popped_vcf_idx,
-                output_prefix = output_prefix + "." + chromosome + ".glimpse2.popped",
-                extra_args = "--threads $(nproc) --naive",
+                output_basename = output_basename + "." + chromosome + ".glimpse2.popped",
+                extra_args = "--naive",
         }
     }
 
@@ -148,7 +152,7 @@ task GLIMPSE2Phase {
         String input_region
         String output_region
         File genetic_map
-        String output_prefix
+        String output_basename
         Int seed = 15052011
         Int threads = 4
         String? extra_phase_args
@@ -167,7 +171,7 @@ task GLIMPSE2Phase {
         }
     }
 
-    Int disk_size_gb = ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 30)
+    Int disk_size_gb = ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 40)
 
     command <<<
         set -euxo pipefail
@@ -178,7 +182,7 @@ task GLIMPSE2Phase {
                 --input-gl ~{input_vcf} \
                 -R ~{panel_split_chunk_bin} \
                 ~{extra_phase_args} \
-                --output ~{output_prefix}.bcf \
+                --output ~{output_basename}.bcf \
                 --threads ~{threads} \
                 --seed ~{seed} \
                 --checkpoint-file-out checkpoint.bin"
@@ -198,12 +202,12 @@ task GLIMPSE2Phase {
             exit 1
         fi
 
-        bcftools index -f ~{output_prefix}.bcf
+        bcftools index -f ~{output_basename}.bcf
     >>>
 
     output {
-        File phased_vcf = "~{output_prefix}.bcf"
-        File phased_vcf_idx = "~{output_prefix}.bcf.csi"
+        File phased_vcf = "~{output_basename}.bcf"
+        File phased_vcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
@@ -211,7 +215,7 @@ task GLIMPSE2Phase {
         cpu_cores:          threads,
         mem_gb:             16,
         disk_gb:            disk_size_gb,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         use_ssd:            true,
         preemptible_tries:  30,
         max_retries:        3,
@@ -235,35 +239,36 @@ task GLIMPSE2Ligate {
     input {
         Array[File] phased_vcfs
         Array[File] phased_vcf_idxs
-        String output_prefix
+        String output_basename
+        Int cpu = 2
 
         String docker
 
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_size_gb = 2 * ceil(size(phased_vcfs, "GB")) + 10
+    Int disk_size_gb = ceil(2.1*size(phased_vcfs, "GB")) + 10
 
     command <<<
         set -euox pipefail
 
-        /bin/GLIMPSE2_ligate --input ~{write_lines(phased_vcfs)} --output ~{output_prefix}.bcf --threads $(nproc)
+        /bin/GLIMPSE2_ligate --input ~{write_lines(phased_vcfs)} --output ~{output_basename}.bcf --threads ~{cpu}
 
         # the index generated by ligate appears to be corrupt for both bcf and vcf.gz output (possibly due to https://github.com/samtools/htslib/issues/1740), so we regenerate with bcftools
-        bcftools index -f ~{output_prefix}.bcf
+        bcftools index -f ~{output_basename}.bcf
     >>>
 
     output {
-        File ligated_vcf = "~{output_prefix}.bcf"
-        File ligated_vcf_idx = "~{output_prefix}.bcf.csi"
+        File ligated_vcf = "~{output_basename}.bcf"
+        File ligated_vcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
     RuntimeAttr default_attr = object {
-        cpu_cores:          2,
+        cpu_cores:          cpu,
         mem_gb:             18,
         disk_gb:            disk_size_gb,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         use_ssd:            true,
         preemptible_tries:  0,
         max_retries:        1,
@@ -293,12 +298,12 @@ task PopAndMarginalizeCollisions {
         File panel_id_split_vcf_gz_tbi
 
         String region
-        String output_prefix
+        String output_basename
 
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_gb = 10 + 3 * ceil(size([posteriors_vcf, panel_bubble_split_sites_only_vcf, panel_id_split_vcf_gz], "GB"))
+    Int disk_gb = ceil(3*size(posteriors_vcf, "GB")) + ceil(size([panel_bubble_split_sites_only_vcf, panel_id_split_vcf_gz], "GB")) + 10
 
     command <<<
         set -euox pipefail
@@ -308,20 +313,20 @@ task PopAndMarginalizeCollisions {
         bcftools view -r ~{region} --regions-overlap 0 ~{panel_bubble_split_sites_only_vcf} -Oz -o panel.bubble.split.sites.shard.vcf.gz
         bcftools view -r ~{region} --regions-overlap 0 ~{posteriors_vcf} | \
             /usr/local/bin/pop-glimpse2 ~{panel_id_split_vcf_gz} panel.bubble.split.sites.shard.vcf.gz | \
-            bcftools sort --max-mem=2G -W -Ob -o ~{output_prefix}.bcf
+            bcftools sort --max-mem=2G -W -Ob -o ~{output_basename}.bcf
     >>>
 
     output {
-        File popped_vcf = "~{output_prefix}.bcf"
-        File popped_vcf_idx = "~{output_prefix}.bcf.csi"
+        File popped_vcf = "~{output_basename}.bcf"
+        File popped_vcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
     RuntimeAttr default_attr = object {
         cpu_cores:          2,
-        mem_gb:             6,
+        mem_gb:             8,
         disk_gb:            disk_gb,
-        boot_disk_gb:       10,
+        boot_disk_gb:       0,
         use_ssd:            true,
         preemptible_tries:  2,
         max_retries:        1,
@@ -346,10 +351,11 @@ task UpdateHeader {
         File bcf_to_get_header_from
         File ref_dict
         String output_basename
+        String? pipeline_header_line
 
         Int mem_gb = 2
         Int cpu = 1
-        Int disk_size_gb = ceil(2.1 * size(bcf_to_reheader, "GiB") + 10)
+        Int disk_size_gb = ceil(2.1 * size(bcf_to_reheader, "GiB")) + 10
         Int max_retries = 1
         String docker
     }
@@ -373,6 +379,13 @@ task UpdateHeader {
         bcftools view --no-version -h ~{bcf_to_reheader} | grep '^#CHROM' > glimpse2.columns.txt
         cat input.header.txt glimpse2.header.txt glimpse2.columns.txt > header.vcf
 
+        # Add pipeline_header_line if provided
+        if [ -n "~{default="" pipeline_header_line}" ]; then
+            TOTAL_LINES=$(wc -l < "header.vcf")
+            REMOVED_COMMENT_CHARACTER_HEADER_LINE=$(echo "~{pipeline_header_line}" | sed 's/^#*//')
+            sed -i "${TOTAL_LINES}i\##${REMOVED_COMMENT_CHARACTER_HEADER_LINE}" header.vcf
+        fi
+
         java -jar /picard.jar UpdateVcfSequenceDictionary -I header.vcf --SD ~{ref_dict} -O updated_header.vcf
 
         bcftools reheader -h updated_header.vcf ~{bcf_to_reheader} -o ~{output_basename}.bcf
@@ -382,6 +395,7 @@ task UpdateHeader {
     runtime {
         docker: docker
         disks: "local-disk " + disk_size_gb + " SSD"
+        bootDiskSizeGb: 0
         memory: mem_gb + " GiB"
         cpu: cpu
         maxRetries: max_retries

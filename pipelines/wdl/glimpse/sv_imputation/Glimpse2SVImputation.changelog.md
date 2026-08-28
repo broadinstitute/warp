@@ -1,3 +1,50 @@
+# 0.0.25
+2026-08-27 (Date of Last Commit)
+
+* Rename input `output_prefix` to `output_basename`
+* Rename outputs `glimpse2_popped_posteriors_vcf` to `imputed_vcf` and `glimpse2_popped_posteriors_vcf_idx` to `imputed_vcf_index`
+* Update `batch_pipeline_version` to 0.0.18
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.14
+
+# 0.0.24
+2026-08-24 (Date of Last Commit)
+
+* Add input_qc_version to match new Glimspe2SVImputationQC wdl version
+
+# 0.0.23
+2026-08-24 (Date of Last Commit)
+
+* Add new QuotaConsumed wdl
+
+# 0.0.22
+2026-08-20 (Date of Last Commit)
+
+* Remove `sample_ids` input from workflow. The sample name will now be obtained from GVCF file
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.13
+* Remove `sample_ids` from `ConvertInputArraysToManifest` task
+
+# 0.0.21
+2026-08-18 (Date of Last Commit)
+
+* Adds an optional pipeline_header_line input to the WDL
+* Update `batch_pipeline_version` to 0.0.16
+
+# 0.0.20
+2026-08-17 (Date of Last Commit)
+
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.11 and `batch_pipeline_version` to 0.0.14 to pick up replacement of `$(nproc)` with explicit `cpu` task inputs across nested tasks, so thread counts always match each task's allocated cpu
+
+# 0.0.19
+2026-08-17 (Date of Last Commit)
+
+* make all task disk sizes dynamic and set bootDiskSizeGb to 0
+* update default value of sample_batch_size to 1000
+
+# 0.0.18
+2026-08-13 (Date of Last Commit)
+
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.10 to pick up removal of background heartbeat monitor logging from merge/concat tasks
+
 # 0.0.17
 2026-08-13 (Date of Last Commit)
 

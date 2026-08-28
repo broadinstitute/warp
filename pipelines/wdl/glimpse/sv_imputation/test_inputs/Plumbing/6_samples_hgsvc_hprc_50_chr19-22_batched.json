@@ -1,5 +1,5 @@
 {
-    "Glimpse2SVImputation.output_prefix": "6_samples_hgsvc_hprc_50_batched_plumbing_test",
+    "Glimpse2SVImputation.output_basename": "6_samples_hgsvc_hprc_50_batched_plumbing_test",
     "Glimpse2SVImputation.input_gvcfs": [
         "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/NA21106.hard-filtered.vcf.gz",
         "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/NA21110.hard-filtered.vcf.gz",
@@ -15,14 +15,6 @@
         "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/HG00405.haplotypeCalls.er.raw.vcf.gz.tbi",
         "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/HG00408.haplotypeCalls.er.raw.vcf.gz.tbi",
         "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/gvcfs/HG00418.haplotypeCalls.er.raw.vcf.gz.tbi"
-    ],
-    "Glimpse2SVImputation.sample_ids": [
-        "NA21106", 
-        "NA21110",
-        "NA21144",
-        "HG00405",
-        "HG00408",
-        "HG00418"
     ],
     "Glimpse2SVImputation.preprocess_panel_bubble_split_sites_only_vcf": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/auxiliary_files/hgsvc-hprc-50.panel.reduced_panel_bubble_split_simple_sites.sorted.bcf",
     "Glimpse2SVImputation.preprocess_panel_bubble_split_sites_only_vcf_idx": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/auxiliary_files/hgsvc-hprc-50.panel.reduced_panel_bubble_split_simple_sites.sorted.bcf.csi",

@@ -1,3 +1,10 @@
+# 1.1.0
+2026-08-26 (Date of Last Commit)
+
+* Remove sample_id from tasks
+* Use sample_id found in CRAM as the identifier in `BcftoolsMpileup` task
+* Remove unused `SplitIntoBatches` task
+
 # 1.0.4
 2026-08-12 (Date of Last Commit)
 
