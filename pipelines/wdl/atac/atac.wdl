@@ -958,6 +958,8 @@ task MergeFragmentFilesAndCalculateMetrics {
     n_fragment = adata.obs['n_fragment'].to_numpy()
     qc["Cells"]["Fraction_of_transposition_events_in_peaks_in_cells"] = np.sum(frip['overlap_peak']) / (n_fragment.sum() * 2)
 
+    adata.close()
+
     data = OrderedDict({'NHashID': atac_nhash_id, **qc})
     data['Cells']['atac_percent_target'] = n_cells / expected_cells * 100
 
