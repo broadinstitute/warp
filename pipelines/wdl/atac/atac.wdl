@@ -53,6 +53,11 @@ workflow ATAC {
 
     # Optional Aligned BAM input to skip alignment step
     File? aligned_ATAC_bam
+
+    # Optional pre-chunked, pre-aligned BAM files (e.g. split by cell barcode) to skip
+    # alignment and run fragment generation per chunk in parallel, merging fragments and
+    # recalculating cell/peak/TSS metrics once on the full library. Assumes preindex = false.
+    Array[File]? aligned_ATAC_bam_chunks
   }
 
   String pipeline_version = "2.9.3"
@@ -88,7 +93,7 @@ workflow ATAC {
     cpu_platform_bwa: "CPU platform for bwa-mem2 task (default: Intel Ice Lake)"
  }
 
-  if (!defined(aligned_ATAC_bam)) {
+  if (!defined(aligned_ATAC_bam) && !defined(aligned_ATAC_bam_chunks)) {
     call GetNumSplits {
       input:
          nthreads = num_threads_bwa,
@@ -135,65 +140,112 @@ workflow ATAC {
     }
   }
 
-  File aligned_bam = select_first([aligned_ATAC_bam, BWAPairedEndAlignment.bam_aligned_output])
+  if (!defined(aligned_ATAC_bam_chunks)) {
+    File aligned_bam = select_first([aligned_ATAC_bam, BWAPairedEndAlignment.bam_aligned_output])
 
-  if (preindex) {
-    call AddBB.AddBBTag as BBTag {
-      input:
-        bam = aligned_bam,
-        input_id = input_id,
-        docker_path = docker_prefix + upstools_docker
+    if (preindex) {
+      call AddBB.AddBBTag as BBTag {
+        input:
+          bam = aligned_bam,
+          input_id = input_id,
+          docker_path = docker_prefix + upstools_docker
+      }
+      call CreateFragmentFile as BB_fragment {
+        input:
+          bam = BBTag.bb_bam,
+          chrom_sizes = chrom_sizes,
+          annotations_gtf = annotations_gtf,
+          preindex = preindex,
+          docker_path = docker_prefix + snap_atac_docker,
+          atac_nhash_id = atac_nhash_id,
+          atac_expected_cells = atac_expected_cells,
+          input_id = input_id
+      }
     }
-    call CreateFragmentFile as BB_fragment {
-      input:
-        bam = BBTag.bb_bam,
-        chrom_sizes = chrom_sizes,
-        annotations_gtf = annotations_gtf,
-        preindex = preindex,
-        docker_path = docker_prefix + snap_atac_docker,
-        atac_nhash_id = atac_nhash_id,
-        atac_expected_cells = atac_expected_cells,
-        input_id = input_id
+    if (!preindex) {
+      call CreateFragmentFile {
+        input:
+          bam = aligned_bam,
+          chrom_sizes = chrom_sizes,
+          annotations_gtf = annotations_gtf,
+          preindex = preindex,
+          docker_path = docker_prefix + snap_atac_docker,
+          atac_nhash_id = atac_nhash_id,
+          atac_expected_cells = atac_expected_cells,
+          input_id = input_id
+      }
+      if (peak_calling) {
+        call peakcalling.PeakCalling as PeakCalling{
+          input:
+            output_base_name = input_id,
+            annotations_gtf = annotations_gtf,
+            metrics_h5ad = CreateFragmentFile.Snap_metrics,
+            chrom_sizes = chrom_sizes,
+            cloud_provider = cloud_provider,
+        }
+      }
     }
   }
-  if (!preindex) {
-    call CreateFragmentFile {
+
+  # Alternate path: caller already split the aligned BAM into barcode-partitioned chunks
+  # (see split_bam_by_barcode.py). Generate fragments per chunk in parallel, then merge the
+  # fragment files and recalculate cell/peak/TSS metrics exactly once on the full library.
+  if (defined(aligned_ATAC_bam_chunks)) {
+    scatter (bam_chunk in select_first([aligned_ATAC_bam_chunks])) {
+      call MakeFragmentFileChunk {
+        input:
+          bam = bam_chunk,
+          docker_path = docker_prefix + snap_atac_docker
+      }
+    }
+
+    call ConcatenateBamChunks {
       input:
-        bam = aligned_bam,
+        bam_chunks = select_first([aligned_ATAC_bam_chunks]),
+        input_id = input_id,
+        docker_path = docker_prefix + samtools_docker
+    }
+
+    call MergeFragmentFilesAndCalculateMetrics {
+      input:
+        fragment_files = MakeFragmentFileChunk.fragment_file,
+        bam_qc_jsons = MakeFragmentFileChunk.bam_qc_json,
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf,
-        preindex = preindex,
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
         input_id = input_id
     }
+
     if (peak_calling) {
-      call peakcalling.PeakCalling as PeakCalling{
+      call peakcalling.PeakCalling as PeakCallingFromChunks {
         input:
           output_base_name = input_id,
           annotations_gtf = annotations_gtf,
-          metrics_h5ad = CreateFragmentFile.Snap_metrics,
+          metrics_h5ad = MergeFragmentFilesAndCalculateMetrics.Snap_metrics,
           chrom_sizes = chrom_sizes,
           cloud_provider = cloud_provider,
       }
     }
   }
-  
-  File bam_aligned_output_atac = select_first([BBTag.bb_bam, aligned_bam])
-  File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
-  File fragment_file_index_atac = select_first([BB_fragment.fragment_file_index, CreateFragmentFile.fragment_file_index])
-  File snap_metrics_atac = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])
-  File library_metrics = select_first([BB_fragment.atac_library_metrics, CreateFragmentFile.atac_library_metrics])
-    
+
+  File bam_aligned_output_atac = select_first([BBTag.bb_bam, aligned_bam, ConcatenateBamChunks.bam])
+  File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file, MergeFragmentFilesAndCalculateMetrics.fragment_file])
+  File fragment_file_index_atac = select_first([BB_fragment.fragment_file_index, CreateFragmentFile.fragment_file_index, MergeFragmentFilesAndCalculateMetrics.fragment_file_index])
+  File snap_metrics_atac = select_first([BB_fragment.Snap_metrics, CreateFragmentFile.Snap_metrics, MergeFragmentFilesAndCalculateMetrics.Snap_metrics])
+  File library_metrics = select_first([BB_fragment.atac_library_metrics, CreateFragmentFile.atac_library_metrics, MergeFragmentFilesAndCalculateMetrics.atac_library_metrics])
+  File? cellbybin_h5ad = if defined(PeakCalling.cellbybin_h5ad) then PeakCalling.cellbybin_h5ad else PeakCallingFromChunks.cellbybin_h5ad
+  File? cellbypeak_h5ad = if defined(PeakCalling.cellbypeak_h5ad) then PeakCalling.cellbypeak_h5ad else PeakCallingFromChunks.cellbypeak_h5ad
+
   output {
     File bam_aligned_output = bam_aligned_output_atac
     File fragment_file = fragment_file_atac
     File fragment_file_index = fragment_file_index_atac
     File snap_metrics = snap_metrics_atac
     File library_metrics_file = library_metrics
-    File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad
-    File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad
+    File? cellbybin_h5ad_file = cellbybin_h5ad
+    File? cellbypeak_h5ad_file = cellbypeak_h5ad
   }
 }
 
@@ -656,6 +708,282 @@ task CreateFragmentFile {
     bgzip "~{input_id}.fragments.sorted.tsv"
     echo "Starting tabix"
     tabix -s 1 -b 2 -e 3 -C "~{input_id}.fragments.sorted.tsv.gz"
+  >>>
+
+  runtime {
+    docker: docker_path
+    disks: "local-disk ${disk_size} SSD"
+    memory: "${mem_size} GiB"
+    cpu: nthreads
+    cpuPlatform: cpuPlatform
+  }
+
+  output {
+    File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
+    File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
+    File Snap_metrics = "~{input_id}.metrics.h5ad"
+    File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
+  }
+}
+
+# Generate a fragment file plus raw QC counts for one barcode-partitioned BAM chunk.
+# This deliberately stops after make_fragment_file -- no cell calling, no peak calling --
+# since those need to run once on the full library, not independently per chunk.
+task MakeFragmentFileChunk {
+  input {
+    File bam
+    Array[String] mito_list = ['chrM', 'M']
+    Int disk_size = 300
+    Int mem_size = 32
+    Int nthreads = 4
+    String docker_path
+  }
+
+  parameter_meta {
+    bam: "One barcode-partitioned chunk of the aligned ATAC bam. Every read for a given cell barcode must land in exactly one chunk (see split_bam_by_barcode.py), otherwise per-barcode dedup and counts will be wrong."
+  }
+
+  command <<<
+    set -euo pipefail
+    set -x
+
+    python3 <<CODE
+    import json
+    import snapatac2.preprocessing as pp
+
+    mito_list = "~{sep=' ' mito_list}".split(" ")
+
+    # barcode_tag hardcoded to CB: this chunked path assumes preindex=false
+    bam_qc = pp.make_fragment_file(
+        "~{bam}",
+        "fragments.tsv",
+        is_paired=True,
+        barcode_tag="CB",
+        chrM=mito_list,
+    )
+
+    with open("fragments.tsv") as f:
+        bam_qc["fragment_count"] = sum(1 for _ in f)
+
+    with open("bam_qc.json", "w") as f:
+        json.dump(bam_qc, f)
+    CODE
+
+    gzip fragments.tsv
+  >>>
+
+  runtime {
+    docker: docker_path
+    disks: "local-disk ${disk_size} SSD"
+    memory: "${mem_size} GiB"
+    cpu: nthreads
+  }
+
+  output {
+    File fragment_file = "fragments.tsv.gz"
+    File bam_qc_json = "bam_qc.json"
+  }
+}
+
+# Concatenate barcode-partitioned BAM chunks back into one BAM. This is only to satisfy the
+# workflow's bam_aligned_output contract (e.g. for Multiome.wdl) -- it is not used to compute
+# any metric. All real merging happens at the fragment level in MergeFragmentFilesAndCalculateMetrics.
+task ConcatenateBamChunks {
+  input {
+    Array[File] bam_chunks
+    String input_id
+    Int disk_size = 500
+    Int mem_size = 8
+    String docker_path
+  }
+
+  command <<<
+    set -euo pipefail
+    /usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools cat -o "~{input_id}.bam" ~{sep=' ' bam_chunks}
+  >>>
+
+  runtime {
+    docker: docker_path
+    disks: "local-disk ${disk_size} SSD"
+    memory: "${mem_size} GiB"
+  }
+
+  output {
+    File bam = "~{input_id}.bam"
+  }
+}
+
+# Concatenate per-chunk fragment files into one sorted fragment file, recombine the
+# per-chunk Sequencing/Mapping/Library Complexity QC counts, and recalculate the
+# Cells/Targeting metrics (cell calling, peak calling, TSS enrichment) exactly once
+# on the reassembled full library. Mirrors snapatac2.preprocessing.recipe_10x_metrics,
+# picking up where MakeFragmentFileChunk left off.
+task MergeFragmentFilesAndCalculateMetrics {
+  input {
+    Array[File] fragment_files
+    Array[File] bam_qc_jsons
+    File annotations_gtf
+    File chrom_sizes
+    Array[String] mito_list = ['chrM', 'M']
+    Int disk_size = 500
+    Int mem_size = 64
+    Int nthreads = 4
+    String cpuPlatform = "Intel Cascade Lake"
+    String docker_path
+    String atac_nhash_id = ""
+    String input_id
+    Int atac_expected_cells = 3000
+    String gtf_path = annotations_gtf
+  }
+
+  parameter_meta {
+    fragment_files: "Per-chunk fragment files from MakeFragmentFileChunk."
+    bam_qc_jsons: "Per-chunk raw QC counts from MakeFragmentFileChunk, recombined here into library-level Sequencing/Mapping/Library Complexity metrics."
+  }
+
+  command <<<
+    set -euo pipefail
+    set -x
+
+    echo "Concatenating per-chunk fragment files"
+    zcat ~{sep=' ' fragment_files} > "~{input_id}.fragments.tsv"
+
+    # Each chunk's fragment file is barcode-sorted on its own (from make_fragment_file), but
+    # chunks are hash buckets, not barcode ranges, so the concatenation is not globally
+    # barcode-sorted. snapatac2's import_data requires barcode order, so re-sort explicitly
+    # before import; the genomic-coordinate sort below is only for the final fragment_file
+    # output and is independent of what gets fed to import_data.
+    echo "Sorting merged fragment file by barcode for snapatac2 import"
+    LC_ALL=C sort -k4,4 "~{input_id}.fragments.tsv" > "~{input_id}.fragments.barcode_sorted.tsv"
+
+    echo "Sorting merged fragment file by genomic coordinate for the final output"
+    sort -k1,1V -k2,2n "~{input_id}.fragments.tsv" > "~{input_id}.fragments.sorted.tsv"
+    bgzip "~{input_id}.fragments.sorted.tsv"
+    tabix -s 1 -b 2 -e 3 -C "~{input_id}.fragments.sorted.tsv.gz"
+
+    python3 <<CODE
+
+    import json
+    from collections import OrderedDict
+    import csv
+    import numpy as np
+    import anndata as ad
+    import snapatac2
+    import snapatac2.preprocessing as pp
+
+    chunk_qc = [json.load(open(p)) for p in ["~{sep='", "' bam_qc_jsons}"]]
+
+    def wtotal(weight_key):
+        return sum(q[weight_key] for q in chunk_qc)
+
+    def weighted_frac(key, weight_key):
+        total_weight = wtotal(weight_key)
+        return sum(q[key] * q[weight_key] for q in chunk_qc) / total_weight if total_weight else 0.0
+
+    bam_qc = {
+        "sequenced_reads": wtotal("sequenced_reads"),
+        "sequenced_read_pairs": wtotal("sequenced_read_pairs"),
+        "frac_valid_barcode": weighted_frac("frac_valid_barcode", "sequenced_reads"),
+        "frac_q30_bases_read1": weighted_frac("frac_q30_bases_read1", "sequenced_reads"),
+        "frac_q30_bases_read2": weighted_frac("frac_q30_bases_read2", "sequenced_reads"),
+        "frac_confidently_mapped": weighted_frac("frac_confidently_mapped", "sequenced_reads"),
+        "frac_unmapped": weighted_frac("frac_unmapped", "sequenced_reads"),
+        "frac_nonnuclear": weighted_frac("frac_nonnuclear", "sequenced_reads"),
+        # Approximate only: the true pre-dedup denominator isn't exposed by snapatac2,
+        # so this is weighted by sequenced_read_pairs as the closest available proxy.
+        "frac_duplicates": weighted_frac("frac_duplicates", "sequenced_read_pairs"),
+        # Denominated by total high-quality fragments (fragment file line count), not reads.
+        "frac_fragment_in_nucleosome_free_region": weighted_frac("frac_fragment_in_nucleosome_free_region", "fragment_count"),
+        "frac_fragment_flanking_single_nucleosome": weighted_frac("frac_fragment_flanking_single_nucleosome", "fragment_count"),
+    }
+
+    qc = {
+        "Sequencing": {},
+        "Cells": {},
+        "Library Complexity": {},
+        "Mapping": {},
+        "Targeting": {},
+    }
+    qc["Sequencing"]["Sequenced_reads"] = bam_qc["sequenced_reads"]
+    qc["Sequencing"]["Sequenced_read_pairs"] = bam_qc["sequenced_read_pairs"]
+    qc["Sequencing"]["Fraction_valid_barcode"] = bam_qc["frac_valid_barcode"]
+    qc["Sequencing"]["Fraction_Q30_bases_in_read_1"] = bam_qc["frac_q30_bases_read1"]
+    qc["Sequencing"]["Fraction_Q30_bases_in_read_2"] = bam_qc["frac_q30_bases_read2"]
+    qc["Mapping"]["Fraction_confidently_mapped"] = bam_qc["frac_confidently_mapped"]
+    qc["Mapping"]["Fraction_unmapped"] = bam_qc["frac_unmapped"]
+    qc["Mapping"]["Fraction_nonnuclear"] = bam_qc["frac_nonnuclear"]
+    qc["Mapping"]["Fraction_fragment_in_nucleosome_free_region"] = bam_qc["frac_fragment_in_nucleosome_free_region"]
+    qc["Mapping"]["Fraction_fragment_flanking_single_nucleosome"] = bam_qc["frac_fragment_flanking_single_nucleosome"]
+    qc["Library Complexity"]["Fraction_duplicates"] = bam_qc["frac_duplicates"]
+
+    chrom_size_dict = {}
+    with open("~{chrom_sizes}", "r") as f:
+        for line in f:
+            key, value = line.strip().split()
+            chrom_size_dict[str(key)] = int(value)
+
+    atac_gtf = "~{annotations_gtf}"
+    mito_list = "~{sep=' ' mito_list}".split(" ")
+    atac_nhash_id = "~{atac_nhash_id}"
+    expected_cells = ~{atac_expected_cells}
+
+    adata = pp.import_data(
+        "~{input_id}.fragments.barcode_sorted.tsv",
+        chrom_sizes=chrom_size_dict,
+        min_num_fragments=0,
+        file="temp_metrics.h5ad",
+    )
+    snapatac2.metrics.tsse(adata, atac_gtf, exclude_chroms=mito_list)
+    qc["Targeting"]["TSS_enrichment_score"] = adata.uns['library_tsse']
+    qc["Targeting"]["Fraction_of_high-quality_fragments_overlapping_TSS"] = adata.uns['frac_overlap_TSS']
+
+    snapatac2.tl.macs3(adata, qvalue=0.001)
+    peaks = [f"{row[0]}:{row[1]}-{row[2]}" for row in adata.uns['macs3_pseudobulk'].iter_rows()]
+    qc["Targeting"]["Number_of_peaks"] = len(peaks)
+    qc["Targeting"]["Fraction_of_genome_in_peaks"] = snapatac2._snapatac2.total_size_of_peaks(peaks) / adata.uns['reference_sequences']['reference_seq_length'].sum()
+
+    snapatac2.metrics.frip(adata, {"n_frag_overlap_peak": peaks}, normalized=False)
+    qc["Targeting"]["Fraction_of_high-quality_fragments_overlapping_peaks"] = adata.obs['n_frag_overlap_peak'].sum() / adata.obs['n_fragment'].sum()
+
+    cell_idx = pp.call_cells(adata, use_rep="n_frag_overlap_peak", inplace=False)
+    n_cells = len(cell_idx)
+    n_fragment = adata.obs['n_fragment'].to_numpy()
+    qc["Cells"]["Number_of_cells"] = n_cells
+    qc["Cells"]["Mean_raw_read_pairs_per_cell"] = bam_qc["sequenced_read_pairs"] / n_cells
+    qc["Cells"]["Median_high-quality_fragments_per_cell"] = np.median(n_fragment[cell_idx])
+    qc["Cells"]["Fraction of high-quality fragments in cells"] = n_fragment[cell_idx].sum() / n_fragment.sum()
+
+    adata.subset(cell_idx)
+    frip = snapatac2.metrics.frip(adata, {"overlap_peak": peaks}, normalized=False, count_as_insertion=True, inplace=False)
+    n_fragment = adata.obs['n_fragment'].to_numpy()
+    qc["Cells"]["Fraction_of_transposition_events_in_peaks_in_cells"] = np.sum(frip['overlap_peak']) / (n_fragment.sum() * 2)
+
+    adata.close()
+
+    data = OrderedDict({'NHashID': atac_nhash_id, **qc})
+    data['Cells']['atac_percent_target'] = n_cells / expected_cells * 100
+
+    flattened_data = []
+    for category, metrics in data.items():
+        if isinstance(metrics, dict):
+            for metric, value in metrics.items():
+                flattened_data.append((metric, value))
+        else:
+            flattened_data.append((category, metrics))
+    flattened_data = [(metric if metric == 'NHashID' else str(metric).lower(), value) for metric, value in flattened_data]
+
+    csv_file_path = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
+    with open(csv_file_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(flattened_data)
+
+    atac_data = ad.read_h5ad("temp_metrics.h5ad")
+    atac_data.uns['NHashID'] = atac_nhash_id
+    atac_data.uns["reference_gtf_file"] = "~{gtf_path}"
+    snapatac2.metrics.tsse(atac_data, atac_gtf, exclude_chroms=mito_list)
+    atac_data.write_h5ad("~{input_id}.metrics.h5ad")
+
+    CODE
   >>>
 
   runtime {
