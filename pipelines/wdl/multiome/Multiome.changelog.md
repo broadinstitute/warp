@@ -1,8 +1,3 @@
-# 7.0.3
-2026-08-26 (Date of Last Commit)
-
-* Exposed `num_threads_bwa`, `mem_size_bwa`, and `cpu_platform_bwa` as top-level Multiome inputs (default: 128/512/"Intel Ice Lake", matching ATAC's existing defaults -- no behavior change for configs that don't set them). Previously these could only be overridden via ATAC's nested-input mechanism (e.g. `Multiome.Atac.num_threads_bwa`); a Terra method config exposing only the documented top-level inputs had no way to right-size the BWA machine and would silently request a 128 vCPU / 512 GiB VM for every sample.
-
 # 7.0.2
 2026-07-10 (Date of Last Commit)
 

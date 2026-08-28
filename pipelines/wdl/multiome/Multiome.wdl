@@ -9,7 +9,7 @@ import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "7.0.3"
+    String pipeline_version = "7.0.2"
 
     input {
         String cloud_provider
@@ -44,10 +44,6 @@ workflow Multiome {
         Array[File] atac_r3_fastq
         # VM size used for several ATAC tasks
         String vm_size = "Standard_M128s"
-        # BWA machine sizing -- passed through to ATAC's GetNumSplits/BWAPairedEndAlignment
-        Int num_threads_bwa = 128
-        Int mem_size_bwa = 512
-        String cpu_platform_bwa = "Intel Ice Lake"
         # BWA tar reference
         File tar_bwa_reference
         # Chromosone sizes 
@@ -130,9 +126,6 @@ workflow Multiome {
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
             vm_size = vm_size,
-            num_threads_bwa = num_threads_bwa,
-            mem_size_bwa = mem_size_bwa,
-            cpu_platform_bwa = cpu_platform_bwa,
             annotations_gtf = annotations_gtf,
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,

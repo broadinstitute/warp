@@ -38,10 +38,6 @@ workflow TestMultiome {
 
       # BWA input
       File tar_bwa_reference
-      # BWA machine sizing -- forwarded to Multiome (which forwards to ATAC)
-      Int num_threads_bwa = 128
-      Int mem_size_bwa = 512
-      String cpu_platform_bwa = "Intel Ice Lake"
 
       # CreateFragmentFile input
       File chrom_sizes
@@ -84,9 +80,6 @@ workflow TestMultiome {
         atac_r2_fastq = atac_r2_fastq,
         atac_r3_fastq = atac_r3_fastq,
         tar_bwa_reference = tar_bwa_reference,
-        num_threads_bwa = num_threads_bwa,
-        mem_size_bwa = mem_size_bwa,
-        cpu_platform_bwa = cpu_platform_bwa,
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3,
         chrom_sizes = chrom_sizes,
