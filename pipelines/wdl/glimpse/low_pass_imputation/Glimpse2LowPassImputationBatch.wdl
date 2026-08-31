@@ -213,7 +213,7 @@ task ExtractGenotypeLikelihoods {
         Int mem_gb = 4
         Int cpu = 1 
         Int preemptible = 3
-        Int max_retries = 0
+        Int max_retries = 1
     }
 
     Int disk_size_gb = ceil(1.5 * size(cram, "GiB") + size(fasta, "GiB") + size(sites_vcfs, "GiB") + size(sites_tables, "GiB") + 10)
@@ -259,19 +259,30 @@ task ExtractGenotypeLikelihoods {
             
             for (( j=0; j<count; j++ )); do
                 shard="${ALL_SHARDS[$shard_idx]}"
-                
                 safe_shard=$(echo "$shard" | tr ':' '_' | tr '-' '_')
-                out_bcf="output.${chrom}.${safe_shard}.bcf"
                 
-                bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -r "${shard}" -T "${vcf}" -Ou ~{basename(cram)} | \
-                bcftools call -Aim -C alleles -T "${tbl}" -Ou | \
-                bcftools norm -m -both -Ob -o "${out_bcf}"
+                out_bcf="output.${chrom}.${safe_shard}.bcf"
+                shard_tbl="tbl_${chrom}_${safe_shard}.tsv.gz"
+                
+                # 1. Slice the TSV table for this exact shard so `call` does not pad the rest of the chromosome
+                tabix -H "${tbl}" > "tmp_${safe_shard}.tsv" || true
+                tabix "${tbl}" "${shard}" >> "tmp_${safe_shard}.tsv" || true
+                bgzip -c "tmp_${safe_shard}.tsv" > "${shard_tbl}"
+                tabix -s1 -b2 -e2 "${shard_tbl}"
+                
+                # 2. Execute pipeline using the localized, bounded TSV table
+                bcftools mpileup --no-version -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -r "${shard}" -T "${vcf}" -Ou ~{basename(cram)} | \
+                bcftools call --no-version -Aim -C alleles -T "${shard_tbl}" -Ou | \
+                bcftools norm --no-version -m -both -Ob -o "${out_bcf}"
                 
                 if [ $j -gt 0 ]; then
                     echo "    ,\"${out_bcf}\"" >> outputs.json
                 else
                     echo "    \"${out_bcf}\"" >> outputs.json
                 fi
+                
+                # Cleanup intermediate TSVs
+                rm "tmp_${safe_shard}.tsv" "${shard_tbl}" "${shard_tbl}.tbi"
                 
                 ((++shard_idx))
             done
