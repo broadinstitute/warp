@@ -213,7 +213,7 @@ task ExtractGenotypeLikelihoods {
         Int mem_gb = 4
         Int cpu = 1 
         Int preemptible = 3
-        Int max_retries = 1
+        Int max_retries = 0
     }
 
     Int disk_size_gb = ceil(1.5 * size(cram, "GiB") + size(fasta, "GiB") + size(sites_vcfs, "GiB") + size(sites_tables, "GiB") + 10)
