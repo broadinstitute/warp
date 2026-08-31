@@ -1,5 +1,7 @@
 version 1.0
 
+import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
+
 workflow Glimpse2LowPassImputationBatch {
     String pipeline_version = "1.1.0"
 
@@ -31,15 +33,18 @@ workflow Glimpse2LowPassImputationBatch {
             cram_manifest = cram_manifest
     }
 
-    # Step 1: Pre-calculate reference files (and GLIMPSE2 shards for later)
+    # Step 1: Pre-calculate reference files and flattened shard counts
     scatter(contig_index in range(length(contigs))) {
-        File sites_vcfs_tmp = reference_panel_prefix + "sites." + contigs[contig_index] + ".vcf.gz"
-        File sites_vcf_indices_tmp = reference_panel_prefix + "sites." + contigs[contig_index] + ".vcf.gz.tbi"
-        File sites_tables_tmp = reference_panel_prefix + "sites_table." + contigs[contig_index] + ".gz"
-        File sites_table_indices_tmp = reference_panel_prefix + "sites_table." + contigs[contig_index] + ".gz.tbi"
-        File reference_chunks_tmp = reference_panel_prefix + "reference_chunks." + contigs[contig_index] + ".txt"
+        String current_contig = contigs[contig_index]
+        Array[String] current_bcftools_shards = bcftools_shard_map[current_contig]
+        Int current_shard_count = length(current_bcftools_shards)
 
-        # These shards are strictly reserved for downstream GLIMPSE2 operations
+        File sites_vcfs_tmp = reference_panel_prefix + "sites." + current_contig + ".vcf.gz"
+        File sites_vcf_indices_tmp = reference_panel_prefix + "sites." + current_contig + ".vcf.gz.tbi"
+        File sites_tables_tmp = reference_panel_prefix + "sites_table." + current_contig + ".gz"
+        File sites_table_indices_tmp = reference_panel_prefix + "sites_table." + current_contig + ".gz.tbi"
+        File reference_chunks_tmp = reference_panel_prefix + "reference_chunks." + current_contig + ".txt"
+
         call GetShards {
             input: 
                 reference_chunks_file = reference_chunks_tmp
@@ -47,14 +52,14 @@ workflow Glimpse2LowPassImputationBatch {
     }
 
     # Step 2: CRAMs are localized exactly ONCE per sample. 
-    # The task processes all contigs internally using the provided bcftools_shard_map.
     scatter(sample_idx in range(length(ParseCramManifest.crams))) {
         call ExtractGenotypeLikelihoods {
             input:
                 cram = ParseCramManifest.crams[sample_idx],
                 cram_index = ParseCramManifest.cram_indices[sample_idx],
-                chrom_to_shards = bcftools_shard_map,
                 contigs = contigs,
+                flat_shards = flatten(current_bcftools_shards),
+                shard_counts = current_shard_count,
                 sites_vcfs = sites_vcfs_tmp,
                 sites_vcf_indices = sites_vcf_indices_tmp,
                 sites_tables = sites_tables_tmp,
@@ -65,26 +70,19 @@ workflow Glimpse2LowPassImputationBatch {
         }
     }
 
-    # ExtractGenotypeLikelihoods.out_bcfs is an Array[Array[Array[File]]] 
-    # Shape: [sample][contig][shard]
-
     # Step 3: Loop through contigs to perform the hierarchical merge
     scatter(contig_index in range(length(contigs))) {
         
-        # Resolve the nested lookups into intermediate variables to satisfy the WDL parser
-        String current_contig = contigs[contig_index]
-        Array[String] current_bcftools_shards = bcftools_shard_map[current_contig]
+        String current_contig_for_merge = contigs[contig_index]
+        Array[String] current_bcftools_shards_for_merge = bcftools_shard_map[current_contig_for_merge]
 
-        # WDL Slice: Extract the 2D array of [sample][shard] specifically for THIS contig
         scatter(sample_idx in range(length(ParseCramManifest.crams))) {
             Array[File] sample_shards_for_contig = ExtractGenotypeLikelihoods.out_bcfs[sample_idx][contig_index]
         }
         
-        # Transpose from [sample][shard] to [shard][sample]
         Array[Array[File]] shard_sample_bcfs = transpose(sample_shards_for_contig)
 
-        # 2-Level Hierarchical Merge per shard using the intermediate variable
-        scatter (shard_idx in range(length(current_bcftools_shards))) {
+        scatter (shard_idx in range(length(current_bcftools_shards_for_merge))) {
             
             # Level 1
             call ChunkBcfs as Level1Chunk {
@@ -96,33 +94,35 @@ workflow Glimpse2LowPassImputationBatch {
                 call MergeSampleChunksBcfsWithPaste as Level1Merge {
                     input:
                         input_bcfs = Level1Chunk.out_chunks[l1_idx],
-                        output_basename = output_basename + "." + current_contig + ".shard_" + shard_idx + ".l1_" + l1_idx
+                        output_basename = output_basename + "." + current_contig_for_merge + ".shard_" + shard_idx + ".l1_" + l1_idx
                 }
             }
 
-            # Level 2
-            call ChunkBcfs as Level2Chunk {
-                input:
-                    bcfs = Level1Merge.output_bcf,
-                    batch_size = hierarchical_merge_batch_sizes[1]
-            }
-            scatter (l2_idx in range(length(Level2Chunk.out_chunks))) {
-                call MergeSampleChunksBcfsWithPaste as Level2Merge {
+            # Level 2 (Conditional)
+            if (length(Level1Merge.output_bcf) > 1) {
+                call ChunkBcfs as Level2Chunk {
                     input:
-                        input_bcfs = Level2Chunk.out_chunks[l2_idx],
-                        output_basename = output_basename + "." + current_contig + ".shard_" + shard_idx + ".l2_" + l2_idx
+                        bcfs = Level1Merge.output_bcf,
+                        batch_size = hierarchical_merge_batch_sizes[1]
+                }
+                scatter (l2_idx in range(length(Level2Chunk.out_chunks))) {
+                    call MergeSampleChunksBcfsWithPaste as Level2Merge {
+                        input:
+                            input_bcfs = Level2Chunk.out_chunks[l2_idx],
+                            output_basename = output_basename + "." + current_contig_for_merge + ".shard_" + shard_idx + ".l2_" + l2_idx
+                    }
                 }
             }
             
-            # Extracts the final merged root BCF for this specific shard
-            File final_shard_bcf = Level2Merge.output_bcf[0]
+            # Select the final shard depending on whether Level 2 ran
+            Array[File] resolved_final_shard_array = select_first([Level2Merge.output_bcf, Level1Merge.output_bcf])
+            File final_shard_bcf = resolved_final_shard_array[0]
         }
 
-        # Step 4: Naive concat of the finished shards into a per-chromosome BCF
         call BcftoolsConcat {
             input:
                 bcfs = final_shard_bcf,
-                output_basename = output_basename + "." + current_contig + ".concat"
+                output_basename = output_basename + "." + current_contig_for_merge + ".concat"
         }
     }
 
@@ -214,8 +214,9 @@ task ExtractGenotypeLikelihoods {
         File cram
         File cram_index
         
-        Map[String, Array[String]] chrom_to_shards
         Array[String] contigs
+        Array[String] flat_shards
+        Array[Int] shard_counts
         
         Array[File] sites_vcfs
         Array[File] sites_vcf_indices
@@ -238,66 +239,64 @@ task ExtractGenotypeLikelihoods {
     command <<<
         set -xeuo pipefail
 
-        python3 <<EOF
-import json
+        # Co-locate the CRAM and index in the local task directory
+        ln -sf ~{cram} "~{basename(cram)}"
+        ln -sf ~{cram_index} "~{basename(cram)}.crai"
 
-with open('~{write_json(chrom_to_shards)}', 'r') as f:
-    raw_map = json.load(f)
+        # Load WDL arrays into Bash parallel arrays
+        CONTIGS=(~{sep=" " contigs})
+        VCFS=(~{sep=" " sites_vcfs})
+        TABLES=(~{sep=" " sites_tables})
+        SHARD_COUNTS=(~{sep=" " shard_counts})
 
-# Robust parsing to handle any WDL engine's Map serialization
-chrom_to_shards = {}
-if isinstance(raw_map, dict):
-    chrom_to_shards = raw_map
-elif isinstance(raw_map, list):
-    for item in raw_map:
-        if isinstance(item, dict):
-            if 'left' in item and 'right' in item:      # Cromwell Pair format
-                chrom_to_shards[item['left']] = item['right']
-            elif 'key' in item and 'value' in item:     # Generic Pair format
-                chrom_to_shards[item['key']] = item['value']
-            else:                                       # Array of single-entry dicts
-                for k, v in item.items():
-                    chrom_to_shards[k] = v
-        elif isinstance(item, list) and len(item) >= 2: # Array of arrays
-            chrom_to_shards[item[0]] = item[1]
+        # Load the flattened shards array line-by-line safely
+        ALL_SHARDS=()
+        while IFS= read -r line; do
+            ALL_SHARDS+=("$line")
+        done < "~{write_lines(flat_shards)}"
 
-with open('~{write_json(contigs)}', 'r') as f:
-    contigs = json.load(f)
+        echo "[" > outputs.json
 
-with open('~{write_json(sites_vcfs)}', 'r') as f:
-    sites_vcfs = json.load(f)
-
-with open('~{write_json(sites_tables)}', 'r') as f:
-    sites_tables = json.load(f)
-
-out_matrix = []
-
-with open('run.sh', 'w') as run_sh:
-    run_sh.write('set -xeuo pipefail\n')
-    
-    for idx, chrom in enumerate(contigs):
-        shards = chrom_to_shards.get(chrom, [])
-        vcf = sites_vcfs[idx]
-        tbl = sites_tables[idx]
-        
-        chrom_outputs = []
-        for shard in shards:
-            safe_shard = shard.replace(':', '_').replace('-', '_')
-            out_bcf = f"output.{chrom}.{safe_shard}.bcf"
-            chrom_outputs.append(out_bcf)
+        shard_idx=0
+        for i in "${!CONTIGS[@]}"; do
+            chrom="${CONTIGS[$i]}"
+            vcf="${VCFS[$i]}"
+            tbl="${TABLES[$i]}"
+            count="${SHARD_COUNTS[$i]}"
             
-            run_sh.write(f"bcftools mpileup -f ~{fasta} ~{if !call_indels then '-I ' else ''}--seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -r '{shard}' -T '{vcf}' -Ou ~{cram} | \\\n")
-            run_sh.write(f"bcftools call -Aim -C alleles -T '{tbl}' -Ou | \\\n")
-            run_sh.write(f"bcftools norm -m -both -Ob -o '{out_bcf}'\n")
-            run_sh.write(f"bcftools index '{out_bcf}'\n")
-        
-        out_matrix.append(chrom_outputs)
+            if [ $i -gt 0 ]; then
+                echo "," >> outputs.json
+            fi
+            echo "  [" >> outputs.json
+            
+            for (( j=0; j<count; j++ )); do
+                shard="${ALL_SHARDS[$shard_idx]}"
+                
+                # Format string for safe filenames
+                safe_shard=$(echo "$shard" | tr ':' '_' | tr '-' '_')
+                out_bcf="output.${chrom}.${safe_shard}.bcf"
+                
+                # Execute bcftools piped pipeline
+                bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -r "${shard}" -T "${vcf}" -Ou ~{basename(cram)} | \
+                bcftools call -Aim -C alleles -T "${tbl}" -Ou | \
+                bcftools norm -m -both -Ob -o "${out_bcf}"
+                
+                bcftools index "${out_bcf}"
+                
+                # Write to the 2D JSON array file for WDL to read back
+                if [ $j -gt 0 ]; then
+                    echo "    ,\"${out_bcf}\"" >> outputs.json
+                else
+                    echo "    \"${out_bcf}\"" >> outputs.json
+                fi
+                
+                ((shard_idx++))
+            done
+            
+            echo "  ]" >> outputs.json
+        done
 
-with open('outputs.json', 'w') as f:
-    json.dump(out_matrix, f)
-EOF
-        
-        bash run.sh
+        echo "]" >> outputs.json
     >>>
 
     runtime {
@@ -443,7 +442,7 @@ task BcftoolsConcat {
     command <<<
         set -xeuo pipefail
         
-        bcftools concat -O b -o ~{output_basename}.bcf ~{sep=" " bcfs}
+        bcftools concat -O b -o ~{output_basename}.bcf ~{sep=" " bcfs} --naive
         bcftools index ~{output_basename}.bcf
     >>>
 
