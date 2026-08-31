@@ -189,40 +189,6 @@ task SplitCramManifestIntoBatchesOfStrings {
     }
 }
 
-task ComputeShardsAndMemoryPerShard {
-    input {
-        File reference_chunks_memory
-    }
-
-    command <<<
-        python3 << EOF
-        import pandas as pd
-        import numpy as np
-
-
-        df = pd.read_csv('~{reference_chunks_memory}', sep='\t', header=None, usecols=[0,1,2], names=['contig', 'reference_shard', 'base_gb'])
-
-        # write out reference shards to process
-        df['reference_shard'].to_csv('reference_shard_file_paths.tsv', sep='\t', index=False, header=None)
-
-        # calculate memory usage and save to file
-        df['mem_gb'] = df['base_gb']
-        df['mem_gb'] = df['mem_gb'].apply(lambda x: min(256, int(np.ceil(x))))  # cap at 256 GB
-        df['mem_gb'].to_csv('memory_per_chunk.tsv', sep='\t', index=False, header=None)
-        EOF
-    >>>
-
-    runtime {
-        docker : "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
-        noAddress: true
-    }
-
-    output {
-        Array[String] reference_chunk_file_paths = read_lines("reference_shard_file_paths.tsv")
-        Array[Int] mem_gb_per_chunk = read_lines("memory_per_chunk.tsv")
-    }
-}
-
 task SplitCramIntoContigChunks {
     input {
         File cram
