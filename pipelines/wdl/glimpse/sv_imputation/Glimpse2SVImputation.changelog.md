@@ -1,3 +1,9 @@
+# 0.0.26
+2026-08-28 (Date of Last Commit)
+
+* Update `Glimpse2SVImputationBatch` to optionally use base glimpse phase memory from chunk panel json.
+* remove `boot_disk_gb` from tasks
+
 # 0.0.25
 2026-08-27 (Date of Last Commit)
 
