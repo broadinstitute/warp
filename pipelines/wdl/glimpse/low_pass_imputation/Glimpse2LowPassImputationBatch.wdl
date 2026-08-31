@@ -1,18 +1,10 @@
 version 1.0
 
-# This workflow performs low-pass imputation using GLIMPSE2. It's designed to scale
-# to approximately 1000 samples and be used as a subworkflow for Glimpse2LowPassImputation.wdl,
-# which can handle larger sample sizes by splitting into batches and then merging results.
-
 workflow Glimpse2LowPassImputationBatch {
-    # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
     String pipeline_version = "1.1.0"
 
     input {
-
         Array[String] contigs
-
-        # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
         String reference_panel_prefix
 
         File cram_manifest
@@ -23,118 +15,124 @@ workflow Glimpse2LowPassImputationBatch {
         Boolean impute_reference_only_variants = false
         Boolean call_indels = false
 
-        # batch size used when calling SplitIntoBatches to make variant calls from the crams
-        Int calling_batch_size = 100
+        Map[String, Array[String]] bcftools_shard_map
+        Array[Int] hierarchical_merge_batch_sizes
 
-        # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing
         Int? glimpse_phase_cpu_override
 
         String gatk_docker
         String glimpse_docker
     }
 
-    # we need to define this here so that it can be used in nested scatters below. Cromwell doesn't understand optional inputs
-    # to tasks that are inside nested scatters, so we need to define a non-optional variable that we can use to pass the
-    # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
     Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
 
-    call SplitCramManifestIntoBatchesOfStrings {
+    call ParseCramManifest {
         input:
-            batch_size = calling_batch_size,
             cram_manifest = cram_manifest
     }
 
-
-    # For each batch of samples, split every CRAM into per-contig sub-CRAMs (inner scatter),
-    # then transpose the result from [sample][contig] → [contig][sample]. This re-groups the
-    # files so that the downstream BcftoolsMpileup scatter (over contigs × batches) can receive
-    # all sample CRAMs for a given contig together.
-    # Final shape: crams_to_use[batch_index][contig_index] = Array[File] (one file per sample).
-    #
-    # i.e.
-    # crams_batches:
-    #  batch[0]: [sampleA.cram, sampleB.cram, sampleC.cram]
-    #  batch[1]: [sampleD.cram, sampleE.cram]
-    #
-    # SplitCramIntoContigChunks output (batch[0]):
-    #  sampleA → [chr1.cram, chr2.cram, chr3.cram]   ← one row per sample
-    #  sampleB → [chr1.cram, chr2.cram, chr3.cram]
-    #  sampleC → [chr1.cram, chr2.cram, chr3.cram]
-    #
-    # After transpose (batch[0]):
-    #  chr[0] → [sampleA_chr1.cram, sampleB_chr1.cram, sampleC_chr1.cram]
-    #  chr[1] → [sampleA_chr2.cram, sampleB_chr2.cram, sampleC_chr2.cram]
-    #  chr[2] → [sampleA_chr3.cram, sampleB_chr3.cram, sampleC_chr3.cram]
-    #
-    # Outer scatter collects these transposed arrays per sample batch
-
-    scatter(i in range(length(SplitCramManifestIntoBatchesOfStrings.crams_batches))) {
-        scatter(inner_index in range(length(SplitCramManifestIntoBatchesOfStrings.crams_batches[i]))) {
-            call SplitCramIntoContigChunks {
-                input:
-                    cram = SplitCramManifestIntoBatchesOfStrings.crams_batches[i][inner_index],
-                    cram_index = SplitCramManifestIntoBatchesOfStrings.cram_indices_batches[i][inner_index],
-                    contigs = contigs,
-                    ref_fasta = fasta,
-                    ref_fasta_index = fasta_index
-            }
-        }
-        Array[Array[File]] chromosome_grouped_chunked_crams = transpose(SplitCramIntoContigChunks.crams_chunked_by_contig)
-        Array[Array[File]] chromosome_grouped_chunked_cram_indices = transpose(SplitCramIntoContigChunks.cram_indices_chunked_by_contig)
-    }
-    Array[Array[Array[File]]] crams_to_use = chromosome_grouped_chunked_crams
-    Array[Array[Array[File]]] cram_indices_to_use = chromosome_grouped_chunked_cram_indices
-
+    # Step 1: Pre-calculate reference files (and GLIMPSE2 shards for later)
     scatter(contig_index in range(length(contigs))) {
-        File sites_vcf = reference_panel_prefix + "sites." + contigs[contig_index] + ".vcf.gz"
-        File sites_vcf_index =reference_panel_prefix + "sites." + contigs[contig_index] + ".vcf.gz.tbi"
-        File sites_table = reference_panel_prefix + "sites_table." + contigs[contig_index] + ".gz"
-        File sites_table_index = reference_panel_prefix + "sites_table." + contigs[contig_index] + ".gz.tbi"
-        File reference_chunks = reference_panel_prefix + "reference_chunks." + contigs[contig_index] + ".txt"
+        File sites_vcfs_tmp = reference_panel_prefix + "sites." + contigs[contig_index] + ".vcf.gz"
+        File sites_vcf_indices_tmp = reference_panel_prefix + "sites." + contigs[contig_index] + ".vcf.gz.tbi"
+        File sites_tables_tmp = reference_panel_prefix + "sites_table." + contigs[contig_index] + ".gz"
+        File sites_table_indices_tmp = reference_panel_prefix + "sites_table." + contigs[contig_index] + ".gz.tbi"
+        File reference_chunks_tmp = reference_panel_prefix + "reference_chunks." + contigs[contig_index] + ".txt"
 
-        scatter(batch_index in range(length(SplitCramManifestIntoBatchesOfStrings.crams_batches))) {
-            call BcftoolsMpileup {
+        # These shards are strictly reserved for downstream GLIMPSE2 operations
+        call GetShards {
+            input: 
+                reference_chunks_file = reference_chunks_tmp
+        }
+    }
+
+    # Step 2: CRAMs are localized exactly ONCE per sample. 
+    # The task processes all contigs internally using the provided bcftools_shard_map.
+    scatter(sample_idx in range(length(ParseCramManifest.crams))) {
+        call ExtractGenotypeLikelihoods {
+            input:
+                cram = ParseCramManifest.crams[sample_idx],
+                cram_index = ParseCramManifest.cram_indices[sample_idx],
+                chrom_to_shards = bcftools_shard_map,
+                contigs = contigs,
+                sites_vcfs = sites_vcfs_tmp,
+                sites_vcf_indices = sites_vcf_indices_tmp,
+                sites_tables = sites_tables_tmp,
+                sites_table_indices = sites_table_indices_tmp,
+                fasta = fasta,
+                fasta_index = fasta_index,
+                call_indels = call_indels
+        }
+    }
+
+    # ExtractGenotypeLikelihoods.out_bcfs is an Array[Array[Array[File]]] 
+    # Shape: [sample][contig][shard]
+
+    # Step 3: Loop through contigs to perform the hierarchical merge
+    scatter(contig_index in range(length(contigs))) {
+        
+        # Resolve the nested lookups into intermediate variables to satisfy the WDL parser
+        String current_contig = contigs[contig_index]
+        Array[String] current_bcftools_shards = bcftools_shard_map[current_contig]
+
+        # WDL Slice: Extract the 2D array of [sample][shard] specifically for THIS contig
+        scatter(sample_idx in range(length(ParseCramManifest.crams))) {
+            Array[File] sample_shards_for_contig = ExtractGenotypeLikelihoods.out_bcfs[sample_idx][contig_index]
+        }
+        
+        # Transpose from [sample][shard] to [shard][sample]
+        Array[Array[File]] shard_sample_bcfs = transpose(sample_shards_for_contig)
+
+        # 2-Level Hierarchical Merge per shard using the intermediate variable
+        scatter (shard_idx in range(length(current_bcftools_shards))) {
+            
+            # Level 1
+            call ChunkBcfs as Level1Chunk {
                 input:
-                    crams = crams_to_use[batch_index][contig_index],
-                    cram_indices = cram_indices_to_use[batch_index][contig_index],
-                    fasta = fasta,
-                    fasta_index = fasta_index,
-                    call_indels = call_indels,
-                    sites_vcf = sites_vcf,
+                    bcfs = shard_sample_bcfs[shard_idx],
+                    batch_size = hierarchical_merge_batch_sizes[0]
+            }
+            scatter (l1_idx in range(length(Level1Chunk.out_chunks))) {
+                call MergeSampleChunksBcfsWithPaste as Level1Merge {
+                    input:
+                        input_bcfs = Level1Chunk.out_chunks[l1_idx],
+                        output_basename = output_basename + "." + current_contig + ".shard_" + shard_idx + ".l1_" + l1_idx
+                }
             }
 
-            call BcftoolsCall {
+            # Level 2
+            call ChunkBcfs as Level2Chunk {
                 input:
-                    mpileup_bcf = BcftoolsMpileup.output_bcf,
-                    mpileup_bcf_index = BcftoolsMpileup.output_bcf_index,
-                    sites_table = sites_table,
-                    sites_table_index = sites_table_index,
+                    bcfs = Level1Merge.output_bcf,
+                    batch_size = hierarchical_merge_batch_sizes[1]
             }
-
-            call BcftoolsNorm {
-                input:
-                    calls_bcf = BcftoolsCall.output_bcf,
-                    calls_bcf_index = BcftoolsCall.output_bcf_index
+            scatter (l2_idx in range(length(Level2Chunk.out_chunks))) {
+                call MergeSampleChunksBcfsWithPaste as Level2Merge {
+                    input:
+                        input_bcfs = Level2Chunk.out_chunks[l2_idx],
+                        output_basename = output_basename + "." + current_contig + ".shard_" + shard_idx + ".l2_" + l2_idx
+                }
             }
+            
+            # Extracts the final merged root BCF for this specific shard
+            File final_shard_bcf = Level2Merge.output_bcf[0]
         }
 
-        if (length(BcftoolsNorm.output_vcf) > 1) {
-            call BcftoolsMerge {
-                input:
-                    vcfs = BcftoolsNorm.output_vcf,
-                    vcf_indices = BcftoolsNorm.output_vcf_index,
-                    output_basename = output_basename
-            }
+        # Step 4: Naive concat of the finished shards into a per-chromosome BCF
+        call BcftoolsConcat {
+            input:
+                bcfs = final_shard_bcf,
+                output_basename = output_basename + "." + current_contig + ".concat"
         }
     }
 
     output {
+        Int total_samples = ParseCramManifest.total_samples
     }
 }
 
-task SplitCramManifestIntoBatchesOfStrings {
+task ParseCramManifest {
     input {
-        Int batch_size
         File cram_manifest
     }
 
@@ -142,8 +140,7 @@ task SplitCramManifestIntoBatchesOfStrings {
         cat <<EOF > script.py
         import json
         import pandas as pd
-
-        batch_size = ~{batch_size}
+        import sys
 
         # Read the manifest
         df = pd.read_csv("~{cram_manifest}", sep='\t')
@@ -159,13 +156,10 @@ task SplitCramManifestIntoBatchesOfStrings {
         crams = df['cram_path'].tolist()
         cram_indices = df['cram_index_path'].tolist()
 
-        crams_batches = [crams[i:i + batch_size] for i in range(0, len(crams), batch_size)]
-        cram_indices_batches = [cram_indices[i:i + batch_size] for i in range(0, len(cram_indices), batch_size)]
-
         with open('crams.json', 'w') as json_file:
-            json.dump(crams_batches, json_file)
+            json.dump(crams, json_file)
         with open('cram_indices.json', 'w') as json_file:
-            json.dump(cram_indices_batches, json_file)
+            json.dump(cram_indices, json_file)
 
         with open('total_samples.txt', 'w') as total_sample_file:
             total_sample_file.write(str(len(crams)))
@@ -183,218 +177,278 @@ task SplitCramManifestIntoBatchesOfStrings {
     }
 
     output {
-        Array[Array[String]] crams_batches = read_json('crams.json')
-        Array[Array[String]] cram_indices_batches = read_json('cram_indices.json')
+        Array[String] crams = read_json('crams.json')
+        Array[String] cram_indices = read_json('cram_indices.json')
         Int total_samples = read_int("total_samples.txt")
     }
 }
 
-task SplitCramIntoContigChunks {
+task GetShards {
+    input {
+        File reference_chunks_file
+    }
+
+    command <<<
+        python3 <<EOF
+        import pandas as pd
+        df = pd.read_csv('~{reference_chunks_file}', sep='\t', header=None, usecols=[0,1,2])
+        df[1].to_csv('shards.txt', index=False, header=False)
+        EOF
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        disks: "local-disk 10 HDD"
+        memory: "1 GiB"
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        Array[String] shards = read_lines("shards.txt")
+    }
+}
+
+task ExtractGenotypeLikelihoods {
     input {
         File cram
         File cram_index
+        
+        Map[String, Array[String]] chrom_to_shards
         Array[String] contigs
+        
+        Array[File] sites_vcfs
+        Array[File] sites_vcf_indices
+        Array[File] sites_tables
+        Array[File] sites_table_indices
+        
+        File fasta
+        File fasta_index
+        Boolean call_indels = false
 
-        File ref_fasta
-        File ref_fasta_index
+        Int seed = 12345
+        Int mem_gb = 4
+        Int cpu = 1 
+        Int preemptible = 3
+        Int max_retries = 3
     }
-    Int disk_size_gb = ceil(2.2*size(cram, "GiB") + size(ref_fasta, "GiB")) + 10
+
+    # Dynamically scale disk for downloading all reference sets simultaneously
+    Int disk_size_gb = ceil(1.5 * size(cram, "GiB") + size(fasta, "GiB") + size(sites_vcfs, "GiB") + size(sites_tables, "GiB") + 50)
+
+    command <<<
+        set -xeuo pipefail
+
+        # Use Python to safely parse the WDL Map/Arrays and generate a bash script to execute
+        python3 <<EOF
+import json
+
+with open('~{write_json(chrom_to_shards)}', 'r') as f:
+    chrom_to_shards = json.load(f)
+
+with open('~{write_json(contigs)}', 'r') as f:
+    contigs = json.load(f)
+
+with open('~{write_json(sites_vcfs)}', 'r') as f:
+    sites_vcfs = json.load(f)
+
+with open('~{write_json(sites_tables)}', 'r') as f:
+    sites_tables = json.load(f)
+
+out_matrix = []
+
+with open('run.sh', 'w') as run_sh:
+    run_sh.write('set -xeuo pipefail\n')
+    
+    # Iterate through contigs in deterministic order matching the workflow array
+    for idx, chrom in enumerate(contigs):
+        shards = chrom_to_shards.get(chrom, [])
+        vcf = sites_vcfs[idx]
+        tbl = sites_tables[idx]
+        
+        chrom_outputs = []
+        for shard in shards:
+            # Clean shard strings for valid filenames
+            safe_shard = shard.replace(':', '_').replace('-', '_')
+            out_bcf = f"output.{chrom}.{safe_shard}.bcf"
+            chrom_outputs.append(out_bcf)
+            
+            run_sh.write(f"bcftools mpileup -f ~{fasta} ~{if !call_indels then '-I ' else ''}--seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -r '{shard}' -T '{vcf}' -Ou ~{cram} | \\\n")
+            run_sh.write(f"bcftools call -Aim -C alleles -T '{tbl}' -Ou | \\\n")
+            run_sh.write(f"bcftools norm -m -both -Ob -o '{out_bcf}'\n")
+            run_sh.write(f"bcftools index '{out_bcf}'\n")
+        
+        # Append inner Array[String] for this contig
+        out_matrix.append(chrom_outputs)
+
+# Serialize the 2D list to JSON so WDL can read it as an Array[Array[File]]
+with open('outputs.json', 'w') as f:
+    json.dump(out_matrix, f)
+EOF
+        
+        # Execute the generated bcftools script
+        bash run.sh
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        disks: "local-disk " + disk_size_gb + " SSD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+        maxRetries: max_retries
+        noAddress: true
+    }
+
+    output {
+        # Outputs a perfectly formatted [contig] x [shard] array
+        Array[Array[File]] out_bcfs = read_json("outputs.json")
+    }
+}
+
+task ChunkBcfs {
+    input {
+        Array[File] bcfs
+        Int batch_size
+    }
+
+    command <<<
+        python3 <<EOF
+        import json
+        bcfs = ['~{sep="', '" bcfs}']
+        bs = ~{batch_size}
+        chunks = [bcfs[i:i + bs] for i in range(0, len(bcfs), bs)]
+        with open("chunks.json", "w") as f:
+            json.dump(chunks, f)
+        EOF
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        disks: "local-disk 10 HDD"
+        memory: "1 GiB"
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        Array[Array[File]] out_chunks = read_json("chunks.json")
+    }
+}
+
+task MergeSampleChunksBcfsWithPaste {
+    input {
+        Array[File] input_bcfs
+        String output_basename
+
+        Int disk_size_gb = ceil(2.5 * size(input_bcfs, "GiB") + 20)
+        Int mem_gb = 8
+        Int cpu = 4
+        Int preemptible = 0
+    }
 
     command <<<
         set -euo pipefail
 
-        mkdir -p chunked
+        bcfs=(~{sep=" " input_bcfs})
 
-        # Make the CRAM and CRAM index live next to eachother
-        ln -sf ~{cram} "$(basename ~{cram})"
-        ln -sf ~{cram_index} "$(basename ~{cram}).crai"
+        mkfifo fifo_0
+        mkfifo fifo_to_paste_0
 
-        : > crams_chunked_by_contig.txt
-        : > cram_indices_chunked_by_contig.txt
+        i=1
 
-        i=0
-        for contig in ~{sep=' ' contigs}; do
-            output_cram=$(printf "chunked/%06d.cram" "${i}")
+        fifos_to_paste=()
+        md5sums=()
+        
+        # 1. Extract header safely without the #CHROM line
+        bcftools view -h ${bcfs[0]} | awk '!/^#CHROM/' > header.vcf
 
-            samtools view \
-                -C \
-                -T ~{ref_fasta} \
-                -o "${output_cram}" \
-                "$(basename ~{cram})" \
-                "${contig}"
+        # 2. Extract #CHROM line and raw data lines for the first BCF
+        (bcftools view -h ${bcfs[0]} | grep '^#CHROM'; bcftools view -H ${bcfs[0]}) > fifo_0 &
 
-            samtools index "${output_cram}"
+        cat fifo_0 | tee fifo_to_paste_0 | cut -f1-5,9 | md5sum > md5sum_0 &
 
-            i=$((i + 1))
+        for bcf in "${bcfs[@]:1}"; do
+            fifo_name="fifo_$i"
+            mkfifo "$fifo_name"
+
+            fifo_name_to_md5="fifo_to_md5_$i"
+            mkfifo "$fifo_name_to_md5"
+
+            fifo_name_to_paste="fifo_to_paste_$i"
+            mkfifo "$fifo_name_to_paste"
+            fifos_to_paste+=("$fifo_name_to_paste")
+
+            file_name_md5sum="md5sum_$i"
+            md5sums+=("$file_name_md5sum")
+
+            # Extract #CHROM line and raw data lines for sequential BCFs
+            (bcftools view -h ${bcf} | grep '^#CHROM'; bcftools view -H ${bcf}) > "$fifo_name" &
+            cat "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
+            cut -f1-5,9 "$fifo_name_to_md5" | md5sum > "$file_name_md5sum" &
+
+            ((i++))
+        done
+
+        mkfifo fifo_to_cat
+
+        paste fifo_to_paste_0 "${fifos_to_paste[@]}" | tee fifo_to_cat | awk 'NR % 5000000 == 0' | cut -f 1-5 &
+
+        # 3. Stitch header and pasted text back together, and output directly to compressed BCF
+        cat header.vcf fifo_to_cat | bcftools view -O b -o ~{output_basename}.bcf
+        bcftools index ~{output_basename}.bcf
+
+        for md5sum_file in "${md5sums[@]}"; do
+            diff <(cat md5sum_0) <(cat $md5sum_file) >> /dev/null || (echo "Fields 1-5,9 do not match for $md5sum_file" && exit 1)
+        done
+
+        for fifo in fifo_*; do
+            rm $fifo
         done
     >>>
 
     runtime {
-        docker : "us.gcr.io/broad-dsp-lrma/lr-gcloud-samtools:0.1.23.1"
+        docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
         disks: "local-disk " + disk_size_gb + " HDD"
-        memory: "4 GiB"
-        cpu: 1
-        preemptible: 3
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
         maxRetries: 1
         noAddress: true
     }
 
     output {
-        Array[File] crams_chunked_by_contig = glob("chunked/*.cram")
-        Array[File] cram_indices_chunked_by_contig = glob("chunked/*.crai")
+        File output_bcf = "~{output_basename}.bcf"
+        File output_bcf_index = "~{output_basename}.bcf.csi"
     }
 }
 
-task BcftoolsMpileup {
+task BcftoolsConcat {
     input {
-        Array[File] crams
-        Array[File] cram_indices
-        File fasta
-        File fasta_index
-        Boolean call_indels
-
-        File sites_vcf
-
-        Int seed = 12345
-        Int mem_gb = 6
-        Int cpu = 1
-        Int preemptible = 0
-        Int max_retries = 3
-    }
-
-    Int disk_size_gb = ceil(2.5*size(crams, "GiB") + size(fasta, "GiB") + size(sites_vcf, "GiB")) + 10
-
-    command <<<
-        set -xeuo pipefail
-
-        bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I" else ""} --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -T ~{sites_vcf} -Ob -o mpileup.bcf.gz ~{sep=" " crams}
-        bcftools index mpileup.bcf.gz
-    >>>
-
-    runtime {
-        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
-        disks: "local-disk " + disk_size_gb + " HDD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: max_retries
-        noAddress: true
-    }
-
-    output {
-        File output_bcf = "mpileup.bcf.gz"
-        File output_bcf_index = "mpileup.bcf.gz.csi"
-    }
-}
-
-task BcftoolsCall {
-    input {
-        File mpileup_bcf
-        File mpileup_bcf_index
-
-        File sites_table
-        File sites_table_index
-
-        Int mem_gb = 12
-        Int cpu = 1
-        Int preemptible = 3
-        Int max_retries = 3
-    }
-
-    Int disk_size_gb = ceil(3*size(mpileup_bcf, "GiB") + size(sites_table, "GiB")) + 10
-
-    command <<<
-        set -xeuo pipefail
-
-        bcftools call -Aim -C alleles -T ~{sites_table} -Oz ~{mpileup_bcf} -o calls.bcf.gz
-        bcftools index calls.bcf.gz
-    >>>
-
-    runtime {
-        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
-        disks: "local-disk " + disk_size_gb + " SSD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: max_retries
-        noAddress: true
-    }
-
-    output {
-        File output_bcf = "calls.bcf.gz"
-        File output_bcf_index = "calls.bcf.gz.csi"
-    }
-}
-
-task BcftoolsNorm {
-    input {
-        File calls_bcf
-        File calls_bcf_index
-
-        Int mem_gb = 6
-        Int cpu = 1
-        Int preemptible = 3
-        Int max_retries = 3
-    }
-
-    Int disk_size_gb = ceil(2*size(calls_bcf, "GiB")) + 10
-
-    command <<<
-        set -xeuo pipefail
-
-
-        bcftools norm -m -both -Oz -o normalized.vcf.gz ~{calls_bcf}
-        bcftools index -t normalized.vcf.gz
-    >>>
-
-    runtime {
-        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
-        disks: "local-disk " + disk_size_gb + " SSD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: max_retries
-        noAddress: true
-    }
-
-    output {
-        File output_vcf = "normalized.vcf.gz"
-        File output_vcf_index = "normalized.vcf.gz.tbi"
-    }
-}
-
-task BcftoolsMerge {
-    input {
-        Array[File] vcfs
-        Array[File] vcf_indices
-        Int mem_gb = 6
-        Int cpu = 1
-        Int preemptible = 0
-        Int max_retries = 3
-
+        Array[File] bcfs
         String output_basename
     }
 
-    Int disk_size_gb = ceil(3*size(vcfs, "GiB")) + 50
+    Int disk_size_gb = ceil(2 * size(bcfs, "GiB") + 5)
 
     command <<<
-        set -euo pipefail
-        bcftools merge -O z -o ~{output_basename}.bcftools.merged.vcf.gz ~{sep=" " vcfs}
-        bcftools index -t ~{output_basename}.bcftools.merged.vcf.gz
+        set -xeuo pipefail
+        
+        bcftools concat -O b -o ~{output_basename}.bcf ~{sep=" " bcfs}
+        bcftools index ~{output_basename}.bcf
     >>>
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
         disks: "local-disk " + disk_size_gb + " HDD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: max_retries
+        memory: "4 GiB"
+        cpu: 1
+        preemptible: 3
         noAddress: true
     }
 
     output {
-        File merged_vcf = "~{output_basename}.bcftools.merged.vcf.gz"
-        File merged_vcf_index = "~{output_basename}.bcftools.merged.vcf.gz.tbi"
+        File output_bcf = "~{output_basename}.bcf"
+        File output_bcf_index = "~{output_basename}.bcf.csi"
     }
 }

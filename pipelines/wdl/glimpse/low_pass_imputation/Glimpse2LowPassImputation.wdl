@@ -31,8 +31,11 @@ workflow Glimpse2LowPassImputation {
         Boolean impute_reference_only_variants = false
         Boolean call_indels = false
 
-        # batch size used when calling SplitIntoBatches to make variant calls from the crams
-        Int calling_batch_size = 100
+        # Explicit regions for bcftools extraction (Map of contig -> Array of region strings)
+        Map[String, Array[String]] bcftools_shard_map
+
+        # Batch sizes for the 2-level hierarchical merge of shards
+        Array[Int] hierarchical_merge_batch_sizes = [500, 50]
 
         # batch size used by this gateway workflow to split very large sample lists
         Int sample_batch_size = 500
@@ -73,7 +76,8 @@ workflow Glimpse2LowPassImputation {
                 output_basename = output_basename + ".batch_" + batch_idx,
                 impute_reference_only_variants = impute_reference_only_variants,
                 call_indels = call_indels,
-                calling_batch_size = calling_batch_size,
+                bcftools_shard_map = bcftools_shard_map,
+                hierarchical_merge_batch_sizes = hierarchical_merge_batch_sizes,
                 glimpse_phase_cpu_override = glimpse_phase_cpu_override,
                 gatk_docker = gatk_docker,
                 glimpse_docker = glimpse_docker
