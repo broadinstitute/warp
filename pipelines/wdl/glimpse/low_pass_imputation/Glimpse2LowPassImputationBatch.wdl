@@ -230,21 +230,24 @@ task ExtractGenotypeLikelihoods {
         Int mem_gb = 4
         Int cpu = 1 
         Int preemptible = 3
-        Int max_retries = 3
+        Int max_retries = 1
     }
 
-    # Dynamically scale disk for downloading all reference sets simultaneously
     Int disk_size_gb = ceil(1.5 * size(cram, "GiB") + size(fasta, "GiB") + size(sites_vcfs, "GiB") + size(sites_tables, "GiB") + 50)
 
     command <<<
         set -xeuo pipefail
 
-        # Use Python to safely parse the WDL Map/Arrays and generate a bash script to execute
         python3 <<EOF
 import json
 
 with open('~{write_json(chrom_to_shards)}', 'r') as f:
-    chrom_to_shards = json.load(f)
+    raw_map = json.load(f)
+    # Convert Cromwell's WDL 1.0 array-of-objects Map serialization back to a Python dict
+    if isinstance(raw_map, list):
+        chrom_to_shards = {item['key']: item['value'] for item in raw_map}
+    else:
+        chrom_to_shards = raw_map
 
 with open('~{write_json(contigs)}', 'r') as f:
     contigs = json.load(f)
@@ -260,7 +263,6 @@ out_matrix = []
 with open('run.sh', 'w') as run_sh:
     run_sh.write('set -xeuo pipefail\n')
     
-    # Iterate through contigs in deterministic order matching the workflow array
     for idx, chrom in enumerate(contigs):
         shards = chrom_to_shards.get(chrom, [])
         vcf = sites_vcfs[idx]
@@ -268,7 +270,6 @@ with open('run.sh', 'w') as run_sh:
         
         chrom_outputs = []
         for shard in shards:
-            # Clean shard strings for valid filenames
             safe_shard = shard.replace(':', '_').replace('-', '_')
             out_bcf = f"output.{chrom}.{safe_shard}.bcf"
             chrom_outputs.append(out_bcf)
@@ -278,15 +279,12 @@ with open('run.sh', 'w') as run_sh:
             run_sh.write(f"bcftools norm -m -both -Ob -o '{out_bcf}'\n")
             run_sh.write(f"bcftools index '{out_bcf}'\n")
         
-        # Append inner Array[String] for this contig
         out_matrix.append(chrom_outputs)
 
-# Serialize the 2D list to JSON so WDL can read it as an Array[Array[File]]
 with open('outputs.json', 'w') as f:
     json.dump(out_matrix, f)
 EOF
         
-        # Execute the generated bcftools script
         bash run.sh
     >>>
 
@@ -301,7 +299,6 @@ EOF
     }
 
     output {
-        # Outputs a perfectly formatted [contig] x [shard] array
         Array[Array[File]] out_bcfs = read_json("outputs.json")
     }
 }
