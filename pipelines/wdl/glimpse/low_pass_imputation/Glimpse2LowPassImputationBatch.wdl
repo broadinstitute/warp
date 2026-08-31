@@ -79,38 +79,33 @@ workflow Glimpse2LowPassImputationBatch {
             }
         }
         
-        # Flattens the scattered BCF outputs and indices into single sequential arrays for this sample
+        # Flattens the scattered BCF outputs into a single sequential array for this sample
         Array[File] sample_flat_bcfs = flatten(ExtractGenotypeLikelihoods.flat_bcfs)
-        Array[File] sample_flat_bcf_indices = flatten(ExtractGenotypeLikelihoods.flat_bcf_indices)
     }
 
     # WDL Native Transpose: Converts [Samples][Total_Shards] -> [Total_Shards][Samples] instantly
     Array[Array[File]] global_shard_x_sample = transpose(sample_flat_bcfs)
-    Array[Array[File]] global_shard_x_sample_indices = transpose(sample_flat_bcf_indices)
 
-    # Step 4: Index Arithmetic loop to process the FLAT merge natively
+    # Step 4: Index Arithmetic loop to process the FLAT paste natively
     scatter(contig_index in range(length(contigs))) {
         String current_contig_for_merge = contigs[contig_index]
         Array[Int] global_indices_for_contig = CalculateShardIndices.indices[contig_index]
 
         scatter (local_shard_idx in range(length(global_indices_for_contig))) {
             Int global_shard_idx = global_indices_for_contig[local_shard_idx]
-            
             Array[File] shard_sample_bcfs = global_shard_x_sample[global_shard_idx]
-            Array[File] shard_sample_bcf_indices = global_shard_x_sample_indices[global_shard_idx]
             
-            # Execute standard bcftools merge natively using co-located files
-            call BcftoolsMerge {
+            # Execute flat paste directly
+            call MergeSampleChunksBcfsWithPaste {
                 input:
-                    bcfs = shard_sample_bcfs,
-                    bcf_indices = shard_sample_bcf_indices,
+                    input_bcfs = shard_sample_bcfs,
                     output_basename = output_basename + "." + current_contig_for_merge + ".shard_" + local_shard_idx
             }
         }
 
         call BcftoolsConcatNaive {
             input:
-                bcfs = BcftoolsMerge.merged_bcf,
+                bcfs = MergeSampleChunksBcfsWithPaste.output_bcf,
                 output_basename = output_basename + "." + current_contig_for_merge + ".concat"
         }
     }
@@ -297,7 +292,6 @@ task ExtractGenotypeLikelihoods {
         for raw_chrom in "${GROUP_CONTIGS[@]}"; do
             chrom="${raw_chrom// /}"
             
-            # Map the supplied contig back to its global index
             i=-1
             for idx in "${!CONTIGS[@]}"; do
                 if [[ "${CONTIGS[$idx]}" == "$chrom" ]]; then
@@ -327,15 +321,13 @@ task ExtractGenotypeLikelihoods {
                 shard_tbl="tbl_c${pad_contig}_s${pad_shard}.tsv.gz"
                 
                 tabix -H "${tbl}" > "tmp.tsv" || true
-                tabix "${tbl}" "${shard}" >> "tmp.tsv" || true
+                tabix "${tbl}" "${shard}" >> "tmp.tsv"
                 bgzip -c "tmp.tsv" > "${shard_tbl}"
                 tabix -s1 -b2 -e2 "${shard_tbl}"
                 
                 bcftools mpileup --no-version -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -r "${shard}" -T "${vcf}" -Ou ~{basename(cram)} | \
                 bcftools call --no-version -Aim -C alleles -T "${shard_tbl}" -Ou | \
                 bcftools norm --no-version -m -both -Ob -o "${out_bcf}"
-                
-                bcftools index "${out_bcf}"
                 
                 rm "tmp.tsv" "${shard_tbl}" "${shard_tbl}.tbi"
                 
@@ -355,60 +347,91 @@ task ExtractGenotypeLikelihoods {
     }
 
     output {
+        # Lexicographical glob prevents PAPI indirect file array 404 bugs
         Array[File] flat_bcfs = glob("out_c*_s*.bcf")
-        Array[File] flat_bcf_indices = glob("out_c*_s*.bcf.csi")
     }
 }
 
-task BcftoolsMerge {
+task MergeSampleChunksBcfsWithPaste {
     input {
-        Array[File] bcfs
-        Array[File] bcf_indices
-        Int mem_gb = 6
-        Int cpu = 1
-        Int preemptible = 0
-        Int max_retries = 3
-
+        Array[File] input_bcfs
         String output_basename
-    }
 
-    Int disk_size_gb = ceil(3 * size(bcfs, "GiB")) + 50
+        Int disk_size_gb = ceil(2.5 * size(input_bcfs, "GiB") + 20)
+        Int mem_gb = 8
+        Int cpu = 4
+        Int preemptible = 1
+    }
 
     command <<<
         set -euo pipefail
+
+        bcfs=(~{sep=" " input_bcfs})
+
+        mkfifo fifo_0
+        mkfifo fifo_to_paste_0
+
+        i=1
+
+        fifos_to_paste=()
+        md5sums=()
         
-        BCFS=(~{sep=" " bcfs})
-        IDXS=(~{sep=" " bcf_indices})
-        
-        > file_list.txt
-        
-        for i in "${!BCFS[@]}"; do
-            base_bcf="$(basename "${BCFS[$i]}")"
-            base_idx="$(basename "${IDXS[$i]}")"
-            
-            ln -sf "${BCFS[$i]}" "$base_bcf"
-            ln -sf "${IDXS[$i]}" "$base_idx"
-            
-            echo "$base_bcf" >> file_list.txt
+        bcftools view -h --no-version "${bcfs[0]}" | awk '!/^#CHROM/' > header.vcf
+
+        (bcftools view -h --no-version "${bcfs[0]}" | grep '^#CHROM'; bcftools view -H "${bcfs[0]}") > fifo_0 &
+
+        cat fifo_0 | tee fifo_to_paste_0 | cut -f1-5,9 | md5sum > md5sum_0 &
+
+        for bcf in "${bcfs[@]:1}"; do
+            fifo_name="fifo_$i"
+            mkfifo "$fifo_name"
+
+            fifo_name_to_md5="fifo_to_md5_$i"
+            mkfifo "$fifo_name_to_md5"
+
+            fifo_name_to_paste="fifo_to_paste_$i"
+            mkfifo "$fifo_name_to_paste"
+            fifos_to_paste+=("$fifo_name_to_paste")
+
+            file_name_md5sum="md5sum_$i"
+            md5sums+=("$file_name_md5sum")
+
+            (bcftools view -h --no-version "${bcf}" | grep '^#CHROM'; bcftools view -H "${bcf}") > "$fifo_name" &
+            cat "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
+            cut -f1-5,9 "$fifo_name_to_md5" | md5sum > "$file_name_md5sum" &
+
+            ((i++))
         done
-        
-        bcftools merge --no-version -O b -o ~{output_basename}.merged.bcf -l file_list.txt
-        bcftools index ~{output_basename}.merged.bcf
+
+        mkfifo fifo_to_cat
+
+        paste fifo_to_paste_0 ${fifos_to_paste[@]+"${fifos_to_paste[@]}"} | tee fifo_to_cat | awk 'NR % 5000000 == 0' | cut -f 1-5 &
+
+        cat header.vcf fifo_to_cat | bcftools view --no-version -O b -o ~{output_basename}.bcf
+        bcftools index ~{output_basename}.bcf
+
+        for md5sum_file in ${md5sums[@]+"${md5sums[@]}"}; do
+            diff <(cat md5sum_0) <(cat "$md5sum_file") >> /dev/null || (echo "Fields 1-5,9 do not match for $md5sum_file" && exit 1)
+        done
+
+        for fifo in fifo_*; do
+            rm $fifo
+        done
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
-        disks: "local-disk " + disk_size_gb + " HDD"
+        docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+        disks: "local-disk " + disk_size_gb + " SSD"
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
-        maxRetries: max_retries
+        maxRetries: 1
         noAddress: true
     }
 
     output {
-        File merged_bcf = "~{output_basename}.merged.bcf"
-        File merged_bcf_index = "~{output_basename}.merged.bcf.csi"
+        File output_bcf = "~{output_basename}.bcf"
+        File output_bcf_index = "~{output_basename}.bcf.csi"
     }
 }
 
@@ -429,7 +452,7 @@ task BcftoolsConcatNaive {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
-        disks: "local-disk " + disk_size_gb + " HDD"
+        disks: "local-disk " + disk_size_gb + " SSD"
         memory: "4 GiB"
         cpu: 1
         preemptible: 3
