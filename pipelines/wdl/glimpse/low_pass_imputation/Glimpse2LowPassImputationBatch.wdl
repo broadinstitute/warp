@@ -1,7 +1,5 @@
 version 1.0
 
-import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
-
 workflow Glimpse2LowPassImputationBatch {
     String pipeline_version = "1.1.0"
 
@@ -18,7 +16,7 @@ workflow Glimpse2LowPassImputationBatch {
         Boolean call_indels = false
 
         Map[String, Array[String]] bcftools_shard_map
-        Array[Int] hierarchical_merge_batch_sizes
+        Int hierarchical_merge_batch_size
 
         Int? glimpse_phase_cpu_override
 
@@ -33,7 +31,6 @@ workflow Glimpse2LowPassImputationBatch {
             cram_manifest = cram_manifest
     }
 
-    # Step 1: Pre-calculate reference files and flattened shard counts
     scatter(contig_index in range(length(contigs))) {
         String current_contig = contigs[contig_index]
         Array[String] current_bcftools_shards = bcftools_shard_map[current_contig]
@@ -51,7 +48,6 @@ workflow Glimpse2LowPassImputationBatch {
         }
     }
 
-    # Step 2: CRAMs are localized exactly ONCE per sample. 
     scatter(sample_idx in range(length(ParseCramManifest.crams))) {
         call ExtractGenotypeLikelihoods {
             input:
@@ -70,9 +66,7 @@ workflow Glimpse2LowPassImputationBatch {
         }
     }
 
-    # Step 3: Loop through contigs to perform the hierarchical merge
     scatter(contig_index in range(length(contigs))) {
-        
         String current_contig_for_merge = contigs[contig_index]
         Array[String] current_bcftools_shards_for_merge = bcftools_shard_map[current_contig_for_merge]
 
@@ -84,12 +78,12 @@ workflow Glimpse2LowPassImputationBatch {
 
         scatter (shard_idx in range(length(current_bcftools_shards_for_merge))) {
             
-            # Level 1
             call ChunkBcfs as Level1Chunk {
                 input:
                     bcfs = shard_sample_bcfs[shard_idx],
-                    batch_size = hierarchical_merge_batch_sizes[0]
+                    batch_size = hierarchical_merge_batch_size
             }
+            
             scatter (l1_idx in range(length(Level1Chunk.out_chunks))) {
                 call MergeSampleChunksBcfsWithPaste as Level1Merge {
                     input:
@@ -98,28 +92,18 @@ workflow Glimpse2LowPassImputationBatch {
                 }
             }
 
-            # Level 2 (Conditional)
             if (length(Level1Merge.output_bcf) > 1) {
-                call ChunkBcfs as Level2Chunk {
+                call MergeSampleChunksBcfsWithPaste as Level2Merge {
                     input:
-                        bcfs = Level1Merge.output_bcf,
-                        batch_size = hierarchical_merge_batch_sizes[1]
-                }
-                scatter (l2_idx in range(length(Level2Chunk.out_chunks))) {
-                    call MergeSampleChunksBcfsWithPaste as Level2Merge {
-                        input:
-                            input_bcfs = Level2Chunk.out_chunks[l2_idx],
-                            output_basename = output_basename + "." + current_contig_for_merge + ".shard_" + shard_idx + ".l2_" + l2_idx
-                    }
+                        input_bcfs = Level1Merge.output_bcf,
+                        output_basename = output_basename + "." + current_contig_for_merge + ".shard_" + shard_idx + ".l2"
                 }
             }
             
-            # Select the final shard depending on whether Level 2 ran
-            Array[File] resolved_final_shard_array = select_first([Level2Merge.output_bcf, Level1Merge.output_bcf])
-            File final_shard_bcf = resolved_final_shard_array[0]
+            File final_shard_bcf = select_first([Level2Merge.output_bcf, Level1Merge.output_bcf[0]])
         }
 
-        call BcftoolsConcat {
+        call BcftoolsConcatNaive {
             input:
                 bcfs = final_shard_bcf,
                 output_basename = output_basename + "." + current_contig_for_merge + ".concat"
@@ -142,10 +126,8 @@ task ParseCramManifest {
         import pandas as pd
         import sys
 
-        # Read the manifest
         df = pd.read_csv("~{cram_manifest}", sep='\t')
 
-        # Check for required columns
         required_cols = ['cram_path', 'cram_index_path']
         missing_cols = [col for col in required_cols if col not in df.columns]
 
@@ -239,17 +221,23 @@ task ExtractGenotypeLikelihoods {
     command <<<
         set -xeuo pipefail
 
-        # Co-locate the CRAM and index in the local task directory
         ln -sf ~{cram} "~{basename(cram)}"
         ln -sf ~{cram_index} "~{basename(cram)}.crai"
 
-        # Load WDL arrays into Bash parallel arrays
         CONTIGS=(~{sep=" " contigs})
         VCFS=(~{sep=" " sites_vcfs})
+        VCF_IDXS=(~{sep=" " sites_vcf_indices})
         TABLES=(~{sep=" " sites_tables})
+        TABLE_IDXS=(~{sep=" " sites_table_indices})
         SHARD_COUNTS=(~{sep=" " shard_counts})
 
-        # Load the flattened shards array line-by-line safely
+        for i in "${!VCFS[@]}"; do
+            ln -sf "${VCFS[$i]}" "vcf_${i}.vcf.gz"
+            ln -sf "${VCF_IDXS[$i]}" "vcf_${i}.vcf.gz.tbi"
+            ln -sf "${TABLES[$i]}" "tbl_${i}.gz"
+            ln -sf "${TABLE_IDXS[$i]}" "tbl_${i}.gz.tbi"
+        done
+
         ALL_SHARDS=()
         while IFS= read -r line; do
             ALL_SHARDS+=("$line")
@@ -260,8 +248,8 @@ task ExtractGenotypeLikelihoods {
         shard_idx=0
         for i in "${!CONTIGS[@]}"; do
             chrom="${CONTIGS[$i]}"
-            vcf="${VCFS[$i]}"
-            tbl="${TABLES[$i]}"
+            vcf="vcf_${i}.vcf.gz"
+            tbl="tbl_${i}.gz"
             count="${SHARD_COUNTS[$i]}"
             
             if [ $i -gt 0 ]; then
@@ -272,25 +260,20 @@ task ExtractGenotypeLikelihoods {
             for (( j=0; j<count; j++ )); do
                 shard="${ALL_SHARDS[$shard_idx]}"
                 
-                # Format string for safe filenames
                 safe_shard=$(echo "$shard" | tr ':' '_' | tr '-' '_')
                 out_bcf="output.${chrom}.${safe_shard}.bcf"
                 
-                # Execute bcftools piped pipeline
                 bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -r "${shard}" -T "${vcf}" -Ou ~{basename(cram)} | \
                 bcftools call -Aim -C alleles -T "${tbl}" -Ou | \
                 bcftools norm -m -both -Ob -o "${out_bcf}"
                 
-                bcftools index "${out_bcf}"
-                
-                # Write to the 2D JSON array file for WDL to read back
                 if [ $j -gt 0 ]; then
                     echo "    ,\"${out_bcf}\"" >> outputs.json
                 else
                     echo "    \"${out_bcf}\"" >> outputs.json
                 fi
                 
-                ((shard_idx++))
+                ((++shard_idx))
             done
             
             echo "  ]" >> outputs.json
@@ -316,7 +299,7 @@ task ExtractGenotypeLikelihoods {
 
 task ChunkBcfs {
     input {
-        Array[File] bcfs
+        Array[String] bcfs
         Int batch_size
     }
 
@@ -340,7 +323,7 @@ task ChunkBcfs {
     }
 
     output {
-        Array[Array[File]] out_chunks = read_json("chunks.json")
+        Array[Array[String]] out_chunks = read_json("chunks.json")
     }
 }
 
@@ -368,11 +351,9 @@ task MergeSampleChunksBcfsWithPaste {
         fifos_to_paste=()
         md5sums=()
         
-        # 1. Extract header safely without the #CHROM line
-        bcftools view -h ${bcfs[0]} | awk '!/^#CHROM/' > header.vcf
+        bcftools view -h --no-version "${bcfs[0]}" | awk '!/^#CHROM/' > header.vcf
 
-        # 2. Extract #CHROM line and raw data lines for the first BCF
-        (bcftools view -h ${bcfs[0]} | grep '^#CHROM'; bcftools view -H ${bcfs[0]}) > fifo_0 &
+        (bcftools view -h --no-version "${bcfs[0]}" | grep '^#CHROM'; bcftools view -H "${bcfs[0]}") > fifo_0 &
 
         cat fifo_0 | tee fifo_to_paste_0 | cut -f1-5,9 | md5sum > md5sum_0 &
 
@@ -390,8 +371,7 @@ task MergeSampleChunksBcfsWithPaste {
             file_name_md5sum="md5sum_$i"
             md5sums+=("$file_name_md5sum")
 
-            # Extract #CHROM line and raw data lines for sequential BCFs
-            (bcftools view -h ${bcf} | grep '^#CHROM'; bcftools view -H ${bcf}) > "$fifo_name" &
+            (bcftools view -h --no-version "${bcf}" | grep '^#CHROM'; bcftools view -H "${bcf}") > "$fifo_name" &
             cat "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
             cut -f1-5,9 "$fifo_name_to_md5" | md5sum > "$file_name_md5sum" &
 
@@ -400,14 +380,13 @@ task MergeSampleChunksBcfsWithPaste {
 
         mkfifo fifo_to_cat
 
-        paste fifo_to_paste_0 "${fifos_to_paste[@]}" | tee fifo_to_cat | awk 'NR % 5000000 == 0' | cut -f 1-5 &
+        paste fifo_to_paste_0 ${fifos_to_paste[@]+"${fifos_to_paste[@]}"} | tee fifo_to_cat | awk 'NR % 5000000 == 0' | cut -f 1-5 &
 
-        # 3. Stitch header and pasted text back together, and output directly to compressed BCF
         cat header.vcf fifo_to_cat | bcftools view -O b -o ~{output_basename}.bcf
         bcftools index ~{output_basename}.bcf
 
-        for md5sum_file in "${md5sums[@]}"; do
-            diff <(cat md5sum_0) <(cat $md5sum_file) >> /dev/null || (echo "Fields 1-5,9 do not match for $md5sum_file" && exit 1)
+        for md5sum_file in ${md5sums[@]+"${md5sums[@]}"}; do
+            diff <(cat md5sum_0) <(cat "$md5sum_file") >> /dev/null || (echo "Fields 1-5,9 do not match for $md5sum_file" && exit 1)
         done
 
         for fifo in fifo_*; do
@@ -431,7 +410,7 @@ task MergeSampleChunksBcfsWithPaste {
     }
 }
 
-task BcftoolsConcat {
+task BcftoolsConcatNaive {
     input {
         Array[File] bcfs
         String output_basename
@@ -442,7 +421,7 @@ task BcftoolsConcat {
     command <<<
         set -xeuo pipefail
         
-        bcftools concat -O b -o ~{output_basename}.bcf ~{sep=" " bcfs} --naive
+        bcftools concat --naive -O b -o ~{output_basename}.bcf ~{sep=" " bcfs}
         bcftools index ~{output_basename}.bcf
     >>>
 
