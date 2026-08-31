@@ -266,7 +266,7 @@ task ExtractGenotypeLikelihoods {
                 
                 # 1. Slice the TSV table for this exact shard so `call` does not pad the rest of the chromosome
                 tabix -H "${tbl}" > "tmp_${safe_shard}.tsv" || true
-                tabix "${tbl}" "${shard}" >> "tmp_${safe_shard}.tsv" || true
+                tabix "${tbl}" "${shard}" >> "tmp_${safe_shard}.tsv"
                 bgzip -c "tmp_${safe_shard}.tsv" > "${shard_tbl}"
                 tabix -s1 -b2 -e2 "${shard_tbl}"
                 
@@ -310,16 +310,27 @@ task ExtractGenotypeLikelihoods {
 
 task ChunkBcfs {
     input {
-        Array[String] bcfs
+        Array[File] bcfs
         Int batch_size
+    }
+
+    # Prevents Cromwell from actually downloading the data to this VM
+    parameter_meta {
+        bcfs: {
+            localization_optional: true
+        }
     }
 
     command <<<
         python3 <<EOF
         import json
-        bcfs = ['~{sep="', '" bcfs}']
-        bs = ~{batch_size}
-        chunks = [bcfs[i:i + bs] for i in range(0, len(bcfs), bs)]
+        
+        # write_lines safely evaluates the gs:// paths into a local text file without localizing the data
+        with open("~{write_lines(bcfs)}", "r") as f:
+            files = [line.strip() for line in f if line.strip()]
+            
+        chunks = [files[i:i + ~{batch_size}] for i in range(0, len(files), ~{batch_size})]
+        
         with open("chunks.json", "w") as f:
             json.dump(chunks, f)
         EOF
@@ -334,7 +345,7 @@ task ChunkBcfs {
     }
 
     output {
-        Array[Array[String]] out_chunks = read_json("chunks.json")
+        Array[Array[File]] out_chunks = read_json("chunks.json")
     }
 }
 
