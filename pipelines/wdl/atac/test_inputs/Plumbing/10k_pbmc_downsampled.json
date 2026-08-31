@@ -18,6 +18,5 @@
 	"ATAC.atac_nhash_id":"example_1234",
 	"ATAC.annotations_gtf":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf",
 	"ATAC.whitelist":"gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt",
-	"ATAC.vm_size":"Standard_M128s",
-	"ATAC.aligned_ATAC_bam_chunks": ["gs://fc-fab39421-9aeb-4f4a-b9f0-e446e430caa3/chunk_0.bam", "gs://fc-fab39421-9aeb-4f4a-b9f0-e446e430caa3/chunk_1.bam"]
-    }
+	"ATAC.vm_size":"Standard_M128s"
+}
