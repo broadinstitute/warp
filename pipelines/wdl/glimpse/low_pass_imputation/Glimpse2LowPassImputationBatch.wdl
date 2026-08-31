@@ -5,7 +5,7 @@ workflow Glimpse2LowPassImputationBatch {
 
     input {
         Array[String] contigs
-        Array[String] contig_groups
+        Array[String] contig_groups # e.g., ["chr1,chr2,chr3", "chr4,chr5,chr6,chr7", ...] must cover all contigs continuously in order
         
         String reference_panel_prefix
 
