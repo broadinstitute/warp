@@ -26,7 +26,7 @@ Given an `InputMappingTsv` (one row per ancestry) and a target `Ancestry`, the w
 | `InputMappingTsv` | Tab-separated file, one row per ancestry, providing `gs://` paths for `GenotypeDosage`, `GenotypeDosagei`, `PhenotypePCsOut`, `PlinkAF`, `QtlCovariates`, `Sample_list`, `VCF`, `cis_qtl`, `genotype_pcs`, `pgen`, `phenotype_bed`, and `psam`, keyed by a `mapping_inputs_id` ancestry code (AFR, AMR, COMB, EUR, SAS, EAS, MID). | File |
 | `Ancestry` | Ancestry code used to select the row of `InputMappingTsv` to use for this run. | String |
 | `CisDistance` | Cis-window distance parameter. | Int |
-| `susie_rscript` | SuSiE runner script path. | File |
+| `susie_rscript` | SuSiE runner script path; see [`20251210_rfast_removed_susie.R`](https://github.com/broadinstitute/warp-tools/blob/main/3rd-party-tools/aou_qtl_finemapping/20251210_rfast_removed_susie.R) in [warp-tools](https://github.com/broadinstitute/warp-tools). | File |
 | `memory` | Runtime memory (GB). | Int |
 | `NumPrempt` | Runtime preemptible count. | Int |
 | `OutputPrefix` | General output prefix. | String |
