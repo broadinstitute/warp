@@ -4,7 +4,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.17"
+    String pipeline_version = "0.0.19"
 
     input {
         File input_preprocessed_joint_vcf
@@ -19,7 +19,7 @@ workflow Glimpse2SVImputationBatch {
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
         Int? glimpse_phase_cpu_override
 
-        String output_prefix
+        String output_basename
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
@@ -29,6 +29,8 @@ workflow Glimpse2SVImputationBatch {
 
         String glimpse2_docker
     }
+
+    Map[String, ChunkedPanelChromosome] chunked_panel = read_json(chunked_panel_json)
 
     Map[String, String] genetic_maps_dict = read_map(genetic_maps_tsv)
     Map[String, PopAndMarginalizePanelResourcesChromosome] pop_glimpse2_panel_resources = read_json(pop_glimpse2_panel_resources_json)
@@ -41,10 +43,10 @@ workflow Glimpse2SVImputationBatch {
     scatter (chromosome in chromosomes) {
         String genetic_map = genetic_maps_dict[chromosome]
 
-        Map[String, ChunkedPanelChromosome] chunked_panel = read_json(chunked_panel_json)
         Array[String] input_regions = chunked_panel[chromosome].input_regions
         Array[String] output_regions = chunked_panel[chromosome].output_regions
         Array[File] panel_split_chunk_bins = chunked_panel[chromosome].panel_split_chunk_bins
+        Array[Int] defined_phase_base_mem_values = select_first([chunked_panel[chromosome].phase_base_mem, []])
 
         File panel_bubble_split_sites_only_vcf = pop_glimpse2_panel_resources[chromosome].panel_bubble_split_sites_only_vcf
         File panel_bubble_split_sites_only_vcf_idx = pop_glimpse2_panel_resources[chromosome].panel_bubble_split_sites_only_vcf_idx
@@ -53,6 +55,8 @@ workflow Glimpse2SVImputationBatch {
         Array[String] pop_regions = select_first([pop_glimpse2_panel_resources[chromosome].pop_regions, output_regions])
 
         scatter (k in range(length(output_regions))) {
+            Int phase_mem_gb = if (k < length(defined_phase_base_mem_values)) then defined_phase_base_mem_values[k] else 16
+
             call GLIMPSE2Phase as ChunkedGLIMPSE2Phase {
                 input:
                     input_vcf = input_preprocessed_joint_vcf,
@@ -61,9 +65,10 @@ workflow Glimpse2SVImputationBatch {
                     input_region = input_regions[k],
                     output_region = output_regions[k],
                     genetic_map = genetic_map,
-                    output_prefix = output_prefix + ".shard-" + k + ".glimpse2.phased",
+                    output_basename = output_basename + ".shard-" + k + ".glimpse2.phased",
                     extra_phase_args = extra_phase_args,
                     docker = glimpse2_docker,
+                    mem_gb = phase_mem_gb,
                     threads = defined_glimpse_phase_cpu_override
             }
         }
@@ -72,7 +77,7 @@ workflow Glimpse2SVImputationBatch {
             input:
                 phased_vcfs = ChunkedGLIMPSE2Phase.phased_vcf,
                 phased_vcf_idxs = ChunkedGLIMPSE2Phase.phased_vcf_idx,
-                output_prefix = output_prefix + ".glimpse2.bubble",
+                output_basename = output_basename + ".glimpse2.bubble",
                 docker = glimpse2_docker
         }
 
@@ -82,7 +87,7 @@ workflow Glimpse2SVImputationBatch {
                 bcf_to_reheader = GLIMPSE2Ligate.ligated_vcf,
                 bcf_to_get_header_from = input_preprocessed_joint_vcf,
                 ref_dict = ref_dict,
-                output_basename = output_prefix +  "." + chromosome + ".glimpse2.bubble.updated_header",
+                output_basename = output_basename +  "." + chromosome + ".glimpse2.bubble.updated_header",
                 docker = glimpse2_docker,
                 pipeline_header_line = pipeline_header_line
         }
@@ -97,7 +102,7 @@ workflow Glimpse2SVImputationBatch {
                     panel_id_split_vcf_gz = panel_id_split_vcf_gz,
                     panel_id_split_vcf_gz_tbi = panel_id_split_vcf_gz_tbi,
                     region = pop_regions[k],
-                    output_prefix = output_prefix + ".glimpse2.popped"
+                    output_basename = output_basename + ".glimpse2.popped"
             }
         }
 
@@ -105,7 +110,7 @@ workflow Glimpse2SVImputationBatch {
             input:
                 bcfs = PopAndMarginalizeCollisions.popped_vcf,
                 bcf_idxs = PopAndMarginalizeCollisions.popped_vcf_idx,
-                output_prefix = output_prefix + "." + chromosome + ".glimpse2.popped",
+                output_basename = output_basename + "." + chromosome + ".glimpse2.popped",
                 extra_args = "--naive",
         }
     }
@@ -133,6 +138,7 @@ struct ChunkedPanelChromosome {
     Array[String] input_regions
     Array[String] output_regions
     Array[String] panel_split_chunk_bins
+    Array[Int]? phase_base_mem
 }
 
 struct PopAndMarginalizePanelResourcesChromosome {
@@ -152,8 +158,9 @@ task GLIMPSE2Phase {
         String input_region
         String output_region
         File genetic_map
-        String output_prefix
+        String output_basename
         Int seed = 15052011
+        Int mem_gb = 16
         Int threads = 4
         String? extra_phase_args
 
@@ -171,7 +178,7 @@ task GLIMPSE2Phase {
         }
     }
 
-    Int disk_size_gb = ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 40)
+    Int disk_size_gb = 2*ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 30)
 
     command <<<
         set -euxo pipefail
@@ -182,7 +189,7 @@ task GLIMPSE2Phase {
                 --input-gl ~{input_vcf} \
                 -R ~{panel_split_chunk_bin} \
                 ~{extra_phase_args} \
-                --output ~{output_prefix}.bcf \
+                --output ~{output_basename}.bcf \
                 --threads ~{threads} \
                 --seed ~{seed} \
                 --checkpoint-file-out checkpoint.bin"
@@ -202,20 +209,19 @@ task GLIMPSE2Phase {
             exit 1
         fi
 
-        bcftools index -f ~{output_prefix}.bcf
+        bcftools index -f ~{output_basename}.bcf
     >>>
 
     output {
-        File phased_vcf = "~{output_prefix}.bcf"
-        File phased_vcf_idx = "~{output_prefix}.bcf.csi"
+        File phased_vcf = "~{output_basename}.bcf"
+        File phased_vcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
     RuntimeAttr default_attr = object {
         cpu_cores:          threads,
-        mem_gb:             16,
+        mem_gb:             mem_gb,
         disk_gb:            disk_size_gb,
-        boot_disk_gb:       0,
         use_ssd:            true,
         preemptible_tries:  30,
         max_retries:        3,
@@ -226,7 +232,6 @@ task GLIMPSE2Phase {
         cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
         memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
         disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + if select_first([runtime_attr.use_ssd, default_attr.use_ssd]) then " SSD" else " HDD"
-        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
@@ -239,7 +244,7 @@ task GLIMPSE2Ligate {
     input {
         Array[File] phased_vcfs
         Array[File] phased_vcf_idxs
-        String output_prefix
+        String output_basename
         Int cpu = 2
 
         String docker
@@ -252,15 +257,15 @@ task GLIMPSE2Ligate {
     command <<<
         set -euox pipefail
 
-        /bin/GLIMPSE2_ligate --input ~{write_lines(phased_vcfs)} --output ~{output_prefix}.bcf --threads ~{cpu}
+        /bin/GLIMPSE2_ligate --input ~{write_lines(phased_vcfs)} --output ~{output_basename}.bcf --threads ~{cpu}
 
         # the index generated by ligate appears to be corrupt for both bcf and vcf.gz output (possibly due to https://github.com/samtools/htslib/issues/1740), so we regenerate with bcftools
-        bcftools index -f ~{output_prefix}.bcf
+        bcftools index -f ~{output_basename}.bcf
     >>>
 
     output {
-        File ligated_vcf = "~{output_prefix}.bcf"
-        File ligated_vcf_idx = "~{output_prefix}.bcf.csi"
+        File ligated_vcf = "~{output_basename}.bcf"
+        File ligated_vcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
@@ -268,7 +273,6 @@ task GLIMPSE2Ligate {
         cpu_cores:          cpu,
         mem_gb:             18,
         disk_gb:            disk_size_gb,
-        boot_disk_gb:       0,
         use_ssd:            true,
         preemptible_tries:  0,
         max_retries:        1,
@@ -279,7 +283,6 @@ task GLIMPSE2Ligate {
         cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
         memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
         disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + if select_first([runtime_attr.use_ssd, default_attr.use_ssd]) then " SSD" else " HDD"
-        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
@@ -298,7 +301,7 @@ task PopAndMarginalizeCollisions {
         File panel_id_split_vcf_gz_tbi
 
         String region
-        String output_prefix
+        String output_basename
 
         RuntimeAttr? runtime_attr_override
     }
@@ -313,20 +316,19 @@ task PopAndMarginalizeCollisions {
         bcftools view -r ~{region} --regions-overlap 0 ~{panel_bubble_split_sites_only_vcf} -Oz -o panel.bubble.split.sites.shard.vcf.gz
         bcftools view -r ~{region} --regions-overlap 0 ~{posteriors_vcf} | \
             /usr/local/bin/pop-glimpse2 ~{panel_id_split_vcf_gz} panel.bubble.split.sites.shard.vcf.gz | \
-            bcftools sort --max-mem=2G -W -Ob -o ~{output_prefix}.bcf
+            bcftools sort --max-mem=2G -W -Ob -o ~{output_basename}.bcf
     >>>
 
     output {
-        File popped_vcf = "~{output_prefix}.bcf"
-        File popped_vcf_idx = "~{output_prefix}.bcf.csi"
+        File popped_vcf = "~{output_basename}.bcf"
+        File popped_vcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
     RuntimeAttr default_attr = object {
         cpu_cores:          2,
-        mem_gb:             8,
+        mem_gb:             10,
         disk_gb:            disk_gb,
-        boot_disk_gb:       0,
         use_ssd:            true,
         preemptible_tries:  2,
         max_retries:        1,
@@ -337,7 +339,6 @@ task PopAndMarginalizeCollisions {
         cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
         memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
         disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + if select_first([runtime_attr.use_ssd, default_attr.use_ssd]) then " SSD" else " HDD"
-        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
@@ -395,7 +396,6 @@ task UpdateHeader {
     runtime {
         docker: docker
         disks: "local-disk " + disk_size_gb + " SSD"
-        bootDiskSizeGb: 0
         memory: mem_gb + " GiB"
         cpu: cpu
         maxRetries: max_retries

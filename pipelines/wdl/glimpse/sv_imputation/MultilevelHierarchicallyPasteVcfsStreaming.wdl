@@ -6,7 +6,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow MultilevelHierarchicallyMergeVcfs {
     # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "0.0.8"
+    String pipeline_version = "0.0.10"
 
     input {
         Array[String]? vcfs_array
@@ -17,7 +17,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
         Array[Int] batch_sizes  # Parameterizable hierarchical levels, e.g., [100, 50]
         Array[Boolean] do_localization # Whether to localize at each corresponding level
         Array[Int] timeouts_min  # Timeouts in minutes per level. Set to 0 to disable. e.g., [720, 720]
-        String output_prefix
+        String output_basename
 
         String extra_merge_args = "--info ID,RAF --format GT,DS,GP"
 
@@ -37,7 +37,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
     # Scatter by region FIRST to isolate chunks and reduce combinatorial explosion
     scatter (j in range(length(regions))) {
         String region = regions[j]
-        String region_prefix = output_prefix + ".region-" + j
+        String region_prefix = output_basename + ".region-" + j
 
         # ==========================================
         # LEVEL 0
@@ -51,7 +51,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
                     vcf_idxs_stream = if !do_localization[0] then read_lines(L0_Batches.vcf_idx_batch_fofns[i]) else [],
                     timeout_min = timeouts_min[0],
                     region = region,
-                    output_prefix = region_prefix + ".L0-" + i,
+                    output_basename = region_prefix + ".L0-" + i,
                     extra_args = "-r " + region + " " + extra_merge_args
             }
         }
@@ -79,7 +79,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
                         vcf_idxs_stream = if !do_localization[1] then read_lines(L1_Batches.vcf_idx_batch_fofns[i]) else [],
                         timeout_min = timeouts_min[1],
                         region = region,
-                        output_prefix = region_prefix + ".L1-" + i,
+                        output_basename = region_prefix + ".L1-" + i,
                         extra_args = "-r " + region + " " + extra_merge_args
                 }
             }
@@ -108,7 +108,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
                         vcf_idxs_stream = if !do_localization[2] then read_lines(L2_Batches.vcf_idx_batch_fofns[i]) else [],
                         timeout_min = timeouts_min[2],
                         region = region,
-                        output_prefix = region_prefix + ".L2-" + i,
+                        output_basename = region_prefix + ".L2-" + i,
                         extra_args = "-r " + region + " " + extra_merge_args
                 }
             }
@@ -128,7 +128,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
                     vcf_idxs_localize = l2_idxs,
                     timeout_min = 0,
                     region = region,
-                    output_prefix = region_prefix + ".final",
+                    output_basename = region_prefix + ".final",
                     extra_args = "-r " + region + " " + extra_merge_args
             }
         }
@@ -143,7 +143,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
         input:
             bcfs = final_region_vcf,
             bcf_idxs = final_region_idx,
-            output_prefix = output_prefix,
+            output_basename = output_basename,
             extra_args = extra_concat_args
     }
 
@@ -191,7 +191,6 @@ task CreateBatches {
         cpu_cores:          1,
         mem_gb:             2,
         disk_gb:            10,
-        boot_disk_gb:       0,
         disk_type:          "HDD",
         preemptible_tries:  2,
         max_retries:        1,
@@ -202,7 +201,6 @@ task CreateBatches {
         cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
         memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
         disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + " " + select_first([runtime_attr.disk_type, default_attr.disk_type])
-        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
@@ -219,7 +217,7 @@ task MergeVcfs {
 
         Int timeout_min
         String? region
-        String output_prefix
+        String output_basename
         String? extra_args
         Int cpu = 2
 
@@ -325,15 +323,15 @@ task MergeVcfs {
         /usr/local/bin/paste-vcfs \
             --threads ~{cpu} \
             ~{extra_args} \
-            -o ~{output_prefix}.bcf \
+            -o ~{output_basename}.bcf \
             $(cat merge_list.txt)
 
-        bcftools index ~{output_prefix}.bcf
+        bcftools index ~{output_basename}.bcf
     >>>
 
     output {
-        File merged_vcf = "~{output_prefix}.bcf"
-        File merged_vcf_idx = "~{output_prefix}.bcf.csi"
+        File merged_vcf = "~{output_basename}.bcf"
+        File merged_vcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
@@ -341,7 +339,6 @@ task MergeVcfs {
         cpu_cores:          cpu,
         mem_gb:             4,
         disk_gb:            disk_gb,
-        boot_disk_gb:       0,
         disk_type:          "SSD",
         preemptible_tries:  3,
         max_retries:        0,
@@ -352,7 +349,6 @@ task MergeVcfs {
         cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
         memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
         disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + " " + select_first([runtime_attr.disk_type, default_attr.disk_type])
-        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
