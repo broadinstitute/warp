@@ -1,0 +1,11 @@
+{
+    "Glimpse2LowPassImputation.output_basename": "1kg_4samples_array_file_inputs",
+    "Glimpse2LowPassImputation.crams": ["gs://pd-test-storage-public/Glimpse2LowPassImputation/inputs/crams/HG01161.alt_bwamem_GRCh38DH.20150718.PUR.low_coverage.chr21-22.cram", "gs://pd-test-storage-public/Glimpse2LowPassImputation/inputs/crams/HG01351.alt_bwamem_GRCh38DH.20150718.CLM.low_coverage.chr21-22.cram", "gs://pd-test-storage-public/Glimpse2LowPassImputation/inputs/crams/HG02545.alt_bwamem_GRCh38DH.20150718.ACB.low_coverage.chr21-22.cram", "gs://pd-test-storage-public/Glimpse2LowPassImputation/inputs/crams/HG02600.alt_bwamem_GRCh38DH.20150718.PJL.low_coverage.chr21-22.cram"],
+    "Glimpse2LowPassImputation.cram_indices": ["gs://pd-test-storage-public/Glimpse2LowPassImputation/inputs/crams/HG01161.alt_bwamem_GRCh38DH.20150718.PUR.low_coverage.chr21-22.cram.crai", "gs://pd-test-storage-public/Glimpse2LowPassImputation/inputs/crams/HG01351.alt_bwamem_GRCh38DH.20150718.CLM.low_coverage.chr21-22.cram.crai", "gs://pd-test-storage-public/Glimpse2LowPassImputation/inputs/crams/HG02545.alt_bwamem_GRCh38DH.20150718.ACB.low_coverage.chr21-22.cram.crai", "gs://pd-test-storage-public/Glimpse2LowPassImputation/inputs/crams/HG02600.alt_bwamem_GRCh38DH.20150718.PJL.low_coverage.chr21-22.cram.crai"],
+    "Glimpse2LowPassImputation.reference_panel_prefix": "gs://pd-test-storage-public/Glimpse2LowPassImputation/ref_panels/1000G_HGDP_with_trio_information/auxiliary_files/",
+    "Glimpse2LowPassImputation.contigs": ["chr21","chr22"],
+    "Glimpse2LowPassImputation.fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+    "Glimpse2LowPassImputation.fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+    "Glimpse2LowPassImputation.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+    "Glimpse2LowPassImputation.glimpse_phase_cpu_override": 1
+}

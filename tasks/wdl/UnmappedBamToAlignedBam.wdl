@@ -269,7 +269,11 @@ workflow UnmappedBamToAlignedBam {
       output_bam_basename = sample_and_unmapped_bams.base_file_name,
       total_input_size = agg_bam_size,
       compression_level = compression_level,
-      preemptible_tries = papi_settings.agg_preemptible_tries
+      # Non-preemptible: the scientific-WGS gather is a ~100-minute single-threaded
+      # block-copy that repeatedly got preempted/torn down (RetryableFailure, then a
+      # teardown exit-125) before it could finalize. Preemptible savings aren't worth
+      # burning ~100 min per lost attempt.
+      preemptible_tries = 0
   }
 
   # Outputs that will be retained when execution is complete

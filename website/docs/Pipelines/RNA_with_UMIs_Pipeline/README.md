@@ -7,7 +7,7 @@ slug: /Pipelines/RNA_with_UMIs_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [RNAWithUMIsPipeline_v1.0.16](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | February, 2024 | Elizabeth Kiernan & Kaylee Mathews | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/rna_seq/RNAWithUMIsPipeline.changelog.md) for version information. | See changelog | Elizabeth Kiernan & Kaylee Mathews | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues).  |
 
 ![RNAWithUMIs_diagram](rna-with-umis_diagram.png)
 
