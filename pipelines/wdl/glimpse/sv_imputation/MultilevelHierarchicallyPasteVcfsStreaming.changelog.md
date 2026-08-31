@@ -1,3 +1,8 @@
+# 0.0.10
+2026-08-28 (Date of Last Commit)
+
+* remove `boot_disk_gb` from tasks
+
 # 0.0.9
 2026-08-27 (Date of Last Commit)
 

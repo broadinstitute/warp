@@ -75,7 +75,6 @@ task MergeSampleChunksVcfsWithPaste {
     runtime {
         docker: "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
         disks: "local-disk " + disk_size_gb + " HDD"
-        bootDiskSizeGb: 0
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
@@ -98,7 +97,7 @@ task ExtractAnnotations {
         Int disk_size_gb = ceil(2 * size(imputed_vcf, "GiB") + 50)
         Int mem_gb = 2
         Int cpu = 1
-        Int preemptible = 1
+        Int preemptible = 3
     }
 
     command <<<
@@ -118,7 +117,6 @@ task ExtractAnnotations {
     runtime {
         docker: docker_extract_annotations
         disks: "local-disk " + disk_size_gb + " HDD"
-        bootDiskSizeGb: 0
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
@@ -212,7 +210,6 @@ EOF
     runtime {
         docker: docker_merge
         disks: "local-disk " + disk_size_gb + " HDD"
-        bootDiskSizeGb: 0
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
@@ -254,7 +251,6 @@ task CreateVcfIndexAndMd5 {
     runtime {
         docker: gatk_docker
         disks: "local-disk ${disk_size_gb} SSD"
-        bootDiskSizeGb: 0
         memory: "${memory_mb} MiB"
         cpu: cpu
         preemptible: preemptible
@@ -290,7 +286,6 @@ task FilterVcfByInfo {
     runtime {
         docker: docker
         disks: "local-disk " + disk_size_gb + " HDD"
-        bootDiskSizeGb: 0
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
@@ -345,7 +340,6 @@ task SplitVcfManifestIntoBatches {
         docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
         cpu: 1
         disks: "local-disk 10 HDD"
-        bootDiskSizeGb: 0
         memory: "1 GiB"
         preemptible: 3
         noAddress: true
@@ -391,7 +385,6 @@ task ConvertInputArraysToManifest {
         cpu: 1
         memory: "1 GiB"
         disks: "local-disk 10 HDD"
-        bootDiskSizeGb: 0
         preemptible: 3
         noAddress: true
     }
@@ -436,7 +429,6 @@ task ParseVcfManifestIntoArrays {
         cpu: 1
         memory: "1 GiB"
         disks: "local-disk 10 HDD"
-        bootDiskSizeGb: 0
         preemptible: 3
         noAddress: true
     }
@@ -476,7 +468,6 @@ task ConcatBcfs {
         cpu: 1
         memory: "4 GiB"
         disks: "local-disk " + disk_gb + " SSD"
-        bootDiskSizeGb: 0
         preemptible: 3
         maxRetries: 0
         docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
