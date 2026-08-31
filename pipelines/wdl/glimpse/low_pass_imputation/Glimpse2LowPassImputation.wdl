@@ -28,7 +28,6 @@ workflow Glimpse2LowPassImputation {
         Boolean call_indels = false
 
         Map[String, Array[String]] bcftools_shard_map
-        Int hierarchical_merge_batch_size = 50
 
         Int sample_batch_size = 500
         Int? glimpse_phase_cpu_override
@@ -66,7 +65,6 @@ workflow Glimpse2LowPassImputation {
                 impute_reference_only_variants = impute_reference_only_variants,
                 call_indels = call_indels,
                 bcftools_shard_map = bcftools_shard_map,
-                hierarchical_merge_batch_size = hierarchical_merge_batch_size,
                 glimpse_phase_cpu_override = glimpse_phase_cpu_override,
                 gatk_docker = gatk_docker,
                 glimpse_docker = glimpse_docker
