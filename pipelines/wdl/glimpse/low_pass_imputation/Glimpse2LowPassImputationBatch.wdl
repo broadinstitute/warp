@@ -243,11 +243,23 @@ import json
 
 with open('~{write_json(chrom_to_shards)}', 'r') as f:
     raw_map = json.load(f)
-    # Convert Cromwell's WDL 1.0 array-of-objects Map serialization back to a Python dict
-    if isinstance(raw_map, list):
-        chrom_to_shards = {item['key']: item['value'] for item in raw_map}
-    else:
-        chrom_to_shards = raw_map
+
+# Robust parsing to handle any WDL engine's Map serialization
+chrom_to_shards = {}
+if isinstance(raw_map, dict):
+    chrom_to_shards = raw_map
+elif isinstance(raw_map, list):
+    for item in raw_map:
+        if isinstance(item, dict):
+            if 'left' in item and 'right' in item:      # Cromwell Pair format
+                chrom_to_shards[item['left']] = item['right']
+            elif 'key' in item and 'value' in item:     # Generic Pair format
+                chrom_to_shards[item['key']] = item['value']
+            else:                                       # Array of single-entry dicts
+                for k, v in item.items():
+                    chrom_to_shards[k] = v
+        elif isinstance(item, list) and len(item) >= 2: # Array of arrays
+            chrom_to_shards[item[0]] = item[1]
 
 with open('~{write_json(contigs)}', 'r') as f:
     contigs = json.load(f)
