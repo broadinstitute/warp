@@ -390,7 +390,7 @@ task ConvertInputArraysToManifest {
     }
 
     output {
-        File output_manifest = "~{output_filename}"
+        File output_gvcf_manifest = "~{output_filename}"
     }
 }
 

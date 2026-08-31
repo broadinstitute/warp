@@ -1,3 +1,9 @@
+# 0.0.20
+2026-08-31 (Date of Last Commit)
+
+* Rename local task outputs and workflow wiring from `*_vcf` to `*_bcf` for phase, ligate, pop, and concat steps.
+* Rename `UpdateHeader` inputs to `source_header_vcf` and `to_be_reheadered_bcf` and propagate the new names through command usage.
+
 # 0.0.19
 2026-08-28 (Date of Last Commit)
 

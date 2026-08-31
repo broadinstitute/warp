@@ -5,9 +5,9 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.26"
-    String preprocess_pls_gvcf_pipeline_version = "0.0.15"
-    String batch_pipeline_version = "0.0.19"
+    String pipeline_version = "0.0.27"
+    String preprocess_pls_gvcf_pipeline_version = "0.0.16"
+    String batch_pipeline_version = "0.0.20"
     String quota_consumed_version = "0.0.2"
     String input_qc_version = "0.0.2"
 
@@ -62,7 +62,7 @@ workflow Glimpse2SVImputation {
     }
 
     # if neither the full array input set nor gvcf_manifest is provided the workflow will fail at runtime
-    File gvcf_manifest_to_use = select_first([ConvertInputArraysToManifest.output_manifest, gvcf_manifest])
+    File gvcf_manifest_to_use = select_first([ConvertInputArraysToManifest.output_gvcf_manifest, gvcf_manifest])
 
     call Glimpse2SVImputationTasks.SplitVcfManifestIntoBatches as SplitIntoSampleBatches {
         input:
@@ -82,8 +82,8 @@ workflow Glimpse2SVImputation {
 
         call Glimpse2SVImputationBatch.Glimpse2SVImputationBatch as RunBatch {
             input:
-                input_preprocessed_joint_vcf = PreProcessGVCFsBatch.preprocessed_pls_vcf,
-                input_preprocessed_joint_vcf_idx = PreProcessGVCFsBatch.preprocessed_pls_vcf_idx,
+                input_preprocessed_joint_vcf = PreProcessGVCFsBatch.preprocessed_pls_bcf,
+                input_preprocessed_joint_vcf_idx = PreProcessGVCFsBatch.preprocessed_pls_bcf_idx,
                 chromosomes = chromosomes,
                 genetic_maps_tsv = genetic_maps_tsv,
                 ref_dict = ref_dict,

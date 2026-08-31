@@ -5,8 +5,8 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.15"
-    String multi_level_paste_pipeline_version = "0.0.10"
+    String pipeline_version = "0.0.16"
+    String multi_level_paste_pipeline_version = "0.0.11"
     input {
         File input_gvcf_manifest
 
@@ -39,8 +39,8 @@ workflow PreprocessPLsGVCF {
     # two-level localized hierarchical merge over entire chromosome
     call MultilevelHierarchicallyPasteVcfsStreaming.MultilevelHierarchicallyMergeVcfs as PastePreprocessPLsGVCFs {
         input:
-            vcfs_array = PreprocessPLsGVCF.preprocessed_pls_vcf,
-            vcf_idxs_array = PreprocessPLsGVCF.preprocessed_pls_vcf_idx,
+            vcfs_array = PreprocessPLsGVCF.preprocessed_pls_bcf,
+            vcf_idxs_array = PreprocessPLsGVCF.preprocessed_pls_bcf_idx,
             regions = paste_regions,
             batch_sizes = [50, 50],
             do_localization = [true, true],
@@ -51,8 +51,8 @@ workflow PreprocessPLsGVCF {
     }
 
     output {
-        File preprocessed_pls_vcf = PastePreprocessPLsGVCFs.merged_vcf
-        File preprocessed_pls_vcf_idx = PastePreprocessPLsGVCFs.merged_vcf_idx
+        File preprocessed_pls_bcf = PastePreprocessPLsGVCFs.merged_bcf
+        File preprocessed_pls_bcf_idx = PastePreprocessPLsGVCFs.merged_bcf_idx
         Int num_samples = length(ParseInputManifest.input_gvcfs)
     }
 }
@@ -108,8 +108,8 @@ task PreprocessPLs {
     >>>
 
     output {
-        File preprocessed_pls_vcf = "~{output_basename}.bcf"
-        File preprocessed_pls_vcf_idx = "~{output_basename}.bcf.csi"
+        File preprocessed_pls_bcf = "~{output_basename}.bcf"
+        File preprocessed_pls_bcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################

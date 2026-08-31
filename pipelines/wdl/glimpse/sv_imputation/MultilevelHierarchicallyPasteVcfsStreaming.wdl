@@ -6,7 +6,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow MultilevelHierarchicallyMergeVcfs {
     # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "0.0.10"
+    String pipeline_version = "0.0.11"
 
     input {
         Array[String]? vcfs_array
@@ -56,8 +56,8 @@ workflow MultilevelHierarchicallyMergeVcfs {
             }
         }
 
-        Array[File] l0_vcfs = L0_Merge.merged_vcf
-        Array[File] l0_idxs = L0_Merge.merged_vcf_idx
+        Array[File] l0_bcfs = L0_Merge.merged_bcf
+        Array[File] l0_idxs = L0_Merge.merged_bcf_idx
 
         # ==========================================
         # LEVEL 1
@@ -65,7 +65,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
         if (length(batch_sizes) > 1) {
             call CreateBatches as L1_Batches {
                 input:
-                    vcfs = l0_vcfs,
+                    vcfs = l0_bcfs,
                     vcf_idxs = l0_idxs,
                     batch_size = batch_sizes[1]
             }
@@ -85,8 +85,8 @@ workflow MultilevelHierarchicallyMergeVcfs {
             }
         }
 
-        Array[File] l1_vcfs = select_first([L1_Merge.merged_vcf, l0_vcfs])
-        Array[File] l1_idxs = select_first([L1_Merge.merged_vcf_idx, l0_idxs])
+        Array[File] l1_bcfs = select_first([L1_Merge.merged_bcf, l0_bcfs])
+        Array[File] l1_idxs = select_first([L1_Merge.merged_bcf_idx, l0_idxs])
 
         # ==========================================
         # LEVEL 2
@@ -94,7 +94,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
         if (length(batch_sizes) > 2) {
             call CreateBatches as L2_Batches {
                 input:
-                    vcfs = l1_vcfs,
+                    vcfs = l1_bcfs,
                     vcf_idxs = l1_idxs,
                     batch_size = batch_sizes[2]
             }
@@ -114,17 +114,17 @@ workflow MultilevelHierarchicallyMergeVcfs {
             }
         }
 
-        Array[File] l2_vcfs = select_first([L2_Merge.merged_vcf, l1_vcfs])
-        Array[File] l2_idxs = select_first([L2_Merge.merged_vcf_idx, l1_idxs])
+        Array[File] l2_bcfs = select_first([L2_Merge.merged_bcf, l1_bcfs])
+        Array[File] l2_idxs = select_first([L2_Merge.merged_bcf_idx, l1_idxs])
 
         # ==========================================
         # FINAL REGION COLLAPSE
         # ==========================================
         # Safety Net: Defaults to localizing workspace intermediate files, no timeout applied (0).
-        if (length(l2_vcfs) > 1) {
+        if (length(l2_bcfs) > 1) {
             call MergeVcfs as FinalRegionMerge {
                 input:
-                    vcfs_localize = l2_vcfs,
+                    vcfs_localize = l2_bcfs,
                     vcf_idxs_localize = l2_idxs,
                     timeout_min = 0,
                     region = region,
@@ -134,22 +134,22 @@ workflow MultilevelHierarchicallyMergeVcfs {
         }
 
         # Select exactly 1 file for this region to pass to the final concat step
-        File final_region_vcf = select_first([FinalRegionMerge.merged_vcf, l2_vcfs[0]])
-        File final_region_idx = select_first([FinalRegionMerge.merged_vcf_idx, l2_idxs[0]])
+        File final_region_bcf = select_first([FinalRegionMerge.merged_bcf, l2_bcfs[0]])
+        File final_region_idx = select_first([FinalRegionMerge.merged_bcf_idx, l2_idxs[0]])
     }
 
     # concatenate all regions together
     call Glimpse2SVImputationTasks.ConcatBcfs {
         input:
-            bcfs = final_region_vcf,
+            bcfs = final_region_bcf,
             bcf_idxs = final_region_idx,
             output_basename = output_basename,
             extra_args = extra_concat_args
     }
 
     output {
-        File merged_vcf = ConcatBcfs.concatenated_bcf
-        File merged_vcf_idx = ConcatBcfs.concatenated_bcf_idx
+        File merged_bcf = ConcatBcfs.concatenated_bcf
+        File merged_bcf_idx = ConcatBcfs.concatenated_bcf_idx
     }
 }
 
@@ -330,8 +330,8 @@ task MergeVcfs {
     >>>
 
     output {
-        File merged_vcf = "~{output_basename}.bcf"
-        File merged_vcf_idx = "~{output_basename}.bcf.csi"
+        File merged_bcf = "~{output_basename}.bcf"
+        File merged_bcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################

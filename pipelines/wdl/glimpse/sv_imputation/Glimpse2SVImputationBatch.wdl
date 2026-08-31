@@ -4,7 +4,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.19"
+    String pipeline_version = "0.0.20"
 
     input {
         File input_preprocessed_joint_vcf
@@ -75,8 +75,8 @@ workflow Glimpse2SVImputationBatch {
 
         call GLIMPSE2Ligate {
             input:
-                phased_vcfs = ChunkedGLIMPSE2Phase.phased_vcf,
-                phased_vcf_idxs = ChunkedGLIMPSE2Phase.phased_vcf_idx,
+                phased_vcfs = ChunkedGLIMPSE2Phase.phased_bcf,
+                phased_vcf_idxs = ChunkedGLIMPSE2Phase.phased_bcf_idx,
                 output_basename = output_basename + ".glimpse2.bubble",
                 docker = glimpse2_docker
         }
@@ -84,8 +84,8 @@ workflow Glimpse2SVImputationBatch {
         # Update VCF header with reference dictionary
         call UpdateHeader {
             input:
-                bcf_to_reheader = GLIMPSE2Ligate.ligated_vcf,
-                bcf_to_get_header_from = input_preprocessed_joint_vcf,
+                to_be_reheadered_bcf = GLIMPSE2Ligate.ligated_bcf,
+                source_header_vcf = input_preprocessed_joint_vcf,
                 ref_dict = ref_dict,
                 output_basename = output_basename +  "." + chromosome + ".glimpse2.bubble.updated_header",
                 docker = glimpse2_docker,
@@ -108,8 +108,8 @@ workflow Glimpse2SVImputationBatch {
 
         call Glimpse2SVImputationTasks.ConcatBcfs as ConcatPopAndMarginalizeCollisions {
             input:
-                bcfs = PopAndMarginalizeCollisions.popped_vcf,
-                bcf_idxs = PopAndMarginalizeCollisions.popped_vcf_idx,
+                bcfs = PopAndMarginalizeCollisions.popped_bcf,
+                bcf_idxs = PopAndMarginalizeCollisions.popped_bcf_idx,
                 output_basename = output_basename + "." + chromosome + ".glimpse2.popped",
                 extra_args = "--naive",
         }
@@ -213,8 +213,8 @@ task GLIMPSE2Phase {
     >>>
 
     output {
-        File phased_vcf = "~{output_basename}.bcf"
-        File phased_vcf_idx = "~{output_basename}.bcf.csi"
+        File phased_bcf = "~{output_basename}.bcf"
+        File phased_bcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
@@ -264,8 +264,8 @@ task GLIMPSE2Ligate {
     >>>
 
     output {
-        File ligated_vcf = "~{output_basename}.bcf"
-        File ligated_vcf_idx = "~{output_basename}.bcf.csi"
+        File ligated_bcf = "~{output_basename}.bcf"
+        File ligated_bcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
@@ -320,8 +320,8 @@ task PopAndMarginalizeCollisions {
     >>>
 
     output {
-        File popped_vcf = "~{output_basename}.bcf"
-        File popped_vcf_idx = "~{output_basename}.bcf.csi"
+        File popped_bcf = "~{output_basename}.bcf"
+        File popped_bcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
@@ -348,21 +348,21 @@ task PopAndMarginalizeCollisions {
 
 task UpdateHeader {
     input {
-        File bcf_to_reheader
-        File bcf_to_get_header_from
+        File source_header_vcf
+        File to_be_reheadered_bcf
         File ref_dict
         String output_basename
         String? pipeline_header_line
 
         Int mem_gb = 2
         Int cpu = 1
-        Int disk_size_gb = ceil(2.1 * size(bcf_to_reheader, "GiB")) + 10
+        Int disk_size_gb = ceil(2.1 * size(to_be_reheadered_bcf, "GiB")) + 10
         Int max_retries = 1
         String docker
     }
 
     parameter_meta {
-        bcf_to_get_header_from : {
+        source_header_vcf : {
             localization_optional : true
         }
     }
@@ -375,9 +375,9 @@ task UpdateHeader {
         # Set correct reference dictionary
 
         # take input VCF header and add GLIMPSE INFO and FORMAT lines (GLIMPSE header only contains a single chromosome and breaks bcftools concat --naive)
-        bcftools view --no-version -h ~{bcf_to_get_header_from} | grep '^##' > input.header.txt
-        bcftools view --no-version -h ~{bcf_to_reheader} | grep -E '^##INFO|^##FORMAT|^##NMAIN|^##FPLOIDY' > glimpse2.header.txt
-        bcftools view --no-version -h ~{bcf_to_reheader} | grep '^#CHROM' > glimpse2.columns.txt
+        bcftools view --no-version -h ~{source_header_vcf} | grep '^##' > input.header.txt
+        bcftools view --no-version -h ~{to_be_reheadered_bcf} | grep -E '^##INFO|^##FORMAT|^##NMAIN|^##FPLOIDY' > glimpse2.header.txt
+        bcftools view --no-version -h ~{to_be_reheadered_bcf} | grep '^#CHROM' > glimpse2.columns.txt
         cat input.header.txt glimpse2.header.txt glimpse2.columns.txt > header.vcf
 
         # Add pipeline_header_line if provided
@@ -389,7 +389,7 @@ task UpdateHeader {
 
         java -jar /picard.jar UpdateVcfSequenceDictionary -I header.vcf --SD ~{ref_dict} -O updated_header.vcf
 
-        bcftools reheader -h updated_header.vcf ~{bcf_to_reheader} -o ~{output_basename}.bcf
+        bcftools reheader -h updated_header.vcf ~{to_be_reheadered_bcf} -o ~{output_basename}.bcf
         bcftools index ~{output_basename}.bcf
     >>>
 

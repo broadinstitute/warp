@@ -1,3 +1,9 @@
+# 0.0.11
+2026-08-31 (Date of Last Commit)
+
+* Rename merge outputs from `merged_vcf`/`merged_vcf_idx` to `merged_bcf`/`merged_bcf_idx`.
+* Propagate BCF naming through all hierarchical merge levels and final concat wiring.
+
 # 0.0.10
 2026-08-28 (Date of Last Commit)
 
