@@ -284,7 +284,6 @@ task ExtractGenotypeLikelihoods {
             fi
         done < "~{write_lines(flat_shards)}"
 
-        # chromosome_group is now directly read in as an array
         GROUP_CONTIGS=(~{sep=" " chromosome_group})
         
         g_idx=0
@@ -319,19 +318,29 @@ task ExtractGenotypeLikelihoods {
             
             bcftools index "contig_${pad_contig}.bcf"
             
-            # 2. Slice master BCF into requested shards
-            for (( j=0; j<count; j++ )); do
-                shard="${ALL_SHARDS[$shard_idx]}"
-                pad_shard=$(printf "%04d" $j)
-                out_bcf="out_c${pad_contig}_s${pad_shard}.bcf"
+            # 2. Slice master BCF into requested shards or rename if unsharded (1 total shard)
+            if [[ $count -eq 1 ]]; then
+                out_bcf="out_c${pad_contig}_s0000.bcf"
                 
-                bcftools view -r "${shard}" -Ob -o "${out_bcf}" "contig_${pad_contig}.bcf"
-                bcftools index "${out_bcf}"
+                mv "contig_${pad_contig}.bcf" "${out_bcf}"
+                mv "contig_${pad_contig}.bcf.csi" "${out_bcf}.csi"
                 
                 ((++shard_idx))
-            done
+            else
+                for (( j=0; j<count; j++ )); do
+                    shard="${ALL_SHARDS[$shard_idx]}"
+                    pad_shard=$(printf "%04d" $j)
+                    out_bcf="out_c${pad_contig}_s${pad_shard}.bcf"
+                    
+                    bcftools view -r "${shard}" -Ob -o "${out_bcf}" "contig_${pad_contig}.bcf"
+                    bcftools index "${out_bcf}"
+                    
+                    ((++shard_idx))
+                done
+                
+                rm "contig_${pad_contig}.bcf" "contig_${pad_contig}.bcf.csi"
+            fi
             
-            rm "contig_${pad_contig}.bcf" "contig_${pad_contig}.bcf.csi"
             ((++g_idx))
         done
     >>>
