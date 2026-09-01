@@ -29,5 +29,5 @@
   "Multiome.atac_nhash_id":"example_1234",
   "Multiome.run_peak_calling": true,
   "Multiome.PeakCalling.probability_threshold":"1.00",
-  "Multiome.aligned_ATAC_bam":"gs://pd-test-storage-public/Multiome/input/plumbing/10k_PBMC_downsampled_atac.bam"
+  "Multiome.aligned_ATAC_bam":"gs://fc-cddd72b5-323c-495c-9557-5057fff0275a/submissions/intermediates/a10530bb-14eb-4323-9f70-281495da6f08/TestMultiome/1916ff4d-9efa-4821-a703-06a34e37f1f5/call-Multiome/Multiome/216dddff-facc-4f5b-8ea1-992ef540dd77/call-Atac/ATAC/1436682f-97b7-430d-8394-d9441e9b4f1d/call-BWAPairedEndAlignment/cacheCopy/10k_PBMC_atac.bam"
 }
