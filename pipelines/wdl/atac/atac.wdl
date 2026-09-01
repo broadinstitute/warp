@@ -66,7 +66,6 @@ workflow ATAC {
   String warp_tools_docker = "warp-tools:2.6.1"
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
-  String plain_samtools_docker = "samtools:1.0.0-1.11-1624651616"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
   String snap_atac_docker = "snapatac2:2.0.0"
 
@@ -168,7 +167,7 @@ workflow ATAC {
       input:
         bam = aligned_bam,
         input_id = input_id,
-        docker_path = docker_prefix + plain_samtools_docker
+        docker_path = docker_prefix + samtools_docker
     }
 
     scatter (bam_chunk in SplitBamByBarcode.bam_chunks) {
@@ -781,51 +780,81 @@ task SplitBamByBarcode {
   command <<<
     set -euo pipefail
 
-    samtools view -H "~{bam}" > header.sam
+    # Neither tool is on PATH in this image; BWAPairedEndAlignment already relies on the
+    # samtools path below, and this python3.9 is bundled in the same image's miniconda env.
+    samtools="/usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools"
+    python_bin="/usr/temp/Open-Omics-Acceleration-Framework/pipelines/fq2sortedbam/miniconda3/bin/python3.9"
 
-    # Bucket by a simple deterministic hash of the barcode tag (any stable hash works here --
-    # correctness only requires the same barcode always mapping to the same bucket, not any
-    # particular algorithm). Reads missing the tag all go to bucket 0, so every read is still
-    # accounted for exactly once; they never enter any per-barcode computation downstream anyway.
-    samtools view -@ ~{nthreads} "~{bam}" | awk -v n=~{num_chunks} -v tag="~{barcode_tag}:Z:" '
-      BEGIN {
-        for (i = 0; i < 256; i++) ord[sprintf("%c", i)] = i
-        taglen = length(tag)
-      }
-      {
-        barcode = ""
-        for (i = 12; i <= NF; i++) {
-          if (substr($i, 1, taglen) == tag) {
-            barcode = substr($i, taglen + 1)
-            break
-          }
-        }
-        if (barcode == "") {
-          bucket = 0
-          no_barcode_count++
-        } else {
-          h = 0
-          for (i = 1; i <= length(barcode); i++) {
-            h = (h * 131 + ord[substr(barcode, i, 1)]) % 1000000007
-          }
-          bucket = h % n
-        }
-        print > ("body_" bucket ".sam")
-        total++
-      }
-      END {
-        print "Total reads processed: " total > "/dev/stderr"
-        print "Reads with no \047" tag "\047 tag (routed to bucket 0): " no_barcode_count > "/dev/stderr"
-      }
-    '
+    "$python_bin" <<CODE
+    import subprocess
+    import sys
+    import zlib
 
-    for i in $(seq 0 $((~{num_chunks} - 1))); do
-      if [[ ! -f "body_${i}.sam" ]]; then
-        touch "body_${i}.sam"
-      fi
-      cat header.sam "body_${i}.sam" | samtools view -@ ~{nthreads} -b -o "~{input_id}_chunk_${i}.bam" -
-      echo "  chunk_${i}.bam: $(wc -l < "body_${i}.sam") reads"
-    done
+    bam = "~{bam}"
+    input_id = "~{input_id}"
+    num_chunks = ~{num_chunks}
+    tag_prefix = "~{barcode_tag}:Z:"
+    threads = "~{nthreads}"
+    samtools = "$samtools"
+
+    def bucket_for_barcode(barcode):
+        return zlib.crc32(barcode.encode()) % num_chunks
+
+    def find_tag(fields, prefix):
+        for f in fields[11:]:
+            if f.startswith(prefix):
+                return f[len(prefix):]
+        return None
+
+    header = subprocess.run(
+        [samtools, "view", "-H", bam],
+        capture_output=True, check=True, text=True,
+    ).stdout
+
+    writers = []
+    for i in range(num_chunks):
+        p = subprocess.Popen(
+            [samtools, "view", "-@", threads, "-b", "-o", f"{input_id}_chunk_{i}.bam", "-"],
+            stdin=subprocess.PIPE, text=True,
+        )
+        p.stdin.write(header)
+        writers.append(p)
+
+    view = subprocess.Popen(
+        [samtools, "view", "-@", threads, bam],
+        stdout=subprocess.PIPE, text=True, bufsize=1,
+    )
+
+    per_chunk_counts = [0] * num_chunks
+    no_barcode_count = 0
+    total = 0
+
+    for line in view.stdout:
+        total += 1
+        fields = line.rstrip("\n").split("\t")
+        barcode = find_tag(fields, tag_prefix)
+
+        # reads missing the tag all go to a fixed bucket, so every read is still accounted
+        # for exactly once; they never enter any per-barcode computation downstream anyway
+        bucket = 0 if barcode is None else bucket_for_barcode(barcode)
+        if barcode is None:
+            no_barcode_count += 1
+
+        writers[bucket].stdin.write(line)
+        per_chunk_counts[bucket] += 1
+
+    view.stdout.close()
+    view.wait()
+    for p in writers:
+        p.stdin.close()
+        p.wait()
+
+    print(f"Total reads processed: {total}", file=sys.stderr)
+    print(f"Reads with no '{tag_prefix}' tag (routed to bucket 0): {no_barcode_count}", file=sys.stderr)
+    for i, c in enumerate(per_chunk_counts):
+        print(f"  chunk_{i}.bam: {c} reads", file=sys.stderr)
+    assert sum(per_chunk_counts) == total, "Read counts don't add up - something is wrong"
+    CODE
   >>>
 
   runtime {
