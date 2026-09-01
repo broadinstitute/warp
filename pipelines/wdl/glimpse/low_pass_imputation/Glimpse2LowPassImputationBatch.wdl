@@ -247,7 +247,7 @@ task ExtractGenotypeLikelihoods {
         Boolean call_indels = false
 
         Int seed = 12345
-        Int mem_gb = 8
+        Int mem_gb = 4
         Int cpu = 1
         Int preemptible = 3
         Int max_retries = 1
