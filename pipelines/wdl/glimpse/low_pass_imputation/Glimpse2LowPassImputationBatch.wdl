@@ -320,18 +320,19 @@ task ExtractGenotypeLikelihoods {
                 out_bcf="out_c${pad_contig}_s${pad_shard}.bcf"
                 
                 # Slice target sites for this specific shard using tabix
+                tabix -h "${vcf}" "${shard}" > "shard_vcf.vcf"
                 tabix -h "${tbl}" "${shard}" > "shard_tbl.tsv"
                 
-                # Run the likelihood extraction tightly bound to the shard region and sliced table
-                bcftools mpileup --no-version -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -r "${shard}" -T "${vcf}" -Ou ~{basename(cram)} | \
+                # Run the likelihood extraction tightly bound to the shard region and sliced sites
+                bcftools mpileup --no-version -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -r "${shard}" -T "shard_vcf.vcf" -Ou ~{basename(cram)} | \
                 bcftools call --no-version -Aim -C alleles -T "shard_tbl.tsv" -Ou | \
                 bcftools annotate --no-version -x 'INFO,^FORMAT/PL' -Ou | \
                 bcftools norm --no-version -m -both -Ob -o "${out_bcf}"
                 
                 bcftools index "${out_bcf}"
                 
-                # Clean up temporary sliced text file to save disk space
-                rm "shard_tbl.tsv"
+                # Clean up temporary sliced text files to save disk space
+                rm "shard_vcf.vcf" "shard_tbl.tsv"
                 
                 ((++shard_idx))
             done
