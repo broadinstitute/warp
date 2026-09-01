@@ -382,13 +382,14 @@ task BcftoolsMerge {
         > file_list.txt
         
         for i in "${!BCFS[@]}"; do
-            base_bcf="$(basename "${BCFS[$i]}")"
-            base_idx="$(basename "${IDXS[$i]}")"
+            # Prefix the symlink with the array index to prevent basename collisions
+            safe_bcf="${i}_$(basename "${BCFS[$i]}")"
+            safe_idx="${i}_$(basename "${IDXS[$i]}")"
             
-            ln -sf "${BCFS[$i]}" "$base_bcf"
-            ln -sf "${IDXS[$i]}" "$base_idx"
+            ln -sf "${BCFS[$i]}" "$safe_bcf"
+            ln -sf "${IDXS[$i]}" "$safe_idx"
             
-            echo "$base_bcf" >> file_list.txt
+            echo "$safe_bcf" >> file_list.txt
         done
         
         bcftools merge --no-version -O b -o ~{output_basename}.merged.bcf -l file_list.txt
