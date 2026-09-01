@@ -253,7 +253,7 @@ task ExtractGenotypeLikelihoods {
         Int max_retries = 1
     }
 
-    Int disk_size_gb = ceil(2.5 * size(cram, "GiB") + size(fasta, "GiB") + size(sites_vcfs, "GiB") + size(sites_tables, "GiB") + 20)
+    Int disk_size_gb = ceil(1.5 * size(cram, "GiB") + size(fasta, "GiB") + size(sites_vcfs, "GiB") + size(sites_tables, "GiB") + 10)
 
     command <<<
         set -xeuo pipefail
