@@ -254,6 +254,7 @@ task ExtractGenotypeLikelihoods {
     }
 
     Int disk_size_gb = ceil(1.5 * size(cram, "GiB") + size(fasta, "GiB") + size(sites_vcfs, "GiB") + size(sites_tables, "GiB") + 10)
+    Int disk_size_gb = if base_disk_gb < 100 then 100 else base_disk_gb
 
     command <<<
         set -xeuo pipefail
