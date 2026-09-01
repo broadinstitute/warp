@@ -32,31 +32,22 @@ workflow Glimpse2LowPassImputationBatch {
             cram_manifest = cram_manifest
     }
 
-    # Step 1: Pre-calculate reference files and counts
+    # Step 1: Pre-calculate counts (Localizing whole-genome reference files here is removed for efficiency)
     scatter(contig_index in range(length(contigs))) {
         String current_contig = contigs[contig_index]
         Array[String] current_bcftools_shards = bcftools_shard_map[current_contig]
         Int current_shard_count = length(current_bcftools_shards)
-
-        File sites_vcfs_tmp = reference_panel_prefix + "sites." + current_contig + ".vcf.gz"
-        File sites_vcf_indices_tmp = reference_panel_prefix + "sites." + current_contig + ".vcf.gz.tbi"
-        File sites_tables_tmp = reference_panel_prefix + "sites_table." + current_contig + ".gz"
-        File sites_table_indices_tmp = reference_panel_prefix + "sites_table." + current_contig + ".gz.tbi"
-        File reference_chunks_tmp = reference_panel_prefix + "reference_chunks." + current_contig + ".txt"
-
-        call GetShards {
-            input: 
-                reference_chunks_file = reference_chunks_tmp
-        }
     }
 
-    # Step 2: Calculate global shard indices and group offsets in a single lightweight VM
+    # Step 2: Calculate global shard indices and perfectly subset the localization arrays per group
     call CalculateShardIndices {
         input:
-            shard_counts = current_shard_count
+            shard_counts = current_shard_count,
+            contig_groups = contig_groups,
+            reference_panel_prefix = reference_panel_prefix
     }
 
-    # Step 3: Extract utilizing explicit Contig Groups to balance preemption safety vs CRAM localization
+    # Step 3: Extract utilizing explicit Contig Groups with highly-optimized disk/CPU loops
     scatter(sample_idx in range(length(ParseCramManifest.crams))) {
         scatter(group_idx in range(length(contig_groups))) {
             
@@ -69,10 +60,10 @@ workflow Glimpse2LowPassImputationBatch {
                     contigs = contigs,
                     flat_shards = flatten(current_bcftools_shards),
                     shard_counts = current_shard_count,
-                    sites_vcfs = sites_vcfs_tmp,
-                    sites_vcf_indices = sites_vcf_indices_tmp,
-                    sites_tables = sites_tables_tmp,
-                    sites_table_indices = sites_table_indices_tmp,
+                    sites_vcfs = CalculateShardIndices.group_sites_vcfs[group_idx],
+                    sites_vcf_indices = CalculateShardIndices.group_sites_vcf_indices[group_idx],
+                    sites_tables = CalculateShardIndices.group_sites_tables[group_idx],
+                    sites_table_indices = CalculateShardIndices.group_sites_table_indices[group_idx],
                     fasta = fasta,
                     fasta_index = fasta_index,
                     call_indels = call_indels
@@ -123,11 +114,14 @@ workflow Glimpse2LowPassImputationBatch {
 task CalculateShardIndices {
     input {
         Array[Int] shard_counts
+        Array[String] contig_groups
+        String reference_panel_prefix
     }
 
     command <<<
         python3 <<EOF
         import json
+        
         counts = [~{sep="," shard_counts}]
         indices = []
         starts = []
@@ -136,10 +130,29 @@ task CalculateShardIndices {
             indices.append(list(range(curr, curr + c)))
             starts.append(curr)
             curr += c
+            
         with open("indices.json", "w") as f:
             json.dump(indices, f)
         with open("starts.json", "w") as f:
             json.dump(starts, f)
+            
+        # Dynamically calculate exact paths to prevent massive array localization upstream
+        prefix = "~{reference_panel_prefix}"
+        with open("~{write_json(contig_groups)}", "r") as f:
+            groups = json.load(f)
+            
+        vcfs, vcf_idxs, tbls, tbl_idxs = [], [], [], []
+        for g in groups:
+            chroms = [c.strip() for c in g.split(",")]
+            vcfs.append([f"{prefix}sites.{c}.vcf.gz" for c in chroms])
+            vcf_idxs.append([f"{prefix}sites.{c}.vcf.gz.tbi" for c in chroms])
+            tbls.append([f"{prefix}sites_table.{c}.gz" for c in chroms])
+            tbl_idxs.append([f"{prefix}sites_table.{c}.gz.tbi" for c in chroms])
+            
+        with open("vcfs.json", "w") as f: json.dump(vcfs, f)
+        with open("vcf_idxs.json", "w") as f: json.dump(vcf_idxs, f)
+        with open("tbls.json", "w") as f: json.dump(tbls, f)
+        with open("tbl_idxs.json", "w") as f: json.dump(tbl_idxs, f)
         EOF
     >>>
 
@@ -154,6 +167,11 @@ task CalculateShardIndices {
     output {
         Array[Array[Int]] indices = read_json("indices.json")
         Array[Int] starts = read_json("starts.json")
+        
+        Array[Array[String]] group_sites_vcfs = read_json("vcfs.json")
+        Array[Array[String]] group_sites_vcf_indices = read_json("vcf_idxs.json")
+        Array[Array[String]] group_sites_tables = read_json("tbls.json")
+        Array[Array[String]] group_sites_table_indices = read_json("tbl_idxs.json")
     }
 }
 
@@ -204,32 +222,6 @@ task ParseCramManifest {
         Array[String] crams = read_json('crams.json')
         Array[String] cram_indices = read_json('cram_indices.json')
         Int total_samples = read_int("total_samples.txt")
-    }
-}
-
-task GetShards {
-    input {
-        File reference_chunks_file
-    }
-
-    command <<<
-        python3 <<EOF
-        import pandas as pd
-        df = pd.read_csv('~{reference_chunks_file}', sep='\t', header=None, usecols=[0,1,2])
-        df[1].to_csv('shards.txt', index=False, header=False)
-        EOF
-    >>>
-
-    runtime {
-        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
-        disks: "local-disk 10 HDD"
-        memory: "1 GiB"
-        preemptible: 3
-        noAddress: true
-    }
-
-    output {
-        Array[String] shards = read_lines("shards.txt")
     }
 }
 
@@ -294,6 +286,7 @@ task ExtractGenotypeLikelihoods {
 
         IFS=',' read -ra GROUP_CONTIGS <<< "~{contig_group}"
         
+        g_idx=0
         for raw_chrom in "${GROUP_CONTIGS[@]}"; do
             chrom="${raw_chrom// /}"
             
@@ -310,36 +303,34 @@ task ExtractGenotypeLikelihoods {
                 exit 1
             fi
             
-            vcf="vcf_${i}.vcf.gz"
-            tbl="tbl_${i}.gz"
+            # Map correctly to localized subset arrays via g_idx
+            vcf="vcf_${g_idx}.vcf.gz"
+            tbl="tbl_${g_idx}.gz"
             count="${SHARD_COUNTS[$i]}"
             shard_idx="${SHARD_STARTS[$i]}"
-            
             pad_contig=$(printf "%03d" $i)
             
+            # 1. mpileup whole contig at once to prevent FASTA/VCF re-parsing
+            bcftools mpileup --no-version -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -r "${chrom}" -T "${vcf}" -Ou ~{basename(cram)} | \
+            bcftools call --no-version -Aim -C alleles -T "${tbl}" -Ou | \
+            bcftools norm --no-version -m -both -Ob -o "contig_${pad_contig}.bcf"
+            
+            bcftools index "contig_${pad_contig}.bcf"
+            
+            # 2. Slice master BCF into requested shards
             for (( j=0; j<count; j++ )); do
                 shard="${ALL_SHARDS[$shard_idx]}"
                 pad_shard=$(printf "%04d" $j)
-                
                 out_bcf="out_c${pad_contig}_s${pad_shard}.bcf"
-                shard_tbl="tbl_c${pad_contig}_s${pad_shard}.tsv.gz"
                 
-                tabix -H "${tbl}" > "tmp.tsv" || true
-                tabix "${tbl}" "${shard}" >> "tmp.tsv"
-                bgzip -c "tmp.tsv" > "${shard_tbl}"
-                tabix -s1 -b2 -e2 "${shard_tbl}"
-                
-                bcftools mpileup --no-version -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -r "${shard}" -T "${vcf}" -Ou ~{basename(cram)} | \
-                bcftools call --no-version -Aim -C alleles -T "${shard_tbl}" -Ou | \
-                bcftools norm --no-version -m -both -Ob -o "${out_bcf}"
-                
-                # indexing so bcftools merge can process it
+                bcftools view -r "${shard}" -Ob -o "${out_bcf}" "contig_${pad_contig}.bcf"
                 bcftools index "${out_bcf}"
-                
-                rm "tmp.tsv" "${shard_tbl}" "${shard_tbl}.tbi"
                 
                 ((++shard_idx))
             done
+            
+            rm "contig_${pad_contig}.bcf" "contig_${pad_contig}.bcf.csi"
+            ((++g_idx))
         done
     >>>
 
@@ -388,6 +379,9 @@ task BcftoolsMerge {
             
             ln -sf "${BCFS[$i]}" "$safe_bcf"
             ln -sf "${IDXS[$i]}" "$safe_idx"
+            
+            # Sync filesystem timestamps to prevent htslib older-index warnings
+            touch "$safe_idx"
             
             echo "$safe_bcf" >> file_list.txt
         done
