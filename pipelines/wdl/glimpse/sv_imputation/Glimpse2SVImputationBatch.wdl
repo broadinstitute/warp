@@ -85,7 +85,7 @@ workflow Glimpse2SVImputationBatch {
         call UpdateHeader {
             input:
                 to_be_reheadered_bcf = GLIMPSE2Ligate.ligated_bcf,
-                source_header_vcf = input_preprocessed_joint_vcf_or_bcf,
+                source_header_vcf_or_bcf = input_preprocessed_joint_vcf_or_bcf,
                 ref_dict = ref_dict,
                 output_basename = output_basename +  "." + chromosome + ".glimpse2.bubble.updated_header",
                 docker = glimpse2_docker,
@@ -348,7 +348,7 @@ task PopAndMarginalizeCollisions {
 
 task UpdateHeader {
     input {
-        File source_header_vcf
+        File source_header_vcf_or_bcf
         File to_be_reheadered_bcf
         File ref_dict
         String output_basename
@@ -362,7 +362,7 @@ task UpdateHeader {
     }
 
     parameter_meta {
-        source_header_vcf : {
+        source_header_vcf_or_bcf : {
             localization_optional : true
         }
     }
@@ -375,7 +375,7 @@ task UpdateHeader {
         # Set correct reference dictionary
 
         # take input VCF header and add GLIMPSE INFO and FORMAT lines (GLIMPSE header only contains a single chromosome and breaks bcftools concat --naive)
-        bcftools view --no-version -h ~{source_header_vcf} | grep '^##' > input.header.txt
+        bcftools view --no-version -h ~{source_header_vcf_or_bcf} | grep '^##' > input.header.txt
         bcftools view --no-version -h ~{to_be_reheadered_bcf} | grep -E '^##INFO|^##FORMAT|^##NMAIN|^##FPLOIDY' > glimpse2.header.txt
         bcftools view --no-version -h ~{to_be_reheadered_bcf} | grep '^#CHROM' > glimpse2.columns.txt
         cat input.header.txt glimpse2.header.txt glimpse2.columns.txt > header.vcf
