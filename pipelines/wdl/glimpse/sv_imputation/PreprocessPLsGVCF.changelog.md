@@ -3,7 +3,7 @@
 
 * Rename `PreprocessPLs` outputs from `preprocessed_pls_vcf` to `preprocessed_pls_bcf` and update downstream workflow wiring.
 * Switch top-level outputs from `preprocessed_pls_vcf`/`preprocessed_pls_vcf_idx` to `preprocessed_pls_bcf`/`preprocessed_pls_bcf_idx`.
-* Update `multi_level_paste_pipeline_version` to 0.0.11.
+* update variable names to vcf_or_bcf for any variable that can be either
 
 # 0.0.15
 2026-08-28 (Date of Last Commit)

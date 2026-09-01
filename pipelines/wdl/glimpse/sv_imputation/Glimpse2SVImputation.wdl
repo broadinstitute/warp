@@ -82,8 +82,8 @@ workflow Glimpse2SVImputation {
 
         call Glimpse2SVImputationBatch.Glimpse2SVImputationBatch as RunBatch {
             input:
-                input_preprocessed_joint_vcf = PreProcessGVCFsBatch.preprocessed_pls_bcf,
-                input_preprocessed_joint_vcf_idx = PreProcessGVCFsBatch.preprocessed_pls_bcf_idx,
+                input_preprocessed_joint_vcf_or_bcf = PreProcessGVCFsBatch.preprocessed_pls_bcf,
+                input_preprocessed_joint_vcf_or_bcf_idx = PreProcessGVCFsBatch.preprocessed_pls_bcf_idx,
                 chromosomes = chromosomes,
                 genetic_maps_tsv = genetic_maps_tsv,
                 ref_dict = ref_dict,
@@ -105,8 +105,8 @@ workflow Glimpse2SVImputation {
             scatter (batch_annot_idx in range(length(popped_bcfs_for_contig))) {
                 call Glimpse2SVImputationTasks.ExtractAnnotations as ExtractPoppedAnnotations {
                     input:
-                        imputed_vcf = popped_bcfs_for_contig[batch_annot_idx],
-                        imputed_vcf_index = popped_bcf_idxs_for_contig[batch_annot_idx],
+                        imputed_vcf_or_bcf = popped_bcfs_for_contig[batch_annot_idx],
+                        imputed_vcf_or_bcf_index = popped_bcf_idxs_for_contig[batch_annot_idx],
                         batch_index = batch_annot_idx,
                         docker_extract_annotations = gatk_docker
                 }
@@ -114,13 +114,13 @@ workflow Glimpse2SVImputation {
 
             call Glimpse2SVImputationTasks.MergeSampleChunksVcfsWithPaste as MergePoppedContigVcfs {
                 input:
-                    input_vcfs = popped_bcfs_for_contig,
+                    input_vcfs_or_bcfs = popped_bcfs_for_contig,
                     output_vcf_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.merged"
             }
 
             call Glimpse2SVImputationTasks.RecomputeAndAnnotate as RecomputePoppedAfInfo {
                 input:
-                    merged_vcf = MergePoppedContigVcfs.output_vcf,
+                    merged_vcf_or_bcf = MergePoppedContigVcfs.output_vcf,
                     annotations = ExtractPoppedAnnotations.annotations,
                     num_samples = PreProcessGVCFsBatch.num_samples,
                     output_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.merged.reannotated",
@@ -133,7 +133,7 @@ workflow Glimpse2SVImputation {
         if (info_filter_for_inclusion > 0.0) {
             call Glimpse2SVImputationTasks.FilterVcfByInfo as FilterPoppedContigByInfo {
                 input:
-                    vcf = final_popped_contig_vcf,
+                    vcf_or_bcf = final_popped_contig_vcf,
                     info_threshold = info_filter_for_inclusion,
                     output_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.info_filtered"
             }
@@ -143,7 +143,7 @@ workflow Glimpse2SVImputation {
 
         call Glimpse2SVImputationTasks.CreateVcfIndexAndMd5 as IndexFinalPoppedContig {
             input:
-                vcf_input = final_filtered_popped_contig_vcf,
+                vcf_input_or_bcf = final_filtered_popped_contig_vcf,
                 output_basename = output_basename + "." + chromosomes[contig_idx],
                 gatk_docker = gatk_docker,
                 preemptible = 0

@@ -7,8 +7,8 @@ workflow Glimpse2SVImputationBatch {
     String pipeline_version = "0.0.20"
 
     input {
-        File input_preprocessed_joint_vcf
-        File input_preprocessed_joint_vcf_idx
+        File input_preprocessed_joint_vcf_or_bcf
+        File input_preprocessed_joint_vcf_or_bcf_idx
 
         Array[String] chromosomes
         File genetic_maps_tsv
@@ -59,8 +59,8 @@ workflow Glimpse2SVImputationBatch {
 
             call GLIMPSE2Phase as ChunkedGLIMPSE2Phase {
                 input:
-                    input_vcf = input_preprocessed_joint_vcf,
-                    input_vcf_idx = input_preprocessed_joint_vcf_idx,
+                    input_vcf_or_bcf = input_preprocessed_joint_vcf_or_bcf,
+                    input_vcf_or_bcf_idx = input_preprocessed_joint_vcf_or_bcf_idx,
                     panel_split_chunk_bin = panel_split_chunk_bins[k],
                     input_region = input_regions[k],
                     output_region = output_regions[k],
@@ -75,8 +75,8 @@ workflow Glimpse2SVImputationBatch {
 
         call GLIMPSE2Ligate {
             input:
-                phased_vcfs = ChunkedGLIMPSE2Phase.phased_bcf,
-                phased_vcf_idxs = ChunkedGLIMPSE2Phase.phased_bcf_idx,
+                phased_vcfs_or_bcfs = ChunkedGLIMPSE2Phase.phased_bcf,
+                phased_vcf_or_bcf_idxs = ChunkedGLIMPSE2Phase.phased_bcf_idx,
                 output_basename = output_basename + ".glimpse2.bubble",
                 docker = glimpse2_docker
         }
@@ -85,7 +85,7 @@ workflow Glimpse2SVImputationBatch {
         call UpdateHeader {
             input:
                 to_be_reheadered_bcf = GLIMPSE2Ligate.ligated_bcf,
-                source_header_vcf = input_preprocessed_joint_vcf,
+                source_header_vcf = input_preprocessed_joint_vcf_or_bcf,
                 ref_dict = ref_dict,
                 output_basename = output_basename +  "." + chromosome + ".glimpse2.bubble.updated_header",
                 docker = glimpse2_docker,
@@ -95,8 +95,8 @@ workflow Glimpse2SVImputationBatch {
         scatter (k in range(length(pop_regions))) {
             call PopAndMarginalizeCollisions {
                 input:
-                    posteriors_vcf = UpdateHeader.output_bcf,
-                    posteriors_vcf_idx = UpdateHeader.output_bcf_index,
+                    posteriors_vcf_or_bcf = UpdateHeader.output_bcf,
+                    posteriors_vcf_or_bcf_idx = UpdateHeader.output_bcf_index,
                     panel_bubble_split_sites_only_vcf = panel_bubble_split_sites_only_vcf,
                     panel_bubble_split_sites_only_vcf_idx = panel_bubble_split_sites_only_vcf_idx,
                     panel_id_split_vcf_gz = panel_id_split_vcf_gz,
@@ -152,8 +152,8 @@ struct PopAndMarginalizePanelResourcesChromosome {
 # checkpoint implementation borrowed from https://github.com/broadinstitute/palantir-workflows/blob/main/GlimpseImputationPipeline/Glimpse2Imputation.wdl
 task GLIMPSE2Phase {
     input {
-        File input_vcf
-        File input_vcf_idx
+        File input_vcf_or_bcf
+        File input_vcf_or_bcf_idx
         File panel_split_chunk_bin
         String input_region
         String output_region
@@ -170,15 +170,15 @@ task GLIMPSE2Phase {
     }
 
     parameter_meta {
-        input_vcf: {
+        input_vcf_or_bcf: {
             localization_optional: true
         }
-        input_vcf_idx: {
+        input_vcf_or_bcf_idx: {
             localization_optional: true
         }
     }
 
-    Int disk_size_gb = 2*ceil(size(input_vcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 30)
+    Int disk_size_gb = 2*ceil(size(input_vcf_or_bcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 30)
 
     command <<<
         set -euxo pipefail
@@ -186,7 +186,7 @@ task GLIMPSE2Phase {
         export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
 
         cmd="/bin/GLIMPSE2_phase \
-                --input-gl ~{input_vcf} \
+                --input-gl ~{input_vcf_or_bcf} \
                 -R ~{panel_split_chunk_bin} \
                 ~{extra_phase_args} \
                 --output ~{output_basename}.bcf \
@@ -242,8 +242,8 @@ task GLIMPSE2Phase {
 
 task GLIMPSE2Ligate {
     input {
-        Array[File] phased_vcfs
-        Array[File] phased_vcf_idxs
+        Array[File] phased_vcfs_or_bcfs
+        Array[File] phased_vcf_or_bcf_idxs
         String output_basename
         Int cpu = 2
 
@@ -252,12 +252,12 @@ task GLIMPSE2Ligate {
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_size_gb = ceil(2.1*size(phased_vcfs, "GB")) + 10
+    Int disk_size_gb = ceil(2.1*size(phased_vcfs_or_bcfs, "GB")) + 10
 
     command <<<
         set -euox pipefail
 
-        /bin/GLIMPSE2_ligate --input ~{write_lines(phased_vcfs)} --output ~{output_basename}.bcf --threads ~{cpu}
+        /bin/GLIMPSE2_ligate --input ~{write_lines(phased_vcfs_or_bcfs)} --output ~{output_basename}.bcf --threads ~{cpu}
 
         # the index generated by ligate appears to be corrupt for both bcf and vcf.gz output (possibly due to https://github.com/samtools/htslib/issues/1740), so we regenerate with bcftools
         bcftools index -f ~{output_basename}.bcf
@@ -293,8 +293,8 @@ task GLIMPSE2Ligate {
 task PopAndMarginalizeCollisions {
     input {
         # all VCFs should be split to biallelic
-        File posteriors_vcf
-        File posteriors_vcf_idx
+        File posteriors_vcf_or_bcf
+        File posteriors_vcf_or_bcf_idx
         File panel_bubble_split_sites_only_vcf          # for annotation of INFO fields
         File panel_bubble_split_sites_only_vcf_idx
         File panel_id_split_vcf_gz           # panel popping script currently requires vcf.gz, so we also use that here
@@ -306,7 +306,7 @@ task PopAndMarginalizeCollisions {
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_gb = ceil(3*size(posteriors_vcf, "GB")) + ceil(size([panel_bubble_split_sites_only_vcf, panel_id_split_vcf_gz], "GB")) + 10
+    Int disk_gb = ceil(3*size(posteriors_vcf_or_bcf, "GB")) + ceil(size([panel_bubble_split_sites_only_vcf, panel_id_split_vcf_gz], "GB")) + 10
 
     command <<<
         set -euox pipefail
@@ -314,7 +314,7 @@ task PopAndMarginalizeCollisions {
         # this now only works for pop-glimpse2-joint-opt.rs;
         # the sort may also be extraneous, but we keep it in to guard against getting out of sync with the popped panel
         bcftools view -r ~{region} --regions-overlap 0 ~{panel_bubble_split_sites_only_vcf} -Oz -o panel.bubble.split.sites.shard.vcf.gz
-        bcftools view -r ~{region} --regions-overlap 0 ~{posteriors_vcf} | \
+        bcftools view -r ~{region} --regions-overlap 0 ~{posteriors_vcf_or_bcf} | \
             /usr/local/bin/pop-glimpse2 ~{panel_id_split_vcf_gz} panel.bubble.split.sites.shard.vcf.gz | \
             bcftools sort --max-mem=2G -W -Ob -o ~{output_basename}.bcf
     >>>
