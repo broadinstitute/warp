@@ -248,13 +248,12 @@ task ExtractGenotypeLikelihoods {
 
         Int seed = 12345
         Int mem_gb = 4
-        Int cpu = 1 
+        Int cpu = 2
         Int preemptible = 3
         Int max_retries = 1
     }
 
     Int disk_size_gb = ceil(1.5 * size(cram, "GiB") + size(fasta, "GiB") + size(sites_vcfs, "GiB") + size(sites_tables, "GiB") + 10)
-    Int disk_size_gb = if base_disk_gb < 100 then 100 else base_disk_gb
 
     command <<<
         set -xeuo pipefail
