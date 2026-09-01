@@ -247,19 +247,20 @@ task ExtractGenotypeLikelihoods {
         Boolean call_indels = false
 
         Int seed = 12345
-        Int mem_gb = 4
+        Int mem_gb = 8
         Int cpu = 1
         Int preemptible = 3
         Int max_retries = 1
     }
 
-    Int disk_size_gb = ceil(1.5 * size(cram, "GiB") + size(fasta, "GiB") + size(sites_vcfs, "GiB") + size(sites_tables, "GiB") + 10)
+    Int disk_size_gb = ceil(2.5 * size(cram, "GiB") + size(fasta, "GiB") + size(sites_vcfs, "GiB") + size(sites_tables, "GiB") + 20)
 
     command <<<
         set -xeuo pipefail
 
         ln -sf ~{cram} "~{basename(cram)}"
         ln -sf ~{cram_index} "~{basename(cram)}.crai"
+        touch "~{basename(cram)}.crai"
 
         CONTIGS=(~{sep=" " contigs})
         VCFS=(~{sep=" " sites_vcfs})
@@ -272,8 +273,11 @@ task ExtractGenotypeLikelihoods {
         for i in "${!VCFS[@]}"; do
             ln -sf "${VCFS[$i]}" "vcf_${i}.vcf.gz"
             ln -sf "${VCF_IDXS[$i]}" "vcf_${i}.vcf.gz.tbi"
+            touch "vcf_${i}.vcf.gz.tbi"
+            
             ln -sf "${TABLES[$i]}" "tbl_${i}.gz"
             ln -sf "${TABLE_IDXS[$i]}" "tbl_${i}.gz.tbi"
+            touch "tbl_${i}.gz.tbi"
         done
 
         ALL_SHARDS=()
@@ -310,36 +314,27 @@ task ExtractGenotypeLikelihoods {
             shard_idx="${SHARD_STARTS[$i]}"
             pad_contig=$(printf "%03d" $i)
             
-            # 1. mpileup whole contig at once to prevent FASTA/VCF re-parsing
-            bcftools mpileup --no-version -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -r "${chrom}" -T "${vcf}" -Ou ~{basename(cram)} | \
-            bcftools call --no-version -Aim -C alleles -T "${tbl}" -Ou | \
-            bcftools annotate --no-version -x 'INFO,^FORMAT/PL' -Ou | \
-            bcftools norm --no-version -m -both -Ob -o "contig_${pad_contig}.bcf"
-            
-            bcftools index "contig_${pad_contig}.bcf"
-            
-            # 2. Slice master BCF into requested shards or rename if unsharded (1 total shard)
-            if [[ $count -eq 1 ]]; then
-                out_bcf="out_c${pad_contig}_s0000.bcf"
+            for (( j=0; j<count; j++ )); do
+                shard="${ALL_SHARDS[$shard_idx]}"
+                pad_shard=$(printf "%04d" $j)
+                out_bcf="out_c${pad_contig}_s${pad_shard}.bcf"
                 
-                mv "contig_${pad_contig}.bcf" "${out_bcf}"
-                mv "contig_${pad_contig}.bcf.csi" "${out_bcf}.csi"
+                # Slice target sites for this specific shard using tabix
+                tabix -h "${tbl}" "${shard}" > "shard_tbl.tsv"
+                
+                # Run the likelihood extraction tightly bound to the shard region and sliced table
+                bcftools mpileup --no-version -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -r "${shard}" -T "${vcf}" -Ou ~{basename(cram)} | \
+                bcftools call --no-version -Aim -C alleles -T "shard_tbl.tsv" -Ou | \
+                bcftools annotate --no-version -x 'INFO,^FORMAT/PL' -Ou | \
+                bcftools norm --no-version -m -both -Ob -o "${out_bcf}"
+                
+                bcftools index "${out_bcf}"
+                
+                # Clean up temporary sliced text file to save disk space
+                rm "shard_tbl.tsv"
                 
                 ((++shard_idx))
-            else
-                for (( j=0; j<count; j++ )); do
-                    shard="${ALL_SHARDS[$shard_idx]}"
-                    pad_shard=$(printf "%04d" $j)
-                    out_bcf="out_c${pad_contig}_s${pad_shard}.bcf"
-                    
-                    bcftools view -r "${shard}" -Ob -o "${out_bcf}" "contig_${pad_contig}.bcf"
-                    bcftools index "${out_bcf}"
-                    
-                    ((++shard_idx))
-                done
-                
-                rm "contig_${pad_contig}.bcf" "contig_${pad_contig}.bcf.csi"
-            fi
+            done
             
             ((++g_idx))
         done
