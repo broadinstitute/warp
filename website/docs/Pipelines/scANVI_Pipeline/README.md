@@ -27,6 +27,14 @@ scANVI annotates in two stages — an **unsupervised** representation-learning s
 
 This unsupervised → semi-supervised design is more robust than training a supervised classifier on the reference alone: SCVI first integrates query and reference into a common, batch-corrected space using all available cells, and SCANVI only has to learn the annotation boundaries **within** that shared space. Labels are transferred by propagating each query cell's `C_scANVI` prediction back onto the original matrices.
 
+#### ATAC gene-activity conversion (Multiome mode)
+
+Because SCVI requires all integrated datasets to share the exact same feature space, the raw ATAC cell-by-bin matrix (produced by upstream pipelines) cannot be concatenated directly with the cell-by-gene RNA matrices. The pipeline solves this by projecting the ATAC signal into the transcriptomic feature space:
+
+1. **Bypassing peak calling.** Rather than relying on distal peaks (which are difficult to definitively map to target genes), the pipeline counts the raw Tn5 insertion fragments that overlap each known gene's coordinates.
+2. **Gene activity scoring.** Using a genome annotation (e.g., hg38 GENCODE), `snapatac2.pp.make_gene_matrix` defines a regulatory domain for each gene—typically the gene body plus a promoter window immediately upstream of the transcription start site. The accessibility metric for that gene is the count of fragments falling within that window; fragments falling in distant intergenic regions are ignored.
+3. **Concatenation.** This produces a cell-by-gene "activity" matrix that mathematically resembles an RNA count matrix. The GEX query, the ATAC activity matrix, and the reference can then be seamlessly concatenated, reduced to the top highly variable genes, and mapped into a single SCVI latent space where technical modality differences are handled mathematically as a batch effect.
+
 #### How the models are trained
 
 Both models are trained by **minibatch stochastic gradient descent**. The full concatenated dataset (query + reference) is prepared and held in CPU/host memory, but each training step streams only a small **minibatch** of cells — scvi-tools' default `batch_size` is **128 cells** — to the GPU, runs the forward/backward pass, updates the model weights, and releases that minibatch before fetching the next. Because the GPU only ever holds one minibatch at a time, its memory footprint is set by *minibatch size × number of genes* and is essentially **independent of the total number of cells** in the dataset. This is what lets a large query be annotated on a single modest GPU while the full dataset lives in host RAM: the CPU node assembles and holds the data, and the GPU processes it 128 cells at a time.
