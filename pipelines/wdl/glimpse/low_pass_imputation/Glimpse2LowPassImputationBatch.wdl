@@ -5,7 +5,7 @@ workflow Glimpse2LowPassImputationBatch {
 
     input {
         Array[String] contigs
-        Array[String] contig_groups # e.g., ["chr1,chr2,chr3", "chr4,chr5,chr6,chr7", ...] must cover all contigs continuously in order
+        Array[Array[String]] chromosome_groups # e.g., [["chr1","chr2","chr3"], ["chr4","chr5","chr6","chr7"], ...] must cover all contigs continuously in order
         
         String reference_panel_prefix
 
@@ -43,19 +43,19 @@ workflow Glimpse2LowPassImputationBatch {
     call CalculateShardIndices {
         input:
             shard_counts = current_shard_count,
-            contig_groups = contig_groups,
+            chromosome_groups = chromosome_groups,
             reference_panel_prefix = reference_panel_prefix
     }
 
     # Step 3: Extract utilizing explicit Contig Groups with highly-optimized disk/CPU loops
     scatter(sample_idx in range(length(ParseCramManifest.crams))) {
-        scatter(group_idx in range(length(contig_groups))) {
+        scatter(group_idx in range(length(chromosome_groups))) {
             
             call ExtractGenotypeLikelihoods {
                 input:
                     cram = ParseCramManifest.crams[sample_idx],
                     cram_index = ParseCramManifest.cram_indices[sample_idx],
-                    contig_group = contig_groups[group_idx],
+                    chromosome_group = chromosome_groups[group_idx],
                     contig_shard_starts = CalculateShardIndices.starts,
                     contigs = contigs,
                     flat_shards = flatten(current_bcftools_shards),
@@ -114,7 +114,7 @@ workflow Glimpse2LowPassImputationBatch {
 task CalculateShardIndices {
     input {
         Array[Int] shard_counts
-        Array[String] contig_groups
+        Array[Array[String]] chromosome_groups
         String reference_panel_prefix
     }
 
@@ -138,12 +138,12 @@ task CalculateShardIndices {
             
         # Dynamically calculate exact paths to prevent massive array localization upstream
         prefix = "~{reference_panel_prefix}"
-        with open("~{write_json(contig_groups)}", "r") as f:
+        with open("~{write_json(chromosome_groups)}", "r") as f:
             groups = json.load(f)
             
         vcfs, vcf_idxs, tbls, tbl_idxs = [], [], [], []
         for g in groups:
-            chroms = [c.strip() for c in g.split(",")]
+            chroms = [c.strip() for c in g]
             vcfs.append([f"{prefix}sites.{c}.vcf.gz" for c in chroms])
             vcf_idxs.append([f"{prefix}sites.{c}.vcf.gz.tbi" for c in chroms])
             tbls.append([f"{prefix}sites_table.{c}.gz" for c in chroms])
@@ -230,7 +230,7 @@ task ExtractGenotypeLikelihoods {
         File cram
         File cram_index
         
-        String contig_group
+        Array[String] chromosome_group
         Array[Int] contig_shard_starts
         
         Array[String] contigs
@@ -248,7 +248,7 @@ task ExtractGenotypeLikelihoods {
 
         Int seed = 12345
         Int mem_gb = 4
-        Int cpu = 2
+        Int cpu = 1
         Int preemptible = 3
         Int max_retries = 1
     }
@@ -284,7 +284,8 @@ task ExtractGenotypeLikelihoods {
             fi
         done < "~{write_lines(flat_shards)}"
 
-        IFS=',' read -ra GROUP_CONTIGS <<< "~{contig_group}"
+        # chromosome_group is now directly read in as an array
+        GROUP_CONTIGS=(~{sep=" " chromosome_group})
         
         g_idx=0
         for raw_chrom in "${GROUP_CONTIGS[@]}"; do
@@ -311,8 +312,9 @@ task ExtractGenotypeLikelihoods {
             pad_contig=$(printf "%03d" $i)
             
             # 1. mpileup whole contig at once to prevent FASTA/VCF re-parsing
-            bcftools mpileup --no-version -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -r "${chrom}" -T "${vcf}" -Ou ~{basename(cram)} | \
+            bcftools mpileup --no-version -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -r "${chrom}" -T "${vcf}" -Ou ~{basename(cram)} | \
             bcftools call --no-version -Aim -C alleles -T "${tbl}" -Ou | \
+            bcftools annotate --no-version -x 'INFO,^FORMAT/PL' -Ou | \
             bcftools norm --no-version -m -both -Ob -o "contig_${pad_contig}.bcf"
             
             bcftools index "contig_${pad_contig}.bcf"
