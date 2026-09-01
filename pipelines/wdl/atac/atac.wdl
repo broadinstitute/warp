@@ -167,7 +167,7 @@ workflow ATAC {
       input:
         bam = aligned_bam,
         input_id = input_id,
-        docker_path = docker_prefix + samtools_docker
+        docker_path = docker_prefix + snap_atac_docker
     }
 
     scatter (bam_chunk in SplitBamByBarcode.bam_chunks) {
@@ -790,8 +790,7 @@ task SplitBamByBarcode {
     num_chunks = ~{num_chunks}
     tag_prefix = "~{barcode_tag}:Z:"
     threads = "~{nthreads}"
-    # samtools isn't on PATH in this image; BWAPairedEndAlignment already relies on this path.
-    samtools = "/usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools"
+    samtools = "samtools"
 
     def bucket_for_barcode(barcode):
         return zlib.crc32(barcode.encode()) % num_chunks
