@@ -25,8 +25,8 @@ The MapMyCells pipeline takes an unannotated `query_h5ad` file and outputs `.csv
 | `MapMyCells.input_id` | String | **Required.** An identifier prepended to all output filenames. |
 | `MapMyCells.reference_atlas` | String | Defines which precomputed atlas is used. Options: `"Human_MTG"`, `"Mouse_WMB"`, `"Custom"`. Default: `"Human_MTG"`. |
 | `MapMyCells.custom_precomputed_stats` | File? | **Required if Custom.** An HDF5 file containing the precomputed hierarchical taxonomy stats. |
-| `MapMyCells.custom_query_markers` | File? | *Optional.* JSON file containing predefined marker genes. Used natively by Mouse WMB. |
-| `MapMyCells.custom_gene_mapping_db` | File? | *Optional.* SQLite DB for translating gene symbols to Ensembl IDs. Provided automatically for Human/Mouse atlases. |
+| `MapMyCells.custom_query_markers` | File? | *Optional.* JSON file containing predefined marker genes. Only used when `reference_atlas` is `"Custom"` — Human_MTG and Mouse_WMB use their own baked-in markers (or none, for Human_MTG). |
+| `MapMyCells.custom_gene_mapping_db` | File? | *Optional.* SQLite DB for translating gene symbols to Ensembl IDs. Not provided by default for any atlas. |
 | `MapMyCells.algorithm` | String | Type assignment algorithm. Options: `"hierarchical"`, `"hann"`. Default: `"hierarchical"`. |
 
 ## Outputs
@@ -41,4 +41,4 @@ You can find example inputs in the `test_inputs/` folder:
 * `test_inputs/test_human.json` — Maps using `"Human_MTG"`
 * `test_inputs/test_mouse.json` — Maps using `"Mouse_WMB"`
 
-Because the pipeline routes public `gs://` buckets automatically, you do not need to download the massive reference atlases or pass them into the workflow yourself. Simply specify the `reference_atlas` and provide your `query_h5ad`!
+The Human_MTG and Mouse_WMB reference-atlas assets are baked into the pipeline's docker image (see [warp-tools/3rd-party-tools/mapmycells](https://github.com/broadinstitute/warp-tools/tree/develop/3rd-party-tools/mapmycells)), so you do not need to download the reference atlases or pass them into the workflow yourself. Simply specify the `reference_atlas` and provide your `query_h5ad`!

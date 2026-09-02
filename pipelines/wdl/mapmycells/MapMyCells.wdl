@@ -45,28 +45,21 @@ workflow MapMyCells {
         }
     }
 
-    File precomputed_stats = if (reference_atlas == "Human_MTG") then "gs://broad-gotc-test-storage/mapmycells/precomputed_stats_10X_MTG_revision_230821.h5" else if (reference_atlas == "Mouse_WMB") then "gs://broad-gotc-test-storage/mapmycells/precomputed_stats_ABC_revision_230821.h5" else select_first([custom_precomputed_stats])
-
-    File? gene_mapping_db = if (reference_atlas == "Human_MTG" || reference_atlas == "Mouse_WMB") then "gs://broad-gotc-test-storage/mapmycells/mmc_gene_mapper.2025-08-04.db" else custom_gene_mapping_db
-
-    # Only Mouse_WMB ships a canonical markers file today; Human_MTG and Custom both
-    # fall back to on-the-fly marker selection unless the caller supplies their own.
-    File? query_markers = if (reference_atlas == "Mouse_WMB") then "gs://broad-gotc-test-storage/mapmycells/mouse_markers_230821.json" else custom_query_markers
-
     call RunMapMyCells {
         input:
-            query_h5ad = query_h5ad,
-            precomputed_stats = precomputed_stats,
-            gene_mapping_db = gene_mapping_db,
-            query_markers = query_markers,
-            input_id = input_id,
-            algorithm = algorithm,
-            normalization = normalization,
-            docker = docker,
-            cpu = cpu,
-            memory_gb = memory_gb,
-            disk_size = disk_size,
-            preemptible = preemptible
+            query_h5ad               = query_h5ad,
+            input_id                 = input_id,
+            reference_atlas          = reference_atlas,
+            custom_precomputed_stats = custom_precomputed_stats,
+            custom_gene_mapping_db   = custom_gene_mapping_db,
+            custom_query_markers     = custom_query_markers,
+            algorithm                = algorithm,
+            normalization            = normalization,
+            docker                   = docker,
+            cpu                      = cpu,
+            memory_gb                = memory_gb,
+            disk_size                = disk_size,
+            preemptible              = preemptible
     }
 
     output {
@@ -78,10 +71,11 @@ workflow MapMyCells {
 task RunMapMyCells {
     input {
         File query_h5ad
-        File precomputed_stats
-        File? gene_mapping_db
-        File? query_markers
         String input_id
+        String reference_atlas
+        File? custom_precomputed_stats
+        File? custom_gene_mapping_db
+        File? custom_query_markers
         String algorithm
         String normalization
         String docker
@@ -91,32 +85,54 @@ task RunMapMyCells {
         Int preemptible
     }
 
+    # Human_MTG and Mouse_WMB reference-atlas assets are baked into the docker image
+    # (see warp-tools/3rd-party-tools/mapmycells) instead of hosted externally, so they
+    # need no File input / localization of their own -- only their in-container path.
     command <<<
         set -euo pipefail
-        
-        # Determine the entrypoint based on whether markers are provided
-        if [ -n "~{query_markers}" ]; then
+
+        case "~{reference_atlas}" in
+            Human_MTG)
+                precomputed_stats="/opt/mapmycells/data/precomputed_stats.20231120.sea_ad.MTG.h5"
+                query_markers=""
+                ;;
+            Mouse_WMB)
+                precomputed_stats="/opt/mapmycells/data/precomputed_stats_ABC_revision_230821.h5"
+                query_markers="/opt/mapmycells/data/mouse_markers_230821.json"
+                ;;
+            Custom)
+                precomputed_stats="~{custom_precomputed_stats}"
+                query_markers="~{custom_query_markers}"
+                ;;
+            *)
+                >&2 echo "Error: reference_atlas must be one of Human_MTG, Mouse_WMB, Custom (got '~{reference_atlas}')"
+                exit 1
+                ;;
+        esac
+
+        # Determine the entrypoint based on whether markers are available
+        if [ -n "$query_markers" ]; then
             python -m cell_type_mapper.cli.from_specified_markers \
                 --query_path ~{query_h5ad} \
                 --extended_result_path ~{input_id}_mapmycells_extended.json \
                 --csv_result_path ~{input_id}_mapmycells_results.csv \
                 --type_assignment.n_processors ~{cpu} \
-                --precomputed_stats.path ~{precomputed_stats} \
-                --query_markers.serialized_lookup ~{query_markers} \
+                --precomputed_stats.path "$precomputed_stats" \
+                --query_markers.serialized_lookup "$query_markers" \
                 --query_markers.collapse_markers False \
                 --type_assignment.algorithm ~{algorithm} \
                 --type_assignment.normalization ~{normalization} \
-                ~{"--gene_mapping.db_path " + gene_mapping_db}
+                ~{"--gene_mapping.db_path " + custom_gene_mapping_db}
         else
             python -m cell_type_mapper.cli.map_to_on_the_fly_markers \
                 --query_path ~{query_h5ad} \
                 --extended_result_path ~{input_id}_mapmycells_extended.json \
                 --csv_result_path ~{input_id}_mapmycells_results.csv \
                 --n_processors ~{cpu} \
-                --precomputed_stats.path ~{precomputed_stats} \
+                --precomputed_stats.path "$precomputed_stats" \
                 --type_assignment.algorithm ~{algorithm} \
                 --type_assignment.normalization ~{normalization} \
-                ~{"--gene_mapping.db_path " + gene_mapping_db} \
+                ~{"--gene_mapping.db_path " + custom_gene_mapping_db} \
                 --query_markers.n_per_utility 15 \
                 --reference_markers.log2_fold_min_th 0.5
         fi
@@ -134,13 +150,14 @@ task RunMapMyCells {
         disks: "local-disk ~{disk_size} HDD"
         preemptible: preemptible
     }
-    
+
     parameter_meta {
         query_h5ad: "Input AnnData file containing raw transcriptomics counts."
-        precomputed_stats: "HDF5 file containing the precomputed hierarchical taxonomy stats."
-        gene_mapping_db: "Optional SQLite database for translating gene symbols to Ensembl IDs."
-        query_markers: "Optional JSON file containing predefined marker genes."
         input_id: "Prefix for output files."
+        reference_atlas: "Which reference atlas's baked-in assets to use, or 'Custom' to supply your own."
+        custom_precomputed_stats: "HDF5 file containing the precomputed hierarchical taxonomy stats. Required when reference_atlas is 'Custom'."
+        custom_gene_mapping_db: "Optional SQLite database for translating gene symbols to Ensembl IDs."
+        custom_query_markers: "Optional JSON file containing predefined marker genes. Only used when reference_atlas is 'Custom'."
         algorithm: "Type assignment algorithm. Options: 'hierarchical', 'hann'. Default: 'hierarchical'."
         normalization: "Normalization method to use for mapping. Options: 'raw', 'log2CPM'. Default: 'raw'."
         preemptible: "Number of times to attempt to run on a preemptible VM."
