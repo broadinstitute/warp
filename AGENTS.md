@@ -128,7 +128,7 @@ Test JSON inputs live at two locations per pipeline:
 
 When adding a new test input for a regression case, also wire it into the relevant GitHub Actions workflow under `.github/workflows/` so CI picks it up.
 
-**Stale inputs break silently** — they are not validated by womtool. When renaming a workflow or removing/renaming inputs, audit `example_inputs/*.json` and `test_inputs/**/*.json`.
+**Stale inputs break silently** — they are not validated by womtool. When **adding**, renaming, or removing/renaming inputs, audit `example_inputs/*.json` and `test_inputs/**/*.json` **and** thread the change through the `Test<Name>.wdl` wrapper (see [Registering a CI test](#registering-a-ci-test-for-a-pipeline-plumbing--scientific) step 2 — *forward every testable input*). Mind the framework's `UpdateTestInputs.py` key rewrite: a test-JSON key with more than two dotted parts (e.g. `Pipeline.Sub.input`, reaching into a sub-workflow) is rewritten to `TestPipeline.Pipeline.Sub.input`, which the wrapper rejects as an extra input. Prefer exposing the input at the pipeline's **top level** (`Pipeline.input`) and setting it that way — a two-part key rewrites cleanly to `TestPipeline.input`.
 
 ### Registering a CI test for a pipeline (Plumbing / Scientific)
 

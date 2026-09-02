@@ -9,8 +9,8 @@ Glimpse2LowPassImputation	 1.1.0	2026-08-26
 Glimpse2LowPassImputationBatch	 1.1.0	2026-08-26 
 Glimpse2LowPassImputationQC	 1.1.0	2026-08-26 
 Glimpse2LowPassImputationQuotaConsumed	 1.0.1	2026-08-24 
-Glimpse2SVImputation	 0.0.26	2026-08-28 
-Glimpse2SVImputationBatch	 0.0.19	2026-08-28 
+Glimpse2SVImputation	 0.0.27	2026-08-31 
+Glimpse2SVImputationBatch	 0.0.20	2026-08-31 
 Glimpse2SVImputationQC	 0.0.2	2026-08-26 
 Glimpse2SVImputationQuotaConsumed	 0.0.2	2026-08-26 
 IlluminaGenotypingArray	 1.12.27	2026-01-21 
@@ -19,12 +19,12 @@ ImputationBeagle	 3.0.1	2026-02-23
 JointGenotyping	 1.7.3	2025-08-11 
 MapMyCells	 0.1.0	2026-09-02 
 MultiSampleSmartSeq2SingleNucleus	 2.2.8	2026-07-10 
-MultilevelHierarchicallyPasteVcfsStreaming	 0.0.10	2026-08-28 
+MultilevelHierarchicallyPasteVcfsStreaming	 0.0.11	2026-08-31 
 Multiome	 7.0.2	2026-07-10 
 Optimus	 9.2.0	2026-07-10 
 PairedTag	 3.0.2	2026-07-10 
 PeakCalling	 1.0.1	2025-08-11 
-PreprocessPLsGVCF	 0.0.15	2026-08-28 
+PreprocessPLsGVCF	 0.0.16	2026-08-31 
 RNAWithUMIsPipeline	 1.0.20	2026-01-21 
 ReblockGVCF	 2.4.4	2026-01-29 
 SlideSeq	 3.6.8	2026-07-10 
