@@ -1,6 +1,6 @@
 {
   "MapMyCells.input_id": "test_human_mtg",
-  "MapMyCells.query_h5ad": "gs://broad-gotc-test-storage/mapmycells/query.h5ad",
+  "MapMyCells.query_h5ad": "gs://pd-test-storage-public/scANVI/input/scientific/10k_PBMC/10k_PBMC_gex.h5ad",
   "MapMyCells.reference_atlas": "Human_MTG",
   "MapMyCells.cpu": 4,
   "MapMyCells.memory_gb": 32

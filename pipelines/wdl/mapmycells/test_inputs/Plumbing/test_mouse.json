@@ -1,6 +1,6 @@
 {
   "MapMyCells.input_id": "test_mouse_wmb",
-  "MapMyCells.query_h5ad": "gs://broad-gotc-test-storage/mapmycells/query_mouse.h5ad",
+  "MapMyCells.query_h5ad": "gs://pd-test-storage-public/scANVI/input/plumbing/Mouse_Hippocampus_AIT/Mouse_Hippocampus_AIT_plumbing_gex.h5ad",
   "MapMyCells.reference_atlas": "Mouse_WMB",
   "MapMyCells.cpu": 8,
   "MapMyCells.memory_gb": 64
