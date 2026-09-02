@@ -28,6 +28,7 @@ workflow MapMyCells {
         Int cpu = 8
         Int memory_gb = 64
         Int disk_size = 100
+        Int preemptible = 3
     }
 
     File precomputed_stats = if (reference_atlas == "Human_MTG") then "gs://broad-gotc-test-storage/mapmycells/precomputed_stats_10X_MTG_revision_230821.h5" else if (reference_atlas == "Mouse_WMB") then "gs://broad-gotc-test-storage/mapmycells/precomputed_stats_ABC_revision_230821.h5" else select_first([custom_precomputed_stats])
@@ -48,7 +49,8 @@ workflow MapMyCells {
             docker = docker,
             cpu = cpu,
             memory_gb = memory_gb,
-            disk_size = disk_size
+            disk_size = disk_size,
+            preemptible = preemptible
     }
 
     output {
@@ -70,6 +72,7 @@ task RunMapMyCells {
         Int cpu
         Int memory_gb
         Int disk_size
+        Int preemptible
     }
 
     command <<<
@@ -113,6 +116,7 @@ task RunMapMyCells {
         cpu: cpu
         memory: "~{memory_gb} GiB"
         disks: "local-disk ~{disk_size} HDD"
+        preemptible: preemptible
     }
     
     parameter_meta {
@@ -123,5 +127,6 @@ task RunMapMyCells {
         input_id: "Prefix for output files."
         algorithm: "Type assignment algorithm. Options: 'hierarchical', 'hann'. Default: 'hierarchical'."
         normalization: "Normalization method to use for mapping. Options: 'raw', 'log2CPM'. Default: 'raw'."
+        preemptible: "Number of times to attempt to run on a preemptible VM."
     }
 }
