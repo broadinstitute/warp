@@ -1,3 +1,86 @@
+# 0.0.27
+2026-08-31 (Date of Last Commit)
+
+* Update `ConvertInputArraysToManifest` output wiring to use `output_gvcf_manifest`.
+* Switch `PreProcessGVCFsBatch` outputs consumed by `Glimpse2SVImputationBatch` from `preprocessed_pls_vcf` to `preprocessed_pls_bcf` naming.
+* Update linked `preprocess_pls_gvcf_pipeline_version` to 0.0.16 and `batch_pipeline_version` to 0.0.20.
+
+# 0.0.26
+2026-08-28 (Date of Last Commit)
+
+* Update `Glimpse2SVImputationBatch` to optionally use base glimpse phase memory from chunk panel json.
+* remove `boot_disk_gb` from tasks
+
+# 0.0.25
+2026-08-27 (Date of Last Commit)
+
+* Rename input `output_prefix` to `output_basename`
+* Rename outputs `glimpse2_popped_posteriors_vcf` to `imputed_vcf` and `glimpse2_popped_posteriors_vcf_idx` to `imputed_vcf_index`
+* Update `batch_pipeline_version` to 0.0.18
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.14
+
+# 0.0.24
+2026-08-24 (Date of Last Commit)
+
+* Add input_qc_version to match new Glimspe2SVImputationQC wdl version
+
+# 0.0.23
+2026-08-24 (Date of Last Commit)
+
+* Add new QuotaConsumed wdl
+
+# 0.0.22
+2026-08-20 (Date of Last Commit)
+
+* Remove `sample_ids` input from workflow. The sample name will now be obtained from GVCF file
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.13
+* Remove `sample_ids` from `ConvertInputArraysToManifest` task
+
+# 0.0.21
+2026-08-18 (Date of Last Commit)
+
+* Adds an optional pipeline_header_line input to the WDL
+* Update `batch_pipeline_version` to 0.0.16
+
+# 0.0.20
+2026-08-17 (Date of Last Commit)
+
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.11 and `batch_pipeline_version` to 0.0.14 to pick up replacement of `$(nproc)` with explicit `cpu` task inputs across nested tasks, so thread counts always match each task's allocated cpu
+
+# 0.0.19
+2026-08-17 (Date of Last Commit)
+
+* make all task disk sizes dynamic and set bootDiskSizeGb to 0
+* update default value of sample_batch_size to 1000
+
+# 0.0.18
+2026-08-13 (Date of Last Commit)
+
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.10 to pick up removal of background heartbeat monitor logging from merge/concat tasks
+
+# 0.0.17
+2026-08-13 (Date of Last Commit)
+
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.7 and `batch_pipeline_version` to 0.0.12 for resource optimizations in `PreprocessPLs`, `GLIMPSE2Ligate`, and `PopAndMarginalizeCollisions` tasks
+
+# 0.0.16
+2026-08-12 (Date of Last Commit)
+
+* update batch_pipeline_version to 0.0.12 and preprocess_pls_gvcf_pipeline_version to 0.0.8
+
+# 0.0.15
+2026-08-12 (Date of Last Commit)
+
+* Replace top-level FOFN inputs with a `gvcf_manifest` input that expects `gvcf_path`, `gvcf_index_path`, and `sample_id` columns to exist.
+* Batch samples from the manifest, while still converting array inputs into a manifest internally for compatibility.
+* Pass each manifest batch directly into `PreprocessPLsGVCF`, which now parses the manifest internally.
+* Use the sample count emitted by `PreprocessPLsGVCF` instead of counting manifest rows in the top-level workflow.
+
+# 0.0.14
+2026-08-11 (Date of Last Commit)
+
+* Add optional `info_filter_for_inclusion` input; when set above 0.0, variants with INFO score below the threshold are excluded from the final per-chromosome popped output VCFs.
+
 # 0.0.13
 2026-08-09 (Date of Last Commit)
 

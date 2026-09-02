@@ -7,7 +7,7 @@ slug: /Pipelines/scANVI_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [scANVI_v2.0.0](https://github.com/broadinstitute/warp/releases?q=scANVI&expanded=true) | July, 2026 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/scanvi/scANVI.changelog.md) for version information. | See changelog | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues)  |
 
 ## Introduction to the scANVI workflow
 
@@ -27,6 +27,14 @@ scANVI annotates in two stages — an **unsupervised** representation-learning s
 
 This unsupervised → semi-supervised design is more robust than training a supervised classifier on the reference alone: SCVI first integrates query and reference into a common, batch-corrected space using all available cells, and SCANVI only has to learn the annotation boundaries **within** that shared space. Labels are transferred by propagating each query cell's `C_scANVI` prediction back onto the original matrices.
 
+#### ATAC gene-activity conversion (Multiome mode)
+
+Because SCVI requires all integrated datasets to share the exact same feature space, the raw ATAC cell-by-bin matrix (produced by upstream pipelines) cannot be concatenated directly with the cell-by-gene RNA matrices. The pipeline solves this by projecting the ATAC signal into the transcriptomic feature space:
+
+1. **Bypassing peak calling.** Rather than relying on distal peaks (which are difficult to definitively map to target genes), the pipeline counts the raw Tn5 insertion fragments that overlap each known gene's coordinates.
+2. **Gene activity scoring.** Using a genome annotation (e.g., hg38 GENCODE), `snapatac2.pp.make_gene_matrix` defines a regulatory domain for each gene—typically the gene body plus a promoter window immediately upstream of the transcription start site. The accessibility metric for that gene is the count of fragments falling within that window; fragments falling in distant intergenic regions are ignored.
+3. **Concatenation.** This produces a cell-by-gene "activity" matrix that mathematically resembles an RNA count matrix. The GEX query, the ATAC activity matrix, and the reference can then be seamlessly concatenated, reduced to the top highly variable genes, and mapped into a single SCVI latent space where technical modality differences are handled mathematically as a batch effect.
+
 #### How the models are trained
 
 Both models are trained by **minibatch stochastic gradient descent**. The full concatenated dataset (query + reference) is prepared and held in CPU/host memory, but each training step streams only a small **minibatch** of cells — scvi-tools' default `batch_size` is **128 cells** — to the GPU, runs the forward/backward pass, updates the model weights, and releases that minibatch before fetching the next. Because the GPU only ever holds one minibatch at a time, its memory footprint is set by *minibatch size × number of genes* and is essentially **independent of the total number of cells** in the dataset. This is what lets a large query be annotated on a single modest GPU while the full dataset lives in host RAM: the CPU node assembles and holds the data, and the GPU processes it 128 cells at a time.
@@ -34,7 +42,7 @@ Both models are trained by **minibatch stochastic gradient descent**. The full c
 **Two meanings of "batch."** The `batch_size` above is the SGD minibatch — an optimization detail of how the data is fed to the GPU. It is distinct from the **batch covariate**, the experimental grouping (e.g., donor or sequencing library) that SCVI/SCANVI explicitly model in order to correct for it as technical variation. The models integrate *across* batch-covariate groups to remove batch effects, and they do so by reading the data in `batch_size`-cell minibatches — the same word, two unrelated concepts.
 
 :::tip Want to use scANVI for your publication?
-The pipeline is designed to consume the outputs of the [Multiome](../Multiome_Pipeline/README.md) and [PeakCalling](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/peak_calling) WARP pipelines. Cite the pipeline using the WARP citation in the [Citing](#citing-the-scanvi-pipeline) section below.
+The pipeline is designed to consume the outputs of the [Multiome](../Multiome_Pipeline/README.md) and [PeakCalling](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/peak_calling) WARP pipelines. Identify it in your methods section with its SciCrunch resource identifier, *scANVI Pipeline (RRID:SCR_028705)*, and cite the pipeline using the WARP citation in the [Citing](#citing-the-scanvi-pipeline) section below.
 :::
 
 ## Quickstart table

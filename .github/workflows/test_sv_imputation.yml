@@ -10,6 +10,7 @@ on:
     ####################################
     paths:
       - 'pipelines/wdl/glimpse/sv_imputation/**'
+      - '!pipelines/wdl/glimpse/sv_imputation/input_qc/**'
       - 'tasks/wdl/Glimpse2SVImputationTasks.wdl'
       - 'verification/VerifyGlimpse2SVImputation.wdl'
       - 'verification/test-wdls/TestGlimpse2SVImputation.wdl'

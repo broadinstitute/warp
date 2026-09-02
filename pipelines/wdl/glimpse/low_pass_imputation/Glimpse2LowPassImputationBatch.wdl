@@ -1,12 +1,12 @@
 version 1.0
 
-# This workflow performs low pass imputation using GLIMPSE2. It's designed to scale
+# This workflow performs low-pass imputation using GLIMPSE2. It's designed to scale
 # to approximately 1000 samples and be used as a subworkflow for Glimpse2LowPassImputation.wdl,
 # which can handle larger sample sizes by splitting into batches and then merging results.
 
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.3"
+    String pipeline_version = "1.1.0"
 
     input {
 
@@ -70,7 +70,7 @@ workflow Glimpse2LowPassImputationBatch {
 
     scatter(i in range(length(SplitCramManifestIntoBatchesOfStrings.crams_batches))) {
         scatter(inner_index in range(length(SplitCramManifestIntoBatchesOfStrings.crams_batches[i]))) {
-            call SplitCramIntoContigChunks{
+            call SplitCramIntoContigChunks {
                 input:
                     cram = SplitCramManifestIntoBatchesOfStrings.crams_batches[i][inner_index],
                     cram_index = SplitCramManifestIntoBatchesOfStrings.cram_indices_batches[i][inner_index],
@@ -92,13 +92,11 @@ workflow Glimpse2LowPassImputationBatch {
         File sites_table_index = reference_panel_prefix + "sites_table." + contigs[contig_index] + ".gz.tbi"
         File reference_chunks = reference_panel_prefix + "reference_chunks." + contigs[contig_index] + ".txt"
 
-
         scatter(batch_index in range(length(SplitCramManifestIntoBatchesOfStrings.crams_batches))) {
             call BcftoolsMpileup {
                 input:
                     crams = crams_to_use[batch_index][contig_index],
                     cram_indices = cram_indices_to_use[batch_index][contig_index],
-                    sample_ids = SplitCramManifestIntoBatchesOfStrings.sample_ids_batches[batch_index],
                     fasta = fasta,
                     fasta_index = fasta_index,
                     call_indels = call_indels,
@@ -168,54 +166,6 @@ workflow Glimpse2LowPassImputationBatch {
     }
 }
 
-task SplitIntoBatches {
-    input {
-        Int batch_size
-
-        Array[String] crams
-        Array[String] cram_indices
-        Array[String] sample_ids
-    }
-
-    command <<<
-        cat <<EOF > script.py
-        import json
-
-        batch_size = ~{batch_size}
-        crams = ['~{sep="', '" crams}']
-        cram_indices = ['~{sep="', '" cram_indices}']
-        sample_ids = ['~{sep="', '" sample_ids}']
-
-        crams_batches = [crams[i:i + batch_size] for i in range(0, len(crams), batch_size)]
-        cram_indices_batches = [cram_indices[i:i + batch_size] for i in range(0, len(cram_indices), batch_size)]
-        sample_ids_batches = [sample_ids[i:i + batch_size] for i in range(0, len(sample_ids), batch_size)]
-
-        with open('crams.json', 'w') as json_file:
-            json.dump(crams_batches, json_file)
-        with open('cram_indices.json', 'w') as json_file:
-            json.dump(cram_indices_batches, json_file)
-        with open('sample_ids.json', 'w') as json_file:
-            json.dump(sample_ids_batches, json_file)
-        EOF
-        python3 script.py
-    >>>
-
-    runtime {
-        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
-        cpu: 1
-        disks: "local-disk 10 HDD"
-        memory: "1 GiB"
-        preemptible: 3
-        noAddress: true
-    }
-
-    output {
-        Array[Array[String]] crams_batches = read_json('crams.json')
-        Array[Array[String]] cram_indices_batches = read_json('cram_indices.json')
-        Array[Array[String]] sample_ids_batches = read_json('sample_ids.json')
-    }
-}
-
 task SplitCramManifestIntoBatchesOfStrings {
     input {
         Int batch_size
@@ -233,7 +183,7 @@ task SplitCramManifestIntoBatchesOfStrings {
         df = pd.read_csv("~{cram_manifest}", sep='\t')
 
         # Check for required columns
-        required_cols = ['sample_id', 'cram_path', 'cram_index_path']
+        required_cols = ['cram_path', 'cram_index_path']
         missing_cols = [col for col in required_cols if col not in df.columns]
 
         if missing_cols:
@@ -242,18 +192,14 @@ task SplitCramManifestIntoBatchesOfStrings {
 
         crams = df['cram_path'].tolist()
         cram_indices = df['cram_index_path'].tolist()
-        sample_ids = df['sample_id'].tolist()
 
         crams_batches = [crams[i:i + batch_size] for i in range(0, len(crams), batch_size)]
         cram_indices_batches = [cram_indices[i:i + batch_size] for i in range(0, len(cram_indices), batch_size)]
-        sample_ids_batches = [sample_ids[i:i + batch_size] for i in range(0, len(sample_ids), batch_size)]
 
         with open('crams.json', 'w') as json_file:
             json.dump(crams_batches, json_file)
         with open('cram_indices.json', 'w') as json_file:
             json.dump(cram_indices_batches, json_file)
-        with open('sample_ids.json', 'w') as json_file:
-            json.dump(sample_ids_batches, json_file)
 
         with open('total_samples.txt', 'w') as total_sample_file:
             total_sample_file.write(str(len(crams)))
@@ -273,7 +219,6 @@ task SplitCramManifestIntoBatchesOfStrings {
     output {
         Array[Array[String]] crams_batches = read_json('crams.json')
         Array[Array[String]] cram_indices_batches = read_json('cram_indices.json')
-        Array[Array[String]] sample_ids_batches = read_json('sample_ids.json')
         Int total_samples = read_int("total_samples.txt")
     }
 }
@@ -375,7 +320,6 @@ task BcftoolsMpileup {
         File fasta
         File fasta_index
         Boolean call_indels
-        Array[String] sample_ids
 
         File sites_vcf
 
@@ -391,14 +335,7 @@ task BcftoolsMpileup {
     command <<<
         set -xeuo pipefail
 
-        crams=(~{sep=' ' crams})
-        sample_ids=(~{sep=' ' sample_ids})
-
-        for i in "${!crams[@]}"; do
-            echo "* ${crams[$i]} ${sample_ids[$i]}" >> sample_name_mapping.txt
-        done
-
-        bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I" else ""} -G sample_name_mapping.txt --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -T ~{sites_vcf} -Ob -o mpileup.bcf.gz ~{sep=" " crams}
+        bcftools mpileup -f ~{fasta} ~{if !call_indels then "-I" else ""} --seed ~{seed} -E -a 'FORMAT/DP,FORMAT/AD' -T ~{sites_vcf} -Ob -o mpileup.bcf.gz ~{sep=" " crams}
         bcftools index mpileup.bcf.gz
     >>>
 

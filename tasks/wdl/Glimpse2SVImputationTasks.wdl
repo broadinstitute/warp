@@ -2,10 +2,10 @@ version 1.0
 
 task MergeSampleChunksVcfsWithPaste {
     input {
-        Array[File] input_vcfs
+        Array[File] input_vcfs_or_bcfs
         String output_vcf_basename
 
-        Int disk_size_gb = ceil(2.2 * size(input_vcfs, "GiB") + 50)
+        Int disk_size_gb = ceil(2.2 * size(input_vcfs_or_bcfs, "GiB") + 50)
         Int mem_gb = 8
         Int cpu = 4
         Int preemptible = 0
@@ -14,7 +14,7 @@ task MergeSampleChunksVcfsWithPaste {
     command <<<
         set -euo pipefail
 
-        vcfs=(~{sep=" " input_vcfs})
+        vcfs=(~{sep=" " input_vcfs_or_bcfs})
 
         mkfifo fifo_0
         mkfifo fifo_to_paste_0
@@ -89,27 +89,27 @@ task MergeSampleChunksVcfsWithPaste {
 
 task ExtractAnnotations {
     input {
-        File imputed_vcf
-        File imputed_vcf_index
+        File imputed_vcf_or_bcf
+        File imputed_vcf_or_bcf_index
         Int batch_index
 
         String docker_extract_annotations
-        Int disk_size_gb = ceil(2 * size(imputed_vcf, "GiB") + 50)
+        Int disk_size_gb = ceil(2 * size(imputed_vcf_or_bcf, "GiB") + 50)
         Int mem_gb = 2
         Int cpu = 1
-        Int preemptible = 1
+        Int preemptible = 3
     }
 
     command <<<
         set -euo pipefail
 
         # Ensure index is localized so bcftools can use it for random access if needed
-        ls ~{imputed_vcf_index} > /dev/null
+        ls ~{imputed_vcf_or_bcf_index} > /dev/null
 
         printf 'CHROM\tPOS\tREF\tALT\tAF\tINFO\n' > annotations_batch_~{batch_index}.tsv
         bcftools query \
         -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\n' \
-        ~{imputed_vcf} >> annotations_batch_~{batch_index}.tsv
+        ~{imputed_vcf_or_bcf} >> annotations_batch_~{batch_index}.tsv
 
         bgzip annotations_batch_~{batch_index}.tsv
     >>>
@@ -130,7 +130,7 @@ task ExtractAnnotations {
 
 task RecomputeAndAnnotate {
     input {
-        File merged_vcf
+        File merged_vcf_or_bcf
         Array[File] annotations
 
         Array[Int] num_samples
@@ -138,7 +138,7 @@ task RecomputeAndAnnotate {
         String output_basename
 
         String docker_merge
-        Int disk_size_gb = ceil(2.2 * size(merged_vcf, "GiB") + size(annotations, "GiB") + 50)
+        Int disk_size_gb = ceil(2.2 * size(merged_vcf_or_bcf, "GiB") + size(annotations, "GiB") + 50)
         Int mem_gb = 6
         Int cpu = 1
         Int preemptible = 0
@@ -204,7 +204,7 @@ EOF
         bgzip aggregated_annotations.tsv
         tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
 
-        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO -O z -o ~{output_basename}.vcf.gz ~{merged_vcf}
+        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO -O z -o ~{output_basename}.vcf.gz ~{merged_vcf_or_bcf}
     >>>
 
     runtime {
@@ -224,10 +224,10 @@ EOF
 
 task CreateVcfIndexAndMd5 {
     input {
-        File vcf_input
+        File vcf_input_or_bcf
         String output_basename
 
-        Int disk_size_gb = ceil(2.1*size(vcf_input, "GiB")) + 10
+        Int disk_size_gb = ceil(2.1*size(vcf_input_or_bcf, "GiB")) + 10
         Int cpu = 1
         Int memory_mb = 6000
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
@@ -237,11 +237,11 @@ task CreateVcfIndexAndMd5 {
     command <<<
         set -euo pipefail
 
-        if [[ "~{vcf_input}" == *.bcf ]]; then
+        if [[ "~{vcf_input_or_bcf}" == *.bcf ]]; then
             # Normalize BCF input to a bgzipped VCF for downstream compatibility.
-            bcftools view -O z -o ~{output_basename}.vcf.gz ~{vcf_input}
+            bcftools view -O z -o ~{output_basename}.vcf.gz ~{vcf_input_or_bcf}
         else
-            ln -sf ~{vcf_input} ~{output_basename}.vcf.gz
+            ln -sf ~{vcf_input_or_bcf} ~{output_basename}.vcf.gz
         fi
 
         bcftools index -t ~{output_basename}.vcf.gz
@@ -264,53 +264,163 @@ task CreateVcfIndexAndMd5 {
     }
 }
 
-task SplitGvcfInputsIntoBatches {
+task FilterVcfByInfo {
     input {
-        Array[String] input_gvcfs
-        Array[String] input_gvcf_idxs
-        Array[String] sample_ids
+        File vcf_or_bcf
+        Float info_threshold
+        String output_basename
+
+        String docker = "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        Int disk_size_gb = ceil(2.2 * size(vcf_or_bcf, "GiB") + 20)
+        Int mem_gb = 4
+        Int cpu = 1
+        Int preemptible = 3
+    }
+
+    command <<<
+        set -euo pipefail
+
+        bcftools filter -i 'INFO/INFO >= ~{info_threshold}' -O z -o ~{output_basename}.vcf.gz ~{vcf_or_bcf}
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+        noAddress: true
+    }
+
+    output {
+        File output_vcf = "~{output_basename}.vcf.gz"
+    }
+}
+
+task SplitVcfManifestIntoBatches {
+    input {
         Int batch_size
+        File gvcf_manifest
+    }
+
+    command <<<
+        cat <<EOF > script.py
+        import sys
+        import pandas as pd
+
+        batch_size = ~{batch_size}
+
+        df = pd.read_csv("~{gvcf_manifest}", sep='\t')
+
+        required_cols = ['gvcf_path', 'gvcf_index_path']
+        missing_cols = [col for col in required_cols if col not in df.columns]
+        if missing_cols:
+            print(f"Missing required columns in the VCF manifest: {', '.join(missing_cols)}.", file=sys.stderr)
+            sys.exit(1)
+
+        if df[required_cols].isnull().any().any():
+            print("The VCF manifest contains empty values in required columns.", file=sys.stderr)
+            sys.exit(1)
+
+        if len(df) == 0:
+            print("The VCF manifest must contain at least one row.", file=sys.stderr)
+            sys.exit(1)
+
+        chunk_num = 0
+        for i in range(0, len(df), batch_size):
+            df_chunk = df[i : i + batch_size]
+            df_chunk.to_csv(f"chunk_{chunk_num:04d}.tsv", sep='\t', index=False)
+            chunk_num += 1
+
+        EOF
+        python3 script.py
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        memory: "1 GiB"
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        Array[File] gvcf_manifest_batches = glob("chunk_*")
+    }
+}
+
+task ConvertInputArraysToManifest {
+    input {
+        Array[String] gvcf_paths
+        Array[String] gvcf_index_paths
+        String output_filename = "manifest.tsv"
+    }
+
+    command <<<
+        set -euo pipefail
+
+        python3 << 'EOF'
+        import sys
+
+        gvcf_paths = ['~{sep="', '" gvcf_paths}']
+        gvcf_index_paths = ['~{sep="', '" gvcf_index_paths}']
+
+        if not (len(gvcf_paths) == len(gvcf_index_paths)):
+            print(
+                f"ERROR: Input arrays have different lengths: gvcf_paths={len(gvcf_paths)}, gvcf_index_paths={len(gvcf_index_paths)}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        with open('~{output_filename}', 'w') as f:
+            f.write("gvcf_path\tgvcf_index_path\n")
+            for gvcf_path, gvcf_index_path in zip(gvcf_paths, gvcf_index_paths):
+                f.write(f"{gvcf_path}\t{gvcf_index_path}\n")
+        EOF
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        memory: "1 GiB"
+        disks: "local-disk 10 HDD"
+        preemptible: 3
+        noAddress: true
+    }
+
+    output {
+        File output_gvcf_manifest = "~{output_filename}"
+    }
+}
+
+task ParseVcfManifestIntoArrays {
+    input {
+        File gvcf_manifest
     }
 
     command <<<
         set -euo pipefail
 
         cat <<EOF > script.py
-import sys
+        import sys
+        import pandas as pd
 
-gvcfs = ['~{sep="', '" input_gvcfs}']
-gvcf_idxs = ['~{sep="', '" input_gvcf_idxs}']
-sample_ids = ['~{sep="', '" sample_ids}']
-batch_size = ~{batch_size}
+        df = pd.read_csv("~{gvcf_manifest}", sep='\t')
 
-if not (len(gvcfs) == len(gvcf_idxs) == len(sample_ids)):
-    print(
-        f"input_gvcfs ({len(gvcfs)}), input_gvcf_idxs ({len(gvcf_idxs)}), and sample_ids ({len(sample_ids)}) must have identical lengths.",
-        file=sys.stderr,
-    )
-    sys.exit(1)
+        required_cols = ['gvcf_path', 'gvcf_index_path']
+        missing_cols = [col for col in required_cols if col not in df.columns]
+        if missing_cols:
+            print(f"Missing required columns in the VCF manifest: {', '.join(missing_cols)}.", file=sys.stderr)
+            sys.exit(1)
 
-if batch_size < 1:
-    print(f"batch_size must be > 0, got {batch_size}", file=sys.stderr)
-    sys.exit(1)
+        if df[required_cols].isnull().any().any():
+            print("The VCF manifest contains empty values in required columns.", file=sys.stderr)
+            sys.exit(1)
 
-batch_num = 0
-for i in range(0, len(gvcfs), batch_size):
-    gvcf_chunk = gvcfs[i : i + batch_size]
-    gvcf_idx_chunk = gvcf_idxs[i : i + batch_size]
-    sample_id_chunk = sample_ids[i : i + batch_size]
-
-    with open(f"gvcf_batch_{batch_num:04d}.fofn", "w") as gvcf_out:
-        gvcf_out.write("\n".join(gvcf_chunk) + "\n")
-
-    with open(f"gvcf_idx_batch_{batch_num:04d}.fofn", "w") as idx_out:
-        idx_out.write("\n".join(gvcf_idx_chunk) + "\n")
-
-    with open(f"sample_ids_batch_{batch_num:04d}.txt", "w") as sample_out:
-        sample_out.write("\n".join(sample_id_chunk) + "\n")
-
-    batch_num += 1
-EOF
+        df['gvcf_path'].to_csv('gvcf_paths.txt', index=False, header=False)
+        df['gvcf_index_path'].to_csv('gvcf_index_paths.txt', index=False, header=False)
+        EOF
         python3 script.py
     >>>
 
@@ -324,9 +434,44 @@ EOF
     }
 
     output {
-        Array[File] gvcf_fofn_batches = glob("gvcf_batch_*.fofn")
-        Array[File] gvcf_idx_fofn_batches = glob("gvcf_idx_batch_*.fofn")
-        Array[File] sample_ids_batches = glob("sample_ids_batch_*.txt")
+        Array[File] input_gvcfs = read_lines("gvcf_paths.txt")
+        Array[File] input_gvcf_idxs = read_lines("gvcf_index_paths.txt")
+    }
+}
+
+task ConcatBcfs {
+    input{
+        Array[File] bcfs
+        Array[File] bcf_idxs
+        String output_basename
+        String? extra_args
+    }
+
+    Int disk_gb = ceil(2.1 * size(bcfs, "GiB")) + 10
+
+    command <<<
+        set -euox pipefail
+
+        bcftools concat \
+            -f ~{write_lines(bcfs)} \
+            ~{extra_args} \
+            -Ob -o ~{output_basename}.bcf
+        bcftools index ~{output_basename}.bcf
+    >>>
+
+    output {
+        File concatenated_bcf = "~{output_basename}.bcf"
+        File concatenated_bcf_idx = "~{output_basename}.bcf.csi"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "4 GiB"
+        disks: "local-disk " + disk_gb + " SSD"
+        preemptible: 3
+        maxRetries: 0
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        noAddress: true
     }
 }
 

@@ -1,3 +1,53 @@
+# 0.0.20
+2026-08-31 (Date of Last Commit)
+
+* Rename local task outputs and workflow wiring from `*_vcf` to `*_bcf` for phase, ligate, pop, and concat steps.
+* Rename `UpdateHeader` inputs to `source_header_vcf` and `to_be_reheadered_bcf` and propagate the new names through command usage.
+* update variable names to vcf_or_bcf for any variable that can be either
+
+# 0.0.19
+2026-08-28 (Date of Last Commit)
+
+* optionally use base glimpse phase memory from chunk panel json if available, otherwise default to 16 GB.
+* remove `boot_disk_gb` from tasks
+
+# 0.0.18
+2026-08-27 (Date of Last Commit)
+
+* Rename input `output_prefix` to `output_basename`
+
+# 0.0.17
+2026-08-20 (Date of Last Commit)
+
+* Updated Glimpse2SVImputationTasks dependency (sample_ids no longer required as a input)
+
+# 0.0.16
+2026-08-18 (Date of Last Commit)
+
+* Adds an optional pipeline_header_line input to the WDL
+
+# 0.0.15
+2026-08-17 (Date of Last Commit)
+
+* Replace `$(nproc)` in `GLIMPSE2Ligate` with an explicit `cpu` task input referenced directly in the `--threads` argument, so thread count always matches the task's allocated cpu
+* Remove hardcoded `--threads` from `ConcatPopAndMarginalizeCollisions` call's `extra_args`, now supplied automatically by the `ConcatVcfs` task
+
+# 0.0.14
+2026-08-17 (Date of Last Commit)
+
+* make all task disk sizes dynamic and set bootDiskSizeGb to 0
+
+# 0.0.13
+2026-08-13 (Date of Last Commit)
+
+* Remove preemptible tries for `GLIMPSE2Ligate` task
+* Lower `PopAndMarginalizeCollisions` task memory to 6 GiB
+
+# 0.0.12
+2026-08-12 (Date of Last Commit)
+
+* remove use of concat wdl and replace it with concat task from shared task wdl
+
 # 0.0.11
 2026-08-09 (Date of Last Commit)
 

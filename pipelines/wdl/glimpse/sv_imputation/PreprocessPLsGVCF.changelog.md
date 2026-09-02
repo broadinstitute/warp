@@ -1,3 +1,60 @@
+# 0.0.16
+2026-08-31 (Date of Last Commit)
+
+* Rename `PreprocessPLs` outputs from `preprocessed_pls_vcf` to `preprocessed_pls_bcf` and update downstream workflow wiring.
+* Switch top-level outputs from `preprocessed_pls_vcf`/`preprocessed_pls_vcf_idx` to `preprocessed_pls_bcf`/`preprocessed_pls_bcf_idx`.
+* update variable names to vcf_or_bcf for any variable that can be either
+
+# 0.0.15
+2026-08-28 (Date of Last Commit)
+
+* remove `boot_disk_gb` from tasks
+
+# 0.0.14
+2026-08-27 (Date of Last Commit)
+
+* Rename input `output_prefix` to `output_basename`
+* Update `multi_level_paste_pipeline_version` to 0.0.9
+
+# 0.0.13
+2026-08-20 (Date of Last Commit)
+
+* Remove `sample_names` input from `PreprocessPLs` task. The sample name will now be obtained from GVCF file
+* * Update `multi_level_paste_pipeline_version` to 0.0.8
+
+# 0.0.12
+2026-08-17 (Date of Last Commit)
+
+* Replace `$(nproc)` in `PreprocessPLs` task with an explicit `cpu` input referenced directly in the `--threads` argument, so thread count always matches the task's allocated cpu
+* Remove hardcoded `--threads` from paste/concat args passed to the merge sub-workflow, now supplied automatically by its tasks
+* Update `multi_level_paste_pipeline_version` to 0.0.6
+
+# 0.0.11
+2026-08-17 (Date of Last Commit)
+
+* make all task disk sizes dynamic and set bootDiskSizeGb to 0
+
+# 0.0.10
+2026-08-13 (Date of Last Commit)
+
+* Update `multi_level_paste_pipeline_version` to 0.0.5 to pick up removal of background heartbeat monitor logging from merge task
+
+# 0.0.9
+2026-08-13 (Date of Last Commit)
+
+* Lower `PreprocessPLs` task memory to 2 GiB and increase preemptible tries to 4
+
+# 0.0.8
+2026-08-12 (Date of Last Commit)
+
+* update multi_level_paste_pipeline_version to 0.0.4
+
+# 0.0.7
+2026-08-11 (Date of Last Commit)
+
+* Replace per-sample array and FOFN inputs with a single `gvcf_manifest` input that is then parsed inside the workflow.
+* Emit the parsed sample count so callers can use it directly without re-counting manifest rows.
+
 # 0.0.6
 2026-08-04 (Date of Last Commit)
 

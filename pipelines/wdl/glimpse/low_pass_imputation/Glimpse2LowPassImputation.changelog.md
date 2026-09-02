@@ -1,3 +1,20 @@
+# 1.1.0
+2026-08-26 (Date of Last Commit)
+
+* Remove sample_id input; infer sample_id from CRAM input in `mpileup` task
+* Update `batch_pipeline_version` to 1.1.0 for supporting changes
+* Update `input_qc_version` to 1.1.0 for supporting changes
+
+# 1.0.7
+2026-08-24 (Date of Last Commit)
+
+* Update `quota_consumed_version` to 1.0.1
+
+# 1.0.6
+2026-08-12 (Date of Last Commit)
+
+* Update `batch_pipeline_version` to 1.0.4 to pick up wording fix ("low pass" -> "low-pass") in `Glimpse2LowPassImputationBatch` header comment
+
 # 1.0.5
 2026-08-09 (Date of Last Commit)
 

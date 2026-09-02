@@ -47,6 +47,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/convert_vcf_to_plink_bed.wdl
 
+  - name: CreateVcfIndex
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/phasing/CreateVcfIndex.wdl
+
   - name: CramToUnmappedBams
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl
@@ -76,6 +80,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/phasing/filter_and_qc_variants.wdl
 
+  - name: RemovePhasedSamples
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/phasing/remove_phased_samples.wdl
+
   - name: FixItFelixAndVariantCall
     subclass: WDL
     primaryDescriptorPath: /all_of_us/cmrg/FixItFelixAndVariantCall.wdl
@@ -92,6 +100,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationBatch.wdl
 
+  - name: Glimpse2LowPassImputationQuotaConsumed
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationQuotaConsumed.wdl
+
   - name: Glimpse2SVImputation
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/Glimpse2SVImputation.wdl
@@ -100,9 +112,13 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/Glimpse2SVImputationBatch.wdl
 
-  - name: Glimpse2LowPassImputationQuotaConsumed
+  - name: Glimpse2SVImputationQC
     subclass: WDL
-    primaryDescriptorPath: /pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputationQuotaConsumed.wdl
+    primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/input_qc/Glimpse2SVImputationQC.wdl
+  
+  - name: Glimpse2SVImputationQuotaConsumed
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/Glimpse2SVImputationQuotaConsumed.wdl
 
   - name: GetWgsMedianCoverage
     subclass: WDL
@@ -323,6 +339,10 @@ workflows:
   - name: TestGlimpse2SVImputation
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestGlimpse2SVImputation.wdl
+
+  - name: TestGlimpse2SVImputationQC
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestGlimpse2SVImputationQC.wdl
 
   - name: TestIlluminaGenotypingArray
     subclass: WDL
