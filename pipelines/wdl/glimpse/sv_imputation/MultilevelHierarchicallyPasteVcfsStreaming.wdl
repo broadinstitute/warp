@@ -6,58 +6,58 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow MultilevelHierarchicallyMergeVcfs {
     # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "0.0.8"
+    String pipeline_version = "0.0.11"
 
     input {
-        Array[String]? vcfs_array
-        Array[String]? vcf_idxs_array
-        File? vcfs_fofn
-        File? vcf_idxs_fofn
+        Array[String]? vcfs_or_bcfs_array
+        Array[String]? vcf_or_bcf_idxs_array
+        File? vcfs_or_bcfs_fofn
+        File? vcf_or_bcf_idxs_fofn
         Array[String] regions   # bcftools regions, e.g. ["chr1,chr2,chr3", "chr4,chr5,chr6", ...]
         Array[Int] batch_sizes  # Parameterizable hierarchical levels, e.g., [100, 50]
         Array[Boolean] do_localization # Whether to localize at each corresponding level
         Array[Int] timeouts_min  # Timeouts in minutes per level. Set to 0 to disable. e.g., [720, 720]
-        String output_prefix
+        String output_basename
 
         String extra_merge_args = "--info ID,RAF --format GT,DS,GP"
 
         String extra_concat_args = "--naive"
     }
 
-    Array[String] vcfs_in = if defined(vcfs_array) then select_first([vcfs_array]) else read_lines(select_first([vcfs_fofn]))
-    Array[String] vcf_idxs_in = if defined(vcf_idxs_array) then select_first([vcf_idxs_array]) else read_lines(select_first([vcf_idxs_fofn]))
+    Array[String] vcfs_in = if defined(vcfs_or_bcfs_array) then select_first([vcfs_or_bcfs_array]) else read_lines(select_first([vcfs_or_bcfs_fofn]))
+    Array[String] vcf_idxs_in = if defined(vcf_or_bcf_idxs_array) then select_first([vcf_or_bcf_idxs_array]) else read_lines(select_first([vcfs_or_bcfs_fofn]))
 
     call CreateBatches as L0_Batches {
         input:
-            vcfs = vcfs_in,
-            vcf_idxs = vcf_idxs_in,
+            vcfs_or_bcfs = vcfs_in,
+            vcf_or_bcf_idxs = vcf_idxs_in,
             batch_size = batch_sizes[0]
     }
 
     # Scatter by region FIRST to isolate chunks and reduce combinatorial explosion
     scatter (j in range(length(regions))) {
         String region = regions[j]
-        String region_prefix = output_prefix + ".region-" + j
+        String region_prefix = output_basename + ".region-" + j
 
         # ==========================================
         # LEVEL 0
         # ==========================================
-        scatter (i in range(length(L0_Batches.vcf_batch_fofns))) {
+        scatter (i in range(length(L0_Batches.vcf_or_bcf_batch_fofns))) {
             call MergeVcfs as L0_Merge {
                 input:
-                    vcfs_localize = if do_localization[0] then read_lines(L0_Batches.vcf_batch_fofns[i]) else [],
-                    vcf_idxs_localize = if do_localization[0] then read_lines(L0_Batches.vcf_idx_batch_fofns[i]) else [],
-                    vcfs_stream = if !do_localization[0] then read_lines(L0_Batches.vcf_batch_fofns[i]) else [],
-                    vcf_idxs_stream = if !do_localization[0] then read_lines(L0_Batches.vcf_idx_batch_fofns[i]) else [],
+                    vcfs_or_bcfs_localize = if do_localization[0] then read_lines(L0_Batches.vcf_or_bcf_batch_fofns[i]) else [],
+                    vcf_or_bcf_idxs_localize = if do_localization[0] then read_lines(L0_Batches.vcf_or_bcf_idx_batch_fofns[i]) else [],
+                    vcfs_or_bcfs_stream = if !do_localization[0] then read_lines(L0_Batches.vcf_or_bcf_batch_fofns[i]) else [],
+                    vcf_or_bcf_idxs_stream = if !do_localization[0] then read_lines(L0_Batches.vcf_or_bcf_idx_batch_fofns[i]) else [],
                     timeout_min = timeouts_min[0],
                     region = region,
-                    output_prefix = region_prefix + ".L0-" + i,
+                    output_basename = region_prefix + ".L0-" + i,
                     extra_args = "-r " + region + " " + extra_merge_args
             }
         }
 
-        Array[File] l0_vcfs = L0_Merge.merged_vcf
-        Array[File] l0_idxs = L0_Merge.merged_vcf_idx
+        Array[File] l0_bcfs = L0_Merge.merged_bcf
+        Array[File] l0_idxs = L0_Merge.merged_bcf_idx
 
         # ==========================================
         # LEVEL 1
@@ -65,28 +65,28 @@ workflow MultilevelHierarchicallyMergeVcfs {
         if (length(batch_sizes) > 1) {
             call CreateBatches as L1_Batches {
                 input:
-                    vcfs = l0_vcfs,
-                    vcf_idxs = l0_idxs,
+                    vcfs_or_bcfs = l0_bcfs,
+                    vcf_or_bcf_idxs = l0_idxs,
                     batch_size = batch_sizes[1]
             }
 
-            scatter (i in range(length(L1_Batches.vcf_batch_fofns))) {
+            scatter (i in range(length(L1_Batches.vcf_or_bcf_batch_fofns))) {
                 call MergeVcfs as L1_Merge {
                     input:
-                        vcfs_localize = if do_localization[1] then read_lines(L1_Batches.vcf_batch_fofns[i]) else [],
-                        vcf_idxs_localize = if do_localization[1] then read_lines(L1_Batches.vcf_idx_batch_fofns[i]) else [],
-                        vcfs_stream = if !do_localization[1] then read_lines(L1_Batches.vcf_batch_fofns[i]) else [],
-                        vcf_idxs_stream = if !do_localization[1] then read_lines(L1_Batches.vcf_idx_batch_fofns[i]) else [],
+                        vcfs_or_bcfs_localize = if do_localization[1] then read_lines(L1_Batches.vcf_or_bcf_batch_fofns[i]) else [],
+                        vcf_or_bcf_idxs_localize = if do_localization[1] then read_lines(L1_Batches.vcf_or_bcf_idx_batch_fofns[i]) else [],
+                        vcfs_or_bcfs_stream = if !do_localization[1] then read_lines(L1_Batches.vcf_or_bcf_batch_fofns[i]) else [],
+                        vcf_or_bcf_idxs_stream = if !do_localization[1] then read_lines(L1_Batches.vcf_or_bcf_idx_batch_fofns[i]) else [],
                         timeout_min = timeouts_min[1],
                         region = region,
-                        output_prefix = region_prefix + ".L1-" + i,
+                        output_basename = region_prefix + ".L1-" + i,
                         extra_args = "-r " + region + " " + extra_merge_args
                 }
             }
         }
 
-        Array[File] l1_vcfs = select_first([L1_Merge.merged_vcf, l0_vcfs])
-        Array[File] l1_idxs = select_first([L1_Merge.merged_vcf_idx, l0_idxs])
+        Array[File] l1_bcfs = select_first([L1_Merge.merged_bcf, l0_bcfs])
+        Array[File] l1_idxs = select_first([L1_Merge.merged_bcf_idx, l0_idxs])
 
         # ==========================================
         # LEVEL 2
@@ -94,62 +94,62 @@ workflow MultilevelHierarchicallyMergeVcfs {
         if (length(batch_sizes) > 2) {
             call CreateBatches as L2_Batches {
                 input:
-                    vcfs = l1_vcfs,
-                    vcf_idxs = l1_idxs,
+                    vcfs_or_bcfs = l1_bcfs,
+                    vcf_or_bcf_idxs = l1_idxs,
                     batch_size = batch_sizes[2]
             }
 
-            scatter (i in range(length(L2_Batches.vcf_batch_fofns))) {
+            scatter (i in range(length(L2_Batches.vcf_or_bcf_batch_fofns))) {
                 call MergeVcfs as L2_Merge {
                     input:
-                        vcfs_localize = if do_localization[2] then read_lines(L2_Batches.vcf_batch_fofns[i]) else [],
-                        vcf_idxs_localize = if do_localization[2] then read_lines(L2_Batches.vcf_idx_batch_fofns[i]) else [],
-                        vcfs_stream = if !do_localization[2] then read_lines(L2_Batches.vcf_batch_fofns[i]) else [],
-                        vcf_idxs_stream = if !do_localization[2] then read_lines(L2_Batches.vcf_idx_batch_fofns[i]) else [],
+                        vcfs_or_bcfs_localize = if do_localization[2] then read_lines(L2_Batches.vcf_or_bcf_batch_fofns[i]) else [],
+                        vcf_or_bcf_idxs_localize = if do_localization[2] then read_lines(L2_Batches.vcf_or_bcf_idx_batch_fofns[i]) else [],
+                        vcfs_or_bcfs_stream = if !do_localization[2] then read_lines(L2_Batches.vcf_or_bcf_batch_fofns[i]) else [],
+                        vcf_or_bcf_idxs_stream = if !do_localization[2] then read_lines(L2_Batches.vcf_or_bcf_idx_batch_fofns[i]) else [],
                         timeout_min = timeouts_min[2],
                         region = region,
-                        output_prefix = region_prefix + ".L2-" + i,
+                        output_basename = region_prefix + ".L2-" + i,
                         extra_args = "-r " + region + " " + extra_merge_args
                 }
             }
         }
 
-        Array[File] l2_vcfs = select_first([L2_Merge.merged_vcf, l1_vcfs])
-        Array[File] l2_idxs = select_first([L2_Merge.merged_vcf_idx, l1_idxs])
+        Array[File] l2_bcfs = select_first([L2_Merge.merged_bcf, l1_bcfs])
+        Array[File] l2_idxs = select_first([L2_Merge.merged_bcf_idx, l1_idxs])
 
         # ==========================================
         # FINAL REGION COLLAPSE
         # ==========================================
         # Safety Net: Defaults to localizing workspace intermediate files, no timeout applied (0).
-        if (length(l2_vcfs) > 1) {
+        if (length(l2_bcfs) > 1) {
             call MergeVcfs as FinalRegionMerge {
                 input:
-                    vcfs_localize = l2_vcfs,
-                    vcf_idxs_localize = l2_idxs,
+                    vcfs_or_bcfs_localize = l2_bcfs,
+                    vcf_or_bcf_idxs_localize = l2_idxs,
                     timeout_min = 0,
                     region = region,
-                    output_prefix = region_prefix + ".final",
+                    output_basename = region_prefix + ".final",
                     extra_args = "-r " + region + " " + extra_merge_args
             }
         }
 
         # Select exactly 1 file for this region to pass to the final concat step
-        File final_region_vcf = select_first([FinalRegionMerge.merged_vcf, l2_vcfs[0]])
-        File final_region_idx = select_first([FinalRegionMerge.merged_vcf_idx, l2_idxs[0]])
+        File final_region_bcf = select_first([FinalRegionMerge.merged_bcf, l2_bcfs[0]])
+        File final_region_idx = select_first([FinalRegionMerge.merged_bcf_idx, l2_idxs[0]])
     }
 
     # concatenate all regions together
     call Glimpse2SVImputationTasks.ConcatBcfs {
         input:
-            bcfs = final_region_vcf,
+            bcfs = final_region_bcf,
             bcf_idxs = final_region_idx,
-            output_prefix = output_prefix,
+            output_basename = output_basename,
             extra_args = extra_concat_args
     }
 
     output {
-        File merged_vcf = ConcatBcfs.concatenated_bcf
-        File merged_vcf_idx = ConcatBcfs.concatenated_bcf_idx
+        File merged_bcf = ConcatBcfs.concatenated_bcf
+        File merged_bcf_idx = ConcatBcfs.concatenated_bcf_idx
     }
 }
 
@@ -166,8 +166,8 @@ struct RuntimeAttr {
 
 task CreateBatches {
     input {
-        Array[String] vcfs
-        Array[String] vcf_idxs
+        Array[String] vcfs_or_bcfs
+        Array[String] vcf_or_bcf_idxs
         Int batch_size
 
         RuntimeAttr? runtime_attr_override
@@ -177,13 +177,13 @@ task CreateBatches {
         set -euox pipefail
 
         # Split with -a 4 guarantees strict alphanumeric ordering up to 456,976 batches
-        cat ~{write_lines(vcfs)} | split -a 4 -l ~{batch_size} - vcf_batch_
-        cat ~{write_lines(vcf_idxs)} | split -a 4 -l ~{batch_size} - vcf_idx_batch_
+        cat ~{write_lines(vcfs_or_bcfs)} | split -a 4 -l ~{batch_size} - vcf_batch_
+        cat ~{write_lines(vcf_or_bcf_idxs)} | split -a 4 -l ~{batch_size} - vcf_idx_batch_
     >>>
 
     output {
-        Array[File] vcf_batch_fofns = glob("vcf_batch_*")
-        Array[File] vcf_idx_batch_fofns = glob("vcf_idx_batch_*")
+        Array[File] vcf_or_bcf_batch_fofns = glob("vcf_batch_*")
+        Array[File] vcf_or_bcf_idx_batch_fofns = glob("vcf_idx_batch_*")
     }
 
     #########################
@@ -191,7 +191,6 @@ task CreateBatches {
         cpu_cores:          1,
         mem_gb:             2,
         disk_gb:            10,
-        boot_disk_gb:       0,
         disk_type:          "HDD",
         preemptible_tries:  2,
         max_retries:        1,
@@ -202,7 +201,6 @@ task CreateBatches {
         cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
         memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
         disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + " " + select_first([runtime_attr.disk_type, default_attr.disk_type])
-        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
@@ -212,14 +210,14 @@ task CreateBatches {
 
 task MergeVcfs {
     input {
-        Array[File] vcfs_localize = []
-        Array[File] vcf_idxs_localize = []
-        Array[String] vcfs_stream = []
-        Array[String] vcf_idxs_stream = []
+        Array[File] vcfs_or_bcfs_localize = []
+        Array[File] vcf_or_bcf_idxs_localize = []
+        Array[String] vcfs_or_bcfs_stream = []
+        Array[String] vcf_or_bcf_idxs_stream = []
 
         Int timeout_min
         String? region
-        String output_prefix
+        String output_basename
         String? extra_args
         Int cpu = 2
 
@@ -227,14 +225,14 @@ task MergeVcfs {
     }
 
     # Dynamically sizes disk if localizing, defaults to 50GB if streaming
-    Int disk_gb = if length(vcfs_localize) > 0 then ceil(2.1*size(vcfs_localize, "GiB")) + 10 else ceil(1.1*size(vcfs_localize, "GiB")) + 10
+    Int disk_gb = if length(vcfs_or_bcfs_localize) > 0 then ceil(2.1*size(vcfs_or_bcfs_localize, "GiB")) + 10 else ceil(1.1*size(vcfs_or_bcfs_stream, "GiB")) + 10
 
     command <<<
         set -euox pipefail
 
-        if [ ~{length(vcfs_localize)} -gt 0 ]; then
+        if [ ~{length(vcfs_or_bcfs_localize)} -gt 0 ]; then
             echo "Localizing files natively via Cromwell..."
-            cat ~{write_lines(vcfs_localize)} > merge_list.txt
+            cat ~{write_lines(vcfs_or_bcfs_localize)} > merge_list.txt
         else
             echo "Slice-and-downloading regions via bcftools view..."
             export GCS_OAUTH_TOKEN=$(gcloud auth application-default print-access-token)
@@ -243,8 +241,8 @@ task MergeVcfs {
 
             # Stitch the VCF and IDX strings together using htslib's explicit index syntax
             paste \
-                ~{write_lines(vcfs_stream)} \
-                ~{write_lines(vcf_idxs_stream)} \
+                ~{write_lines(vcfs_or_bcfs_stream)} \
+                ~{write_lines(vcf_or_bcf_idxs_stream)} \
                 | awk '{print $1"##idx##"$2}' > remote_list.txt
 
             # Prepend the line number (NR) using awk, separated by a pipe, and pass to xargs
@@ -325,15 +323,15 @@ task MergeVcfs {
         /usr/local/bin/paste-vcfs \
             --threads ~{cpu} \
             ~{extra_args} \
-            -o ~{output_prefix}.bcf \
+            -o ~{output_basename}.bcf \
             $(cat merge_list.txt)
 
-        bcftools index ~{output_prefix}.bcf
+        bcftools index ~{output_basename}.bcf
     >>>
 
     output {
-        File merged_vcf = "~{output_prefix}.bcf"
-        File merged_vcf_idx = "~{output_prefix}.bcf.csi"
+        File merged_bcf = "~{output_basename}.bcf"
+        File merged_bcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
@@ -341,7 +339,6 @@ task MergeVcfs {
         cpu_cores:          cpu,
         mem_gb:             4,
         disk_gb:            disk_gb,
-        boot_disk_gb:       0,
         disk_type:          "SSD",
         preemptible_tries:  3,
         max_retries:        0,
@@ -352,7 +349,6 @@ task MergeVcfs {
         cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
         memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
         disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + " " + select_first([runtime_attr.disk_type, default_attr.disk_type])
-        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])

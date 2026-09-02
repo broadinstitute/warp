@@ -1,3 +1,24 @@
+# 0.0.27
+2026-08-31 (Date of Last Commit)
+
+* Update `ConvertInputArraysToManifest` output wiring to use `output_gvcf_manifest`.
+* Switch `PreProcessGVCFsBatch` outputs consumed by `Glimpse2SVImputationBatch` from `preprocessed_pls_vcf` to `preprocessed_pls_bcf` naming.
+* Update linked `preprocess_pls_gvcf_pipeline_version` to 0.0.16 and `batch_pipeline_version` to 0.0.20.
+
+# 0.0.26
+2026-08-28 (Date of Last Commit)
+
+* Update `Glimpse2SVImputationBatch` to optionally use base glimpse phase memory from chunk panel json.
+* remove `boot_disk_gb` from tasks
+
+# 0.0.25
+2026-08-27 (Date of Last Commit)
+
+* Rename input `output_prefix` to `output_basename`
+* Rename outputs `glimpse2_popped_posteriors_vcf` to `imputed_vcf` and `glimpse2_popped_posteriors_vcf_idx` to `imputed_vcf_index`
+* Update `batch_pipeline_version` to 0.0.18
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.14
+
 # 0.0.24
 2026-08-24 (Date of Last Commit)
 

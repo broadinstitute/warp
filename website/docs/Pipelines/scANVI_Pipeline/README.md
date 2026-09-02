@@ -7,7 +7,7 @@ slug: /Pipelines/scANVI_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [scANVI_v2.0.0](https://github.com/broadinstitute/warp/releases?q=scANVI&expanded=true) | July, 2026 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/scanvi/scANVI.changelog.md) for version information. | See changelog | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues)  |
 
 ## Introduction to the scANVI workflow
 
@@ -26,6 +26,14 @@ scANVI annotates in two stages — an **unsupervised** representation-learning s
 2. **SCANVI — semi-supervised annotation.** [SCANVI](https://docs.scvi-tools.org/en/1.4.1/user_guide/models/scanvi.html) is initialized **from the trained SCVI model** and adds a cell-type classifier on top of that latent space. It is trained **semi-supervised**: the reference cells provide their known labels (the supervision signal) while the unlabeled query cells (tagged `Unknown`) continue to shape the latent space (the unsupervised signal). The result is a label-aware embedding in which query cells sit near reference cells of the same type, and SCANVI then predicts a cell type for every query cell (`C_scANVI`).
 
 This unsupervised → semi-supervised design is more robust than training a supervised classifier on the reference alone: SCVI first integrates query and reference into a common, batch-corrected space using all available cells, and SCANVI only has to learn the annotation boundaries **within** that shared space. Labels are transferred by propagating each query cell's `C_scANVI` prediction back onto the original matrices.
+
+#### ATAC gene-activity conversion (Multiome mode)
+
+Because SCVI requires all integrated datasets to share the exact same feature space, the raw ATAC cell-by-bin matrix (produced by upstream pipelines) cannot be concatenated directly with the cell-by-gene RNA matrices. The pipeline solves this by projecting the ATAC signal into the transcriptomic feature space:
+
+1. **Bypassing peak calling.** Rather than relying on distal peaks (which are difficult to definitively map to target genes), the pipeline counts the raw Tn5 insertion fragments that overlap each known gene's coordinates.
+2. **Gene activity scoring.** Using a genome annotation (e.g., hg38 GENCODE), `snapatac2.pp.make_gene_matrix` defines a regulatory domain for each gene—typically the gene body plus a promoter window immediately upstream of the transcription start site. The accessibility metric for that gene is the count of fragments falling within that window; fragments falling in distant intergenic regions are ignored.
+3. **Concatenation.** This produces a cell-by-gene "activity" matrix that mathematically resembles an RNA count matrix. The GEX query, the ATAC activity matrix, and the reference can then be seamlessly concatenated, reduced to the top highly variable genes, and mapped into a single SCVI latent space where technical modality differences are handled mathematically as a batch effect.
 
 #### How the models are trained
 
