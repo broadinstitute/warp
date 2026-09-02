@@ -19,8 +19,6 @@ task AggregateSusie{
     mkdir -p localized
     gsutil -m cp -I localized/ < file_paths.txt 
 
-    # Write the new local file paths into filelist.txt
-    ls -1 "$(pwd)/localized/*" > filelist.txt
     Rscript /tmp/merge_susie.R --FilePaths file_paths.txt  --OutputPrefix ~{OutputPrefix}
     >>>
 
@@ -108,7 +106,7 @@ workflow AggregateSusieWorkflow {
 
     }
  
-    String pipeline_version = "aou_9.0.2"
+    String pipeline_version = "aou_9.0.3"
     
     call AggregateSusie {
         input:
