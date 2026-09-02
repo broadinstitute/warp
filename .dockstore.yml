@@ -164,6 +164,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
 
+  - name: MapMyCells
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/mapmycells/MapMyCells.wdl
+
   - name: MitochondriaMerge
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/merge/mitochondria_merge.wdl
@@ -359,6 +363,10 @@ workflows:
   - name: TestJointGenotyping
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestJointGenotyping.wdl
+
+  - name: TestMapMyCells
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestMapMyCells.wdl
 
   - name: TestMultiome
     subclass: WDL
