@@ -1,3 +1,10 @@
+# 0.0.27
+2026-08-31 (Date of Last Commit)
+
+* Update `ConvertInputArraysToManifest` output wiring to use `output_gvcf_manifest`.
+* Switch `PreProcessGVCFsBatch` outputs consumed by `Glimpse2SVImputationBatch` from `preprocessed_pls_vcf` to `preprocessed_pls_bcf` naming.
+* Update linked `preprocess_pls_gvcf_pipeline_version` to 0.0.16 and `batch_pipeline_version` to 0.0.20.
+
 # 0.0.26
 2026-08-28 (Date of Last Commit)
 

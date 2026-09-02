@@ -1,3 +1,10 @@
+# 0.0.16
+2026-08-31 (Date of Last Commit)
+
+* Rename `PreprocessPLs` outputs from `preprocessed_pls_vcf` to `preprocessed_pls_bcf` and update downstream workflow wiring.
+* Switch top-level outputs from `preprocessed_pls_vcf`/`preprocessed_pls_vcf_idx` to `preprocessed_pls_bcf`/`preprocessed_pls_bcf_idx`.
+* update variable names to vcf_or_bcf for any variable that can be either
+
 # 0.0.15
 2026-08-28 (Date of Last Commit)
 

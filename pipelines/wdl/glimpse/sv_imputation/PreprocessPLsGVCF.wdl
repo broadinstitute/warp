@@ -5,8 +5,8 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.15"
-    String multi_level_paste_pipeline_version = "0.0.10"
+    String pipeline_version = "0.0.16"
+    String multi_level_paste_pipeline_version = "0.0.11"
     input {
         File input_gvcf_manifest
 
@@ -26,8 +26,8 @@ workflow PreprocessPLsGVCF {
     scatter (j in range(length(ParseInputManifest.input_gvcfs))) {
         call PreprocessPLs as PreprocessPLsGVCF {
             input:
-                input_vcf = ParseInputManifest.input_gvcfs[j],
-                input_vcf_idx = ParseInputManifest.input_gvcf_idxs[j],
+                input_vcf_or_bcf = ParseInputManifest.input_gvcfs[j],
+                input_vcf_or_bcf_idx = ParseInputManifest.input_gvcf_idxs[j],
                 mode = "gvcf",
                 panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
                 panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
@@ -39,8 +39,8 @@ workflow PreprocessPLsGVCF {
     # two-level localized hierarchical merge over entire chromosome
     call MultilevelHierarchicallyPasteVcfsStreaming.MultilevelHierarchicallyMergeVcfs as PastePreprocessPLsGVCFs {
         input:
-            vcfs_array = PreprocessPLsGVCF.preprocessed_pls_vcf,
-            vcf_idxs_array = PreprocessPLsGVCF.preprocessed_pls_vcf_idx,
+            vcfs_or_bcfs_array = PreprocessPLsGVCF.preprocessed_pls_bcf,
+            vcf_or_bcf_idxs_array = PreprocessPLsGVCF.preprocessed_pls_bcf_idx,
             regions = paste_regions,
             batch_sizes = [50, 50],
             do_localization = [true, true],
@@ -51,8 +51,8 @@ workflow PreprocessPLsGVCF {
     }
 
     output {
-        File preprocessed_pls_vcf = PastePreprocessPLsGVCFs.merged_vcf
-        File preprocessed_pls_vcf_idx = PastePreprocessPLsGVCFs.merged_vcf_idx
+        File preprocessed_pls_bcf = PastePreprocessPLsGVCFs.merged_bcf
+        File preprocessed_pls_bcf_idx = PastePreprocessPLsGVCFs.merged_bcf_idx
         Int num_samples = length(ParseInputManifest.input_gvcfs)
     }
 }
@@ -70,8 +70,8 @@ struct RuntimeAttr {
 
 task PreprocessPLs {
     input {
-        File input_vcf
-        File input_vcf_idx
+        File input_vcf_or_bcf
+        File input_vcf_or_bcf_idx
         String mode     # joint or gvcf
         File panel_bubble_split_sites_only_vcf
         File panel_bubble_split_sites_only_vcf_idx
@@ -84,17 +84,17 @@ task PreprocessPLs {
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_size_gb = ceil(2*size([input_vcf, panel_bubble_split_sites_only_vcf], "GB")) + 10
+    Int disk_size_gb = ceil(2*size([input_vcf_or_bcf, panel_bubble_split_sites_only_vcf], "GB")) + 10
 
     command <<<
         set -euxo pipefail
 
         # Extract sample name from GVCF header and write to file for extract-bubble-PLs tool
-        bcftools query -l ~{input_vcf} > sample_name.txt
+        bcftools query -l ~{input_vcf_or_bcf} > sample_name.txt
 
         /usr/local/bin/extract-bubble-PLs ~{mode} \
             ~{panel_bubble_split_sites_only_vcf}##idx##~{panel_bubble_split_sites_only_vcf_idx} \
-            ~{input_vcf}##idx##~{input_vcf_idx} \
+            ~{input_vcf_or_bcf}##idx##~{input_vcf_or_bcf_idx} \
             ~{output_basename}.bcf \
             ~{"--region " + output_region} \
             --samples sample_name.txt \
@@ -108,8 +108,8 @@ task PreprocessPLs {
     >>>
 
     output {
-        File preprocessed_pls_vcf = "~{output_basename}.bcf"
-        File preprocessed_pls_vcf_idx = "~{output_basename}.bcf.csi"
+        File preprocessed_pls_bcf = "~{output_basename}.bcf"
+        File preprocessed_pls_bcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
