@@ -85,6 +85,15 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | run_peak_calling | Optional boolean used to determine if the ATAC pipeline should run Peak Calling; default is `false`. When set to true, the pipeline takes the ATAC h5ad produced by the JoinBarcodes task and performs peak calling to produce a cell by bin matrix and a cell by peak matrix. | Boolean |
 | vm_size | String defining the Azure virtual machine family for the workflow (default: "Standard_M128s"). | String |
 
+:::warning BWA machine size not available in your region/project
+The ATAC component sizes the BWA-mem2 alignment machine from three inputs — `num_threads_bwa` (default 128), `mem_size_bwa` (default 512 GiB), and `cpu_platform_bwa` (default "Intel Ice Lake") — that are internal to the ATAC subworkflow and are **not** exposed as top-level Multiome inputs. If a Multiome run fails immediately at the `Atac.GetNumSplits` or `Atac.BWAPairedEndAlignment` task with no execution logs, the requested VM shape is likely unavailable (quota or capacity) in your project/region. Override the three inputs directly on the ATAC subworkflow using Cromwell/Terra's nested-input syntax, e.g.:
+
+```json
+"Multiome.Atac.num_threads_bwa": "16",
+"Multiome.Atac.mem_size_bwa": "64",
+"Multiome.Atac.cpu_platform_bwa": "Intel Cascade Lake"
+```
+:::
 
 #### Sample inputs for analyses in a Terra Workspace
 
