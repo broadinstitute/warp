@@ -2,10 +2,10 @@ version 1.0
 
 task MergeSampleChunksVcfsWithPaste {
     input {
-        Array[File] input_vcfs
+        Array[File] input_vcfs_or_bcfs
         String output_vcf_basename
 
-        Int disk_size_gb = ceil(2.2 * size(input_vcfs, "GiB") + 50)
+        Int disk_size_gb = ceil(2.2 * size(input_vcfs_or_bcfs, "GiB") + 50)
         Int mem_gb = 8
         Int cpu = 4
         Int preemptible = 0
@@ -14,7 +14,7 @@ task MergeSampleChunksVcfsWithPaste {
     command <<<
         set -euo pipefail
 
-        vcfs=(~{sep=" " input_vcfs})
+        vcfs=(~{sep=" " input_vcfs_or_bcfs})
 
         mkfifo fifo_0
         mkfifo fifo_to_paste_0
@@ -75,7 +75,6 @@ task MergeSampleChunksVcfsWithPaste {
     runtime {
         docker: "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
         disks: "local-disk " + disk_size_gb + " HDD"
-        bootDiskSizeGb: 0
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
@@ -90,27 +89,27 @@ task MergeSampleChunksVcfsWithPaste {
 
 task ExtractAnnotations {
     input {
-        File imputed_vcf
-        File imputed_vcf_index
+        File imputed_vcf_or_bcf
+        File imputed_vcf_or_bcf_index
         Int batch_index
 
         String docker_extract_annotations
-        Int disk_size_gb = ceil(2 * size(imputed_vcf, "GiB") + 50)
+        Int disk_size_gb = ceil(2 * size(imputed_vcf_or_bcf, "GiB") + 50)
         Int mem_gb = 2
         Int cpu = 1
-        Int preemptible = 1
+        Int preemptible = 3
     }
 
     command <<<
         set -euo pipefail
 
         # Ensure index is localized so bcftools can use it for random access if needed
-        ls ~{imputed_vcf_index} > /dev/null
+        ls ~{imputed_vcf_or_bcf_index} > /dev/null
 
         printf 'CHROM\tPOS\tREF\tALT\tAF\tINFO\n' > annotations_batch_~{batch_index}.tsv
         bcftools query \
         -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\n' \
-        ~{imputed_vcf} >> annotations_batch_~{batch_index}.tsv
+        ~{imputed_vcf_or_bcf} >> annotations_batch_~{batch_index}.tsv
 
         bgzip annotations_batch_~{batch_index}.tsv
     >>>
@@ -118,7 +117,6 @@ task ExtractAnnotations {
     runtime {
         docker: docker_extract_annotations
         disks: "local-disk " + disk_size_gb + " HDD"
-        bootDiskSizeGb: 0
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
@@ -132,7 +130,7 @@ task ExtractAnnotations {
 
 task RecomputeAndAnnotate {
     input {
-        File merged_vcf
+        File merged_vcf_or_bcf
         Array[File] annotations
 
         Array[Int] num_samples
@@ -140,7 +138,7 @@ task RecomputeAndAnnotate {
         String output_basename
 
         String docker_merge
-        Int disk_size_gb = ceil(2.2 * size(merged_vcf, "GiB") + size(annotations, "GiB") + 50)
+        Int disk_size_gb = ceil(2.2 * size(merged_vcf_or_bcf, "GiB") + size(annotations, "GiB") + 50)
         Int mem_gb = 6
         Int cpu = 1
         Int preemptible = 0
@@ -206,13 +204,12 @@ EOF
         bgzip aggregated_annotations.tsv
         tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
 
-        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO -O z -o ~{output_basename}.vcf.gz ~{merged_vcf}
+        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO -O z -o ~{output_basename}.vcf.gz ~{merged_vcf_or_bcf}
     >>>
 
     runtime {
         docker: docker_merge
         disks: "local-disk " + disk_size_gb + " HDD"
-        bootDiskSizeGb: 0
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
@@ -227,10 +224,10 @@ EOF
 
 task CreateVcfIndexAndMd5 {
     input {
-        File vcf_input
+        File vcf_input_or_bcf
         String output_basename
 
-        Int disk_size_gb = ceil(2.1*size(vcf_input, "GiB")) + 10
+        Int disk_size_gb = ceil(2.1*size(vcf_input_or_bcf, "GiB")) + 10
         Int cpu = 1
         Int memory_mb = 6000
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
@@ -240,11 +237,11 @@ task CreateVcfIndexAndMd5 {
     command <<<
         set -euo pipefail
 
-        if [[ "~{vcf_input}" == *.bcf ]]; then
+        if [[ "~{vcf_input_or_bcf}" == *.bcf ]]; then
             # Normalize BCF input to a bgzipped VCF for downstream compatibility.
-            bcftools view -O z -o ~{output_basename}.vcf.gz ~{vcf_input}
+            bcftools view -O z -o ~{output_basename}.vcf.gz ~{vcf_input_or_bcf}
         else
-            ln -sf ~{vcf_input} ~{output_basename}.vcf.gz
+            ln -sf ~{vcf_input_or_bcf} ~{output_basename}.vcf.gz
         fi
 
         bcftools index -t ~{output_basename}.vcf.gz
@@ -254,7 +251,6 @@ task CreateVcfIndexAndMd5 {
     runtime {
         docker: gatk_docker
         disks: "local-disk ${disk_size_gb} SSD"
-        bootDiskSizeGb: 0
         memory: "${memory_mb} MiB"
         cpu: cpu
         preemptible: preemptible
@@ -270,12 +266,12 @@ task CreateVcfIndexAndMd5 {
 
 task FilterVcfByInfo {
     input {
-        File vcf
+        File vcf_or_bcf
         Float info_threshold
         String output_basename
 
         String docker = "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
-        Int disk_size_gb = ceil(2.2 * size(vcf, "GiB") + 20)
+        Int disk_size_gb = ceil(2.2 * size(vcf_or_bcf, "GiB") + 20)
         Int mem_gb = 4
         Int cpu = 1
         Int preemptible = 3
@@ -284,13 +280,12 @@ task FilterVcfByInfo {
     command <<<
         set -euo pipefail
 
-        bcftools filter -i 'INFO/INFO >= ~{info_threshold}' -O z -o ~{output_basename}.vcf.gz ~{vcf}
+        bcftools filter -i 'INFO/INFO >= ~{info_threshold}' -O z -o ~{output_basename}.vcf.gz ~{vcf_or_bcf}
     >>>
 
     runtime {
         docker: docker
         disks: "local-disk " + disk_size_gb + " HDD"
-        bootDiskSizeGb: 0
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
@@ -345,7 +340,6 @@ task SplitVcfManifestIntoBatches {
         docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
         cpu: 1
         disks: "local-disk 10 HDD"
-        bootDiskSizeGb: 0
         memory: "1 GiB"
         preemptible: 3
         noAddress: true
@@ -391,13 +385,12 @@ task ConvertInputArraysToManifest {
         cpu: 1
         memory: "1 GiB"
         disks: "local-disk 10 HDD"
-        bootDiskSizeGb: 0
         preemptible: 3
         noAddress: true
     }
 
     output {
-        File output_manifest = "~{output_filename}"
+        File output_gvcf_manifest = "~{output_filename}"
     }
 }
 
@@ -436,7 +429,6 @@ task ParseVcfManifestIntoArrays {
         cpu: 1
         memory: "1 GiB"
         disks: "local-disk 10 HDD"
-        bootDiskSizeGb: 0
         preemptible: 3
         noAddress: true
     }
@@ -476,7 +468,6 @@ task ConcatBcfs {
         cpu: 1
         memory: "4 GiB"
         disks: "local-disk " + disk_gb + " SSD"
-        bootDiskSizeGb: 0
         preemptible: 3
         maxRetries: 0
         docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"

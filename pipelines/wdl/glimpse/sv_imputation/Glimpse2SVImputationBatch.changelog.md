@@ -1,3 +1,16 @@
+# 0.0.20
+2026-08-31 (Date of Last Commit)
+
+* Rename local task outputs and workflow wiring from `*_vcf` to `*_bcf` for phase, ligate, pop, and concat steps.
+* Rename `UpdateHeader` inputs to `source_header_vcf` and `to_be_reheadered_bcf` and propagate the new names through command usage.
+* update variable names to vcf_or_bcf for any variable that can be either
+
+# 0.0.19
+2026-08-28 (Date of Last Commit)
+
+* optionally use base glimpse phase memory from chunk panel json if available, otherwise default to 16 GB.
+* remove `boot_disk_gb` from tasks
+
 # 0.0.18
 2026-08-27 (Date of Last Commit)
 
