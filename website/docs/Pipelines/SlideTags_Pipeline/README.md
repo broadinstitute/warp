@@ -7,7 +7,7 @@ slug: /Pipelines/SlideTags_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| v1.0.0 | May, 2025 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/slidetags/SlideTags.changelog.md) for version information. | See changelog | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues)  |
 
 ![Slide-tags_diagram](./Slide-tags.png)
 

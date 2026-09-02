@@ -107,6 +107,7 @@ task ExtractAnnotations {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        noAddress: true
     }
 
     output {
@@ -132,6 +133,8 @@ task RecomputeAndAnnotate {
     }
 
     command <<<
+        set -euo pipefail
+
         cat <<EOF > script.py
 import pandas as pd
 import numpy as np
@@ -197,6 +200,7 @@ EOF
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        noAddress: true
     }
 
     output {
@@ -239,6 +243,7 @@ task MergeQCMetrics {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        noAddress: true
     }
 }
 
@@ -373,7 +378,7 @@ task SplitCramManifestIntoBatches {
         df = pd.read_csv("~{cram_manifest}", sep='\t')
 
         # Check for required columns
-        required_cols = ['sample_id', 'cram_path', 'cram_index_path']
+        required_cols = ['cram_path', 'cram_index_path']
         missing_cols = [col for col in required_cols if col not in df.columns]
 
         if missing_cols:
@@ -406,7 +411,6 @@ task SplitCramManifestIntoBatches {
 
 task ConvertInputArraysToManifest {
     input {
-        Array[String] sample_ids
         Array[String] cram_paths
         Array[String] cram_index_paths
         String output_filename = "manifest.tsv"
@@ -418,20 +422,19 @@ task ConvertInputArraysToManifest {
         python3 << 'EOF'
         import sys
 
-        sample_ids = ['~{sep="', '" sample_ids}']
         cram_paths = ['~{sep="', '" cram_paths}']
         cram_index_paths = ['~{sep="', '" cram_index_paths}']
 
         # Validate all arrays have the same length
-        if not (len(sample_ids) == len(cram_paths) == len(cram_index_paths)):
-            print(f"ERROR: Input arrays have different lengths: sample_ids={len(sample_ids)}, cram_paths={len(cram_paths)}, cram_index_paths={len(cram_index_paths)}", file=sys.stderr)
+        if not (len(cram_paths) == len(cram_index_paths)):
+            print(f"ERROR: Input arrays have different lengths: cram_paths={len(cram_paths)}, cram_index_paths={len(cram_index_paths)}", file=sys.stderr)
             sys.exit(1)
 
         # Write TSV with headers
         with open('~{output_filename}', 'w') as f:
-            f.write("sample_id\tcram_path\tcram_index_path\n")
-            for sample_id, cram_path, cram_index_path in zip(sample_ids, cram_paths, cram_index_paths):
-                f.write(f"{sample_id}\t{cram_path}\t{cram_index_path}\n")
+            f.write("cram_path\tcram_index_path\n")
+            for cram_path, cram_index_path in zip(cram_paths, cram_index_paths):
+                f.write(f"{cram_path}\t{cram_index_path}\n")
         EOF
     >>>
 
