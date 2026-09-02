@@ -32,9 +32,10 @@ workflow MapMyCells {
         String docker = "us.gcr.io/broad-gotc-prod/mapmycells:add-mapmycells"
 
         # Runtime
+        # disk_size headroom accounts for gene_mapping_db (~15GB), localized on every run
         Int cpu = 8
         Int memory_gb = 64
-        Int disk_size = 100
+        Int disk_size = 150
         Int preemptible = 3
     }
 
@@ -45,13 +46,21 @@ workflow MapMyCells {
         }
     }
 
+    # Allen Institute's pre-built gene-symbol -> Ensembl-ID mapping db (~15GB; hosted on
+    # GCS, not baked into the docker image -- see warp-tools' mapmycells README for why).
+    # Applies to any reference_atlas; override with custom_gene_mapping_db if desired.
+    File gene_mapping_db = select_first([
+        custom_gene_mapping_db,
+        "gs://broad-gotc-test-storage/mapmycells/mmc_gene_mapper.2025-08-04.db"
+    ])
+
     call RunMapMyCells {
         input:
             query_h5ad               = query_h5ad,
             input_id                 = input_id,
             reference_atlas          = reference_atlas,
             custom_precomputed_stats = custom_precomputed_stats,
-            custom_gene_mapping_db   = custom_gene_mapping_db,
+            gene_mapping_db          = gene_mapping_db,
             custom_query_markers     = custom_query_markers,
             algorithm                = algorithm,
             normalization            = normalization,
@@ -74,7 +83,7 @@ task RunMapMyCells {
         String input_id
         String reference_atlas
         File? custom_precomputed_stats
-        File? custom_gene_mapping_db
+        File gene_mapping_db
         File? custom_query_markers
         String algorithm
         String normalization
@@ -122,7 +131,7 @@ task RunMapMyCells {
                 --query_markers.collapse_markers False \
                 --type_assignment.algorithm ~{algorithm} \
                 --type_assignment.normalization ~{normalization} \
-                ~{"--gene_mapping.db_path " + custom_gene_mapping_db}
+                --gene_mapping.db_path ~{gene_mapping_db}
         else
             python -m cell_type_mapper.cli.map_to_on_the_fly_markers \
                 --query_path ~{query_h5ad} \
@@ -132,7 +141,7 @@ task RunMapMyCells {
                 --precomputed_stats.path "$precomputed_stats" \
                 --type_assignment.algorithm ~{algorithm} \
                 --type_assignment.normalization ~{normalization} \
-                ~{"--gene_mapping.db_path " + custom_gene_mapping_db} \
+                --gene_mapping.db_path ~{gene_mapping_db} \
                 --query_markers.n_per_utility 15 \
                 --reference_markers.log2_fold_min_th 0.5
         fi
@@ -156,7 +165,7 @@ task RunMapMyCells {
         input_id: "Prefix for output files."
         reference_atlas: "Which reference atlas's baked-in assets to use, or 'Custom' to supply your own."
         custom_precomputed_stats: "HDF5 file containing the precomputed hierarchical taxonomy stats. Required when reference_atlas is 'Custom'."
-        custom_gene_mapping_db: "Optional SQLite database for translating gene symbols to Ensembl IDs."
+        gene_mapping_db: "SQLite database for translating gene symbols to Ensembl IDs, used regardless of reference_atlas. Defaults to Allen Institute's pre-built db (see the workflow-level custom_gene_mapping_db input to override)."
         custom_query_markers: "Optional JSON file containing predefined marker genes. Only used when reference_atlas is 'Custom'."
         algorithm: "Type assignment algorithm. Options: 'hierarchical', 'hann'. Default: 'hierarchical'."
         normalization: "Normalization method to use for mapping. Options: 'raw', 'log2CPM'. Default: 'raw'."
