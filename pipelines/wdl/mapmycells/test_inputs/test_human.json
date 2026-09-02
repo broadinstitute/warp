@@ -1,8 +1,7 @@
 {
   "MapMyCells.input_id": "test_human_mtg",
   "MapMyCells.query_h5ad": "gs://broad-gotc-test-storage/mapmycells/query.h5ad",
-  "MapMyCells.precomputed_stats": "gs://broad-gotc-test-storage/mapmycells/precomputed_stats_10X_MTG_revision_230821.h5",
-  "MapMyCells.gene_mapping_db": "gs://broad-gotc-test-storage/mapmycells/mmc_gene_mapper.2025-08-04.db",
+  "MapMyCells.reference_atlas": "Human_MTG",
   "MapMyCells.cpu": 4,
   "MapMyCells.memory_gb": 32
 }
