@@ -42,3 +42,10 @@ You can find example inputs in the `test_inputs/` folder:
 * `test_inputs/Plumbing/test_mouse.json` — Maps using `"Mouse_WMB"`
 
 The Human_MTG and Mouse_WMB reference-atlas assets are baked into the pipeline's docker image (see [warp-tools/3rd-party-tools/mapmycells](https://github.com/broadinstitute/warp-tools/tree/develop/3rd-party-tools/mapmycells)), so you do not need to download the reference atlases or pass them into the workflow yourself. Simply specify the `reference_atlas` and provide your `query_h5ad`!
+
+## Citing
+
+This pipeline wraps the Allen Institute's `cell_type_mapper` library. If you use it in your research, please cite:
+
+* Daniel SF, Lee C, Mollenkopf T, et al. *High-performance mapping of unlabeled cell-by-gene data to reference brain taxonomies.* bioRxiv (2026). doi: [10.64898/2026.03.06.710160](https://doi.org/10.64898/2026.03.06.710160) ([PMID: 41958981](https://pubmed.ncbi.nlm.nih.gov/41958981/))
+* Source code: [github.com/AllenInstitute/cell_type_mapper](https://github.com/AllenInstitute/cell_type_mapper)
