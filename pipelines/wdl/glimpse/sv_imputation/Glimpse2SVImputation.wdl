@@ -5,7 +5,7 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "0.0.27"
+    String pipeline_version = "0.0.28"
     String preprocess_pls_gvcf_pipeline_version = "0.0.16"
     String batch_pipeline_version = "0.0.20"
     String quota_consumed_version = "0.0.2"
@@ -151,8 +151,8 @@ workflow Glimpse2SVImputation {
     }
 
     output {
-        Array[File] imputed_vcf = IndexFinalPoppedContig.output_vcf
-        Array[File] imputed_vcf_index = IndexFinalPoppedContig.output_vcf_index
+        Array[File] imputed_vcfs = IndexFinalPoppedContig.output_vcf
+        Array[File] imputed_vcf_indexes = IndexFinalPoppedContig.output_vcf_index
     }
 }
 

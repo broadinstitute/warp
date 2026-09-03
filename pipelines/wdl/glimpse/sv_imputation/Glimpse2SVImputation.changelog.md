@@ -1,3 +1,8 @@
+# 0.0.28
+2026-09-03 (Date of Last Commit)
+
+* Rename outputs `imputed_vcf` to `imputed_vcfs` and `imputed_vcf_index` to `imputed_vcf_indexes`
+
 # 0.0.27
 2026-08-31 (Date of Last Commit)
 

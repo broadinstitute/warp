@@ -75,8 +75,8 @@ workflow TestGlimpse2SVImputation {
 
     # Collect all pipeline outputs into a single Array[String]
     Array[String] pipeline_outputs = flatten([
-                                    Glimpse2SVImputation.imputed_vcf,
-                                    Glimpse2SVImputation.imputed_vcf_index
+                                    Glimpse2SVImputation.imputed_vcfs,
+                                    Glimpse2SVImputation.imputed_vcf_indexes
     ])
 
     # Copy results of pipeline to test results bucket
@@ -99,15 +99,15 @@ workflow TestGlimpse2SVImputation {
     if (!update_truth){
         call Utilities.GetValidationInputs as GetImputedVcfs {
           input:
-            input_files = Glimpse2SVImputation.imputed_vcf,
+            input_files = Glimpse2SVImputation.imputed_vcfs,
             results_path = results_path,
             truth_path = truth_path
         }
 
       call VerifyGlimpse2SVImputation.VerifyGlimpse2SVImputation as Verify {
         input:
-          truth_imputed_vcf = GetImputedVcfs.truth_files,
-          test_imputed_vcf = GetImputedVcfs.results_files,
+          truth_imputed_vcfs = GetImputedVcfs.truth_files,
+          test_imputed_vcfs = GetImputedVcfs.results_files,
           done = CopyToTestResults.done
       }
     }
