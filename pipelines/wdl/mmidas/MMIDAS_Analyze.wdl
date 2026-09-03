@@ -7,7 +7,7 @@ workflow MMIDAS_Analyze {
     allowNestedInputs: true
   }
 
-  String pipeline_version = "1.1.1"
+  String pipeline_version = "1.1.2"
 
   input {
     # ── Inputs from MMIDAS_Train (after human review) ─────────────────────────

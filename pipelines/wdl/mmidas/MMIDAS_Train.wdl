@@ -7,7 +7,7 @@ workflow MMIDAS_Train {
     allowNestedInputs: true
   }
 
-  String pipeline_version = "1.2.0"
+  String pipeline_version = "1.3.0"
 
   input {
     # ── Input data ───────────────────────────────────────────────────────────
@@ -51,12 +51,19 @@ workflow MMIDAS_Train {
 
     # ── cpl-mixVAE training ───────────────────────────────────────────────────
     Int     n_epoch                = 10000
-    Int     n_epoch_p              = 10000   # tutorials/train_mixvae.py value.
-                                             # Was 1000: 10x less training per
-                                             # pruning round than the reference.
-    # min_con is reporting-only. The consensus stop condition is commented out
-    # upstream, so pruning always runs the full max_prun_it -- see
-    # mmidas/cpl_mixvae.py::train.
+    # n_epoch_p is epochs per pruning round, and it sets the cost of the run:
+    # total epochs are n_epoch + max_prun_it * n_epoch_p.
+    #
+    #   1000  (default here)  52,000 epochs, ~13.5 h, ~$13 on an nvidia-tesla-t4
+    #   10000 (published)    430,000 epochs, ~4.5 days, ~$110
+    #
+    # The published analysis used 10000. 1000 is the default because it is the
+    # configuration validated in the Terra workspace: on the example data it
+    # reached avg_consensus 0.969 and model_order 89 against the published 92.
+    # To run the published configuration use example_inputs/MMIDAS_Train.json.
+    Int     n_epoch_p              = 1000
+    # min_con is reporting-only in this implementation; pruning runs the full
+    # max_prun_it regardless of the value set here.
     Float   min_con                = 0.99
     # The reference model directory holds pruning checkpoints 1-42, and its
     # published model_order of 92 is round 28 (n_categories - model_order).

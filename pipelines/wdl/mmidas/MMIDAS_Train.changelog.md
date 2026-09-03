@@ -1,3 +1,10 @@
+# 1.3.0
+2026-08-27 (Date of Last Commit)
+
+* n_epoch_p default 10000 -> 1000. Total epochs are n_epoch + max_prun_it * n_epoch_p, so this is the parameter that sets the cost of a run: 52,000 epochs (~13.5 h, ~$13 on an nvidia-tesla-t4) against 430,000 (~4.5 days, ~$110). The published analysis used 10000; 1000 is now the default because it is the configuration validated in the Terra workspace, and the example outputs and validation-notebook results distributed with it come from that configuration. On the example data it reached avg_consensus 0.969 and model_order 89 against the published 92. max_prun_it stays at 42, so the published model_order remains inside the reachable search space.
+* To run the published configuration, set n_epoch_p to 10000 or use example_inputs/MMIDAS_Train.json, which retains that value. example_inputs/MMIDAS_Train.staged_validation.json matches the new default.
+* No script or Docker change: the image stays at us.gcr.io/broad-gotc-prod/mmidas:1.0.0-0.1.0-1787578739 with the mmidas package pinned at warp-v2.
+
 # 1.2.0
 2026-08-11 (Date of Last Commit)
 
