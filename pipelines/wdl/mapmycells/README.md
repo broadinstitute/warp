@@ -38,8 +38,8 @@ The task generates two output files:
 ## Usage
 
 You can find example inputs in the `test_inputs/` folder:
-* `test_inputs/Scientific/test_human.json` — Maps using `"Human_MTG"`
-* `test_inputs/Scientific/test_mouse.json` — Maps using `"Mouse_WMB"`
+* `test_inputs/Plumbing/test_human.json` / `test_inputs/Plumbing/test_mouse.json` — small smoke tests, using Allen Institute's own [MapMyCells example files](https://brain-map.org/bkp/analyze/mapmycells/files) (1k and 10k cells respectively)
+* `test_inputs/Scientific/test_human.json` / `test_inputs/Scientific/test_mouse.json` — full-scale runs
 
 The Human_MTG and Mouse_WMB reference-atlas assets are baked into the pipeline's docker image (see [warp-tools/3rd-party-tools/mapmycells](https://github.com/broadinstitute/warp-tools/tree/develop/3rd-party-tools/mapmycells)), so you do not need to download the reference atlases or pass them into the workflow yourself. Simply specify the `reference_atlas` and provide your `query_h5ad`!
 
