@@ -82,10 +82,10 @@ The top-level workflow orchestrates batching, per-batch preprocessing/imputation
 
 Upon successful completion, the workflow emits final per-contig imputed outputs and matching indexes.
 
-| Output | Description |
-|--------|-------------|
-| `imputed_vcf` | Final per-contig imputed VCF files |
-| `imputed_vcf_index` | Index files for final per-contig imputed VCF files |
+| Output                | Description                                        |
+|-----------------------|----------------------------------------------------|
+| `imputed_vcfs`        | Final per-contig imputed VCF files                 |
+| `imputed_vcf_indexes` | Index files for final per-contig imputed VCF files |
 
 ## PreprocessPLsGVCF summary
 
