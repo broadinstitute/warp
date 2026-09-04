@@ -53,6 +53,11 @@ workflow ATAC {
 
     # Optional Aligned BAM input to skip alignment step
     File? aligned_ATAC_bam
+
+    # Optional pre-split, barcode-partitioned bam chunks to skip SplitBamByBarcode. Mainly
+    # useful for iterating/testing without re-splitting a very large bam each time; ignored
+    # if preindex=true. Assumes the chunks were partitioned by the CB tag.
+    Array[File]? aligned_ATAC_bam_chunks
   }
 
   String pipeline_version = "2.9.3"
@@ -163,14 +168,18 @@ workflow ATAC {
   # cell-calling self-estimating from a single very deep (1B+ read) bam, where ambient signal
   # in empty droplets compresses the dynamic range and causes it to badly undercount cells.
   if (!preindex) {
-    call SplitBamByBarcode {
-      input:
-        bam = aligned_bam,
-        input_id = input_id,
-        docker_path = docker_prefix + samtools_docker
+    if (!defined(aligned_ATAC_bam_chunks)) {
+      call SplitBamByBarcode {
+        input:
+          bam = aligned_bam,
+          input_id = input_id,
+          docker_path = docker_prefix + samtools_docker
+      }
     }
 
-    scatter (bam_chunk in SplitBamByBarcode.bam_chunks) {
+    Array[File] bam_chunks_for_fragments = select_first([aligned_ATAC_bam_chunks, SplitBamByBarcode.bam_chunks])
+
+    scatter (bam_chunk in bam_chunks_for_fragments) {
       call MakeFragmentFileChunk {
         input:
           bam = bam_chunk,
@@ -764,7 +773,7 @@ task SplitBamByBarcode {
   input {
     File bam
     String input_id
-    Int num_chunks = 2
+    Int num_chunks = 1
     String barcode_tag = "CB"
     Int disk_size = 500
     Int mem_size = 16
