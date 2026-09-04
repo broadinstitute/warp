@@ -21,18 +21,18 @@ import "../verification/VerifyTasks.wdl" as Tasks
 workflow VerifyGlimpse2SVImputation {
   input {
     # popped posteriors vcf, one per chromosome
-    Array[File] truth_imputed_vcf
-    Array[File] test_imputed_vcf
+    Array[File] truth_imputed_vcfs
+    Array[File] test_imputed_vcfs
 
     Boolean? done
   }
 
 
-  scatter (idx in range(length(truth_imputed_vcf))) {
+  scatter (idx in range(length(truth_imputed_vcfs))) {
     call Tasks.CompareVcfs as CompareImputedVcfs {
       input:
-        file1 = truth_imputed_vcf[idx],
-        file2 = test_imputed_vcf[idx],
+        file1 = truth_imputed_vcfs[idx],
+        file2 = test_imputed_vcfs[idx],
         patternForLinesToExcludeFromComparison = "##"
     }
   }
