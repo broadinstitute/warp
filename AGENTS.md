@@ -4,6 +4,8 @@ Single entry point for all agent-driven and AI-coding work in this repository. S
 
 > **Opening, updating, or merging pull requests is never an agent's job.** Do the work on a branch and push it when asked; the human opens and manages the PR. Also confirm a branch still exists before pushing to it — pushing to a deleted (e.g. post-merge) branch silently recreates it.
 
+> **Debugging a failed Terra/WDL pipeline test?** See [FISS_MCP_RUNBOOK.md](FISS_MCP_RUNBOOK.md) — submission URL → the exact failing task/metric, via the `fiss-mcp` tools (subworkflow log drill-down, GCS traversal, stale-run checks).
+
 ## Authoritative References
 
 | Topic | Document |
