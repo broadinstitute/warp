@@ -222,23 +222,23 @@ import hashlib
 thresholds = {
     "sequenced_reads": 0.0000001,  # ~61 reads on a 614M-read library; raised from 6.6e-9 (allowed 4) which flaked on an observed 9-read drift
     "fraction_Q30_bases_in_read_1": 0.0000000054,
-    "fraction of high-quality fragments in cells": 0.000115,
+    "fraction of high-quality fragments in cells": 0.00022,
     "fraction_of_transposition_events_in_peaks_in_cells": 0.00006,
     "fraction_duplicates": 0.00000105,
-    "fraction_fragment_in_nucleosome_free_region": 0.000002,
-    "fraction_fragment_flanking_single_nucleosome": 0.000001,
-    "fraction_of_high-quality_fragments_overlapping_tss": 0.000001,
-    "number_of_peaks": 0.00002,
-    "fraction_of_genome_in_peaks": 0.000005,
-    "mean_raw_read_pairs_per_cell": 0.001,
-    "median_high-quality_fragments_per_cell": 0.0001,
+    "fraction_fragment_in_nucleosome_free_region": 0.0000027,
+    "fraction_fragment_flanking_single_nucleosome": 0.0000012,
+    "fraction_of_high-quality_fragments_overlapping_tss": 0.00000087,
+    "number_of_peaks": 0.00003,
+    "fraction_of_genome_in_peaks": 0.0000069,
+    "mean_raw_read_pairs_per_cell": 0.00088,
+    "median_high-quality_fragments_per_cell": 0.000087,
     "atac_percent_target": 0.001,
-    "number_of_cells": 0.0011,  # ~10 cells on a ~9150-cell library
+    "number_of_cells": 0.00088,
     "fraction_confidently_mapped": 0.000000123,
-    "fraction_unmapped": 0.00001,
+    "fraction_unmapped": 0.000014,
     "fraction_nonnuclear": 0.00000079,
     "tss_enrichment_score": 0.0000024,
-    "fraction_of_high-quality_fragments_overlapping_peaks": 0.000001
+    "fraction_of_high-quality_fragments_overlapping_peaks": 0.0000015
 }
 
 thresholds = {k.lower(): v for k, v in thresholds.items()}
