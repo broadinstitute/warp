@@ -926,6 +926,12 @@ task MergeFragmentFilesAndCalculateMetrics {
     import anndata as ad
     import snapatac2
     import snapatac2.preprocessing as pp
+    # call_cells always self-estimates (hardcodes recovered_cells=None into OrdMag), which is
+    # unreliable at very high per-barcode depth. Call the underlying OrdMag implementation
+    # directly instead, anchored on atac_expected_cells, since call_cells provides no way to
+    # pass this through. Not officially public API (leading underscore), but it's the exact
+    # code path call_cells itself uses.
+    from snapatac2.preprocessing._cell_calling import filter_cellular_barcodes_ordmag
 
     chunk_qc = [json.load(open(p)) for p in ["~{sep='", "' bam_qc_jsons}"]]
 
@@ -1002,7 +1008,8 @@ task MergeFragmentFilesAndCalculateMetrics {
     snapatac2.metrics.frip(adata, {"n_frag_overlap_peak": peaks}, normalized=False)
     qc["Targeting"]["Fraction_of_high-quality_fragments_overlapping_peaks"] = adata.obs['n_frag_overlap_peak'].sum() / adata.obs['n_fragment'].sum()
 
-    cell_idx = pp.call_cells(adata, use_rep="n_frag_overlap_peak", inplace=False)
+    counts = adata.obs["n_frag_overlap_peak"].to_numpy()
+    cell_idx = filter_cellular_barcodes_ordmag(counts, expected_cells)[0]
     n_cells = len(cell_idx)
     n_fragment = adata.obs['n_fragment'].to_numpy()
     qc["Cells"]["Number_of_cells"] = n_cells
