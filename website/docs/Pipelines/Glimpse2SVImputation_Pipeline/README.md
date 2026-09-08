@@ -183,6 +183,7 @@ The `InputQC` workflow validates manifest-level and GVCF-level readiness before 
 - each GVCF contains exactly one sample
 - sample IDs are unique across all provided GVCFs
 - PL and GT FORMAT IDs are present in each GVCF header
+- GVCF have vcf format 4.x
 
 ### InputQC outputs
 
