@@ -334,8 +334,8 @@ workflow ImputationBeagle {
   }
   
   output {
-    Array[File] imputed_multi_sample_vcf = CreateIndexForGatheredVcfContig.output_vcf
-    Array[File] imputed_multi_sample_vcf_index = CreateIndexForGatheredVcfContig.output_vcf_index
+    Array[File] imputed_multi_sample_vcfs = CreateIndexForGatheredVcfContig.output_vcf
+    Array[File] imputed_multi_sample_vcf_indexes = CreateIndexForGatheredVcfContig.output_vcf_index
     File chunks_info = StoreMetricsInfo.chunks_info
     File contigs_info = StoreMetricsInfo.contigs_info
   }

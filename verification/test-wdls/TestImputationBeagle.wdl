@@ -50,7 +50,7 @@ workflow TestImputationBeagle {
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     # File outputs
-                                    ImputationBeagle.imputed_multi_sample_vcf,
+                                    ImputationBeagle.imputed_multi_sample_vcfs,
     ])
 
     
@@ -88,7 +88,7 @@ workflow TestImputationBeagle {
       }
       call Utilities.GetValidationInputs as GetImputedMultiSampleVcf {
         input:
-          input_files = ImputationBeagle.imputed_multi_sample_vcf,
+          input_files = ImputationBeagle.imputed_multi_sample_vcfs,
           results_path = results_path,
           truth_path = truth_path
       }
