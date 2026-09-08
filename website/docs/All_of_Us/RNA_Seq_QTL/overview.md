@@ -30,7 +30,7 @@ The table below reflects the original end-to-end run order, including steps that
 | Order | Stage | Workflow / Component | Documentation | WDL | Run next |
 | :--: | --- | --- | --- | --- | --- |
 | 0 | Cohort setup | Ancestry grouping and sample lists | No dedicated WDL page (notebook/table prep) | N/A | Use ancestry/sample partitions as inputs to genotype and phenotype prep. |
-| 1 | Genotype prep | Prepare genotypes (pruning + PLINK + PCs) | No dedicated page yet | [PrepareGenotypes.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/PrepareGenotypes.wdl) | Run dosage generation per ancestry/population. |
+| 1 | Genotype prep | Prepare genotypes (pruning + PLINK + PCs) | [Genotype Preparation Tools](#genotype-preparation-tools) | [PrepareGenotypes.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/PrepareGenotypes.wdl) | Run dosage generation per ancestry/population. |
 | 2 | Genotype prep | Calculate genotype dosage | No dedicated page yet | [calculateGenotypeDosage.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/prepare_QTL/calculateGenotypeDosage.wdl) | Feed dosages into TensorQTL and SuSiE inputs later. |
 | 3 | RNA processing | RNA-seq AoU processing (alignment/quant/QC) | [RNA-seq AoU Processing](./rnaseq_aou) | [rnaseq_aou.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/GTEx/rnaseq_aou.wdl) | Branch into eQTL phenotype prep and/or sQTL junction extraction. |
 | 4 | RNA processing | Aggregate cohort-level RNA outputs (RSEM in WARP; RNA-SeQC2 external for now) | No dedicated page yet | [aggregate_rsem_results.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/GTEx/aggregate_rsem_results.wdl) | Use aggregated expression/QC summaries for downstream phenotype prep and cohort QC review. |
@@ -42,7 +42,7 @@ The table below reflects the original end-to-end run order, including steps that
 | 10 | Covariates | Merge covariates (genotype PCs + phenotype PCs ± groups) | No dedicated page yet | [MergeCovariates.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/prepare_QTL/MergeCovariates.wdl) | Run TensorQTL cis permutations for eQTL/sQTL. |
 | 11 | Association | TensorQTL cis permutations | No dedicated page yet | [tensorqtl_cis_permutations.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/tensorQTL_cis_permutations/tensorqtl_cis_permutations.wdl) | Recalculate FDR and prepare significant loci for fine-mapping. |
 | 12 | Fine-mapping prep | FDR recalculation + SuSiE input preparation, including required AF calculation and genotype dosage checks for downstream aggregation/annotation | No dedicated page yet | [calculateAF.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/prepare_QTL/calculateAF.wdl) | Run SuSiE per phenotype window. |
-| 13 | Fine-mapping | SuSiE fine-mapping | [SuSiE Fine-Mapping Workflow](./susieR_workflow) | [susieR_workflow.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/susieR_workflow.wdl) | Aggregate SuSiE outputs across phenotypes. |
+| 13 | Fine-mapping | SuSiE fine-mapping (requires the [`susie_rscript`](https://github.com/broadinstitute/warp-tools/blob/main/3rd-party-tools/aou_qtl_finemapping/20251210_rfast_removed_susie.R) SuSiE runner script) | [SuSiE Fine-Mapping Workflow](./susieR_workflow) | [susieR_workflow.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/susieR_workflow.wdl) | Aggregate SuSiE outputs across phenotypes. |
 | 14 | Aggregation | Aggregate SuSiE outputs and annotate | [Aggregate SuSiE Workflow](./aggregate_susie_workflow) | [AggregateSusieWorkflow.wdl](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/AggregateSusieWorkflow.wdl) | Consume required AF outputs from step 12 for interpretation/reporting. |
 
 ## Practical Run Notes
@@ -52,9 +52,22 @@ The table below reflects the original end-to-end run order, including steps that
 * **Key dependency:** `susieR_workflow` expects TensorQTL-derived significant loci plus dosage inputs from earlier genotype steps.
 * **Phenotype groups:** required for many sQTL TensorQTL configurations; for eQTL they are typically not required.
 
+## Genotype Preparation Tools
+
+The genotype preparation stage (Step 1) uses tools available in the [warp-tools](https://github.com/broadinstitute/warp-tools) repository:
+
+* **`compute_genotype_PCS.R`** — Located in `3rd-party-tools/aou_qtl_prepare_genotypes/`. This R script calculates genetic principal components (PCs) from a VCF file. It performs:
+  - VCF to GDS conversion
+  - LD-based pruning (LD threshold = 0.2, MAF = 0.01)
+  - PCA analysis using SNPRelate
+  - Automatic PC selection via the Gavish-Donoho method to determine the optimal number of significant PCs
+  
+  The script outputs a table with sample IDs and genetic PC values for downstream covariate preparation.
+
 ## Additional Processing Notes
 
 * **FDR, AF, and SuSiE prep:** after TensorQTL, recalculate FDR, filter significant loci (commonly 0.05), calculate AFs, and format SuSiE-ready inputs.
+* **SuSiE runner script:** `susieR_workflow`'s `susie_rscript` input is provided by [`20251210_rfast_removed_susie.R`](https://github.com/broadinstitute/warp-tools/blob/main/3rd-party-tools/aou_qtl_finemapping/20251210_rfast_removed_susie.R) in the [warp-tools](https://github.com/broadinstitute/warp-tools) repository.
 * **SuSiE runtime guidance:** preemptible VMs can reduce cost; pinned Docker SHAs improve reproducibility.
 * **Aggregation inputs:** for `AggregateSusieWorkflow`, use fine-mapped `SusieParquet` outputs and required AF resources from step 12; do not use full/all-tested parquet outputs.
 * **RNA-level aggregation status:** `aggregate_rsem_results.wdl` is available in WARP for cohort-level RSEM aggregation; an equivalent aggregate `rnaseqc2` workflow is not yet available in WARP and currently requires external processing.

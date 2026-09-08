@@ -29,6 +29,10 @@ on:
       - '.github/workflows/test_slidetags.yml'
       - '.github/workflows/warp_test_workflow.yml'
       - 'scripts/firecloud_api/firecloud_api.py'
+      # dependencies imported by the test WDL but previously unwatched
+      - 'pipelines/wdl/optimus/Optimus.wdl'
+      - 'tasks/wdl/FastqProcessing.wdl'
+      - 'tasks/wdl/RunEmptyDrops.wdl'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

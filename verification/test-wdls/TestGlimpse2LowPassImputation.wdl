@@ -15,7 +15,6 @@ workflow TestGlimpse2LowPassImputation {
         File? cram_manifest
         Array[File]? crams
         Array[File]? cram_indices
-        Array[String]? sample_ids
 
         Int sample_batch_size = 1000
 
@@ -46,7 +45,6 @@ workflow TestGlimpse2LowPassImputation {
         cram_manifest = cram_manifest,
         crams = crams,
         cram_indices = cram_indices,
-        sample_ids = sample_ids,
         fasta = fasta,
         fasta_index = fasta_index,
         ref_dict = ref_dict,

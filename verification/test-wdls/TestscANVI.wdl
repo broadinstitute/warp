@@ -30,6 +30,10 @@ workflow TestscANVI {
       # test sets this to 2 for a fast run; unset => the pipeline's container default of 500).
       Int? max_epochs
 
+      # SCVI/SCANVI minibatch size, forwarded to scANVI. Default 128. Exposed for completeness /
+      # large-VRAM cloud runs; our tests leave it at the default.
+      Int batch_size = 128
+
       # Optional pre-trained SCANVI model (skip training) + compute overrides, forwarded to scANVI.
       # The pretrained Plumbing test sets scanvi_model + gpu_count=0 + small mem/cpu/disk.
       File? scanvi_model
@@ -63,6 +67,7 @@ workflow TestscANVI {
         genome           = genome,
         output_max_probability = output_max_probability,
         max_epochs       = max_epochs,
+        batch_size       = batch_size,
         scanvi_model     = scanvi_model,
         gpu_count        = gpu_count,
         mem_size         = mem_size,
