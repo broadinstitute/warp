@@ -7,7 +7,7 @@ slug: /Pipelines/Optimus_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v8.0.6](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2026 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/optimus/Optimus.changelog.md) for version information. | See changelog | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues)  |
 
 
 ![Optimus_diagram](Optimus_diagram.png)

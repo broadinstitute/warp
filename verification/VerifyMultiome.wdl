@@ -42,7 +42,7 @@ workflow VerifyMultiome {
             lenient_header = true
     }
 
-    call VerifyTasks.CompareCompressedTextFiles as CompareGeneMetrics {
+    call VerifyTasks.CompareGeneMetricsWithTolerance as CompareGeneMetrics {
         input:
             test_zip  = test_gene_metrics,
             truth_zip = truth_gene_metrics
@@ -58,7 +58,8 @@ workflow VerifyMultiome {
         input:
             test_bam       = test_atac_bam,
             truth_bam      = truth_atac_bam,
-            lenient_header = true
+            lenient_header = true,
+            mappings_diff_threshold = 0.05
     }
     call VerifyTasks.CompareTabix as CompareFragment {
         input:

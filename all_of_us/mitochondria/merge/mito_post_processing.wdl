@@ -10,7 +10,7 @@ struct RuntimeAttr {
 
 workflow MitoPostProcessing {
     meta {
-        description: "Runs mito post-processing from the cleaned notebook: exports filtered VCF, sample metadata TSV, and all generated plots as SVG."
+        description: "Runs mito post-processing: exports filtered VCF and sample metadata TSV."
         allowNestedInputs: true
     }
 
@@ -19,11 +19,11 @@ workflow MitoPostProcessing {
         String input_path
         String output_base
 
-        String hail_docker = "us.gcr.io/broad-gotc-prod/aou_mitochondria_post:0.0.5"
+        String hail_docker = "us.gcr.io/broad-gotc-prod/aou_mitochondria_post:0.0.8"
         RuntimeAttr? runtime_attr_override
     }
 
-    String pipeline_version = "aou_9.0.0"
+    String pipeline_version = "aou_9.0.1"
 
     call RunMitoPostProcessing {
         input:
@@ -35,17 +35,9 @@ workflow MitoPostProcessing {
     }
 
     output {
-        File filtered_vcf                      = RunMitoPostProcessing.filtered_vcf
-        File filtered_vcf_tbi                  = RunMitoPostProcessing.filtered_vcf_tbi
-        File sample_metadata_tsv               = RunMitoPostProcessing.sample_metadata_tsv
-
-        File variants_per_sample_svg           = RunMitoPostProcessing.variants_per_sample_svg
-        File mito_cn_distribution_svg          = RunMitoPostProcessing.mito_cn_distribution_svg
-        File variant_allele_frequency_svg      = RunMitoPostProcessing.variant_allele_frequency_svg
-        File variant_af_and_allele_fraction_svg = RunMitoPostProcessing.variant_af_and_allele_fraction_svg
-        File numt_fp_by_mtcn_svg               = RunMitoPostProcessing.numt_fp_by_mtcn_svg
-        File haplogroup_heteroplasmy_svg       = RunMitoPostProcessing.haplogroup_heteroplasmy_svg
-        File haplogroup_homoplasmy_svg         = RunMitoPostProcessing.haplogroup_homoplasmy_svg
+        String filtered_vcf        = RunMitoPostProcessing.filtered_vcf
+        String filtered_vcf_tbi    = RunMitoPostProcessing.filtered_vcf_tbi
+        String sample_metadata_tsv = RunMitoPostProcessing.sample_metadata_tsv
     }
 }
 
@@ -71,24 +63,25 @@ task RunMitoPostProcessing {
     command <<<
         set -euo pipefail
 
+        # Hail's Spark/JVM backend spills temporary data to TMPDIR.  In Cromwell,
+        # /tmp is on the small OS boot disk, not the provisioned SSD.  Redirect
+        # both the JVM tmpdir and Hail's own tmp_dir to the execution directory,
+        # which IS on the provisioned disk.
+        mkdir -p hail_tmp
+        export TMPDIR="$(pwd)/hail_tmp"
+        export JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=$(pwd)/hail_tmp"
+
         python3 /opt/mito_plot_filter.py \
             --input-path  "~{input_path}" \
-            --output-path "~{output_path}" \
-            --output-base "~{output_base}"
+            --output-root "~{output_path}" \
+            --basename    "~{output_base}" \
+            --tmp-dir     "$(pwd)/hail_tmp"
     >>>
 
     output {
-        File filtered_vcf                       = "~{output_base}.vcf.bgz"
-        File filtered_vcf_tbi                   = "~{output_base}.vcf.bgz.tbi"
-        File sample_metadata_tsv                = "~{output_base}_metadata.tsv"
-
-        File variants_per_sample_svg            = "~{output_base}.variants_per_sample.svg"
-        File mito_cn_distribution_svg           = "~{output_base}.mito_cn_distribution.svg"
-        File variant_allele_frequency_svg       = "~{output_base}.variant_allele_frequency.svg"
-        File variant_af_and_allele_fraction_svg = "~{output_base}.variant_af_and_allele_fraction.svg"
-        File numt_fp_by_mtcn_svg                = "~{output_base}.numt_fp_by_mtcn.svg"
-        File haplogroup_heteroplasmy_svg        = "~{output_base}.haplogroup_heteroplasmy.svg"
-        File haplogroup_homoplasmy_svg          = "~{output_base}.haplogroup_homoplasmy.svg"
+        String filtered_vcf        = "~{output_path}/~{output_base}.filtered.vcf.bgz"
+        String filtered_vcf_tbi    = "~{output_path}/~{output_base}.filtered.vcf.bgz.tbi"
+        String sample_metadata_tsv = "~{output_path}/~{output_base}.metadata.tsv"
     }
 
     runtime {
