@@ -2,7 +2,7 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.3"
+    String pipeline_version = "1.0.0"
 
     input {
         # service expects only gvcf_manifest even though main wdl can alternatively take input arrays
