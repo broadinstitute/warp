@@ -248,7 +248,7 @@ task ExtractGenotypeLikelihoods {
 
         Int seed = 12345
         Int mem_gb = 4
-        Int cpu = 1
+        Int cpu = 2
         Int preemptible = 3
         Int max_retries = 1
     }
@@ -326,8 +326,7 @@ task ExtractGenotypeLikelihoods {
                 # Run the likelihood extraction tightly bound to the shard region and sliced sites
                 bcftools mpileup --no-version -f ~{fasta} ~{if !call_indels then "-I " else ""} --seed ~{seed} -E -r "${shard}" -T "shard_vcf.vcf" -Ou ~{basename(cram)} | \
                 bcftools call --no-version -Aim -C alleles -T "shard_tbl.tsv" -Ou | \
-                bcftools annotate --no-version -x 'INFO,^FORMAT/PL' -Ou | \
-                bcftools norm --no-version -m -both -Ob -o "${out_bcf}"
+                bcftools annotate --no-version -x 'INFO,^FORMAT/PL' -Ob -o "${out_bcf}"
                 
                 bcftools index "${out_bcf}"
                 
