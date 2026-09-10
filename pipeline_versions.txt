@@ -15,7 +15,7 @@ Glimpse2SVImputationQC	 1.0.0	2026-09-09
 Glimpse2SVImputationQuotaConsumed	 1.0.0	2026-09-09 
 IlluminaGenotypingArray	 1.12.27	2026-01-21 
 Imputation	 1.1.23	2025-10-03 
-ImputationBeagle	 3.0.1	2026-02-23 
+ImputationBeagle	 4.0.0	2026-09-08 
 JointGenotyping	 1.7.3	2025-08-11 
 MultiSampleSmartSeq2SingleNucleus	 2.2.8	2026-07-10 
 MultilevelHierarchicallyPasteVcfsStreaming	 1.0.0	2026-09-09 
