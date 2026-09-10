@@ -1,3 +1,8 @@
+# 1.0.0
+2026-09-09 (Date of Last Commit)
+
+* Initial version for teaspoons prod release
+
 # 0.0.3
 2026-09-08 (Date of Last Commit)
 
