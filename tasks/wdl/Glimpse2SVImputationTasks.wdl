@@ -209,7 +209,7 @@ EOF
 
     runtime {
         docker: docker_merge
-        disks: "local-disk " + disk_size_gb + " HDD"
+        disks: "local-disk " + disk_size_gb + " SSD"
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
