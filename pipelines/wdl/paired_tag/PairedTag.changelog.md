@@ -1,3 +1,24 @@
+# 3.0.2
+2026-07-10 (Date of Last Commit)
+
+* Bumped for the shared `checkOptimusInput` change: an unspecified `tenx_chemistry_subversion` now defaults to the `v4_TRU` (Cell Ranger v9.0+) whitelist; affects v4 runs only
+
+# 3.0.1
+2026-05-15 (Date of Last Commit)
+
+* Updated shared dependency CheckInputs.wdl to support 10x v4 (GEM-X) chemistry; no functional impact on PairedTag outputs
+
+# 3.0.0
+2026-04-02 (Date of Last Commit)
+
+* Removed the `count_exons` input from the PairedTag workflow following its removal from Optimus v9.0.0. Default behavior is unchanged (the default was `false`).
+
+# 2.1.11
+2026-02-24 (Date of Last Commit)
+
+* Added 2 new outputs to Multiome.wdl: gex_whitelist_used and atac_whitelist_used; these outputs indicate the whitelist used for the gene expression and ATAC pipelines, respectively. This change is provenance-only and introduces no functional changes to pipeline outputs
+* Added whitelist provenance tracking to JoinMultiomeBarcodes by storing the GEX and ATAC whitelist paths in the h5ad unstructured metadata (.uns). This change is provenance-only and introduces no functional changes to pipeline outputs
+
 # 2.1.10
 2026-01-22 (Date of Last Commit)
 

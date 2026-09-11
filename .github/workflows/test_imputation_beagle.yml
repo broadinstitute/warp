@@ -20,6 +20,8 @@ on:
       - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       - '.github/workflows/test_imputation_beagle.yml'
       - '.github/workflows/warp_test_workflow.yml'
+      # dependencies imported by the test WDL but previously unwatched
+      - 'verification/VerifyTasks.wdl'
 
 
   # Allows you to run this workflow manually from the Actions tab

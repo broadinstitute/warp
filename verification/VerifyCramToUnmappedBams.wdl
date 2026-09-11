@@ -4,25 +4,22 @@ version 1.0
 workflow VerifyCramToUnmappedBams {
 
   input {
-    Array[BamPair] bam_pairs
+    Array[File] truth_bam
+    Array[File] test_bam
+    Boolean? done
   }
 
-  scatter(pair in bam_pairs) {
+  scatter(idx in range(length(truth_bam))) {
     call CompareBams {
       input:
-        test_bam = pair.test_bam,
-        truth_bam = pair.truth_bam
+        test_bam = test_bam[idx],
+        truth_bam = truth_bam[idx]
     }
   }
 
   meta {
     allowNestedInputs: true
   }
-}
-
-struct BamPair {
-  File test_bam
-  File truth_bam
 }
 
 task CompareBams {

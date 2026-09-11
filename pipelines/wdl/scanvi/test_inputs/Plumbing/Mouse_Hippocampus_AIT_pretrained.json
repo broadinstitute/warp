@@ -1,0 +1,10 @@
+{
+  "scANVI.input_id": "Mouse_Hippocampus_AIT_pretrained",
+  "scANVI.gex_h5ad": "gs://pd-test-storage-public/scANVI/input/plumbing/Mouse_Hippocampus_AIT/Mouse_Hippocampus_AIT_plumbing_gex.h5ad",
+  "scANVI.ref_h5ad": "gs://pd-test-storage-public/scANVI/input/plumbing/Mouse_Hippocampus_AIT/Mouse_Hippocampus_AIT_plumbing_ref.h5ad",
+  "scANVI.scanvi_model": "gs://pd-test-storage-public/scANVI/input/plumbing/Mouse_Hippocampus_AIT/scanvi_model.tar.gz",
+  "scANVI.gpu_count": 0,
+  "scANVI.mem_size": 16,
+  "scANVI.nthreads": 4,
+  "scANVI.disk_size": 50
+}
