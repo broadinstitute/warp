@@ -1,3 +1,18 @@
+# 1.0.0
+2026-09-09 (Date of Last Commit)
+
+* Initial version for teaspoons prod release
+
+# 0.0.29
+2026-09-08 (Date of Last Commit)
+
+* Update linked `input_qc_version` to 0.0.3.
+
+# 0.0.28
+2026-09-03 (Date of Last Commit)
+
+* Rename outputs `imputed_vcf` to `imputed_vcfs` and `imputed_vcf_index` to `imputed_vcf_indexes`
+
 # 0.0.27
 2026-08-31 (Date of Last Commit)
 
