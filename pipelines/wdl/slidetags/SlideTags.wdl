@@ -6,7 +6,7 @@ import "../optimus/Optimus.wdl" as optimus
 
 workflow SlideTags {
 
-    String pipeline_version = "2.0.1"
+    String pipeline_version = "2.0.2"
 
     input {
 
@@ -28,6 +28,9 @@ workflow SlideTags {
         String input_id
         Int expected_cells = 3000
         String counting_mode = "sn_rna"
+        # NOTE: V4 chemistry is not yet supported here. To add V4 support, also declare the
+        # optional String? tenx_chemistry_subversion input and forward BOTH chemistry inputs to
+        # Optimus (an unspecified subversion defaults to the v4_TRU whitelist; see Optimus.wdl).
         Int tenx_chemistry_version = 3
         Int emptydrops_lower = 100
         Boolean force_no_check = false

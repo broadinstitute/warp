@@ -1,3 +1,52 @@
+# 1.1.0
+2026-08-26 (Date of Last Commit)
+
+* Remove sample_id from tasks
+* Use sample_id found in CRAM as the identifier in `BcftoolsMpileup` task
+* Remove unused `SplitIntoBatches` task
+
+# 1.0.4
+2026-08-12 (Date of Last Commit)
+
+* Add hyphen to "low pass" -> "low-pass" in workflow header comment
+
+# 1.0.3
+2026-08-01 (Date of Last Commit)
+
+* update bcftools docker image from v1.21 to v1.24
+
+# 1.0.2
+2026-07-28 (Date of Last Commit)
+
+* increase disk provided to glimpse phase task
+* remove glimpse docker image default value
+
+# 1.0.1
+2026-07-12 (Date of Last Commit)
+
+* lower disk provided to glimpse phase task
+
+# 1.0.0
+2026-06-30 (Date of Last Commit)
+
+* update version for teaspoons prod release
+* update glimpse docker image to encompass vcf streaming fixes
+
+# 0.0.11
+2026-06-22 (Date of Last Commit)
+
+* pre chunk each cram before passing it to mpileup
+
+# 0.0.10
+2026-06-12 (Date of Last Commit)
+
+* remove unnecessary inputs from GlimpsePhase task to reduce cromwell metadata writing
+
+# 0.0.9
+2026-06-03 (Date of Last Commit)
+
+* add seed input to glimpse phase task
+
 # 0.0.8
 2026-05-27 (Date of Last Commit)
 
@@ -37,4 +86,4 @@
 # 0.0.1
 2026-04-30 (Date of Last Commit)
 
-* initial implementation of low pass imputation batch wdl. this wdl will run the low pass imputation workflow on a batch of samples.
+* initial implementation of low-pass imputation batch wdl. this wdl will run the low-pass imputation workflow on a batch of samples.

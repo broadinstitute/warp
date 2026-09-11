@@ -1,3 +1,8 @@
+# 3.6.8
+2026-07-10 (Date of Last Commit)
+
+* No functional impact; version bump only for the shared `CheckInputs.wdl` edit (SlideSeq imports the file but does not call the modified `checkOptimusInput` task)
+
 # 3.6.7
 2026-05-15 (Date of Last Commit)
 

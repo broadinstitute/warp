@@ -30,7 +30,7 @@ on:
      - 'verification/VerifyExomeReprocessing.wdl'
      - 'verification/VerifyGermlineSingleSample.wdl'
       # test WDL and its dependencies
-     - 'verification/test-wdls/TestCramToUnmappedBams.wdl'
+     - 'verification/test-wdls/TestExomeReprocessing.wdl'
      - 'verification/VerifyMetrics.wdl'
      - 'verification/VerifyTasks.wdl'
      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
@@ -38,6 +38,10 @@ on:
      - '.github/workflows/test_exome_reprocessing.yml'
      - '.github/workflows/warp_test_workflow.yml'
      - 'scripts/firecloud_api/firecloud_api.py'
+     # dependencies imported by the test WDL but previously unwatched
+     - 'tasks/wdl/Alignment.wdl'
+     - 'tasks/wdl/DragmapAlignment.wdl'
+     - 'tasks/wdl/SplitLargeReadGroup.wdl'
 
 
   # Allows you to run this workflow manually from the Actions tab
