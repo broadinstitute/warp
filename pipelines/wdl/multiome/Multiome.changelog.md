@@ -1,3 +1,18 @@
+# 7.0.2
+2026-07-10 (Date of Last Commit)
+
+* Bumped for the shared `checkOptimusInput` change: an unspecified `tenx_chemistry_subversion` now defaults to the `v4_TRU` (Cell Ranger v9.0+) whitelist; affects v4 runs only
+
+# 7.0.1
+2026-05-15 (Date of Last Commit)
+
+* Updated shared dependency CheckInputs.wdl to support 10x v4 (GEM-X) chemistry; no functional impact on Multiome outputs
+
+# 7.0.0
+2026-04-02 (Date of Last Commit)
+
+* Removed the `count_exons` input from the Multiome workflow following its removal from Optimus v9.0.0. Default behavior is unchanged (the default was `false`).
+
 # 6.1.6
 2026-04-21 (Date of Last Commit)
 

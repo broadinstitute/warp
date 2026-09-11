@@ -24,6 +24,5 @@
   "Optimus.input_id": "nuclei_2k_mouse",
   "Optimus.chemistry": "tenX_v2",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.gtf",
-  "Optimus.counting_mode": "sn_rna",
-  "Optimus.count_exons": true
+  "Optimus.counting_mode": "sn_rna"
 }

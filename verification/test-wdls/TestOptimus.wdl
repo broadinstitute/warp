@@ -28,8 +28,10 @@ workflow TestOptimus {
     File? mt_genes
     String? soloMultiMappers
 
-    # Chemistry options include: 2 or 3
+    # Chemistry options include: 2, 3, or 4 (GEM-X)
     Int tenx_chemistry_version = 2
+    # For v4 only: "v4" (Cell Ranger 8.0/8.0.1 whitelist) or "v4_TRU" (Cell Ranger 9.0+; default when unspecified)
+    String? tenx_chemistry_subversion
     # Whitelist is selected based on the input tenx_chemistry_version
 
     # Emptydrops lower cutoff
@@ -46,7 +48,6 @@ workflow TestOptimus {
     String star_strand_mode
 
     # Set to true to count reads aligned to exonic regions in sn_rna mode
-    Boolean count_exons = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
@@ -80,10 +81,10 @@ workflow TestOptimus {
       tar_star_reference         = tar_star_reference,
       annotations_gtf            = annotations_gtf,
       tenx_chemistry_version     = tenx_chemistry_version,
+      tenx_chemistry_subversion  = tenx_chemistry_subversion,
       emptydrops_lower           = emptydrops_lower,
       force_no_check             = force_no_check,
       star_strand_mode           = star_strand_mode,
-      count_exons                = count_exons,
       ignore_r1_read_length      = ignore_r1_read_length,
       soloMultiMappers           = soloMultiMappers,
       cloud_provider             = cloud_provider,
@@ -184,6 +185,11 @@ Array[String] pipeline_outputs = flatten([
         truth_cell_metrics = GetCellMetrics.truth_file,
         test_library_metrics =  select_first([GetLibraryMetrics.results_file, ""]),
         truth_library_metrics = select_first([GetLibraryMetrics.truth_file, ""]),
+        # Surface the whitelist selected by the pipeline so verification can assert it
+        # (e.g. that an unspecified v4 subversion defaults to the v4_TRU whitelist).
+        # truth_whitelist_used is left unset until a corresponding truth value is available,
+        # so CompareStrings is skipped by default and existing truth data stays valid.
+        test_whitelist_used = Optimus.whitelist_used,
         done               = CopyToTestResults.done
     }
   }

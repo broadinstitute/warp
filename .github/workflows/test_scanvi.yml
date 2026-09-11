@@ -1,0 +1,77 @@
+name: Test scANVI
+
+# Minimal permissions for the reusable test workflow (Terra/GCP auth needs id-token;
+# it also reads contents and writes to the Actions API).
+permissions:
+  contents: read
+  id-token: write
+  actions: write
+
+# Controls when the workflow will run
+on:
+  pull_request:
+    # scANVI ships both Plumbing and Scientific test_inputs; the reusable workflow picks by
+    # branch (PRs to master run Scientific, others run Plumbing). The paths filter keeps this
+    # from firing on unrelated PRs.
+    branches: [ "develop", "staging", "master" ]
+    # Only run if files in these paths changed:
+    ####################################
+    # SET PIPELINE SPECIFIC PATHS HERE #
+    ####################################
+    paths:
+      # anything in the pipelines folder
+      - 'pipelines/wdl/scanvi/**'
+      # tasks from the pipeline WDL and their dependencies
+      - 'tasks/wdl/Utilities.wdl'
+      # verification WDL (scANVI-specific; CompareScanviH5ad lives here, NOT in the
+      # shared verification/VerifyTasks.wdl, so scANVI changes don't trigger every pipeline)
+      - 'verification/VerifyScANVI.wdl'
+      # test WDL and its dependencies
+      - 'verification/test-wdls/TestscANVI.wdl'
+      - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
+      # this file, the subworkflow file, and the firecloud_api script
+      - '.github/workflows/test_scanvi.yml'
+      - '.github/workflows/warp_test_workflow.yml'
+      - 'scripts/firecloud_api/firecloud_api.py'
+
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      useCallCache:
+        description: 'Use call cache (default: true)'
+        required: false
+        default: "true"
+      updateTruth:
+        description: 'Update truth files (default: false)'
+        required: false
+        default: "false"
+      testType:
+        description: 'Specify the type of test (Plumbing or Scientific)'
+        required: false
+        type: choice
+        options:
+          - Plumbing
+          - Scientific
+      truthBranch:
+        description: 'Specify the branch for truth files (default: master)'
+        required: false
+        default: "master"
+
+
+jobs:
+  TestscANVI:
+    uses: ./.github/workflows/warp_test_workflow.yml
+    with:
+      pipeline_name: TestscANVI
+      dockstore_pipeline_name: scANVI
+      pipeline_dir: pipelines/wdl/scanvi
+      use_call_cache: ${{ github.event.inputs.useCallCache || 'true' }}
+      update_truth: ${{ github.event.inputs.updateTruth || 'false' }}
+      # Leave empty so the reusable workflow's branch logic applies (PRs to master -> Scientific,
+      # other branches -> Plumbing); a manual workflow_dispatch can still choose explicitly.
+      test_type: ${{ github.event.inputs.testType || '' }}
+      truth_branch: ${{ github.event.inputs.truthBranch || 'master' }}
+    secrets:
+      PDT_TESTER_SA_B64: ${{ secrets.PDT_TESTER_SA_B64 }}
+      DOCKSTORE_TOKEN: ${{ secrets.DOCKSTORE_TOKEN }}

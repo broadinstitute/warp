@@ -29,7 +29,6 @@ workflow TestSlideTags {
       Boolean force_no_check = false
       Boolean ignore_r1_read_length = false
       String star_strand_mode = "Reverse"
-      Boolean count_exons = false
       String? soloMultiMappers
       String? gex_nhash_id
 	  File? mt_genes
@@ -68,7 +67,6 @@ workflow TestSlideTags {
       force_no_check          = force_no_check,
       ignore_r1_read_length   = ignore_r1_read_length,
       star_strand_mode        = star_strand_mode,
-      count_exons             = count_exons,
       soloMultiMappers        = soloMultiMappers,
 	  gex_nhash_id		      = gex_nhash_id,
 	  mt_genes                = mt_genes,
