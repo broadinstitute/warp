@@ -26,6 +26,9 @@ workflow ATAC {
 
     #Expected cells from library preparation
     Int atac_expected_cells = 3000
+    # Anchor OrdMag cell-calling on atac_expected_cells instead of self-estimating (recovered_cells=None).
+    # Set false to test/reproduce the original self-estimating behavior, e.g. on subsampled data.
+    Boolean use_expected_cells_anchor = true
 
     # Option for running files with preindex
     Boolean preindex = false
@@ -196,6 +199,7 @@ workflow ATAC {
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
+        use_expected_cells_anchor = use_expected_cells_anchor,
         input_id = input_id
     }
 
@@ -898,6 +902,7 @@ task MergeFragmentFilesAndCalculateMetrics {
     String atac_nhash_id = ""
     String input_id
     Int atac_expected_cells = 3000
+    Boolean use_expected_cells_anchor = true
     String gtf_path = annotations_gtf
   }
 
@@ -1017,8 +1022,10 @@ task MergeFragmentFilesAndCalculateMetrics {
     snapatac2.metrics.frip(adata, {"n_frag_overlap_peak": peaks}, normalized=False)
     qc["Targeting"]["Fraction_of_high-quality_fragments_overlapping_peaks"] = adata.obs['n_frag_overlap_peak'].sum() / adata.obs['n_fragment'].sum()
 
+    use_anchor = ~{true='True' false='False' use_expected_cells_anchor}
+    recovered_cells_anchor = expected_cells if use_anchor else None
     counts = adata.obs["n_frag_overlap_peak"].to_numpy()
-    cell_idx = filter_cellular_barcodes_ordmag(counts, expected_cells)[0]
+    cell_idx = filter_cellular_barcodes_ordmag(counts, recovered_cells_anchor)[0]
     n_cells = len(cell_idx)
     n_fragment = adata.obs['n_fragment'].to_numpy()
     qc["Cells"]["Number_of_cells"] = n_cells
