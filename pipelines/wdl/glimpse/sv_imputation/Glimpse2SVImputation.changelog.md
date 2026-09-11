@@ -1,3 +1,121 @@
+# 0.0.26
+2026-08-28 (Date of Last Commit)
+
+* Update `Glimpse2SVImputationBatch` to optionally use base glimpse phase memory from chunk panel json.
+* remove `boot_disk_gb` from tasks
+
+# 0.0.25
+2026-08-27 (Date of Last Commit)
+
+* Rename input `output_prefix` to `output_basename`
+* Rename outputs `glimpse2_popped_posteriors_vcf` to `imputed_vcf` and `glimpse2_popped_posteriors_vcf_idx` to `imputed_vcf_index`
+* Update `batch_pipeline_version` to 0.0.18
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.14
+
+# 0.0.24
+2026-08-24 (Date of Last Commit)
+
+* Add input_qc_version to match new Glimspe2SVImputationQC wdl version
+
+# 0.0.23
+2026-08-24 (Date of Last Commit)
+
+* Add new QuotaConsumed wdl
+
+# 0.0.22
+2026-08-20 (Date of Last Commit)
+
+* Remove `sample_ids` input from workflow. The sample name will now be obtained from GVCF file
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.13
+* Remove `sample_ids` from `ConvertInputArraysToManifest` task
+
+# 0.0.21
+2026-08-18 (Date of Last Commit)
+
+* Adds an optional pipeline_header_line input to the WDL
+* Update `batch_pipeline_version` to 0.0.16
+
+# 0.0.20
+2026-08-17 (Date of Last Commit)
+
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.11 and `batch_pipeline_version` to 0.0.14 to pick up replacement of `$(nproc)` with explicit `cpu` task inputs across nested tasks, so thread counts always match each task's allocated cpu
+
+# 0.0.19
+2026-08-17 (Date of Last Commit)
+
+* make all task disk sizes dynamic and set bootDiskSizeGb to 0
+* update default value of sample_batch_size to 1000
+
+# 0.0.18
+2026-08-13 (Date of Last Commit)
+
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.10 to pick up removal of background heartbeat monitor logging from merge/concat tasks
+
+# 0.0.17
+2026-08-13 (Date of Last Commit)
+
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.7 and `batch_pipeline_version` to 0.0.12 for resource optimizations in `PreprocessPLs`, `GLIMPSE2Ligate`, and `PopAndMarginalizeCollisions` tasks
+
+# 0.0.16
+2026-08-12 (Date of Last Commit)
+
+* update batch_pipeline_version to 0.0.12 and preprocess_pls_gvcf_pipeline_version to 0.0.8
+
+# 0.0.15
+2026-08-12 (Date of Last Commit)
+
+* Replace top-level FOFN inputs with a `gvcf_manifest` input that expects `gvcf_path`, `gvcf_index_path`, and `sample_id` columns to exist.
+* Batch samples from the manifest, while still converting array inputs into a manifest internally for compatibility.
+* Pass each manifest batch directly into `PreprocessPLsGVCF`, which now parses the manifest internally.
+* Use the sample count emitted by `PreprocessPLsGVCF` instead of counting manifest rows in the top-level workflow.
+
+# 0.0.14
+2026-08-11 (Date of Last Commit)
+
+* Add optional `info_filter_for_inclusion` input; when set above 0.0, variants with INFO score below the threshold are excluded from the final per-chromosome popped output VCFs.
+
+# 0.0.13
+2026-08-09 (Date of Last Commit)
+
+* Add array-input sample batching for `input_gvcfs`, `input_gvcf_idxs`, and `sample_ids`.
+* Support FOFN input path (`input_gvcfs_fofn`, `input_gvcf_idxs_fofn`, `sample_ids_file`) as a single batch.
+* Run `PreprocessPLsGVCF` and `Glimpse2SVImputationBatch` per sample batch.
+* Merge per-chromosome popped outputs across batches and recompute cohort-level `AF` and `INFO`.
+* Emit only `glimpse2_popped_posteriors_vcf` outputs from the top-level workflow.
+
+# 0.0.12
+2026-08-06 (Date of Last Commit)
+
+* Update batch_pipeline_version to 0.0.10
+
+# 0.0.11
+2026-08-05 (Date of Last Commit)
+
+* update batch_pipeline_version
+
+# 0.0.10
+2026-08-04 (Date of Last Commit)
+
+* Update Glimpse2 docker image to tag `imputation-glimpse2:1.2.0-8671138-1784681771`
+* Update `batch_pipeline_version` to 0.0.8
+* Update `preprocess_pls_gvcf_pipeline_version` to 0.0.6
+
+# 0.0.9
+2026-08-03 (Date of Last Commit)
+
+* Updated batch_pipeline_version to 0.0.7
+
+# 0.0.8
+2026-07-31 (Date of Last Commit)
+
+* update batch_pipeline_version
+
+# 0.0.7
+2026-07-30 (Date of Last Commit)
+
+* rename entity_ids input to sample_ids
+* remove sample_names_map_file input as preprocess no longer uses it
+
 # 0.0.6
 2026-07-23 (Date of Last Commit)
 

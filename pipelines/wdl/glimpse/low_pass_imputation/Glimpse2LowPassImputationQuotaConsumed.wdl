@@ -2,7 +2,7 @@ version 1.0
 
 workflow QuotaConsumed {
     # if this changes, update the quota_consumed_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.1"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
@@ -44,7 +44,8 @@ task CountCramsFromManifest {
     command <<<
         set -e -o pipefail
 
-        grep "\.cram" ~{cram_manifest} | wc -l > cram_manifest_count.txt
+        # grep -c exits with code 1 when no matches are found, so we output 0 instead of failing
+        grep -c "\.cram" ~{cram_manifest} > cram_manifest_count.txt || echo "0" > cram_manifest_count.txt
     >>>
 
     output {

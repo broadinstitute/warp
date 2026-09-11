@@ -1,21 +1,14 @@
 version 1.0
 
 import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelHierarchicallyPasteVcfsStreaming
+import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.4"
-    String multi_level_paste_pipeline_version = "0.0.3"
+    String pipeline_version = "0.0.15"
+    String multi_level_paste_pipeline_version = "0.0.10"
     input {
-        File? input_gvcfs_fofn
-        File? input_gvcf_idxs_fofn
-        File? sample_names_file          # order of sample names must match that of gVCFs
-
-        Array[File]? input_gvcfs
-        Array[File]? input_gvcf_idxs
-        Array[String]? entity_ids
-        File? sample_names_map_file           # TSV map of entity_id (research_id) to id2 for AoU DRAGEN gVCFs;
-        # Terra struggles with id2 as they are parsed as mixed strings/numbers
+        File input_gvcf_manifest
 
         # inputs for PreprocessPLs
         File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
@@ -25,41 +18,20 @@ workflow PreprocessPLsGVCF {
         Array[String] paste_regions
     }
 
-    if (defined(input_gvcfs_fofn)) {
-        Array[File] parsed_gvcfs = read_lines(select_first([input_gvcfs_fofn]))
-    }
-    Array[File] input_gvcfs_ = select_first([input_gvcfs, parsed_gvcfs])
-
-    if (defined(input_gvcf_idxs_fofn)) {
-        Array[File] parsed_gvcf_idxs = read_lines(select_first([input_gvcf_idxs_fofn]))
-    }
-    Array[File] input_gvcf_idxs_ = select_first([input_gvcf_idxs, parsed_gvcf_idxs])
-
-    if (defined(sample_names_file)) {
-        Array[String] parsed_sample_names = read_lines(select_first([sample_names_file]))
+    call Glimpse2SVImputationTasks.ParseVcfManifestIntoArrays as ParseInputManifest {
+        input:
+            gvcf_manifest = input_gvcf_manifest
     }
 
-    # Replaced map scatter with a bash task call
-    if (defined(entity_ids) && defined(sample_names_map_file)) {
-        call MapSampleNames {
-            input:
-                entity_ids = select_first([entity_ids]),
-                sample_names_map_file = select_first([sample_names_map_file])
-        }
-    }
-
-    Array[String] sample_names_ = select_first([MapSampleNames.mapped_sample_names, parsed_sample_names])
-
-    scatter (j in range(length(input_gvcfs_))) {
+    scatter (j in range(length(ParseInputManifest.input_gvcfs))) {
         call PreprocessPLs as PreprocessPLsGVCF {
             input:
-                input_vcf = input_gvcfs_[j],
-                input_vcf_idx = input_gvcf_idxs_[j],
+                input_vcf = ParseInputManifest.input_gvcfs[j],
+                input_vcf_idx = ParseInputManifest.input_gvcf_idxs[j],
                 mode = "gvcf",
                 panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
                 panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
-                sample_names = [sample_names_[j]],
-                output_prefix = ".sample-" + j + "." + sample_names_[j] + ".preprocessedPLs",
+                output_basename = "sample-" + j,
                 extra_args = extract_bubble_likelihoods_extra_args
         }
     }
@@ -73,14 +45,15 @@ workflow PreprocessPLsGVCF {
             batch_sizes = [50, 50],
             do_localization = [true, true],
             timeouts_min = [0, 0],
-            output_prefix = "preprocessedPLs.merged",
-            extra_merge_args = "--threads $(nproc) --format GT,PL",
-            extra_concat_args = "--threads $(nproc) --naive"
+            output_basename = "preprocessedPLs.merged",
+            extra_merge_args = "--format GT,PL",
+            extra_concat_args = "--naive"
     }
 
     output {
         File preprocessed_pls_vcf = PastePreprocessPLsGVCFs.merged_vcf
         File preprocessed_pls_vcf_idx = PastePreprocessPLsGVCFs.merged_vcf_idx
+        Int num_samples = length(ParseInputManifest.input_gvcfs)
     }
 }
 
@@ -95,47 +68,6 @@ struct RuntimeAttr {
     String? docker
 }
 
-task MapSampleNames {
-    input {
-        Array[String] entity_ids
-        File sample_names_map_file
-    }
-
-    command <<<
-        set -euo pipefail
-
-        # Use awk to load the TSV map into memory, then translate the entity IDs array in order
-        awk 'BEGIN {FS="\t"; OFS="\t"}
-        NR==FNR {
-            # First pass: read the map file into an array
-            map[$1] = $2;
-            next
-        }
-        {
-            # Second pass: read the entity_ids file
-            if ($1 in map) {
-                print map[$1]
-            } else {
-                print "Error: ID " $1 " not found in map file" > "/dev/stderr"
-                exit 1
-            }
-        }' ~{sample_names_map_file} ~{write_lines(entity_ids)} > mapped_names.txt
-    >>>
-
-    output {
-        Array[String] mapped_sample_names = read_lines("mapped_names.txt")
-    }
-
-    runtime {
-        docker: "ubuntu:22.04"
-        cpu: 1
-        memory: "4 GB"
-        disks: "local-disk 10 HDD"
-        preemptible: 3
-        noAddress: true
-    }
-}
-
 task PreprocessPLs {
     input {
         File input_vcf
@@ -144,48 +76,49 @@ task PreprocessPLs {
         File panel_bubble_split_sites_only_vcf
         File panel_bubble_split_sites_only_vcf_idx
         String? output_region
-        Array[String] sample_names
-        String output_prefix
+        String output_basename
 
-        String? extra_args = "--window 15000 --cap-pl 30 --scale-pl 5.0 --threads $(nproc)"
+        String? extra_args = "--window 15000 --cap-pl 30 --scale-pl 5.0"
+        Int cpu = 1
 
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_size_gb = 10 + 2 * ceil(size([input_vcf, panel_bubble_split_sites_only_vcf], "GB"))
-
-    File sample_names_list = write_lines(sample_names)
+    Int disk_size_gb = ceil(2*size([input_vcf, panel_bubble_split_sites_only_vcf], "GB")) + 10
 
     command <<<
         set -euxo pipefail
 
+        # Extract sample name from GVCF header and write to file for extract-bubble-PLs tool
+        bcftools query -l ~{input_vcf} > sample_name.txt
+
         /usr/local/bin/extract-bubble-PLs ~{mode} \
             ~{panel_bubble_split_sites_only_vcf}##idx##~{panel_bubble_split_sites_only_vcf_idx} \
             ~{input_vcf}##idx##~{input_vcf_idx} \
-            ~{output_prefix}.bcf \
+            ~{output_basename}.bcf \
             ~{"--region " + output_region} \
-            --samples ~{sample_names_list} \
+            --samples sample_name.txt \
+            --threads ~{cpu} \
             ~{extra_args}
 
-        bcftools index ~{output_prefix}.bcf
+        bcftools index ~{output_basename}.bcf
 
         echo "Number of bubble alleles extracted..."
-        bcftools index -n ~{output_prefix}.bcf
+        bcftools index -n ~{output_basename}.bcf
     >>>
 
     output {
-        File preprocessed_pls_vcf = "~{output_prefix}.bcf"
-        File preprocessed_pls_vcf_idx = "~{output_prefix}.bcf.csi"
+        File preprocessed_pls_vcf = "~{output_basename}.bcf"
+        File preprocessed_pls_vcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
     RuntimeAttr default_attr = object {
-        cpu_cores:          1,
-        mem_gb:             4,
+        cpu_cores:          cpu,
+        mem_gb:             2,
         disk_gb:            disk_size_gb,
-        boot_disk_gb:       10,
         use_ssd:            true,
-        preemptible_tries:  2,
+        preemptible_tries:  4,
         max_retries:        1,
         docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.0.0-5dc0f19-1784328222"
     }
@@ -194,7 +127,6 @@ task PreprocessPLs {
         cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
         memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
         disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + if select_first([runtime_attr.use_ssd, default_attr.use_ssd]) then " SSD" else " HDD"
-        bootDiskSizeGb:         select_first([runtime_attr.boot_disk_gb,      default_attr.boot_disk_gb])
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])

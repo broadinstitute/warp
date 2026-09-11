@@ -1,3 +1,38 @@
+# 0.0.10
+2026-08-28 (Date of Last Commit)
+
+* remove `boot_disk_gb` from tasks
+
+# 0.0.9
+2026-08-27 (Date of Last Commit)
+
+* Rename input `output_prefix` to `output_basename`
+
+# 0.0.8
+2026-08-20 (Date of Last Commit)
+
+* Updated Glimpse2SVImputationTasks dependency (sample_ids no longer required as a input)
+
+# 0.0.7
+2026-08-17 (Date of Last Commit)
+
+* Replace `$(nproc)` usages (`--threads` args and download parallelism) with an explicit `cpu` task input on `MergeVcfs` and `ConcatVcfs`, referenced directly in the command, so concurrency always matches the task's allocated cpu
+
+# 0.0.6
+2026-08-17 (Date of Last Commit)
+
+* make all task disk sizes dynamic and set bootDiskSizeGb to 0
+
+# 0.0.5
+2026-08-13 (Date of Last Commit)
+
+* Remove background heartbeat monitor logging from merge task
+
+# 0.0.4
+2026-08-12 (Date of Last Commit)
+
+* moved concat task to a shared task wdl so the batch wdl can use it
+
 # 0.0.3
 2026-07-21 (Date of Last Commit)
 

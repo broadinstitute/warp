@@ -1,3 +1,11 @@
+# 2.1.0
+2026-07-09 (Date of Last Commit)
+
+* Added an optional batch_size input (default 128) that sets the SCVI/SCANVI minibatch size in both multiome and GEX-only modes. Lower it to fit a high-cardinality reference on a small GPU (SCANVI activation memory scales with batch_size x number of labels); raise it on a large-VRAM cloud GPU. Default 128 is scvi-tools' own default, so existing outputs are unchanged.
+* Output metadata: added a `data_modality` obs field ("Simultaneous profiling of gene expression and open chromatin from the same cell.") and corrected the library-prep ontology label to "10x multiome" (`library_preparation_protocol` = "EFO_0030059", `library_preparation_protocol__ontology_label` = "10x multiome"), in the container's finalize_output.
+* Reworked the label-transfer step: moved its logic into the container (new label_transfer_from_preprocessed.py entry point) so the WDL task is a one-line command, and split it into a GPU task (MultiomeLabelTransfer) and a CPU-only task (MultiomeLabelTransferCpu) selected by gpu_count. This makes gpu_count = 0 a real CPU-only run (e.g. supplied-model prediction) — Cromwell rejects a gpuCount of 0 and cannot conditionally omit the GPU runtime attributes from a single task, so the CPU path needs its own task. Both tasks run the identical command; scvi-tools auto-detects the accelerator. GPU runtime attributes also switched to portable camelCase (gpuType/gpuCount/nvidiaDriverVersion).
+* Updated the pinned scvi-scanvi docker image to the sc-scanvi-gex-only build that includes the label_transfer_from_preprocessed.py entry point (and the batch_size / metadata changes above).
+
 # 2.0.0
 2026-06-30 (Date of Last Commit)
 

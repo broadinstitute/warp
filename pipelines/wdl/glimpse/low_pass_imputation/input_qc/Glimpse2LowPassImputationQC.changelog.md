@@ -1,3 +1,10 @@
+# 1.1.0
+2026-08-26 (Date of Last Commit)
+
+* Remove sample_id column expectation from manifest check
+* Check all CRAM files instead of only the first 100
+* Add checks for a single sample in each CRAM (no multi-sample CRAM inputs) and no duplicate sample identifiers across CRAM inputs
+
 # 1.0.5
 2026-07-20 (Date of Last Commit)
 
@@ -26,7 +33,7 @@
 # 1.0.0
 2026-04-15 (Date of Last Commit)
 
-* Initial release of pipeline to perform QC checks on inputs to the Low Pass Imputation pipeline using GLIMPSE2.
+* Initial release of pipeline to perform QC checks on inputs to the Low-Pass Imputation pipeline using GLIMPSE2.
 * Checks include:
   - If manifest input, all required columns are present
   - Same number of CRAMs, CRAM indices, and sample IDs provided

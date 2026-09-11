@@ -22,22 +22,25 @@ The human-facing docs are canonical for rules and rationale. Anything *agent-spe
 
 1. **Validate all modified WDLs** — and every WDL that imports them (transitively). See [WDL Validation (MANDATORY)](#wdl-validation-mandatory).
 2. **Changelog and versioning** — follow the [agent automation rules](#changelog-and-versioning) below; for entry format see the [changelog style guide](website/docs/contribution/contribute_to_warp/changelog_style.md), and for what makes a change major/minor/patch see [VersionAndReleasePipelines.md](website/docs/About_WARP/VersionAndReleasePipelines.md).
-3. **Cascading version bumps** — when modifying a shared task (`tasks/wdl/`), every pipeline that imports it (directly or transitively) needs either a patch bump + changelog note **or** an explicit "no functional impact" entry. See [Cascading version bumps](#cascading-version-bumps). Validation passing is not sufficient — changelogs must also be updated.
+3. **Cascading version bumps** — when modifying a shared task (`tasks/wdl/`), every pipeline that imports it (directly or transitively) needs either a patch bump + changelog note **or** an explicit "no functional impact" entry. See [Cascading version bumps](#cascading-version-bumps). Validation passing is not sufficient — changelogs must also be updated. **Scope:** an edit to a pipeline WDL (`pipelines/wdl/**`) or a shared `tasks/wdl/` task takes a patch `+0.0.1` bump; a change confined to `verification/**` (test wrappers and compare WDLs) takes **no** bump and **no** changelog — it ships no pipeline artifact. See [What requires a version bump](#changelog-and-versioning).
 4. **After merging develop**, grep for duplicate `pipeline_version` lines — keep the higher one. See [Git merge conflict resolution](#git-merge-conflict-resolution).
 5. **Sub-workflow contract** — removing an input from a shared WDL requires removing it from every caller. See [Sub-workflow input contract](#sub-workflow-input-contract).
 6. **Stale example/test inputs** — when you rename a workflow or remove/rename inputs, audit `pipelines/wdl/<name>/example_inputs/*.json` and `test_inputs/**/*.json`; they break silently because they are not checked by womtool.
-7. **Touching a pipeline's interface** — also update the pipeline's docs page under `website/docs/Pipelines/<Name>_Pipeline/README.md` and run `yarn --cwd=website build` to catch broken links.
+7. **Touching a pipeline's interface** — also update the pipeline's docs page under `website/docs/Pipelines/<Name>_Pipeline/README.md`. Ensure version information is linked from the changelog, not hardcoded. Run `yarn --cwd=website build` to catch broken links.
 8. **Documented defaults must match the code** — if a comment, `parameter_meta`, or README says an optional input "defaults to X when unspecified", make that default declarative (`select_first([input, "X"])` or a defaulted declaration) and verify the consuming code's unset path actually yields X. A `String?` interpolates to an empty string in bash, so a downstream `if/else` can silently encode the *opposite* default (as happened with Optimus `tenx_chemistry_subversion`); womtool checks types, not this, and tests that pin explicit values never exercise the default. Treat every prose "default" as a claim to verify against the code.
 
 ## Repository Structure
 
 WARP is a collection of cloud-optimized WDL (Workflow Description Language) pipelines for biological data processing. It uses a **flattened directory structure**:
 
-- **`pipelines/wdl/`** — all workflow definitions, organized by category (`arrays/`, `atac/`, `dna_seq/`, `genotyping/`, `multiome/`, `optimus/`, `peak_calling/`, `reprocessing/`, `rna_seq/`, …)
+- **`pipelines/wdl/`** — all WDL workflow definitions, organized by category (`arrays/`, `atac/`, `dna_seq/`, `genotyping/`, `multiome/`, `optimus/`, `peak_calling/`, `reprocessing/`, `rna_seq/`, …)
+- **`pipelines/nextflow/`** — placeholder for future Nextflow workflows.
 - **`tasks/wdl/`** — all reusable WDL tasks (e.g. `Alignment.wdl`, `BamProcessing.wdl`, `FastqProcessing.wdl`, `StarAlign.wdl`, `Utilities.wdl`)
 - **`structs/`** — WDL struct definitions for type safety
 - **`verification/`** — test workflows that validate pipeline outputs (`verification/test-wdls/` for test implementations)
 - **`scripts/`** — build and validation automation
+- **`website/`** — source for the Docusaurus documentation site.
+- **`all_of_us/`** — workflows supporting the All of Us Research Program.
 
 > **History:** Content was previously split between `pipelines/broad/` (DNA-seq, arrays, reprocessing) and `pipelines/skylab/` (single-cell RNA-seq, ATAC-seq, multiome)--any remnants you should offer to clean up. Both are now unified under `pipelines/wdl/` and `tasks/wdl/`. Docker images are maintained separately in [warp-tools](https://github.com/broadinstitute/warp-tools).
 
@@ -53,6 +56,34 @@ import "../../../structs/dna_seq/DNASeqStructs.wdl"
 ```
 
 Import path errors are the most common validation failure.
+
+### Unused imports
+
+womtool does **not** flag an `import "..." as NS` whose namespace is never used, so dead imports accumulate (they make a reader chase a dependency that isn't there). Scan for them:
+
+```bash
+scripts/find_unused_wdl_imports.sh
+```
+
+It skips `structs/` imports — WDL references struct types by bare name, so those legitimately have no `NS.` usage.
+
+**Removing a dead import from a pipeline or shared `tasks/wdl/` WDL is still a WDL change**, so it forces a patch bump + changelog (+ cascade for shared tasks) — see [Cascading version bumps](#cascading-version-bumps). Dead imports in `verification/**` are free to drop. So don't do a repo-wide sweep in one PR: clean the `verification/**` ones anytime, and fold each pipeline/task import removal into that pipeline's **next** real change so it shares an already-required bump. Known debt as of this writing (run the scan for the current list): `atac.wdl` (`Merge`), `UltimaGenomicsWholeGenomeGermline.wdl` (`InternalTasks`, `QC`, `UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates`, `UltimaGenomicsWholeGenomeGermlineQC`), `UltimaGenomicsWholeGenomeCramOnly.wdl` (`VariantDiscoverTasks`), `Optimus.wdl` (`FastqProcessing`), `PairedTag.wdl` (`H5adUtils`), `SlideSeq.wdl` (`OptimusInputChecks`), `tasks/wdl/SplitLargeReadGroup.wdl` (`Utils`).
+
+**Future CI wiring (not done — deliberately):** the test system is currently flaky, so this stays a manual scan rather than a gate. When CI is trusted, add it as an **advisory** (non-blocking, `continue-on-error`) job first so it reports without failing PRs; promote to a blocking check only once the known debt above is cleared and the signal is proven quiet.
+
+### Stale CI path filters
+
+Each `.github/workflows/test_*.yml` has a `paths:` filter enumerating the WDLs whose changes should trigger that pipeline's test. The filter is maintained by hand, so it drifts out of sync with what the Test WDL actually imports — a watched file gets renamed/deleted (the filter then watches a dead or *wrong* file), or a new sub-workflow/task import is added but never watched. Either way the test silently stops firing on the edits that matter. Scan for both:
+
+```bash
+scripts/find_stale_ci_path_filters.sh
+```
+
+It reports `DEAD` (watched path missing / points at the wrong file) and `BLIND` (imported by the test but not covered by any watched path or `dir/**` glob) per workflow, and flags any workflow that doesn't resolve to exactly one Test WDL.
+
+**These are CI-only changes** — editing a workflow's `paths:` filter touches no WDL, so there's no version bump or changelog cascade. Fix them anytime; they don't need to ride a pipeline's next real change the way [unused imports](#unused-imports) do.
+
+**Future CI wiring (not done — deliberately):** same rationale as the unused-import scan above — the test system is flaky, so this stays a manual scan. When CI is trusted, wire it as an **advisory** (`continue-on-error`) job before ever making it blocking.
 
 ### Sub-workflow input contract
 
@@ -105,7 +136,7 @@ A WARP "Plumbing" or "Scientific" test is a **CI-integrated test that runs the p
 
 1. **Test input JSON(s)** — `pipelines/wdl/<name>/test_inputs/{Plumbing,Scientific}/<Case>.json`, keyed by the **pipeline's** input names (`<Pipeline>.foo`). Host the input data under `gs://pd-test-storage-public/<Pipeline>/input/{plumbing,scientific}/...`. Plumbing = tiny/fast/cheap (every PR); Scientific = realistic end-to-end (PRs to master, or on demand).
 2. **Test wrapper** — `verification/test-wdls/Test<Pipeline>.wdl`: imports the pipeline, `Verify<Pipeline>`, `Utilities`, and `TerraCopyFilesFromCloudToCloud`; declares **every pipeline input a test JSON might set** plus the framework-injected `truth_path`, `results_path`, `update_truth` (and `cloud_provider` if the pipeline takes it); sets `meta { allowNestedInputs: true }`. It calls the pipeline, gathers outputs into an `Array[String]`, copies them to `results_path`, copies to `truth_path` when `update_truth`, else runs `GetValidationInputs` and calls `Verify<Pipeline>`. **Forward every testable input** — an input the pipeline has but the wrapper omits crashes the moment a test JSON sets it (see *Test inputs* above).
-3. **Verification** — `verification/Verify<Pipeline>.wdl` compares each output to truth (tolerantly). Keep pipeline-specific compare tasks **here, not in the shared `verification/VerifyTasks.wdl`**, so editing them doesn't trip every other pipeline's path filter.
+3. **Verification** — `verification/Verify<Pipeline>.wdl` compares each output to truth (tolerantly). Keep pipeline-specific compare tasks **here, not in the shared `verification/VerifyTasks.wdl`**, so editing them doesn't trip every other pipeline's path filter. When a `Verify*` comparison fails on tiny float or "1-of-N" differences, it is usually known run-to-run nondeterminism, not a regression — compare with a tolerance by extending an existing tolerant task (e.g. `CompareGeneMetricsWithTolerance`, or the tolerant `CompareSAMs` in `VerifyRNAWithUMIs.wdl`) rather than adding a strict check.
 4. **GitHub Actions entry point ("the buttons")** — `.github/workflows/test_<pipeline>.yml`: `on: pull_request` with a `paths:` filter scoped to the pipeline's files (pipeline dir, its tasks, `Verify<Pipeline>.wdl`, `Test<Pipeline>.wdl`, `TerraCopyFilesFromCloudToCloud.wdl`, the two workflow files, `firecloud_api.py`) **and** `workflow_dispatch` with inputs `useCallCache`, `updateTruth`, `testType` (choice Plumbing/Scientific), `truthBranch`. The job `uses: ./.github/workflows/warp_test_workflow.yml` with `pipeline_name: Test<Pipeline>`, `dockstore_pipeline_name: <Pipeline>`, `pipeline_dir`, those inputs, and `secrets: { PDT_TESTER_SA_B64, DOCKSTORE_TOKEN }`; `permissions: { contents: read, id-token: write, actions: write }`. (`warp_test_workflow.yml` is the shared reusable workflow: it creates the Terra method config, submits, polls, copies results, and runs verification when not updating truth.)
 5. **Dockstore registration *and publish*** — add a `Test<Pipeline>` entry (`name`, `subclass: WDL`, `primaryDescriptorPath: /verification/test-wdls/Test<Pipeline>.wdl`) to `.dockstore.yml` (the pipeline itself is usually already registered). Then **publish it in the Dockstore UI** — a manual step that's easy to forget and not caught by anything in-repo: wait ~5 min for Dockstore to ingest the new descriptor, go to the [Dockstore dashboard](https://dockstore.org/dashboard), find `warp/Test<Pipeline>` via the *Search Workflows* field, then **Versions → Actions → Set as Default Version → Publish**. The CI resolves the workflow by `dockstore_pipeline_name`, so an unpublished / no-default-version workflow makes the Terra method-config step fail.
 6. **Seed truth FIRST** — a brand-new test has no golden files. Run the Actions workflow manually (`workflow_dispatch`) with `updateTruth: true` and the right `truthBranch` to populate the truth bucket; only then do compare-runs pass. A compare-run before truth exists fails with nothing to diff. The truth path is keyed by the **test JSON's filename**, not `input_id`: `gs://pd-test-storage-public/<Pipeline>/truth/<plumbing|scientific>/<truthBranch>/<JSON-basename>/` (e.g. `mouse_v4_snRNA_example.json` → `.../mouse_v4_snRNA_example/`). So changing only `input_id` overwrites the *same* truth key; renaming the JSON file starts a fresh one.
@@ -118,14 +149,17 @@ If a pipeline ships only one test kind, pin it in the caller (e.g. scANVI is Sci
 Every pipeline carries a `String pipeline_version = "major.minor.patch"` and a cumulative `<PipelineName>.changelog.md`. For entry **format and language** follow the [changelog style guide](website/docs/contribution/contribute_to_warp/changelog_style.md); for what makes a change **major / minor / patch** follow [VersionAndReleasePipelines.md](website/docs/About_WARP/VersionAndReleasePipelines.md). The agent-operational rules below are not in those docs:
 
 1. **Version bumps are once per branch/PR.** If the top changelog entry on the current branch already has an unreleased version bump (i.e. its version is higher than what is in `develop`), append new bullet points to that entry — do not create a new version section.
-2. **`pipeline_versions.txt`** must be updated only when a pipeline version number actually changes — not on every commit. Keep it in sync with the WDL `pipeline_version` string and the top of the changelog.
+2. **`pipeline_versions.txt`** is automatically generated by a GitHub Action (`.github/workflows/update_versions_file.yml`) on pull requests to `develop`. **Do not edit this file manually.** The action derives its content from the version and date at the top of each pipeline's `.changelog.md`.
 3. **Linked versions** — some pipelines reference a sub-workflow's version (e.g. ImputationBeagle references the ArrayImputationQuotaConsumed version); update both together.
+4. **What requires a version bump.** A change to a pipeline WDL (`pipelines/wdl/**`) or a shared `tasks/wdl/` task it imports requires a patch `+0.0.1` bump on every affected pipeline (see [Cascading version bumps](#cascading-version-bumps)) **and** a changelog entry. A change confined to `verification/**` — the `Test<Pipeline>.wdl` wrappers and the `Verify*` / `CompareMetrics`-style compare tasks — requires **no** `pipeline_version` bump and **no** changelog, because it is test infrastructure and ships no pipeline artifact. (Still validate it with womtool.)
 
 ### Cascading version bumps
 
-Editing a shared task (`tasks/wdl/*.wdl`) forces a version bump on **every** pipeline that imports it, directly or transitively. For each such pipeline update **three** things: the WDL's `String pipeline_version`, its `.changelog.md` (new entry — a plain "No functional impact" bullet is fine when the change can't affect it), and its line in `pipeline_versions.txt`.
+Editing a shared task (`tasks/wdl/*.wdl`) forces a version bump on **every** pipeline that imports it, directly or transitively. For each such pipeline update **two** things: the WDL's `String pipeline_version`, and its `.changelog.md` (new entry — a plain "No functional impact" bullet is fine when the change can't affect it).
 
 **Get the exact list from the tool — don't guess and don't rely on the chains below being current:** run `scripts/validate_release.sh -g origin/staging` (add `-i true` to also check changelogs). It prints `X.wdl has not been changed and needs updating` for every importer still missing a bump; fix and re-run until it says all are valid. This is exactly what the `WARP Validate Version` / `WARP Validate Changelog` CI checks run, so a local pass means those checks pass. **womtool does not catch this** — it validates call signatures, not changelogs.
+
+> **Commit first.** The script diffs committed `HEAD` against the ref (`git diff HEAD <ref>`), so uncommitted working-tree edits are invisible — with changes unstaged it will falsely report all-valid. Commit, then run it. (It *does* trace task→pipeline imports transitively, so once committed a shared-task change correctly flags every importer.)
 
 Known chains (a starting point; the script above is authoritative):
 - `tasks/wdl/CheckInputs.wdl` → **Optimus** (`checkOptimusInput`) + its wrappers **Multiome**, **PairedTag**, **SlideTags**; **MultiSampleSmartSeq2SingleNucleus** (`checkInputArrays`); **SlideSeq** imports it but calls nothing (→ "no functional impact").
@@ -137,12 +171,33 @@ Known chains (a starting point; the script above is authoritative):
 - **Version declaration:** WDL files declare `version 1.0`.
 - **Formatting:** 2-space indentation; blank lines to separate logical sections; no strict line-length limit.
 - **Naming:** tasks and call aliases use `UpperCamelCase`; variables use `lowercase_underscore` (Python style).
+- **File naming:** never bake a lifecycle qualifier — `Updated`, `New`, `Old`, `Final`, `V2`, `Deprecated`, ... — into a WDL filename or its `workflow` name; that's changelog language, not identity. It shows up when a WDL is replaced but the replacement keeps a disambiguating suffix instead of being renamed once the original is deleted. Fix: delete the dead file and rename the replacement in the same change, updating every reference — the `import` path, the `as` alias, any call-site namespace, and CI `paths:` filters (see [Stale CI path filters](#stale-ci-path-filters)). Example: `verification/VerifyCramToUnmappedBamsUpdated.wdl` outlived the `VerifyCramToUnmappedBams.wdl` it had replaced; a stale-migration artifact caught and fixed in #1913.
 - **Workflow input block order:** required inputs first, optional inputs with defaults second, runtime-configuration parameters last.
 - **Task section order:** input → command → output → runtime. In `command` blocks, put one input argument per line for clarity.
 - **`meta { allowNestedInputs: true }`** — include for Terra compatibility.
 - **GPU runtime keys:** use camelCase `gpuType`, `gpuCount`, and `nvidiaDriverVersion` in `runtime` blocks — universally portable across Cromwell/Terra/GCP. The snake_case aliases (`hardware_gpu_type`, `nvidia_driver_version`) are **not** portable.
+- **GPU-optional tasks need TWO task definitions.** Cromwell rejects `gpuCount: 0` ("Expecting gpuCount runtime attribute value greater than 0") *and* rejects optional-typed GPU attributes (`gpuCount: Int?` → "Expected positive Int but got Int? null"; `gpuType: String?` → "String value required but got String?"), and WDL 1.0 cannot conditionally omit a `runtime` key. So a single task is either always-GPU or never-GPU. To offer both GPU and CPU-only runs, write two tasks — identical except one has the GPU `runtime` attributes and the other omits them — and route with a workflow `if (gpu_count > 0)` / `if (gpu_count == 0)`, gathering outputs with `select_first`. Keep the container **device-agnostic** (auto-detect the accelerator) so both tasks run the same command and only VM *provisioning* differs. Example: `pipelines/wdl/scanvi/scANVI.wdl` (`MultiomeLabelTransfer` + `MultiomeLabelTransferCpu`).
+- **Preemptibility:** tasks wire a `preemptible_tries` input to `preemptible:` in `runtime`. Keep it preemptible for short/retryable steps, but pass `preemptible_tries = 0` (non-preemptible) for long single-threaded steps whose runtime can exceed the preemption window — e.g. a large-BAM gather/merge — because a preemption wastes the whole run. Signature in a failed test: the task hits repeated `RetryableFailure` and can end on a VM-teardown `exit 125` ("job was stopped before the command finished") while the tool itself had actually completed. Precedent: `Qc.wdl`, `JointGenotypingTasks.wdl`, `UnmappedBamToAlignedBam.wdl` (`GatherBamFiles`).
 - **WARP-tools vs inline WDL:** package complex or reusable processing scripts (Python, R, specialized deps, data transforms) into [warp-tools](https://github.com/broadinstitute/warp-tools) Docker images. Use inline WDL only for simple file operations, basic string manipulation, parameter validation, and straightforward conditional logic.
-- **Inline Python in `command`:** use the unquoted `<<CODE` / `CODE` heredoc delimiter when invoking inline Python with `python3` — the established WARP convention. Do **not** use quoted delimiters (e.g. `<<'PYEOF'`). Use `~{wdl_var}` for WDL interpolation (resolved before bash runs); avoid f-strings combined with `~{}` interpolation since both use curly braces and conflict (prefer `'~{prefix}_output.txt'` over `f'~{prefix}_output.txt'`).
+- **`command` block style:** For multi-line `command` blocks, use a heredoc. The convention depends on the script content:
+    - **For bash scripts,** use the `<<<` / `>>>` style.
+      ```wdl
+      command <<<
+        set -e
+        echo "Hello, ~{name}!"
+      >>>
+      ```
+    - **For inline Python,** use the `<<CODE` / `CODE` style. This is the established convention for tasks that primarily wrap a Python script.
+      ```wdl
+      command <<CODE
+        set -e
+        python3 -c '
+        # Python code here.
+        # Use ~{wdl_var} for WDL interpolation.
+        '
+      CODE
+      ```
+    - **General guidance:** Do **not** use quoted heredoc delimiters for the main WDL command block (e.g., `command <<'EOF'`), as this disables WDL variable interpolation. In Python, avoid f-strings combined with `~{}` interpolation since both use curly braces and can conflict (prefer `'~{prefix}_output.txt'` over `f'~{prefix}_output.txt'`).
 
 ## Multi-cloud Support
 
@@ -179,6 +234,8 @@ Expect a pipeline's documentation to be split across two places. This isn't an e
   ```
 
   Plus a sibling `_category_.json` when creating a new category.
+
+**Do not hardcode version information.** Pipeline documentation, especially the header table on the docs-site page, should not contain hardcoded version numbers or dates. This information becomes stale. Instead, link to the pipeline's `.changelog.md` file as the single source of truth for versioning.
 
 When you change a pipeline's interface, update the docs-site page so its inputs/outputs stay accurate, and make sure the slim in-repo README still points correctly.
 
@@ -221,15 +278,13 @@ When resolving merge conflicts in WARP:
 2. **Version precedence** — use the higher version number from develop, then increment by 0.0.1.
 3. **Import path updates** — check and fix import statements after resolving conflicts.
 4. **Validation required** — run womtool validation on all modified WDL files.
-5. **`pipeline_versions.txt` last** — resolve it last, as it's the master tracking file.
 
 ```bash
 # 1. Resolve all .wdl files first
 # 2. Handle .dockstore.yml
 # 3. Process changelog files
-# 4. Resolve pipeline_versions.txt last
-# 5. Validate all WDL files with womtool
-# 6. Commit and push
+# 4. Validate all WDL files with womtool
+# 5. Commit and push
 ```
 
 **After merging develop**, grep each touched WDL for duplicate `pipeline_version` declarations, which merge commits can silently introduce:
@@ -245,7 +300,6 @@ Keep the higher version and delete the duplicate line.
 - [ ] No legacy `tasks/broad/` or `tasks/skylab/` import paths remain
 - [ ] No duplicate `pipeline_version` declarations in any WDL
 - [ ] All WDL files pass womtool validation (run the loop above)
-- [ ] Pipeline versions incremented and updated in `pipeline_versions.txt`
 - [ ] Changelogs updated with current date and description
 - [ ] `.dockstore.yml` paths reflect current structure
 
