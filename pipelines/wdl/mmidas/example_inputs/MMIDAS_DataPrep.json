@@ -1,0 +1,9 @@
+{
+  "MMIDAS_DataPrep.visp_exon_matrix": "gs://your-bucket/mouse_VISp_2018-06-14_exon-matrix.csv",
+  "MMIDAS_DataPrep.visp_samples":     "gs://your-bucket/mouse_VISp_2018-06-14_samples-columns.csv",
+  "MMIDAS_DataPrep.alm_exon_matrix":  "gs://your-bucket/mouse_ALM_2018-06-14_exon-matrix.csv",
+  "MMIDAS_DataPrep.alm_samples":      "gs://your-bucket/mouse_ALM_2018-06-14_samples-columns.csv",
+  "MMIDAS_DataPrep.genes_rows":       "gs://your-bucket/mouse_ALM_2018-06-14_genes-rows.csv",
+  "MMIDAS_DataPrep.selected_genes":   "gs://your-bucket/genes_SS_ALM-VISp.csv",
+  "MMIDAS_DataPrep.output_basename":  "Mouse_ALM-VISp_cpm"
+}

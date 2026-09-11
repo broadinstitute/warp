@@ -1,3 +1,25 @@
+# 1.0.0
+2026-09-09 (Date of Last Commit)
+
+* Initial version for teaspoons prod release
+
+# 0.0.29
+2026-09-08 (Date of Last Commit)
+
+* Update linked `input_qc_version` to 0.0.3.
+
+# 0.0.28
+2026-09-03 (Date of Last Commit)
+
+* Rename outputs `imputed_vcf` to `imputed_vcfs` and `imputed_vcf_index` to `imputed_vcf_indexes`
+
+# 0.0.27
+2026-08-31 (Date of Last Commit)
+
+* Update `ConvertInputArraysToManifest` output wiring to use `output_gvcf_manifest`.
+* Switch `PreProcessGVCFsBatch` outputs consumed by `Glimpse2SVImputationBatch` from `preprocessed_pls_vcf` to `preprocessed_pls_bcf` naming.
+* Update linked `preprocess_pls_gvcf_pipeline_version` to 0.0.16 and `batch_pipeline_version` to 0.0.20.
+
 # 0.0.26
 2026-08-28 (Date of Last Commit)
 
