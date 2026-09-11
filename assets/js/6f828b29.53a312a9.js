@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkwebsite_2=globalThis.webpackChunkwebsite_2||[]).push([[1796],{9711(a){a.exports=JSON.parse('{"label":"reblock","permalink":"/warp/blog/tags/reblock","allTagsPath":"/warp/blog/tags","count":1}')}}]);

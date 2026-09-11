@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkwebsite_2=self.webpackChunkwebsite_2||[]).push([[6549],{8368:e=>{e.exports=JSON.parse('{"label":"exomes","permalink":"/warp/blog/tags/exomes","allTagsPath":"/warp/blog/tags","count":1}')}}]);
