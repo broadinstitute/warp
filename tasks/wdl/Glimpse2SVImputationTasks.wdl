@@ -117,7 +117,7 @@ EOF
         bgzip aggregated_annotations.tsv
         tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
 
-        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO -O b --write-index=csi -o ~{output_basename}.bcf ~{merged_vcf_or_bcf}
+        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO -O b --write-index -o ~{output_basename}.bcf ~{merged_vcf_or_bcf}
     >>>
 
     runtime {
@@ -152,9 +152,9 @@ task CreateVcfIndexAndMd5 {
         set -euo pipefail
 
         if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
-            bcftools filter -i 'INFO/INFO >= ~{info_filter_threshold}' -O z --write-index=tbi -o ~{output_basename}.vcf.gz ~{vcf_input_or_bcf}
+            bcftools filter -i 'INFO/INFO >= ~{info_filter_threshold}' -O z --write-index -o ~{output_basename}.vcf.gz ~{vcf_input_or_bcf}
         else
-            bcftools view -O z --write-index=tbi -o ~{output_basename}.vcf.gz ~{vcf_input_or_bcf}
+            bcftools view -O z --write-index -o ~{output_basename}.vcf.gz ~{vcf_input_or_bcf}
         fi
 
         md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
