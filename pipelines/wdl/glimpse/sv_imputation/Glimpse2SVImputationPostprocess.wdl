@@ -156,16 +156,18 @@ workflow Glimpse2SVImputation {
                 }
             }
 
-            # If single batch, fallback to the full contig bcf (Recompute will subset it below)
+            # If single batch, fallback to the full contig bcf
             File bcf_for_recompute = select_first([MergePoppedRegion.merged_bcf, popped_bcfs_for_contig[0]])
+            File bcf_idx_for_recompute = select_first([MergePoppedRegion.merged_bcf_idx, popped_bcf_idxs_for_contig[0]])
 
             call Glimpse2SVImputationTasks.RecomputeAndAnnotate as RecomputePoppedAfInfo {
                 input:
                     merged_vcf_or_bcf = bcf_for_recompute,
+                    merged_vcf_or_bcf_idx = bcf_idx_for_recompute,
                     annotations = ExtractPoppedAnnotations.annotations,
                     num_samples = current_batch_num_samples,
                     output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.annotated",
-                    region = region, # ALWAYS pass region so single-batch subsets correctly
+                    region = region, 
                     info_filter_threshold = info_filter_for_inclusion
             }
         }

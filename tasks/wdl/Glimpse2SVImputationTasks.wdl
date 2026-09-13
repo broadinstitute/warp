@@ -45,6 +45,7 @@ task ExtractAnnotations {
 task RecomputeAndAnnotate {
     input {
         File merged_vcf_or_bcf
+        File merged_vcf_or_bcf_idx
         Array[File] annotations
         Array[Int] num_samples
         String output_basename
