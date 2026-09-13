@@ -138,8 +138,8 @@ class FirecloudAPI:
                             continue
                         return None
 
-                elif response.status_code == 500:  # Server error, retry
-                    logging.warning(f"Received 500 error. Retrying in {retry_delay} seconds...")
+                elif response.status_code in (500, 502, 503, 504):  # Transient server error, retry
+                    logging.warning(f"Received {response.status_code} error. Retrying in {retry_delay} seconds...")
                     logging.warning(f"Response body: {response.text}")
                     time.sleep(retry_delay)
                     # Implement exponential backoff with a cap
@@ -312,18 +312,26 @@ class FirecloudAPI:
         print(f"Updated method configuration: {json.dumps(config, indent=2)}")
 
 
-        # post the updated method config to the workspace
-        response = requests.post(url, headers=headers, json=config)
-        print(f"Response status code for uploading inputs: {response.status_code}")
-        print(f"Response text: {response.text}")
-
-        # Check if the test inputs were uploaded successfully
-        if response.status_code == 200:
-            print("Test inputs uploaded successfully.")
-            return True
-        else:
+        # post the updated method config to the workspace, retrying on transient 5xx
+        # errors (e.g. a 502 from rawls) so a flaky upload can't leave the config
+        # empty and cascade into a "Missing inputs" 400 at submit time.
+        for attempt in range(1, 6):
+            response = requests.post(url, headers=headers, json=config)
+            print(f"Response status code for uploading inputs (attempt {attempt}): {response.status_code}")
+            if response.status_code == 200:
+                print("Test inputs uploaded successfully.")
+                return True
+            if response.status_code in (500, 502, 503, 504):
+                print(f"Transient {response.status_code} uploading inputs; retrying in 10s...")
+                time.sleep(10)
+                continue
             print(f"Failed to upload test inputs. Status code: {response.status_code}")
+            print(f"Response text: {response.text}")
             return False
+
+        print(f"Failed to upload test inputs after retries; last status code: {response.status_code}")
+        print(f"Response text: {response.text}")
+        return False
 
     def poll_job_status(self, submission_id):
         """
