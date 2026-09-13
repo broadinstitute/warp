@@ -1,7 +1,8 @@
 version 1.0
 
 import "./PreprocessPLsGVCF.wdl" as PreprocessPLsGVCF
-import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
+import "./Glimpse2SVImputationPostprocessBatch.wdl" as Glimpse2SVImputationBatch
+import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelMerge
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
@@ -40,6 +41,16 @@ workflow Glimpse2SVImputation {
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
 
+        # Optional overrides to skip batch-level imputation step and jump straight to marginalize collisions
+        Array[Array[File]]? batch_chromosome_posteriors_vcfs_or_bcfs
+        Array[Array[File]]? batch_chromosome_posteriors_vcf_or_bcf_idxs
+        Array[Int]? override_batch_num_samples
+
+        # Multilevel Paste Configuration
+        Array[Int] merge_batch_sizes = [100]        # adjust or add levels if needed
+        Array[Boolean] merge_do_localization = [true]
+        Array[Int] merge_timeouts_min = [120]
+
         # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCFs
         Float info_filter_for_inclusion = 0.0
 
@@ -70,20 +81,35 @@ workflow Glimpse2SVImputation {
             gvcf_manifest = gvcf_manifest_to_use
     }
 
+    Map[String, ChunkedPanelChromosome] chunked_panel = read_json(chunked_panel_json)
+    Map[String, PopAndMarginalizePanelResourcesChromosome] pop_glimpse2_panel_resources = read_json(pop_glimpse2_panel_resources_json)
+
     scatter (batch_idx in range(length(SplitIntoSampleBatches.gvcf_manifest_batches))) {
-        call PreprocessPLsGVCF.PreprocessPLsGVCF as PreProcessGVCFsBatch {
-            input:
-                input_gvcf_manifest = SplitIntoSampleBatches.gvcf_manifest_batches[batch_idx],
-                preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
-                preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
-                extract_bubble_likelihoods_extra_args = extract_bubble_likelihoods_extra_args,
-                paste_regions = paste_regions
+        
+        Boolean has_posteriors = defined(batch_chromosome_posteriors_vcfs_or_bcfs)
+
+        if (!has_posteriors) {
+            call PreprocessPLsGVCF.PreprocessPLsGVCF as PreProcessGVCFsBatch {
+                input:
+                    input_gvcf_manifest = SplitIntoSampleBatches.gvcf_manifest_batches[batch_idx],
+                    preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
+                    preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
+                    extract_bubble_likelihoods_extra_args = extract_bubble_likelihoods_extra_args,
+                    paste_regions = paste_regions
+            }
+        }
+
+        Int current_batch_num_samples = if defined(override_batch_num_samples) then select_first([override_batch_num_samples])[batch_idx] else select_first([PreProcessGVCFsBatch.num_samples])
+
+        if (has_posteriors) {
+            Array[File] extracted_vcfs = select_first([batch_chromosome_posteriors_vcfs_or_bcfs])[batch_idx]
+            Array[File] extracted_idxs = select_first([batch_chromosome_posteriors_vcf_or_bcf_idxs])[batch_idx]
         }
 
         call Glimpse2SVImputationBatch.Glimpse2SVImputationBatch as RunBatch {
             input:
-                input_preprocessed_joint_vcf_or_bcf = PreProcessGVCFsBatch.preprocessed_pls_bcf,
-                input_preprocessed_joint_vcf_or_bcf_idx = PreProcessGVCFsBatch.preprocessed_pls_bcf_idx,
+                input_preprocessed_joint_vcf_or_bcf = select_first([PreProcessGVCFsBatch.preprocessed_pls_bcf, "dummy.bcf"]),
+                input_preprocessed_joint_vcf_or_bcf_idx = select_first([PreProcessGVCFsBatch.preprocessed_pls_bcf_idx, "dummy.bcf.csi"]),
                 chromosomes = chromosomes,
                 genetic_maps_tsv = genetic_maps_tsv,
                 ref_dict = ref_dict,
@@ -93,58 +119,70 @@ workflow Glimpse2SVImputation {
                 pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
                 glimpse2_docker = glimpse2_docker,
                 glimpse_phase_cpu_override = glimpse_phase_cpu_override,
-                pipeline_header_line = pipeline_header_line
+                pipeline_header_line = pipeline_header_line,
+                chromosome_posteriors_vcfs_or_bcfs = extracted_vcfs,
+                chromosome_posteriors_vcf_or_bcf_idxs = extracted_idxs
         }
     }
 
     scatter (contig_idx in range(length(chromosomes))) {
+        String chr = chromosomes[contig_idx]
         Array[File] popped_bcfs_for_contig = transpose(RunBatch.glimpse2_popped_posteriors_vcf)[contig_idx]
         Array[File] popped_bcf_idxs_for_contig = transpose(RunBatch.glimpse2_popped_posteriors_vcf_idx)[contig_idx]
 
+        Array[String] contig_regions = select_first([pop_glimpse2_panel_resources[chr].pop_regions, chunked_panel[chr].output_regions])
+
         if (length(SplitIntoSampleBatches.gvcf_manifest_batches) > 1) {
-            scatter (batch_annot_idx in range(length(popped_bcfs_for_contig))) {
-                call Glimpse2SVImputationTasks.ExtractAnnotations as ExtractPoppedAnnotations {
+            
+            scatter (region in contig_regions) {
+                scatter (batch_annot_idx in range(length(popped_bcfs_for_contig))) {
+                    call Glimpse2SVImputationTasks.ExtractAnnotations as ExtractPoppedAnnotations {
+                        input:
+                            imputed_vcf_or_bcf = popped_bcfs_for_contig[batch_annot_idx],
+                            imputed_vcf_or_bcf_index = popped_bcf_idxs_for_contig[batch_annot_idx],
+                            batch_index = batch_annot_idx,
+                            region = region,
+                            docker_extract_annotations = gatk_docker
+                    }
+                }
+
+                call MultilevelMerge.MultilevelHierarchicallyMergeVcfs as MergePoppedRegion {
                     input:
-                        imputed_vcf_or_bcf = popped_bcfs_for_contig[batch_annot_idx],
-                        imputed_vcf_or_bcf_index = popped_bcf_idxs_for_contig[batch_annot_idx],
-                        batch_index = batch_annot_idx,
-                        docker_extract_annotations = gatk_docker
+                        vcfs_or_bcfs_array = popped_bcfs_for_contig,
+                        vcf_or_bcf_idxs_array = popped_bcf_idxs_for_contig,
+                        regions = [region],
+                        batch_sizes = merge_batch_sizes,
+                        do_localization = merge_do_localization,
+                        timeouts_min = merge_timeouts_min,
+                        output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.merged"
+                }
+
+                call Glimpse2SVImputationTasks.RecomputeAndAnnotate as RecomputePoppedAfInfo {
+                    input:
+                        merged_vcf_or_bcf = MergePoppedRegion.merged_bcf,
+                        annotations = ExtractPoppedAnnotations.annotations,
+                        num_samples = current_batch_num_samples,
+                        output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.merged.reannotated",
+                        docker_merge = merge_docker
                 }
             }
 
-            call Glimpse2SVImputationTasks.MergeSampleChunksVcfsWithPaste as MergePoppedContigVcfs {
+            call Glimpse2SVImputationTasks.ConcatBcfs as ConcatContigRegions {
                 input:
-                    input_vcfs_or_bcfs = popped_bcfs_for_contig,
-                    output_vcf_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.merged"
-            }
-
-            call Glimpse2SVImputationTasks.RecomputeAndAnnotate as RecomputePoppedAfInfo {
-                input:
-                    merged_vcf_or_bcf = MergePoppedContigVcfs.output_vcf,
-                    annotations = ExtractPoppedAnnotations.annotations,
-                    num_samples = PreProcessGVCFsBatch.num_samples,
-                    output_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.merged.reannotated",
-                    docker_merge = merge_docker
+                    bcfs = RecomputePoppedAfInfo.merged_imputed_bcf,
+                    bcf_idxs = RecomputePoppedAfInfo.merged_imputed_bcf_idx,
+                    output_basename = output_basename + "." + chr + ".glimpse2.popped.merged.reannotated",
+                    extra_args = "--naive"
             }
         }
 
-        File final_popped_contig_vcf = select_first([RecomputePoppedAfInfo.merged_imputed_vcf, popped_bcfs_for_contig[0]])
-
-        if (info_filter_for_inclusion > 0.0) {
-            call Glimpse2SVImputationTasks.FilterVcfByInfo as FilterPoppedContigByInfo {
-                input:
-                    vcf_or_bcf = final_popped_contig_vcf,
-                    info_threshold = info_filter_for_inclusion,
-                    output_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.info_filtered"
-            }
-        }
-
-        File final_filtered_popped_contig_vcf = select_first([FilterPoppedContigByInfo.output_vcf, final_popped_contig_vcf])
+        File final_popped_contig_vcf = select_first([ConcatContigRegions.concatenated_bcf, popped_bcfs_for_contig[0]])
 
         call Glimpse2SVImputationTasks.CreateVcfIndexAndMd5 as IndexFinalPoppedContig {
             input:
-                vcf_input_or_bcf = final_filtered_popped_contig_vcf,
-                output_basename = output_basename + "." + chromosomes[contig_idx],
+                vcf_input_or_bcf = final_popped_contig_vcf,
+                output_basename = output_basename + "." + chr,
+                info_filter_threshold = info_filter_for_inclusion,
                 gatk_docker = gatk_docker,
                 preemptible = 0
         }
@@ -156,3 +194,17 @@ workflow Glimpse2SVImputation {
     }
 }
 
+struct ChunkedPanelChromosome {
+    Array[String] input_regions
+    Array[String] output_regions
+    Array[String] panel_split_chunk_bins
+    Array[Int]? phase_base_mem
+}
+
+struct PopAndMarginalizePanelResourcesChromosome {
+    String panel_bubble_split_sites_only_vcf
+    String panel_bubble_split_sites_only_vcf_idx
+    String panel_id_split_vcf_gz
+    String panel_id_split_vcf_gz_tbi
+    Array[String]? pop_regions
+}

@@ -1,97 +1,11 @@
 version 1.0
 
-task MergeSampleChunksVcfsWithPaste {
-    input {
-        Array[File] input_vcfs_or_bcfs
-        String output_vcf_basename
-
-        Int disk_size_gb = ceil(2.2 * size(input_vcfs_or_bcfs, "GiB") + 50)
-        Int mem_gb = 8
-        Int cpu = 4
-        Int preemptible = 0
-    }
-
-    command <<<
-        set -euo pipefail
-
-        vcfs=(~{sep=" " input_vcfs_or_bcfs})
-
-        mkfifo fifo_0
-        mkfifo fifo_to_paste_0
-
-        i=1
-
-        fifos_to_paste=()
-        md5sums=()
-        # Keep only meta header lines here. The #CHROM line is merged in the paste stream.
-        bcftools view -h --no-version ${vcfs[0]} | awk '!/^#CHROM/' > header.vcf
-        n_lines=$(wc -l header.vcf | cut -d' ' -f1)
-
-        mkfifo fifo_to_md5_0
-
-        # Stream starting at #CHROM so sample-name columns are merged across batches.
-        bcftools view --no-version ${vcfs[0]} > fifo_0 &
-        tail +$((n_lines)) fifo_0 | tee fifo_to_md5_0 > fifo_to_paste_0 &
-        tail -n +2 fifo_to_md5_0 | cut -f1-5,9 | md5sum > md5sum_0 &
-
-        for vcf in "${vcfs[@]:1}"; do
-        fifo_name="fifo_$i"
-        mkfifo "$fifo_name"
-
-        fifo_name_to_md5="fifo_to_md5_$i"
-        mkfifo "$fifo_name_to_md5"
-
-        fifo_name_to_paste="fifo_to_paste_$i"
-        mkfifo "$fifo_name_to_paste"
-        fifos_to_paste+=("$fifo_name_to_paste")
-
-        file_name_md5sum="md5sum_$i"
-        md5sums+=("$file_name_md5sum")
-        n_lines=$(bcftools view -h --no-version $vcf | awk '!/^#CHROM/' | wc -l | cut -d' ' -f1)
-
-        bcftools view --no-version $vcf > "$fifo_name" &
-        tail +$((n_lines)) "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
-        tail -n +2 "$fifo_name_to_md5" | cut -f1-5,9 | md5sum > "$file_name_md5sum" &
-
-        ((i++))
-        done
-
-        mkfifo fifo_to_cat
-
-        paste fifo_to_paste_0 "${fifos_to_paste[@]}" | tee fifo_to_cat | awk 'NR % 5000000 == 0' | cut -f 1-5 &
-
-        cat header.vcf fifo_to_cat | bgzip -o ~{output_vcf_basename}.vcf.gz
-
-        for md5sum_file in "${md5sums[@]}"; do
-        diff <(cat md5sum_0) <(cat $md5sum_file) >> /dev/null || (echo "Fields 1-5,9 do not match for $md5sum_file" && exit 1)
-        done
-
-        for fifo in fifo_*; do
-        rm $fifo
-        done
-
-    >>>
-
-    runtime {
-        docker: "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
-        disks: "local-disk " + disk_size_gb + " HDD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: 1
-        noAddress: true
-    }
-
-    output {
-        File output_vcf = "~{output_vcf_basename}.vcf.gz"
-    }
-}
-
 task ExtractAnnotations {
     input {
         File imputed_vcf_or_bcf
         File imputed_vcf_or_bcf_index
         Int batch_index
+        String? region
 
         String docker_extract_annotations
         Int disk_size_gb = ceil(2 * size(imputed_vcf_or_bcf, "GiB") + 50)
@@ -108,6 +22,7 @@ task ExtractAnnotations {
 
         printf 'CHROM\tPOS\tREF\tALT\tAF\tINFO\n' > annotations_batch_~{batch_index}.tsv
         bcftools query \
+        ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} \
         -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\n' \
         ~{imputed_vcf_or_bcf} >> annotations_batch_~{batch_index}.tsv
 
@@ -141,7 +56,7 @@ task RecomputeAndAnnotate {
         Int disk_size_gb = ceil(2.2 * size(merged_vcf_or_bcf, "GiB") + size(annotations, "GiB") + 50)
         Int mem_gb = 6
         Int cpu = 1
-        Int preemptible = 0
+        Int preemptible = 3
         Int chunk_size = 100000
     }
 
@@ -204,7 +119,7 @@ EOF
         bgzip aggregated_annotations.tsv
         tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
 
-        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO -O z -o ~{output_basename}.vcf.gz ~{merged_vcf_or_bcf}
+        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO -O b --write-index=csi -o ~{output_basename}.bcf ~{merged_vcf_or_bcf}
     >>>
 
     runtime {
@@ -217,7 +132,8 @@ EOF
     }
 
     output {
-        File merged_imputed_vcf = "~{output_basename}.vcf.gz"
+        File merged_imputed_bcf = "~{output_basename}.bcf"
+        File merged_imputed_bcf_idx = "~{output_basename}.bcf.csi"
         File aggregated_annotations = "aggregated_annotations.tsv.gz"
     }
 }
@@ -226,6 +142,7 @@ task CreateVcfIndexAndMd5 {
     input {
         File vcf_input_or_bcf
         String output_basename
+        Float info_filter_threshold = 0.0
 
         Int disk_size_gb = ceil(2.1*size(vcf_input_or_bcf, "GiB")) + 10
         Int cpu = 1
@@ -237,14 +154,11 @@ task CreateVcfIndexAndMd5 {
     command <<<
         set -euo pipefail
 
-        if [[ "~{vcf_input_or_bcf}" == *.bcf ]]; then
-            # Normalize BCF input to a bgzipped VCF for downstream compatibility.
-            bcftools view -O z -o ~{output_basename}.vcf.gz ~{vcf_input_or_bcf}
+        if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            bcftools filter -i 'INFO/INFO >= ~{info_filter_threshold}' -O z --write-index=tbi -o ~{output_basename}.vcf.gz ~{vcf_input_or_bcf}
         else
-            ln -sf ~{vcf_input_or_bcf} ~{output_basename}.vcf.gz
+            bcftools view -O z --write-index=tbi -o ~{output_basename}.vcf.gz ~{vcf_input_or_bcf}
         fi
-
-        bcftools index -t ~{output_basename}.vcf.gz
 
         md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
     >>>
@@ -261,39 +175,6 @@ task CreateVcfIndexAndMd5 {
         File output_vcf = "~{output_basename}.vcf.gz"
         File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
         File output_vcf_md5sum = "~{output_basename}.md5sum"
-    }
-}
-
-task FilterVcfByInfo {
-    input {
-        File vcf_or_bcf
-        Float info_threshold
-        String output_basename
-
-        String docker = "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
-        Int disk_size_gb = ceil(2.2 * size(vcf_or_bcf, "GiB") + 20)
-        Int mem_gb = 4
-        Int cpu = 1
-        Int preemptible = 3
-    }
-
-    command <<<
-        set -euo pipefail
-
-        bcftools filter -i 'INFO/INFO >= ~{info_threshold}' -O z -o ~{output_basename}.vcf.gz ~{vcf_or_bcf}
-    >>>
-
-    runtime {
-        docker: docker
-        disks: "local-disk " + disk_size_gb + " HDD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        noAddress: true
-    }
-
-    output {
-        File output_vcf = "~{output_basename}.vcf.gz"
     }
 }
 

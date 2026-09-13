@@ -28,6 +28,10 @@ workflow Glimpse2SVImputationBatch {
         String? pipeline_header_line
 
         String glimpse2_docker
+
+        # Optional overrides to skip batch-level imputation step and jump straight to marginalize collisions
+        Array[File]? chromosome_posteriors_vcfs_or_bcfs
+        Array[File]? chromosome_posteriors_vcf_or_bcf_idxs
     }
 
     Map[String, ChunkedPanelChromosome] chunked_panel = read_json(chunked_panel_json)
@@ -40,7 +44,8 @@ workflow Glimpse2SVImputationBatch {
     # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
     Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
 
-    scatter (chromosome in chromosomes) {
+    scatter (contig_idx in range(length(chromosomes))) {
+        String chromosome = chromosomes[contig_idx]
         String genetic_map = genetic_maps_dict[chromosome]
 
         Array[String] input_regions = chunked_panel[chromosome].input_regions
@@ -54,49 +59,56 @@ workflow Glimpse2SVImputationBatch {
         File panel_id_split_vcf_gz_tbi = pop_glimpse2_panel_resources[chromosome].panel_id_split_vcf_gz_tbi
         Array[String] pop_regions = select_first([pop_glimpse2_panel_resources[chromosome].pop_regions, output_regions])
 
-        scatter (k in range(length(output_regions))) {
-            Int phase_mem_gb = if (k < length(defined_phase_base_mem_values)) then defined_phase_base_mem_values[k] else 16
+        Boolean run_imputation = !defined(chromosome_posteriors_vcfs_or_bcfs)
 
-            call GLIMPSE2Phase as ChunkedGLIMPSE2Phase {
+        if (run_imputation) {
+            scatter (k in range(length(output_regions))) {
+                Int phase_mem_gb = if (k < length(defined_phase_base_mem_values)) then defined_phase_base_mem_values[k] else 16
+
+                call GLIMPSE2Phase as ChunkedGLIMPSE2Phase {
+                    input:
+                        input_vcf_or_bcf = input_preprocessed_joint_vcf_or_bcf,
+                        input_vcf_or_bcf_idx = input_preprocessed_joint_vcf_or_bcf_idx,
+                        panel_split_chunk_bin = panel_split_chunk_bins[k],
+                        input_region = input_regions[k],
+                        output_region = output_regions[k],
+                        genetic_map = genetic_map,
+                        output_basename = output_basename + ".shard-" + k + ".glimpse2.phased",
+                        extra_phase_args = extra_phase_args,
+                        docker = glimpse2_docker,
+                        mem_gb = phase_mem_gb,
+                        threads = defined_glimpse_phase_cpu_override
+                }
+            }
+
+            call GLIMPSE2Ligate {
                 input:
-                    input_vcf_or_bcf = input_preprocessed_joint_vcf_or_bcf,
-                    input_vcf_or_bcf_idx = input_preprocessed_joint_vcf_or_bcf_idx,
-                    panel_split_chunk_bin = panel_split_chunk_bins[k],
-                    input_region = input_regions[k],
-                    output_region = output_regions[k],
-                    genetic_map = genetic_map,
-                    output_basename = output_basename + ".shard-" + k + ".glimpse2.phased",
-                    extra_phase_args = extra_phase_args,
+                    phased_vcfs_or_bcfs = ChunkedGLIMPSE2Phase.phased_bcf,
+                    phased_vcf_or_bcf_idxs = ChunkedGLIMPSE2Phase.phased_bcf_idx,
+                    output_basename = output_basename + ".glimpse2.bubble",
+                    docker = glimpse2_docker
+            }
+
+            # Update VCF header with reference dictionary
+            call UpdateHeader {
+                input:
+                    to_be_reheadered_bcf = GLIMPSE2Ligate.ligated_bcf,
+                    source_header_vcf_or_bcf = input_preprocessed_joint_vcf_or_bcf,
+                    ref_dict = ref_dict,
+                    output_basename = output_basename +  "." + chromosome + ".glimpse2.bubble.updated_header",
                     docker = glimpse2_docker,
-                    mem_gb = phase_mem_gb,
-                    threads = defined_glimpse_phase_cpu_override
+                    pipeline_header_line = pipeline_header_line
             }
         }
 
-        call GLIMPSE2Ligate {
-            input:
-                phased_vcfs_or_bcfs = ChunkedGLIMPSE2Phase.phased_bcf,
-                phased_vcf_or_bcf_idxs = ChunkedGLIMPSE2Phase.phased_bcf_idx,
-                output_basename = output_basename + ".glimpse2.bubble",
-                docker = glimpse2_docker
-        }
-
-        # Update VCF header with reference dictionary
-        call UpdateHeader {
-            input:
-                to_be_reheadered_bcf = GLIMPSE2Ligate.ligated_bcf,
-                source_header_vcf_or_bcf = input_preprocessed_joint_vcf_or_bcf,
-                ref_dict = ref_dict,
-                output_basename = output_basename +  "." + chromosome + ".glimpse2.bubble.updated_header",
-                docker = glimpse2_docker,
-                pipeline_header_line = pipeline_header_line
-        }
+        File posteriors_bcf_to_use = select_first([UpdateHeader.output_bcf, select_first([chromosome_posteriors_vcfs_or_bcfs])[contig_idx]])
+        File posteriors_bcf_idx_to_use = select_first([UpdateHeader.output_bcf_index, select_first([chromosome_posteriors_vcf_or_bcf_idxs])[contig_idx]])
 
         scatter (k in range(length(pop_regions))) {
             call PopAndMarginalizeCollisions {
                 input:
-                    posteriors_vcf_or_bcf = UpdateHeader.output_bcf,
-                    posteriors_vcf_or_bcf_idx = UpdateHeader.output_bcf_index,
+                    posteriors_vcf_or_bcf = posteriors_bcf_to_use,
+                    posteriors_vcf_or_bcf_idx = posteriors_bcf_idx_to_use,
                     panel_bubble_split_sites_only_vcf = panel_bubble_split_sites_only_vcf,
                     panel_bubble_split_sites_only_vcf_idx = panel_bubble_split_sites_only_vcf_idx,
                     panel_id_split_vcf_gz = panel_id_split_vcf_gz,
@@ -116,9 +128,9 @@ workflow Glimpse2SVImputationBatch {
     }
 
     output {
-        Array[File] glimpse2_bubble_posteriors_vcf = UpdateHeader.output_bcf
-        Array[File] glimpse2_bubble_posteriors_vcf_idx = UpdateHeader.output_bcf_index
-        Array[File] glimpse2_popped_posteriors_vcf =ConcatPopAndMarginalizeCollisions.concatenated_bcf
+        Array[File]? glimpse2_bubble_posteriors_vcf = select_all(UpdateHeader.output_bcf)
+        Array[File]? glimpse2_bubble_posteriors_vcf_idx = select_all(UpdateHeader.output_bcf_index)
+        Array[File] glimpse2_popped_posteriors_vcf = ConcatPopAndMarginalizeCollisions.concatenated_bcf
         Array[File] glimpse2_popped_posteriors_vcf_idx = ConcatPopAndMarginalizeCollisions.concatenated_bcf_idx
     }
 }
@@ -332,7 +344,7 @@ task PopAndMarginalizeCollisions {
         use_ssd:            true,
         preemptible_tries:  2,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.0.0-5dc0f19-1784328222"
+        docker:             "us.gcr.io/broad-dsde-methods/slee/sv-imputation-rust-tools:1.0.0-1288969-1789266182"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
