@@ -182,8 +182,10 @@ task ConcatAndFinalizeVcfs {
         bcftools concat \
             -f ~{write_lines(vcfs)} \
             ~{extra_args} \
-            -Oz --write-index=tbi -o ~{output_basename}.vcf.gz
-            
+            -Oz -o ~{output_basename}.vcf.gz
+        bcftools index -t ~{output_basename}.vcf.gz
+
+        echo "Calculating MD5..."
         md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
     >>>
 
