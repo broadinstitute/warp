@@ -58,8 +58,6 @@ workflow Glimpse2SVImputation {
         String? pipeline_header_line
 
         String glimpse2_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.2.0-8671138-1784681771"
-        String merge_docker = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
-        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     }
 
     Boolean using_arrays = defined(input_gvcfs) && defined(input_gvcf_idxs)
@@ -141,8 +139,7 @@ workflow Glimpse2SVImputation {
                             imputed_vcf_or_bcf = popped_bcfs_for_contig[batch_annot_idx],
                             imputed_vcf_or_bcf_index = popped_bcf_idxs_for_contig[batch_annot_idx],
                             batch_index = batch_annot_idx,
-                            region = region,
-                            docker_extract_annotations = gatk_docker
+                            region = region
                     }
                 }
 
@@ -162,8 +159,7 @@ workflow Glimpse2SVImputation {
                         merged_vcf_or_bcf = MergePoppedRegion.merged_bcf,
                         annotations = ExtractPoppedAnnotations.annotations,
                         num_samples = current_batch_num_samples,
-                        output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.merged.reannotated",
-                        docker_merge = merge_docker
+                        output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.merged.reannotated"
                 }
             }
 
@@ -183,7 +179,6 @@ workflow Glimpse2SVImputation {
                 vcf_input_or_bcf = final_popped_contig_vcf,
                 output_basename = output_basename + "." + chr,
                 info_filter_threshold = info_filter_for_inclusion,
-                gatk_docker = gatk_docker,
                 preemptible = 0
         }
     }

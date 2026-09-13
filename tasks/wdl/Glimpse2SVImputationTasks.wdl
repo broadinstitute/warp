@@ -7,7 +7,6 @@ task ExtractAnnotations {
         Int batch_index
         String? region
 
-        String docker_extract_annotations
         Int disk_size_gb = ceil(2 * size(imputed_vcf_or_bcf, "GiB") + 50)
         Int mem_gb = 2
         Int cpu = 1
@@ -30,7 +29,7 @@ task ExtractAnnotations {
     >>>
 
     runtime {
-        docker: docker_extract_annotations
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
         disks: "local-disk " + disk_size_gb + " HDD"
         memory: mem_gb + " GiB"
         cpu: cpu
@@ -52,7 +51,6 @@ task RecomputeAndAnnotate {
 
         String output_basename
 
-        String docker_merge
         Int disk_size_gb = ceil(2.2 * size(merged_vcf_or_bcf, "GiB") + size(annotations, "GiB") + 50)
         Int mem_gb = 6
         Int cpu = 1
@@ -123,7 +121,7 @@ EOF
     >>>
 
     runtime {
-        docker: docker_merge
+        docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
         disks: "local-disk " + disk_size_gb + " HDD"
         memory: mem_gb + " GiB"
         cpu: cpu
@@ -147,7 +145,6 @@ task CreateVcfIndexAndMd5 {
         Int disk_size_gb = ceil(2.1*size(vcf_input_or_bcf, "GiB")) + 10
         Int cpu = 1
         Int memory_mb = 6000
-        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
         Int preemptible = 3
     }
 
@@ -163,7 +160,7 @@ task CreateVcfIndexAndMd5 {
         md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
     >>>
     runtime {
-        docker: gatk_docker
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
         disks: "local-disk ${disk_size_gb} SSD"
         memory: "${memory_mb} MiB"
         cpu: cpu
