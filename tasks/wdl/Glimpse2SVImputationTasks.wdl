@@ -46,10 +46,10 @@ task RecomputeAndAnnotate {
     input {
         File merged_vcf_or_bcf
         Array[File] annotations
-
         Array[Int] num_samples
-
         String output_basename
+        String? region
+        Float info_filter_threshold = 0.0
 
         Int disk_size_gb = ceil(2.2 * size(merged_vcf_or_bcf, "GiB") + size(annotations, "GiB") + 50)
         Int mem_gb = 6
@@ -74,29 +74,23 @@ total_samples = sum(num_samples)
 num_batches = len(input_filenames)
 chunk_size = ~{chunk_size}
 
-# Stream all annotation files in parallel chunks rather than loading everything into memory at once.
-# This keeps memory usage proportional to chunk_size * num_batches rather than total_sites * num_batches.
 readers = [pd.read_csv(f, sep='\t', chunksize=chunk_size) for f in input_filenames]
 
 with open('aggregated_annotations.tsv', 'w') as out:
     for chunks in zip(*readers):
-        # Validate that all batches have identical sites for this chunk
         ref_loci = chunks[0][['CHROM', 'POS', 'REF', 'ALT']].reset_index(drop=True)
         for i, chunk in enumerate(chunks[1:], 1):
             if not ref_loci.equals(chunk[['CHROM', 'POS', 'REF', 'ALT']].reset_index(drop=True)):
-                raise RuntimeError(f'Sites in chunk do not match between batch 0 and batch {i}. '
-                                   f'First mismatch at: {ref_loci[~ref_loci.eq(chunk[["CHROM","POS","REF","ALT"]].reset_index(drop=True)).all(axis=1)].head(1).to_dict("records")}')
+                raise RuntimeError(f'Sites in chunk do not match between batch 0 and batch {i}.')
 
-        # Vectorized weighted AF across batches
         agg_af = sum(chunks[i]['AF'].values * num_samples[i] for i in range(num_batches)) / total_samples
 
-        # Vectorized weighted INFO across batches
         numerator = sum(
             (1 - chunks[i]['INFO'].values) * 2 * num_samples[i] * chunks[i]['AF'].values * (1 - chunks[i]['AF'].values)
             for i in range(num_batches)
         )
         denominator = 2 * total_samples * agg_af * (1 - agg_af)
-        # INFO is defined as 1 for monomorphic sites (AF == 0 or AF == 1)
+        
         polymorphic = (agg_af != 0) & (agg_af != 1)
         agg_info = np.where(polymorphic, 1 - np.divide(numerator, denominator, where=polymorphic, out=np.zeros_like(denominator)), 1.0)
 
@@ -106,7 +100,6 @@ with open('aggregated_annotations.tsv', 'w') as out:
             return round(float(x), n - 1 - int(np.floor(np.log10(abs(x)))))
 
         result = ref_loci.copy()
-        # Cap INFO and AF values at 3 sig-figs to avoid blowing up the output file size w/ overprecision
         result['AF'] = np.vectorize(round_to_n_sig_figs)(agg_af, 3)
         result['INFO'] = np.vectorize(round_to_n_sig_figs)(agg_info, 3)
         result.to_csv(out, sep='\t', header=False, index=False)
@@ -117,7 +110,19 @@ EOF
         bgzip aggregated_annotations.tsv
         tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
 
-        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO -O b --write-index -o ~{output_basename}.bcf ~{merged_vcf_or_bcf}
+        REGION_ARG=""
+        if [ -n "~{region}" ]; then
+            REGION_ARG="-r ~{region} --regions-overlap 0"
+        fi
+
+        # bcftools 1.18 only allows index-on-the-fly format to be specified via ##idx## notation: https://github.com/samtools/bcftools/issues/2008
+        # Use quotes around the output argument to prevent bash from treating ## as a comment
+        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO ${REGION_ARG} -O u ~{merged_vcf_or_bcf} | \
+        if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            bcftools filter -i "INFO/INFO >= ~{info_filter_threshold}" -O z -W -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi"
+        else
+            bcftools view -O z -W -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi"
+        fi
     >>>
 
     runtime {
@@ -130,48 +135,48 @@ EOF
     }
 
     output {
-        File merged_imputed_bcf = "~{output_basename}.bcf"
-        File merged_imputed_bcf_idx = "~{output_basename}.bcf.csi"
+        File merged_imputed_vcf = "~{output_basename}.vcf.gz"
+        File merged_imputed_vcf_idx = "~{output_basename}.vcf.gz.tbi"
         File aggregated_annotations = "aggregated_annotations.tsv.gz"
     }
 }
 
-task CreateVcfIndexAndMd5 {
-    input {
-        File vcf_input_or_bcf
+task ConcatAndFinalizeVcfs {
+    input{
+        Array[File] vcfs
+        Array[File] vcf_idxs
         String output_basename
-        Float info_filter_threshold = 0.0
-
-        Int disk_size_gb = ceil(2.1*size(vcf_input_or_bcf, "GiB")) + 10
-        Int cpu = 1
-        Int memory_mb = 6000
-        Int preemptible = 3
+        String? extra_args
     }
+
+    Int disk_gb = ceil(2.1 * size(vcfs, "GiB")) + 10
 
     command <<<
-        set -euo pipefail
+        set -euox pipefail
 
-        if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
-            bcftools filter -i 'INFO/INFO >= ~{info_filter_threshold}' -O z --write-index -o ~{output_basename}.vcf.gz ~{vcf_input_or_bcf}
-        else
-            bcftools view -O z --write-index -o ~{output_basename}.vcf.gz ~{vcf_input_or_bcf}
-        fi
-
+        # bcftools 1.24 supports explicitly setting the index format via --write-index=tbi
+        bcftools concat \
+            -f ~{write_lines(vcfs)} \
+            ~{extra_args} \
+            -Oz --write-index=tbi -o ~{output_basename}.vcf.gz
+            
         md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
     >>>
-    runtime {
-        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
-        disks: "local-disk ${disk_size_gb} SSD"
-        memory: "${memory_mb} MiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: 1
-        noAddress: true
-    }
+
     output {
-        File output_vcf = "~{output_basename}.vcf.gz"
-        File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
-        File output_vcf_md5sum = "~{output_basename}.md5sum"
+        File concatenated_vcf = "~{output_basename}.vcf.gz"
+        File concatenated_vcf_idx = "~{output_basename}.vcf.gz.tbi"
+        File concatenated_vcf_md5sum = "~{output_basename}.md5sum"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "4 GiB"
+        disks: "local-disk " + disk_gb + " SSD"
+        preemptible: 3
+        maxRetries: 0
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        noAddress: true
     }
 }
 
