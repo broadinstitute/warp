@@ -542,15 +542,31 @@ class FirecloudAPI:
         """
         Cancel all active submissions for a pipeline's method configuration.
         Returns the number of cancelled submissions.
-        """
-        method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
-        active_submissions = self.get_active_submissions(method_config_name)
-        cancelled_count = 0
 
-        for submission in active_submissions:
-            if self.cancel_submission(submission['submissionId']):
-                cancelled_count += 1
-                logging.info(f"Cancelled submission {submission['submissionId']}")
+        Best-effort cleanup: this never raises. Any failure (missing method
+        config, transient API error, unexpected submission payload) is logged
+        and treated as "nothing cancelled" so a cleanup hiccup cannot fail the
+        pipeline's test job.
+        """
+        try:
+            method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
+        except Exception as e:
+            logging.warning(f"Could not resolve method config for {pipeline_name}/{branch_name}; skipping cancel: {e}")
+            return 0
+        if not method_config_name:
+            logging.warning(f"No method config name for {pipeline_name}/{branch_name}; skipping cancel.")
+            return 0
+
+        cancelled_count = 0
+        try:
+            active_submissions = self.get_active_submissions(method_config_name)
+            for submission in active_submissions:
+                submission_id = submission.get('submissionId')
+                if submission_id and self.cancel_submission(submission_id):
+                    cancelled_count += 1
+                    logging.info(f"Cancelled submission {submission_id}")
+        except Exception as e:
+            logging.warning(f"Error cancelling old submissions for {method_config_name}; continuing: {e}")
 
         return cancelled_count
 
