@@ -74,34 +74,57 @@ total_samples = sum(num_samples)
 num_batches = len(input_filenames)
 chunk_size = ~{chunk_size}
 
-readers = [pd.read_csv(f, sep='\t', chunksize=chunk_size) for f in input_filenames]
+# Pre-allocate sample array for broadcasting (shape: num_batches x 1)
+samples_array = np.array(num_samples)[:, None]
+
+# Define types to speed up CSV reading
+dtypes = {'CHROM': str, 'POS': int, 'REF': str, 'ALT': str, 'AF': float, 'INFO': float}
+readers = [pd.read_csv(f, sep='\t', chunksize=chunk_size, dtype=dtypes) for f in input_filenames]
+
+def vectorized_sig_fig_round(x, n):
+    """Pure NumPy vectorization for significant figure rounding (no Python loops)"""
+    out = np.zeros_like(x)
+    mask = (x != 0) & np.isfinite(x)
+    x_mask = x[mask]
+    
+    # Calculate powers of 10 for rounding
+    power = (n - 1) - np.floor(np.log10(np.abs(x_mask)))
+    factor = 10.0 ** power
+    
+    # Scale, round, unscale
+    out[mask] = np.round(x_mask * factor) / factor
+    return out
 
 with open('aggregated_annotations.tsv', 'w') as out:
     for chunks in zip(*readers):
-        ref_loci = chunks[0][['CHROM', 'POS', 'REF', 'ALT']].reset_index(drop=True)
+        ref_loci = chunks[0][['CHROM', 'POS', 'REF', 'ALT']]
         for i, chunk in enumerate(chunks[1:], 1):
-            if not ref_loci.equals(chunk[['CHROM', 'POS', 'REF', 'ALT']].reset_index(drop=True)):
+            if not ref_loci.equals(chunk[['CHROM', 'POS', 'REF', 'ALT']]):
                 raise RuntimeError(f'Sites in chunk do not match between batch 0 and batch {i}.')
 
-        agg_af = sum(chunks[i]['AF'].values * num_samples[i] for i in range(num_batches)) / total_samples
+        # Stack into matrices (shape: num_batches x chunk_size) for vectorized math
+        af_matrix = np.vstack([c['AF'].to_numpy() for c in chunks])
+        info_matrix = np.vstack([c['INFO'].to_numpy() for c in chunks])
 
-        numerator = sum(
-            (1 - chunks[i]['INFO'].values) * 2 * num_samples[i] * chunks[i]['AF'].values * (1 - chunks[i]['AF'].values)
-            for i in range(num_batches)
-        )
+        # Vectorized weighted AF
+        agg_af = np.sum(af_matrix * samples_array, axis=0) / total_samples
+
+        # Vectorized weighted INFO
+        numerator = np.sum((1 - info_matrix) * 2 * samples_array * af_matrix * (1 - af_matrix), axis=0)
         denominator = 2 * total_samples * agg_af * (1 - agg_af)
         
-        polymorphic = (agg_af != 0) & (agg_af != 1)
-        agg_info = np.where(polymorphic, 1 - np.divide(numerator, denominator, where=polymorphic, out=np.zeros_like(denominator)), 1.0)
+        polymorphic = (agg_af > 0.0) & (agg_af < 1.0)
+        agg_info = np.where(
+            polymorphic, 
+            1.0 - np.divide(numerator, denominator, where=polymorphic, out=np.zeros_like(denominator)), 
+            1.0
+        )
 
-        def round_to_n_sig_figs(x, n):
-            if x == 0:
-                return 0.0
-            return round(float(x), n - 1 - int(np.floor(np.log10(abs(x)))))
-
+        # Assign back using the fast rounding function
         result = ref_loci.copy()
-        result['AF'] = np.vectorize(round_to_n_sig_figs)(agg_af, 3)
-        result['INFO'] = np.vectorize(round_to_n_sig_figs)(agg_info, 3)
+        result['AF'] = vectorized_sig_fig_round(agg_af, 3)
+        result['INFO'] = vectorized_sig_fig_round(agg_info, 3)
+        
         result.to_csv(out, sep='\t', header=False, index=False)
 
 EOF
@@ -127,7 +150,7 @@ EOF
 
     runtime {
         docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
-        disks: "local-disk " + disk_size_gb + " HDD"
+        disks: "local-disk " + disk_size_gb + " SSD"
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
