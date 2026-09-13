@@ -141,11 +141,11 @@ EOF
 
         # bcftools 1.18 only allows index-on-the-fly format to be specified via ##idx## notation: https://github.com/samtools/bcftools/issues/2008
         # Use quotes around the output argument to prevent bash from treating ## as a comment
-        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO ${REGION_ARG} -O u ~{merged_vcf_or_bcf} | \
         if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
-            bcftools filter -i "INFO/INFO >= ~{info_filter_threshold}" -O z --write-index -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi"
+            bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO ${REGION_ARG} -O u ~{merged_vcf_or_bcf} | \
+                bcftools filter -i "INFO/INFO >= ~{info_filter_threshold}" -O z --write-index -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi"
         else
-            bcftools view -O z --write-index -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi"
+            bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO ${REGION_ARG} ~{merged_vcf_or_bcf} -O z --write-index -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi"
         fi
     >>>
 
