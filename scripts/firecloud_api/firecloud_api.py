@@ -17,6 +17,22 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+
+def request_with_retry(method, url, max_attempts=5, retry_delay=10, **kwargs):
+    """Issue an HTTP request, retrying on transient 5xx server errors (e.g. a rawls
+    502, which is common and self-clearing) so one flaky Terra response can't fail a
+    whole test job. Returns the final response; callers keep their own status handling."""
+    response = requests.request(method, url, **kwargs)
+    for attempt in range(1, max_attempts):
+        if response.status_code < 500:
+            return response
+        logging.warning(f"{method} {url} returned {response.status_code} "
+                        f"(attempt {attempt}/{max_attempts}); retrying in {retry_delay}s")
+        time.sleep(retry_delay)
+        response = requests.request(method, url, **kwargs)
+    return response
+
+
 class FirecloudAPI:
     def __init__(self, workspace_namespace, workspace_name, sa_json_b64, user, action, method_namespace, method_name):
         self.sa_json_b64 = sa_json_b64
@@ -274,15 +290,15 @@ class FirecloudAPI:
         token = self.get_user_token(self.delegated_creds)
         headers = self.build_auth_headers(token)
 
-        # get the current method configuration
-        response = requests.get(url, headers=headers)
+        # get the current method configuration (retry transient 5xx)
+        response = request_with_retry("GET", url, headers=headers)
 
         if response.status_code == 404:
             logging.info(f"Method config {method_config_name} not found. Creating new config...")
             if not self.create_new_method_config(branch_name, pipeline_name):
                 logging.error("Failed to create new method configuration.")
                 return False
-            response = requests.get(url, headers=headers)
+            response = request_with_retry("GET", url, headers=headers)
             if response.status_code != 200:
                 logging.error(f"Failed to get method configuration. Status code: {response.status_code}")
                 return False
@@ -488,8 +504,8 @@ class FirecloudAPI:
         token = self.get_user_token(self.delegated_creds)
         headers = self.build_auth_headers(token)
 
-        # Send a DELETE request to delete the method configuration
-        response = requests.delete(url, headers=headers)
+        # Send a DELETE request to delete the method configuration (retry transient 5xx)
+        response = request_with_retry("DELETE", url, headers=headers)
 
         if response.status_code == 204:
             logging.info(f"Method configuration {method_config_name} deleted successfully.")

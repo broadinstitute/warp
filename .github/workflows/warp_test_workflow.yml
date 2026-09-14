@@ -451,6 +451,9 @@ jobs:
       # Purpose: Ensures cleanup of Terra method configurations regardless of test outcome
       - name: Delete Method Configuration
         if: always()
+        # Best-effort cleanup: a transient failure deleting the temp method config
+        # must not fail the job (the test result is decided by the steps above).
+        continue-on-error: true
         run: |
           echo "Deleting method configuration for branch: $BRANCH_NAME"
           DELETE_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py delete_method_config \
