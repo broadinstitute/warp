@@ -386,25 +386,33 @@ def compare(test_file, truth_file):
     print(f"{test_file}: md5 differs from truth; comparing metrics with thresholds.")
     ok = True
     with open(test_file, newline="") as tf, open(truth_file, newline="") as rf:
-        for test_row, truth_row in zip(csv.reader(tf), csv.reader(rf)):
-            if len(test_row) < 2 or len(truth_row) < 2:
-                continue
-            metric_t, value_t = test_row[0], test_row[1]
-            metric_r, value_r = truth_row[0], truth_row[1]
-            if not is_float(value_t) or not is_float(value_r):
-                print(f"Skipping non-numeric metric: {metric_t}")
-                continue
-            if metric_t != metric_r:
-                print(f"FAIL: metric name mismatch: {metric_t} vs {metric_r}")
-                ok = False; continue
-            value_t, value_r = float(value_t), float(value_r)
-            diff = abs(value_t - value_r)
-            allow = allowable(metric_t, value_r)
-            if diff > allow:
-                print(f"FAIL: {metric_t} diff {diff} > allowable {allow} (test={value_t}, truth={value_r})")
-                ok = False
-            else:
-                print(f"PASS: {metric_t} diff {diff} <= allowable {allow}")
+        test_rows = [r for r in csv.reader(tf) if any(c.strip() for c in r)]
+        truth_rows = [r for r in csv.reader(rf) if any(c.strip() for c in r)]
+    # A dropped or added metric row must fail, not silently pass via zip truncation.
+    if len(test_rows) != len(truth_rows):
+        print(f"FAIL: row count differs (test {len(test_rows)}, truth {len(truth_rows)})")
+        return False
+    for test_row, truth_row in zip(test_rows, truth_rows):
+        if len(test_row) < 2 or len(truth_row) < 2:
+            print(f"FAIL: malformed row (test={test_row}, truth={truth_row})")
+            ok = False
+            continue
+        metric_t, value_t = test_row[0], test_row[1]
+        metric_r, value_r = truth_row[0], truth_row[1]
+        if not is_float(value_t) or not is_float(value_r):
+            print(f"Skipping non-numeric metric: {metric_t}")
+            continue
+        if metric_t != metric_r:
+            print(f"FAIL: metric name mismatch: {metric_t} vs {metric_r}")
+            ok = False; continue
+        value_t, value_r = float(value_t), float(value_r)
+        diff = abs(value_t - value_r)
+        allow = allowable(metric_t, value_r)
+        if diff > allow:
+            print(f"FAIL: {metric_t} diff {diff} > allowable {allow} (test={value_t}, truth={value_r})")
+            ok = False
+        else:
+            print(f"PASS: {metric_t} diff {diff} <= allowable {allow}")
     return ok
 
 all_ok = True

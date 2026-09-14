@@ -7,8 +7,9 @@ import "../tasks/wdl/Utilities.wdl" as Utilities
 ## scANVI trains stochastic SCVI/SCANVI models, so outputs are not bit-reproducible.
 ## Each output h5ad is compared to truth tolerantly (see CompareScanviH5ad): cell
 ## counts must match, the annotation column must be present, the predicted-label
-## vocabulary must be a subset of truth's, and per-cell-type proportions must
-## correlate with truth above a threshold.
+## vocabulary must match truth's except for a small tolerated fraction of
+## novel-labelled cells (max_novel_label_fraction), and per-cell-type proportions
+## must correlate with truth above a threshold.
 ##
 ## The ATAC-annotated output is optional: it is only produced (and only verified) in
 ## multiome mode. In GEX-only mode the *_atac_annotated_matrix.h5ad inputs are absent.
@@ -75,7 +76,7 @@ workflow VerifyScANVI {
 # structurally and distributionally consistent:
 #   - same number of cells (n_obs)
 #   - the annotation column (label_key) is present in both
-#   - the test predicted-label vocabulary is a subset of truth's (no novel labels)
+#   - novel predicted labels (absent from truth) cover at most max_novel_label_fraction of cells
 #   - per-cell-type proportions correlate with truth at or above min_proportion_corr
 #
 # Kept in this scANVI-specific file (not the shared verification/VerifyTasks.wdl) so

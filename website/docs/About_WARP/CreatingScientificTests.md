@@ -115,7 +115,10 @@ A threshold that's too tight is flaky; too loose passes garbage. Calibrate empir
 generate truth, then run the pipeline **a few more times** and measure the natural
 run-to-run variance of your distributional metric. Set the threshold comfortably *below* the
 worst honest run but *above* what a real regression would produce. Document the chosen number
-and why (scANVI: `min_proportion_corr = 0.95`).
+and why (scANVI: `min_proportion_corr = 0.70`, set below the worst observed variant —
+GEX ~0.875, ATAC ~0.783 — since the reference is far larger than the query; plus
+`max_novel_label_fraction = 0.01` to tolerate rare labels the broad reference leaks onto
+the query).
 
 ### Fail loudly on things "tolerant" must NOT excuse
 Tolerance is about *values*, not *existence*. A whole output disappearing, a column

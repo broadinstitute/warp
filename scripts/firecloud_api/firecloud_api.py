@@ -698,8 +698,11 @@ if __name__ == "__main__":
         # Check for required arguments for upload_test_inputs action
         if not args.pipeline_name or not args.test_input_file or not args.branch_name:
             parser.error("Arguments --pipeline_name, --test_input_file, and --branch_name are required for 'upload_test_inputs'")
-        # Call the function to upload test inputs
-        api.upload_test_inputs(args.pipeline_name, args.test_input_file, args.branch_name, args.test_type)
+        # Call the function to upload test inputs; propagate failure so the GHA step
+        # exits nonzero instead of proceeding to submit against a stale/empty config.
+        if not api.upload_test_inputs(args.pipeline_name, args.test_input_file, args.branch_name, args.test_type):
+            logging.error("Test input upload failed; aborting before submit.")
+            sys.exit(1)
 
     elif args.action == "submit_job":
         # Check for required argument for submit_job action
