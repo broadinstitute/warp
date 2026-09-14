@@ -2,7 +2,7 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "0.0.2"
+    String pipeline_version = "1.0.0"
 
     input {
         # service expects only gvcf_manifest even though main wdl can alternatively take input arrays
@@ -308,6 +308,7 @@ task ValidateGvcfInput {
             local worker_id="$2"
 
             local gvcfs_with_incompatible_contigs=()
+            local gvcfs_with_invalid_vcf_version=()
             local gvcfs_with_missing_format_fields=()
             local gvcfs_with_multiple_samples=()
             local gvcf_sample_ids=()
@@ -317,6 +318,15 @@ task ValidateGvcfInput {
                 echo "[worker $worker_id] Validating GVCF file: $gvcf"
 
                 bcftools view -Ov -h "$gvcf" > "header_${worker_id}.vcf"
+
+                # Ensure the header declares a VCFv4.x fileformat.
+                fileformat_line=$(grep -m1 '^##fileformat=' "header_${worker_id}.vcf" || true)
+                if ! echo "$fileformat_line" | grep -Eq '^##fileformat=VCFv4(\.[0-9]+)?$'; then
+                    echo "[worker $worker_id] GVCF file $gvcf has unsupported fileformat header '${fileformat_line:-<missing>}' (expected VCFv4.x)."
+                    gvcfs_with_invalid_vcf_version+=("$gvcf")
+                else
+                    echo "[worker $worker_id] GVCF file $gvcf declares supported fileformat header: $fileformat_line"
+                fi
 
                 # check that the GVCF contains data for exactly one sample, and record its sample
                 # ID so we can check for sample IDs duplicated across GVCFs once all workers finish
@@ -363,7 +373,7 @@ task ValidateGvcfInput {
                 fi
 
                 # stop early once this worker's own chunk already has enough issues to fill a truncated message
-                total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_missing_format_fields[@]} + ${#gvcfs_with_multiple_samples[@]} ))
+                total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_invalid_vcf_version[@]} + ${#gvcfs_with_missing_format_fields[@]} + ${#gvcfs_with_multiple_samples[@]} ))
                 if [ "$total_issue_count" -gt "$MAX_ITEMS_IN_ERROR_MESSAGES" ]; then
                     echo "[worker $worker_id] found more than $MAX_ITEMS_IN_ERROR_MESSAGES GVCF files with issues in this chunk; skipping the rest of this worker's chunk"
                     break
@@ -377,6 +387,11 @@ task ValidateGvcfInput {
                 printf '%s\n' "${gvcfs_with_incompatible_contigs[@]}" > "results/${worker_id}_incompatible_contigs.txt"
             else
                 : > "results/${worker_id}_incompatible_contigs.txt"
+            fi
+            if [ ${#gvcfs_with_invalid_vcf_version[@]} -gt 0 ]; then
+                printf '%s\n' "${gvcfs_with_invalid_vcf_version[@]}" > "results/${worker_id}_invalid_vcf_version.txt"
+            else
+                : > "results/${worker_id}_invalid_vcf_version.txt"
             fi
             if [ ${#gvcfs_with_missing_format_fields[@]} -gt 0 ]; then
                 printf '%s\n' "${gvcfs_with_missing_format_fields[@]}" > "results/${worker_id}_missing_format.txt"
@@ -405,6 +420,7 @@ task ValidateGvcfInput {
         # Merge every worker's partial results back into single lists before applying the final,
         # truncated aggregate message
         mapfile -t gvcfs_with_incompatible_contigs < <(cat results/*_incompatible_contigs.txt 2>/dev/null)
+        mapfile -t gvcfs_with_invalid_vcf_version < <(cat results/*_invalid_vcf_version.txt 2>/dev/null)
         mapfile -t gvcfs_with_missing_format_fields < <(cat results/*_missing_format.txt 2>/dev/null)
         mapfile -t gvcfs_with_multiple_samples < <(cat results/*_multi_sample.txt 2>/dev/null)
         mapfile -t all_gvcf_sample_ids < <(cat results/*_sample_ids.txt 2>/dev/null)
@@ -433,6 +449,10 @@ task ValidateGvcfInput {
             "All checked GVCF files have contigs compatible with the expected reference dictionary." \
             "${gvcfs_with_incompatible_contigs[@]}"
 
+        report_check_result "GVCF file" "with a VCF header version other than 4.x" \
+            "All checked GVCF files declare a supported VCFv4.x header version." \
+            "${gvcfs_with_invalid_vcf_version[@]}"
+
         report_check_result "GVCF file" "missing the required PL and/or GT FORMAT/ID annotation(s) in its header" \
             "All checked GVCF files declare the expected PL and GT FORMAT/ID annotations in their headers." \
             "${gvcfs_with_missing_format_fields[@]}"
@@ -445,7 +465,7 @@ task ValidateGvcfInput {
             "All GVCF sample IDs are unique across the provided GVCFs." \
             "${duplicate_sample_ids[@]}"
 
-        # passes_qc is true if qc_messages is empty
+        # passes_qc is true only when qc_messages is empty.
         if [ ! -s qc_messages.txt ]; then
             echo "true" > passes_qc.txt
         else
