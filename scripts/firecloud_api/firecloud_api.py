@@ -239,8 +239,9 @@ class FirecloudAPI:
             token = self.get_user_token(self.delegated_creds)
             headers = self.build_auth_headers(token)
 
-            # Create the new method configuration in the workspace
-            response = requests.put(url, headers=headers, json=payload)
+            # Create the new method configuration in the workspace (retry transient 5xx;
+            # <500 is returned unchanged so the 404/Dockstore handling below still runs)
+            response = request_with_retry("PUT", url, headers=headers, json=payload)
 
             return response
 
