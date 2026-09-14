@@ -329,6 +329,101 @@ CODE
 }
 
 
+# General nondeterminism-aware metric comparison.
+# Compares 2-column (name,value) metric files, tolerating per-metric drift via an
+# OPTIONAL percentage threshold (fraction of the truth value) and/or an OPTIONAL
+# absolute threshold. A metric passes when |test - truth| <= max(|truth|*pct, abs).
+# Metrics in neither map must match within default_pct (0.0 => exact match).
+# This is the reusable home for codifying per-metric nondeterminism tolerances;
+# callers (ATAC/PairedTag library metrics, etc.) pass their metric->tolerance maps
+# instead of each re-implementing a threshold dict.
+task CompareMetricsWithThresholds {
+  input {
+    Array[File] test_text_files
+    Array[File] truth_text_files
+    Map[String, Float] pct_thresholds = {}   # metric -> fractional tolerance (0.001 = 0.1%)
+    Map[String, Float] abs_thresholds = {}   # metric -> absolute tolerance (metric units)
+    Float default_pct = 0.0                  # tolerance for metrics in neither map (0 => exact)
+  }
+
+  command <<<
+python3 <<CODE
+import csv, json, hashlib, sys
+
+pct = {k.lower(): float(v) for k, v in json.load(open("~{write_json(pct_thresholds)}")).items()}
+absd = {k.lower(): float(v) for k, v in json.load(open("~{write_json(abs_thresholds)}")).items()}
+default_pct = float("~{default_pct}")
+
+test_files = ["~{sep='","' test_text_files}"]
+truth_files = ["~{sep='","' truth_text_files}"]
+if len(test_files) != len(truth_files):
+    sys.exit(f"Different number of input files ({len(test_files)} vs {len(truth_files)}).")
+
+def md5(path):
+    h = hashlib.md5()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+def is_float(v):
+    try:
+        float(v); return True
+    except ValueError:
+        return False
+
+def allowable(metric, truth_val):
+    m = metric.lower()
+    allow = abs(truth_val) * pct.get(m, default_pct if m not in absd else 0.0)
+    if m in absd:
+        allow = max(allow, absd[m])
+    return allow
+
+def compare(test_file, truth_file):
+    if md5(test_file) == md5(truth_file):
+        print(f"{test_file}: identical md5; OK.")
+        return True
+    print(f"{test_file}: md5 differs from truth; comparing metrics with thresholds.")
+    ok = True
+    with open(test_file, newline="") as tf, open(truth_file, newline="") as rf:
+        for test_row, truth_row in zip(csv.reader(tf), csv.reader(rf)):
+            if len(test_row) < 2 or len(truth_row) < 2:
+                continue
+            metric_t, value_t = test_row[0], test_row[1]
+            metric_r, value_r = truth_row[0], truth_row[1]
+            if not is_float(value_t) or not is_float(value_r):
+                print(f"Skipping non-numeric metric: {metric_t}")
+                continue
+            if metric_t != metric_r:
+                print(f"FAIL: metric name mismatch: {metric_t} vs {metric_r}")
+                ok = False; continue
+            value_t, value_r = float(value_t), float(value_r)
+            diff = abs(value_t - value_r)
+            allow = allowable(metric_t, value_r)
+            if diff > allow:
+                print(f"FAIL: {metric_t} diff {diff} > allowable {allow} (test={value_t}, truth={value_r})")
+                ok = False
+            else:
+                print(f"PASS: {metric_t} diff {diff} <= allowable {allow}")
+    return ok
+
+all_ok = True
+for test_file, truth_file in zip(test_files, truth_files):
+    if not compare(test_file, truth_file):
+        all_ok = False
+sys.exit(0 if all_ok else 1)
+CODE
+  >>>
+
+  runtime {
+    docker: "python:3.9-slim"
+    disks: "local-disk 100 HDD"
+    memory: "50 GiB"
+    preemptible: 3
+  }
+}
+
+
 
 task CompareCrams {
 
