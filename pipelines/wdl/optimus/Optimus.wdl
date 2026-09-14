@@ -1,6 +1,5 @@
 version 1.0
 
-import "../../../tasks/wdl/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/wdl/StarAlign.wdl" as StarAlign
 import "../../../tasks/wdl/Metrics.wdl" as Metrics
 import "../../../tasks/wdl/RunEmptyDrops.wdl" as RunEmptyDrops
