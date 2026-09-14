@@ -450,7 +450,14 @@ jobs:
       # Step 12: Cleanup
       # Purpose: Ensures cleanup of Terra method configurations regardless of test outcome
       - name: Delete Method Configuration
-        if: always()
+        # Run cleanup on success/failure but NOT on cancellation. The method config
+        # name is shared across concurrent runs of the same pipeline+branch
+        # (Test<Pipeline>_<TestType>_<branch>, no per-run suffix). "Cancel Previous GHA
+        # Runs" cancels older runs; if a cancelled run deleted that shared config here,
+        # it would pull it out from under the still-running latest run, whose next
+        # submit then fails 404 "does not exist". Skipping delete on cancellation
+        # leaves cleanup to the run that actually owns the config at the end.
+        if: ${{ !cancelled() }}
         # Best-effort cleanup: a transient failure deleting the temp method config
         # must not fail the job (the test result is decided by the steps above).
         continue-on-error: true
