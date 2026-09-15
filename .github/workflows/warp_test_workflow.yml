@@ -42,6 +42,17 @@ on:
       DOCKSTORE_TOKEN:
         required: true
 
+# Serialize runs per pipeline+branch. The temp method config name has no per-run
+# suffix (Test<Pipeline>_<TestType>_<branch>), so concurrent runs of the same
+# pipeline on the same branch share one config; an older run's cleanup can then
+# delete it out from under a live run (submit/upload 404 "does not exist"). This
+# cancels an in-progress run at queue time when a new one starts — same intent as
+# the "Cancel Previous GHA Runs" step, but early enough to close the overlap window
+# that mid-job step leaves open.
+concurrency:
+  group: warp-test-${{ inputs.pipeline_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   TESTING_WORKSPACE: WARP Tests
   WORKSPACE_NAMESPACE: warp-pipelines
