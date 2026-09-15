@@ -198,7 +198,7 @@ struct ChunkedPanelChromosome {
 struct PopAndMarginalizePanelResourcesChromosome {
     String panel_bubble_split_sites_only_vcf
     String panel_bubble_split_sites_only_vcf_idx
-    String panel_id_split_vcf_gz
-    String panel_id_split_vcf_gz_tbi
+    String panel_popped_sites_only_vcf_gz
+    String panel_popped_sites_only_vcf_gz_tbi
     Array[String]? pop_regions
 }
