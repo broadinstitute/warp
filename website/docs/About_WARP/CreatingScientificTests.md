@@ -98,8 +98,12 @@ If outputs vary run-to-run (random seeds, GPU nondeterminism, threading), **exac
 is wrong** — it will be flaky and will force people to re-bless truth constantly, destroying
 its value. Instead verify the invariants from Step 1:
 
-1. **Check structural invariants exactly.** Cell/row counts, presence of columns/files,
-   label vocabulary containment. These are deterministic even when values aren't.
+1. **Check structural invariants exactly.** Cell/row counts, presence of columns/files.
+   These are deterministic even when values aren't. Label vocabulary is *usually*
+   structural too, but when a stochastic annotator draws labels from a reference larger
+   than the query, a few novel labels can appear run-to-run — tolerate a bounded fraction
+   rather than requiring exact containment (see scANVI's `max_novel_label_fraction` under
+   *Calibrating the tolerance*).
 2. **Check distributional invariants against a threshold.** Correlate distributions, compare
    summary statistics, bound a divergence — whatever captures "close to the reference." In
    scANVI this is a correlation of per-cell-type proportions with a `min_proportion_corr`
@@ -115,7 +119,10 @@ A threshold that's too tight is flaky; too loose passes garbage. Calibrate empir
 generate truth, then run the pipeline **a few more times** and measure the natural
 run-to-run variance of your distributional metric. Set the threshold comfortably *below* the
 worst honest run but *above* what a real regression would produce. Document the chosen number
-and why (scANVI: `min_proportion_corr = 0.95`).
+and why (scANVI: `min_proportion_corr = 0.70`, set below the worst observed variant —
+GEX ~0.875, ATAC ~0.783 — since the reference is far larger than the query; plus
+`max_novel_label_fraction = 0.01` to tolerate rare labels the broad reference leaks onto
+the query).
 
 ### Fail loudly on things "tolerant" must NOT excuse
 Tolerance is about *values*, not *existence*. A whole output disappearing, a column

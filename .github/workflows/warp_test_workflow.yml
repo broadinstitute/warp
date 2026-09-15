@@ -42,6 +42,17 @@ on:
       DOCKSTORE_TOKEN:
         required: true
 
+# Serialize runs per pipeline+branch. The temp method config name has no per-run
+# suffix (Test<Pipeline>_<TestType>_<branch>), so concurrent runs of the same
+# pipeline on the same branch share one config; an older run's cleanup can then
+# delete it out from under a live run (submit/upload 404 "does not exist"). This
+# cancels an in-progress run at queue time when a new one starts — same intent as
+# the "Cancel Previous GHA Runs" step, but early enough to close the overlap window
+# that mid-job step leaves open.
+concurrency:
+  group: warp-test-${{ inputs.pipeline_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   TESTING_WORKSPACE: WARP Tests
   WORKSPACE_NAMESPACE: warp-pipelines
@@ -155,6 +166,8 @@ jobs:
       # Purpose: Abort previous Terra submissions from the same branch to avoid running multiple tests at the same time
       # Will not abort a Terra submission if it is a scientific test
       - name: Cancel Previous Terra Submissions
+        # Best-effort cleanup: never let a failure here fail the test job.
+        continue-on-error: true
         if: ${{ !contains(env.METHOD_CONFIG_NAME, '_Scientific_') }}
         run: |
           python3 scripts/firecloud_api/firecloud_api.py \
@@ -448,7 +461,17 @@ jobs:
       # Step 12: Cleanup
       # Purpose: Ensures cleanup of Terra method configurations regardless of test outcome
       - name: Delete Method Configuration
-        if: always()
+        # Run cleanup on success/failure but NOT on cancellation. The method config
+        # name is shared across concurrent runs of the same pipeline+branch
+        # (Test<Pipeline>_<TestType>_<branch>, no per-run suffix). "Cancel Previous GHA
+        # Runs" cancels older runs; if a cancelled run deleted that shared config here,
+        # it would pull it out from under the still-running latest run, whose next
+        # submit then fails 404 "does not exist". Skipping delete on cancellation
+        # leaves cleanup to the run that actually owns the config at the end.
+        if: ${{ !cancelled() }}
+        # Best-effort cleanup: a transient failure deleting the temp method config
+        # must not fail the job (the test result is decided by the steps above).
+        continue-on-error: true
         run: |
           echo "Deleting method configuration for branch: $BRANCH_NAME"
           DELETE_RESPONSE=$(python3 scripts/firecloud_api/firecloud_api.py delete_method_config \

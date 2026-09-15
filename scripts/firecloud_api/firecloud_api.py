@@ -17,6 +17,22 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+
+def request_with_retry(method, url, max_attempts=5, retry_delay=10, **kwargs):
+    """Issue an HTTP request, retrying on transient 5xx server errors (e.g. a rawls
+    502, which is common and self-clearing) so one flaky Terra response can't fail a
+    whole test job. Returns the final response; callers keep their own status handling."""
+    response = requests.request(method, url, **kwargs)
+    for attempt in range(1, max_attempts):
+        if response.status_code < 500:
+            return response
+        logging.warning(f"{method} {url} returned {response.status_code} "
+                        f"(attempt {attempt}/{max_attempts}); retrying in {retry_delay}s")
+        time.sleep(retry_delay)
+        response = requests.request(method, url, **kwargs)
+    return response
+
+
 class FirecloudAPI:
     def __init__(self, workspace_namespace, workspace_name, sa_json_b64, user, action, method_namespace, method_name):
         self.sa_json_b64 = sa_json_b64
@@ -138,8 +154,8 @@ class FirecloudAPI:
                             continue
                         return None
 
-                elif response.status_code == 500:  # Server error, retry
-                    logging.warning(f"Received 500 error. Retrying in {retry_delay} seconds...")
+                elif response.status_code in (500, 502, 503, 504):  # Transient server error, retry
+                    logging.warning(f"Received {response.status_code} error. Retrying in {retry_delay} seconds...")
                     logging.warning(f"Response body: {response.text}")
                     time.sleep(retry_delay)
                     # Implement exponential backoff with a cap
@@ -223,8 +239,9 @@ class FirecloudAPI:
             token = self.get_user_token(self.delegated_creds)
             headers = self.build_auth_headers(token)
 
-            # Create the new method configuration in the workspace
-            response = requests.put(url, headers=headers, json=payload)
+            # Create the new method configuration in the workspace (retry transient 5xx;
+            # <500 is returned unchanged so the 404/Dockstore handling below still runs)
+            response = request_with_retry("PUT", url, headers=headers, json=payload)
 
             return response
 
@@ -274,15 +291,15 @@ class FirecloudAPI:
         token = self.get_user_token(self.delegated_creds)
         headers = self.build_auth_headers(token)
 
-        # get the current method configuration
-        response = requests.get(url, headers=headers)
+        # get the current method configuration (retry transient 5xx)
+        response = request_with_retry("GET", url, headers=headers)
 
         if response.status_code == 404:
             logging.info(f"Method config {method_config_name} not found. Creating new config...")
             if not self.create_new_method_config(branch_name, pipeline_name):
                 logging.error("Failed to create new method configuration.")
                 return False
-            response = requests.get(url, headers=headers)
+            response = request_with_retry("GET", url, headers=headers)
             if response.status_code != 200:
                 logging.error(f"Failed to get method configuration. Status code: {response.status_code}")
                 return False
@@ -312,18 +329,26 @@ class FirecloudAPI:
         print(f"Updated method configuration: {json.dumps(config, indent=2)}")
 
 
-        # post the updated method config to the workspace
-        response = requests.post(url, headers=headers, json=config)
-        print(f"Response status code for uploading inputs: {response.status_code}")
-        print(f"Response text: {response.text}")
-
-        # Check if the test inputs were uploaded successfully
-        if response.status_code == 200:
-            print("Test inputs uploaded successfully.")
-            return True
-        else:
+        # post the updated method config to the workspace, retrying on transient 5xx
+        # errors (e.g. a 502 from rawls) so a flaky upload can't leave the config
+        # empty and cascade into a "Missing inputs" 400 at submit time.
+        for attempt in range(1, 6):
+            response = requests.post(url, headers=headers, json=config)
+            print(f"Response status code for uploading inputs (attempt {attempt}): {response.status_code}")
+            if response.status_code == 200:
+                print("Test inputs uploaded successfully.")
+                return True
+            if response.status_code in (500, 502, 503, 504):
+                print(f"Transient {response.status_code} uploading inputs; retrying in 10s...")
+                time.sleep(10)
+                continue
             print(f"Failed to upload test inputs. Status code: {response.status_code}")
+            print(f"Response text: {response.text}")
             return False
+
+        print(f"Failed to upload test inputs after retries; last status code: {response.status_code}")
+        print(f"Response text: {response.text}")
+        return False
 
     def poll_job_status(self, submission_id):
         """
@@ -480,8 +505,8 @@ class FirecloudAPI:
         token = self.get_user_token(self.delegated_creds)
         headers = self.build_auth_headers(token)
 
-        # Send a DELETE request to delete the method configuration
-        response = requests.delete(url, headers=headers)
+        # Send a DELETE request to delete the method configuration (retry transient 5xx)
+        response = request_with_retry("DELETE", url, headers=headers)
 
         if response.status_code == 204:
             logging.info(f"Method configuration {method_config_name} deleted successfully.")
@@ -542,15 +567,31 @@ class FirecloudAPI:
         """
         Cancel all active submissions for a pipeline's method configuration.
         Returns the number of cancelled submissions.
-        """
-        method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
-        active_submissions = self.get_active_submissions(method_config_name)
-        cancelled_count = 0
 
-        for submission in active_submissions:
-            if self.cancel_submission(submission['submissionId']):
-                cancelled_count += 1
-                logging.info(f"Cancelled submission {submission['submissionId']}")
+        Best-effort cleanup: this never raises. Any failure (missing method
+        config, transient API error, unexpected submission payload) is logged
+        and treated as "nothing cancelled" so a cleanup hiccup cannot fail the
+        pipeline's test job.
+        """
+        try:
+            method_config_name = self.get_method_config_name(pipeline_name, branch_name, args.test_type)
+        except Exception as e:
+            logging.warning(f"Could not resolve method config for {pipeline_name}/{branch_name}; skipping cancel: {e}")
+            return 0
+        if not method_config_name:
+            logging.warning(f"No method config name for {pipeline_name}/{branch_name}; skipping cancel.")
+            return 0
+
+        cancelled_count = 0
+        try:
+            active_submissions = self.get_active_submissions(method_config_name)
+            for submission in active_submissions:
+                submission_id = submission.get('submissionId')
+                if submission_id and self.cancel_submission(submission_id):
+                    cancelled_count += 1
+                    logging.info(f"Cancelled submission {submission_id}")
+        except Exception as e:
+            logging.warning(f"Error cancelling old submissions for {method_config_name}; continuing: {e}")
 
         return cancelled_count
 
@@ -658,8 +699,11 @@ if __name__ == "__main__":
         # Check for required arguments for upload_test_inputs action
         if not args.pipeline_name or not args.test_input_file or not args.branch_name:
             parser.error("Arguments --pipeline_name, --test_input_file, and --branch_name are required for 'upload_test_inputs'")
-        # Call the function to upload test inputs
-        api.upload_test_inputs(args.pipeline_name, args.test_input_file, args.branch_name, args.test_type)
+        # Call the function to upload test inputs; propagate failure so the GHA step
+        # exits nonzero instead of proceeding to submit against a stale/empty config.
+        if not api.upload_test_inputs(args.pipeline_name, args.test_input_file, args.branch_name, args.test_type):
+            logging.error("Test input upload failed; aborting before submit.")
+            sys.exit(1)
 
     elif args.action == "submit_job":
         # Check for required argument for submit_job action
