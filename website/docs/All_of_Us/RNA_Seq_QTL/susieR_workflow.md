@@ -9,13 +9,13 @@ className: aou-doc-page
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [aou_9.0.1](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/susieR_workflow.changelog.md) | January, 2026 | WARP Pipelines | [File an issue](https://github.com/broadinstitute/warp/issues) |
+| [aou_9.1.0](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/susieR_workflow.changelog.md) | August, 2026 | WARP Pipelines | [File an issue](https://github.com/broadinstitute/warp/issues) |
 
 ## Introduction to the SuSiE Fine-Mapping workflow
 
 [`susieR_workflow.wdl`](https://github.com/broadinstitute/warp/blob/develop/all_of_us/rna_seq/susieR_workflow.wdl) performs cis-window fine-mapping using SuSiE from TensorQTL outputs and dosage matrices.
 
-The workflow subsets phenotype/genotype inputs for a target phenotype ID, then runs an R-based SuSiE script to produce parquet outputs including credible set summaries and full fine-mapping tables.
+Given an `InputMappingTsv` (one row per ancestry) and a target `Ancestry`, the workflow first looks up the ancestry-specific genotype dosage, covariate, sample list, phenotype BED, and TensorQTL permutation file paths, subsets those phenotype/genotype inputs for a target phenotype ID, then runs an R-based SuSiE script to produce parquet outputs including credible set summaries and full fine-mapping tables.
 
 ## Inputs
 
@@ -23,14 +23,10 @@ The workflow subsets phenotype/genotype inputs for a target phenotype ID, then r
 
 | Input variable name | Description | Type |
 | --- | --- | --- |
-| `GenotypeDosages` | BGZ-compressed dosage matrix. | File |
-| `GenotypeDosageIndex` | Tabix index for dosage matrix. | File |
-| `QTLCovariates` | Covariate table for QTL model fitting. | File |
-| `TensorQTLPermutations` | TensorQTL permutation output table used to select phenotype-specific loci. | File |
-| `SampleList` | Sample metadata file. | File |
-| `PhenotypeBed` | Phenotype BED matrix used for expression/splicing values. | File |
+| `InputMappingTsv` | Tab-separated file, one row per ancestry, providing `gs://` paths for `GenotypeDosage`, `GenotypeDosagei`, `PhenotypePCsOut`, `PlinkAF`, `QtlCovariates`, `Sample_list`, `VCF`, `cis_qtl`, `genotype_pcs`, `pgen`, `phenotype_bed`, and `psam`, keyed by a `mapping_inputs_id` ancestry code (AFR, AMR, COMB, EUR, SAS, EAS, MID). | File |
+| `Ancestry` | Ancestry code used to select the row of `InputMappingTsv` to use for this run. | String |
 | `CisDistance` | Cis-window distance parameter. | Int |
-| `susie_rscript` | SuSiE runner script path. | File |
+| `susie_rscript` | SuSiE runner script path; see [`20251210_rfast_removed_susie.R`](https://github.com/broadinstitute/warp-tools/blob/main/3rd-party-tools/aou_qtl_finemapping/20251210_rfast_removed_susie.R) in [warp-tools](https://github.com/broadinstitute/warp-tools). | File |
 | `memory` | Runtime memory (GB). | Int |
 | `NumPrempt` | Runtime preemptible count. | Int |
 | `OutputPrefix` | General output prefix. | String |

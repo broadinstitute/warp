@@ -1,3 +1,13 @@
+# 1.0.0
+2026-09-09 (Date of Last Commit)
+
+* Initial version for teaspoons prod release
+
+# 0.0.3
+2026-09-08 (Date of Last Commit)
+
+* Add GVCF header fileformat validation in `ValidateGvcfInput` and fail the task when any input header is not VCFv4.x.
+
 # 0.0.2
 2026-08-26 (Date of Last Commit)
 
