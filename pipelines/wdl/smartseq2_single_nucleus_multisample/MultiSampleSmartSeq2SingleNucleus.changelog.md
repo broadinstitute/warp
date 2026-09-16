@@ -1,3 +1,8 @@
+# 2.2.9
+2026-09-16 (Date of Last Commit)
+
+* Updated the warp-tools Docker image to 2.7.0 (Debian bookworm base); no functional impact on pipeline outputs
+
 # 2.2.8
 2026-07-10 (Date of Last Commit)
 

@@ -55,7 +55,7 @@ workflow ATAC {
     File? aligned_ATAC_bam
   }
 
-  String pipeline_version = "2.9.3"
+  String pipeline_version = "2.9.4"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
