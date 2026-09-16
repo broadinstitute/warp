@@ -28,8 +28,8 @@ on:
       test_type:
         required: false
         type: string
-        default: 'Plumbing'
-        description: 'Type of test (Plumbing or Scientific)'
+        default: ''
+        description: 'Optional test type override (Plumbing or Scientific)'
       truth_branch:
         required: false
         type: string
@@ -91,11 +91,18 @@ jobs:
           fi
 
       # Step 5: Set Test Type
-      # Purpose: Determines and sets the correct test type based on the branch name
+      # Purpose: Determines and sets the correct test type from an explicit caller override, or from the branch name
       - name: Set Test Type
         id: set_test_type
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
+          REQUESTED_TEST_TYPE="${{ inputs.test_type }}"
+          if [ -n "$REQUESTED_TEST_TYPE" ]; then
+            # Some pipelines (for example scANVI) only define Scientific test inputs.
+            # Allow their caller workflow to explicitly override the branch-derived default.
+            echo "Using explicitly requested test type: $REQUESTED_TEST_TYPE"
+            echo "testType=$REQUESTED_TEST_TYPE" >> $GITHUB_ENV
+            echo "testType=$REQUESTED_TEST_TYPE"
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
             # For PRs, set based on target branch
             if [ "${{ github.base_ref }}" == "master" ]; then
               # If PR is targeting master branch, run Scientific tests
@@ -107,9 +114,9 @@ jobs:
               echo "testType=Plumbing"
             fi
           else
-            # For manual workflow runs (workflow_dispatch)
-            echo "testType=${{ inputs.test_type }}" >> $GITHUB_ENV
-            echo "testType=${{ inputs.test_type }}"
+            # For manual workflow runs without an explicit test type, default to Plumbing
+            echo "testType=Plumbing" >> $GITHUB_ENV
+            echo "testType=Plumbing"
           fi
 
       # Step 6: Create Method Configuration

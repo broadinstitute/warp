@@ -115,9 +115,17 @@ function build_and_release_to_github() {
   else
     previousEntryStart=$((previousEntryStart - 1))
   fi
-  local -r body="$(head -n ${previousEntryStart} "${changelog}" | sed 's/$/\\r\\n/g' | tr -d '\n')"
+  local -r body="$(head -n ${previousEntryStart} "${changelog}")"
 
-  local -r payload="{\"tag_name\": \"${releaseName}\",\"name\": \"${releaseName}\",\"target_commitish\": \"${targetCommitish}\",\"body\": \"${body}\",\"prerelease\": ${prerelease}}"
+  # Build the payload with jq so that all string values (especially the changelog
+  # body, which can contain quotes, backslashes, and newlines) are properly escaped.
+  local -r payload=$(jq -n \
+    --arg tag_name "${releaseName}" \
+    --arg name "${releaseName}" \
+    --arg target_commitish "${targetCommitish}" \
+    --arg body "${body}" \
+    --argjson prerelease "${prerelease}" \
+    '{tag_name: $tag_name, name: $name, target_commitish: $target_commitish, body: $body, prerelease: $prerelease}')
 
   stderr "Making the ${releaseName} release on Github"
 
@@ -172,7 +180,7 @@ function upload_to_github_as_draft() {
     --write-out "%{http_code}" \
     -X POST \
     -H "Authorization: token ${GITHUB_TOKEN}" \
-    -d "$(echo "${payload}" | jq '. + {"draft":true}')" \
+    -d "$(printf '%s' "${payload}" | jq '. + {"draft":true}')" \
     "https://api.github.com/repos/${REPO}/releases")
 
   if [[ ${releaseResponseCode} -ne 201 ]]; then

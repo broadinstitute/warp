@@ -1,3 +1,10 @@
+# 5.1.1
+2026-05-20 (Date of Last Commit)
+
+* Added bash header to catch silent failures in BuildStarSingleNucleus
+
+* Added a check for gzipped fasta input to BuildStarSingleNucleus
+
 # 5.1.0
 2026-02-13 (Date of Last Commit)
 

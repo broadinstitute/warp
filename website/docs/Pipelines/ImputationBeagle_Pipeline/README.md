@@ -7,7 +7,7 @@ slug: /Pipelines/ImputationBeagle_Pipeline/README
  
 |                                                  Pipeline Version                                                  | Date Updated |        Documentation Author        |                             Questions or Feedback                              |
 |:------------------------------------------------------------------------------------------------------------------:|:------------:|:----------------------------------:|:------------------------------------------------------------------------------:|
-| [ImputationBeagle_v3.0.0](https://github.com/broadinstitute/warp/releases?q=ImputationBeagle_v2.3.0&expanded=true) | November, 2025 | Terra Scientific Pipeline Services | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation_beagle/ImputationBeagle.changelog.md) for version information. | See changelog | Terra Scientific Pipeline Services | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). | |
  
 ## Introduction to the Array Imputation pipeline
 The Array Imputation pipeline imputes missing genotypes from either a multi-sample VCF or an array of single-sample VCFs using a large genomic reference panel. It uses [Beagle](https://faculty.washington.edu/browning/beagle/beagle.html) as the imputation tool. Overall, the pipeline filters, phases, and performs imputation on a multi-sample VCF. It outputs the imputed VCF along with key imputation metrics.

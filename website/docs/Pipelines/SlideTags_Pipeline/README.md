@@ -7,7 +7,7 @@ slug: /Pipelines/SlideTags_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| v1.0.0 | May, 2025 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/slidetags/SlideTags.changelog.md) for version information. | See changelog | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues)  |
 
 ![Slide-tags_diagram](./Slide-tags.png)
 
@@ -86,7 +86,7 @@ The pipeline requires JSON-formatted configuration files detailing input paramet
 | force_no_check        | Flag to disable sanity checks                     | Boolean          |
 | ignore_r1_read_length | Ignore length check for R1 reads                 | Boolean          |
 | star_strand_mode       | Strand mode setting for STAR alignment           | String           |
-| count_exons            | Flag to enable exon counting                     | Boolean          |
+| count_exons            | **Deprecated and removed in SlideTags v2.0.0.** No longer accepted by the workflow.        | N/A          |
 | soloMultiMappers       | Optional setting for handling multi-mapped reads | String?          |
 | gex_nhash_id           | Optional NHash identifier for gene expression     | String?          |
 | mt_genes               | Optional file listing mitochondrial genes        | File?            |
