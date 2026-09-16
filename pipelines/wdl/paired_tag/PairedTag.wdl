@@ -8,7 +8,7 @@ import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "3.0.2"
+    String pipeline_version = "3.0.3"
 
     input {
         String input_id
@@ -53,6 +53,9 @@ workflow PairedTag {
         File atac_whitelist = if cloud_provider == "gcp" then "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt" else "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_atac.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
         # Optional aligned ATAC bam file
         File? aligned_ATAC_bam
+
+        # GPU alignment: aggregate T4 count forwarded to ATAC (0 = CPU bwa-mem2 default; gcp-only)
+        Int atac_gpu_count = 0
 
         # PairedTag
         Boolean preindex
@@ -140,6 +143,7 @@ workflow PairedTag {
             cloud_provider = cloud_provider,
             vm_size = vm_size,
             atac_nhash_id = atac_nhash_id,
+            atac_gpu_count = atac_gpu_count,
             aligned_ATAC_bam = aligned_ATAC_bam
     }
 

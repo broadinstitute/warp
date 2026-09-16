@@ -9,7 +9,7 @@ import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "7.0.2"
+    String pipeline_version = "7.0.3"
 
     input {
         String cloud_provider
@@ -52,6 +52,9 @@ workflow Multiome {
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         File? aligned_ATAC_bam
+
+        # GPU alignment: aggregate T4 count forwarded to ATAC (0 = CPU bwa-mem2 default; gcp-only)
+        Int atac_gpu_count = 0
 
         # CellBender
         Boolean run_cellbender = false
@@ -131,6 +134,7 @@ workflow Multiome {
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
             peak_calling = false,
+            atac_gpu_count = atac_gpu_count,
             aligned_ATAC_bam = aligned_ATAC_bam
 
     }
