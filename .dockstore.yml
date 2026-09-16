@@ -1,10 +1,6 @@
 version: 1.2
 workflows:
 
-  - name: aggregate_rnaseqc2
-    subclass: WDL
-    primaryDescriptorPath: /all_of_us/rna_seq/GTEx/aggregate_rnaseqc2.wdl
-
   - name: aggregate_rsem_results
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/GTEx/aggregate_rsem_results.wdl
@@ -183,6 +179,10 @@ workflows:
   - name: rnaseq_aou
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/GTEx/rnaseq_aou.wdl
+
+  - name: rnaseqc2_aggregate_batched
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/GTEx/rnaseqc2_aggregate_batched.wdl
 
   - name: RNAWithUMIsPipeline
     subclass: WDL
