@@ -37,3 +37,6 @@ scanvi_gpu_test/
 
 # Personal devcontainer (references local NAS mount + GPU; not shared)
 .devcontainer/devcontainer.json
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
