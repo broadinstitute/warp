@@ -192,16 +192,18 @@ task CheckTranscriptomeBamComparisonWithTolerance {
     set -e
     set -o pipefail
 
-    pip3 install pandas
     python3 << EOF
-    import pandas as pd
-    comp = pd.read_csv("~{comparison}", header=5, sep="\t")
+    import csv
+    # Picard CompareMetrics output: 5 preamble lines, then header (row 5), then data (row 6).
+    with open("~{comparison}") as fh:
+        row = dict(zip(*list(csv.reader(fh, delimiter="\t"))[5:7]))
 
-    assert ((comp['MISSING_LEFT'] + comp['MISSING_RIGHT'])/comp['MAPPINGS_MATCH'])[0]<~{tolerance}, f'frac missing is {((comp["MISSING_LEFT"] + comp["MISSING_RIGHT"])/comp["MAPPINGS_MATCH"])[0]} which is greater than tolerance of ~{tolerance}'
-    assert comp['MAPPINGS_DIFFER'][0]==0, f'{comp["MAPPINGS_DIFFER"][0]} mappings differ'
-    assert comp['UNMAPPED_LEFT'][0]==0, f'{comp["UNMAPPED_LEFT"][0]} unmapped in left file'
-    assert comp['UNMAPPED_RIGHT'][0]==0, f'{comp["UNMAPPED_RIGHT"][0]} unmapped in right file'
-    assert comp['DUPLICATE_MARKINGS_DIFFER'][0]==0, f'{comp["DUPLICATE_MARKINGS_DIFFER"][0]} duplicate markings differ (all duplicates should have been removed)'
+    frac_missing = (float(row['MISSING_LEFT']) + float(row['MISSING_RIGHT'])) / float(row['MAPPINGS_MATCH'])
+    assert frac_missing < ~{tolerance}, f'frac missing is {frac_missing} which is greater than tolerance of ~{tolerance}'
+    assert float(row['MAPPINGS_DIFFER'])==0, f"{row['MAPPINGS_DIFFER']} mappings differ"
+    assert float(row['UNMAPPED_LEFT'])==0, f"{row['UNMAPPED_LEFT']} unmapped in left file"
+    assert float(row['UNMAPPED_RIGHT'])==0, f"{row['UNMAPPED_RIGHT']} unmapped in right file"
+    assert float(row['DUPLICATE_MARKINGS_DIFFER'])==0, f"{row['DUPLICATE_MARKINGS_DIFFER']} duplicate markings differ (all duplicates should have been removed)"
 
     EOF
   >>>

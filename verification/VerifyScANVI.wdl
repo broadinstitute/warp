@@ -86,15 +86,13 @@ task CompareScanviH5ad {
     File test_h5ad
     String label_key
     Float min_proportion_corr = 0.95
-    String docker = "python:3.10.0-buster"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.7.0"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 50
     Int memory_gb = 16
   }
 
   command <<<
     set -eo pipefail
-
-    pip3 install --quiet anndata
 
     python3 <<CODE
     import sys
