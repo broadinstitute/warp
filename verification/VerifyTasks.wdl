@@ -578,7 +578,7 @@ task CompareH5adFilesATAC {
   input {
     File truth_h5ad
     File test_h5ad
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.7.0"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.7.1"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
     Int memory_gb = 32
   }
@@ -653,7 +653,7 @@ task CompareH5adFilesGEX {
   input {
     File truth_h5ad
     File test_h5ad
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.7.0"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.7.1"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
     Int memory_gb = 32
   }
