@@ -1,5 +1,5 @@
 ---
-sidebar_position: 6
+sidebar_position: 5
 slug: /All_of_Us/Ancestry_Analysis/run_relatedness
 title: Run Relatedness
 className: aou-doc-page

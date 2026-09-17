@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 4
 slug: /All_of_Us/Ancestry_Analysis/run_ancestry
 title: Run Ancestry Inference
 className: aou-doc-page
