@@ -194,9 +194,12 @@ task CheckTranscriptomeBamComparisonWithTolerance {
 
     python3 << EOF
     import csv
-    # Picard CompareMetrics output: 5 preamble lines, then header (row 5), then data (row 6).
+    # Picard metrics have a variable-length preamble (including blank lines) before the
+    # header row; locate the header by content rather than a fixed offset.
     with open("~{comparison}") as fh:
-        row = dict(zip(*list(csv.reader(fh, delimiter="\t"))[5:7]))
+        rows = [r for r in csv.reader(fh, delimiter="\t") if r and r[0].strip()]
+    hi = next(i for i, r in enumerate(rows) if "MISSING_LEFT" in r)
+    row = dict(zip(rows[hi], rows[hi + 1]))
 
     frac_missing = (float(row['MISSING_LEFT']) + float(row['MISSING_RIGHT'])) / float(row['MAPPINGS_MATCH'])
     assert frac_missing < ~{tolerance}, f'frac missing is {frac_missing} which is greater than tolerance of ~{tolerance}'
