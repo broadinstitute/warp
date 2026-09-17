@@ -344,7 +344,7 @@ task PopAndMarginalizeCollisions {
         use_ssd:            true,
         preemptible_tries:  2,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-dsde-methods/slee/sv-imputation-rust-tools:1.0.0-9036051-1789593197"
+        docker:             "us.gcr.io/broad-dsde-methods/slee/sv-imputation-rust-tools:1.0.0-0e617d4-1789610072"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
