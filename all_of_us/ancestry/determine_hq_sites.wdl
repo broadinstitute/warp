@@ -39,6 +39,7 @@ workflow determine_hq_sites {
         File? intersecting_intervals
     }
 
+    String pipeline_version = "aou_9.0.0"
     String full_vcf_output_prefix = output_prefix + "_full"
 
     scatter (vcf in vcfs) {

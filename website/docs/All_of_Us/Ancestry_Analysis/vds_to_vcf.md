@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 slug: /All_of_Us/Ancestry_Analysis/vds_to_vcf
 title: VDS to VCF
 className: aou-doc-page

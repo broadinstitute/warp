@@ -1,5 +1,5 @@
 ---
-sidebar_position: 7
+sidebar_position: 8
 slug: /All_of_Us/Ancestry_Analysis/run_sample_outlier_qc_plotting
 title: Run Sample Outlier QC Plotting
 className: aou-doc-page

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 slug: /All_of_Us/Ancestry_Analysis/determine_hq_sites_intersection
 title: Determine HQ Sites Intersection
 className: aou-doc-page
