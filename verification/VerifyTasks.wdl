@@ -217,28 +217,51 @@ python3 <<CODE
 import csv
 import hashlib
 
-# Define acceptable percentage-based thresholds for nondeterministic metrics
-# Arrived at these thresholds by examining the differences between the test and truth files in our scientific tests
+# Per-metric nondeterminism tolerances for the ATAC library-metrics CSV.
+#
+# HOW TO READ THIS (for the scientific reviewer):
+#   * Each value is a RELATIVE tolerance, not an absolute one. A metric passes when
+#         |test - truth| <= truth * threshold
+#     (see compare_metrics() below: allowable_diff = value_b * threshold, value_b = truth).
+#   * Each threshold is set to ~2x the largest run-to-run drift we have observed for that
+#     metric (the WARP nondeterminism rule: double the human-accepted drift so a value that
+#     barely cleared one run's drift doesn't flake on the next). A metric NOT listed here
+#     defaults to 0 tolerance = exact match.
+#   * The inline "truth ... -> +/- ..." on each line translates the relative threshold into
+#     the ABSOLUTE difference it actually permits, evaluated at the current Multiome
+#     Scientific truth (the 10k_PBMC run:
+#     gs://pd-test-storage-public/Multiome/truth/scientific/master/10k_pbmc/10k_PBMC_atac_example_1234_library_metrics.csv).
+#     These absolute budgets scale with truth, so a larger library gets a proportionally
+#     larger absolute allowance; "pp" = percentage points of the fraction.
+#     If you regenerate truth and the magnitudes change materially, recompute (truth * threshold).
 thresholds = {
-    "sequenced_reads": 0.0000001,  # ~61 reads on a 614M-read library; raised from 6.6e-9 (allowed 4) which flaked on an observed 9-read drift
-    "fraction_Q30_bases_in_read_1": 0.0000000054,
-    "fraction of high-quality fragments in cells": 0.00022,
-    "fraction_of_transposition_events_in_peaks_in_cells": 0.00006,
-    "fraction_duplicates": 0.00000105,
-    "fraction_fragment_in_nucleosome_free_region": 0.0000027,
-    "fraction_fragment_flanking_single_nucleosome": 0.0000012,
-    "fraction_of_high-quality_fragments_overlapping_tss": 0.00000087,
-    "number_of_peaks": 0.00003,
-    "fraction_of_genome_in_peaks": 0.0000069,
-    "mean_raw_read_pairs_per_cell": 0.00088,
-    "median_high-quality_fragments_per_cell": 0.000087,
-    "atac_percent_target": 0.001,
-    "number_of_cells": 0.00088,
-    "fraction_confidently_mapped": 0.000000123,
-    "fraction_unmapped": 0.000014,
-    "fraction_nonnuclear": 0.00000079,
-    "tss_enrichment_score": 0.0000024,
-    "fraction_of_high-quality_fragments_overlapping_peaks": 0.0000015
+    "sequenced_reads": 0.0000001,  # truth 614.3M reads -> +/-61 reads. Raised from 6.6e-9 (allowed only ~4 reads) after a 9-read drift flaked it; 1e-7 is a round value with generous headroom (not the strict 2x rule)
+    # NOTE: most ATAC metrics below were set to ~2x their observed run-to-run drift (so the
+    # observed drift ~= half the "+/- ..." shown). A few were widened further where 2x still
+    # flaked (sequenced_reads above; fraction_unmapped and ...overlapping_peaks below).
+    "fraction_Q30_bases_in_read_1": 0.0000000054,  # truth 0.930 -> +/-5.0e-9 (~5e-7 pp); essentially a float-rounding floor
+    "fraction of high-quality fragments in cells": 0.00022,  # truth 0.912 -> +/-2.0e-4 (0.020 pp)
+    "fraction_of_transposition_events_in_peaks_in_cells": 0.00006,  # truth 0.437 -> +/-2.6e-5 (0.0026 pp)
+    "fraction_duplicates": 0.00000105,  # truth 0.188 -> +/-2.0e-7 (2.0e-5 pp)
+    "fraction_fragment_in_nucleosome_free_region": 0.0000027,  # truth 0.457 -> +/-1.2e-6 (1.2e-4 pp)
+    "fraction_fragment_flanking_single_nucleosome": 0.0000012,  # truth 0.409 -> +/-4.9e-7 (4.9e-5 pp)
+    "fraction_of_high-quality_fragments_overlapping_tss": 0.00000087,  # truth 0.417 -> +/-3.6e-7 (3.6e-5 pp)
+    "number_of_peaks": 0.00003,  # truth 136,133 peaks -> +/-4 peaks
+    "fraction_of_genome_in_peaks": 0.0000069,  # truth 0.0178 -> +/-1.2e-7 (1.2e-5 pp)
+    "mean_raw_read_pairs_per_cell": 0.00088,  # truth 33,570 -> +/-30 read-pairs/cell
+    "median_high-quality_fragments_per_cell": 0.000087,  # truth 11,501 -> +/-1 fragment/cell
+    "atac_percent_target": 0.001,  # truth 305 -> +/-0.31 (metric units)
+    # number_of_cells here is the ATAC *called-cell* count (a computed QC statistic from the
+    # stochastic ATAC cell-calling step), NOT the h5ad row dimension. The "cell counts must
+    # match exactly" invariant in the scientific-testing guide applies to the structural
+    # n_obs of the count matrices (still exact elsewhere); this called-cell tally drifts a
+    # few cells run-to-run, hence a small tolerance rather than exact match.
+    "number_of_cells": 0.00088,  # truth 9,150 cells -> +/-8 cells
+    "fraction_confidently_mapped": 0.000000123,  # truth 0.894 -> +/-1.1e-7 (1.1e-5 pp)
+    "fraction_unmapped": 0.000014,  # truth 0.0126 -> +/-1.8e-7 (1.8e-5 pp)
+    "fraction_nonnuclear": 0.00000079,  # truth 0.0166 -> +/-1.3e-8 (1.3e-6 pp)
+    "tss_enrichment_score": 0.0000024,  # truth 18.17 -> +/-4.4e-5 (score units)
+    "fraction_of_high-quality_fragments_overlapping_peaks": 0.0000015  # truth 0.463 -> +/-7.0e-7 (7.0e-5 pp)
 }
 
 thresholds = {k.lower(): v for k, v in thresholds.items()}
@@ -755,6 +778,10 @@ task CompareH5adFilesGEX {
                 # allows these columns to vary. Gate on the column-sum rel diff at 2x the
                 # observed drift (emptydrops_PValue drifted 1.13%; see AGENTS.md — set a
                 # nondeterminism tolerance to double the human-accepted drift).
+                # Absolute meaning (for the scientific reviewer): the summed emptydrops_*
+                # column may differ from truth by at most 2.3% of truth's column sum. Kept
+                # relative rather than a fixed count because the sum's magnitude is
+                # sample-dependent (scales with cell count / p-value range).
                 emptydrops_tol = 0.023
                 denom = abs(y.sum()) if y.sum() != 0 else 1
                 rel = abs(z.sum() - y.sum()) / denom

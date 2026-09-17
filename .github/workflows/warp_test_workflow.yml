@@ -49,8 +49,14 @@ on:
 # cancels an in-progress run at queue time when a new one starts — same intent as
 # the "Cancel Previous GHA Runs" step, but early enough to close the overlap window
 # that mid-job step leaves open.
+# The group MUST key on the same branch identity as the config name (BRANCH_NAME
+# below = github.head_ref on a PR, else the ref's short name). Using github.ref
+# would put a PR run (refs/pull/<n>/merge) and a workflow_dispatch/push run on the
+# same head branch in different groups even though they share one Terra config, so
+# they could still clobber each other. github.head_ref || github.ref_name matches
+# BRANCH_NAME in both cases.
 concurrency:
-  group: warp-test-${{ inputs.pipeline_name }}-${{ github.ref }}
+  group: warp-test-${{ inputs.pipeline_name }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 env:

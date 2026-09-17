@@ -54,10 +54,11 @@ differently:
 Example (scANVI, a stochastic label-transfer pipeline):
 
 > Structural: output h5ad has the **same number of cells** as truth; the annotation column
-> is **present**; the predicted-label vocabulary is a **subset** of truth's (the model may
-> not invent labels the reference never had).
-> Distributional: **per-cell-type proportions correlate** with truth at or above a
-> threshold.
+> is **present**.
+> Distributional: the predicted-label vocabulary is **almost entirely a subset** of truth's —
+> a small, bounded fraction of cells (`max_novel_label_fraction`) may carry novel labels the
+> broad reference leaks onto the query, so this is a tolerance, not a hard containment check;
+> and **per-cell-type proportions correlate** with truth at or above a threshold.
 
 Doing this first turns "compare the outputs" into a concrete, reviewable specification and
 tells you exactly what the verification WDL must check.

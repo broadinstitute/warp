@@ -93,11 +93,17 @@ task CompareScanviH5ad {
     # drift run-to-run. The GEX and ATAC label paths drift differently (observed
     # ~0.875 GEX, ~0.783 ATAC), so this single floor is set below the worst observed
     # variant with margin. If it drifts further, split into per-modality floors.
+    # Absolute meaning (for the scientific reviewer): this is a Pearson-r floor on the
+    # per-cell-type proportion vector, not a cell count. r=0.70 tolerates decorrelation of
+    # up to 0.30 from a perfect 1.0; the worst run observed was 0.783 (decorrelation 0.22,
+    # ATAC) / 0.875 (0.13, GEX).
     Float min_proportion_corr = 0.70
     # Fraction of test cells allowed to carry labels absent from truth. A broad AIT
     # reference can assign a handful of query cells to subclasses outside the truth's
     # vocabulary (e.g. an entorhinal-cortex subclass leaking onto a hippocampus query);
     # fail only when such cells exceed this fraction.
+    # Absolute meaning: 0.01 = at most 1% of test cells (~100 per 10,000 cells) may hold a
+    # novel label; the check prints the exact n_novel/n_obs it saw at runtime.
     Float max_novel_label_fraction = 0.01
     String docker = "python:3.10.0-buster"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 50
