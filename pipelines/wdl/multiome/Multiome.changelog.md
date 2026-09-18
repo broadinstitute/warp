@@ -1,3 +1,8 @@
+# 7.0.3
+2026-09-18 (Date of Last Commit)
+
+* Updated the imported Optimus subworkflow (removed an unused import); no functional impact on this pipeline's outputs
+
 # 7.0.2
 2026-07-10 (Date of Last Commit)
 
