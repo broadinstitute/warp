@@ -1,3 +1,8 @@
+# 9.2.2
+2026-09-18 (Date of Last Commit)
+
+* Removed an unused FastqProcessing import from Optimus.wdl; no functional impact on pipeline outputs
+
 # 9.2.1
 2026-09-16 (Date of Last Commit)
 
