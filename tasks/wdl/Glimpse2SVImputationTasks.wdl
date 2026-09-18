@@ -168,7 +168,7 @@ readers = [pd.read_csv(f, sep='\t', chunksize=chunk_size) for f in input_filenam
 with open('aggregated_annotations.tsv', 'w') as out:
     for chunks in zip(*readers):
         # Validate that all batches have identical sites for this chunk
-        ref_loci = chunks[0][['CHROM', 'POS', 'REF', 'ALT', N_PATHS', 'N_PATHS_TOTAL']].reset_index(drop=True)
+        ref_loci = chunks[0][['CHROM', 'POS', 'REF', 'ALT', 'N_PATHS', 'N_PATHS_TOTAL']].reset_index(drop=True)
         for i, chunk in enumerate(chunks[1:], 1):
             if not ref_loci.equals(chunk[['CHROM', 'POS', 'REF', 'ALT', N_PATHS', 'N_PATHS_TOTAL']].reset_index(drop=True)):
                 raise RuntimeError(f'Sites in chunk do not match between batch 0 and batch {i}. '
