@@ -106,9 +106,9 @@ task ExtractAnnotations {
         # Ensure index is localized so bcftools can use it for random access if needed
         ls ~{imputed_vcf_or_bcf_index} > /dev/null
 
-        printf 'CHROM\tPOS\tREF\tALT\tAF\tINFO\n' > annotations_batch_~{batch_index}.tsv
+        printf 'CHROM\tPOS\tREF\tALT\tAF\tINFO\tN_PATHS\tN_PATHS_TOTAL\n' > annotations_batch_~{batch_index}.tsv
         bcftools query \
-        -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\n' \
+        -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\t%INFO/N_PATHS\t%INFO/N_PATHS_TOTAL\n' \
         ~{imputed_vcf_or_bcf} >> annotations_batch_~{batch_index}.tsv
 
         bgzip annotations_batch_~{batch_index}.tsv
@@ -168,11 +168,11 @@ readers = [pd.read_csv(f, sep='\t', chunksize=chunk_size) for f in input_filenam
 with open('aggregated_annotations.tsv', 'w') as out:
     for chunks in zip(*readers):
         # Validate that all batches have identical sites for this chunk
-        ref_loci = chunks[0][['CHROM', 'POS', 'REF', 'ALT']].reset_index(drop=True)
+        ref_loci = chunks[0][['CHROM', 'POS', 'REF', 'ALT', N_PATHS', 'N_PATHS_TOTAL']].reset_index(drop=True)
         for i, chunk in enumerate(chunks[1:], 1):
-            if not ref_loci.equals(chunk[['CHROM', 'POS', 'REF', 'ALT']].reset_index(drop=True)):
+            if not ref_loci.equals(chunk[['CHROM', 'POS', 'REF', 'ALT', N_PATHS', 'N_PATHS_TOTAL']].reset_index(drop=True)):
                 raise RuntimeError(f'Sites in chunk do not match between batch 0 and batch {i}. '
-                                   f'First mismatch at: {ref_loci[~ref_loci.eq(chunk[["CHROM","POS","REF","ALT"]].reset_index(drop=True)).all(axis=1)].head(1).to_dict("records")}')
+                                   f'First mismatch at: {ref_loci[~ref_loci.eq(chunk[["CHROM","POS","REF","ALT","N_PATHS","N_PATHS_TOTAL"]].reset_index(drop=True)).all(axis=1)].head(1).to_dict("records")}')
 
         # Vectorized weighted AF across batches
         agg_af = sum(chunks[i]['AF'].values * num_samples[i] for i in range(num_batches)) / total_samples
@@ -204,7 +204,7 @@ EOF
         bgzip aggregated_annotations.tsv
         tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
 
-        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO -O z -o ~{output_basename}.vcf.gz ~{merged_vcf_or_bcf}
+        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO,N_PATHS,N_PATHS_TOTAL -O z -o ~{output_basename}.vcf.gz ~{merged_vcf_or_bcf}
     >>>
 
     runtime {
