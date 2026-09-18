@@ -8,9 +8,9 @@ the exact line that failed, fast, without fumbling.
 ## 0. Parse the URL
 
 ```
-https://app.terra.bio/#workspaces/<NAMESPACE>/<WORKSPACE>/submission_history/<SUBMISSION_ID>
+https://app.terra.bio/#workspaces/<NAMESPACE>/<WORKSPACE>/job_history/<SUBMISSION_ID>
 ```
-e.g. `warp-pipelines / WARP Tests / 22618e75-...`. Note `%20` = space in the workspace name ("WARP Tests").
+e.g. `warp-pipelines / WARP Tests / 22618e75-...`. Note `%20` = space in the workspace name ("WARP Tests"). CI emits the `job_history/<SUBMISSION_ID>` route (see `.github/workflows/warp_test_workflow.yml`); the trailing id is still the submission id that `get_submission_status` takes, so following a `submission_history/<id>` URL will not open the run being debugged.
 
 ## 1. Submission → which workflow failed
 
