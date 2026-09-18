@@ -50,8 +50,8 @@ workflow Glimpse2SVImputationBatch {
 
         File panel_bubble_split_sites_only_vcf = pop_glimpse2_panel_resources[chromosome].panel_bubble_split_sites_only_vcf
         File panel_bubble_split_sites_only_vcf_idx = pop_glimpse2_panel_resources[chromosome].panel_bubble_split_sites_only_vcf_idx
-        File panel_popped_sites_only_vcf_gz = pop_glimpse2_panel_resources[chromosome].panel_popped_sites_only_vcf_gz
-        File panel_popped_sites_only_vcf_gz_tbi = pop_glimpse2_panel_resources[chromosome].panel_popped_sites_only_vcf_gz_tbi
+        File panel_popped_sites_only_vcf_gz = pop_glimpse2_panel_resources[chromosome].panel_id_split_vcf_gz            # pop_glimpse2_panel_resources[chromosome].panel_popped_sites_only_vcf_gz
+        File panel_popped_sites_only_vcf_gz_tbi = pop_glimpse2_panel_resources[chromosome].panel_id_split_vcf_gz_tbi    # pop_glimpse2_panel_resources[chromosome].panel_popped_sites_only_vcf_gz_tbi
         Array[String] pop_regions = select_first([pop_glimpse2_panel_resources[chromosome].pop_regions, output_regions])
 
         scatter (k in range(length(output_regions))) {
@@ -144,8 +144,8 @@ struct ChunkedPanelChromosome {
 struct PopAndMarginalizePanelResourcesChromosome {
     String panel_bubble_split_sites_only_vcf
     String panel_bubble_split_sites_only_vcf_idx
-    String panel_popped_sites_only_vcf_gz
-    String panel_popped_sites_only_vcf_gz_tbi
+    String panel_id_split_vcf_gz        # panel_popped_sites_only_vcf_gz
+    String panel_id_split_vcf_gz_tbi    # panel_popped_sites_only_vcf_gz_tbi
     Array[String]? pop_regions              # non-overlapping, if not provided then GLIMPSE2 chunks will be used
 }
 
