@@ -6,7 +6,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow MultilevelHierarchicallyMergeVcfs {
     # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.1"
 
     input {
         Array[String]? vcfs_or_bcfs_array
@@ -342,7 +342,7 @@ task MergeVcfs {
         disk_type:          "SSD",
         preemptible_tries:  3,
         max_retries:        0,
-        docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.0.0-5dc0f19-1784328222"
+        docker:             "us.gcr.io/broad-dsde-methods/slee/sv-imputation-rust-tools:1.0.0-064747e-1789738092"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
