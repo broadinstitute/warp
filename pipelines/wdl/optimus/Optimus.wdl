@@ -1,6 +1,5 @@
 version 1.0
 
-import "../../../tasks/wdl/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/wdl/StarAlign.wdl" as StarAlign
 import "../../../tasks/wdl/Metrics.wdl" as Metrics
 import "../../../tasks/wdl/RunEmptyDrops.wdl" as RunEmptyDrops
@@ -80,7 +79,7 @@ workflow Optimus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "9.2.1"
+  String pipeline_version = "9.2.2"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
