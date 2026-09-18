@@ -295,34 +295,53 @@ def is_float(value):
 def compare_metrics(test_file, truth_file):
     exit_code = 0
     with open(test_file, newline='') as test_f, open(truth_file, newline='') as truth_f:
-        test_reader = csv.reader(test_f)
-        truth_reader = csv.reader(truth_f)
-        for (test_row, truth_row) in zip(test_reader, truth_reader):
-            metric_a, value_a = test_row
-            metric_b, value_b = truth_row
+        test_rows = list(csv.reader(test_f))
+        truth_rows = list(csv.reader(truth_f))
 
-            # Skip non-numeric values
-            if not is_float(value_a) or not is_float(value_b):
-                print(f"Skipping non-numeric metric: {metric_a} or {metric_b}")
-                continue
+    # Reject differing row counts up front: zip() stops at the shorter file, so a dropped or
+    # added metric row would otherwise pass silently and defeat the exact-match default.
+    if len(test_rows) != len(truth_rows):
+        print(f"Error: metric row count differs (test {len(test_rows)} vs truth {len(truth_rows)}) for {test_file}")
+        return False
 
-            value_a, value_b = float(value_a), float(value_b)
-            if metric_a != metric_b:
-                print(f"Error: Metric names don't match for {metric_a} and {metric_b}")
-                exit_code = 1
-                continue
-            # Check if the metric has a set threshold, otherwise default to 0.00
-            threshold = thresholds.get(metric_a.lower(), 0.00)
+    for (test_row, truth_row) in zip(test_rows, truth_rows):
+        # Fail malformed rows instead of skipping them.
+        if len(test_row) != 2 or len(truth_row) != 2:
+            print(f"Error: malformed metric row (expected 2 columns): test={test_row} truth={truth_row}")
+            exit_code = 1
+            continue
 
-            diff = abs(value_a - value_b)
+        metric_a, value_a = test_row
+        metric_b, value_b = truth_row
 
-            # Calculate the allowable difference based on the threshold
-            allowable_diff = value_b * threshold
-            if diff > allowable_diff:
-                print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%. The allowable difference is {allowable_diff} and the difference is {diff}")
+        if metric_a != metric_b:
+            print(f"Error: Metric names don't match for {metric_a} and {metric_b}")
+            exit_code = 1
+            continue
+
+        # Non-numeric values pass only when identical; a value that turned non-numeric on
+        # one side (or two differing strings) is a real change, so fail rather than skip.
+        if not is_float(value_a) or not is_float(value_b):
+            if value_a != value_b:
+                print(f"Error: non-numeric metric {metric_a} differs: test={value_a} truth={value_b}")
                 exit_code = 1
             else:
-                print(f"Metric {metric_a} is within the threshold.")
+                print(f"Skipping identical non-numeric metric: {metric_a}")
+            continue
+
+        value_a, value_b = float(value_a), float(value_b)
+        # Check if the metric has a set threshold, otherwise default to 0.00
+        threshold = thresholds.get(metric_a.lower(), 0.00)
+
+        diff = abs(value_a - value_b)
+
+        # Calculate the allowable difference based on the threshold
+        allowable_diff = value_b * threshold
+        if diff > allowable_diff:
+            print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%. The allowable difference is {allowable_diff} and the difference is {diff}")
+            exit_code = 1
+        else:
+            print(f"Metric {metric_a} is within the threshold.")
     return exit_code == 0
 
 

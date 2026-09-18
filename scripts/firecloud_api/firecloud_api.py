@@ -329,22 +329,42 @@ class FirecloudAPI:
         print(f"Updated method configuration: {json.dumps(config, indent=2)}")
 
 
-        # post the updated method config to the workspace, retrying on transient 5xx
-        # errors (e.g. a 502 from rawls) so a flaky upload can't leave the config
-        # empty and cascade into a "Missing inputs" 400 at submit time.
+        # POST the updated config, retrying transient 5xx (e.g. a 502 from rawls) so a flaky
+        # upload can't leave the config empty and cascade into a "Missing inputs" 400 at submit.
+        # A 5xx is ambiguous: the POST may have committed and only the response been lost.
+        # Re-POSTing the same payload reuses the already-incremented methodConfigVersion, which
+        # then hits a non-transient version conflict and fails the job even though the first
+        # update succeeded. So after a 5xx, re-fetch and check whether our update already
+        # landed; only rebuild from the latest version and retry if it did not.
+        target_inputs = config["inputs"]
         for attempt in range(1, 6):
             response = requests.post(url, headers=headers, json=config)
             print(f"Response status code for uploading inputs (attempt {attempt}): {response.status_code}")
             if response.status_code == 200:
                 print("Test inputs uploaded successfully.")
                 return True
-            if response.status_code in (500, 502, 503, 504):
-                print(f"Transient {response.status_code} uploading inputs; retrying in 10s...")
-                time.sleep(10)
-                continue
-            print(f"Failed to upload test inputs. Status code: {response.status_code}")
-            print(f"Response text: {response.text}")
-            return False
+            if response.status_code not in (500, 502, 503, 504):
+                print(f"Failed to upload test inputs. Status code: {response.status_code}")
+                print(f"Response text: {response.text}")
+                return False
+
+            # Ambiguous 5xx: pause, then re-fetch to see if this update actually committed.
+            print(f"Transient {response.status_code} uploading inputs; re-checking config state...")
+            time.sleep(10)
+            check = request_with_retry("GET", url, headers=headers)
+            if check.status_code == 200:
+                current = check.json()
+                if (current.get("methodConfigVersion") == config["methodConfigVersion"]
+                        and current.get("inputs") == target_inputs):
+                    print("Update already applied despite the 5xx; treating as success.")
+                    return True
+                # Not applied — rebuild from the latest committed version before retrying,
+                # so we don't collide with the server's current methodConfigVersion.
+                config["methodConfigVersion"] = current.get("methodConfigVersion", config["methodConfigVersion"]) + 1
+                config["inputs"] = target_inputs
+                print(f"Update not applied; retrying with methodConfigVersion={config['methodConfigVersion']}...")
+            else:
+                print(f"Could not re-fetch config (status {check.status_code}); will retry POST as-is.")
 
         print(f"Failed to upload test inputs after retries; last status code: {response.status_code}")
         print(f"Response text: {response.text}")

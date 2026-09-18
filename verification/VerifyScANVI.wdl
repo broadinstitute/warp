@@ -138,6 +138,15 @@ task CompareScanviH5ad {
         if label_key not in a.obs.columns:
             sys.exit(f"FAIL: label_key '{label_key}' missing from {name}.obs")
 
+    # Reject null labels before stringifying: .astype(str) turns NaN into the literal label
+    # "nan", which the novel-label tolerance below would then silently absorb (up to
+    # max_novel_frac of cells), letting a partially-unannotated output pass. Missing
+    # annotations are a hard failure, not a tolerated "novel" label.
+    for name, a in [("truth", truth), ("test", test)]:
+        n_null = int(a.obs[label_key].isna().sum())
+        if n_null:
+            sys.exit(f"FAIL: {name} has {n_null} cells with a null {label_key} label")
+
     truth_labels = truth.obs[label_key].astype(str)
     test_labels = test.obs[label_key].astype(str)
 
