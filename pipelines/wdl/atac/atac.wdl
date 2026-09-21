@@ -632,7 +632,9 @@ task BWAPairedEndAlignmentParabricks {
     REF="$REF_DIR/genome.fa"
 
     # Parabricks fq2bam = accelerated BWA-MEM. Flags chosen to match the CPU (bwa-mem2) path:
-    #   --bwa-options "-C"  carries the 10x barcode FASTQ comment into the BAM CB tag (bwa +C today),
+    #   --bwa-options="-C"  carries the 10x barcode FASTQ comment into the BAM CB tag (bwa +C today).
+    #                       MUST use the = form: "--bwa-options -C" makes argparse read -C as a flag
+    #                       ("expected one argument"); "--bwa-options=-C" passes -C as the value.
     #                       which CreateFragmentFile reads via barcode_tag="CB".
     #   --no-markdups       matches current behavior (SnapATAC2 does its own fragment-level dedup).
     #   --low-memory        required for <=48GB GPUs (T4=16GB); harmless (slower) on larger GPUs.
@@ -641,7 +643,7 @@ task BWAPairedEndAlignmentParabricks {
     pbrun fq2bam \
       --ref "$REF" \
       --in-fq "~{read1_fastq}" "~{read3_fastq}" "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" \
-      --bwa-options "-C" \
+      --bwa-options="-C" \
       --low-memory \
       --no-markdups \
       --num-gpus ~{gpu_count} \
