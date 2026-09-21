@@ -3,6 +3,7 @@
 
 * Added an optional NVIDIA Parabricks fq2bam GPU alignment path, selected with the `atac_gpu_count` input (0 = default CPU bwa-mem2). It scales across T4 GPUs (up to 4 per VM, aggregate cap 24) by scattering fq2bam shards and merging them with Picard; the GPU path is gcp-only. Default behavior is unchanged.
 * Fixed the fq2bam `--bwa-options` argument to use the `=` form (`--bwa-options="-C"`) so the leading-dash value is not misparsed by the tool's argument parser.
+* Added the required `PU` field (plus `PL`/`LB`) to the fq2bam read group (fq2bam errors without `PU`), and set `-K 10000000` in `--bwa-options` for deterministic, BWA-MEM-compatible pair-ended results.
 
 # 2.9.3
 2025-09-19 (Date of Last Commit)

@@ -637,13 +637,17 @@ task BWAPairedEndAlignmentParabricks {
     #                       ("expected one argument"); "--bwa-options=-C" passes -C as the value.
     #                       which CreateFragmentFile reads via barcode_tag="CB".
     #   --no-markdups       matches current behavior (SnapATAC2 does its own fragment-level dedup).
+    #   -K 10000000         fixes the bwa batch size so pair-ended results are deterministic and
+    #                       match reference BWA-MEM (NVIDIA's recommended compatibility flag).
+    #   read group          fq2bam requires ID, PU, SM (and we add PL/LB); PU is mandatory or it
+    #                       errors "Read group information must have PU field".
     #   --low-memory        required for <=48GB GPUs (T4=16GB); harmless (slower) on larger GPUs.
     # ponytail: reuses the existing reference .fa and lets fq2bam build the BWA index if it is not
     # present in the tar. If the image does not auto-index, supply a classic bwa-mem (0.7.x) tar.
     pbrun fq2bam \
       --ref "$REF" \
-      --in-fq "~{read1_fastq}" "~{read3_fastq}" "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" \
-      --bwa-options="-C" \
+      --in-fq "~{read1_fastq}" "~{read3_fastq}" "@RG\tID:~{read_group_id}\tPL:ILLUMINA\tPU:~{read_group_id}\tLB:~{read_group_sample_name}\tSM:~{read_group_sample_name}" \
+      --bwa-options="-C -K 10000000" \
       --low-memory \
       --no-markdups \
       --num-gpus ~{gpu_count} \
