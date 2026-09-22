@@ -1,6 +1,10 @@
 version: 1.2
 workflows:
 
+  - name: aggregate_rnaseqc2
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/GTEx/aggregate_rnaseqc2.wdl
+
   - name: aggregate_rsem_results
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/GTEx/aggregate_rsem_results.wdl
