@@ -120,7 +120,7 @@ task PreprocessPLs {
         use_ssd:            true,
         preemptible_tries:  4,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-dsde-methods/slee/sv-imputation-rust-tools:1.0.0-45d3aed-1790169541"
+        docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.1.0-243ccdd-1790181847"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
