@@ -1,5 +1,5 @@
 # 1.0.1
-2026-09-18 (Date of Last Commit)
+2026-09-23 (Date of Last Commit)
 
 * Change resource VCF, update pop-glimpse2 tool Docker, and update annotation recomputation to fix INFO field determination in `PopAndMarginalizeCollisions`
 

@@ -1,5 +1,5 @@
 # 1.0.1
-2026-09-18 (Date of Last Commit)
+2026-09-23 (Date of Last Commit)
 
 * Updated paste-vcfs Docker to address bug fixes in pop-glimpse2 and extract-bubble-PLs (no changes to paste-vcfs)
 
