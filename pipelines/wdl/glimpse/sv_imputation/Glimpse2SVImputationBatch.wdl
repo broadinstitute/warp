@@ -102,7 +102,7 @@ workflow Glimpse2SVImputationBatch {
                     panel_popped_sites_only_vcf_gz = panel_popped_sites_only_vcf_gz,
                     panel_popped_sites_only_vcf_gz_tbi = panel_popped_sites_only_vcf_gz_tbi,
                     region = pop_regions[k],
-                    output_basename = output_basename + ".glimpse2.popped"
+                    output_basename = output_basename + ".shard-" + k + ".glimpse2.popped"
             }
         }
 
@@ -332,7 +332,7 @@ task PopAndMarginalizeCollisions {
         use_ssd:            true,
         preemptible_tries:  2,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-dsde-methods/slee/sv-imputation-rust-tools:1.0.0-064747e-1789738092"
+        docker:             "us.gcr.io/broad-dsde-methods/slee/sv-imputation-rust-tools:1.0.0-45d3aed-1790169541"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
