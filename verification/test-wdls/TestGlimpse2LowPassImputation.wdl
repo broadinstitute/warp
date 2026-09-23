@@ -57,18 +57,13 @@ workflow TestGlimpse2LowPassImputation {
 
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
-                                    [ # File outputs
-                                    Glimpse2LowPassImputation.imputed_vcf,
-                                    Glimpse2LowPassImputation.imputed_hom_ref_sites_only_vcf
-                                    ]
+                                    Glimpse2LowPassImputation.imputed_vcfs
     ])
 
 
     # Collect all of the pipeline metrics into single Array[String]
     Array[String] pipeline_metrics = flatten([
-                                    [ # File outputs
                                     Glimpse2LowPassImputation.qc_metrics
-                                    ]
     ])
 
     # Copy results of pipeline to test results bucket
@@ -95,28 +90,19 @@ workflow TestGlimpse2LowPassImputation {
             results_path = results_path,
             truth_path = truth_path
         }
-        call Utilities.GetValidationInputs as GetImputedMultiSampleVcf {
+        call Utilities.GetValidationInputs as GetImputedMultiSampleVcfs {
           input:
-            input_file = Glimpse2LowPassImputation.imputed_vcf,
+            input_files = Glimpse2LowPassImputation.imputed_vcfs,
             results_path = results_path,
             truth_path = truth_path
         }
-        call Utilities.GetValidationInputs as GetImputedSitesOnlyVcf {
-          input:
-            input_file = Glimpse2LowPassImputation.imputed_hom_ref_sites_only_vcf,
-            results_path = results_path,
-            truth_path = truth_path
-        }
-
 
       call VerifyGlimpse2LowPassImputation.VerifyGlimpse2LowPassImputation as Verify {
         input:
           truth_metrics = GetMetrics.truth_files,
           test_metrics = GetMetrics.results_files,
-          multi_sample_truth_vcf = GetImputedMultiSampleVcf.truth_file,
-          multi_sample_test_vcf = GetImputedMultiSampleVcf.results_file,
-          hom_ref_truth_vcf = GetImputedSitesOnlyVcf.truth_file,
-          hom_ref_test_vcf = GetImputedSitesOnlyVcf.results_file,
+          multi_sample_truth_vcfs = GetImputedMultiSampleVcfs.truth_files,
+          multi_sample_test_vcfs = GetImputedMultiSampleVcfs.results_files,
           done = CopyToTestResults.done
       }
     }
