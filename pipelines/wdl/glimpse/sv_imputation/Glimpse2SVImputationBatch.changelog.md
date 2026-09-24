@@ -1,7 +1,7 @@
 # 1.0.2
 2026-09-24 (Date of Last Commit)
 
-* Update version of PreprocessPLsGVCF to pull in update to ParseVcfManifestIntoArrays task: return Array[String] rather than Array[File] to avoid call caching issues
+* Updated a task in the imported Glimpse2SVImputationTasks that is not used in this workflow
 
 # 1.0.1
 2026-09-23 (Date of Last Commit)
