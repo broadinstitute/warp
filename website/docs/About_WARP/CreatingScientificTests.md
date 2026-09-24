@@ -109,7 +109,7 @@ its value. Instead verify the invariants from Step 1:
    stochastic caller**, e.g. ATAC's `number_of_cells` (the called-cell QC statistic checked
    in `CompareAtacLibraryMetrics`), which drifts run-to-run. The former stays exact; the
    latter is a distributional metric and takes a tolerance like any other (`number_of_cells`
-   is in the ATAC threshold map at ~0.09%, ≈ ±8 cells on the current truth).
+   is in the ATAC threshold map at ~0.044%, ≈ ±4 cells on the current truth).
 2. **Check distributional invariants against a threshold.** Correlate distributions, compare
    summary statistics, bound a divergence — whatever captures "close to the reference." In
    scANVI this is a correlation of per-cell-type proportions with a `min_proportion_corr`
