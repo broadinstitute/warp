@@ -4,7 +4,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.1"
 
     input {
         File input_preprocessed_joint_vcf_or_bcf
@@ -50,8 +50,8 @@ workflow Glimpse2SVImputationBatch {
 
         File panel_bubble_split_sites_only_vcf = pop_glimpse2_panel_resources[chromosome].panel_bubble_split_sites_only_vcf
         File panel_bubble_split_sites_only_vcf_idx = pop_glimpse2_panel_resources[chromosome].panel_bubble_split_sites_only_vcf_idx
-        File panel_id_split_vcf_gz = pop_glimpse2_panel_resources[chromosome].panel_id_split_vcf_gz
-        File panel_id_split_vcf_gz_tbi = pop_glimpse2_panel_resources[chromosome].panel_id_split_vcf_gz_tbi
+        File panel_popped_sites_only_vcf_gz = pop_glimpse2_panel_resources[chromosome].panel_popped_sites_only_vcf_gz
+        File panel_popped_sites_only_vcf_gz_tbi = pop_glimpse2_panel_resources[chromosome].panel_popped_sites_only_vcf_gz_tbi
         Array[String] pop_regions = select_first([pop_glimpse2_panel_resources[chromosome].pop_regions, output_regions])
 
         scatter (k in range(length(output_regions))) {
@@ -99,10 +99,10 @@ workflow Glimpse2SVImputationBatch {
                     posteriors_vcf_or_bcf_idx = UpdateHeader.output_bcf_index,
                     panel_bubble_split_sites_only_vcf = panel_bubble_split_sites_only_vcf,
                     panel_bubble_split_sites_only_vcf_idx = panel_bubble_split_sites_only_vcf_idx,
-                    panel_id_split_vcf_gz = panel_id_split_vcf_gz,
-                    panel_id_split_vcf_gz_tbi = panel_id_split_vcf_gz_tbi,
+                    panel_popped_sites_only_vcf_gz = panel_popped_sites_only_vcf_gz,
+                    panel_popped_sites_only_vcf_gz_tbi = panel_popped_sites_only_vcf_gz_tbi,
                     region = pop_regions[k],
-                    output_basename = output_basename + ".glimpse2.popped"
+                    output_basename = output_basename + ".shard-" + k + ".glimpse2.popped"
             }
         }
 
@@ -118,7 +118,7 @@ workflow Glimpse2SVImputationBatch {
     output {
         Array[File] glimpse2_bubble_posteriors_vcf = UpdateHeader.output_bcf
         Array[File] glimpse2_bubble_posteriors_vcf_idx = UpdateHeader.output_bcf_index
-        Array[File] glimpse2_popped_posteriors_vcf =ConcatPopAndMarginalizeCollisions.concatenated_bcf
+        Array[File] glimpse2_popped_posteriors_vcf = ConcatPopAndMarginalizeCollisions.concatenated_bcf
         Array[File] glimpse2_popped_posteriors_vcf_idx = ConcatPopAndMarginalizeCollisions.concatenated_bcf_idx
     }
 }
@@ -144,8 +144,8 @@ struct ChunkedPanelChromosome {
 struct PopAndMarginalizePanelResourcesChromosome {
     String panel_bubble_split_sites_only_vcf
     String panel_bubble_split_sites_only_vcf_idx
-    String panel_id_split_vcf_gz
-    String panel_id_split_vcf_gz_tbi
+    String panel_popped_sites_only_vcf_gz
+    String panel_popped_sites_only_vcf_gz_tbi
     Array[String]? pop_regions              # non-overlapping, if not provided then GLIMPSE2 chunks will be used
 }
 
@@ -295,10 +295,10 @@ task PopAndMarginalizeCollisions {
         # all VCFs should be split to biallelic
         File posteriors_vcf_or_bcf
         File posteriors_vcf_or_bcf_idx
-        File panel_bubble_split_sites_only_vcf          # for annotation of INFO fields
+        File panel_bubble_split_sites_only_vcf          # source of bubble IDs
         File panel_bubble_split_sites_only_vcf_idx
-        File panel_id_split_vcf_gz           # panel popping script currently requires vcf.gz, so we also use that here
-        File panel_id_split_vcf_gz_tbi
+        File panel_popped_sites_only_vcf_gz             # source of constituent IDs and RAF; panel popping script currently requires vcf.gz, so we also use that here
+        File panel_popped_sites_only_vcf_gz_tbi
 
         String region
         String output_basename
@@ -306,7 +306,7 @@ task PopAndMarginalizeCollisions {
         RuntimeAttr? runtime_attr_override
     }
 
-    Int disk_gb = ceil(3*size(posteriors_vcf_or_bcf, "GB")) + ceil(size([panel_bubble_split_sites_only_vcf, panel_id_split_vcf_gz], "GB")) + 10
+    Int disk_gb = ceil(3*size(posteriors_vcf_or_bcf, "GB")) + ceil(size([panel_bubble_split_sites_only_vcf, panel_popped_sites_only_vcf_gz], "GB")) + 10
 
     command <<<
         set -euox pipefail
@@ -315,7 +315,7 @@ task PopAndMarginalizeCollisions {
         # the sort may also be extraneous, but we keep it in to guard against getting out of sync with the popped panel
         bcftools view -r ~{region} --regions-overlap 0 ~{panel_bubble_split_sites_only_vcf} -Oz -o panel.bubble.split.sites.shard.vcf.gz
         bcftools view -r ~{region} --regions-overlap 0 ~{posteriors_vcf_or_bcf} | \
-            /usr/local/bin/pop-glimpse2 ~{panel_id_split_vcf_gz} panel.bubble.split.sites.shard.vcf.gz | \
+            /usr/local/bin/pop-glimpse2 ~{panel_popped_sites_only_vcf_gz} panel.bubble.split.sites.shard.vcf.gz | \
             bcftools sort --max-mem=2G -W -Ob -o ~{output_basename}.bcf
     >>>
 
@@ -332,7 +332,7 @@ task PopAndMarginalizeCollisions {
         use_ssd:            true,
         preemptible_tries:  2,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.0.0-5dc0f19-1784328222"
+        docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.1.0-243ccdd-1790181847"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {

@@ -1,3 +1,8 @@
+# 1.0.1
+2026-09-23 (Date of Last Commit)
+
+* Updated extract-bubble-PLs Docker to fix silent truncation bug
+
 # 1.0.0
 2026-09-09 (Date of Last Commit)
 
