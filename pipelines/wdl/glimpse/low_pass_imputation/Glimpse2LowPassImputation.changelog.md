@@ -1,3 +1,8 @@
+# 1.1.1
+2026-09-23 (Date of Last Commit)
+
+* Update version of Glimpse2LowPassImputationBatch to remove -i flag from bcftools call task
+
 # 1.1.0
 2026-08-26 (Date of Last Commit)
 

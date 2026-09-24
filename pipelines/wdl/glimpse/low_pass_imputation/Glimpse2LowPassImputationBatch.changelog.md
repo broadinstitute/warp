@@ -1,3 +1,8 @@
+# 1.1.1
+2026-09-23 (Date of Last Commit)
+
+* Remove -i flag from bcftools call task
+
 # 1.1.0
 2026-08-26 (Date of Last Commit)
 
