@@ -2,8 +2,8 @@
 2026-09-24 (Date of Last Commit)
 
 ### Breaking changes
-* Outputs `imputed_multi_sample_vcf` and `imputed_multi_sample_vcf_index` have been changed from `File` type to `Array[File]` type, and renamed to `imputed_multi_sample_vcfs` and `imputed_multi_sample_vcf_indexes`. These VCF outputs now contain all imputed variants and homozygous reference sites.
-* The output `imputed_hom_ref_sites_only_vcf` and its index have been removed, as this data (imputed homozygous reference sites) is now included in the `imputed_multi_sample_vcfs` output and its index.
+* Outputs `imputed_vcf`, `imputed_vcf_index`, and `imputed_vcf_md5sum` have been changed from `File` type to `Array[File]` type, and renamed to `imputed_vcfs`, `imputed_vcf_indexes`, and `imputed_vcf_md5sums`. These VCF outputs now contain all imputed variants and homozygous reference sites per chromosome/contig.
+* The output `imputed_hom_ref_sites_only_vcf` and its index have been removed, as these data (imputed homozygous reference sites) are now included in the `imputed_vcfs` output.
 
 # 1.1.0
 2026-08-26 (Date of Last Commit)
