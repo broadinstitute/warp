@@ -1,3 +1,8 @@
+# 1.1.1
+2026-09-24 (Date of Last Commit)
+
+* Remove optional inputs that are not used in the service
+
 # 1.1.0
 2025-09-29 (Date of Last Commit)
 
