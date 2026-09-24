@@ -21,6 +21,10 @@ Ancestry analysis is typically run in two phases:
 
 The first phase produces ancestry labels and PCA features used by the second phase.
 
+## Optional Preparation: Build a Training Site Set
+
+When a reusable training site set is not already available, run [Determine HQ Sites](./determine_hq_sites.md) once on ordered, chromosome-sharded training VCFs. This workflow filters and LD-prunes the training variants, then produces the sites-only and full-genotype files consumed by downstream intersection and ancestry workflows.
+
 ## Phase 1: Core Ancestry Inference
 
 Run these workflows in order:
