@@ -10,14 +10,14 @@ slug: /Pipelines/Glimpse2LowpassImputation_Pipeline/README
 | See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputation.changelog.md) for version information. | See changelog | Terra Scientific Pipeline Services | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). | |
 
 ## Introduction to the GLIMPSE2 Low-Pass Imputation pipeline
-The GLIMPSE2 Low-Pass Imputation pipeline imputes missing genotypes from a list of low-pass CRAM/CRAI files (or a sample manifest pointing to GCS file paths) using a large genomic reference panel. It uses GLIMPSE2 as the imputation tool. Overall, the pipeline splits samples into batches, performs variant calling and imputation on each batch across genomic chunks, and merges the results into a final multi-sample VCF. It outputs the imputed VCF along with key imputation metrics.
+The GLIMPSE2 Low-Pass Imputation pipeline imputes missing genotypes from a list of low-pass CRAM/CRAI files (or a sample manifest pointing to GCS file paths) using a large genomic reference panel. It uses GLIMPSE2 as the imputation tool. Overall, the pipeline splits samples into batches, performs variant calling and imputation on each batch across genomic chunks, and merges the results into a multi-sample VCF per contig. It outputs one imputed VCF per contig, each containing both variant and homozygous-reference-only sites, along with key imputation metrics.
 
 ## GLIMPSE2 Low-Pass Imputation Summary
 
 The `Glimpse2LowPassImputation` workflow is a WDL-based pipeline for low-pass whole genome imputation using [GLIMPSE2](https://odelaneau.github.io/GLIMPSE/).  
 This top-level workflow is now a gateway that scales to large cohorts by splitting samples into batches, running a per-batch imputation subworkflow, then merging batch outputs back into cohort-level results.
 
-The workflow processes each requested contig independently, imputes each sample batch against reference-defined chunks, ligates chunk outputs per batch/contig, merges sample columns across batches, recomputes AF/INFO annotations, and gathers contig outputs into final genome-wide files.
+The workflow processes each requested contig independently, imputes each sample batch against reference-defined chunks, ligates chunk outputs per batch/contig, merges sample columns across batches, recomputes AF/INFO annotations, and returns contig-level file outputs.
 
 ![](pipeline.png)
 
@@ -34,7 +34,7 @@ The workflow processes each requested contig independently, imputes each sample 
 | Algorithms              | `bcftools` mpileup/call/norm/merge + GLIMPSE2 phase/ligate + post-merge re-annotation                              | Task commands in batch and task WDLs                                     |
 | Quality control         | Sample QC metrics and optional coverage-metrics aggregation                                                        | `CollectQCMetrics`, `CombineCoverageMetrics`                             |
 | Data input file format  | CRAM/CRAI arrays with sample IDs                                                                                   | Workflow input block                                                     |
-| Data output file format | Imputed VCFs, indexes, md5s, and QC/coverage metric tables                                                         | Workflow outputs                                                         |
+| Data output file format | Per-contig imputed VCFs, indexes, md5s, and QC/coverage metric tables                                              | Workflow outputs                                                         |
 | Containers              | GATK, GLIMPSE2, bcftools/samtools suite, Hail, Python, Ubuntu                                                      | Runtime blocks                                                           |
 | Resource optimization   | Parallelization by sample batch, contig, and reference shard                                                       | Workflow architecture                                                    |
 
@@ -78,31 +78,22 @@ The top-level workflow orchestrates batching, per-batch imputation, and cohort-l
 | `MergeContigVcfs` (`MergeSampleChunksVcfsWithPaste`) | Merge sample columns across batch VCFs for one contig                   | Array of batch VCFs for contig                                                                         | Creates full-cohort contig VCF with aligned site lists                                          |
 | `RecomputeAndAnnotate`                               | Recompute AF/INFO across merged cohort and write updated contig VCF     | Merged contig VCF + extracted annotations                                                              | Restores cohort-correct annotations after paste-based merge                                     |
 | `FilterVcfByInfo`                                    | Filter variants below the INFO score threshold (optional)               | Re-aanotated VCF; only runs when `info_filter_for_inclusion` is supplied                               | Removes low-quality imputed variants from the final VCF                                         |
-| `SelectContigVariants`                               | Create variants-only contig VCF                                         | Re-annotated contig VCF                                                                                | Removes homozygous-reference-only records                                                       |
-| `UpdateHeaderVariants`                               | Update variants-only VCF header with reference info                     | Filtered VCF or re-annotated VCF                                                                       | Updates VCF headers with reference dictionary information and optionally adds pipeline metadata |
-| `CreateContigHomRefVcf`                              | Create hom-ref-sites-only contig VCF                                    | Re-annotated contig VCF                                                                                | Keeps homozygous-reference-only sites                                                           |
-| `UpdateHeaderHomRefOnly`                             | Update hom ref sites only VCF header with reference info                | Filtered VCF or re-annotated VCF                                                                       | Updates VCF headers with reference dictionary information and optionally adds pipeline metadata |
+| `UpdateHeader`                                       | Update contig VCF header with reference info                            | Filtered VCF (if `info_filter_for_inclusion` supplied) or re-annotated contig VCF                      | Updates VCF headers with reference dictionary information and optionally adds pipeline metadata |
 | `MergeBatchCoverageMetrics`                          | Combine optional coverage metric files across batches                   | `RunBatch.coverage_metrics`                                                                            | Produces aggregated coverage table when metrics exist                                           |
-| `GatherVcfsNoIndex`                                  | Gather contig variant VCFs into genome-wide variant VCF                 | Variant-only contig VCFs                                                                               | Produces final genome-wide variant VCF                                                          |
-| `CreateVcfIndexAndMd5`                               | Index and checksum final variant VCF                                    | Filtered VCF (if `info_filter_for_inclusion` supplied) or gathered variant VCF                         | Creates `.tbi` and md5                                                                          |
-| `GatherVcfsNoIndexHomRefOnly`                        | Gather contig hom-ref-sites-only VCFs                                   | Hom-ref contig VCFs                                                                                    | Produces final genome-wide hom-ref-sites-only VCF                                               |
-| `CreateVcfIndexAndMd5HomRefOnly`                     | Index and checksum final hom-ref-sites-only VCF                         | Gathered hom-ref-sites-only VCF                                                                        | Creates `.tbi` and md5                                                                          |
-| `CollectQCMetrics`                                   | Compute sample QC metrics from final imputed variant VCF                | Filtered VCF (if `info_filter_for_inclusion` supplied) or gathered variant VCF                         | Generates sample-level QC report                                                                |
+| `CreateVcfIndexAndMd5`                               | Index and checksum contig VCF                                           | Header-updated contig VCF                                                                              | Creates `.tbi` and md5                                                                          |
+| `CollectQCMetrics`                                   | Compute sample QC metrics from contig imputed VCF                        | Header-updated contig VCF                                                                               | Generates per-contig sample-level QC report                                                     |
 
 ### Outputs
 
-Upon successful completion, the workflow emits final genome-wide imputed outputs, corresponding index and checksum files, and QC metrics. Coverage metrics are optional.
+Upon successful completion, the workflow emits final contig-level imputed outputs, corresponding index and checksum files, and QC metrics. Coverage metrics are optional.
 
-| Output                                 | Description                                                     |
-|----------------------------------------|-----------------------------------------------------------------|
-| `imputed_vcf`                          | Final imputed multi-sample variant VCF                          |
-| `imputed_vcf_index`                    | Index file for final imputed VCF                                |
-| `imputed_vcf_md5sum`                   | MD5 checksum for final imputed VCF                              |
-| `imputed_hom_ref_sites_only_vcf`       | Final sites-only VCF containing homozygous-reference-only sites |
-| `imputed_hom_ref_sites_only_vcf_index` | Index file for hom-ref-sites-only VCF                           |
-| `imputed_hom_ref_sites_only_vcf_md5`   | MD5 checksum for hom-ref-sites-only VCF                         |
-| `qc_metrics`                           | Sample-level QC metrics table                                   |
-| `coverage_metrics`                     | Optional combined coverage metrics table                        |
+| Output                    | Description                                                              |
+|---------------------------|--------------------------------------------------------------------------|
+| `imputed_vcfs`            | Array of per-contig imputed multi-sample VCFs                            |
+| `imputed_vcf_indexes`     | Index files for the per-contig imputed VCFs                              |
+| `imputed_vcf_md5sums`     | MD5 checksums for the per-contig imputed VCFs                            |
+| `qc_metrics`              | Sample-level QC metrics table for each contig                            |
+| `coverage_metrics`        | Optional combined coverage metrics table                                 |
 
 
 ## Glimpse2LowPassImputationBatch summary
