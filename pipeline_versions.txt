@@ -15,7 +15,7 @@ Glimpse2SVImputationQC	 1.0.0	2026-09-09
 Glimpse2SVImputationQuotaConsumed	 1.0.0	2026-09-09 
 IlluminaGenotypingArray	 1.12.27	2026-01-21 
 Imputation	 1.1.23	2025-10-03 
-ImputationBeagle	 4.0.1	2026-09-24 
+ImputationBeagle	 4.1.0	2026-09-24 
 JointGenotyping	 1.7.3	2025-08-11 
 MMIDAS_Analyze	 1.1.2	2026-08-21 
 MMIDAS_DataPrep	 1.0.2	2026-08-11 
