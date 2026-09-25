@@ -10,7 +10,7 @@ slug: /Pipelines/Glimpse2LowpassImputation_Pipeline/README
 | See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/glimpse/low_pass_imputation/Glimpse2LowPassImputation.changelog.md) for version information. | See changelog | Terra Scientific Pipeline Services | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). | |
 
 ## Introduction to the GLIMPSE2 Low-Pass Imputation pipeline
-The GLIMPSE2 Low-Pass Imputation pipeline imputes missing genotypes from a list of low-pass CRAM/CRAI files (or a sample manifest pointing to GCS file paths) using a large genomic reference panel. It uses GLIMPSE2 as the imputation tool. Overall, the pipeline splits samples into batches, performs variant calling and imputation on each batch across genomic chunks, and merges the results into a multi-sample VCF per contig. It outputs one imputed VCF per contig, each containing both variant and homozygous-reference-only sites, along with key imputation metrics.
+The GLIMPSE2 Low-Pass Imputation pipeline imputes missing genotypes from a list of low-pass CRAM/CRAI files (or a sample manifest pointing to GCS file paths) using a large genomic reference panel. It uses GLIMPSE2 as the imputation tool. Overall, the pipeline splits samples into batches, performs variant calling and imputation on each batch across genomic chunks, and merges the results into a multi-sample VCF per contig. It outputs one imputed VCF per contig, along with key imputation metrics.
 
 ## GLIMPSE2 Low-Pass Imputation Summary
 
