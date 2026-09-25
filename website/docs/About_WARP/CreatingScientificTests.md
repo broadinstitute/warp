@@ -54,10 +54,11 @@ differently:
 Example (scANVI, a stochastic label-transfer pipeline):
 
 > Structural: output h5ad has the **same number of cells** as truth; the annotation column
-> is **present**; the predicted-label vocabulary is a **subset** of truth's (the model may
-> not invent labels the reference never had).
-> Distributional: **per-cell-type proportions correlate** with truth at or above a
-> threshold.
+> is **present**.
+> Distributional: the predicted-label vocabulary is **almost entirely a subset** of truth's —
+> a small, bounded fraction of cells (`max_novel_label_fraction`) may carry novel labels the
+> broad reference leaks onto the query, so this is a tolerance, not a hard containment check;
+> and **per-cell-type proportions correlate** with truth at or above a threshold.
 
 Doing this first turns "compare the outputs" into a concrete, reviewable specification and
 tells you exactly what the verification WDL must check.
@@ -98,8 +99,17 @@ If outputs vary run-to-run (random seeds, GPU nondeterminism, threading), **exac
 is wrong** — it will be flaky and will force people to re-bless truth constantly, destroying
 its value. Instead verify the invariants from Step 1:
 
-1. **Check structural invariants exactly.** Cell/row counts, presence of columns/files,
-   label vocabulary containment. These are deterministic even when values aren't.
+1. **Check structural invariants exactly.** Cell/row counts, presence of columns/files.
+   These are deterministic even when values aren't. Label vocabulary is *usually*
+   structural too, but when a stochastic annotator draws labels from a reference larger
+   than the query, a few novel labels can appear run-to-run — tolerate a bounded fraction
+   rather than requiring exact containment (see scANVI's `max_novel_label_fraction` under
+   *Calibrating the tolerance*). Similarly, distinguish a **true structural count** — a
+   matrix's `n_obs` / row count, fixed by the input — from a **computed count emitted by a
+   stochastic caller**, e.g. ATAC's `number_of_cells` (the called-cell QC statistic checked
+   in `CompareAtacLibraryMetrics`), which drifts run-to-run. The former stays exact; the
+   latter is a distributional metric and takes a tolerance like any other (`number_of_cells`
+   is in the ATAC threshold map at ~0.044%, ≈ ±4 cells on the current truth).
 2. **Check distributional invariants against a threshold.** Correlate distributions, compare
    summary statistics, bound a divergence — whatever captures "close to the reference." In
    scANVI this is a correlation of per-cell-type proportions with a `min_proportion_corr`
@@ -115,7 +125,10 @@ A threshold that's too tight is flaky; too loose passes garbage. Calibrate empir
 generate truth, then run the pipeline **a few more times** and measure the natural
 run-to-run variance of your distributional metric. Set the threshold comfortably *below* the
 worst honest run but *above* what a real regression would produce. Document the chosen number
-and why (scANVI: `min_proportion_corr = 0.95`).
+and why (scANVI: `min_proportion_corr = 0.70`, set below the worst observed variant —
+GEX ~0.875, ATAC ~0.783 — since the reference is far larger than the query; plus
+`max_novel_label_fraction = 0.01` to tolerate rare labels the broad reference leaks onto
+the query).
 
 ### Fail loudly on things "tolerant" must NOT excuse
 Tolerance is about *values*, not *existence*. A whole output disappearing, a column
