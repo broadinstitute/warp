@@ -1,3 +1,15 @@
+# 4.0.1
+2026-09-24 (Date of Last Commit)
+
+* Update quota_consumed_version to `1.1.1` and input_qc_version to `1.3.1` to remove optional inputs that are not used in the service
+
+# 4.0.0
+2026-09-08 (Date of Last Commit)
+
+### Breaking changes
+* Outputs `imputed_multi_sample_vcf` and `imputed_multi_sample_vcf_index` have been changed from `File` type to `Array[File]` type, and renamed to `imputed_multi_sample_vcfs` and `imputed_multi_sample_vcf_indexes`. These VCF outputs now contain all imputed variants and homozygous reference sites.
+* The output `imputed_hom_ref_sites_only_vcf` and its index have been removed, as this data (imputed homozygous reference sites) is now included in the `imputed_multi_sample_vcfs` output and its index.
+
 # 3.0.1
 2026-02-23 (Date of Last Commit)
 

@@ -5,9 +5,9 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "1.0.0"
-    String preprocess_pls_gvcf_pipeline_version = "1.0.0"
-    String batch_pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.2"
+    String preprocess_pls_gvcf_pipeline_version = "1.0.2"
+    String batch_pipeline_version = "1.0.2"
     String quota_consumed_version = "1.0.0"
     String input_qc_version = "1.0.0"
 

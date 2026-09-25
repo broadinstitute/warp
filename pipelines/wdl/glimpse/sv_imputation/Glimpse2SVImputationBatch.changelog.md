@@ -1,3 +1,13 @@
+# 1.0.2
+2026-09-24 (Date of Last Commit)
+
+* Updated a task in the imported Glimpse2SVImputationTasks that is not used in this workflow
+
+# 1.0.1
+2026-09-23 (Date of Last Commit)
+
+* Change resource VCF, update pop-glimpse2 tool Docker, and update annotation recomputation to fix INFO field determination in `PopAndMarginalizeCollisions`
+
 # 1.0.0
 2026-09-09 (Date of Last Commit)
 
