@@ -4,7 +4,7 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "1.1.0"
+    String pipeline_version = "2.0.0"
     String batch_pipeline_version = "1.1.0"
     String quota_consumed_version = "1.0.1"
     String input_qc_version = "1.1.0"
@@ -130,86 +130,35 @@ workflow Glimpse2LowPassImputation {
 
         File filtered_contig_vcf = select_first([FilterContigVcfByInfo.output_vcf, annotated_contig_vcf])
 
-        # Now that the full cohort is merged and annotations are correct, split into variant-only and hom-ref-only
-        call Glimpse2LowPassImputationTasks.SelectVariantRecordsOnly as SelectContigVariants {
+        # Update VCF header with reference dictionary and pipeline header line (if provided)
+        call Glimpse2LowPassImputationTasks.UpdateHeader {
             input:
                 vcf = filtered_contig_vcf,
-                basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_variants"
-        }
-
-        # Update VCF header with reference dictionary and pipeline header line (if provided)
-        call Glimpse2LowPassImputationTasks.UpdateHeader as UpdateHeaderVariants {
-            input:
-                vcf = SelectContigVariants.output_vcf,
                 ref_dict = ref_dict,
                 pipeline_header_line = pipeline_header_line,
-                output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_variants.updated_header",
+                output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.updated_header",
                 docker = glimpse_docker
         }
 
-        call Glimpse2LowPassImputationTasks.CreateHomRefSitesOnlyVcf as CreateContigHomRefVcf {
+        call Glimpse2LowPassImputationTasks.CreateVcfIndexAndMd5 {
             input:
-                vcf = filtered_contig_vcf,
-                basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.only_hom_ref.sites_only"
+                vcf_input = UpdateHeader.output_vcf,
+                gatk_docker = gatk_docker,
+                preemptible = 0
         }
 
-        # Update VCF header with reference dictionary and pipeline header line (if provided)
-        call Glimpse2LowPassImputationTasks.UpdateHeader as UpdateHeaderHomRefOnly {
+        call Glimpse2LowPassImputationTasks.CollectQCMetrics {
             input:
-                vcf = CreateContigHomRefVcf.output_vcf,
-                ref_dict = ref_dict,
-                pipeline_header_line = pipeline_header_line,
-                output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.merged.only_hom_ref.sites_only.updated_header",
-                docker = glimpse_docker
+                imputed_vcf = UpdateHeader.output_vcf,
+                output_basename = output_basename
         }
-    }
-
-    Array[File] contig_variant_vcfs = UpdateHeaderVariants.output_vcf
-    Array[File] contig_hom_ref_vcfs = UpdateHeaderHomRefOnly.output_vcf
-
-    call Glimpse2LowPassImputationTasks.GatherVcfsNoIndex {
-        input:
-            input_vcfs = contig_variant_vcfs,
-            output_vcf_basename = output_basename + ".imputed",
-            gatk_docker = gatk_docker
-    }
-
-    call Glimpse2LowPassImputationTasks.CreateVcfIndexAndMd5 {
-        input:
-            vcf_input = GatherVcfsNoIndex.output_vcf,
-            gatk_docker = gatk_docker,
-            preemptible = 0
-    }
-
-    call Glimpse2LowPassImputationTasks.GatherVcfsNoIndex as GatherVcfsNoIndexHomRefOnly {
-        input:
-            input_vcfs = contig_hom_ref_vcfs,
-            output_vcf_basename = output_basename + ".imputed.hom_ref_sites_only",
-            gatk_docker = gatk_docker
-    }
-
-    call Glimpse2LowPassImputationTasks.CreateVcfIndexAndMd5 as CreateVcfIndexAndMd5HomRefOnly {
-        input:
-            vcf_input = GatherVcfsNoIndexHomRefOnly.output_vcf,
-            gatk_docker = gatk_docker,
-            preemptible = 0
-    }
-
-    call Glimpse2LowPassImputationTasks.CollectQCMetrics {
-        input:
-            imputed_vcf = GatherVcfsNoIndex.output_vcf,
-            output_basename = output_basename
     }
 
     output {
-        File imputed_vcf = CreateVcfIndexAndMd5.output_vcf
-        File imputed_vcf_index = CreateVcfIndexAndMd5.output_vcf_index
-        File imputed_vcf_md5sum = CreateVcfIndexAndMd5.output_vcf_md5sum
+        Array[File] imputed_vcfs = CreateVcfIndexAndMd5.output_vcf
+        Array[File] imputed_vcf_indexes = CreateVcfIndexAndMd5.output_vcf_index
+        Array[File] imputed_vcf_md5sums = CreateVcfIndexAndMd5.output_vcf_md5sum
 
-        File imputed_hom_ref_sites_only_vcf = CreateVcfIndexAndMd5HomRefOnly.output_vcf
-        File imputed_hom_ref_sites_only_vcf_index = CreateVcfIndexAndMd5HomRefOnly.output_vcf_index
-        File imputed_hom_ref_sites_only_vcf_md5 = CreateVcfIndexAndMd5HomRefOnly.output_vcf_md5sum
-
-        File qc_metrics = CollectQCMetrics.qc_metrics
+        Array[File] qc_metrics = CollectQCMetrics.qc_metrics
     }
 }
