@@ -54,6 +54,9 @@ workflow PairedTag {
         # Optional aligned ATAC bam file
         File? aligned_ATAC_bam
 
+        # GPU alignment: aggregate T4 count forwarded to ATAC (0 = CPU bwa-mem2 default; gcp-only)
+        Int atac_gpu_count = 0
+
         # PairedTag
         Boolean preindex
 
@@ -140,6 +143,7 @@ workflow PairedTag {
             cloud_provider = cloud_provider,
             vm_size = vm_size,
             atac_nhash_id = atac_nhash_id,
+            atac_gpu_count = atac_gpu_count,
             aligned_ATAC_bam = aligned_ATAC_bam
     }
 

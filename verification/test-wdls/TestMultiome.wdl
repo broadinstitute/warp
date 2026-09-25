@@ -48,6 +48,9 @@ workflow TestMultiome {
       # Optional aligned ATAC bam file
       File? aligned_ATAC_bam
 
+      # GPU alignment: aggregate T4 count forwarded to ATAC (0 = CPU bwa-mem2 default; gcp-only)
+      Int atac_gpu_count = 0
+
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
       String results_path
@@ -89,6 +92,7 @@ workflow TestMultiome {
         gex_nhash_id = gex_nhash_id,
         atac_nhash_id = atac_nhash_id,
         run_peak_calling = run_peak_calling,
+        atac_gpu_count = atac_gpu_count,
         aligned_ATAC_bam = aligned_ATAC_bam
     }
 
