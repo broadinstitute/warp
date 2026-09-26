@@ -270,6 +270,11 @@ task ValidateGvcfInput {
 
         MAX_ITEMS_IN_ERROR_MESSAGES=5
 
+        # Transient GCS/network streaming errors (not genuine data-quality findings) are retried this
+        # many times, with a short delay between attempts, before being recorded as validation errors.
+        MAX_VALIDATION_ATTEMPTS=3
+        VALIDATION_RETRY_DELAY_SECONDS=5
+
         # Appends a truncated, comma-separated summary of $2... to qc_messages.txt, prefixed by $1, if any items are given.
         append_aggregated_message() {
             local base_message="$1"
@@ -311,69 +316,115 @@ task ValidateGvcfInput {
             local gvcfs_with_invalid_vcf_version=()
             local gvcfs_with_missing_format_fields=()
             local gvcfs_with_multiple_samples=()
+            local gvcfs_with_validation_errors=()
             local gvcf_sample_ids=()
 
             while IFS= read -r gvcf; do
                 [ -z "$gvcf" ] && continue
                 echo "[worker $worker_id] Validating GVCF file: $gvcf"
 
-                bcftools view -Ov -h "$gvcf" > "header_${worker_id}.vcf"
+                # A transient streaming failure here (network blip, GCS error, expired auth token) must
+                # not be mistaken for a data-quality finding: on failure, header_${worker_id}.vcf may be
+                # empty or truncated, which would otherwise masquerade as "invalid fileformat"/"missing
+                # PL or GT"/"0 samples". Retry a few times to ride out transient errors; each attempt
+                # re-truncates the header file via `>`, so a failed attempt can't leave partial bytes
+                # behind for the next one to append to. Only after all attempts fail is it recorded as
+                # its own error category, skipping the checks below, which all depend on a successfully
+                # fetched header.
+                bcftools_view_rc=1
+                for attempt in $(seq 1 "$MAX_VALIDATION_ATTEMPTS"); do
+                    if bcftools view -Ov -h "$gvcf" > "header_${worker_id}.vcf" 2> "bcftools_output_${worker_id}.txt"; then
+                        bcftools_view_rc=0
+                        break
+                    fi
+                    echo "[worker $worker_id] bcftools view attempt $attempt/$MAX_VALIDATION_ATTEMPTS failed for $gvcf (see bcftools_output_${worker_id}.txt)."
+                    [ "$attempt" -lt "$MAX_VALIDATION_ATTEMPTS" ] && sleep "$VALIDATION_RETRY_DELAY_SECONDS"
+                done
 
-                # Ensure the header declares a VCFv4.x fileformat.
-                fileformat_line=$(grep -m1 '^##fileformat=' "header_${worker_id}.vcf" || true)
-                if ! echo "$fileformat_line" | grep -Eq '^##fileformat=VCFv4(\.[0-9]+)?$'; then
-                    echo "[worker $worker_id] GVCF file $gvcf has unsupported fileformat header '${fileformat_line:-<missing>}' (expected VCFv4.x)."
-                    gvcfs_with_invalid_vcf_version+=("$gvcf")
+                if [ "$bcftools_view_rc" -ne 0 ]; then
+                    echo "[worker $worker_id] bcftools view failed to read the header of $gvcf after $MAX_VALIDATION_ATTEMPTS attempts (see bcftools_output_${worker_id}.txt for details)."
+                    gvcfs_with_validation_errors+=("$gvcf")
                 else
-                    echo "[worker $worker_id] GVCF file $gvcf declares supported fileformat header: $fileformat_line"
-                fi
+                    # Ensure the header declares a VCFv4.x fileformat.
+                    fileformat_line=$(grep -m1 '^##fileformat=' "header_${worker_id}.vcf" || true)
+                    if ! echo "$fileformat_line" | grep -Eq '^##fileformat=VCFv4(\.[0-9]+)?$'; then
+                        echo "[worker $worker_id] GVCF file $gvcf has unsupported fileformat header '${fileformat_line:-<missing>}' (expected VCFv4.x)."
+                        gvcfs_with_invalid_vcf_version+=("$gvcf")
+                    else
+                        echo "[worker $worker_id] GVCF file $gvcf declares supported fileformat header: $fileformat_line"
+                    fi
 
-                # check that the GVCF contains data for exactly one sample, and record its sample
-                # ID so we can check for sample IDs duplicated across GVCFs once all workers finish
-                mapfile -t sample_ids_in_gvcf < <(bcftools query -l "header_${worker_id}.vcf")
-                sample_count=${#sample_ids_in_gvcf[@]}
-                if [ "$sample_count" -ne 1 ]; then
-                    echo "[worker $worker_id] GVCF file $gvcf contains data for $sample_count samples; expected exactly 1."
-                    gvcfs_with_multiple_samples+=("$gvcf")
-                else
-                    echo "[worker $worker_id] GVCF file $gvcf contains data for exactly 1 sample."
-                fi
-                gvcf_sample_ids+=("${sample_ids_in_gvcf[@]}")
+                    # check that the GVCF contains data for exactly one sample, and record its sample
+                    # ID so we can check for sample IDs duplicated across GVCFs once all workers finish
+                    mapfile -t sample_ids_in_gvcf < <(bcftools query -l "header_${worker_id}.vcf")
+                    sample_count=${#sample_ids_in_gvcf[@]}
+                    if [ "$sample_count" -ne 1 ]; then
+                        echo "[worker $worker_id] GVCF file $gvcf contains data for $sample_count samples; expected exactly 1."
+                        gvcfs_with_multiple_samples+=("$gvcf")
+                    else
+                        echo "[worker $worker_id] GVCF file $gvcf contains data for exactly 1 sample."
+                    fi
+                    gvcf_sample_ids+=("${sample_ids_in_gvcf[@]}")
 
-                # --validation-type-to-exclude ALL skips variant-level validation and only checks that the
-                # VCF header's sequence dictionary is compatible with the provided reference dictionary
-                gatk ValidateVariants \
-                    -V "header_${worker_id}.vcf" \
-                    --sequence-dictionary ~{ref_dict} \
-                    --validation-type-to-exclude ALL \
-                    --verbosity ERROR \
-                    2> "gatk_output_${worker_id}.txt"
+                    # --validation-type-to-exclude ALL skips variant-level validation and only checks that the
+                    # VCF header's sequence dictionary is compatible with the provided reference dictionary.
+                    # Retry only on an unexpected failure (transient error, e.g. an OOM kill under
+                    # concurrent workers) -- a genuine "incompatible contigs" result is deterministic and
+                    # must not be retried away or silently treated as "compatible".
+                    gatk_result="error"
+                    for attempt in $(seq 1 "$MAX_VALIDATION_ATTEMPTS"); do
+                        gatk_exit_code=0
+                        gatk ValidateVariants \
+                            -V "header_${worker_id}.vcf" \
+                            --sequence-dictionary ~{ref_dict} \
+                            --validation-type-to-exclude ALL \
+                            --verbosity ERROR \
+                            2> "gatk_output_${worker_id}.txt" || gatk_exit_code=$?
 
-                if grep -q "incompatible contigs" "gatk_output_${worker_id}.txt"; then
-                    echo "[worker $worker_id] GVCF file $gvcf has contigs incompatible with the expected reference dictionary ($ref_dict_basename)."
-                    gvcfs_with_incompatible_contigs+=("$gvcf")
-                else
-                    echo "[worker $worker_id] GVCF file $gvcf has contigs compatible with the expected reference dictionary."
-                fi
+                        if grep -q "incompatible contigs" "gatk_output_${worker_id}.txt"; then
+                            gatk_result="incompatible"
+                            break
+                        elif [ "$gatk_exit_code" -eq 0 ]; then
+                            gatk_result="compatible"
+                            break
+                        fi
+                        echo "[worker $worker_id] gatk ValidateVariants attempt $attempt/$MAX_VALIDATION_ATTEMPTS failed unexpectedly for $gvcf (exit code $gatk_exit_code)."
+                        [ "$attempt" -lt "$MAX_VALIDATION_ATTEMPTS" ] && sleep "$VALIDATION_RETRY_DELAY_SECONDS"
+                    done
 
-                # Ensure the PL and GT FORMAT/ID annotations are declared in the header.
-                format_lines=$(grep '^##FORMAT=<' "header_${worker_id}.vcf")
-                missing_format_fields=()
-                if ! echo "$format_lines" | grep -q 'ID=PL[,>]'; then
-                    missing_format_fields+=("PL")
-                fi
-                if ! echo "$format_lines" | grep -q 'ID=GT[,>]'; then
-                    missing_format_fields+=("GT")
-                fi
-                if [ ${#missing_format_fields[@]} -gt 0 ]; then
-                    echo "[worker $worker_id] GVCF file $gvcf is missing expected FORMAT/ID annotation(s) in its header: ${missing_format_fields[*]}"
-                    gvcfs_with_missing_format_fields+=("$gvcf")
-                else
-                    echo "[worker $worker_id] GVCF file $gvcf declares the expected PL and GT FORMAT/ID annotations in its header."
+                    case "$gatk_result" in
+                        incompatible)
+                            echo "[worker $worker_id] GVCF file $gvcf has contigs incompatible with the expected reference dictionary ($ref_dict_basename)."
+                            gvcfs_with_incompatible_contigs+=("$gvcf")
+                            ;;
+                        compatible)
+                            echo "[worker $worker_id] GVCF file $gvcf has contigs compatible with the expected reference dictionary."
+                            ;;
+                        *)
+                            echo "[worker $worker_id] gatk ValidateVariants failed unexpectedly for $gvcf after $MAX_VALIDATION_ATTEMPTS attempts (exit code $gatk_exit_code; see gatk_output_${worker_id}.txt for details)."
+                            gvcfs_with_validation_errors+=("$gvcf")
+                            ;;
+                    esac
+
+                    # Ensure the PL and GT FORMAT/ID annotations are declared in the header.
+                    format_lines=$(grep '^##FORMAT=<' "header_${worker_id}.vcf")
+                    missing_format_fields=()
+                    if ! echo "$format_lines" | grep -q 'ID=PL[,>]'; then
+                        missing_format_fields+=("PL")
+                    fi
+                    if ! echo "$format_lines" | grep -q 'ID=GT[,>]'; then
+                        missing_format_fields+=("GT")
+                    fi
+                    if [ ${#missing_format_fields[@]} -gt 0 ]; then
+                        echo "[worker $worker_id] GVCF file $gvcf is missing expected FORMAT/ID annotation(s) in its header: ${missing_format_fields[*]}"
+                        gvcfs_with_missing_format_fields+=("$gvcf")
+                    else
+                        echo "[worker $worker_id] GVCF file $gvcf declares the expected PL and GT FORMAT/ID annotations in its header."
+                    fi
                 fi
 
                 # stop early once this worker's own chunk already has enough issues to fill a truncated message
-                total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_invalid_vcf_version[@]} + ${#gvcfs_with_missing_format_fields[@]} + ${#gvcfs_with_multiple_samples[@]} ))
+                total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_invalid_vcf_version[@]} + ${#gvcfs_with_missing_format_fields[@]} + ${#gvcfs_with_multiple_samples[@]} + ${#gvcfs_with_validation_errors[@]} ))
                 if [ "$total_issue_count" -gt "$MAX_ITEMS_IN_ERROR_MESSAGES" ]; then
                     echo "[worker $worker_id] found more than $MAX_ITEMS_IN_ERROR_MESSAGES GVCF files with issues in this chunk; skipping the rest of this worker's chunk"
                     break
@@ -408,6 +459,11 @@ task ValidateGvcfInput {
             else
                 : > "results/${worker_id}_sample_ids.txt"
             fi
+            if [ ${#gvcfs_with_validation_errors[@]} -gt 0 ]; then
+                printf '%s\n' "${gvcfs_with_validation_errors[@]}" > "results/${worker_id}_validation_errors.txt"
+            else
+                : > "results/${worker_id}_validation_errors.txt"
+            fi
         }
 
         worker_id=0
@@ -425,6 +481,7 @@ task ValidateGvcfInput {
         mapfile -t gvcfs_with_multiple_samples < <(cat results/*_multi_sample.txt 2>/dev/null)
         mapfile -t all_gvcf_sample_ids < <(cat results/*_sample_ids.txt 2>/dev/null)
         mapfile -t duplicate_sample_ids < <(printf '%s\n' "${all_gvcf_sample_ids[@]}" | sort | uniq -d)
+        mapfile -t gvcfs_with_validation_errors < <(cat results/*_validation_errors.txt 2>/dev/null)
 
         # Reports the outcome of one QC check: if any items are given, pluralizes $1 ("GVCF file",
         # "sample ID", ...) as needed and appends "Found N <subject(s)> <predicate>" to
@@ -464,6 +521,10 @@ task ValidateGvcfInput {
         report_check_result "sample ID" "appearing in more than one GVCF" \
             "All GVCF sample IDs are unique across the provided GVCFs." \
             "${duplicate_sample_ids[@]}"
+
+        report_check_result "GVCF file" "that could not be validated due to an unexpected bcftools/gatk error (see task logs for details)" \
+            "All checked GVCF files were validated without unexpected bcftools/gatk errors." \
+            "${gvcfs_with_validation_errors[@]}"
 
         # passes_qc is true only when qc_messages is empty.
         if [ ! -s qc_messages.txt ]; then
