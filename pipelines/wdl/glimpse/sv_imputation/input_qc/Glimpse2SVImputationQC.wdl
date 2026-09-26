@@ -425,6 +425,8 @@ task ValidateGvcfInput {
                             gatk_result="compatible"
                             break
                         fi
+                        echo "GATK VALIDATEVARIANTS UNCAUGHT OUTPUT:"
+                        cat gatk_output_${worker_id}.txt
                         echo "[worker $worker_id] gatk ValidateVariants attempt $attempt/$MAX_VALIDATION_ATTEMPTS failed unexpectedly for $gvcf (exit code $gatk_exit_code)."
                         [ "$attempt" -lt "$MAX_VALIDATION_ATTEMPTS" ] && sleep "$VALIDATION_RETRY_DELAY_SECONDS"
                     done
@@ -585,7 +587,7 @@ task ValidateGvcfInput {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/gatk-bcftools-gcloud:1.0.0-4.2.6.1-1.24-1787155398 "
+        docker: "us.gcr.io/broad-gotc-prod/gatk-bcftools-gcloud:1.0.0-4.2.6.1-1.24-1787155398"
         cpu: cpu
         disks: "local-disk 10 HDD"
         memory: "4 GiB"
