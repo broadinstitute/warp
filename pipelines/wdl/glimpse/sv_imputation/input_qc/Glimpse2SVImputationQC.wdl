@@ -322,36 +322,71 @@ task ValidateGvcfInput {
             while IFS= read -r gvcf; do
                 [ -z "$gvcf" ] && continue
                 echo "[worker $worker_id] Validating GVCF file: $gvcf"
+                gvcf_has_issue=false
 
-                # A transient streaming failure here (network blip, GCS error, expired auth token) must
-                # not be mistaken for a data-quality finding: on failure, header_${worker_id}.vcf may be
-                # empty or truncated, which would otherwise masquerade as "invalid fileformat"/"missing
-                # PL or GT"/"0 samples". Retry a few times to ride out transient errors; each attempt
+                # A negative result below can be a streaming artifact rather than a real finding:
+                # bcftools can exit 0 while a remotely-streamed header was silently missing a chunk (a
+                # dropped/corrupted network read of one part of a multi-block remote header), yielding a
+                # well-formed-looking header that just happens to lack the fileformat line or a FORMAT
+                # declaration -- with no nonzero exit code to catch. So a single negative read of either
+                # check is not trusted on its own: re-fetch an independent copy of the header and re-run
+                # both checks together until they pass, an outright bcftools failure is hit (nonzero
+                # exit, e.g. an auth/network fetch failure), or attempts are exhausted. Each attempt
                 # re-truncates the header file via `>`, so a failed attempt can't leave partial bytes
-                # behind for the next one to append to. Only after all attempts fail is it recorded as
-                # its own error category, skipping the checks below, which all depend on a successfully
-                # fetched header.
+                # behind for the next one to append to.
                 bcftools_view_rc=1
+                fileformat_ok=false
+                format_fields_ok=false
+                fileformat_line=""
+                missing_format_fields=()
+
                 for attempt in $(seq 1 "$MAX_VALIDATION_ATTEMPTS"); do
-                    if bcftools view -Ov -h "$gvcf" > "header_${worker_id}.vcf" 2> "bcftools_output_${worker_id}.txt"; then
-                        bcftools_view_rc=0
+                    if ! bcftools view -Ov -h "$gvcf" > "header_${worker_id}.vcf" 2> "bcftools_output_${worker_id}.txt"; then
+                        echo "[worker $worker_id] bcftools view attempt $attempt/$MAX_VALIDATION_ATTEMPTS failed for $gvcf (see bcftools_output_${worker_id}.txt)."
+                        [ "$attempt" -lt "$MAX_VALIDATION_ATTEMPTS" ] && sleep "$VALIDATION_RETRY_DELAY_SECONDS"
+                        continue
+                    fi
+                    bcftools_view_rc=0
+
+                    # Ensure the header declares a VCFv4.x fileformat.
+                    fileformat_line=$(grep -m1 '^##fileformat=' "header_${worker_id}.vcf" || true)
+                    if echo "$fileformat_line" | grep -Eq '^##fileformat=VCFv4(\.[0-9]+)?$'; then
+                        fileformat_ok=true
+                    else
+                        fileformat_ok=false
+                    fi
+
+                    # Ensure the PL and GT FORMAT/ID annotations are declared in the header.
+                    format_lines=$(grep '^##FORMAT=<' "header_${worker_id}.vcf")
+                    missing_format_fields=()
+                    if ! echo "$format_lines" | grep -q 'ID=PL[,>]'; then
+                        missing_format_fields+=("PL")
+                    fi
+                    if ! echo "$format_lines" | grep -q 'ID=GT[,>]'; then
+                        missing_format_fields+=("GT")
+                    fi
+                    if [ ${#missing_format_fields[@]} -eq 0 ]; then
+                        format_fields_ok=true
+                    else
+                        format_fields_ok=false
+                    fi
+
+                    if [ "$fileformat_ok" = true ] && [ "$format_fields_ok" = true ]; then
                         break
                     fi
-                    echo "[worker $worker_id] bcftools view attempt $attempt/$MAX_VALIDATION_ATTEMPTS failed for $gvcf (see bcftools_output_${worker_id}.txt)."
+                    echo "[worker $worker_id] GVCF file $gvcf failed a header content check on attempt $attempt/$MAX_VALIDATION_ATTEMPTS (fileformat_ok=$fileformat_ok, format_fields_ok=$format_fields_ok); re-fetching the header to rule out a streaming glitch before treating this as a finding."
                     [ "$attempt" -lt "$MAX_VALIDATION_ATTEMPTS" ] && sleep "$VALIDATION_RETRY_DELAY_SECONDS"
                 done
 
                 if [ "$bcftools_view_rc" -ne 0 ]; then
                     echo "[worker $worker_id] bcftools view failed to read the header of $gvcf after $MAX_VALIDATION_ATTEMPTS attempts (see bcftools_output_${worker_id}.txt for details)."
                     gvcfs_with_validation_errors+=("$gvcf")
+                    gvcf_has_issue=true
                 else
-                    # Ensure the header declares a VCFv4.x fileformat.
-                    fileformat_line=$(grep -m1 '^##fileformat=' "header_${worker_id}.vcf" || true)
-                    if ! echo "$fileformat_line" | grep -Eq '^##fileformat=VCFv4(\.[0-9]+)?$'; then
-                        echo "[worker $worker_id] GVCF file $gvcf has unsupported fileformat header '${fileformat_line:-<missing>}' (expected VCFv4.x)."
+                    if [ "$fileformat_ok" != true ]; then
+                        echo "[worker $worker_id] GVCF file $gvcf has unsupported fileformat header '${fileformat_line:-<missing>}' (expected VCFv4.x) after $MAX_VALIDATION_ATTEMPTS attempts."
                         gvcfs_with_invalid_vcf_version+=("$gvcf")
-                    else
-                        echo "[worker $worker_id] GVCF file $gvcf declares supported fileformat header: $fileformat_line"
+                        gvcf_has_issue=true
                     fi
 
                     # check that the GVCF contains data for exactly one sample, and record its sample
@@ -361,8 +396,7 @@ task ValidateGvcfInput {
                     if [ "$sample_count" -ne 1 ]; then
                         echo "[worker $worker_id] GVCF file $gvcf contains data for $sample_count samples; expected exactly 1."
                         gvcfs_with_multiple_samples+=("$gvcf")
-                    else
-                        echo "[worker $worker_id] GVCF file $gvcf contains data for exactly 1 sample."
+                        gvcf_has_issue=true
                     fi
                     gvcf_sample_ids+=("${sample_ids_in_gvcf[@]}")
 
@@ -396,30 +430,25 @@ task ValidateGvcfInput {
                         incompatible)
                             echo "[worker $worker_id] GVCF file $gvcf has contigs incompatible with the expected reference dictionary ($ref_dict_basename)."
                             gvcfs_with_incompatible_contigs+=("$gvcf")
+                            gvcf_has_issue=true
                             ;;
                         compatible)
-                            echo "[worker $worker_id] GVCF file $gvcf has contigs compatible with the expected reference dictionary."
                             ;;
                         *)
                             echo "[worker $worker_id] gatk ValidateVariants failed unexpectedly for $gvcf after $MAX_VALIDATION_ATTEMPTS attempts (exit code $gatk_exit_code; see gatk_output_${worker_id}.txt for details)."
                             gvcfs_with_validation_errors+=("$gvcf")
+                            gvcf_has_issue=true
                             ;;
                     esac
 
-                    # Ensure the PL and GT FORMAT/ID annotations are declared in the header.
-                    format_lines=$(grep '^##FORMAT=<' "header_${worker_id}.vcf")
-                    missing_format_fields=()
-                    if ! echo "$format_lines" | grep -q 'ID=PL[,>]'; then
-                        missing_format_fields+=("PL")
-                    fi
-                    if ! echo "$format_lines" | grep -q 'ID=GT[,>]'; then
-                        missing_format_fields+=("GT")
-                    fi
-                    if [ ${#missing_format_fields[@]} -gt 0 ]; then
-                        echo "[worker $worker_id] GVCF file $gvcf is missing expected FORMAT/ID annotation(s) in its header: ${missing_format_fields[*]}"
+                    if [ "$format_fields_ok" != true ]; then
+                        echo "[worker $worker_id] GVCF file $gvcf is missing expected FORMAT/ID annotation(s) in its header: ${missing_format_fields[*]} after $MAX_VALIDATION_ATTEMPTS attempts."
                         gvcfs_with_missing_format_fields+=("$gvcf")
-                    else
-                        echo "[worker $worker_id] GVCF file $gvcf declares the expected PL and GT FORMAT/ID annotations in its header."
+                        gvcf_has_issue=true
+                    fi
+
+                    if [ "$gvcf_has_issue" = false ]; then
+                        echo "[worker $worker_id] GVCF file $gvcf passed all checks."
                     fi
                 fi
 
