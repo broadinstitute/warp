@@ -316,7 +316,6 @@ task ValidateGvcfInput {
             local gvcfs_with_invalid_vcf_version=()
             local gvcfs_with_missing_format_fields=()
             local gvcfs_with_multiple_samples=()
-            local gvcfs_with_validation_errors=()
             local gvcf_sample_ids=()
 
             while IFS= read -r gvcf; do
@@ -379,9 +378,13 @@ task ValidateGvcfInput {
                 done
 
                 if [ "$bcftools_view_rc" -ne 0 ]; then
-                    echo "[worker $worker_id] bcftools view failed to read the header of $gvcf after $MAX_VALIDATION_ATTEMPTS attempts (see bcftools_output_${worker_id}.txt for details)."
-                    gvcfs_with_validation_errors+=("$gvcf")
-                    gvcf_has_issue=true
+                    # This is not a data-quality finding -- bcftools couldn't even be read after
+                    # repeated retries, which points to an unresolved connectivity/infrastructure
+                    # problem the data provider has no control over. Fail the task immediately rather
+                    # than letting the rest of this chunk (and other workers) keep hammering a GCS
+                    # endpoint that's already known to be failing, or reporting this as a qc_message.
+                    echo "ERROR: [worker $worker_id] bcftools view failed to read the header of $gvcf after $MAX_VALIDATION_ATTEMPTS attempts (see bcftools_output_${worker_id}.txt for details). This looks like an unresolved connectivity/infrastructure issue rather than a data problem." >&2
+                    exit 1
                 else
                     if [ "$fileformat_ok" != true ]; then
                         echo "[worker $worker_id] GVCF file $gvcf has unsupported fileformat header '${fileformat_line:-<missing>}' (expected VCFv4.x) after $MAX_VALIDATION_ATTEMPTS attempts."
@@ -435,9 +438,12 @@ task ValidateGvcfInput {
                         compatible)
                             ;;
                         *)
-                            echo "[worker $worker_id] gatk ValidateVariants failed unexpectedly for $gvcf after $MAX_VALIDATION_ATTEMPTS attempts (exit code $gatk_exit_code; see gatk_output_${worker_id}.txt for details)."
-                            gvcfs_with_validation_errors+=("$gvcf")
-                            gvcf_has_issue=true
+                            # Same reasoning as the bcftools view failure above: gatk never produced a
+                            # real result (not even a definitive "incompatible contigs") after repeated
+                            # retries, so this is an unresolved infrastructure error, not a data-quality
+                            # finding -- fail the task immediately instead of reporting a qc_message.
+                            echo "ERROR: [worker $worker_id] gatk ValidateVariants failed unexpectedly for $gvcf after $MAX_VALIDATION_ATTEMPTS attempts (exit code $gatk_exit_code; see gatk_output_${worker_id}.txt for details). This looks like an unresolved connectivity/infrastructure issue rather than a data problem." >&2
+                            exit 1
                             ;;
                     esac
 
@@ -453,7 +459,7 @@ task ValidateGvcfInput {
                 fi
 
                 # stop early once this worker's own chunk already has enough issues to fill a truncated message
-                total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_invalid_vcf_version[@]} + ${#gvcfs_with_missing_format_fields[@]} + ${#gvcfs_with_multiple_samples[@]} + ${#gvcfs_with_validation_errors[@]} ))
+                total_issue_count=$(( ${#gvcfs_with_incompatible_contigs[@]} + ${#gvcfs_with_invalid_vcf_version[@]} + ${#gvcfs_with_missing_format_fields[@]} + ${#gvcfs_with_multiple_samples[@]} ))
                 if [ "$total_issue_count" -gt "$MAX_ITEMS_IN_ERROR_MESSAGES" ]; then
                     echo "[worker $worker_id] found more than $MAX_ITEMS_IN_ERROR_MESSAGES GVCF files with issues in this chunk; skipping the rest of this worker's chunk"
                     break
@@ -488,19 +494,34 @@ task ValidateGvcfInput {
             else
                 : > "results/${worker_id}_sample_ids.txt"
             fi
-            if [ ${#gvcfs_with_validation_errors[@]} -gt 0 ]; then
-                printf '%s\n' "${gvcfs_with_validation_errors[@]}" > "results/${worker_id}_validation_errors.txt"
-            else
-                : > "results/${worker_id}_validation_errors.txt"
-            fi
         }
 
         worker_id=0
+        worker_pids=()
         for chunk_file in chunks/chunk_*; do
             check_gvcf_chunk "$chunk_file" "$worker_id" &
+            worker_pids+=("$!")
             worker_id=$((worker_id + 1))
         done
-        wait
+
+        # Fail fast: a worker exits nonzero only when it hit an unresolved connectivity/infrastructure
+        # error (see check_gvcf_chunk), never for a data-quality finding. `wait -n` returns as soon as
+        # any one job finishes, so the first such failure is caught immediately rather than after every
+        # worker grinds through its whole chunk against infrastructure that's already known to be
+        # failing; remaining workers are killed rather than waited on.
+        failed_worker=false
+        for _ in "${worker_pids[@]}"; do
+            if ! wait -n; then
+                failed_worker=true
+                break
+            fi
+        done
+
+        if [ "$failed_worker" = true ]; then
+            echo "ERROR: a GVCF validation worker exited due to an unresolved connectivity/infrastructure error (see the [worker N] ERROR line above for which GVCF and why). Failing the task instead of producing an incomplete QC verdict." >&2
+            kill "${worker_pids[@]}" 2>/dev/null
+            exit 1
+        fi
 
         # Merge every worker's partial results back into single lists before applying the final,
         # truncated aggregate message
@@ -510,7 +531,6 @@ task ValidateGvcfInput {
         mapfile -t gvcfs_with_multiple_samples < <(cat results/*_multi_sample.txt 2>/dev/null)
         mapfile -t all_gvcf_sample_ids < <(cat results/*_sample_ids.txt 2>/dev/null)
         mapfile -t duplicate_sample_ids < <(printf '%s\n' "${all_gvcf_sample_ids[@]}" | sort | uniq -d)
-        mapfile -t gvcfs_with_validation_errors < <(cat results/*_validation_errors.txt 2>/dev/null)
 
         # Reports the outcome of one QC check: if any items are given, pluralizes $1 ("GVCF file",
         # "sample ID", ...) as needed and appends "Found N <subject(s)> <predicate>" to
@@ -551,10 +571,6 @@ task ValidateGvcfInput {
             "All GVCF sample IDs are unique across the provided GVCFs." \
             "${duplicate_sample_ids[@]}"
 
-        report_check_result "GVCF file" "that could not be validated due to an unexpected bcftools/gatk error (see task logs for details)" \
-            "All checked GVCF files were validated without unexpected bcftools/gatk errors." \
-            "${gvcfs_with_validation_errors[@]}"
-
         # passes_qc is true only when qc_messages is empty.
         if [ ! -s qc_messages.txt ]; then
             echo "true" > passes_qc.txt
@@ -562,7 +578,9 @@ task ValidateGvcfInput {
             echo "false" > passes_qc.txt
         fi
 
-        # This task should always succeed
+        # This task succeeds whenever every GVCF could be validated, even if some failed a data-quality
+        # check -- those are reported via passes_qc/qc_messages above. It only exits nonzero earlier,
+        # when a GVCF couldn't be validated at all due to an unresolved infrastructure error.
         exit 0
     >>>
 
