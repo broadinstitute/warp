@@ -421,11 +421,14 @@ task ValidateGvcfInput {
                         if grep -q "incompatible contigs" "gatk_output_${worker_id}.txt"; then
                             gatk_result="incompatible"
                             break
+                        elif grep -q "not a supported version" "gatk_output_${worker_id}.txt"; then
+                            # the VCF is not a supported version, which we've already checked for
+                            break
                         elif [ "$gatk_exit_code" -eq 0 ]; then
                             gatk_result="compatible"
                             break
                         fi
-                        echo "GATK VALIDATEVARIANTS UNCAUGHT OUTPUT:"
+                        echo "GATK VALIDATEVARIANTS UNCAUGHT ERROR - OUTPUT:"
                         cat gatk_output_${worker_id}.txt
                         echo "[worker $worker_id] gatk ValidateVariants attempt $attempt/$MAX_VALIDATION_ATTEMPTS failed unexpectedly for $gvcf (exit code $gatk_exit_code)."
                         [ "$attempt" -lt "$MAX_VALIDATION_ATTEMPTS" ] && sleep "$VALIDATION_RETRY_DELAY_SECONDS"
