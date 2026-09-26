@@ -408,31 +408,40 @@ task ValidateGvcfInput {
                     # Retry only on an unexpected failure (transient error, e.g. an OOM kill under
                     # concurrent workers) -- a genuine "incompatible contigs" result is deterministic and
                     # must not be retried away or silently treated as "compatible".
-                    gatk_result="error"
-                    for attempt in $(seq 1 "$MAX_VALIDATION_ATTEMPTS"); do
-                        gatk_exit_code=0
-                        gatk ValidateVariants \
-                            -V "header_${worker_id}.vcf" \
-                            --sequence-dictionary ~{ref_dict} \
-                            --validation-type-to-exclude ALL \
-                            --verbosity ERROR \
-                            2> "gatk_output_${worker_id}.txt" || gatk_exit_code=$?
+                    if [ "$fileformat_ok" != true ]; then
+                        # gatk can't parse a header with an unsupported fileformat anyway (it would just
+                        # fail with its own "not a supported version" error) -- that's already caught and
+                        # reported separately by the fileformat_ok check above, so skip the JVM startup
+                        # entirely rather than running gatk just to hit a known, already-reported result.
+                        gatk_result="unsupported_version"
+                    else
+                        gatk_result="error"
+                        for attempt in $(seq 1 "$MAX_VALIDATION_ATTEMPTS"); do
+                            gatk_exit_code=0
+                            gatk ValidateVariants \
+                                -V "header_${worker_id}.vcf" \
+                                --sequence-dictionary ~{ref_dict} \
+                                --validation-type-to-exclude ALL \
+                                --verbosity ERROR \
+                                2> "gatk_output_${worker_id}.txt" || gatk_exit_code=$?
 
-                        if grep -q "incompatible contigs" "gatk_output_${worker_id}.txt"; then
-                            gatk_result="incompatible"
-                            break
-                        elif grep -q "not a supported version" "gatk_output_${worker_id}.txt"; then
-                            # the VCF is not a supported version, which we've already checked for
-                            break
-                        elif [ "$gatk_exit_code" -eq 0 ]; then
-                            gatk_result="compatible"
-                            break
-                        fi
-                        echo "GATK VALIDATEVARIANTS UNCAUGHT ERROR - OUTPUT:"
-                        cat gatk_output_${worker_id}.txt
-                        echo "[worker $worker_id] gatk ValidateVariants attempt $attempt/$MAX_VALIDATION_ATTEMPTS failed unexpectedly for $gvcf (exit code $gatk_exit_code)."
-                        [ "$attempt" -lt "$MAX_VALIDATION_ATTEMPTS" ] && sleep "$VALIDATION_RETRY_DELAY_SECONDS"
-                    done
+                            if grep -q "incompatible contigs" "gatk_output_${worker_id}.txt"; then
+                                gatk_result="incompatible"
+                                break
+                            elif grep -q "not a supported version" "gatk_output_${worker_id}.txt"; then
+                                # the VCF is not a supported version, which we've already checked for
+                                gatk_result="unsupported_version"
+                                break
+                            elif [ "$gatk_exit_code" -eq 0 ]; then
+                                gatk_result="compatible"
+                                break
+                            fi
+                            echo "GATK VALIDATEVARIANTS UNCAUGHT ERROR - OUTPUT:"
+                            cat "gatk_output_${worker_id}.txt"
+                            echo "[worker $worker_id] gatk ValidateVariants attempt $attempt/$MAX_VALIDATION_ATTEMPTS failed unexpectedly for $gvcf (exit code $gatk_exit_code)."
+                            [ "$attempt" -lt "$MAX_VALIDATION_ATTEMPTS" ] && sleep "$VALIDATION_RETRY_DELAY_SECONDS"
+                        done
+                    fi
 
                     case "$gatk_result" in
                         incompatible)
@@ -441,6 +450,12 @@ task ValidateGvcfInput {
                             gvcf_has_issue=true
                             ;;
                         compatible)
+                            ;;
+                        unsupported_version)
+                            # gatk couldn't run its contig check because the header's fileformat isn't
+                            # VCFv4.x -- that's already caught and reported separately by the
+                            # fileformat_ok check above, so don't also treat it as a contig finding or
+                            # an infrastructure error.
                             ;;
                         *)
                             # Same reasoning as the bcftools view failure above: gatk never produced a
