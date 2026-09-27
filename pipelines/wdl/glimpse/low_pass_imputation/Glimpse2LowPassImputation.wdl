@@ -136,7 +136,7 @@ workflow Glimpse2LowPassImputation {
                 vcf = filtered_contig_vcf,
                 ref_dict = ref_dict,
                 pipeline_header_line = pipeline_header_line,
-                output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.updated_header",
+                output_basename = output_basename + "." + contigs[contig_idx] + ".imputed",
                 docker = glimpse_docker
         }
 

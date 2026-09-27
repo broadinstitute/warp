@@ -1,5 +1,5 @@
 # 2.0.0
-2026-09-24 (Date of Last Commit)
+2026-09-26 (Date of Last Commit)
 
 ### Breaking changes
 * Outputs `imputed_vcf`, `imputed_vcf_index`, and `imputed_vcf_md5sum` have been changed from `File` type to `Array[File]` type, and renamed to `imputed_vcfs`, `imputed_vcf_indexes`, and `imputed_vcf_md5sums`. The VCF outputs now contain all imputed variants and homozygous reference sites per chromosome/contig.
