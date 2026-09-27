@@ -1,8 +1,8 @@
 # 1.0.1
-2026-09-25 (Date of Last Commit)
+2026-09-26 (Date of Last Commit)
 
 * Fixes for silent transient streaming errors
-* Reduced per-GVCF logging to a single passing-checks summary line for files with no findings
+* Reduced per-GVCF logging for files with no findings
 
 # 1.0.0
 2026-09-09 (Date of Last Commit)
