@@ -1,3 +1,8 @@
+# 4.0.1
+2026-09-24 (Date of Last Commit)
+
+* Update quota_consumed_version to `1.1.1` and input_qc_version to `1.3.1` to remove optional inputs that are not used in the service
+
 # 4.0.0
 2026-09-08 (Date of Last Commit)
 
