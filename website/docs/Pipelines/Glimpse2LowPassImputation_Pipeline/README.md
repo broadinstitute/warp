@@ -81,7 +81,8 @@ The top-level workflow orchestrates batching, per-batch imputation, and cohort-l
 | `UpdateHeader`                                       | Update contig VCF header with reference info                            | Filtered VCF (if `info_filter_for_inclusion` supplied) or re-annotated contig VCF                      | Updates VCF headers with reference dictionary information and optionally adds pipeline metadata |
 | `MergeBatchCoverageMetrics`                          | Combine optional coverage metric files across batches                   | `RunBatch.coverage_metrics`                                                                            | Produces aggregated coverage table when metrics exist                                           |
 | `CreateVcfIndexAndMd5`                               | Index and checksum contig VCF                                           | Header-updated contig VCF                                                                              | Creates `.tbi` and md5                                                                          |
-| `CollectQCMetrics`                                   | Compute sample QC metrics from contig imputed VCF                        | Header-updated contig VCF                                                                               | Generates per-contig sample-level QC report                                                     |
+| `GatherContigVcfsForQcMetrics`                       | Gather all per-contig imputed VCFs into one all-chromosome VCF           | Header-updated contig VCFs                                                                              | Provides a single cohort-wide VCF for QC metric computation                                     |
+| `CollectQCMetrics`                                   | Compute sample QC metrics from the all-chromosome imputed VCF            | Gathered all-chromosome VCF                                                                             | Generates a single cohort-wide sample-level QC report                                           |
 
 ### Outputs
 
@@ -92,7 +93,7 @@ Upon successful completion, the workflow emits final contig-level imputed output
 | `imputed_vcfs`            | Array of per-contig imputed multi-sample VCFs                            |
 | `imputed_vcf_indexes`     | Index files for the per-contig imputed VCFs                              |
 | `imputed_vcf_md5sums`     | MD5 checksums for the per-contig imputed VCFs                            |
-| `qc_metrics`              | Sample-level QC metrics table for each contig                            |
+| `qc_metrics`              | Sample-level QC metrics table computed across all contigs                |
 | `coverage_metrics`        | Optional combined coverage metrics table                                 |
 
 
