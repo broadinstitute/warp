@@ -40,8 +40,7 @@ workflow InputQC {
     # only validate individual GVCF contents if the manifest itself passed QC
     if (ValidateGvcfManifest.passes_qc) {
         Int n_gvcfs = length(ValidateGvcfManifest.gvcfs)
-        Int cpu = 16
-        # if (n_gvcfs < 1000) then 8 else 16
+        Int cpu = if (n_gvcfs < 1000) then 8 else 16
 
         call ValidateGvcfInput {
             input:
