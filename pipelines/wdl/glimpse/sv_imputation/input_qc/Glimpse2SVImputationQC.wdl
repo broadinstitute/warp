@@ -317,7 +317,8 @@ task ValidateGvcfInput {
                 [ -z "$gvcf" ] && continue
                 echo "[worker $worker_id] Validating GVCF file: $gvcf"
 
-                bcftools view -Ov -h "$gvcf" > "header_${worker_id}.vcf"
+                # stream just the header
+                gatk SelectVariants -V "$gvcf" -L chr1:0-0 -O "header_${worker_id}.vcf"
 
                 # Ensure the header declares a VCFv4.x fileformat.
                 fileformat_line=$(grep -m1 '^##fileformat=' "header_${worker_id}.vcf" || true)
