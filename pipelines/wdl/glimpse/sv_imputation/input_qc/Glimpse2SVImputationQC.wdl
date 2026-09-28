@@ -254,15 +254,6 @@ task ValidateGvcfInput {
         # the following causes unmatched glob expressions (e.g. *.txt) to expand to nothing rather than the literal string "*.txt"
         shopt -s nullglob
 
-        # set up auth for accessing files using bcftools
-        export GCS_OAUTH_TOKEN=`gcloud auth application-default print-access-token`
-
-        # configure billing project to use for requester pays buckets, if billing project provided
-        if [ -n "~{billing_project}" ]; then
-            echo "Using billing project '~{billing_project}' for requester pays buckets."
-            export GCS_REQUESTER_PAYS_PROJECT=~{billing_project}
-        fi
-
         touch qc_messages.txt
 
         ref_dict_basename="~{ref_dict_basename}"
