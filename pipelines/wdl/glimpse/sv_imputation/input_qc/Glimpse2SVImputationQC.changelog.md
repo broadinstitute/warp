@@ -1,3 +1,8 @@
+# 1.0.1
+2026-09-28 (Date of Last Commit)
+
+* Use gatk SelectVariants instead of bcftools view to stream header, to avoid bcftools streaming issues
+
 # 1.0.0
 2026-09-09 (Date of Last Commit)
 

@@ -1,3 +1,8 @@
+# 1.0.3
+2026-09-28 (Date of Last Commit)
+
+* Update version of QC wdl to 1.0.1. No changes in this WDL itself.
+
 # 1.0.2
 2026-09-24 (Date of Last Commit)
 

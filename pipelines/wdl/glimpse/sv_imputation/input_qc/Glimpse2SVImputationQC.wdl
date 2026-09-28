@@ -2,7 +2,7 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.1"
 
     input {
         # service expects only gvcf_manifest even though main wdl can alternatively take input arrays
@@ -309,7 +309,7 @@ task ValidateGvcfInput {
 
                 # stream just the header
                 gatk SelectVariants -V "$gvcf" -L chr1:1-1 -O "header_${worker_id}.vcf" \
-                    ~{"--gcs-project-for-requester-pays " + billing_project_for_rp}
+                    ~{"--gcs-project-for-requester-pays " + billing_project_for_rp} --QUIET
 
                 # Ensure the header declares a VCFv4.x fileformat.
                 fileformat_line=$(grep -m1 '^##fileformat=' "header_${worker_id}.vcf" || true)
