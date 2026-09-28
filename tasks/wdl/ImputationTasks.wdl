@@ -361,7 +361,7 @@ task UpdateHeader {
     Boolean disable_sequence_dictionary_validation = true
     String? pipeline_header_line
 
-    Int disk_size_gb = ceil(4*(size(vcf, "GiB") + size(vcf_index, "GiB"))) + 20
+    Int disk_size_gb = ceil(5*(size(vcf, "GiB") + size(vcf_index, "GiB"))) + 30
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int cpu = 1
     Int memory_mb = 6000
