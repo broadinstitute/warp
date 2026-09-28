@@ -28,10 +28,12 @@ mt.aggregate_rows(hl.struct(
     acaf_threshold=hl.agg.count_where(mt.acaf_threshold),
 ))
 ```
-Confirmed non-zero hits for all 3 BED types in this region after correcting the path swap above (an
-earlier run, before the swap was caught, returned `Struct(exome=1134, clinvar=2, acaf_threshold=379)` --
-those specific counts were against the swapped/mislabeled paths and should not be trusted as final
-numbers; rerun this check and record the corrected counts here once available).
+Corrected result, after fixing the path swap above: `Struct(exome=379, clinvar=2, acaf_threshold=1134)`.
+(An earlier run, before the swap was caught, returned `Struct(exome=1134, clinvar=2, acaf_threshold=379)`
+-- note `exome` and `acaf_threshold` simply swapped values between the two runs while `clinvar` stayed at
+2, which is exactly what you'd expect since only those two paths were mislabeled and clinvar's path was
+correct the whole time. That consistency is itself a good sanity check that the fix was applied
+correctly.)
 
 ## 2. Phase survives import + variant_qc/info recompute (make_basis_mt_from_vcf)
 
