@@ -5,9 +5,9 @@ import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 import "../../../../tasks/wdl/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
-  String pipeline_version = "4.1.1"
+  String pipeline_version = "4.1.2"
   String input_qc_version = "1.3.2"
-  String quota_consumed_version = "1.1.1"
+  String quota_consumed_version = "1.1.2"
 
   input {
     Int chunkLength = 25000000
@@ -37,6 +37,12 @@ workflow ImputationBeagle {
     Int beagle_cpu = 8
     Int beagle_phase_memory_in_gb = 40
     Int beagle_impute_memory_in_gb = 45
+
+    # the following are used to set `preemptible = 0` for specific tasks based on number of samples in the input
+    Int merge_sample_chunks_vcfs_with_paste_preemptible_sample_cutoff = 10000
+    Int aggregate_chunked_dr2_and_af_preemptible_sample_cutoff = 30000
+    Int reannotate_dr2_and_af = 4000
+
   }
 
   # have to define these here to use them in nested scatters
@@ -258,6 +264,7 @@ workflow ImputationBeagle {
           input:
             input_vcfs = ap_annotations_removed_vcf,
             output_vcf_basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.samples_merged",
+            preemptible = if (CountSamples.nSamples > merge_sample_chunks_vcfs_with_paste_preemptible_sample_cutoff) then 0 else 3
         }
 
         call beagleTasks.CreateVcfIndex as IndexMergedSampleChunksVcfs {
@@ -268,7 +275,8 @@ workflow ImputationBeagle {
 
         call beagleTasks.AggregateChunkedDR2AndAF {
           input:
-            sample_chunked_annotation_files = chunked_dr2_af
+            sample_chunked_annotation_files = chunked_dr2_af,
+            preemptible = if (CountSamples.nSamples > aggregate_chunked_dr2_and_af_preemptible_sample_cutoff) then 0 else 3
         }
 
         call beagleTasks.ReannotateDR2AndAF {
@@ -276,7 +284,8 @@ workflow ImputationBeagle {
             vcf = IndexMergedSampleChunksVcfs.output_vcf,
             vcf_index = IndexMergedSampleChunksVcfs.output_vcf_index,
             annotations_tsv = AggregateChunkedDR2AndAF.output_annotations_file,
-            annotations_tsv_index = AggregateChunkedDR2AndAF.output_annotations_file_index
+            annotations_tsv_index = AggregateChunkedDR2AndAF.output_annotations_file_index,
+            preemptible = if (CountSamples.nSamples > reannotate_dr2_and_af) then 0 else 3
         }
       }
 

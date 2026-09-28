@@ -1,3 +1,9 @@
+# 4.1.2
+2026-10-13 (Date of Last Commit)
+
+* UpdateHeader tasks now asks for more disk
+* Add workflow variables that control preemptibility of certain tasks based on sample number of the input
+
 # 4.1.1
 2026-10-01 (Date of Last Commit)
 
