@@ -146,12 +146,19 @@ workflow Glimpse2LowPassImputation {
                 gatk_docker = gatk_docker,
                 preemptible = 0
         }
+    }
 
-        call Glimpse2LowPassImputationTasks.CollectQCMetrics {
-            input:
-                imputed_vcf = UpdateHeader.output_vcf,
-                output_basename = output_basename
-        }
+    call Glimpse2LowPassImputationTasks.GatherVcfsNoIndex as GatherContigVcfsForQcMetrics {
+        input:
+            input_vcfs = UpdateHeader.output_vcf,
+            output_vcf_basename = output_basename + ".allchr.imputed",
+            gatk_docker = gatk_docker
+    }
+
+    call Glimpse2LowPassImputationTasks.CollectQCMetrics {
+        input:
+            imputed_vcf = GatherContigVcfsForQcMetrics.output_vcf,
+            output_basename = output_basename
     }
 
     output {
@@ -159,6 +166,6 @@ workflow Glimpse2LowPassImputation {
         Array[File] imputed_vcf_indexes = CreateVcfIndexAndMd5.output_vcf_index
         Array[File] imputed_vcf_md5sums = CreateVcfIndexAndMd5.output_vcf_md5sum
 
-        Array[File] qc_metrics = CollectQCMetrics.qc_metrics
+        File qc_metrics = CollectQCMetrics.qc_metrics
     }
 }

@@ -63,7 +63,9 @@ workflow TestGlimpse2LowPassImputation {
 
     # Collect all of the pipeline metrics into single Array[String]
     Array[String] pipeline_metrics = flatten([
+                                  [ # File outputs
                                     Glimpse2LowPassImputation.qc_metrics
+                                  ]
     ])
 
     # Copy results of pipeline to test results bucket
