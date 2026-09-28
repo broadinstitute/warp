@@ -309,7 +309,7 @@ task ValidateGvcfInput {
 
                 # stream just the header
                 gatk SelectVariants -V "$gvcf" -L chr1:1-1 -O "header_${worker_id}.vcf" \
-                    ~{"--gcs-project-for-requester-pays " + billing_project_for_rp} --QUIET
+                    ~{"--gcs-project-for-requester-pays " + billing_project_for_rp} --verbosity ERROR 
 
                 # Ensure the header declares a VCFv4.x fileformat.
                 fileformat_line=$(grep -m1 '^##fileformat=' "header_${worker_id}.vcf" || true)
