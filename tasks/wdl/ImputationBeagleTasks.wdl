@@ -374,6 +374,7 @@ task Impute {
     chrom=~{chrom}:~{start}-~{end} \
     impute=true \
     ~{if impute_with_allele_probabilities then "ap=true" else ""} \
+    gp=true \
     nthreads=~{cpu} \
     seed=-99999
 
