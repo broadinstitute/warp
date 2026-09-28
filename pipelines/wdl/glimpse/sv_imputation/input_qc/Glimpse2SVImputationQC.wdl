@@ -318,7 +318,7 @@ task ValidateGvcfInput {
                 echo "[worker $worker_id] Validating GVCF file: $gvcf"
 
                 # stream just the header
-                gatk SelectVariants -V "$gvcf" -L chr1:0-0 -O "header_${worker_id}.vcf"
+                gatk SelectVariants -V "$gvcf" -L chr1:1-1 -O "header_${worker_id}.vcf"
 
                 # Ensure the header declares a VCFv4.x fileformat.
                 fileformat_line=$(grep -m1 '^##fileformat=' "header_${worker_id}.vcf" || true)
@@ -478,7 +478,7 @@ task ValidateGvcfInput {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/gatk-bcftools-gcloud:1.0.0-4.2.6.1-1.24-1787155398 "
+        docker: "us.gcr.io/broad-gotc-prod/gatk-bcftools-gcloud:1.0.0-4.2.6.1-1.24-1787155398"
         cpu: cpu
         disks: "local-disk 10 HDD"
         memory: "4 GiB"
