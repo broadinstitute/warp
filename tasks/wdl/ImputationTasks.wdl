@@ -378,8 +378,8 @@ task UpdateHeader {
     UpdateVCFSequenceDictionary \
     --source-dictionary ~{ref_dict} \
     --output ~{basename}.vcf.gz \
-    --replace -V ~{vcf} \
-    ~{disable_sequence_dict_validation_flag}
+    ~{disable_sequence_dict_validation_flag} \
+    --replace -V ~{vcf}
 
     ## update header with pipeline_header_line if provided
     if [ -n "~{default="" pipeline_header_line}" ]; then
