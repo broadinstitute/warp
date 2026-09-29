@@ -10,6 +10,7 @@ import argparse
 import logging
 import time
 import sys
+import uuid
 
 # Configure logging to display INFO level and above messages
 logging.basicConfig(
@@ -108,6 +109,14 @@ class FirecloudAPI:
         max_retry_delay = 30  # Maximum retry delay in seconds
         max_attempts = 10  # Maximum number of retry attempts
 
+        # Idempotency marker. The submission POST is non-idempotent, so a 5xx/network error
+        # arriving after Rawls already committed would make a naive retry launch a duplicate
+        # workflow. Tag this call's submission with a unique userComment; before each retry we
+        # look for a submission already carrying it and reuse that id instead of resubmitting.
+        marker = f"warp-ci-{uuid.uuid4()}"
+        existing_comment = submission_data_file.get("userComment", "")
+        submission_data_file = {**submission_data_file, "userComment": f"{existing_comment} [{marker}]".strip()}
+
         attempts = 0
         while attempts < max_attempts:
             attempts += 1
@@ -117,6 +126,14 @@ class FirecloudAPI:
             if current_time - start_time > max_retry_duration:
                 logging.error(f"Exceeded maximum retry duration of {max_retry_duration/60} minutes.")
                 return None
+
+            # A prior attempt may have committed the submission before an error hid the
+            # response. Reconcile before resubmitting so we never launch a duplicate.
+            if attempts > 1:
+                existing_id = self._find_submission_by_marker(marker)
+                if existing_id:
+                    logging.info(f"Reconcile: prior attempt already created submission {existing_id}; not resubmitting")
+                    return existing_id
 
             try:
                 token = self.get_user_token(self.delegated_creds)
@@ -194,6 +211,28 @@ class FirecloudAPI:
         logging.error(f"Failed to submit job after {max_attempts} attempts.")
         return None
 
+    def _find_submission_by_marker(self, marker):
+        """Return the submissionId of a submission whose userComment contains `marker`, else None.
+
+        Detects a submission a prior submit attempt committed before a 5xx/network error hid the
+        response, so the retry can reuse it instead of launching a duplicate.
+        # ponytail: on any lookup failure returns None (caller retries) — the residual duplicate
+        # risk needs BOTH a lost-after-commit POST and a failed reconcile GET, which is rare.
+        """
+        url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
+        try:
+            token = self.get_user_token(self.delegated_creds)
+            headers = self.build_auth_headers(token)
+            response = requests.get(url, headers=headers)
+            if response.status_code != 200:
+                logging.warning(f"Reconcile: could not list submissions (status {response.status_code})")
+                return None
+            for submission in response.json():
+                if marker in (submission.get("userComment") or ""):
+                    return submission.get("submissionId")
+        except (requests.exceptions.RequestException, ValueError) as e:
+            logging.warning(f"Reconcile: submission lookup failed: {e}")
+        return None
 
     def create_new_method_config(self, branch_name, pipeline_name):
         """
