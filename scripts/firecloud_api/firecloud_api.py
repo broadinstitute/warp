@@ -132,7 +132,7 @@ class FirecloudAPI:
                 url = f"{self.base_url}/workspaces/{self.namespace}/{quote(self.workspace_name)}/submissions"
 
                 logging.info(f"Submitting job, attempt {attempts}/{max_attempts}")
-                response = requests.post(url, json=submission_data_file, headers=headers)
+                response = requests.post(url, json=submission_data_file, headers=headers, timeout=120)
 
                 # Print status code and response body for debugging
                 logging.info(f"Response status code for submitting job: {response.status_code}")
@@ -351,7 +351,7 @@ class FirecloudAPI:
         # landed; only rebuild from the latest version and retry if it did not.
         target_inputs = config["inputs"]
         for attempt in range(1, 6):
-            response = requests.post(url, headers=headers, json=config)
+            response = requests.post(url, headers=headers, json=config, timeout=120)
             print(f"Response status code for uploading inputs (attempt {attempt}): {response.status_code}")
             if response.status_code == 200:
                 print("Test inputs uploaded successfully.")
@@ -515,7 +515,7 @@ class FirecloudAPI:
         """
         # Construct the API endpoint URL for fetching workflow outputs
         url = f"{self.base_url}/workspaces/{self.namespace}/{self.workspace_name}/submissions/{submission_id}/workflows/{workflow_id}/outputs"
-        response = requests.get(url, headers=self.headers)
+        response = requests.get(url, headers=self.headers, timeout=120)
 
         # Check if the API request was successful
         if response.status_code == 200:
@@ -561,7 +561,7 @@ class FirecloudAPI:
         token = self.get_user_token(self.delegated_creds)
         headers = self.build_auth_headers(token)
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=120)
 
         if response.status_code != 200:
             logging.error(f"Failed to get submissions. Status code: {response.status_code}")
@@ -588,7 +588,7 @@ class FirecloudAPI:
         token = self.get_user_token(self.delegated_creds)
         headers = self.build_auth_headers(token)
 
-        response = requests.delete(url, headers=headers)
+        response = requests.delete(url, headers=headers, timeout=120)
 
         if response.status_code not in [204]:
             logging.error(f"Failed to cancel submission {submission_id}. Status code: {response.status_code}")
