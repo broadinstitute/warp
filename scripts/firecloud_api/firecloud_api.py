@@ -407,7 +407,9 @@ class FirecloudAPI:
                 # Get the token and headers
                 token = self.get_user_token(self.delegated_creds)
                 headers = self.build_auth_headers(token)
-                status_response = requests.get(status_url, headers=headers)
+                # Bounded timeout: without it a stalled socket blocks the poll loop forever.
+                # A Timeout is a RequestException, so the handler below catches and retries it.
+                status_response = requests.get(status_url, headers=headers, timeout=120)
 
                 # Check for 500 errors and retry if necessary
                 if status_response.status_code in [500, 502, 503]:
