@@ -435,8 +435,8 @@ task ParseVcfManifestIntoArrays {
     }
 
     output {
-        Array[File] input_gvcfs = read_lines("gvcf_paths.txt")
-        Array[File] input_gvcf_idxs = read_lines("gvcf_index_paths.txt")
+        Array[String] input_gvcfs = read_lines("gvcf_paths.txt")
+        Array[String] input_gvcf_idxs = read_lines("gvcf_index_paths.txt")
     }
 }
 
