@@ -51,9 +51,18 @@ workflow InputQC {
         }
     }
 
+    Boolean qc_passes_qc = select_first([ValidateGvcfInput.passes_qc, ValidateGvcfManifest.passes_qc])
+
+    # Only define this variable if QC failed. If QC passes, this block is skipped,
+    # making optional_qc_messages evaluate to null
+    if (!qc_passes_qc) {
+        String optional_qc_messages = select_first([ValidateGvcfInput.qc_messages, ValidateGvcfManifest.qc_messages])
+    }
+
     output {
-        Boolean passes_qc = select_first([ValidateGvcfInput.passes_qc, ValidateGvcfManifest.passes_qc])
-        String qc_messages = select_first([ValidateGvcfInput.qc_messages, ValidateGvcfManifest.qc_messages])
+        Boolean passes_qc = qc_passes_qc
+        # Output as String? (optional) using the variable created in the if-block
+        String? qc_messages = optional_qc_messages
     }
 }
 
