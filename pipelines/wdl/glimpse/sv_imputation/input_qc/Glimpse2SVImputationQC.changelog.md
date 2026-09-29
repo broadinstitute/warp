@@ -1,3 +1,8 @@
+# 1.0.2
+2026-09-29 (Date of Last Commit)
+
+* Reverts previous fix for streaming errors in favor of fix for pipefail race condition
+
 # 1.0.1
 2026-09-26 (Date of Last Commit)
 
