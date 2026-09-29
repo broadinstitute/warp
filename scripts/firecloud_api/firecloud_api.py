@@ -18,19 +18,27 @@ logging.basicConfig(
 )
 
 
-def request_with_retry(method, url, max_attempts=5, retry_delay=10, **kwargs):
-    """Issue an HTTP request, retrying on transient 5xx server errors (e.g. a rawls
-    502, which is common and self-clearing) so one flaky Terra response can't fail a
-    whole test job. Returns the final response; callers keep their own status handling."""
-    response = requests.request(method, url, **kwargs)
-    for attempt in range(1, max_attempts):
-        if response.status_code < 500:
-            return response
-        logging.warning(f"{method} {url} returned {response.status_code} "
-                        f"(attempt {attempt}/{max_attempts}); retrying in {retry_delay}s")
+def request_with_retry(method, url, max_attempts=5, retry_delay=10, timeout=120, **kwargs):
+    """Issue an HTTP request, retrying on transient 5xx server errors (e.g. a rawls 502,
+    which is common and self-clearing) AND on transport failures (timeouts, connection
+    resets that raise RequestException), so one flaky Terra response can't fail a whole
+    test job. A bounded timeout keeps a hung connection from blocking CI indefinitely.
+    Returns the final response; callers keep their own status handling. Re-raises the last
+    transport error if every attempt fails to get a response."""
+    kwargs.setdefault("timeout", timeout)
+    for attempt in range(1, max_attempts + 1):
+        try:
+            response = requests.request(method, url, **kwargs)
+            if response.status_code < 500 or attempt == max_attempts:
+                return response
+            logging.warning(f"{method} {url} returned {response.status_code} "
+                            f"(attempt {attempt}/{max_attempts}); retrying in {retry_delay}s")
+        except requests.exceptions.RequestException as e:
+            if attempt == max_attempts:
+                raise
+            logging.warning(f"{method} {url} raised {type(e).__name__} "
+                            f"(attempt {attempt}/{max_attempts}); retrying in {retry_delay}s")
         time.sleep(retry_delay)
-        response = requests.request(method, url, **kwargs)
-    return response
 
 
 class FirecloudAPI:
