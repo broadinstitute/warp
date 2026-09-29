@@ -158,8 +158,8 @@ class FirecloudAPI:
                     # ponytail: this POST is non-idempotent, so a 5xx arriving after Rawls
                     # committed can retry into a duplicate submission. Accepted tradeoff: the
                     # small duplicate risk buys resilience against common gateway flakiness.
-                    # Reconcile-before-retry (list submissions, reuse a marked one) is the
-                    # fuller fix if duplicates actually show up.
+                    # The fuller fix is to check whether the submission was already created
+                    # before retrying; add it only if duplicates actually show up.
                     logging.warning(f"Received {response.status_code} error. Retrying in {retry_delay} seconds...")
                     logging.warning(f"Response body: {response.text}")
                     time.sleep(retry_delay)
