@@ -171,13 +171,14 @@ class FirecloudAPI:
                             continue
                         return None
 
-                elif response.status_code in (500, 502, 503, 504):  # Transient server error, retry
-                    logging.warning(f"Received {response.status_code} error. Retrying in {retry_delay} seconds...")
-                    logging.warning(f"Response body: {response.text}")
-                    time.sleep(retry_delay)
-                    # Implement exponential backoff with a cap
-                    retry_delay = min(retry_delay * 1.5, max_retry_delay)
-                    continue
+                elif response.status_code in (500, 502, 503, 504):  # Transient server error
+                    # ponytail: submit is non-idempotent, so a 5xx may arrive after Rawls already
+                    # committed. Don't retry (a retry could launch a duplicate workflow); fail here.
+                    # Add reconcile-retry (list submissions, reuse a marked one) if transient 5xx
+                    # flake on submit matters.
+                    logging.error(f"Received {response.status_code} error on non-idempotent submit; not retrying to avoid a duplicate submission.")
+                    logging.error(f"Response body: {response.text}")
+                    return None
 
                 elif response.status_code >= 400 and response.status_code < 500:  # Client error
                     # For 4xx errors, only retry a few times as they might be temporary auth issues
