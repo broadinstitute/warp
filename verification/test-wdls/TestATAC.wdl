@@ -55,6 +55,9 @@ workflow TestATAC {
 
       # Optional aligned ATAC bam file
       File? aligned_ATAC_bam
+
+      # GPU alignment: aggregate T4 count (0 = CPU bwa-mem2 default; gcp-only)
+      Int atac_gpu_count = 0
     }
 
     meta {
@@ -82,6 +85,7 @@ workflow TestATAC {
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3,
         peak_calling = peak_calling,
+        atac_gpu_count = atac_gpu_count,
         aligned_ATAC_bam = aligned_ATAC_bam
     }
 

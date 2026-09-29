@@ -53,6 +53,9 @@ workflow Multiome {
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         File? aligned_ATAC_bam
 
+        # GPU alignment: aggregate T4 count forwarded to ATAC (0 = CPU bwa-mem2 default; gcp-only)
+        Int atac_gpu_count = 0
+
         # CellBender
         Boolean run_cellbender = false
         # Peak Calling
@@ -131,6 +134,7 @@ workflow Multiome {
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
             peak_calling = false,
+            atac_gpu_count = atac_gpu_count,
             aligned_ATAC_bam = aligned_ATAC_bam
 
     }
