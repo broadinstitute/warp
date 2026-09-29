@@ -112,10 +112,10 @@ task ValidateGvcfsToy {
                 format_lines=$(grep '^##FORMAT=<' "header_${worker_id}.vcf" || true)
                 local missing_format=false
                 
-                if ! printf '%s\n' "$format_lines" | grep -q 'ID=PL[,>]'; then
+                if ! printf '%s\n' "$format_lines" | grep 'ID=PL[,>]' > /dev/null; then
                     missing_format=true
                 fi
-                if ! printf '%s\n' "$format_lines" | grep -q 'ID=GT[,>]'; then
+                if ! printf '%s\n' "$format_lines" | grep 'ID=GT[,>]' > /dev/null; then
                     missing_format=true
                 fi
 
