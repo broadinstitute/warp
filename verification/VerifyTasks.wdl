@@ -216,6 +216,7 @@ task CompareAtacLibraryMetrics {
 python3 <<CODE
 import csv
 import hashlib
+import math
 
 # Define acceptable percentage-based thresholds for nondeterministic metrics
 # Arrived at these thresholds by examining the differences between the test and truth files in our scientific tests
@@ -259,9 +260,12 @@ def compare_files(test_file, truth_file):
         return compare_metrics(test_file, truth_file)
 
 def is_float(value):
+    # Treat non-finite parses (nan, inf) as non-numeric: nan slips past a naive
+    # float() check and then `diff > allowable_diff` is always False, so a NaN metric
+    # would pass any threshold silently. A NaN that matches truth exactly still passes
+    # via the identical-non-numeric path; a NaN vs a real value fails.
     try:
-        float(value)
-        return True
+        return math.isfinite(float(value))
     except ValueError:
         return False
 
