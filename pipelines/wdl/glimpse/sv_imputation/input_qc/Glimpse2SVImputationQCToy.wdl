@@ -102,7 +102,7 @@ task ValidateGvcfsToy {
                 echo "TIMESTAMP: $(date -u)" >> "$debug_log"
                 
                 # Stream the header and capture all trace stderr directly into the debug log
-                bcftools view -Ov -h "$gvcf" > "header_${worker_id}.vcf" 2>> "$debug_log"
+                bcftools view --verbosity 8 -Ov -h "$gvcf" > "header_${worker_id}.vcf" 2>> "$debug_log"
                 local bcf_exit_code=$?
                 
                 echo "BCFTOOLS EXIT CODE: $bcf_exit_code" >> "$debug_log"
