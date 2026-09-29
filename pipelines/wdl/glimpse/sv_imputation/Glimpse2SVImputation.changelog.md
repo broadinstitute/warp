@@ -1,3 +1,8 @@
+# 1.0.4
+2026-09-29 (Date of Last Commit)
+
+* Update linked input_qc_version to 1.0.2
+
 # 1.0.3
 2026-09-25 (Date of Last Commit)
 
