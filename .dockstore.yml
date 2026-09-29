@@ -114,6 +114,10 @@ workflows:
   - name: Glimpse2SVImputationQC
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/input_qc/Glimpse2SVImputationQC.wdl
+
+  - name: Glimpse2SVImputationQCToy
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/glimpse/sv_imputation/input_qc/Glimpse2SVImputationQCToy.wdl
   
   - name: Glimpse2SVImputationQuotaConsumed
     subclass: WDL
