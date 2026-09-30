@@ -2,7 +2,7 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.2"
 
     input {
         # service expects only gvcf_manifest even though main wdl can alternatively take input arrays
@@ -359,10 +359,10 @@ task ValidateGvcfInput {
                 # Ensure the PL and GT FORMAT/ID annotations are declared in the header.
                 format_lines=$(grep '^##FORMAT=<' "header_${worker_id}.vcf")
                 missing_format_fields=()
-                if ! echo "$format_lines" | grep -q 'ID=PL[,>]'; then
+                if ! echo "$format_lines" | grep 'ID=PL[,>]' > /dev/null; then
                     missing_format_fields+=("PL")
                 fi
-                if ! echo "$format_lines" | grep -q 'ID=GT[,>]'; then
+                if ! echo "$format_lines" | grep 'ID=GT[,>]' > /dev/null; then
                     missing_format_fields+=("GT")
                 fi
                 if [ ${#missing_format_fields[@]} -gt 0 ]; then
