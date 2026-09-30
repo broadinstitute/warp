@@ -1,5 +1,5 @@
 ---
-sidebar_position: 7
+sidebar_position: 9
 slug: /All_of_Us/RNA_Seq_QTL/calculate_phenotype_groups
 title: Calculate Phenotype Groups
 className: aou-doc-page

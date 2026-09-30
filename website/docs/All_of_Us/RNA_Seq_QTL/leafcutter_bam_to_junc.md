@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 5
 slug: /All_of_Us/RNA_Seq_QTL/leafcutter_bam_to_junc
 title: Leafcutter BAM to Junctions
 className: aou-doc-page
