@@ -43,7 +43,7 @@ task tensorqtl_cis_nominal {
         bootDiskSizeGb: 25
         cpu: "~{num_threads}"
         preemptible: "~{num_preempt}"
-        gpuType: "nvidia-tesla-p100"
+        gpuType: "nvidia-tesla-t4"
         gpuCount: "~{num_gpus}"
         zones: ["us-central1-c"]
     }
