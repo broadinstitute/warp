@@ -5,8 +5,8 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "1.0.0"
-    String multi_level_paste_pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.2"
+    String multi_level_paste_pipeline_version = "1.0.1"
     input {
         File input_gvcf_manifest
 
@@ -120,7 +120,7 @@ task PreprocessPLs {
         use_ssd:            true,
         preemptible_tries:  4,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.0.0-5dc0f19-1784328222"
+        docker:             "us.gcr.io/broad-gotc-prod/sv-imputation-rust-tools:1.1.0-243ccdd-1790181847"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {

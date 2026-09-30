@@ -6,7 +6,7 @@ import "../optimus/Optimus.wdl" as optimus
 
 workflow SlideTags {
 
-    String pipeline_version = "2.0.2"
+    String pipeline_version = "2.0.3"
 
     input {
 

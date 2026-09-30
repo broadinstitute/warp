@@ -24,12 +24,8 @@ workflow VerifyGlimpse2LowPassImputation {
     Array[File] test_metrics
 
     # imputed variant multi sample vcf
-    File multi_sample_truth_vcf
-    File multi_sample_test_vcf
-
-    # imputed hom ref sites only vcf
-    File hom_ref_truth_vcf
-    File hom_ref_test_vcf
+    Array[File] multi_sample_truth_vcfs
+    Array[File] multi_sample_test_vcfs
 
     Boolean? done
   }
@@ -42,18 +38,13 @@ workflow VerifyGlimpse2LowPassImputation {
     }
   }
 
-  call Tasks.CompareVcfs as CompareOutputMultiSampleVcfs {
-    input:
-      file1 = multi_sample_truth_vcf,
-      file2 = multi_sample_test_vcf,
-      patternForLinesToExcludeFromComparison = "##" # ignore headers
-  }
-
-  call Tasks.CompareVcfs as CompareOutputSitesOnlyVcfs {
-    input:
-      file1 = hom_ref_truth_vcf,
-      file2 = hom_ref_test_vcf,
-      patternForLinesToExcludeFromComparison = "##" # ignore headers
+  scatter (idx in range(length(multi_sample_truth_vcfs))) {
+    call Tasks.CompareVcfs as CompareImputedVcfs {
+      input:
+        file1 = multi_sample_truth_vcfs[idx],
+        file2 = multi_sample_test_vcfs[idx],
+        patternForLinesToExcludeFromComparison = "##"
+    }
   }
 
   output {

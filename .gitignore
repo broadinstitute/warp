@@ -21,6 +21,9 @@ verification/test-wdls/__pycache__/
 venv/
 .flake8
 
+# python bytecode cache
+__pycache__/
+
 # Metals server logs and other files (for Scala)
 .metals
 

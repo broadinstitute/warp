@@ -216,6 +216,7 @@ task CompareAtacLibraryMetrics {
 python3 <<CODE
 import csv
 import hashlib
+import math
 
 # Define acceptable percentage-based thresholds for nondeterministic metrics
 # Arrived at these thresholds by examining the differences between the test and truth files in our scientific tests
@@ -239,10 +240,7 @@ thresholds = {
 
 thresholds = {k.lower(): v for k, v in thresholds.items()}
 
-
 def calculate_md5(file_path):
-    """Calculates the MD5 checksum for a file."""
-    print(f"Processing file: {file_path}")
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -262,43 +260,65 @@ def compare_files(test_file, truth_file):
         return compare_metrics(test_file, truth_file)
 
 def is_float(value):
+    # Treat non-finite parses (nan, inf) as non-numeric: nan slips past a naive
+    # float() check and then `diff > allowable_diff` is always False, so a NaN metric
+    # would pass any threshold silently. A NaN that matches truth exactly still passes
+    # via the identical-non-numeric path; a NaN vs a real value fails.
     try:
-        float(value)
-        return True
+        return math.isfinite(float(value))
     except ValueError:
         return False
 
 def compare_metrics(test_file, truth_file):
     exit_code = 0
     with open(test_file, newline='') as test_f, open(truth_file, newline='') as truth_f:
-        test_reader = csv.reader(test_f)
-        truth_reader = csv.reader(truth_f)
-        for (test_row, truth_row) in zip(test_reader, truth_reader):
-            metric_a, value_a = test_row
-            metric_b, value_b = truth_row
+        test_rows = list(csv.reader(test_f))
+        truth_rows = list(csv.reader(truth_f))
 
-            # Skip non-numeric values
-            if not is_float(value_a) or not is_float(value_b):
-                print(f"Skipping non-numeric metric: {metric_a} or {metric_b}")
-                continue
+    # Reject differing row counts up front: zip() stops at the shorter file, so a dropped or
+    # added metric row would otherwise pass silently and defeat the exact-match default.
+    if len(test_rows) != len(truth_rows):
+        print(f"Error: metric row count differs (test {len(test_rows)} vs truth {len(truth_rows)}) for {test_file}")
+        return False
 
-            value_a, value_b = float(value_a), float(value_b)
-            if metric_a != metric_b:
-                print(f"Error: Metric names don't match for {metric_a} and {metric_b}")
-                exit_code = 1
-                continue
-            # Check if the metric has a set threshold, otherwise default to 0.00
-            threshold = thresholds.get(metric_a.lower(), 0.00)
+    for (test_row, truth_row) in zip(test_rows, truth_rows):
+        # Fail malformed rows instead of skipping them.
+        if len(test_row) != 2 or len(truth_row) != 2:
+            print(f"Error: malformed metric row (expected 2 columns): test={test_row} truth={truth_row}")
+            exit_code = 1
+            continue
 
-            diff = abs(value_a - value_b)
+        metric_a, value_a = test_row
+        metric_b, value_b = truth_row
 
-            # Calculate the allowable difference based on the threshold
-            allowable_diff = value_b * threshold
-            if diff > allowable_diff:
-                print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%. The allowable difference is {allowable_diff} and the difference is {diff}")
+        if metric_a != metric_b:
+            print(f"Error: Metric names don't match for {metric_a} and {metric_b}")
+            exit_code = 1
+            continue
+
+        # Non-numeric values pass only when identical; a value that turned non-numeric on
+        # one side (or two differing strings) is a real change, so fail rather than skip.
+        if not is_float(value_a) or not is_float(value_b):
+            if value_a != value_b:
+                print(f"Error: non-numeric metric {metric_a} differs: test={value_a} truth={value_b}")
                 exit_code = 1
             else:
-                print(f"Metric {metric_a} is within the threshold.")
+                print(f"Skipping identical non-numeric metric: {metric_a}")
+            continue
+
+        value_a, value_b = float(value_a), float(value_b)
+        # Check if the metric has a set threshold, otherwise default to 0.00
+        threshold = thresholds.get(metric_a.lower(), 0.00)
+
+        diff = abs(value_a - value_b)
+
+        # Calculate the allowable difference based on the threshold
+        allowable_diff = value_b * threshold
+        if diff > allowable_diff:
+            print(f"Error: Metric {metric_a} exceeds threshold. Test value: {value_a}, Truth value: {value_b}, Threshold: {threshold*100}%. The allowable difference is {allowable_diff} and the difference is {diff}")
+            exit_code = 1
+        else:
+            print(f"Metric {metric_a} is within the threshold.")
     return exit_code == 0
 
 
@@ -326,7 +346,6 @@ CODE
     preemptible: 3
   }
 }
-
 
 
 task CompareCrams {
@@ -574,76 +593,11 @@ CODE
   }
 }
 
-task CompareLooms {
-
-  input {
-    File truth_loom
-    File test_loom
-    Float delta_threshold = 0.05
-
-    Int cpu = 3
-    String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
-    Int disk_size_gb = ceil((size(truth_loom, "GiB") + size(test_loom, "GiB")) * 2) + 20
-    Int memory_mb = ceil(size(truth_loom, "MiB") + size(test_loom, "MiB") * 4) + 20000
-  }
-
-  command <<<
-  set -e
-  pip3 install 'matplotlib<3.7' scanpy loompy numpy pandas
-
-  python3 <<CODE
-  import sys
-  import scanpy
-  import numpy as np
-
-  test_loom_file="~{test_loom}"
-  truth_loom_file = "~{truth_loom}"
-  threshold = ~{delta_threshold}
-
-  test_loom = scanpy.read_loom(
-    test_loom_file, obs_names="cell_names", var_names="gene_names"
-  )
-  truth_loom = scanpy.read_loom(
-    truth_loom_file, obs_names="cell_names", var_names="gene_names"
-  )
-
-  truth_cells = np.array(test_loom.X.sum(axis=1)).flatten()
-  test_cells = np.array(truth_loom.X.sum(axis=1)).flatten()
-
-  differences = [
-    1 for (truth, test) in zip(truth_cells, test_cells) if (truth - test) != 0
-  ]
-
-  delta = len(differences) / len(truth_cells)
-
-  if delta < threshold:
-      sys.stdout.write(
-          f"Matrices are identical: delta: {delta} delta_cutoff: {threshold}"
-      )
-      sys.exit(0)
-  else:
-      sys.stderr.write(
-          f"Matrices are NOT identical: delta: {delta} delta_cutoff: {threshold}"
-      )
-      sys.exit(1)
-
-  CODE
-  >>>
-
-  runtime {
-    docker: docker
-    cpu: cpu
-    disks: "local-disk ${disk_size_gb} HDD"
-    memory: "${memory_mb} MiB"
-    preemptible: 3
-  }
-}
-
 task CompareH5adFilesATAC {
   input {
     File truth_h5ad
     File test_h5ad
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.6.1"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.7.1"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
     Int memory_gb = 32
   }
@@ -718,7 +672,7 @@ task CompareH5adFilesGEX {
   input {
     File truth_h5ad
     File test_h5ad
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.6.1"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.7.1"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
     Int memory_gb = 32
   }
