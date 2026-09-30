@@ -63,7 +63,7 @@ task aggregate_rnaseqc_batch {
         Int batch_index
         Int batch_size
         Boolean include_insert_sizes
-        Boolean merge_exons
+        Boolean merge_exons = false
 
         String docker_image
         Int memory_gb
@@ -284,7 +284,7 @@ workflow rnaseqc2_aggregate_batched_workflow {
         Int num_threads = 8
         Int num_preempt = 2
     }
-    String pipeline_version = "aou_9.1.0"
+    String pipeline_version = "aou_beta"
 
     call validate_rnaseqc_manifests {
         input:
