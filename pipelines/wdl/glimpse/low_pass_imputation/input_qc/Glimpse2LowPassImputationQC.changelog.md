@@ -1,3 +1,8 @@
+# 1.1.1
+2026-09-29 (Date of Last Commit)
+
+* `qc_messages` output is now an Optional output, which will be null if input passes all quality checks
+
 # 1.1.0
 2026-08-26 (Date of Last Commit)
 
