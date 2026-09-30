@@ -898,7 +898,7 @@ task ReannotateDR2AndAF {
     Int disk_size_gb = ceil(2 * size(vcf, "GiB") + size(annotations_tsv, "GiB")) + 10
     Int mem_gb = 4
     Int cpu = 1
-    Int preemptible = 0
+    Int preemptible = 3
   }
 
   String output_base = basename(vcf, ".vcf.gz")
@@ -919,7 +919,7 @@ task ReannotateDR2AndAF {
     disks: "local-disk " + disk_size_gb + " HDD"
     memory: mem_gb + " GiB"
     cpu: cpu
-    preemptible: preemptible
+    preemptible: 0
     maxRetries: 1
     noAddress: true
   }
