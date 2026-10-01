@@ -1,7 +1,7 @@
 # 1.0.5
 2026-10-01 (Date of Last Commit)
 
-* Update input_qc_version to `1.0.3"` which makes `qc_messages` output an Optional output
+* Update input_qc_version to `1.0.3` which makes `qc_messages` output an Optional output
 
 # 1.0.4
 2026-09-29 (Date of Last Commit)
