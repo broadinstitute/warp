@@ -52,15 +52,15 @@ workflow InputQC {
     Boolean passes_qc_final = select_first([ValidateCramContents.passes_qc, ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
 
     # Only define this variable if QC failed. If QC passes, this block is skipped,
-    # making failed_qc_messages evaluate to null
+    # making defined_qc_messages evaluate to null
     if (!passes_qc_final) {
-        String optional_qc_messages = select_first([ValidateCramContents.qc_messages, ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
+        String defined_qc_messages = select_first([ValidateCramContents.qc_messages, ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
     }
 
     output {
         Boolean passes_qc = passes_qc_final
         # Output as String? (optional) using the variable created in the if-block
-        String? qc_messages = optional_qc_messages
+        String? qc_messages = defined_qc_messages
     }
 }
 

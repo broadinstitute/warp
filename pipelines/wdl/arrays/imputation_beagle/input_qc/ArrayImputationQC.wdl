@@ -28,14 +28,14 @@ workflow InputQC {
     }
 
     # Only define this variable if the task failed QC. If QC passes, this block is skipped,
-    # making optional_qc_messages evaluate to null
+    # making defined_qc_messages evaluate to null
     if (!QcChecks.passes_qc) {
-        String optional_qc_messages = QcChecks.qc_messages
+        String defined_qc_messages = QcChecks.qc_messages
     }
 
     output {
         Boolean passes_qc = QcChecks.passes_qc
         # Output as String? (optional) using the variable created in the if-block
-        String? qc_messages = optional_qc_messages
+        String? qc_messages = defined_qc_messages
     }
 }
