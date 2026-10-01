@@ -47,7 +47,7 @@ workflow TestArrayImputationQC {
       input:
         input_map = {
           "passes_qc": InputQC.passes_qc,
-          "qc_messages": InputQC.qc_messages
+          "qc_messages": select_first([InputQC.qc_messages, "null"])
         }
     }
     
