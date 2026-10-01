@@ -14,10 +14,10 @@ task tensorqtl_cis_nominal {
         File? interaction
         File? phenotype_groups
 
-        Int memory
+        Int memory = 64
         Int disk_space
-        Int num_threads
-        Int num_gpus
+        Int num_threads = 16
+        Int num_gpus = 1
         Int num_preempt
 
         String pipeline_version = "aou_9.0.0"
@@ -70,10 +70,10 @@ workflow tensorqtl_cis_nominal_workflow {
         File? interaction
         File? phenotype_groups
 
-        Int memory
+        Int memory = 64
         Int disk_space
-        Int num_threads
-        Int num_gpus
+        Int num_threads = 16
+        Int num_gpus = 1
         Int num_preempt
     }
 
