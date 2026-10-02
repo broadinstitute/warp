@@ -101,7 +101,7 @@ workflow tensorqtl_cis_nominal_workflow {
             num_threads = num_threads,
             num_gpus = num_gpus,
             num_preempt = num_preempt,
-            predefined_machine_type = predefined_machine_type,
+            #predefined_machine_type = predefined_machine_type,
             gpu_type = gpu_type,
             pipeline_version = pipeline_version
     }
