@@ -214,6 +214,10 @@ workflows:
     primaryDescriptorPath: /pipelines/wdl/peak_calling/PeakCalling.wdl
 
 
+  - name: prepare_eQTL
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/prepare_eQTL.wdl
+
   - name: PrepareGenotypes
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/PrepareGenotypes.wdl
