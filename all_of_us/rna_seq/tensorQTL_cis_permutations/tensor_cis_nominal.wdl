@@ -19,7 +19,7 @@ task tensorqtl_cis_nominal {
         Int num_threads = 16
         Int num_gpus = 1
         Int num_preempt
-   #     String predefined_machine_type = "g2-standard-16"
+        String predefined_machine_type = "g2-standard-16"
         String gpu_type = "nvidia-l4"
 
         String pipeline_version = "aou_9.0.0"
@@ -45,7 +45,7 @@ task tensorqtl_cis_nominal {
         bootDiskSizeGb: 25
         cpu: "~{num_threads}"
         preemptible: "~{num_preempt}"
-      #  predefinedMachineType: predefined_machine_type
+        predefinedMachineType: predefined_machine_type
         gpuType: gpu_type
         gpuCount: "~{num_gpus}"
         zones: ["us-central1-a", "us-central1-b", "us-central1-c", "us-central1-f"]
@@ -101,7 +101,7 @@ workflow tensorqtl_cis_nominal_workflow {
             num_threads = num_threads,
             num_gpus = num_gpus,
             num_preempt = num_preempt,
-            #predefined_machine_type = predefined_machine_type,
+            predefined_machine_type = predefined_machine_type,
             gpu_type = gpu_type,
             pipeline_version = pipeline_version
     }
