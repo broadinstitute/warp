@@ -80,7 +80,7 @@ workflow tensorqtl_cis_nominal_workflow {
         Int num_threads = 16
         Int num_gpus = 1
         Int num_preempt
-      #  String predefined_machine_type = "g2-standard-16"
+        String predefined_machine_type = "g2-standard-16"
         String gpu_type = "nvidia-l4"
     }
 
