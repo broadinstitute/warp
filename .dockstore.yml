@@ -167,6 +167,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/mapmycells/MapMyCells.wdl
 
+  - name: MergeCovariates
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/prepare_QTL/MergeCovariates.wdl
+
   - name: MitochondriaMerge
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/merge/mitochondria_merge.wdl

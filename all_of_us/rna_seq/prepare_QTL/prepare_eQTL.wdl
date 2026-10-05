@@ -19,10 +19,10 @@ task eqtl_prepare_expression {
         }
     command <<<
         Rscript /tmp/PrepareExpression.R \
-            --CountGCT ${CountGCT} \
-            --AnnotationGTF ${AnnotationGTF} \
-            --SampleList ${SampleList} \
-            --OutputPrefix ${OutputPrefix}
+            --CountGCT ~{CountGCT} \
+            --AnnotationGTF ~{AnnotationGTF} \
+            --SampleList ~{SampleList} \
+            --OutputPrefix ~{OutputPrefix}
 
         >>>
 
