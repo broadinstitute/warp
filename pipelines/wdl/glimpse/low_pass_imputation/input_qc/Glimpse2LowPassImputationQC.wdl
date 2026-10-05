@@ -2,7 +2,7 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.1.0"
+    String pipeline_version = "1.1.1"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
@@ -49,9 +49,18 @@ workflow InputQC {
         }
     }
 
+    Boolean passes_qc_final = select_first([ValidateCramContents.passes_qc, ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
+
+    # Only define this variable if QC failed. If QC passes, this block is skipped,
+    # making defined_qc_messages evaluate to null
+    if (!passes_qc_final) {
+        String defined_qc_messages = select_first([ValidateCramContents.qc_messages, ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
+    }
+
     output {
-        Boolean passes_qc = select_first([ValidateCramContents.passes_qc, ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
-        String qc_messages = select_first([ValidateCramContents.qc_messages, ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
+        Boolean passes_qc = passes_qc_final
+        # Output as String? (optional) using the variable created in the if-block
+        String? qc_messages = defined_qc_messages
     }
 }
 
