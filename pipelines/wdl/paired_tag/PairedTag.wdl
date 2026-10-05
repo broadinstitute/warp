@@ -8,7 +8,7 @@ import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "3.0.2"
+    String pipeline_version = "3.0.3"
 
     input {
         String input_id
