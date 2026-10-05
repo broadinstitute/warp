@@ -2,7 +2,7 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "1.0.2"
+    String pipeline_version = "1.0.3"
 
     input {
         # service expects only gvcf_manifest even though main wdl can alternatively take input arrays
@@ -51,9 +51,18 @@ workflow InputQC {
         }
     }
 
+    Boolean passes_qc_final = select_first([ValidateGvcfInput.passes_qc, ValidateGvcfManifest.passes_qc])
+
+    # Only define this variable if QC failed. If QC passes, this block is skipped,
+    # making defined_qc_messages evaluate to null
+    if (!passes_qc_final) {
+        String defined_qc_messages = select_first([ValidateGvcfInput.qc_messages, ValidateGvcfManifest.qc_messages])
+    }
+
     output {
-        Boolean passes_qc = select_first([ValidateGvcfInput.passes_qc, ValidateGvcfManifest.passes_qc])
-        String qc_messages = select_first([ValidateGvcfInput.qc_messages, ValidateGvcfManifest.qc_messages])
+        Boolean passes_qc = passes_qc_final
+        # Output as String? (optional) using the variable created in the if-block
+        String? qc_messages = defined_qc_messages
     }
 }
 
