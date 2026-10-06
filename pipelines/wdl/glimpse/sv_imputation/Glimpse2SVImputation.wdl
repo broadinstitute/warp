@@ -3,7 +3,7 @@ version 1.0
 import "./PreprocessPLsGVCF.wdl" as PreprocessPLsGVCF
 import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
-import "./MultilevelHierarchicallyMergeVcfs.wdl" as MultilevelMerge
+import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelMerge
 
 workflow Glimpse2SVImputation {
     String pipeline_version = "1.0.6"
