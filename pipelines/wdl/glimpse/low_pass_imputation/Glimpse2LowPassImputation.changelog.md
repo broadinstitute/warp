@@ -1,3 +1,15 @@
+# 2.0.1
+2026-10-01 (Date of Last Commit)
+
+* Update input_qc_version to `1.1.1` which makes `qc_messages` output an Optional output
+
+# 2.0.0
+2026-09-28 (Date of Last Commit)
+
+### Breaking changes
+* Outputs `imputed_vcf`, `imputed_vcf_index`, and `imputed_vcf_md5sum` have been changed from `File` type to `Array[File]` type, and renamed to `imputed_vcfs`, `imputed_vcf_indexes`, and `imputed_vcf_md5sums`. The VCF outputs now contain all imputed variants and homozygous reference sites per chromosome/contig.
+* The output `imputed_hom_ref_sites_only_vcf` and its index have been removed, as these data (imputed homozygous reference sites) are now included in the `imputed_vcfs` output.
+
 # 1.1.1
 2026-09-23 (Date of Last Commit)
 

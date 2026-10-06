@@ -1,3 +1,8 @@
+# 2.0.4
+2026-10-06 (Date of Last Commit)
+
+* Added optional `emptydrops_seed` input to the Optimus subworkflow and updated the RunEmptyDrops task; no functional impact, since this pipeline runs Optimus in `sn_rna` mode, which does not run emptyDrops
+
 # 2.0.3
 2026-09-16 (Date of Last Commit)
 
