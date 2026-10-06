@@ -26,6 +26,7 @@ workflow TestSlideTags {
       String counting_mode = "sn_rna"
       Int tenx_chemistry_version = 3
       Int emptydrops_lower = 100
+      Int emptydrops_seed = 42  # fixed so sc_rna emptyDrops output is reproducible against truth
       Boolean force_no_check = false
       Boolean ignore_r1_read_length = false
       String star_strand_mode = "Reverse"
@@ -64,6 +65,7 @@ workflow TestSlideTags {
       counting_mode           = counting_mode,
       tenx_chemistry_version  = tenx_chemistry_version,
       emptydrops_lower        = emptydrops_lower,
+      emptydrops_seed         = emptydrops_seed,
       force_no_check          = force_no_check,
       ignore_r1_read_length   = ignore_r1_read_length,
       star_strand_mode        = star_strand_mode,
