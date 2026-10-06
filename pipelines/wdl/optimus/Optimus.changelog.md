@@ -1,3 +1,10 @@
+# 9.3.0
+2026-10-06 (Date of Last Commit)
+
+* Added optional `emptydrops_seed` input that makes emptyDrops p-values reproducible; unset (the default) keeps the existing nondeterministic behavior
+* Updated the RunEmptyDrops task to fail when npz2rds or emptyDrops fails, instead of reporting success after a failed step
+* Updated the empty-drops Docker image to add the `--seed` option to the emptyDrops wrapper
+
 # 9.2.1
 2026-09-16 (Date of Last Commit)
 
