@@ -54,7 +54,6 @@ task RecomputeAndAnnotate {
         String? region
         Float info_filter_threshold = 0.0
 
-        String docker_merge
         Int disk_size_gb = ceil(2.2 * size(merged_vcf_or_bcf, "GiB") + size(annotations, "GiB") + 50)
         Int mem_gb = 6
         Int cpu = 1
