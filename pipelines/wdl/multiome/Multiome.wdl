@@ -38,7 +38,7 @@ workflow Multiome {
         String? soloMultiMappers
 
         # ATAC inputs
-        Boolean use_expected_cells_anchor = false
+        Boolean use_expected_cells_anchor = true
         # Array of input fastq files
         Array[File] atac_r1_fastq
         Array[File] atac_r2_fastq
@@ -131,6 +131,7 @@ workflow Multiome {
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
+            use_expected_cells_anchor = use_expected_cells_anchor,
             peak_calling = false,
             aligned_ATAC_bam = aligned_ATAC_bam
 
