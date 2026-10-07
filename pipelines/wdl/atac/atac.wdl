@@ -581,7 +581,7 @@ task CreateFragmentFile {
     String docker_path
     String atac_nhash_id = ""
     String input_id
-    Int atac_expected_cells = 3000
+    Int atac_expected_cells
     String gtf_path = annotations_gtf
   }
 
