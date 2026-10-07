@@ -56,11 +56,6 @@ workflow ATAC {
 
     # Optional Aligned BAM input to skip alignment step
     File? aligned_ATAC_bam
-
-    # Optional pre-split, barcode-partitioned bam chunks to skip SplitBamByBarcode. Mainly
-    # useful for iterating/testing without re-splitting a very large bam each time; ignored
-    # if preindex=true. Assumes the chunks were partitioned by the CB tag.
-    Array[File]? aligned_ATAC_bam_chunks
   }
 
   String pipeline_version = "2.9.3"
@@ -165,35 +160,13 @@ workflow ATAC {
     }
   }
 
-  # Non-preindex path: split the aligned bam by cell barcode (see SplitBamByBarcode) and
-  # generate fragments per chunk in parallel, then merge the fragment files and recalculate
-  # cell/peak/TSS metrics exactly once on the full library. This avoids snapatac2's OrdMag
-  # cell-calling self-estimating from a single very deep (1B+ read) bam, where ambient signal
-  # in empty droplets compresses the dynamic range and causes it to badly undercount cells.
+  # Non-preindex path: generate fragments and calculate cell/peak/TSS metrics on the whole
+  # bam at once (no chunking), anchoring cell-calling on atac_expected_cells instead of
+  # letting snapatac2 self-estimate (see CreateFragmentFileWithAnchor).
   if (!preindex) {
-    if (!defined(aligned_ATAC_bam_chunks)) {
-      call SplitBamByBarcode {
-        input:
-          bam = aligned_bam,
-          input_id = input_id,
-          docker_path = docker_prefix + samtools_docker
-      }
-    }
-
-    Array[File] bam_chunks_for_fragments = select_first([aligned_ATAC_bam_chunks, SplitBamByBarcode.bam_chunks])
-
-    scatter (bam_chunk in bam_chunks_for_fragments) {
-      call MakeFragmentFileChunk {
-        input:
-          bam = bam_chunk,
-          docker_path = docker_prefix + snap_atac_docker
-      }
-    }
-
-    call MergeFragmentFilesAndCalculateMetrics {
+    call CreateFragmentFileWithAnchor {
       input:
-        fragment_files = MakeFragmentFileChunk.fragment_file,
-        bam_qc_jsons = MakeFragmentFileChunk.bam_qc_json,
+        bam = aligned_bam,
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf,
         docker_path = docker_prefix + snap_atac_docker,
@@ -208,7 +181,7 @@ workflow ATAC {
         input:
           output_base_name = input_id,
           annotations_gtf = annotations_gtf,
-          metrics_h5ad = MergeFragmentFilesAndCalculateMetrics.Snap_metrics,
+          metrics_h5ad = CreateFragmentFileWithAnchor.Snap_metrics,
           chrom_sizes = chrom_sizes,
           cloud_provider = cloud_provider,
       }
@@ -216,10 +189,10 @@ workflow ATAC {
   }
 
   File bam_aligned_output_atac = select_first([BBTag.bb_bam, aligned_bam])
-  File fragment_file_atac = select_first([BB_fragment.fragment_file, MergeFragmentFilesAndCalculateMetrics.fragment_file])
-  File fragment_file_index_atac = select_first([BB_fragment.fragment_file_index, MergeFragmentFilesAndCalculateMetrics.fragment_file_index])
-  File snap_metrics_atac = select_first([BB_fragment.Snap_metrics, MergeFragmentFilesAndCalculateMetrics.Snap_metrics])
-  File library_metrics = select_first([BB_fragment.atac_library_metrics, MergeFragmentFilesAndCalculateMetrics.atac_library_metrics])
+  File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFileWithAnchor.fragment_file])
+  File fragment_file_index_atac = select_first([BB_fragment.fragment_file_index, CreateFragmentFileWithAnchor.fragment_file_index])
+  File snap_metrics_atac = select_first([BB_fragment.Snap_metrics, CreateFragmentFileWithAnchor.Snap_metrics])
+  File library_metrics = select_first([BB_fragment.atac_library_metrics, CreateFragmentFileWithAnchor.atac_library_metrics])
 
   output {
     File bam_aligned_output = bam_aligned_output_atac
@@ -709,188 +682,15 @@ task CreateFragmentFile {
   }
 }
 
-# Generate a fragment file plus raw QC counts for one barcode-partitioned BAM chunk.
-# This deliberately stops after make_fragment_file -- no cell calling, no peak calling --
-# since those need to run once on the full library, not independently per chunk.
-task MakeFragmentFileChunk {
+# Generate a fragment file and calculate cell/peak/TSS metrics for the whole aligned bam at
+# once (no chunking). Anchors cell-calling on atac_expected_cells instead of letting
+# snapatac2 self-estimate: call_cells hardcodes recovered_cells=None with no way to override
+# it, so this calls the underlying OrdMag implementation directly instead. Assumes
+# preindex=false (barcode_tag=CB); mirrors snapatac2.preprocessing.recipe_10x_metrics, with
+# the anchored cell-calling swapped in for its hardcoded self-estimation.
+task CreateFragmentFileWithAnchor {
   input {
     File bam
-    Array[String] mito_list = ['chrM', 'M']
-    Int disk_size = 300
-    Int mem_size = 32
-    Int nthreads = 4
-    String docker_path
-  }
-
-  parameter_meta {
-    bam: "One barcode-partitioned chunk of the aligned ATAC bam. Every read for a given cell barcode must land in exactly one chunk (see split_bam_by_barcode.py), otherwise per-barcode dedup and counts will be wrong."
-  }
-
-  command <<<
-    set -euo pipefail
-    set -x
-
-    python3 <<CODE
-    import json
-    import snapatac2.preprocessing as pp
-
-    mito_list = "~{sep=' ' mito_list}".split(" ")
-
-    # barcode_tag hardcoded to CB: this chunked path assumes preindex=false
-    bam_qc = pp.make_fragment_file(
-        "~{bam}",
-        "fragments.tsv",
-        is_paired=True,
-        barcode_tag="CB",
-        chrM=mito_list,
-    )
-
-    with open("fragments.tsv") as f:
-        bam_qc["fragment_count"] = sum(1 for _ in f)
-
-    with open("bam_qc.json", "w") as f:
-        json.dump(bam_qc, f)
-    CODE
-
-    gzip fragments.tsv
-  >>>
-
-  runtime {
-    docker: docker_path
-    disks: "local-disk ${disk_size} SSD"
-    memory: "${mem_size} GiB"
-    cpu: nthreads
-  }
-
-  output {
-    File fragment_file = "fragments.tsv.gz"
-    File bam_qc_json = "bam_qc.json"
-  }
-}
-
-# Split the aligned bam into barcode-hash buckets, so that every read for a given cell
-# barcode always lands in the same chunk (mates and PCR duplicates stay together
-# automatically, since barcode is a property of the read, not its genomic position).
-# This is what allows fragment generation to run per chunk in parallel while still
-# producing exactly the same per-barcode fragments and dedup as a single unchunked pass.
-task SplitBamByBarcode {
-  input {
-    File bam
-    String input_id
-    Int num_chunks = 1
-    String barcode_tag = "CB"
-    Int disk_size = 500
-    Int mem_size = 16
-    Int nthreads = 4
-    String docker_path
-  }
-
-  parameter_meta {
-    bam: "Aligned ATAC bam (post-alignment, pre-fragment-generation). Assumes preindex=false, i.e. barcode_tag=CB."
-    num_chunks: "Number of barcode-hash buckets to split into. Does not affect correctness, only parallelism."
-  }
-
-  command <<<
-    set -euo pipefail
-
-    # Neither tool is on PATH in this image; BWAPairedEndAlignment already relies on the
-    # samtools path below, and this python3.9 is bundled in the same image's miniconda env.
-    samtools="/usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools"
-    python_bin="/usr/temp/Open-Omics-Acceleration-Framework/pipelines/fq2sortedbam/miniconda3/bin/python3.9"
-
-    "$python_bin" <<CODE
-    import subprocess
-    import sys
-    import zlib
-
-    bam = "~{bam}"
-    input_id = "~{input_id}"
-    num_chunks = ~{num_chunks}
-    tag_prefix = "~{barcode_tag}:Z:"
-    threads = "~{nthreads}"
-    samtools = "$samtools"
-
-    def bucket_for_barcode(barcode):
-        return zlib.crc32(barcode.encode()) % num_chunks
-
-    def find_tag(fields, prefix):
-        for f in fields[11:]:
-            if f.startswith(prefix):
-                return f[len(prefix):]
-        return None
-
-    header = subprocess.run(
-        [samtools, "view", "-H", bam],
-        capture_output=True, check=True, text=True,
-    ).stdout
-
-    writers = []
-    for i in range(num_chunks):
-        p = subprocess.Popen(
-            [samtools, "view", "-@", threads, "-b", "-o", f"{input_id}_chunk_{i}.bam", "-"],
-            stdin=subprocess.PIPE, text=True,
-        )
-        p.stdin.write(header)
-        writers.append(p)
-
-    view = subprocess.Popen(
-        [samtools, "view", "-@", threads, bam],
-        stdout=subprocess.PIPE, text=True, bufsize=1,
-    )
-
-    per_chunk_counts = [0] * num_chunks
-    no_barcode_count = 0
-    total = 0
-
-    for line in view.stdout:
-        total += 1
-        fields = line.rstrip("\n").split("\t")
-        barcode = find_tag(fields, tag_prefix)
-
-        # reads missing the tag all go to a fixed bucket, so every read is still accounted
-        # for exactly once; they never enter any per-barcode computation downstream anyway
-        bucket = 0 if barcode is None else bucket_for_barcode(barcode)
-        if barcode is None:
-            no_barcode_count += 1
-
-        writers[bucket].stdin.write(line)
-        per_chunk_counts[bucket] += 1
-
-    view.stdout.close()
-    view.wait()
-    for p in writers:
-        p.stdin.close()
-        p.wait()
-
-    print(f"Total reads processed: {total}", file=sys.stderr)
-    print(f"Reads with no '{tag_prefix}' tag (routed to bucket 0): {no_barcode_count}", file=sys.stderr)
-    for i, c in enumerate(per_chunk_counts):
-        print(f"  chunk_{i}.bam: {c} reads", file=sys.stderr)
-    assert sum(per_chunk_counts) == total, "Read counts don't add up - something is wrong"
-    CODE
-  >>>
-
-  runtime {
-    docker: docker_path
-    disks: "local-disk ${disk_size} SSD"
-    memory: "${mem_size} GiB"
-    cpu: nthreads
-  }
-
-  output {
-    Array[File] bam_chunks = glob("~{input_id}_chunk_*.bam")
-  }
-}
-
-# Concatenate per-chunk fragment files into one sorted fragment file, recombine the
-# per-chunk Sequencing/Mapping/Library Complexity QC counts, and recalculate the
-# Cells/Targeting metrics (cell calling, peak calling, TSS enrichment) exactly once
-# on the reassembled full library. Mirrors snapatac2.preprocessing.recipe_10x_metrics,
-# picking up where MakeFragmentFileChunk left off.
-task MergeFragmentFilesAndCalculateMetrics {
-  input {
-    Array[File] fragment_files
-    Array[File] bam_qc_jsons
     File annotations_gtf
     File chrom_sizes
     Array[String] mito_list = ['chrM', 'M']
@@ -907,39 +707,25 @@ task MergeFragmentFilesAndCalculateMetrics {
   }
 
   parameter_meta {
-    fragment_files: "Per-chunk fragment files from MakeFragmentFileChunk."
-    bam_qc_jsons: "Per-chunk raw QC counts from MakeFragmentFileChunk, recombined here into library-level Sequencing/Mapping/Library Complexity metrics."
+    bam: "Aligned bam with CB in CB tag. This is the output of the BWAPairedEndAlignment task. Assumes preindex=false."
+    chrom_sizes: "Text file containing chrom_sizes for genome build (i.e. hg38)."
+    annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
+    atac_expected_cells: "Anchor value for OrdMag cell-calling, used when use_expected_cells_anchor is true."
+    use_expected_cells_anchor: "Anchor OrdMag cell-calling on atac_expected_cells instead of self-estimating (recovered_cells=None). Set false to reproduce the original self-estimating behavior."
   }
 
   command <<<
     set -euo pipefail
     set -x
 
-    echo "Concatenating per-chunk fragment files"
-    zcat ~{sep=' ' fragment_files} > "~{input_id}.fragments.tsv"
-
-    # Each chunk's fragment file is barcode-sorted on its own (from make_fragment_file), but
-    # chunks are hash buckets, not barcode ranges, so the concatenation is not globally
-    # barcode-sorted. snapatac2's import_data requires barcode order, so re-sort explicitly
-    # before import; the genomic-coordinate sort below is only for the final fragment_file
-    # output and is independent of what gets fed to import_data.
-    echo "Sorting merged fragment file by barcode for snapatac2 import"
-    LC_ALL=C sort -k4,4 "~{input_id}.fragments.tsv" > "~{input_id}.fragments.barcode_sorted.tsv"
-
-    echo "Sorting merged fragment file by genomic coordinate for the final output"
-    sort -k1,1V -k2,2n "~{input_id}.fragments.tsv" > "~{input_id}.fragments.sorted.tsv"
-    bgzip "~{input_id}.fragments.sorted.tsv"
-    tabix -s 1 -b 2 -e 3 -C "~{input_id}.fragments.sorted.tsv.gz"
-
     python3 <<CODE
 
-    import json
-    from collections import OrderedDict
-    import csv
     import numpy as np
     import anndata as ad
     import snapatac2
     import snapatac2.preprocessing as pp
+    from collections import OrderedDict
+    import csv
     # call_cells always self-estimates (hardcodes recovered_cells=None into OrdMag), which is
     # unreliable at very high per-barcode depth. Call the underlying OrdMag implementation
     # directly instead, anchored on atac_expected_cells, since call_cells provides no way to
@@ -947,31 +733,16 @@ task MergeFragmentFilesAndCalculateMetrics {
     # code path call_cells itself uses.
     from snapatac2.preprocessing._cell_calling import filter_cellular_barcodes_ordmag
 
-    chunk_qc = [json.load(open(p)) for p in ["~{sep='", "' bam_qc_jsons}"]]
+    mito_list = "~{sep=' ' mito_list}".split(" ")
+    atac_gtf = "~{annotations_gtf}"
+    atac_nhash_id = "~{atac_nhash_id}"
+    expected_cells = ~{atac_expected_cells}
 
-    def wtotal(weight_key):
-        return sum(q[weight_key] for q in chunk_qc)
-
-    def weighted_frac(key, weight_key):
-        total_weight = wtotal(weight_key)
-        return sum(q[key] * q[weight_key] for q in chunk_qc) / total_weight if total_weight else 0.0
-
-    bam_qc = {
-        "sequenced_reads": wtotal("sequenced_reads"),
-        "sequenced_read_pairs": wtotal("sequenced_read_pairs"),
-        "frac_valid_barcode": weighted_frac("frac_valid_barcode", "sequenced_reads"),
-        "frac_q30_bases_read1": weighted_frac("frac_q30_bases_read1", "sequenced_reads"),
-        "frac_q30_bases_read2": weighted_frac("frac_q30_bases_read2", "sequenced_reads"),
-        "frac_confidently_mapped": weighted_frac("frac_confidently_mapped", "sequenced_reads"),
-        "frac_unmapped": weighted_frac("frac_unmapped", "sequenced_reads"),
-        "frac_nonnuclear": weighted_frac("frac_nonnuclear", "sequenced_reads"),
-        # Approximate only: the true pre-dedup denominator isn't exposed by snapatac2,
-        # so this is weighted by sequenced_read_pairs as the closest available proxy.
-        "frac_duplicates": weighted_frac("frac_duplicates", "sequenced_read_pairs"),
-        # Denominated by total high-quality fragments (fragment file line count), not reads.
-        "frac_fragment_in_nucleosome_free_region": weighted_frac("frac_fragment_in_nucleosome_free_region", "fragment_count"),
-        "frac_fragment_flanking_single_nucleosome": weighted_frac("frac_fragment_flanking_single_nucleosome", "fragment_count"),
-    }
+    chrom_size_dict = {}
+    with open("~{chrom_sizes}", "r") as f:
+        for line in f:
+            key, value = line.strip().split()
+            chrom_size_dict[str(key)] = int(value)
 
     qc = {
         "Sequencing": {},
@@ -980,6 +751,14 @@ task MergeFragmentFilesAndCalculateMetrics {
         "Mapping": {},
         "Targeting": {},
     }
+
+    bam_qc = pp.make_fragment_file(
+        "~{bam}",
+        "~{input_id}.fragments.tsv",
+        is_paired=True,
+        barcode_tag="CB",
+        chrM=mito_list,
+    )
     qc["Sequencing"]["Sequenced_reads"] = bam_qc["sequenced_reads"]
     qc["Sequencing"]["Sequenced_read_pairs"] = bam_qc["sequenced_read_pairs"]
     qc["Sequencing"]["Fraction_valid_barcode"] = bam_qc["frac_valid_barcode"]
@@ -992,19 +771,8 @@ task MergeFragmentFilesAndCalculateMetrics {
     qc["Mapping"]["Fraction_fragment_flanking_single_nucleosome"] = bam_qc["frac_fragment_flanking_single_nucleosome"]
     qc["Library Complexity"]["Fraction_duplicates"] = bam_qc["frac_duplicates"]
 
-    chrom_size_dict = {}
-    with open("~{chrom_sizes}", "r") as f:
-        for line in f:
-            key, value = line.strip().split()
-            chrom_size_dict[str(key)] = int(value)
-
-    atac_gtf = "~{annotations_gtf}"
-    mito_list = "~{sep=' ' mito_list}".split(" ")
-    atac_nhash_id = "~{atac_nhash_id}"
-    expected_cells = ~{atac_expected_cells}
-
     adata = pp.import_data(
-        "~{input_id}.fragments.barcode_sorted.tsv",
+        "~{input_id}.fragments.tsv",
         chrom_sizes=chrom_size_dict,
         min_num_fragments=0,
         file="temp_metrics.h5ad",
@@ -1064,6 +832,14 @@ task MergeFragmentFilesAndCalculateMetrics {
     atac_data.write_h5ad("~{input_id}.metrics.h5ad")
 
     CODE
+
+    # sorting the file
+    echo "Sorting file"
+    sort -k1,1V -k2,2n "~{input_id}.fragments.tsv" > "~{input_id}.fragments.sorted.tsv"
+    echo "Starting bgzip"
+    bgzip "~{input_id}.fragments.sorted.tsv"
+    echo "Starting tabix"
+    tabix -s 1 -b 2 -e 3 -C "~{input_id}.fragments.sorted.tsv.gz"
   >>>
 
   runtime {
