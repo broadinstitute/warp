@@ -111,10 +111,7 @@ workflow Glimpse2SVImputation {
 
         Array[String] contig_regions = select_first([pop_glimpse2_panel_resources[chr].pop_regions, chunked_panel[chr].output_regions])
 
-        # Control Flow Matrix
         Boolean multiple_batches = length(popped_bcfs_for_contig) > 1
-        Boolean single_batch_needs_filter = !multiple_batches && info_filter_for_inclusion > 0.0
-        Boolean single_batch_no_filter = !multiple_batches && info_filter_for_inclusion == 0.0
 
         # BRANCH 1: Multi-batch (Scatter, Merge, Recompute, and optionally Filter)
         if (multiple_batches) {
@@ -161,9 +158,9 @@ workflow Glimpse2SVImputation {
             }
         }
 
-        # BRANCH 2: Single-batch + Filtering (One pass over the whole contig)
-        if (single_batch_needs_filter) {
-            call Glimpse2SVImputationTasks.FilterAndFinalizeBcf as FilterSingleBatch {
+        # BRANCH 2: Single-batch (Format conversion and optional filtering)
+        if (!multiple_batches) {
+            call Glimpse2SVImputationTasks.FilterAndFinalizeBcf as FinalizeSingleBatch {
                 input:
                     bcf = popped_bcfs_for_contig[0],
                     bcf_idx = popped_bcf_idxs_for_contig[0],
@@ -172,18 +169,8 @@ workflow Glimpse2SVImputation {
             }
         }
 
-        # BRANCH 3: Single-batch + No Filtering (Just convert to VCF.gz)
-        if (single_batch_no_filter) {
-            call Glimpse2SVImputationTasks.ConcatAndFinalizeVcfs as FinalizeSingleBatch {
-                input:
-                    vcfs = [popped_bcfs_for_contig[0]],
-                    vcf_idxs = [popped_bcf_idxs_for_contig[0]],
-                    output_basename = output_basename + "." + chr
-            }
-        }
-
-        File imputed_vcf_for_contig = select_first([FinalizeMultiBatch.concatenated_vcf, FilterSingleBatch.filtered_vcf, FinalizeSingleBatch.concatenated_vcf])
-        File imputed_vcf_idx_for_contig = select_first([FinalizeMultiBatch.concatenated_vcf_idx, FilterSingleBatch.filtered_vcf_idx, FinalizeSingleBatch.concatenated_vcf_idx])
+        File imputed_vcf_for_contig = select_first([FinalizeMultiBatch.concatenated_vcf, FinalizeSingleBatch.filtered_vcf])
+        File imputed_vcf_idx_for_contig = select_first([FinalizeMultiBatch.concatenated_vcf_idx, FinalizeSingleBatch.filtered_vcf_idx])
     }
 
     output {

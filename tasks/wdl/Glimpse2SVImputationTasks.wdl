@@ -206,10 +206,17 @@ task FilterAndFinalizeBcf {
     command <<<
         set -euox pipefail
 
-        echo "Filtering single batch contig at INFO >= ~{info_filter_threshold}..."
-        bcftools filter -i "INFO/INFO >= ~{info_filter_threshold}" \
-            -Oz --write-index -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi" \
-            ~{bcf}
+        if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            echo "Filtering single batch contig at INFO >= ~{info_filter_threshold}..."
+            bcftools filter -i "INFO/INFO >= ~{info_filter_threshold}" \
+                -Oz --write-index -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi" \
+                ~{bcf}
+        else
+            echo "No filtering requested (INFO threshold <= 0.0). Converting to VCF..."
+            bcftools view \
+                -Oz --write-index -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi" \
+                ~{bcf}
+        fi
 
         echo "Calculating MD5..."
         md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
