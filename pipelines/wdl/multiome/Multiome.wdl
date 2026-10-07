@@ -18,6 +18,8 @@ workflow Multiome {
         String? gex_nhash_id
         String? atac_nhash_id
         Int expected_cells = 3000
+        #TODO we probably just want to use expected cells here, but need to know the effect on optimus
+        Int atac_expected_cells
 
         # Optimus inputs
         String counting_mode = "sn_rna"
@@ -130,7 +132,7 @@ workflow Multiome {
             annotations_gtf = annotations_gtf,
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,
-            atac_expected_cells = expected_cells,
+            atac_expected_cells = atac_expected_cells,
             use_expected_cells_anchor = use_expected_cells_anchor,
             peak_calling = false,
             aligned_ATAC_bam = aligned_ATAC_bam
