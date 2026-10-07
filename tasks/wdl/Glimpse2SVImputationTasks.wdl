@@ -193,6 +193,45 @@ task ConcatAndFinalizeVcfs {
     }
 }
 
+task FilterAndFinalizeBcf {
+    input {
+        File bcf
+        File bcf_idx
+        Float info_filter_threshold
+        String output_basename
+
+        Int disk_gb = ceil(2.1 * size(bcf, "GiB")) + 10
+    }
+
+    command <<<
+        set -euox pipefail
+
+        echo "Filtering single batch contig at INFO >= ~{info_filter_threshold}..."
+        bcftools filter -i "INFO/INFO >= ~{info_filter_threshold}" \
+            -Oz --write-index -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi" \
+            ~{bcf}
+
+        echo "Calculating MD5..."
+        md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
+    >>>
+
+    output {
+        File filtered_vcf = "~{output_basename}.vcf.gz"
+        File filtered_vcf_idx = "~{output_basename}.vcf.gz.tbi"
+        File filtered_vcf_md5sum = "~{output_basename}.md5sum"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "4 GiB"
+        disks: "local-disk " + disk_gb + " SSD"
+        preemptible: 3
+        maxRetries: 0
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        noAddress: true
+    }
+}
+
 task SplitVcfManifestIntoBatches {
     input {
         Int batch_size

@@ -111,10 +111,13 @@ workflow Glimpse2SVImputation {
 
         Array[String] contig_regions = select_first([pop_glimpse2_panel_resources[chr].pop_regions, chunked_panel[chr].output_regions])
 
+        # Control Flow Matrix
         Boolean multiple_batches = length(popped_bcfs_for_contig) > 1
-        Boolean requires_recomputation_or_filtering = multiple_batches || info_filter_for_inclusion > 0.0
+        Boolean single_batch_needs_filter = !multiple_batches && info_filter_for_inclusion > 0.0
+        Boolean single_batch_no_filter = !multiple_batches && info_filter_for_inclusion == 0.0
 
-        if (requires_recomputation_or_filtering) {
+        # BRANCH 1: Multi-batch (Scatter, Merge, Recompute, and optionally Filter)
+        if (multiple_batches) {
             scatter (region in contig_regions) {
                 scatter (batch_annot_idx in range(length(popped_bcfs_for_contig))) {
                     call Glimpse2SVImputationTasks.ExtractAnnotations as ExtractPoppedAnnotations {
@@ -126,26 +129,21 @@ workflow Glimpse2SVImputation {
                     }
                 }
                 
-                if (multiple_batches) {
-                    call MultilevelMerge.MultilevelHierarchicallyMergeVcfs as MergePoppedRegion {
-                        input:
-                            vcfs_or_bcfs_array = popped_bcfs_for_contig,
-                            vcf_or_bcf_idxs_array = popped_bcf_idxs_for_contig,
-                            regions = [region],
-                            batch_sizes = merge_batch_sizes,
-                            do_localization = merge_do_localization,
-                            timeouts_min = merge_timeouts_min,
-                            output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.merged"
-                    }
+                call MultilevelMerge.MultilevelHierarchicallyMergeVcfs as MergePoppedRegion {
+                    input:
+                        vcfs_or_bcfs_array = popped_bcfs_for_contig,
+                        vcf_or_bcf_idxs_array = popped_bcf_idxs_for_contig,
+                        regions = [region],
+                        batch_sizes = merge_batch_sizes,
+                        do_localization = merge_do_localization,
+                        timeouts_min = merge_timeouts_min,
+                        output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.merged"
                 }
-
-                File bcf_for_recompute = select_first([MergePoppedRegion.merged_bcf, popped_bcfs_for_contig[0]])
-                File bcf_idx_for_recompute = select_first([MergePoppedRegion.merged_bcf_idx, popped_bcf_idxs_for_contig[0]])
 
                 call Glimpse2SVImputationTasks.RecomputeAndAnnotate as RecomputePoppedAfInfo {
                     input:
-                        merged_vcf_or_bcf = bcf_for_recompute,
-                        merged_vcf_or_bcf_idx = bcf_idx_for_recompute,
+                        merged_vcf_or_bcf = MergePoppedRegion.merged_bcf,
+                        merged_vcf_or_bcf_idx = MergePoppedRegion.merged_bcf_idx,
                         annotations = ExtractPoppedAnnotations.annotations,
                         num_samples = PreProcessGVCFsBatch.num_samples,
                         output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.annotated",
@@ -154,8 +152,7 @@ workflow Glimpse2SVImputation {
                 }
             }
             
-            # Naively concatenate the filtered regional VCFs back into a single contig VCF
-            call Glimpse2SVImputationTasks.ConcatAndFinalizeVcfs as FinalizeContigWithScatter {
+            call Glimpse2SVImputationTasks.ConcatAndFinalizeVcfs as FinalizeMultiBatch {
                 input:
                     vcfs = RecomputePoppedAfInfo.merged_imputed_vcf,
                     vcf_idxs = RecomputePoppedAfInfo.merged_imputed_vcf_idx,
@@ -164,9 +161,20 @@ workflow Glimpse2SVImputation {
             }
         }
 
-        if (!requires_recomputation_or_filtering) {
-            # Bypasses the scatter entirely, omitting --naive because we are converting BCF to VCF
-            call Glimpse2SVImputationTasks.ConcatAndFinalizeVcfs as FinalizeSingleContig {
+        # BRANCH 2: Single-batch + Filtering (One pass over the whole contig)
+        if (single_batch_needs_filter) {
+            call Glimpse2SVImputationTasks.FilterAndFinalizeBcf as FilterSingleBatch {
+                input:
+                    bcf = popped_bcfs_for_contig[0],
+                    bcf_idx = popped_bcf_idxs_for_contig[0],
+                    info_filter_threshold = info_filter_for_inclusion,
+                    output_basename = output_basename + "." + chr
+            }
+        }
+
+        # BRANCH 3: Single-batch + No Filtering (Just convert to VCF.gz)
+        if (single_batch_no_filter) {
+            call Glimpse2SVImputationTasks.ConcatAndFinalizeVcfs as FinalizeSingleBatch {
                 input:
                     vcfs = [popped_bcfs_for_contig[0]],
                     vcf_idxs = [popped_bcf_idxs_for_contig[0]],
@@ -174,8 +182,8 @@ workflow Glimpse2SVImputation {
             }
         }
 
-        File imputed_vcf_for_contig = select_first([FinalizeContigWithScatter.concatenated_vcf, FinalizeSingleContig.concatenated_vcf])
-        File imputed_vcf_idx_for_contig = select_first([FinalizeContigWithScatter.concatenated_vcf_idx, FinalizeSingleContig.concatenated_vcf_idx])
+        File imputed_vcf_for_contig = select_first([FinalizeMultiBatch.concatenated_vcf, FilterSingleBatch.filtered_vcf, FinalizeSingleBatch.concatenated_vcf])
+        File imputed_vcf_idx_for_contig = select_first([FinalizeMultiBatch.concatenated_vcf_idx, FilterSingleBatch.filtered_vcf_idx, FinalizeSingleBatch.concatenated_vcf_idx])
     }
 
     output {
