@@ -102,7 +102,7 @@ workflow Optimus {
   # docker images
   String picard_cloud_docker = "picard-cloud:2.26.10"
   String pytools_docker = "pytools:1.0.0-1661263730"
-  String empty_drops_docker = "emptydrops@sha256:4c9c4a1d54f36ff2a862b4b4bb4b7dd554566499196b9f1b78f8378258d09a83"
+  String empty_drops_docker = "empty-drops@sha256:1fb1ed150ca891247cb326f502d8136fd127caf7ca1a86eb674b8d3b75bc1c3a"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
   String warp_tools_docker = "warp-tools:2.7.1"
   String star_merge_docker = "star-merge-npz:1.3.0"
