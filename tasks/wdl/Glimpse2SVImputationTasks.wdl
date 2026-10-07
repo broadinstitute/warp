@@ -110,8 +110,9 @@ with open('aggregated_annotations.tsv', 'w') as out:
 
         result = ref_loci.copy()
         # Cap AF and INFO values at 6 and 3 sig-figs to match pop-glimpse2 (https://github.com/broadinstitute/lrma-sv-imputation-utils/blob/main/docs/pop-glimpse2.md)
-        result['AF'] = np.vectorize(round_to_n_sig_figs)(agg_af, 6)
-        result['INFO'] = np.vectorize(round_to_n_sig_figs)(agg_info, 3)
+        # and clip to [0, 1]
+        result['AF'] = np.vectorize(round_to_n_sig_figs_and_clip)(agg_af, 6)
+        result['INFO'] = np.vectorize(round_to_n_sig_figs_and_clip)(agg_info, 3)
         result = result[['CHROM', 'POS', 'REF', 'ALT', 'AF', 'INFO', 'N_PATHS', 'N_PATHS_TOTAL']]
         result.to_csv(out, sep='\t', header=False, index=False)
 
