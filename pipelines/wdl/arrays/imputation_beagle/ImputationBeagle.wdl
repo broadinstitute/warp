@@ -169,7 +169,7 @@ workflow ImputationBeagle {
       call beagleTasks.MergeSampleChunksVcfsWithPaste {
         input:
           input_vcfs = RemoveAPAnnotations.output_vcf,
-          output_vcf_basename = contig_basename + ".imputed.samples_merged",
+          output_vcf_basename = contig_basename + ".imputed",
       }
 
       call beagleTasks.CreateVcfIndex as IndexMergedSampleChunksVcfs {
