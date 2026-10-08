@@ -25,7 +25,7 @@ workflow ImputationBeagle {
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
     String output_basename # the basename for intermediate and output files
 
-    String? pipeline_header_line # optional additional header lines to add to the output VCF
+    String pipeline_header_line = "" # optional additional header lines to add to the output VCF. empty string will not be added.
     Float min_dr2_for_inclusion = 0.0 # minimum dr2 to include a variant in the output vcf, applied after reannotation
 
     # file extensions used to find reference panel files

@@ -101,7 +101,7 @@ workflow ImputationBeagleBatch {
         disable_sequence_dictionary_validation = false,
         pipeline_header_line = pipeline_header_line,
         gatk_docker = gatk_docker
-    }
+      }
     }
 
     # gather contig-wide VCFs
