@@ -202,7 +202,7 @@ workflow ImputationBeagle {
           input:
           vcf = all_samples_contig_vcf,
           vcf_index = all_samples_contig_vcf_index,
-          basename = contig_basename + ".imputed.samples_merged.filtered",
+          basename = contig_basename + ".imputed",
           dr2_threshold = min_dr2_for_inclusion,
           gatk_docker = gatk_docker
       }
