@@ -1,4 +1,4 @@
-# 1.0.6
+# 1.1.0
 2026-10-06 (Date of Last Commit)
 
 * Scatter and streamline postprocessing tasks
