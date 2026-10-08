@@ -11,6 +11,7 @@ workflow Glimpse2SVImputation {
     String batch_pipeline_version = "1.0.4"
     String quota_consumed_version = "1.0.0"
     String input_qc_version = "1.0.3"
+    String multilevel_merge_pipeline_version = "1.0.3"
 
     input {
         # if both array inputs and gvcf_manifest are provided, array inputs take precedence
@@ -128,7 +129,7 @@ workflow Glimpse2SVImputation {
                             region = region
                     }
                 }
-                
+
                 call MultilevelMerge.MultilevelHierarchicallyMergeVcfs as MergePoppedRegion {
                     input:
                         vcfs_or_bcfs_array = popped_bcfs_for_contig,
@@ -152,11 +153,12 @@ workflow Glimpse2SVImputation {
                 }
 
                 if (raf_censoring_threshold > 0.0) {
-                call Glimpse2SVImputationTasks.CensorRaf as CensorFilteredPoppedRaf {
-                    input:
-                        input_vcf = RecomputePoppedAfInfo.merged_imputed_vcf,
-                        raf_censoring_threshold = raf_censoring_threshold,
-                        output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.raf_censored"
+                    call Glimpse2SVImputationTasks.CensorRaf as CensorFilteredPoppedRaf {
+                        input:
+                            input_vcf = RecomputePoppedAfInfo.merged_imputed_vcf,
+                            raf_censoring_threshold = raf_censoring_threshold,
+                            output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.raf_censored"
+                    }
                 }
 
                 File final_region_vcf = select_first([RecomputePoppedAfInfo.merged_imputed_vcf_idx, CensorFilteredPoppedRaf.output_vcf])
