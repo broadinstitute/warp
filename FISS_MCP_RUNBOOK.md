@@ -65,7 +65,9 @@ same range; if a window comes back compressed, shift the offset instead of retry
 - `get_workflow_logs(fetch_content=false)` gives you all task stderr/stdout URLs in one shot — handy for the *parent* tasks, but it won't reach into subworkflows (their entries have empty URLs). Use step 3 for those.
 - For infra-looking failures (RC 137 / "stopped before command finished" / 0-second tasks) use `get_batch_job_status` — those errors are NOT in the GCS stderr.
 - `cost` in the status is real money spent; a green submission still cost a few cents.
-- A **stale** failure is common: confirm the submission's date against the branch HEAD. A run from before a fix landed will show the old failure.
+- A **stale** failure is common: confirm the submission's date against the branch HEAD. A run from before a fix landed will show the old failure. Before calling it stale, check the fix is on the ref the test ran (`git show origin/<branch>:<path> | grep …`), not just on some other branch.
+- **The same stochastic metric failing with the identical value on separate submissions means a call-cache hit:** the stochastic task's directory contains `cacheCopy/` instead of a fresh `script`/`rc`. To validate a nondeterminism fix, run the compare with `useCallCache: false`, confirm the task re-ran (fresh `script`/`rc`), and compare the output's GCS `md5_hash` (from `list_gcs_objects`) with the truth file's.
+- **No Terra submission for a failed GitHub test** means it failed before submitting (method config or input upload). If many pipelines failed in the same minute, it's transient; re-run the failed jobs. GitHub job logs need auth (the API returns 403) and `gh` isn't installed, so ask the operator for the failing step's last lines; run/step status and PR review comments are readable anonymously via `https://api.github.com/repos/broadinstitute/warp/...`.
 
 ## 6. One-screen cheat sheet
 
