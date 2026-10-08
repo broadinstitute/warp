@@ -100,11 +100,16 @@ is wrong** — it will be flaky and will force people to re-bless truth constant
 its value. Instead verify the invariants from Step 1:
 
 1. **Check structural invariants exactly.** Cell/row counts, presence of columns/files.
-   These are deterministic even when values aren't. Label vocabulary is *usually*
-   structural too, but when a stochastic annotator draws labels from a reference larger
-   than the query, a few novel labels can appear run-to-run — tolerate a bounded fraction
-   rather than requiring exact containment (see scANVI's `max_novel_label_fraction` under
-   *Calibrating the tolerance*).
+   These are deterministic even when values aren't. But distinguish a **true structural
+   count** — a matrix's `n_obs` / row count, fixed by the input — from a **computed count
+   emitted by a stochastic caller**, e.g. ATAC's `number_of_cells` (the called-cell QC
+   statistic checked in `CompareAtacLibraryMetrics`), which drifts run-to-run. The former
+   stays exact; the latter is a distributional metric and takes a tolerance like any other
+   (`number_of_cells` is in the ATAC threshold map at ~0.044%, ≈ ±4 cells on the current
+   truth). Label vocabulary is *usually* structural too, but when a stochastic annotator
+   draws labels from a reference larger than the query, a few novel labels can appear
+   run-to-run — tolerate a bounded fraction rather than requiring exact containment (see
+   scANVI's `max_novel_label_fraction` under *Calibrating the tolerance*).
 2. **Check distributional invariants against a threshold.** Correlate distributions, compare
    summary statistics, bound a divergence — whatever captures "close to the reference." In
    scANVI this is a correlation of per-cell-type proportions with a `min_proportion_corr`
