@@ -1,6 +1,7 @@
 version 1.0
 
 import "../../../../tasks/wdl/ImputationBeagleTasks.wdl" as beagleTasks
+import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 
 # This workflow performs array imputation using Beagle. It's designed to scale
 # to approximately 1000 samples and be used as a subworkflow for ImputationBeagle.wdl,
@@ -19,6 +20,7 @@ workflow ImputationBeagleBatch {
 
     Boolean impute_with_allele_probabilities = false # set to true if multiple batches will be merged
     
+    File ref_dict # for reheadering / adding contig lengths in the header of the output VCF
     Array[String] contigs_to_process # list of contigs that will be processed
     String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
@@ -88,12 +90,24 @@ workflow ImputationBeagleBatch {
           output_basename = chunk_basename + ".imputed.no_overlaps",
           gatk_docker = gatk_docker
       }
+
+      # need to update header before gathering
+      call tasks.UpdateHeader {
+      input:
+        vcf = LocalizeAndSubsetVcfToRegion.output_vcf,
+        vcf_index = LocalizeAndSubsetVcfToRegion.output_vcf_index,
+        ref_dict = ref_dict,
+        basename = chunk_basename + ".imputed.no_overlaps.update_header",
+        disable_sequence_dictionary_validation = false,
+        pipeline_header_line = pipeline_header_line,
+        gatk_docker = gatk_docker
+    }
     }
 
     # gather contig-wide VCFs
     call beagleTasks.GatherVcfsNoIndex as GatherVcfsNoIndexContig {
     input:
-      input_vcfs = LocalizeAndSubsetVcfToRegion.output_vcf,
+      input_vcfs = UpdateHeader.output_vcf,
       output_vcf_basename = output_basename + "." + contig + ".imputed",
       gatk_docker = gatk_docker
     }

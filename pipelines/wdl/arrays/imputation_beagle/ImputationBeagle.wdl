@@ -119,6 +119,7 @@ workflow ImputationBeagle {
         starts = CheckChunks.starts,
         ends = CheckChunks.ends,
         impute_with_allele_probabilities = multiple_sample_batches,
+        ref_dict = ref_dict,
         contigs_to_process = contigs_to_process,
         reference_panel_path_prefix = reference_panel_path_prefix,
         genetic_maps_path = genetic_maps_path,
@@ -207,21 +208,14 @@ workflow ImputationBeagle {
       }
     }
 
-    call tasks.UpdateHeader {
-      input:
-        vcf = select_first([FilterVcfByDR2.output_vcf, all_samples_contig_vcf]),
-        vcf_index = select_first([FilterVcfByDR2.output_vcf_index, all_samples_contig_vcf_index]),
-        ref_dict = ref_dict,
-        basename = contig_basename + ".imputed",
-        disable_sequence_dictionary_validation = false,
-        pipeline_header_line = pipeline_header_line,
-        gatk_docker = gatk_docker
-    }
+    # Define contig VCF for all input samples with filtering
+    File all_samples_contig_vcf_filtered = select_first([FilterVcfByDR2.output_vcf, all_samples_contig_vcf])
+    File all_samples_contig_vcf_index_filtered = select_first([FilterVcfByDR2.output_vcf_index, all_samples_contig_vcf_index])
   }
   
   output {
-    Array[File] imputed_multi_sample_vcfs = UpdateHeader.output_vcf
-    Array[File] imputed_multi_sample_vcf_indexes = UpdateHeader.output_vcf_index
+    Array[File] imputed_multi_sample_vcfs = all_samples_contig_vcf_filtered
+    Array[File] imputed_multi_sample_vcf_indexes = all_samples_contig_vcf_index_filtered
     File chunks_info = CheckChunks.chunks_info
     File contigs_info = CheckChunks.contigs_info
   }

@@ -15,7 +15,7 @@ workflow ImputationBeagleCheckChunks {
     File multi_sample_vcf
     File multi_sample_vcf_index
 
-    File ref_dict # for reheadering / adding contig lengths in the header of the output VCF, and calculating contig lengths
+    File ref_dict # for calculating contig lengths
     Array[String] contigs_to_process # list of contigs that will be processed, based on input data
     String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
