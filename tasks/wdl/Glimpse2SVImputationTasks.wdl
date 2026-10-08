@@ -164,7 +164,7 @@ task ConcatAndFinalizeVcfs {
     command <<<
         set -euox pipefail
 
-        # bcftools 1.24 supports explicitly setting the index format via --write-index=tbi
+        # on-the-fly indexing is not allowed with --naive, so we do it separately afterwards
         bcftools concat \
             -f ~{write_lines(vcfs)} \
             ~{extra_args} \

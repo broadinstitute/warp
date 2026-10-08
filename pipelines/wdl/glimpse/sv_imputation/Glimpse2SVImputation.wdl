@@ -6,11 +6,12 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelMerge
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "1.0.6"
+    String pipeline_version = "1.1.0"
     String preprocess_pls_gvcf_pipeline_version = "1.0.3"
     String batch_pipeline_version = "1.0.3"
     String quota_consumed_version = "1.0.0"
     String input_qc_version = "1.0.3"
+    String multilevel_merge_pipeline_version = "1.0.3"
 
     input {
         # if both array inputs and gvcf_manifest are provided, array inputs take precedence
