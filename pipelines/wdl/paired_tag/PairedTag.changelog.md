@@ -1,5 +1,5 @@
-# 3.1.0
-2026-10-06 (Date of Last Commit)
+# 3.0.4
+2026-10-08 (Date of Last Commit)
 
 * Added optional `emptydrops_seed` input, passed to Optimus, that makes emptyDrops p-values reproducible when `counting_mode` = "sc_rna"; unset (the default) keeps the existing nondeterministic behavior. Default `sn_rna` runs are unaffected
 
