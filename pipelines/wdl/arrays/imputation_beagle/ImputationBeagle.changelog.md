@@ -1,3 +1,8 @@
+# 4.2.0
+2026-10-08 (Date of Last Commit)
+
+* Refactor batching strategy to batch by sample before position. Add new subworkflows `ImputationBeagleCheckChunks` and `ImputationBeagleBatch`.
+
 # 4.1.1
 2026-10-01 (Date of Last Commit)
 
