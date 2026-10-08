@@ -1,3 +1,8 @@
+# 2.2.0
+2026-10-08 (Date of Last Commit)
+
+* Updated the pinned scvi-scanvi docker image to the build with scvi-tools 1.5.1 and snapatac2 2.10.0 (previously scvi-tools 1.2.0 and snapatac2 2.7.0). The pipeline code and inputs are unchanged; SCVI/SCANVI training and prediction now run on the newer library, which may produce slightly different (not qualitatively different) label assignments and embeddings.
+
 # 2.1.0
 2026-07-09 (Date of Last Commit)
 
