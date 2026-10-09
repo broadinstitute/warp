@@ -33,6 +33,10 @@ workflow scANVI {
       # a large-VRAM cloud GPU. Activation memory scales with (batch_size x number of labels).
       Int batch_size = 128
 
+      # Optional random seed for SCVI/SCANVI training. Unset (default) keeps training
+      # nondeterministic; set it to make a run reproducible (tests pin one).
+      Int? seed
+
       # Reference adaptation. When the reference is an AIT-schema atlas, these select
       # which obs columns become the cell-type label and the batch. When unset, AIT
       # references default to subclass/donor_id and PBMC-style references to
@@ -102,6 +106,7 @@ workflow scANVI {
           input_id = input_id,
           max_epochs = max_epochs,
           batch_size = batch_size,
+          seed = seed,
           output_max_probability = output_max_probability,
           scanvi_model = scanvi_model,
           gpu_count = gpu_count,
@@ -120,6 +125,7 @@ workflow scANVI {
           input_id = input_id,
           max_epochs = max_epochs,
           batch_size = batch_size,
+          seed = seed,
           output_max_probability = output_max_probability,
           scanvi_model = scanvi_model,
           mem_size = mem_size,
@@ -478,6 +484,7 @@ task MultiomeLabelTransfer {
         String input_id
         Int? max_epochs
         Int batch_size = 128
+        Int? seed
         Boolean output_max_probability = false
         # Optional pre-trained SCANVI model (.tar.gz of a saved model dir); when provided, the task
         # loads it and predicts instead of training SCVI/SCANVI.
@@ -495,6 +502,7 @@ task MultiomeLabelTransfer {
         ref_h5ad: "Preprocessed reference h5ad file with cell type labels and modality tag."
         input_id: "Unique identifier prepended to all output filenames."
         max_epochs: "Optional cap on SCVI/SCANVI training epochs, applied to both multiome and GEX-only modes. When unset, the container default (500) is used."
+        seed: "Optional random seed for SCVI/SCANVI training. Unset (default) keeps training nondeterministic."
         batch_size: "SCVI/SCANVI minibatch size (SGD). Default 128 (reproduces prior behavior). Lower it to fit a high-cardinality reference on a small GPU (activation memory scales with batch_size x number of labels); raise it on a large-VRAM cloud GPU."
         output_max_probability: "When true, also write a `max_probability` obs column (the per-cell maximum SCANVI posterior probability, i.e. the assigned label's confidence) to every output h5ad."
         scanvi_model: "Optional .tar.gz of a saved SCANVI model directory (no bundled adata). When provided, the model is loaded and used to predict (no SCVI/SCANVI training). Valid when the model matches the incoming data/reference. The run still emits its model as scanvi_model_out."
@@ -514,6 +522,7 @@ task MultiomeLabelTransfer {
             ~{if defined(atac_activity_h5ad) then "--atac " + select_first([atac_activity_h5ad]) else ""} \
             ~{if defined(scanvi_model) then "--scanvi-model " + select_first([scanvi_model]) else ""} \
             ~{if defined(max_epochs) then "--max-epochs " + select_first([max_epochs]) else ""} \
+            ~{"--seed " + seed} \
             ~{true="--output-max-probability" false="" output_max_probability}
     >>>
 
@@ -553,6 +562,7 @@ task MultiomeLabelTransferCpu {
         String input_id
         Int? max_epochs
         Int batch_size = 128
+        Int? seed
         Boolean output_max_probability = false
         File? scanvi_model
         String docker
@@ -568,6 +578,7 @@ task MultiomeLabelTransferCpu {
         input_id: "Unique identifier prepended to all output filenames."
         max_epochs: "Optional cap on SCVI/SCANVI training epochs. When unset, the container default (500) is used."
         batch_size: "SCVI/SCANVI minibatch size (SGD). Default 128."
+        seed: "Optional random seed for SCVI/SCANVI training. Unset (default) keeps training nondeterministic."
         output_max_probability: "When true, also write a `max_probability` obs column to every output h5ad."
         scanvi_model: "Optional .tar.gz of a saved SCANVI model directory (no bundled adata). When provided, the model is loaded and used to predict (no SCVI/SCANVI training)."
         docker: "Docker image containing the scvi-scanvi runtime environment."
@@ -585,6 +596,7 @@ task MultiomeLabelTransferCpu {
             ~{if defined(atac_activity_h5ad) then "--atac " + select_first([atac_activity_h5ad]) else ""} \
             ~{if defined(scanvi_model) then "--scanvi-model " + select_first([scanvi_model]) else ""} \
             ~{if defined(max_epochs) then "--max-epochs " + select_first([max_epochs]) else ""} \
+            ~{"--seed " + seed} \
             ~{true="--output-max-probability" false="" output_max_probability}
     >>>
 

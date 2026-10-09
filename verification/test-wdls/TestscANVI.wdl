@@ -33,6 +33,8 @@ workflow TestscANVI {
       # SCVI/SCANVI minibatch size, forwarded to scANVI. Default 128. Exposed for completeness /
       # large-VRAM cloud runs; our tests leave it at the default.
       Int batch_size = 128
+      # Fixed seed so SCVI/SCANVI training is reproducible against truth.
+      Int seed = 42
 
       # Optional pre-trained SCANVI model (skip training) + compute overrides, forwarded to scANVI.
       # The pretrained Plumbing test sets scanvi_model + gpu_count=0 + small mem/cpu/disk.
@@ -68,6 +70,7 @@ workflow TestscANVI {
         output_max_probability = output_max_probability,
         max_epochs       = max_epochs,
         batch_size       = batch_size,
+        seed             = seed,
         scanvi_model     = scanvi_model,
         gpu_count        = gpu_count,
         mem_size         = mem_size,
