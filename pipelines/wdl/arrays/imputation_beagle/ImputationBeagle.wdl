@@ -36,10 +36,6 @@ workflow ImputationBeagle {
     String ubuntu_docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
 
     Int? error_count_override
-    # the following are used to define the resources for Beagle tasks
-    Int beagle_cpu = 8
-    Int beagle_phase_memory_in_gb = 40
-    Int beagle_impute_memory_in_gb = 45
   }
 
   call beagleTasks.CreateVcfIndex {
@@ -74,7 +70,6 @@ workflow ImputationBeagle {
       ref_dict = ref_dict,
       contigs_to_process = contigs_to_process,
       reference_panel_path_prefix = reference_panel_path_prefix,
-      genetic_maps_path = genetic_maps_path,
       output_basename = output_basename,
       unique_variant_ids_suffix = unique_variant_ids_suffix,
       gatk_docker = gatk_docker,
@@ -83,7 +78,7 @@ workflow ImputationBeagle {
   }
 
   # GATHER CHECK CHUNKS OUTPUT: top level is contig, next level is chunks, so [[chr1.chunk0, chr1.chunk1], [chr2.chunk0, chr2.chunk1], ...]
-  Array[Array[File]] chunked_vcfs_with_overlaps_for_imputation = CheckChunks.chunked_vcfs_with_overlaps_for_imputation
+  Array[Array[File]] chunked_filtered_vcfs_with_overlaps_for_imputation = CheckChunks.chunked_vcfs_with_overlaps_for_imputation
 
   Boolean multiple_sample_batches = num_sample_batches > 1
 
@@ -96,20 +91,22 @@ workflow ImputationBeagle {
     # only cut sample batches if there is more than one
     if (multiple_sample_batches) {
       scatter (contig_index in range(length(contigs_to_process))) {
-        scatter (chunk_index in range(length(chunked_vcfs_with_overlaps_for_imputation[contig_index]))) {
+        scatter (chunk_index in range(length(chunked_filtered_vcfs_with_overlaps_for_imputation[contig_index]))) {
           call beagleTasks.SelectSamplesWithCut {
             input:
-              vcf = chunked_vcfs_with_overlaps_for_imputation[contig_index][chunk_index],
+              vcf = chunked_filtered_vcfs_with_overlaps_for_imputation[contig_index][chunk_index],
               cut_start_field = batch_start_sample,
               cut_end_field = batch_end_sample,
-              basename = "filtered_input." + contigs_to_process[contig_index] + "_chunk_" + chunk_index + ".sample_batch_" + sample_batch_index
+              basename = "filtered_input.${contigs_to_process[contig_index]}_chunk_${chunk_index}.sample_batch_${sample_batch_index}"
           }
         }
-        Array[File] filtered_input_vcfs_for_contig = SelectSamplesWithCut.output_vcf
+        # per contig, one file per chunk
+        Array[File] chunked_filtered_batched_input_vcfs_for_contig = SelectSamplesWithCut.output_vcf
       }
     }
 
-    Array[Array[File]] filtered_input_vcfs = select_first([filtered_input_vcfs_for_contig, chunked_vcfs_with_overlaps_for_imputation])
+    # in this batch, [contig][chunk] = File
+    Array[Array[File]] filtered_input_vcfs = select_first([chunked_filtered_batched_input_vcfs_for_contig, chunked_filtered_vcfs_with_overlaps_for_imputation])
 
     call ImputationBeagleBatch.ImputationBeagleBatch as RunBatch {
       input:
@@ -134,7 +131,7 @@ workflow ImputationBeagle {
     }
   }
 
-  # GATHER IMPUTATION BATCH OUTPUT [batch][chr] = File
+  # GATHER IMPUTATION BATCH OUTPUT [batch][contig] = File
   Array[Array[File]] imputed_multi_sample_vcf_batches = RunBatch.imputed_multi_sample_vcfs
   Array[Array[File]] imputed_multi_sample_vcf_index_batches = RunBatch.imputed_multi_sample_vcf_indexes
 
@@ -143,7 +140,7 @@ workflow ImputationBeagle {
   Array[Array[File]] imputed_multi_sample_vcf_indexes_by_contig = transpose(imputed_multi_sample_vcf_index_batches)
 
   scatter (contig_index in range(length(contigs_to_process))) {
-    String contig_basename = output_basename + "." + contigs_to_process[contig_index]
+    String contig_basename = "${output_basename}.${contigs_to_process[contig_index]}"
 
     # only merge sample chunks if there is more than one
     if (multiple_sample_batches) {
@@ -169,7 +166,7 @@ workflow ImputationBeagle {
       call beagleTasks.MergeSampleChunksVcfsWithPaste {
         input:
           input_vcfs = RemoveAPAnnotations.output_vcf,
-          output_vcf_basename = contig_basename + ".imputed",
+          output_vcf_basename = "${contig_basename}.imputed",
       }
 
       call beagleTasks.CreateVcfIndex as IndexMergedSampleChunksVcfs {
@@ -192,9 +189,15 @@ workflow ImputationBeagle {
       }
     }
 
+    if (!multiple_sample_batches) {
+      # there's only one sample batch
+      File single_batch_contig_vcf = imputed_multi_sample_vcfs_by_contig[contig_index][0]
+      File single_batch_contig_vcf_index = imputed_multi_sample_vcf_indexes_by_contig[contig_index][0]
+    }
+
     # Define contig VCF for all input samples
-    File all_samples_contig_vcf = select_first([ReannotateDR2AndAF.output_vcf, imputed_multi_sample_vcf_batches[0][contig_index]])
-    File all_samples_contig_vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, imputed_multi_sample_vcf_index_batches[0][contig_index]])
+    File all_samples_contig_vcf = select_first([ReannotateDR2AndAF.output_vcf, single_batch_contig_vcf])
+    File all_samples_contig_vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, single_batch_contig_vcf_index])
 
     # only filter by dr2 if the user has defined a threshold greater than 0
     if (min_dr2_for_inclusion > 0.0) {
@@ -202,7 +205,7 @@ workflow ImputationBeagle {
           input:
           vcf = all_samples_contig_vcf,
           vcf_index = all_samples_contig_vcf_index,
-          basename = contig_basename + ".imputed",
+          basename = "${contig_basename}.imputed",
           dr2_threshold = min_dr2_for_inclusion
       }
     }

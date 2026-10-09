@@ -52,14 +52,14 @@ workflow ImputationBeagleBatch {
     String unique_variant_ids_filename = reference_basename + unique_variant_ids_suffix
 
     scatter (chunk_index in range(length(pre_chunked_multi_sample_vcfs[contig_index]))) {
-      String chunk_basename = contig + "_chunk_" + chunk_index
+      String chunk_basename = "${contig}_chunk_${chunk_index}"
 
       call beagleTasks.Phase {
         input:
           dataset_vcf = pre_chunked_multi_sample_vcfs[contig_index][chunk_index],
           ref_panel_bref3 = bref3_filename,
           chrom = contig,
-          basename = chunk_basename + ".phased",
+          basename = "${chunk_basename}.phased",
           genetic_map_file = genetic_map_filename,
           start = starts_with_overlaps[contig_index][chunk_index],
           end = ends_with_overlaps[contig_index][chunk_index],
@@ -72,7 +72,7 @@ workflow ImputationBeagleBatch {
         dataset_vcf = Phase.vcf,
         ref_panel_bref3 = bref3_filename,
         chrom = contig,
-        basename = chunk_basename + ".imputed",
+        basename = "${chunk_basename}.imputed",
         genetic_map_file = genetic_map_filename,
         start = starts_with_overlaps[contig_index][chunk_index],
         end = ends_with_overlaps[contig_index][chunk_index],
@@ -87,7 +87,7 @@ workflow ImputationBeagleBatch {
           start = starts[contig_index][chunk_index],
           end = ends[contig_index][chunk_index],
           contig = contig,
-          output_basename = chunk_basename + ".imputed.no_overlaps",
+          output_basename = "${chunk_basename}.imputed.no_overlaps",
           gatk_docker = gatk_docker
       }
 
@@ -97,7 +97,7 @@ workflow ImputationBeagleBatch {
         vcf = LocalizeAndSubsetVcfToRegion.output_vcf,
         vcf_index = LocalizeAndSubsetVcfToRegion.output_vcf_index,
         ref_dict = ref_dict,
-        basename = chunk_basename + ".imputed.no_overlaps.update_header",
+        basename = "${chunk_basename}.imputed.no_overlaps.update_header",
         disable_sequence_dictionary_validation = false,
         pipeline_header_line = pipeline_header_line,
         gatk_docker = gatk_docker
@@ -108,7 +108,7 @@ workflow ImputationBeagleBatch {
     call beagleTasks.GatherVcfsNoIndex as GatherVcfsNoIndexContig {
     input:
       input_vcfs = UpdateHeader.output_vcf,
-      output_vcf_basename = output_basename + "." + contig + ".imputed",
+      output_vcf_basename = "${output_basename}.${contig}.imputed",
       gatk_docker = gatk_docker
     }
 

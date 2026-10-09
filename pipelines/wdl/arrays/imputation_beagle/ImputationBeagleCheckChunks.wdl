@@ -18,7 +18,6 @@ workflow ImputationBeagleCheckChunks {
     File ref_dict # for calculating contig lengths
     Array[String] contigs_to_process # list of contigs that will be processed, based on input data
     String reference_panel_path_prefix # path + file prefix to the bucket where the reference panel files are stored for all contigs
-    String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
     String output_basename # the basename for intermediate and output files
 
     # file extensions used to find reference panel files
@@ -34,8 +33,7 @@ workflow ImputationBeagleCheckChunks {
 
   scatter (contig in contigs_to_process) {
     # these are specific to hg38 - contig is format 'chr1'
-    String reference_basename = reference_panel_path_prefix + "." + contig
-    String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.withchr.map"
+    String reference_basename = "${reference_panel_path_prefix}.${contig}"
 
     call tasks.CalculateChromosomeLength {
       input:
@@ -60,7 +58,7 @@ workflow ImputationBeagleCheckChunks {
       Int start_with_overlaps = if (start - chunk_overlaps < 1) then 1 else start - chunk_overlaps
       Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunk_length)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunk_length)
       Int end_with_overlaps = if (CalculateChromosomeLength.chrom_length < end + chunk_overlaps) then CalculateChromosomeLength.chrom_length else end + chunk_overlaps
-      String qc_scatter_position_chunk_basename = contig + "_chunk_" + i
+      String qc_scatter_position_chunk_basename = "${contig}_chunk_${i}"
 
       # generate the chunked vcf file that will be used for imputation, including overlaps
       call tasks.GenerateChunk {
@@ -113,7 +111,7 @@ workflow ImputationBeagleCheckChunks {
     call beagleTasks.ErrorWithMessageIfErrorCountNotZero as FailQCNChunks {
       input:
         errorCount = n_failed_chunks_int,
-        message = "contig " + contig + " had " + n_failed_chunks_int + " failing chunks"
+        message = "contig ${contig} had ${n_failed_chunks_int} failing chunks"
     }
   }
 
