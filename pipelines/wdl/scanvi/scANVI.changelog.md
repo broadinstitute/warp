@@ -1,3 +1,11 @@
+# 2.2.0
+2026-10-09 (Date of Last Commit)
+
+* Updated the pinned scvi-scanvi docker image to the build with scvi-tools 1.5.1 and snapatac2 2.10.0 (previously scvi-tools 1.2.0 and snapatac2 2.7.0). SCVI/SCANVI training and prediction now run on the newer library, which may produce slightly different (not qualitatively different) label assignments and embeddings
+* Fixed the `celltype` column of `<input_id>_SCANVI_predictions.h5ad` so query cells carry their SCANVI-predicted label instead of `Unknown`; the GEX and ATAC annotated matrices are unchanged
+* Added the optional `seed` input, which makes SCVI/SCANVI training reproducible; unset (the default) keeps training nondeterministic
+* Updated model loading to require exactly one `model.pt` in a supplied `scanvi_model` archive and to extract it with Python's safe `data` filter
+
 # 2.1.0
 2026-07-09 (Date of Last Commit)
 

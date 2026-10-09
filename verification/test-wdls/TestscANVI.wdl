@@ -33,6 +33,8 @@ workflow TestscANVI {
       # SCVI/SCANVI minibatch size, forwarded to scANVI. Default 128. Exposed for completeness /
       # large-VRAM cloud runs; our tests leave it at the default.
       Int batch_size = 128
+      # Fixed seed so SCVI/SCANVI training is reproducible against truth.
+      Int seed = 42
 
       # Optional pre-trained SCANVI model (skip training) + compute overrides, forwarded to scANVI.
       # The pretrained Plumbing test sets scanvi_model + gpu_count=0 + small mem/cpu/disk.
@@ -46,6 +48,10 @@ workflow TestscANVI {
       String truth_path
       String results_path
       Boolean update_truth
+      # Plumbing only checks that the pipeline runs (its 1-epoch training is meant to vary), so
+      # compare labels only for Scientific. Derived from the framework's truth_path
+      # (.../truth/<plumbing|scientific>/...); override to force either way.
+      Boolean check_label_distribution = sub(truth_path, "/truth/plumbing/", "") == truth_path
     }
 
     meta {
@@ -68,6 +74,7 @@ workflow TestscANVI {
         output_max_probability = output_max_probability,
         max_epochs       = max_epochs,
         batch_size       = batch_size,
+        seed             = seed,
         scanvi_model     = scanvi_model,
         gpu_count        = gpu_count,
         mem_size         = mem_size,
@@ -136,6 +143,7 @@ workflow TestscANVI {
           test_gex_annotated_h5ad       = GetGexAnnotated.results_file,
           truth_atac_annotated_h5ad     = GetAtacAnnotated.truth_file,
           test_atac_annotated_h5ad      = GetAtacAnnotated.results_file,
+          check_label_distribution      = check_label_distribution,
           done = CopyToTestResults.done
       }
     }

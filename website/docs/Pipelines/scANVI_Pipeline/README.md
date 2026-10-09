@@ -54,8 +54,8 @@ The following table provides a quick glance at the scANVI pipeline features:
 | Assay type | 10x single-cell / single-nucleus Multiome (GEX + ATAC), or GEX-only | [10x Genomics](https://www.10xgenomics.com) |
 | Overall workflow | CPU preprocessing + GPU SCVI/SCANVI label transfer | Code available on [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/scanvi/scANVI.wdl) |
 | Workflow language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
-| Models | SCVI (unsupervised VAE) + SCANVI (semi-supervised classifier) | [scvi-tools 1.2](https://docs.scvi-tools.org/) |
-| ATAC gene-activity conversion | Cell-by-bin matrix → gene activity matrix (hg38 GENCODE) | [snapatac2 2.7](https://kzhang.org/SnapATAC2/) |
+| Models | SCVI (unsupervised VAE) + SCANVI (semi-supervised classifier) | [scvi-tools 1.5.1](https://docs.scvi-tools.org/) |
+| ATAC gene-activity conversion | Cell-by-bin matrix → gene activity matrix (hg38 GENCODE) | [snapatac2 2.10](https://kzhang.org/SnapATAC2/) |
 | Data input format | AnnData h5ad files: GEX and annotated reference (required), ATAC cell-by-bin (optional) | [AnnData](https://anndata.readthedocs.io/) |
 | Data output format | Annotated h5ad files with predicted cell types and UMAP | [AnnData](https://anndata.readthedocs.io/) |
 
@@ -87,6 +87,7 @@ Example input JSON files are available in the [`example_inputs`](https://github.
 | `ref_filename` | String | Expected reference h5ad filename in the input bucket. | `"ref.h5ad"` |
 | `max_epochs` | Int? | Optional cap on SCVI/SCANVI training epochs, applied in both multiome and GEX-only modes. When unset, the container default (500) is used. | — |
 | `batch_size` | Int | SCVI/SCANVI minibatch size (the SGD minibatch described above). Lower it to fit a high-cardinality reference on a small GPU (activation memory scales with `batch_size` × number of labels); raise it on a large-VRAM cloud GPU. | `128` |
+| `seed` | Int? | Optional random seed for SCVI/SCANVI training. Set it to make a run reproducible (the test wrappers pin one); unset keeps training nondeterministic. | — |
 | `ref_label_column` | String? | Reference `obs` column to use as the cell-type label. When unset, defaults to `subclass` for AIT references and `final_annotation` otherwise. | — |
 | `ref_batch_column` | String? | Reference `obs` column to use as the batch. When unset, defaults to `donor_id` for AIT references and `batch` otherwise. | — |
 | `genome` | String | Genome for the ATAC cell-by-bin → gene-activity conversion (multiome only): `hg38` (default), `mm10`, or `mm39`. | `"hg38"` |
@@ -231,7 +232,7 @@ Both tasks use the same Docker image (pinned by digest). GPU and CUDA setup is h
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:3c6a32f7203a2b5fd82a4bedd00f8aca28807a54020d43b59b93e707d296c2e9` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:247226918ffabe9539d8d0c4f1858db5ac38ea3d55333ed41f948963a33ed657` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk 1000 SSD` |
 | `memory` | `120 GiB` |
@@ -242,7 +243,7 @@ Both tasks use the same Docker image (pinned by digest). GPU and CUDA setup is h
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:3c6a32f7203a2b5fd82a4bedd00f8aca28807a54020d43b59b93e707d296c2e9` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:247226918ffabe9539d8d0c4f1858db5ac38ea3d55333ed41f948963a33ed657` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk 500 SSD` |
 | `memory` | `120 GiB` |
@@ -284,7 +285,7 @@ Takeaways:
 
 ## Docker image
 
-The `scvi-scanvi` image is maintained in [warp-tools](https://github.com/broadinstitute/warp-tools/tree/develop/3rd-party-tools/scvi-scanvi). Key libraries: scvi-tools 1.2, snapatac2 2.7, scanpy, anndata.
+The `scvi-scanvi` image is maintained in [warp-tools](https://github.com/broadinstitute/warp-tools/tree/develop/3rd-party-tools/scvi-scanvi). Key libraries: scvi-tools 1.5.1, snapatac2 2.10, scanpy, anndata.
 
 ## Versioning
 
