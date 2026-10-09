@@ -9,7 +9,7 @@ import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 
 workflow ImputationBeagleBatch {
   # if this changes, update the batch_pipeline_version value in ImputationBeagle.wdl
-  String pipeline_version = "0.0.1"
+  String pipeline_version = "1.0.0"
 
   input {
     Array[Array[File]] pre_chunked_multi_sample_vcfs # pre-chunked multi-sample VCFs organized by contig and chunk

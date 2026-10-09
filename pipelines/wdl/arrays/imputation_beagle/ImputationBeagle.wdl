@@ -7,8 +7,8 @@ import "../../../../tasks/wdl/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
   String pipeline_version = "4.2.0"
-  String check_chunks_version = "0.0.1"
-  String batch_pipeline_version = "0.0.1"
+  String check_chunks_version = "1.0.0"
+  String batch_pipeline_version = "1.0.0"
   String input_qc_version = "1.3.2"
   String quota_consumed_version = "1.1.1"
 
@@ -185,10 +185,10 @@ workflow ImputationBeagle {
 
       call beagleTasks.ReannotateDR2AndAF {
         input:
-        vcf = IndexMergedSampleChunksVcfs.output_vcf,
-        vcf_index = IndexMergedSampleChunksVcfs.output_vcf_index,
-        annotations_tsv = AggregateChunkedDR2AndAF.output_annotations_file,
-        annotations_tsv_index = AggregateChunkedDR2AndAF.output_annotations_file_index
+          vcf = IndexMergedSampleChunksVcfs.output_vcf,
+          vcf_index = IndexMergedSampleChunksVcfs.output_vcf_index,
+          annotations_tsv = AggregateChunkedDR2AndAF.output_annotations_file,
+          annotations_tsv_index = AggregateChunkedDR2AndAF.output_annotations_file_index
       }
     }
 
@@ -203,19 +203,18 @@ workflow ImputationBeagle {
           vcf = all_samples_contig_vcf,
           vcf_index = all_samples_contig_vcf_index,
           basename = contig_basename + ".imputed",
-          dr2_threshold = min_dr2_for_inclusion,
-          gatk_docker = gatk_docker
+          dr2_threshold = min_dr2_for_inclusion
       }
     }
 
     # Define contig VCF for all input samples with filtering
-    File all_samples_contig_vcf_filtered = select_first([FilterVcfByDR2.output_vcf, all_samples_contig_vcf])
-    File all_samples_contig_vcf_index_filtered = select_first([FilterVcfByDR2.output_vcf_index, all_samples_contig_vcf_index])
+    File all_samples_contig_vcf_final = select_first([FilterVcfByDR2.output_vcf, all_samples_contig_vcf])
+    File all_samples_contig_vcf_index_final = select_first([FilterVcfByDR2.output_vcf_index, all_samples_contig_vcf_index])
   }
   
   output {
-    Array[File] imputed_multi_sample_vcfs = all_samples_contig_vcf_filtered
-    Array[File] imputed_multi_sample_vcf_indexes = all_samples_contig_vcf_index_filtered
+    Array[File] imputed_multi_sample_vcfs = all_samples_contig_vcf_final
+    Array[File] imputed_multi_sample_vcf_indexes = all_samples_contig_vcf_index_final
     File chunks_info = CheckChunks.chunks_info
     File contigs_info = CheckChunks.contigs_info
   }

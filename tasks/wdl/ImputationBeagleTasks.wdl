@@ -894,10 +894,10 @@ task ReannotateDR2AndAF {
     File vcf_index
     File annotations_tsv
     File annotations_tsv_index
-    Int disk_size_gb = ceil(2 * size(vcf, "GiB") + size(annotations_tsv, "GiB")) + 10
-    Int mem_gb = 4
+    Int disk_size_gb = ceil(2.2 * size(vcf, "GiB") + size(annotations_tsv, "GiB")) + 50
+    Int mem_gb = 6
     Int cpu = 1
-    Int preemptible = 3
+    Int preemptible = 0
   }
 
   String output_base = basename(vcf, ".vcf.gz")
@@ -974,18 +974,17 @@ task FilterVcfByDR2 {
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
     Int cpu = 1
     Int memory_mb = 6000
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+    String docker = "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0" # bcftools version 1.21
   }
 
   command {
     set -e -o pipefail
 
     bcftools filter -i 'INFO/DR2 >= ~{dr2_threshold}' -Oz -o ~{basename}.vcf.gz ~{vcf}
-
     bcftools index -t ~{basename}.vcf.gz
   }
   runtime {
-    docker: gatk_docker
+    docker: docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu

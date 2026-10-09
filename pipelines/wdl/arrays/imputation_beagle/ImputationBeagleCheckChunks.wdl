@@ -6,7 +6,7 @@ import "../../../../tasks/wdl/ImputationBeagleTasks.wdl" as beagleTasks
 workflow ImputationBeagleCheckChunks {
 
   # if this changes, update the check_chunks_version value in ImputationBeagle.wdl
-  String pipeline_version = "0.0.1"
+  String pipeline_version = "1.0.0"
 
   input {
     Int chunk_length
