@@ -83,6 +83,7 @@ The pipeline requires JSON-formatted configuration files detailing input paramet
 | counting_mode          | Counting mode (e.g., snRNA)                      | String           |
 | tenx_chemistry_version | Version of 10X chemistry used                    | Int              |
 | emptydrops_lower       | Lower threshold for EmptyDrops filtering         | Int              |
+| emptydrops_seed        | Optional seed for reproducible EmptyDrops p-values (sc_rna only); unset = nondeterministic | Int? |
 | force_no_check        | Flag to disable sanity checks                     | Boolean          |
 | ignore_r1_read_length | Ignore length check for R1 reads                 | Boolean          |
 | star_strand_mode       | Strand mode setting for STAR alignment           | String           |
