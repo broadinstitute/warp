@@ -1,17 +1,20 @@
 version 1.0
 
-import "../../../../structs/imputation/ImputationBeagleStructs.wdl" as structs
+import "./ImputationBeagleCheckChunks.wdl" as ImputationBeagleCheckChunks
+import "./ImputationBeagleBatch.wdl" as ImputationBeagleBatch
 import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 import "../../../../tasks/wdl/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
-  String pipeline_version = "4.1.1"
+  String pipeline_version = "4.2.0"
+  String check_chunks_version = "1.0.0"
+  String batch_pipeline_version = "1.0.0"
   String input_qc_version = "1.3.2"
   String quota_consumed_version = "1.1.1"
 
   input {
-    Int chunkLength = 25000000
-    Int chunkOverlaps = 2000000 # the padding that will be added to the beginning and end of each chunk to reduce edge effects
+    Int chunk_length = 25000000
+    Int chunk_overlaps = 2000000 # the padding that will be added to the beginning and end of each chunk to reduce edge effects
     Int sample_chunk_size = 1000 # the number of samples that will be processed in parallel in each chunked scatter
 
     File multi_sample_vcf
@@ -22,8 +25,8 @@ workflow ImputationBeagle {
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
     String output_basename # the basename for intermediate and output files
 
-    String? pipeline_header_line # optional additional header lines to add to the output VCF
-    Float? min_dr2_for_inclusion # minimum dr2 to include a variant in the output vcf, applied after reannotation
+    String pipeline_header_line = "" # optional additional header lines to add to the output VCF. empty string will not be added.
+    Float min_dr2_for_inclusion = 0.0 # minimum dr2 to include a variant in the output vcf, applied after reannotation
 
     # file extensions used to find reference panel files
     String bref3_suffix = ".bref3"
@@ -33,15 +36,7 @@ workflow ImputationBeagle {
     String ubuntu_docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
 
     Int? error_count_override
-    # the following are used to define the resources for Beagle tasks
-    Int beagle_cpu = 8
-    Int beagle_phase_memory_in_gb = 40
-    Int beagle_impute_memory_in_gb = 45
   }
-
-  # have to define these here to use them in nested scatters
-  String defined_pipeline_header_line = if defined(pipeline_header_line) then select_first([pipeline_header_line]) else ""
-  Float defined_min_dr2_for_inclusion = if defined(min_dr2_for_inclusion) then select_first([min_dr2_for_inclusion]) else 0.0
 
   call beagleTasks.CreateVcfIndex {
     input:
@@ -55,7 +50,7 @@ workflow ImputationBeagle {
   }
 
   Float sample_chunk_size_float = sample_chunk_size
-  Int num_sample_chunks = ceil(CountSamples.nSamples / sample_chunk_size_float)
+  Int num_sample_batches = ceil(CountSamples.nSamples / sample_chunk_size_float)
 
   call beagleTasks.CalculateContigsToProcess {
     input:
@@ -66,278 +61,165 @@ workflow ImputationBeagle {
 
   Array[String] contigs_to_process = CalculateContigsToProcess.contigs_to_process
 
-  Float chunkLengthFloat = chunkLength
-
-  scatter (contig in contigs_to_process) {
-    # these are specific to hg38 - contig is format 'chr1'
-    String reference_basename = reference_panel_path_prefix + "." + contig
-    String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.withchr.map"
-
-    ReferencePanelContig referencePanelContig = {
-      "bref3": reference_basename + bref3_suffix,
-      "contig": contig,
-      "genetic_map": genetic_map_filename,
-      "unique_variant_ids": reference_basename + unique_variant_ids_suffix
-    }
-
-    call tasks.CalculateChromosomeLength {
-      input:
-        ref_dict = ref_dict,
-        chrom = referencePanelContig.contig,
-        ubuntu_docker = ubuntu_docker
-    }
-
-    call beagleTasks.ExtractUniqueVariantIds as ExtractUniqueVariantIdsRawChromosome {
-      input:
-        vcf = CreateVcfIndex.output_vcf,
-        vcf_index = CreateVcfIndex.output_vcf_index,
-        chrom = contig
-    }
-
-    Int num_chunks = ceil(CalculateChromosomeLength.chrom_length / chunkLengthFloat)
-
-    scatter (i in range(num_chunks)) {
-      String chunk_contig = referencePanelContig.contig
-
-      Int start = (i * chunkLength) + 1
-      Int startWithOverlaps = if (start - chunkOverlaps < 1) then 1 else start - chunkOverlaps
-      Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
-      Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < end + chunkOverlaps) then CalculateChromosomeLength.chrom_length else end + chunkOverlaps
-      String qc_scatter_position_chunk_basename = referencePanelContig.contig + "_chunk_" + i
-
-      # generate the chunked vcf file that will be used for imputation, including overlaps
-      call tasks.GenerateChunk {
-        input:
-          vcf = CreateVcfIndex.output_vcf,
-          vcf_index = CreateVcfIndex.output_vcf_index,
-          start = startWithOverlaps,
-          end = endWithOverlaps,
-          chrom = referencePanelContig.contig,
-          basename = qc_scatter_position_chunk_basename,
-          gatk_docker = gatk_docker
-      }
-
-      # count variants in chunk (not including overlaps) and check overlap with ref panel
-      call beagleTasks.ExtractUniqueVariantIds as ExtractUniqueVariantsFilteredChunk {
-        input:
-          vcf = GenerateChunk.output_vcf,
-          vcf_index = GenerateChunk.output_vcf_index,
-          chrom = referencePanelContig.contig,
-          start = start,
-          end = end
-      }
-
-      call beagleTasks.CountUniqueVariantIdsInOverlap {
-        input:
-          variant_ids_1 = ExtractUniqueVariantsFilteredChunk.unique_variant_ids,
-          variant_ids_2 = referencePanelContig.unique_variant_ids
-      }
-
-      call beagleTasks.CheckChunks {
-        input:
-          var_in_original = ExtractUniqueVariantsFilteredChunk.unique_variant_count,
-          var_also_in_reference = CountUniqueVariantIdsInOverlap.var_overlap
-      }
-    }
-
-    Array[File] chunkedVcfsWithOverlapsForImputation = GenerateChunk.output_vcf
-
-    call beagleTasks.CountValidContigChunks {
-      input:
-        valids = CheckChunks.valid
-    }
-
-    # if any chunk for any chromosome fail CheckChunks, then we will not impute run any task in the next scatter,
-    # namely phasing and imputing which would be the most costly to throw away
-    Int n_failed_chunks_int = select_first([error_count_override, CountValidContigChunks.n_invalid_chunks])
-    call beagleTasks.ErrorWithMessageIfErrorCountNotZero as FailQCNChunks {
-      input:
-        errorCount = n_failed_chunks_int,
-        message = "contig " + referencePanelContig.contig + " had " + n_failed_chunks_int + " failing chunks"
-    }
+  call ImputationBeagleCheckChunks.ImputationBeagleCheckChunks as CheckChunks {
+    input:
+      chunk_length = chunk_length,
+      chunk_overlaps = chunk_overlaps,
+      multi_sample_vcf = CreateVcfIndex.output_vcf,
+      multi_sample_vcf_index = CreateVcfIndex.output_vcf_index,
+      ref_dict = ref_dict,
+      contigs_to_process = contigs_to_process,
+      reference_panel_path_prefix = reference_panel_path_prefix,
+      output_basename = output_basename,
+      unique_variant_ids_suffix = unique_variant_ids_suffix,
+      gatk_docker = gatk_docker,
+      ubuntu_docker = ubuntu_docker,
+      error_count_override = error_count_override
   }
 
-  scatter (contig_index in range(length(contigs_to_process))) {
-    # cant have the same variable names in different scatters, so add _2 to "differentiate"
-    String reference_basename_2 = reference_panel_path_prefix + "." + contigs_to_process[contig_index]
-    String genetic_map_filename_2 = genetic_maps_path + "plink." + contigs_to_process[contig_index] + ".GRCh38.withchr.map"
+  # GATHER CHECK CHUNKS OUTPUT: top level is contig, next level is chunks, so [[chr1.chunk0, chr1.chunk1], [chr2.chunk0, chr2.chunk1], ...]
+  Array[Array[File]] chunked_filtered_vcfs_with_overlaps_for_imputation = CheckChunks.chunked_vcfs_with_overlaps_for_imputation
 
-    ReferencePanelContig referencePanelContig_2 = {
-                                                  "bref3": reference_basename_2  + bref3_suffix,
-                                                  "contig": contigs_to_process[contig_index],
-                                                  "genetic_map": genetic_map_filename_2,
-                                                  "unique_variant_ids": reference_basename_2 + unique_variant_ids_suffix
-                                                }
-    Int num_chunks_2 = num_chunks[contig_index]
-    scatter (i in range(num_chunks_2)) {
-      String impute_scatter_position_chunk_basename = referencePanelContig_2.contig + "_chunk_" + i
+  Boolean multiple_sample_batches = num_sample_batches > 1
 
-      scatter (j in range(num_sample_chunks)) {
-        # sample FORMAT fields in vcfs start after the 8 mandatory fields plus FORMAT (FORMAT isnt mandatory
-        # but if you have samples in your vcf they are).  `cut` is 1 indexed, so we start at the 10th column.
-        Int start_sample = (j * sample_chunk_size) + 10
-        Int end_sample = if (CountSamples.nSamples <= ((j + 1) * sample_chunk_size)) then CountSamples.nSamples + 9 else ((j + 1) * sample_chunk_size) + 9
-        String impute_scatter_sample_chunk_basename = impute_scatter_position_chunk_basename + ".sample_chunk_" + j
-        Boolean impute_with_allele_probablities = num_sample_chunks > 1
+  scatter (sample_batch_index in range(num_sample_batches)) {
+    # sample FORMAT fields in vcfs start after the 8 mandatory fields plus FORMAT (FORMAT isnt mandatory
+    # but if you have samples in your vcf they are).  `cut` is 1 indexed, so we start at the 10th column.
+    Int batch_start_sample = (sample_batch_index * sample_chunk_size) + 10
+    Int batch_end_sample = if (CountSamples.nSamples <= ((sample_batch_index + 1) * sample_chunk_size)) then CountSamples.nSamples + 9 else ((sample_batch_index + 1) * sample_chunk_size) + 9
 
-        # only cut sample chunks if there is more than one
-        if (num_sample_chunks > 1) {
+    # only cut sample batches if there is more than one
+    if (multiple_sample_batches) {
+      scatter (contig_index in range(length(contigs_to_process))) {
+        scatter (chunk_index in range(length(chunked_filtered_vcfs_with_overlaps_for_imputation[contig_index]))) {
           call beagleTasks.SelectSamplesWithCut {
             input:
-              vcf = chunkedVcfsWithOverlapsForImputation[contig_index][i],
-              cut_start_field = start_sample,
-              cut_end_field = end_sample,
-              basename = impute_scatter_sample_chunk_basename
+              vcf = chunked_filtered_vcfs_with_overlaps_for_imputation[contig_index][chunk_index],
+              cut_start_field = batch_start_sample,
+              cut_end_field = batch_end_sample,
+              basename = "filtered_input.${contigs_to_process[contig_index]}_chunk_${chunk_index}.sample_batch_${sample_batch_index}"
           }
         }
-
-        call beagleTasks.Phase {
-          input:
-            dataset_vcf = select_first([SelectSamplesWithCut.output_vcf, chunkedVcfsWithOverlapsForImputation[contig_index][i]]),
-            ref_panel_bref3 = referencePanelContig_2.bref3,
-            chrom = referencePanelContig_2.contig,
-            basename = impute_scatter_sample_chunk_basename + ".phased",
-            genetic_map_file = referencePanelContig_2.genetic_map,
-            start = startWithOverlaps[contig_index][i],
-            end = endWithOverlaps[contig_index][i],
-            cpu = beagle_cpu,
-            memory_mb = beagle_phase_memory_in_gb * 1024,
-            for_dependency = FailQCNChunks.done
-        }
-
-        call beagleTasks.Impute {
-          input:
-            dataset_vcf = Phase.vcf,
-            ref_panel_bref3 = referencePanelContig_2.bref3,
-            chrom = referencePanelContig_2.contig,
-            basename = impute_scatter_sample_chunk_basename + ".imputed",
-            genetic_map_file = referencePanelContig_2.genetic_map,
-            start = startWithOverlaps[contig_index][i],
-            end = endWithOverlaps[contig_index][i],
-            impute_with_allele_probabilities = impute_with_allele_probablities,
-            cpu = beagle_cpu,
-            memory_mb = beagle_impute_memory_in_gb * 1024
-        }
-
-        call beagleTasks.LocalizeAndSubsetVcfToRegion {
-          input:
-            vcf = Impute.vcf,
-            start = start[contig_index][i],
-            end = end[contig_index][i],
-            contig = referencePanelContig_2.contig,
-            output_basename = impute_scatter_sample_chunk_basename + ".imputed.no_overlaps",
-            gatk_docker = gatk_docker
-        }
-        # set up DR2 and AF reannotation for the imputed VCFs
-        if (num_sample_chunks > 1) {
-          call beagleTasks.QuerySampleChunkedVcfForReannotation {
-            input:
-              vcf = LocalizeAndSubsetVcfToRegion.output_vcf,
-          }
-
-          call beagleTasks.RemoveAPAnnotations {
-            input:
-              vcf = LocalizeAndSubsetVcfToRegion.output_vcf,
-              vcf_index = LocalizeAndSubsetVcfToRegion.output_vcf_index,
-          }
-
-          call beagleTasks.RecalculateDR2AndAFChunked {
-            input:
-              query_file = QuerySampleChunkedVcfForReannotation.output_query_file,
-              n_samples = QuerySampleChunkedVcfForReannotation.n_samples,
-          }
-        }
-        # create a non optional File for use in future tasks, wdl quirk requires the dummy value to exist to validate
-        File ap_annotations_removed_vcf = select_first([RemoveAPAnnotations.output_vcf, "gs://fake/will_fail.txt"])
-        File chunked_dr2_af = select_first([RecalculateDR2AndAFChunked.output_summary_file, "gs://fake/will_fail.txt"])
-      }
-
-      # only merge sample chunks if there is more than one
-      if (num_sample_chunks > 1) {
-        call beagleTasks.MergeSampleChunksVcfsWithPaste {
-          input:
-            input_vcfs = ap_annotations_removed_vcf,
-            output_vcf_basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.samples_merged",
-        }
-
-        call beagleTasks.CreateVcfIndex as IndexMergedSampleChunksVcfs {
-          input:
-            vcf_input = MergeSampleChunksVcfsWithPaste.output_vcf,
-            gatk_docker = gatk_docker
-        }
-
-        call beagleTasks.AggregateChunkedDR2AndAF {
-          input:
-            sample_chunked_annotation_files = chunked_dr2_af
-        }
-
-        call beagleTasks.ReannotateDR2AndAF {
-          input:
-            vcf = IndexMergedSampleChunksVcfs.output_vcf,
-            vcf_index = IndexMergedSampleChunksVcfs.output_vcf_index,
-            annotations_tsv = AggregateChunkedDR2AndAF.output_annotations_file,
-            annotations_tsv_index = AggregateChunkedDR2AndAF.output_annotations_file_index
-        }
-      }
-
-      # only filter by dr2 if the user has defined a threshold greater than 0
-      if (defined_min_dr2_for_inclusion > 0.0) {
-        call beagleTasks.FilterVcfByDR2 {
-          input:
-            vcf = select_first([ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
-            vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
-            basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.filtered",
-            dr2_threshold = defined_min_dr2_for_inclusion,
-            gatk_docker = gatk_docker
-        }
-      }
-
-      call tasks.UpdateHeader {
-        input:
-          vcf = select_first([FilterVcfByDR2.output_vcf, ReannotateDR2AndAF.output_vcf, LocalizeAndSubsetVcfToRegion.output_vcf[0]]),
-          vcf_index = select_first([FilterVcfByDR2.output_vcf_index, ReannotateDR2AndAF.output_vcf_index, LocalizeAndSubsetVcfToRegion.output_vcf_index[0]]),
-          ref_dict = ref_dict,
-          basename = impute_scatter_position_chunk_basename + ".imputed.no_overlaps.update_header",
-          disable_sequence_dictionary_validation = false,
-          pipeline_header_line = defined_pipeline_header_line,
-          gatk_docker = gatk_docker
+        # per contig, one file per chunk
+        Array[File] chunked_filtered_batched_input_vcfs_for_contig = SelectSamplesWithCut.output_vcf
       }
     }
 
-    # gather contig-wide VCFs
-    call beagleTasks.GatherVcfsNoIndex as GatherVcfsNoIndexContig {
-    input:
-      input_vcfs = UpdateHeader.output_vcf,
-      output_vcf_basename = output_basename + "." + referencePanelContig_2.contig + ".imputed",
-      gatk_docker = gatk_docker
-    }
+    # in this batch, [contig][chunk] = File
+    Array[Array[File]] filtered_input_vcfs = select_first([chunked_filtered_batched_input_vcfs_for_contig, chunked_filtered_vcfs_with_overlaps_for_imputation])
 
-    call beagleTasks.CreateVcfIndex as CreateIndexForGatheredVcfContig {
+    call ImputationBeagleBatch.ImputationBeagleBatch as RunBatch {
       input:
-        vcf_input = GatherVcfsNoIndexContig.output_vcf,
+        pre_chunked_multi_sample_vcfs = filtered_input_vcfs,
+        starts_with_overlaps = CheckChunks.starts_with_overlaps,
+        ends_with_overlaps = CheckChunks.ends_with_overlaps,
+        starts = CheckChunks.starts,
+        ends = CheckChunks.ends,
+        impute_with_allele_probabilities = multiple_sample_batches,
+        ref_dict = ref_dict,
+        contigs_to_process = contigs_to_process,
+        reference_panel_path_prefix = reference_panel_path_prefix,
+        genetic_maps_path = genetic_maps_path,
+        output_basename = output_basename,
+        bref3_suffix = bref3_suffix,
+        unique_variant_ids_suffix = unique_variant_ids_suffix,
         gatk_docker = gatk_docker,
-        preemptible = 0
+        ubuntu_docker = ubuntu_docker,
+        error_count_override = error_count_override,
+        pipeline_header_line = pipeline_header_line,
+        min_dr2_for_inclusion = min_dr2_for_inclusion
     }
   }
 
-  call beagleTasks.StoreMetricsInfo {
-    input:
-      chunk_chroms = flatten(chunk_contig),
-      starts = flatten(start),
-      ends = flatten(end),
-      vars_in_array = flatten(ExtractUniqueVariantsFilteredChunk.unique_variant_count),
-      vars_in_panel = flatten(CountUniqueVariantIdsInOverlap.var_overlap),
-      valids = flatten(CheckChunks.valid),
-      chroms = contigs_to_process,
-      vars_in_raw_input = ExtractUniqueVariantIdsRawChromosome.unique_variant_count,
-      basename = output_basename
+  # GATHER IMPUTATION BATCH OUTPUT [batch][contig] = File
+  Array[Array[File]] imputed_multi_sample_vcf_batches = RunBatch.imputed_multi_sample_vcfs
+  Array[Array[File]] imputed_multi_sample_vcf_index_batches = RunBatch.imputed_multi_sample_vcf_indexes
+
+  # TRANSPOSE to [contig][batch] = File
+  Array[Array[File]] imputed_multi_sample_vcfs_by_contig = transpose(imputed_multi_sample_vcf_batches)
+  Array[Array[File]] imputed_multi_sample_vcf_indexes_by_contig = transpose(imputed_multi_sample_vcf_index_batches)
+
+  scatter (contig_index in range(length(contigs_to_process))) {
+    String contig_basename = "${output_basename}.${contigs_to_process[contig_index]}"
+
+    # only merge sample chunks if there is more than one
+    if (multiple_sample_batches) {
+      scatter (batch_index in range(length(imputed_multi_sample_vcfs_by_contig[contig_index]))) {
+        call beagleTasks.QuerySampleChunkedVcfForReannotation {
+          input:
+            vcf = imputed_multi_sample_vcfs_by_contig[contig_index][batch_index],
+          }
+
+        call beagleTasks.RemoveAPAnnotations {
+          input:
+            vcf = imputed_multi_sample_vcfs_by_contig[contig_index][batch_index],
+            vcf_index = imputed_multi_sample_vcf_indexes_by_contig[contig_index][batch_index],
+        }
+
+        call beagleTasks.AggregateDSandAPValuesChunked {
+          input:
+            query_file = QuerySampleChunkedVcfForReannotation.output_query_file,
+            n_samples = QuerySampleChunkedVcfForReannotation.n_samples,
+        }
+      }
+
+      call beagleTasks.MergeSampleChunksVcfsWithPaste {
+        input:
+          input_vcfs = RemoveAPAnnotations.output_vcf,
+          output_vcf_basename = "${contig_basename}.imputed",
+      }
+
+      call beagleTasks.CreateVcfIndex as IndexMergedSampleChunksVcfs {
+        input:
+          vcf_input = MergeSampleChunksVcfsWithPaste.output_vcf,
+          gatk_docker = gatk_docker
+      }
+    
+      call beagleTasks.AggregateChunkedDR2AndAF {
+        input:
+          sample_chunked_annotation_files = AggregateDSandAPValuesChunked.output_summary_file
+      }
+
+      call beagleTasks.ReannotateDR2AndAF {
+        input:
+          vcf = IndexMergedSampleChunksVcfs.output_vcf,
+          vcf_index = IndexMergedSampleChunksVcfs.output_vcf_index,
+          annotations_tsv = AggregateChunkedDR2AndAF.output_annotations_file,
+          annotations_tsv_index = AggregateChunkedDR2AndAF.output_annotations_file_index
+      }
+    }
+
+    if (!multiple_sample_batches) {
+      # there's only one sample batch
+      File single_batch_contig_vcf = imputed_multi_sample_vcfs_by_contig[contig_index][0]
+      File single_batch_contig_vcf_index = imputed_multi_sample_vcf_indexes_by_contig[contig_index][0]
+    }
+
+    # Define contig VCF for all input samples
+    File all_samples_contig_vcf = select_first([ReannotateDR2AndAF.output_vcf, single_batch_contig_vcf])
+    File all_samples_contig_vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, single_batch_contig_vcf_index])
+
+    # only filter by dr2 if the user has defined a threshold greater than 0
+    if (min_dr2_for_inclusion > 0.0) {
+      call beagleTasks.FilterVcfByDR2 {
+          input:
+          vcf = all_samples_contig_vcf,
+          vcf_index = all_samples_contig_vcf_index,
+          basename = "${contig_basename}.imputed",
+          dr2_threshold = min_dr2_for_inclusion
+      }
+    }
+
+    # Define contig VCF for all input samples with filtering
+    File all_samples_contig_vcf_final = select_first([FilterVcfByDR2.output_vcf, all_samples_contig_vcf])
+    File all_samples_contig_vcf_index_final = select_first([FilterVcfByDR2.output_vcf_index, all_samples_contig_vcf_index])
   }
   
   output {
-    Array[File] imputed_multi_sample_vcfs = CreateIndexForGatheredVcfContig.output_vcf
-    Array[File] imputed_multi_sample_vcf_indexes = CreateIndexForGatheredVcfContig.output_vcf_index
-    File chunks_info = StoreMetricsInfo.chunks_info
-    File contigs_info = StoreMetricsInfo.contigs_info
+    Array[File] imputed_multi_sample_vcfs = all_samples_contig_vcf_final
+    Array[File] imputed_multi_sample_vcf_indexes = all_samples_contig_vcf_index_final
+    File chunks_info = CheckChunks.chunks_info
+    File contigs_info = CheckChunks.contigs_info
   }
 
   meta {
