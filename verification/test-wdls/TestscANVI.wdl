@@ -48,6 +48,10 @@ workflow TestscANVI {
       String truth_path
       String results_path
       Boolean update_truth
+      # Plumbing only checks that the pipeline runs (its 1-epoch training is meant to vary), so
+      # compare labels only for Scientific. Derived from the framework's truth_path
+      # (.../truth/<plumbing|scientific>/...); override to force either way.
+      Boolean check_label_distribution = sub(truth_path, "/truth/plumbing/", "") == truth_path
     }
 
     meta {
@@ -139,6 +143,7 @@ workflow TestscANVI {
           test_gex_annotated_h5ad       = GetGexAnnotated.results_file,
           truth_atac_annotated_h5ad     = GetAtacAnnotated.truth_file,
           test_atac_annotated_h5ad      = GetAtacAnnotated.results_file,
+          check_label_distribution      = check_label_distribution,
           done = CopyToTestResults.done
       }
     }

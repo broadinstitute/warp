@@ -9,7 +9,9 @@ import "../tasks/wdl/Utilities.wdl" as Utilities
 ## counts must match, the annotation column must be present, the predicted-label
 ## vocabulary must match truth's except for a small tolerated fraction of
 ## novel-labelled cells (max_novel_label_fraction), and per-cell-type proportions
-## must correlate with truth above a threshold.
+## must correlate with truth above a threshold. With check_label_distribution = false
+## (Plumbing), only the structural checks run: the pipeline ran and produced well-formed
+## outputs, without judging labels from a deliberately tiny training run.
 ##
 ## The ATAC-annotated output is optional: it is only produced (and only verified) in
 ## multiome mode. In GEX-only mode the *_atac_annotated_matrix.h5ad inputs are absent.
@@ -25,6 +27,9 @@ workflow VerifyScANVI {
         File? test_atac_annotated_h5ad
         File? truth_atac_annotated_h5ad
 
+        # false: skip the novel-label and proportion-correlation checks (structural only)
+        Boolean check_label_distribution = true
+
         Boolean? done
     }
 
@@ -33,7 +38,8 @@ workflow VerifyScANVI {
         input:
             truth_h5ad = truth_scanvi_predictions_h5ad,
             test_h5ad  = test_scanvi_predictions_h5ad,
-            label_key  = "celltype"
+            label_key  = "celltype",
+            check_label_distribution = check_label_distribution
     }
 
     # Annotated GEX matrix: predictions stored in 'final_annotation'
@@ -41,7 +47,8 @@ workflow VerifyScANVI {
         input:
             truth_h5ad = truth_gex_annotated_h5ad,
             test_h5ad  = test_gex_annotated_h5ad,
-            label_key  = "final_annotation"
+            label_key  = "final_annotation",
+            check_label_distribution = check_label_distribution
     }
 
     # ATAC-annotated output is optional (produced only in multiome mode). Fail loudly if
@@ -61,7 +68,8 @@ workflow VerifyScANVI {
             input:
                 truth_h5ad = select_first([truth_atac_annotated_h5ad]),
                 test_h5ad  = select_first([test_atac_annotated_h5ad]),
-                label_key  = "final_annotation"
+                label_key  = "final_annotation",
+                check_label_distribution = check_label_distribution
         }
     }
 
@@ -105,6 +113,8 @@ task CompareScanviH5ad {
     # Absolute meaning: 0.01 = at most 1% of test cells (~100 per 10,000 cells) may hold a
     # novel label; the check prints the exact n_novel/n_obs it saw at runtime.
     Float max_novel_label_fraction = 0.01
+    # false: stop after the structural checks (cell count, label column present, no null labels)
+    Boolean check_label_distribution = true
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.7.1"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 50
     Int memory_gb = 16
@@ -144,6 +154,10 @@ task CompareScanviH5ad {
         n_null = int(a.obs[label_key].isna().sum())
         if n_null:
             sys.exit(f"FAIL: {name} has {n_null} cells with a null {label_key} label")
+
+    if "~{check_label_distribution}" == "false":
+        print("PASS: structural checks only; label distribution not compared")
+        sys.exit(0)
 
     truth_labels = truth.obs[label_key].astype(str)
     test_labels = test.obs[label_key].astype(str)
