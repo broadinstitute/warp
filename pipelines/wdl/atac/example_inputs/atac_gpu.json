@@ -1,0 +1,20 @@
+{
+	"ATAC.input_id":"10k_PBMC_downsampled",
+	"ATAC.cloud_provider":"gcp",
+	"ATAC.read1_fastq_gzipped":[
+	  "gs://pd-test-storage-public/atac/input/plumbing/10k_pbmc_downsampled/fastq_R1_atac.fastq.gz"
+	],
+	"ATAC.read2_fastq_gzipped":[
+	  "gs://pd-test-storage-public/atac/input/plumbing/10k_pbmc_downsampled/fastq_R2_atac.fastq.gz"
+	],
+	"ATAC.read3_fastq_gzipped":[
+	  "gs://pd-test-storage-public/atac/input/plumbing/10k_pbmc_downsampled/fastq_R3_atac.fastq.gz"
+	],
+	"ATAC.tar_bwa_reference":"gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar",
+	"ATAC.chrom_sizes":"gs://pd-test-storage-public/Multiome/input/hg38.chrom.sizes",
+	"ATAC.atac_nhash_id":"example_1234",
+	"ATAC.annotations_gtf":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf",
+	"ATAC.whitelist":"gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt",
+	"ATAC.vm_size":"Standard_M128s",
+	"ATAC.atac_gpu_count":1
+    }

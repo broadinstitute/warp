@@ -53,6 +53,16 @@ workflow ATAC {
 
     # Optional Aligned BAM input to skip alignment step
     File? aligned_ATAC_bam
+
+    # ---- GPU alignment (NVIDIA Parabricks fq2bam) ----
+    # Aggregate number of T4 GPUs to use for alignment. 0 = default CPU bwa-mem2 path (unchanged).
+    # >0 routes alignment to Parabricks fq2bam; capped at 24 and realized as a scatter of
+    # <=4-GPU shards (GCP allows <=4 T4 per VM) whose per-shard BAMs are merged. GPU path is gcp-only.
+    Int atac_gpu_count = 0
+    String gpu_type = "nvidia-tesla-t4"
+    String gpu_driver_version = "535.104.05"
+    String gpu_zones = "us-central1-a us-central1-b us-central1-c us-central1-f"
+    String parabricks_docker = "nvcr.io/nvidia/clara/clara-parabricks:4.5.0-1"
   }
 
   String pipeline_version = "2.9.4"
@@ -68,6 +78,7 @@ workflow ATAC {
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
   String snap_atac_docker = "snapatac2:2.0.0"
+  String picard_cloud_docker = "picard-cloud:3.0.0"
 
   # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
   if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
@@ -76,6 +87,21 @@ workflow ATAC {
             message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
     }
   }
+
+  # GPU alignment (Parabricks fq2bam) is only supported on gcp.
+  if ((atac_gpu_count > 0) && (cloud_provider != "gcp")) {
+    call utils.ErrorWithMessage as ErrorGpuCloud {
+        input:
+            message = "GPU alignment (atac_gpu_count > 0) is only supported when cloud_provider is 'gcp'."
+    }
+  }
+
+  # ---- Parabricks fq2bam GPU sizing ----
+  # atac_gpu_count = aggregate T4 budget (0 = CPU bwa-mem2). Hard cap 24; GCP allows <=4 T4/VM,
+  # so >4 is realized as a scatter of <=4-GPU fq2bam shards that are merged.
+  Int gpu_budget    = if atac_gpu_count > 24 then 24 else atac_gpu_count
+  Int gpu_per_shard = if gpu_budget >= 4 then 4 else (if gpu_budget > 0 then gpu_budget else 1)
+  Int n_gpu_shards  = ceil((gpu_budget * 1.0) / gpu_per_shard)
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -97,13 +123,17 @@ workflow ATAC {
          vm_size = vm_size
     }
 
+    # GPU path splits fastqs into exactly n_gpu_shards (one fq2bam task per shard); CPU path uses
+    # GetNumSplits sizing.
+    Int fastq_splits = if atac_gpu_count > 0 then n_gpu_shards else GetNumSplits.ranks_per_node_out
+
     call FastqProcessing.FastqProcessATAC as SplitFastq {
       input:
         read1_fastq = read1_fastq_gzipped,
         read3_fastq = read3_fastq_gzipped,
         barcodes_fastq = read2_fastq_gzipped,
         output_base_name = input_id,
-        num_output_files = GetNumSplits.ranks_per_node_out,
+        num_output_files = fastq_splits,
         whitelist = whitelist,
         docker_path = docker_prefix + warp_tools_docker
     }
@@ -120,22 +150,50 @@ workflow ATAC {
       }
     }
 
-    call BWAPairedEndAlignment {
-      input:
-          read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
-          read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
-          tar_bwa_reference = tar_bwa_reference,
-          output_base_name = input_id,
-          nthreads = num_threads_bwa,
-          mem_size = mem_size_bwa,
-          cpu_platform = cpu_platform_bwa,
-          docker_path = docker_prefix + samtools_docker,
-          cloud_provider = cloud_provider,
-          vm_size = vm_size
+    # GPU path: one Parabricks fq2bam task per trimmed shard (<=4 T4 each), then merge the BAMs.
+    if (atac_gpu_count > 0) {
+      scatter (idx in range(length(TrimAdapters.fastq_trimmed_adapter_output_read1))) {
+        call BWAPairedEndAlignmentParabricks as AlignGpu {
+          input:
+              read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1[idx],
+              read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3[idx],
+              tar_bwa_reference = tar_bwa_reference,
+              output_base_name = input_id + "_" + idx,
+              gpu_count = gpu_per_shard,
+              gpu_type = gpu_type,
+              nvidia_driver_version = gpu_driver_version,
+              zones = gpu_zones,
+              docker_path = parabricks_docker
+        }
+      }
+      call Merge.MergeSortBamFiles as MergeGpuBams {
+        input:
+            bam_inputs = AlignGpu.bam_aligned_output,
+            sort_order = "coordinate",
+            output_bam_filename = input_id + ".bam",
+            picard_cloud_docker_path = docker_prefix + picard_cloud_docker
+      }
+    }
+
+    # CPU path: distributed bwa-mem2 over all shards in a single task (unchanged default).
+    if (atac_gpu_count == 0) {
+      call BWAPairedEndAlignment {
+        input:
+            read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
+            read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
+            tar_bwa_reference = tar_bwa_reference,
+            output_base_name = input_id,
+            nthreads = num_threads_bwa,
+            mem_size = mem_size_bwa,
+            cpu_platform = cpu_platform_bwa,
+            docker_path = docker_prefix + samtools_docker,
+            cloud_provider = cloud_provider,
+            vm_size = vm_size
+      }
     }
   }
 
-  File aligned_bam = select_first([aligned_ATAC_bam, BWAPairedEndAlignment.bam_aligned_output])
+  File aligned_bam = select_first([aligned_ATAC_bam, MergeGpuBams.output_bam, BWAPairedEndAlignment.bam_aligned_output])
 
   if (preindex) {
     call AddBB.AddBBTag as BBTag {
@@ -528,6 +586,88 @@ task BWAPairedEndAlignment {
   output {
     File bam_aligned_output = bam_aligned_output_name
     File output_distbwa_log_tar = "output_distbwa_log.tar.gz"
+  }
+}
+
+# Align one trimmed shard with NVIDIA Parabricks fq2bam (GPU-accelerated BWA-MEM).
+task BWAPairedEndAlignmentParabricks {
+  input {
+    File read1_fastq
+    File read3_fastq
+    File tar_bwa_reference
+    String read_group_id = "RG1"
+    String read_group_sample_name = "RGSN1"
+    String output_base_name
+    String docker_path
+
+    # GPU runtime attributes
+    Int gpu_count
+    String gpu_type = "nvidia-tesla-t4"
+    String nvidia_driver_version = "535.104.05"
+    String zones = "us-central1-a us-central1-b us-central1-c us-central1-f"
+
+    # host runtime, co-scaled with GPU count to Parabricks minimums
+    Int disk_size = 500
+    Int nthreads = 12 * gpu_count
+    Int mem_size = 52 * gpu_count
+  }
+
+  parameter_meta {
+    read1_fastq: "trimmed read 1 fastq for this shard"
+    read3_fastq: "trimmed read 3 fastq for this shard"
+    tar_bwa_reference: "tar of the reference fasta (genome.fa); fq2bam builds the BWA index if absent"
+    gpu_count: "number of T4 GPUs for this shard (1-4; GCP allows <=4 T4 per VM)"
+    docker_path: "NVIDIA Parabricks docker image (nvcr.io/nvidia/clara/clara-parabricks:<tag>)"
+  }
+
+  String bam_aligned_output_name = output_base_name + ".bam"
+
+  command <<<
+    set -euo pipefail
+    nvidia-smi || true
+
+    # prepare reference (same layout as the CPU task: genome.fa at the tar root)
+    declare -r REF_DIR=$(mktemp -d genome_referenceXXXXXX)
+    tar -xf "~{tar_bwa_reference}" -C "$REF_DIR" --strip-components 1
+    REF="$REF_DIR/genome.fa"
+
+    # Parabricks fq2bam = accelerated BWA-MEM. Flags chosen to match the CPU (bwa-mem2) path:
+    #   --bwa-options="-C"  carries the 10x barcode FASTQ comment into the BAM CB tag (bwa +C today).
+    #                       MUST use the = form: "--bwa-options -C" makes argparse read -C as a flag
+    #                       ("expected one argument"); "--bwa-options=-C" passes -C as the value.
+    #                       which CreateFragmentFile reads via barcode_tag="CB".
+    #   --no-markdups       matches current behavior (SnapATAC2 does its own fragment-level dedup).
+    #   -K 10000000         fixes the bwa batch size so pair-ended results are deterministic and
+    #                       match reference BWA-MEM (NVIDIA's recommended compatibility flag).
+    #   read group          fq2bam requires ID, PU, SM (and we add PL/LB); PU is mandatory or it
+    #                       errors "Read group information must have PU field".
+    #   --low-memory        required for <=48GB GPUs (T4=16GB); harmless (slower) on larger GPUs.
+    # ponytail: reuses the existing reference .fa and lets fq2bam build the BWA index if it is not
+    # present in the tar. If the image does not auto-index, supply a classic bwa-mem (0.7.x) tar.
+    pbrun fq2bam \
+      --ref "$REF" \
+      --in-fq "~{read1_fastq}" "~{read3_fastq}" "@RG\tID:~{read_group_id}\tPL:ILLUMINA\tPU:~{read_group_id}\tLB:~{read_group_sample_name}\tSM:~{read_group_sample_name}" \
+      --bwa-options="-C -K 10000000" \
+      --low-memory \
+      --no-markdups \
+      --num-gpus ~{gpu_count} \
+      --out-bam "~{bam_aligned_output_name}"
+  >>>
+
+  runtime {
+    docker: docker_path
+    disks: "local-disk ${disk_size} SSD"
+    bootDiskSizeGb: 30
+    cpu: nthreads
+    memory: "${mem_size} GiB"
+    gpuType: gpu_type
+    gpuCount: gpu_count
+    nvidiaDriverVersion: nvidia_driver_version
+    zones: zones
+  }
+
+  output {
+    File bam_aligned_output = bam_aligned_output_name
   }
 }
 
