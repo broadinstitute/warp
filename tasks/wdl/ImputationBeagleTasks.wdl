@@ -672,6 +672,8 @@ task AggregateDSandAPValuesChunked {
     Int mem_gb = 6
     Int cpu = 1
     Int chunksize = 30000
+    # Upper bound on (rows * 3 * n_samples) values held per chunk (~8 bytes each); rows per chunk shrinks as n_samples grows
+    Int max_chunk_values = 20000000
     Int preemptible = 3
   }
 
@@ -682,44 +684,31 @@ task AggregateDSandAPValuesChunked {
     import pandas as pd
     import numpy as np
 
-    # pandas spits out a view vs copy warning a lot of times which isn't relevant to this code
-    pd.options.mode.chained_assignment = None  # default='warn'
+    n_samples = ~{n_samples}
 
-    ds_dict = {f'sample_{i}_DS': 'float' for i in range(~{n_samples})}
-    ap1_dict = {f'sample_{i}_AP1': 'float' for i in range(~{n_samples})}
-    ap2_dict = {f'sample_{i}_AP2': 'float' for i in range(~{n_samples})}
-    dtypes_dict = {**ds_dict, **ap1_dict, **ap2_dict}
+    # Keep per-chunk memory roughly constant regardless of the number of samples in the batch
+    rows_per_chunk = max(1000, min(~{chunksize}, ~{max_chunk_values} // (3 * n_samples)))
 
-    csv_names = ["CHROM","POS","REF","ALT"] + [f'sample_{i}_{col}' for i in range(~{n_samples}) for col in ("DS", "AP1", "AP2")]
+    dtypes_dict = {f'sample_{i}_{col}': 'float' for i in range(n_samples) for col in ("DS", "AP1", "AP2")}
+    csv_names = ["CHROM","POS","REF","ALT"] + [f'sample_{i}_{col}' for i in range(n_samples) for col in ("DS", "AP1", "AP2")]
 
-    out_annotation_dfs = []
-    for chunk in pd.read_csv("~{query_file}", names=csv_names, dtype=dtypes_dict, na_values=".", chunksize = ~{chunksize}, lineterminator="\n"):
-      # get sample level annotaions necessary for AF and DR2 calculations
-      dosages = chunk[[f'sample_{i}_DS' for i in range(~{n_samples})]].to_numpy()
-      ap1 = chunk[[f'sample_{i}_AP1' for i in range(~{n_samples})]].to_numpy()
-      ap2 = chunk[[f'sample_{i}_AP2' for i in range(~{n_samples})]].to_numpy()
+    # Truncate the output, then append each chunk's annotations as they are computed
+    open("chunked_annotations.tsv", "w").close()
 
-      # sum dosages
-      sum_ds = np.sum(dosages, axis=1)
+    for chunk in pd.read_csv("~{query_file}", names=csv_names, dtype=dtypes_dict, na_values=".", chunksize=rows_per_chunk, lineterminator="\n"):
+      # sample columns are interleaved DS, AP1, AP2 per sample; reshape to (variants, samples, 3) and sum over views
+      values = chunk.iloc[:, 4:].to_numpy().reshape(len(chunk), n_samples, 3)
 
-      # sum AP1, AP2
-      sum_ap1 = np.sum(ap1, axis=1)
-      sum_ap1_squared = np.sum(ap1**2, axis=1)
-      sum_ap2 = np.sum(ap2, axis=1)
-      sum_ap2_squared = np.sum(ap2**2, axis=1)
+      chunk_annotations = chunk[["CHROM","POS","REF","ALT"]].copy()
+      chunk_annotations["SUM_DS"] = np.sum(values[:, :, 0], axis=1)
+      chunk_annotations["SUM_AP1"] = np.sum(values[:, :, 1], axis=1)
+      chunk_annotations["SUM_AP1_SQUARED"] = np.sum(values[:, :, 1] ** 2, axis=1)
+      chunk_annotations["SUM_AP2"] = np.sum(values[:, :, 2], axis=1)
+      chunk_annotations["SUM_AP2_SQUARED"] = np.sum(values[:, :, 2] ** 2, axis=1)
+      chunk_annotations["NUM_SAMPLES"] = n_samples
 
-      # values to annotate the vcf with
-      chunk_annotations = chunk[["CHROM","POS","REF","ALT"]]
-      chunk_annotations["SUM_DS"] = sum_ds
-      chunk_annotations["SUM_AP1"] = sum_ap1
-      chunk_annotations["SUM_AP1_SQUARED"] = sum_ap1_squared
-      chunk_annotations["SUM_AP2"] = sum_ap2
-      chunk_annotations["SUM_AP2_SQUARED"] = sum_ap2_squared
-      chunk_annotations["NUM_SAMPLES"] = ~{n_samples}
-      out_annotation_dfs.append(chunk_annotations)
-
-    annotations_df = pd.concat(out_annotation_dfs)
-    annotations_df.to_csv("chunked_annotations.tsv", sep="\t", index=False, header=False)
+      chunk_annotations.to_csv("chunked_annotations.tsv", sep="\t", index=False, header=False, mode="a")
+      del chunk, values, chunk_annotations
     EOF
 
   >>>
