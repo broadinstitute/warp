@@ -5,9 +5,9 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "1.0.5"
-    String preprocess_pls_gvcf_pipeline_version = "1.0.2"
-    String batch_pipeline_version = "1.0.2"
+    String pipeline_version = "1.1.0"
+    String preprocess_pls_gvcf_pipeline_version = "1.0.3"
+    String batch_pipeline_version = "1.0.3"
     String quota_consumed_version = "1.0.0"
     String input_qc_version = "1.0.3"
 
@@ -39,6 +39,11 @@ workflow Glimpse2SVImputation {
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
+
+        # set RAF='.' when RAF <= allele_count_censoring_threshold / (2 * num_panel_samples) to comply with All of Us requirements
+        # https://support.researchallofus.org/hc/en-us/articles/22346276580372-Data-and-Statistics-Dissemination-Policy
+        Int allele_count_censoring_threshold = 20
+        Int num_panel_samples = 12554
 
         # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCFs
         Float info_filter_for_inclusion = 0.0
@@ -117,18 +122,20 @@ workflow Glimpse2SVImputation {
                     input_vcfs_or_bcfs = popped_bcfs_for_contig,
                     output_vcf_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.merged"
             }
-
-            call Glimpse2SVImputationTasks.RecomputeAndAnnotate as RecomputePoppedAfInfo {
-                input:
-                    merged_vcf_or_bcf = MergePoppedContigVcfs.output_vcf,
-                    annotations = ExtractPoppedAnnotations.annotations,
-                    num_samples = PreProcessGVCFsBatch.num_samples,
-                    output_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.merged.reannotated",
-                    docker_merge = merge_docker
-            }
         }
 
-        File final_popped_contig_vcf = select_first([RecomputePoppedAfInfo.merged_imputed_vcf, popped_bcfs_for_contig[0]])
+        call Glimpse2SVImputationTasks.RecomputeAndAnnotate as RecomputePoppedAfInfo {
+            input:
+                merged_vcf_or_bcf = select_first([MergePoppedContigVcfs.output_vcf, popped_bcfs_for_contig[0]]),
+                annotations = select_first([ExtractPoppedAnnotations.annotations, []]),
+                num_samples = PreProcessGVCFsBatch.num_samples,
+                output_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.merged.reannotated",
+                allele_count_censoring_threshold = allele_count_censoring_threshold,
+                num_panel_samples = num_panel_samples,
+                docker_merge = merge_docker
+        }
+
+        File final_popped_contig_vcf = RecomputePoppedAfInfo.merged_imputed_vcf
 
         if (info_filter_for_inclusion > 0.0) {
             call Glimpse2SVImputationTasks.FilterVcfByInfo as FilterPoppedContigByInfo {
