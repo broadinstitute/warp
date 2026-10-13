@@ -202,7 +202,7 @@ workflow ImputationBeagle {
             end = endWithOverlaps[contig_index][i],
             cpu = beagle_cpu,
             memory_mb = beagle_phase_memory_in_gb * 1024,
-            for_dependency = [ true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true ]
+            for_dependency = FailQCNChunks.done
         }
 
         call beagleTasks.Impute {
