@@ -232,7 +232,7 @@ Both tasks use the same Docker image (pinned by digest). GPU and CUDA setup is h
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:247226918ffabe9539d8d0c4f1858db5ac38ea3d55333ed41f948963a33ed657` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:e3ac81e74796993e1d37c0fc0c6226aae9e9c7dcff26093c9fcd22e6cbf60fc2` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk 1000 SSD` |
 | `memory` | `120 GiB` |
@@ -243,7 +243,7 @@ Both tasks use the same Docker image (pinned by digest). GPU and CUDA setup is h
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:247226918ffabe9539d8d0c4f1858db5ac38ea3d55333ed41f948963a33ed657` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:e3ac81e74796993e1d37c0fc0c6226aae9e9c7dcff26093c9fcd22e6cbf60fc2` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk 500 SSD` |
 | `memory` | `120 GiB` |

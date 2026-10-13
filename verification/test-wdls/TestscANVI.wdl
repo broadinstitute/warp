@@ -48,10 +48,10 @@ workflow TestscANVI {
       String truth_path
       String results_path
       Boolean update_truth
-      # Plumbing only checks that the pipeline runs (its 1-epoch training is meant to vary), so
-      # compare labels only for Scientific. Derived from the framework's truth_path
-      # (.../truth/<plumbing|scientific>/...); override to force either way.
-      Boolean check_label_distribution = sub(truth_path, "/truth/plumbing/", "") == truth_path
+      # Skip the label-distribution checks only for Plumbing runs that train (a 2-epoch model is
+      # meant to vary); Scientific runs and any run that loads a fixed scanvi_model keep them.
+      # Plumbing vs Scientific comes from the framework's truth_path (.../truth/<plumbing|scientific>/...).
+      Boolean check_label_distribution = defined(scanvi_model) || sub(truth_path, "/truth/plumbing/", "") == truth_path
     }
 
     meta {
