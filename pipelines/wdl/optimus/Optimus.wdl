@@ -1,6 +1,5 @@
 version 1.0
 
-import "../../../tasks/wdl/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/wdl/StarAlign.wdl" as StarAlign
 import "../../../tasks/wdl/Metrics.wdl" as Metrics
 import "../../../tasks/wdl/RunEmptyDrops.wdl" as RunEmptyDrops
@@ -59,6 +58,8 @@ workflow Optimus {
 
     # Emptydrops lower cutoff
     Int emptydrops_lower = 100
+    # Seed for emptyDrops Monte-Carlo p-values; unset (default) = nondeterministic
+    Int? emptydrops_seed
 
     # Set to true to override input checks and allow pipeline to proceed with invalid input
     Boolean force_no_check = false
@@ -80,7 +81,7 @@ workflow Optimus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "9.2.1"
+  String pipeline_version = "9.3.0"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -100,7 +101,7 @@ workflow Optimus {
   # docker images
   String picard_cloud_docker = "picard-cloud:2.26.10"
   String pytools_docker = "pytools:1.0.0-1661263730"
-  String empty_drops_docker = "empty-drops:1.0.1-4.2"
+  String empty_drops_docker = "empty-drops@sha256:1fb1ed150ca891247cb326f502d8136fd127caf7ca1a86eb674b8d3b75bc1c3a"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
   String warp_tools_docker = "warp-tools:2.7.1"
   String star_merge_docker = "star-merge-npz:1.3.0"
@@ -129,6 +130,7 @@ workflow Optimus {
     whitelist: "10x genomics cell barcode allowlist"
     tenx_chemistry_version: "10X Genomics chemistry version: 2 (10 bp UMI), 3 (12 bp UMI), or 4 / GEM-X (12 bp UMI; requires i1_fastq)"
     tenx_chemistry_subversion: "For v4 chemistry only: 'v4' for Cell Ranger v8.0/v8.0.1 whitelist; 'v4_TRU' for Cell Ranger v9.0+ whitelist (default when unspecified)"
+    emptydrops_seed: "Optional random seed for reproducible emptyDrops p-values (used only when counting_mode = sc_rna); leave unset for default nondeterministic behavior"
     force_no_check: "Set to true to override input checks and allow pipeline to proceed with invalid input"
     star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded.' Default is Forward."
   }
@@ -212,6 +214,7 @@ workflow Optimus {
         row_index = STARsoloFastq.row_index,
         col_index = STARsoloFastq.col_index,
         emptydrops_lower = emptydrops_lower,
+        seed = emptydrops_seed,
         empty_drops_docker_path = docker_prefix + empty_drops_docker
     }
   }

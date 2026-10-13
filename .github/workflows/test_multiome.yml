@@ -16,7 +16,6 @@ on:
       - 'tasks/wdl/FastqProcessing.wdl'
       - 'tasks/wdl/PairedTagUtils.wdl'
       - 'pipelines/wdl/optimus/Optimus.wdl'
-      - 'tasks/wdl/FastqProcessing.wdl'
       - 'tasks/wdl/StarAlign.wdl'
       - 'tasks/wdl/Metrics.wdl'
       - 'tasks/wdl/RunEmptyDrops.wdl'

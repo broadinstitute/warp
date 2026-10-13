@@ -97,7 +97,10 @@ equality, or a tight numeric tolerance. Any drift is a real change.
 ### Stochastic / ML / float-sensitive pipelines
 If outputs vary run-to-run (random seeds, GPU nondeterminism, threading), **exact comparison
 is wrong** — it will be flaky and will force people to re-bless truth constantly, destroying
-its value. Instead verify the invariants from Step 1:
+its value. First check whether the randomness comes from a seedable tool: if so, expose an
+optional seed input on the pipeline (unset in production), pin it in the test wrapper, and
+compare exactly. Optimus does this for emptyDrops (`emptydrops_seed`, pinned to 42 in
+`TestOptimus.wdl`). Otherwise verify the invariants from Step 1:
 
 1. **Check structural invariants exactly.** Cell/row counts, presence of columns/files.
    These are deterministic even when values aren't. Label vocabulary is *usually*
@@ -171,6 +174,8 @@ Scientific tests use real compute, so right-size but don't cripple:
   training epochs) — that's what the Plumbing test is for. If you find yourself wanting to,
   you're building a Plumbing test.
 - Lean on `useCallCache` during development to avoid re-running unchanged upstream steps.
+  But turn it **off** when you check run-to-run variance or a determinism fix: a cached
+  stochastic task reuses its earlier output, so a passing compare proves nothing.
 
 ## The development loop
 

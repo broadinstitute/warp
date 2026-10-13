@@ -12,7 +12,6 @@ on:
       # anything in the pipelines folder
       - 'pipelines/wdl/optimus/**'
       # tasks from the pipeline WDL and their dependencies
-      - 'tasks/wdl/FastqProcessing.wdl'
       - 'tasks/wdl/StarAlign.wdl'
       - 'tasks/wdl/Metrics.wdl'
       - 'tasks/wdl/RunEmptyDrops.wdl'
