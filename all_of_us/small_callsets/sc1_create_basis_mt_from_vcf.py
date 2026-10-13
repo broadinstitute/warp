@@ -289,7 +289,7 @@ def make_basis_mt_from_vcf(mt: hl.MatrixTable, is_filtering_FT: bool, is_keep_as
 
     mt = hl.variant_qc(mt)
     computed_info = hl.struct(AC=mt.variant_qc.AC[1:], AF=mt.variant_qc.AF[1:], AN=mt.variant_qc.AN,
-                              homozygote_count=mt.variant_qc.homozygote_count)
+                              HC=mt.variant_qc.homozygote_count)
     if 'info' in mt.row:
         # A VCF-derived MT already has an `info` struct populated from the source VCF header (e.g.
         # phasing-tool annotations). Merge our recomputed fields into it instead of clobbering it, since
