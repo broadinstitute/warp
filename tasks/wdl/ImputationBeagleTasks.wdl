@@ -755,22 +755,16 @@ task AggregateChunkedDR2AndAF {
     dtypes_dict["NUM_SAMPLES"] = "int"
 
     file_paths = ["~{sep='", "' sample_chunked_annotation_files}"]
-
-    # Get number of lines in first file since all files should have the same number of lines
-    num_lines = sum(1 for _ in open(file_paths[0]))
-
-    all_aggregated_results = []
-    chunk_start = 0
     line_chunk_size = ~{line_chunk_size}
+    column_names = ["CHROM", "POS", "REF", "ALT", "SUM_DS", "SUM_AP1", "SUM_AP1_SQUARED", "SUM_AP2", "SUM_AP2_SQUARED", "NUM_SAMPLES"]
 
-    while chunk_start < num_lines:
-      chunked_dfs = []
-      for file_path in file_paths:
-        chunked_df = pd.read_csv(file_path, sep="\t", header=None, names=["CHROM", "POS", "REF", "ALT", "SUM_DS", \
-        "SUM_AP1", "SUM_AP1_SQUARED", "SUM_AP2", "SUM_AP2_SQUARED", "NUM_SAMPLES"], dtype=dtypes_dict, \
-        skiprows=chunk_start, nrows=line_chunk_size)
-        chunked_dfs.append(chunked_df)
+    # Truncate the output, then append each aggregated chunk as it is computed
+    open("aggregated_annotations.tsv", "w").close()
 
+    # Stream every file once in lockstep (all files have the same number of lines), instead of re-parsing from the top with skiprows
+    readers = [pd.read_csv(file_path, sep="\t", header=None, names=column_names, dtype=dtypes_dict, chunksize=line_chunk_size) for file_path in file_paths]
+
+    for chunked_dfs in zip(*readers):
       combined_chunk_df = pd.concat(chunked_dfs)
 
       # Group by CHROM, POS, REF, ALT and aggregate SUM_DS, SUM_AP1, SUM_AP2
@@ -802,20 +796,11 @@ task AggregateChunkedDR2AndAF {
 
       # Select relevant columns for output and add to final output
       aggregated_df = aggregated_df[["CHROM", "POS", "REF", "ALT", "AF", "DR2"]]
-      all_aggregated_results.append(aggregated_df)
+      aggregated_df.to_csv("aggregated_annotations.tsv", sep="\t", index=False, header=False, mode="a")
 
       # clean up memory
       del chunked_dfs, combined_chunk_df, aggregated_df
       gc.collect()
-
-      # Move to the next chunk
-      chunk_start += line_chunk_size
-
-    # Concatenate all results
-    all_aggregated_df = pd.concat(all_aggregated_results, ignore_index=True)
-
-    # Save the aggregated DataFrame to a TSV file
-    all_aggregated_df.to_csv("aggregated_annotations.tsv", sep="\t", index=False, header=False)
     EOF
 
     echo "$(date) - annotations recomputed"
