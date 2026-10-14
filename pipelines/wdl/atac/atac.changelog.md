@@ -1,7 +1,7 @@
 # 2.10.0
 2026-10-14 (Date of Last Commit)
 
-* Added optional `anchor_cell_calling` input (default `false`). When `true`, the CreateFragmentFile task anchors SnapATAC2 OrdMag cell calling to `atac_expected_cells` instead of self-estimating it, writes all called cells to the new optional `snap_metrics_called_cells` h5ad output, filters `snap_metrics` to the top `atac_expected_cells` called barcodes by fragment count, and adds a `number_of_cells_retained` library metric. Default runs are unaffected
+* Added optional `anchor_cell_calling` input (default `false`). When `true`, the CreateFragmentFile task anchors SnapATAC2 OrdMag cell calling (on fragments overlapping peaks) to `atac_expected_cells` instead of self-estimating it, writes all called cells to the new optional `snap_metrics_called_cells` h5ad output, filters `snap_metrics` to the top `atac_expected_cells` called barcodes by total fragments, adds `is_cell_called` and `is_retained` columns to both h5ads, and adds a `number_of_cells_retained` library metric. Default runs are unaffected
 
 # 2.9.4
 2026-09-16 (Date of Last Commit)

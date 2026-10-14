@@ -53,7 +53,7 @@ workflow Multiome {
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         File? aligned_ATAC_bam
-        # If true, anchor ATAC cell calling to expected_cells and filter the ATAC h5ad to the top expected_cells barcodes
+        # If true, anchor ATAC cell calling to expected_cells and filter the ATAC h5ad to the top expected_cells called barcodes by total fragments
         Boolean atac_anchor_cell_calling = false
 
         # CellBender

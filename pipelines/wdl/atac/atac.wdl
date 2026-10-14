@@ -26,7 +26,7 @@ workflow ATAC {
 
     #Expected cells from library preparation
     Int atac_expected_cells = 3000
-    # If true, anchor SnapATAC2 cell calling to atac_expected_cells and filter the called cells to the top atac_expected_cells by fragment count
+    # If true, anchor SnapATAC2 cell calling to atac_expected_cells and filter the called cells to the top atac_expected_cells by total fragments
     Boolean anchor_cell_calling = false
 
     # Option for running files with preindex
@@ -88,7 +88,7 @@ workflow ATAC {
     num_threads_bwa: "Number of threads for bwa-mem2 task (default: 128)"
     mem_size_bwa: "Memory size in GB for bwa-mem2 task (default: 512)"
     cpu_platform_bwa: "CPU platform for bwa-mem2 task (default: Intel Ice Lake)"
-    anchor_cell_calling: "If true, SnapATAC2 cell calling uses atac_expected_cells as the OrdMag anchor instead of self-estimating it, all called cells are written to snap_metrics_called_cells, and snap_metrics is filtered to the top atac_expected_cells barcodes by fragment count (default: false)"
+    anchor_cell_calling: "If true, SnapATAC2 cell calling (OrdMag on fragments overlapping peaks) uses atac_expected_cells as its anchor instead of self-estimating it, all called cells are written to snap_metrics_called_cells, and snap_metrics is filtered to the top atac_expected_cells called barcodes by total fragments (n_fragment) (default: false)"
  }
 
   if (!defined(aligned_ATAC_bam)) {
@@ -565,7 +565,7 @@ task CreateFragmentFile {
     disk_size: "Disk size used in create fragment file step."
     mem_size: "The size of memory used in create fragment file."
     docker_path: "The docker image path containing the runtime environment for this task"
-    anchor_cell_calling: "If true, anchor cell calling to atac_expected_cells, write all called cells to a separate h5ad, and filter the main h5ad to the top atac_expected_cells barcodes by fragment count."
+    anchor_cell_calling: "If true, anchor cell calling (fragments overlapping peaks) to atac_expected_cells, write all called cells to a separate h5ad, and filter the main h5ad to the top atac_expected_cells called barcodes by total fragments."
   }
 
   command <<<
@@ -669,11 +669,14 @@ task CreateFragmentFile {
     snap.metrics.tsse(atac_data, atac_gtf, exclude_chroms=mito_list)
 
     if anchor_cell_calling:
-      # Write all called cells, then keep the top expected_cells barcodes by fragment count
+      # Every barcode here was called as a cell; keep the top expected_cells of them by total fragments
+      keep = atac_data.obs['n_fragment'].sort_values(ascending=False, kind='stable').index[:expected_cells]
+      atac_data.obs['is_cell_called'] = True
+      atac_data.obs['is_retained'] = atac_data.obs_names.isin(keep)
+      # Write all called cells, then filter to the retained barcodes
       atac_data.write_h5ad("~{input_id}.called_cells.metrics.h5ad")
       if atac_data.n_obs > expected_cells:
-        keep = atac_data.obs['n_fragment'].sort_values(ascending=False, kind='stable').index[:expected_cells]
-        atac_data = atac_data[atac_data.obs_names.isin(keep)].copy()
+        atac_data = atac_data[atac_data.obs['is_retained'].to_numpy()].copy()
         # recompute library-level tsse in uns for the retained barcodes
         snap.metrics.tsse(atac_data, atac_gtf, exclude_chroms=mito_list)
       print("Number of barcodes retained:", atac_data.n_obs)
