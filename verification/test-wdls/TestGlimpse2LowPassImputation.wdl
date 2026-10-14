@@ -24,6 +24,12 @@ workflow TestGlimpse2LowPassImputation {
         File fasta
         File fasta_index
         String output_basename
+
+        # set RAF='.' when RAF <= allele_count_censoring_threshold / (2 * num_panel_samples) to comply with All of Us requirements
+        # https://support.researchallofus.org/hc/en-us/articles/22346276580372-Data-and-Statistics-Dissemination-Policy
+        Int allele_count_censoring_threshold = 20
+        Int num_panel_samples = 4091
+
         Float? info_filter_for_inclusion
 
         File ref_dict
@@ -51,6 +57,8 @@ workflow TestGlimpse2LowPassImputation {
         sample_batch_size = sample_batch_size,
         glimpse_phase_cpu_override = glimpse_phase_cpu_override,
         output_basename = output_basename,
+        allele_count_censoring_threshold = allele_count_censoring_threshold,
+        num_panel_samples = num_panel_samples,
         info_filter_for_inclusion = info_filter_for_inclusion,
     }
 

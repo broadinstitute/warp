@@ -4,7 +4,7 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "2.0.1"
+    String pipeline_version = "2.1.0"
     String batch_pipeline_version = "1.1.0"
     String quota_consumed_version = "1.0.1"
     String input_qc_version = "1.1.1"
@@ -15,6 +15,12 @@ workflow Glimpse2LowPassImputation {
         Array[File]? cram_indices
         File? cram_manifest
         String output_basename
+
+        # set RAF='.' when RAF <= allele_count_censoring_threshold / (2 * num_panel_samples) to comply with All of Us requirements
+        # https://support.researchallofus.org/hc/en-us/articles/22346276580372-Data-and-Statistics-Dissemination-Policy
+        Int allele_count_censoring_threshold = 20
+        Int num_panel_samples = 515579
+
         # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCF
         Float info_filter_for_inclusion = 0.0
 
@@ -106,15 +112,17 @@ workflow Glimpse2LowPassImputation {
                     input_vcfs = batch_vcfs_for_contig,
                     output_vcf_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged"
             }
+        }
 
-            call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate {
-                input:
-                    merged_vcf = MergeContigVcfs.output_vcf,
-                    annotations = ExtractAnnotations.annotations,
-                    num_samples = RunBatch.total_samples,
-                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated",
-                    docker_merge = docker_merge
-            }
+        call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate {
+            input:
+                merged_vcf = select_first([MergeContigVcfs.output_vcf, batch_vcfs_for_contig[0]]),
+                annotations = select_first([ExtractAnnotations.annotations, []]),
+                num_samples = RunBatch.total_samples,
+                output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated",
+                allele_count_censoring_threshold = allele_count_censoring_threshold,
+                num_panel_samples = num_panel_samples,
+                docker_merge = docker_merge
         }
 
         File annotated_contig_vcf = select_first([RecomputeAndAnnotate.merged_imputed_vcf, batch_vcfs_for_contig[0]])
