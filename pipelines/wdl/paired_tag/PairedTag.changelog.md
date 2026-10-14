@@ -1,3 +1,9 @@
+# 3.0.5
+2026-10-14 (Date of Last Commit)
+
+* Updated for the ATAC workflow's decoupled cell calling and filtering (see the ATAC changelog): the ATAC `snap_metrics` h5ad is now unfiltered (every barcode with a fragment) and carries `obs['is_cell']` and `obs['is_retained']`, and `number_of_cells` is computed with an anchored OrdMag call; PairedTag continues to use the unfiltered h5ad
+* MaskPeakCallingMetrics also removes the new peak-dependent rows `min_fragments_in_peaks_in_cells` and `min_fragments_in_peaks_retained`
+
 # 3.0.4
 2026-10-08 (Date of Last Commit)
 

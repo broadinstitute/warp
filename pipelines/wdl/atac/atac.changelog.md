@@ -1,3 +1,13 @@
+# 2.10.0
+2026-10-14 (Date of Last Commit)
+
+* Decoupled SnapATAC2 cell calling from barcode filtering in the CreateFragmentFile task. The task no longer calls `snapatac2.pp.recipe_10x_metrics`, which ran OrdMag with no anchor (`recovered_cells=None`) and then subset the per-barcode h5ad in place to the called cells; on libraries with a few very deep barcodes this collapsed `number_of_cells` to a few hundred and truncated `metrics.h5ad` to match
+* `number_of_cells` is now computed with OrdMag anchored at the new `ordmag_anchor_cells` input (default 10000); the called set is recorded in `obs['is_cell']` but is not used to filter the output
+* The `snap_metrics` h5ad now contains every barcode with at least one fragment (unfiltered); when the new `filter_cells_to_expected` input is true (default), the task also writes `<input_id>.filtered.metrics.h5ad` with the top `atac_expected_cells` barcodes ranked by fragments overlapping peaks, exposed as the new optional `snap_metrics_filtered` output; the retained set is recorded in `obs['is_retained']`
+* Peak calling in this workflow now runs on the filtered h5ad when filtering is enabled
+* Added library metric rows `ordmag_anchor_cells`, `min_fragments_in_peaks_in_cells`, `number_of_barcodes_retained` and `min_fragments_in_peaks_retained`
+* Note: the `snapatac2:2.0.0` image contains SnapATAC2 2.7.1 (an earlier entry says 2.7.0)
+
 # 2.9.4
 2026-09-16 (Date of Last Commit)
 

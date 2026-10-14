@@ -24,8 +24,12 @@ workflow ATAC {
     # Additional library aliquot ID
     String? atac_nhash_id
 
-    #Expected cells from library preparation
+    #Expected cells from library preparation. Also the number of barcodes kept in the filtered h5ad.
     Int atac_expected_cells = 3000
+    # Anchor for SnapATAC2's OrdMag cell caller (number_of_cells metric only; does not filter)
+    Int ordmag_anchor_cells = 10000
+    # Write <input_id>.filtered.metrics.h5ad with the top atac_expected_cells barcodes
+    Boolean filter_cells_to_expected = true
 
     # Option for running files with preindex
     Boolean preindex = false
@@ -55,7 +59,7 @@ workflow ATAC {
     File? aligned_ATAC_bam
   }
 
-  String pipeline_version = "2.9.4"
+  String pipeline_version = "2.10.0"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -86,6 +90,9 @@ workflow ATAC {
     num_threads_bwa: "Number of threads for bwa-mem2 task (default: 128)"
     mem_size_bwa: "Memory size in GB for bwa-mem2 task (default: 512)"
     cpu_platform_bwa: "CPU platform for bwa-mem2 task (default: Intel Ice Lake)"
+    atac_expected_cells: "Number of cells loaded for library preparation. Used as the denominator of atac_percent_target and as the number of barcodes kept in the filtered h5ad (default: 3000)"
+    ordmag_anchor_cells: "Anchor passed to SnapATAC2's OrdMag cell caller for the number_of_cells library metric; the reference barcode is the one at rank 1% of this value. Does not change which barcodes are written (default: 10000)"
+    filter_cells_to_expected: "When true, CreateFragmentFile also writes a filtered h5ad with the top atac_expected_cells barcodes ranked by fragments overlapping peaks; the unfiltered per-barcode h5ad is always written (default: true)"
  }
 
   if (!defined(aligned_ATAC_bam)) {
@@ -153,6 +160,8 @@ workflow ATAC {
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
+        ordmag_anchor_cells = ordmag_anchor_cells,
+        filter_cells_to_expected = filter_cells_to_expected,
         input_id = input_id
     }
   }
@@ -166,14 +175,17 @@ workflow ATAC {
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
+        ordmag_anchor_cells = ordmag_anchor_cells,
+        filter_cells_to_expected = filter_cells_to_expected,
         input_id = input_id
     }
     if (peak_calling) {
+      # Peak calling runs on the filtered barcodes when filtering is enabled
       call peakcalling.PeakCalling as PeakCalling{
         input:
           output_base_name = input_id,
           annotations_gtf = annotations_gtf,
-          metrics_h5ad = CreateFragmentFile.Snap_metrics,
+          metrics_h5ad = select_first([CreateFragmentFile.Snap_metrics_filtered, CreateFragmentFile.Snap_metrics]),
           chrom_sizes = chrom_sizes,
           cloud_provider = cloud_provider,
       }
@@ -184,13 +196,17 @@ workflow ATAC {
   File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
   File fragment_file_index_atac = select_first([BB_fragment.fragment_file_index, CreateFragmentFile.fragment_file_index])
   File snap_metrics_atac = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])
+  File? snap_metrics_filtered_atac = if preindex then BB_fragment.Snap_metrics_filtered else CreateFragmentFile.Snap_metrics_filtered
   File library_metrics = select_first([BB_fragment.atac_library_metrics, CreateFragmentFile.atac_library_metrics])
-    
+
   output {
     File bam_aligned_output = bam_aligned_output_atac
     File fragment_file = fragment_file_atac
     File fragment_file_index = fragment_file_index_atac
+    # Unfiltered per-barcode h5ad (every barcode with a fragment; obs['is_cell'] and obs['is_retained'] flags)
     File snap_metrics = snap_metrics_atac
+    # Top atac_expected_cells barcodes; only produced when filter_cells_to_expected is true
+    File? snap_metrics_filtered = snap_metrics_filtered_atac
     File library_metrics_file = library_metrics
     File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad
     File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad
@@ -547,6 +563,8 @@ task CreateFragmentFile {
     String atac_nhash_id = ""
     String input_id
     Int atac_expected_cells = 3000
+    Int ordmag_anchor_cells = 10000
+    Boolean filter_cells_to_expected = true
     String gtf_path = annotations_gtf
   }
 
@@ -557,6 +575,9 @@ task CreateFragmentFile {
     disk_size: "Disk size used in create fragment file step."
     mem_size: "The size of memory used in create fragment file."
     docker_path: "The docker image path containing the runtime environment for this task"
+    atac_expected_cells: "Number of barcodes kept in the filtered h5ad (top barcodes ranked by fragments overlapping peaks) and the denominator of atac_percent_target. Default 3000."
+    ordmag_anchor_cells: "Anchor (recovered_cells) passed to SnapATAC2's OrdMag cell caller when computing the number_of_cells metric; the reference barcode is the one at rank 1% of this value. Does not affect which barcodes are written. Default 10000."
+    filter_cells_to_expected: "When true, also write <input_id>.filtered.metrics.h5ad containing the top atac_expected_cells barcodes. The unfiltered h5ad is always written. Default true."
   }
 
   command <<<
@@ -566,56 +587,151 @@ task CreateFragmentFile {
     python3 <<CODE
 
     # import libraries
-    import snapatac2.preprocessing as pp
     import snapatac2 as snap
-    import scanpy as sc
     import numpy as np
-    import polars as pl
-    import anndata as ad
     from collections import OrderedDict
+    from snapatac2.preprocessing._cell_calling import filter_cellular_barcodes_ordmag
     import csv
 
     # set parameters
     bam = "~{bam}"
     input_id = "~{input_id}"
-    chrom_sizes = "~{chrom_sizes}"
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
     mito_list = "~{sep=' ' mito_list}"
     expected_cells = ~{atac_expected_cells}
+    ordmag_anchor_cells = ~{ordmag_anchor_cells}
+    filter_cells_to_expected = "~{filter_cells_to_expected}" == "true"
+    gtf_path = "~{gtf_path}"
 
-    print(mito_list)
     mito_list = mito_list.split(" ")
-    print("Mitochondrial chromosomes:", mito_list) 
-    
+    print("Mitochondrial chromosomes:", mito_list)
+
     # calculate chrom size dictionary based on text file
-    chrom_size_dict={}
+    chrom_size_dict = {}
     with open('~{chrom_sizes}', 'r') as f:
       for line in f:
         key, value = line.strip().split()
         chrom_size_dict[str(key)] = int(value)
 
-    # extract CB or BB (if preindex is true) tag from bam file to create fragment file
-    if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
-    elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
+    barcode_tag = "BB" if preindex == "true" else "CB"
+    fragment_file = input_id + ".fragments.tsv"
+    unfiltered_h5ad = input_id + ".metrics.h5ad"
+    filtered_h5ad = input_id + ".filtered.metrics.h5ad"
 
-    # Add NHashID to metrics 
-    data = OrderedDict({'NHashID': atac_nhash_id, **data})
-    
-    # Calculate atac percent target
-    print("Calculating percent target")
-    number_of_cells = data['Cells']['Number_of_cells']
-    print("Print number of cells", number_of_cells)
-    atac_percent_target = number_of_cells / expected_cells*100
-    print("Setting percent target in nested dictionary")
-    data['Cells']['atac_percent_target'] = atac_percent_target
+    # The steps below reproduce snapatac2.pp.recipe_10x_metrics (SnapATAC2 2.7.1,
+    # preprocessing/_recipe.py) with two deliberate differences:
+    #   1. Cell calling is a METRIC only. The recipe's OrdMag call used
+    #      recovered_cells=None, whose self-estimate collapses onto a few very deep
+    #      barcodes; here it is anchored at ordmag_anchor_cells. The called set is
+    #      flagged in obs['is_cell'] but is NOT used to subset the data.
+    #   2. The recipe subsets the backed h5ad in place to the called cells, which
+    #      truncated the per-barcode output. Here the unfiltered table is always
+    #      written, and an optional filtered copy keeps the top atac_expected_cells
+    #      barcodes ranked by fragments overlapping peaks.
+    qc = OrderedDict()
+    qc["NHashID"] = atac_nhash_id
+    qc["Sequencing"] = {}
+    qc["Cells"] = {}
+    qc["Library Complexity"] = {}
+    qc["Mapping"] = {}
+    qc["Targeting"] = {}
 
-    # Flatten the dictionary
+    # 1. BAM -> fragment file (extract CB or BB tag; same defaults as the recipe)
+    print("Creating fragment file from", barcode_tag, "tag")
+    bam_qc = snap.pp.make_fragment_file(bam, fragment_file, is_paired=True, barcode_tag=barcode_tag, chrM=mito_list)
+    qc["Sequencing"]["Sequenced_reads"] = bam_qc["sequenced_reads"]
+    qc["Sequencing"]["Sequenced_read_pairs"] = bam_qc["sequenced_read_pairs"]
+    qc["Sequencing"]["Fraction_valid_barcode"] = bam_qc["frac_valid_barcode"]
+    qc["Sequencing"]["Fraction_Q30_bases_in_read_1"] = bam_qc["frac_q30_bases_read1"]
+    qc["Sequencing"]["Fraction_Q30_bases_in_read_2"] = bam_qc["frac_q30_bases_read2"]
+    qc["Mapping"]["Fraction_confidently_mapped"] = bam_qc["frac_confidently_mapped"]
+    qc["Mapping"]["Fraction_unmapped"] = bam_qc["frac_unmapped"]
+    qc["Mapping"]["Fraction_nonnuclear"] = bam_qc["frac_nonnuclear"]
+    qc["Mapping"]["Fraction_fragment_in_nucleosome_free_region"] = bam_qc["frac_fragment_in_nucleosome_free_region"]
+    qc["Mapping"]["Fraction_fragment_flanking_single_nucleosome"] = bam_qc["frac_fragment_flanking_single_nucleosome"]
+    qc["Library Complexity"]["Fraction_duplicates"] = bam_qc["frac_duplicates"]
+
+    # 2. Fragment file -> per-barcode table, backed by the unfiltered h5ad.
+    #    min_num_fragments=0 keeps every barcode with at least one fragment.
+    print("Importing fragments into", unfiltered_h5ad)
+    adata = snap.pp.import_data(fragment_file, chrom_sizes=chrom_size_dict, file=unfiltered_h5ad, min_num_fragments=0, chrM=mito_list)
+    n_barcodes = adata.n_obs
+    print("Barcodes imported:", n_barcodes)
+
+    # 3. TSS enrichment (per barcode in obs['tsse'] and library level in uns), excluding mito contigs
+    snap.metrics.tsse(adata, atac_gtf, exclude_chroms=mito_list)
+    qc["Targeting"]["TSS_enrichment_score"] = adata.uns['library_tsse']
+    qc["Targeting"]["Fraction_of_high-quality_fragments_overlapping_TSS"] = adata.uns['frac_overlap_TSS']
+
+    # 4. Peaks: MACS3 on the pseudobulk of all barcodes (recipe default qvalue)
+    snap.tl.macs3(adata, qvalue=0.001)
+    peaks = [f"{row[0]}:{row[1]}-{row[2]}" for row in adata.uns['macs3_pseudobulk'].iter_rows()]
+    qc["Targeting"]["Number_of_peaks"] = len(peaks)
+    qc["Targeting"]["Fraction_of_genome_in_peaks"] = snap._snapatac2.total_size_of_peaks(peaks) / adata.uns['reference_sequences']['reference_seq_length'].sum()
+
+    # 5. Fragments overlapping peaks per barcode (stored in obs['n_frag_overlap_peak'])
+    snap.metrics.frip(adata, {"n_frag_overlap_peak": peaks}, normalized=False)
+    n_fragment = adata.obs['n_fragment'].to_numpy()
+    n_frag_in_peaks = adata.obs['n_frag_overlap_peak'].to_numpy()
+    qc["Targeting"]["Fraction_of_high-quality_fragments_overlapping_peaks"] = n_frag_in_peaks.sum() / n_fragment.sum()
+
+    # 6. Cell calling for the library metric: OrdMag anchored at ordmag_anchor_cells.
+    #    This is snapatac2.pp.call_cells with recovered_cells set instead of None.
+    cell_idx, ordmag_stats = filter_cellular_barcodes_ordmag(n_frag_in_peaks.astype(int), ordmag_anchor_cells)
+    cell_idx = np.sort(np.asarray(cell_idx, dtype=int))
+    n_cells = int(len(cell_idx))
+    print("OrdMag called", n_cells, "cells with anchor", ordmag_anchor_cells)
+    is_paired = bam_qc["sequenced_read_pairs"] > 0
+    qc["Cells"]["Number_of_cells"] = n_cells
+    qc["Cells"]["Ordmag_anchor_cells"] = ordmag_anchor_cells
+    if n_cells > 0:
+        raw = bam_qc["sequenced_read_pairs"] if is_paired else bam_qc["sequenced_reads"]
+        qc["Cells"]["Mean_raw_read_pairs_per_cell"] = raw / n_cells
+        qc["Cells"]["Median_high-quality_fragments_per_cell"] = float(np.median(n_fragment[cell_idx]))
+        qc["Cells"]["Fraction of high-quality fragments in cells"] = n_fragment[cell_idx].sum() / n_fragment.sum()
+        qc["Cells"]["Min_fragments_in_peaks_in_cells"] = int(n_frag_in_peaks[cell_idx].min())
+        # transposition events (both fragment ends) in peaks, summed over called cells
+        insertions = snap.metrics.frip(adata, {"overlap_peak": peaks}, normalized=False, count_as_insertion=True, inplace=False)
+        insertions_in_peaks = np.asarray(insertions["overlap_peak"])
+        denominator = n_fragment[cell_idx].sum() * (2 if is_paired else 1)
+        qc["Cells"]["Fraction_of_transposition_events_in_peaks_in_cells"] = insertions_in_peaks[cell_idx].sum() / denominator
+    else:
+        for key in ["Mean_raw_read_pairs_per_cell", "Median_high-quality_fragments_per_cell",
+                    "Fraction of high-quality fragments in cells", "Min_fragments_in_peaks_in_cells",
+                    "Fraction_of_transposition_events_in_peaks_in_cells"]:
+            qc["Cells"][key] = float("nan")
+    qc["Cells"]["atac_percent_target"] = n_cells / expected_cells * 100
+
+    # 7. Annotate the per-barcode table. is_cell = OrdMag call; is_retained = filter below.
+    is_cell = np.zeros(n_barcodes, dtype=bool)
+    is_cell[cell_idx] = True
+    adata.obs['is_cell'] = is_cell
+    adata.uns['NHashID'] = atac_nhash_id
+    adata.uns['reference_gtf_file'] = gtf_path
+
+    # 8. Filtering, decoupled from cell calling: keep the top atac_expected_cells
+    #    barcodes by fragments overlapping peaks (ties broken by import order).
+    n_retained = min(int(expected_cells), n_barcodes) if filter_cells_to_expected else 0
+    is_retained = np.zeros(n_barcodes, dtype=bool)
+    if n_retained > 0:
+        order = np.argsort(-n_frag_in_peaks, kind="stable")
+        keep_idx = np.sort(order[:n_retained])
+        is_retained[keep_idx] = True
+        qc["Cells"]["Number_of_barcodes_retained"] = int(n_retained)
+        qc["Cells"]["Min_fragments_in_peaks_retained"] = int(n_frag_in_peaks[keep_idx].min())
+    adata.obs['is_retained'] = is_retained
+
+    if n_retained > 0:
+        print("Writing filtered h5ad with", n_retained, "barcodes to", filtered_h5ad)
+        filtered = adata.subset(keep_idx, out=filtered_h5ad, inplace=False)
+        filtered.close()
+    adata.close()
+
+    # Flatten the metrics dictionary into (metric, value) rows
     flattened_data = []
-    for category, metrics in data.items():
+    for category, metrics in qc.items():
         if isinstance(metrics, dict):
             for metric, value in metrics.items():
                 flattened_data.append((metric, value))
@@ -624,28 +740,14 @@ task CreateFragmentFile {
 
     # Convert the flattened keys to lowercase (except for 'NHashID')
     flattened_data = [(metric if metric == 'NHashID' else str(metric).lower(), value) for metric, value in flattened_data]
-    
+
     # Write to CSV
     csv_file_path = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
     with open(csv_file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerows(flattened_data)  # Write data
+        writer.writerows(flattened_data)
 
     print(f"Dictionary successfully written to {csv_file_path}")
-
-    atac_data = ad.read_h5ad("temp_metrics.h5ad")
-    # Add nhash_id to h5ad file as unstructured metadata
-    atac_data.uns['NHashID'] = atac_nhash_id
-
-    # Add GTF to uns field
-    # Original path from args.annotation_file
-    gtf_path = "~{gtf_path}"  # e.g., 'gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf'
-    
-    atac_data.uns["reference_gtf_file"] = gtf_path
-    # calculate tsse metrics
-    snap.metrics.tsse(atac_data, atac_gtf, exclude_chroms=mito_list)
-    # Write new atac file
-    atac_data.write_h5ad("~{input_id}.metrics.h5ad")
 
     CODE
     
@@ -670,6 +772,7 @@ task CreateFragmentFile {
     File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
     File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
     File Snap_metrics = "~{input_id}.metrics.h5ad"
+    File? Snap_metrics_filtered = "~{input_id}.filtered.metrics.h5ad"
     File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
   }
 }

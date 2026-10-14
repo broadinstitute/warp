@@ -4,7 +4,9 @@ sidebar_position: 2
 
 # ATAC Library Metrics Overview
 
-The [ATAC pipeline](README.md) uses [SnapATAC2](https://github.com/kaizhang/SnapATAC2) to generate library-level metrics in CSV format.  
+The [ATAC pipeline](README.md) uses [SnapATAC2](https://github.com/kaizhang/SnapATAC2) to generate library-level metrics in CSV format.
+
+Metrics described as "in cells" or "per cell" are computed over the barcodes called by the OrdMag cell caller (`number_of_cells`), not over the barcodes retained in the filtered h5ad. The two sets differ by design: the cell call is a data-driven estimate used for QC, while the filtered h5ad keeps exactly the top `atac_expected_cells` barcodes.
 
 
 | Metric | Description |
@@ -15,10 +17,12 @@ The [ATAC pipeline](README.md) uses [SnapATAC2](https://github.com/kaizhang/Snap
 | fraction_valid_barcode | The fraction of reads that contain a valid barcode, indicating the proportion of reads that are correctly assigned to a specific cell or sample. |
 | fraction_Q30_bases_in_read_1 | The proportion of bases in Read 1 that have a Phred quality score of 30 or higher, indicating high-confidence base calls. |
 | fraction_Q30_bases_in_read_2 | The proportion of bases in Read 2 that have a Phred quality score of 30 or higher, indicating high-confidence base calls. |
-| number_of_cells | The estimated number of cells captured and sequenced in the experiment, based on the barcodes identified. |
+| number_of_cells | Number of barcodes called as cells by SnapATAC2's OrdMag cell caller (`filter_cellular_barcodes_ordmag`) run on fragments overlapping peaks, anchored at the `ordmag_anchor_cells` input. The caller keeps every barcode within 10x of the reference barcode at rank 1% of the anchor. This is a library metric only; it does not determine which barcodes are written to the h5ad outputs. |
+| ordmag_anchor_cells | The anchor value used for the cell call above (echo of the pipeline input). |
 | mean_raw_read_pairs_per_cell | The average number of raw read pairs associated with each cell, providing an indication of the sequencing depth per cell. |
 | median_high-quality_fragments_per_cell | The median number of high-quality (e.g., confidently mapped) fragments associated with each cell, representing typical fragment quality across cells. |
 | fraction of high-quality fragments in cells | The fraction of high-quality fragments that are associated with identified cells, indicating the proportion of good-quality data that is cell-associated. |
+| min_fragments_in_peaks_in_cells | The smallest number of fragments overlapping peaks among the called cells, i.e. the depth cutoff the cell call landed on. |
 | fraction_of_transposition_events_in_peaks_in_cells | The fraction of transposition events within identified cells that occur within peaks, which are regions of accessible chromatin. |
 | fraction_duplicates | The fraction of sequenced fragments that are duplicates, which can result from PCR amplification or other factors, indicating the redundancy in the sequencing data. |
 | fraction_confidently_mapped | The fraction of sequenced fragments that are confidently mapped to the reference genome, indicating the proportion of reads that align well to the genome. |
@@ -31,6 +35,8 @@ The [ATAC pipeline](README.md) uses [SnapATAC2](https://github.com/kaizhang/Snap
 | Number_of_peaks | The total number of peaks, or regions of accessible chromatin, identified in the dataset, representing potential regulatory elements. |
 | fraction_of_genome_in_peaks | The fraction of the genome that is covered by identified peaks, indicating the extent of chromatin accessibility across the genome. |
 | fraction_of_high-quality_fragments_overlapping_peaks | The fraction of high-quality fragments that overlap with identified peaks, providing an indication of the efficiency of the assay in capturing accessible regions. |
-| atac_percent_target | Percent of cells recovered; value is calculated as estimated_cells/expected_cells. |
+| atac_percent_target | Percent of cells recovered; value is calculated as number_of_cells / atac_expected_cells × 100. |
+| number_of_barcodes_retained | Number of barcodes written to the filtered h5ad (the `atac_expected_cells` input, or the total number of barcodes if smaller). Only present when `filter_cells_to_expected` is true. |
+| min_fragments_in_peaks_retained | The smallest number of fragments overlapping peaks among the retained barcodes, i.e. the depth at the filter cutoff. Only present when `filter_cells_to_expected` is true. |
 
 

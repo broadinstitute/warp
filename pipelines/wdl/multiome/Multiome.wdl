@@ -9,7 +9,7 @@ import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "7.0.4"
+    String pipeline_version = "7.1.0"
 
     input {
         String cloud_provider
@@ -18,6 +18,9 @@ workflow Multiome {
         String? gex_nhash_id
         String? atac_nhash_id
         Int expected_cells = 3000
+        # ATAC cell calling / filtering (see atac.wdl)
+        Int ordmag_anchor_cells = 10000
+        Boolean filter_cells_to_expected = true
 
         # Optimus inputs
         String counting_mode = "sn_rna"
@@ -58,7 +61,17 @@ workflow Multiome {
         Boolean run_cellbender = false
         # Peak Calling
         Boolean run_peak_calling = false
+
+        # Precomputed inputs: supplying gex_h5ad skips the Optimus workflow; supplying
+        # both atac_h5ad and atac_fragment_file skips the ATAC workflow. The pipeline
+        # then proceeds directly to JoinBarcodes with the supplied files.
+        File? gex_h5ad
+        File? atac_h5ad
+        File? atac_fragment_file
     }
+
+    Boolean run_optimus = !defined(gex_h5ad)
+    Boolean run_atac = !(defined(atac_h5ad) && defined(atac_fragment_file))
 
     # Determine docker prefix based on cloud provider
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -88,7 +101,8 @@ workflow Multiome {
         }
     }
 
-    # Call the Optimus workflow
+    # Call the Optimus workflow unless a precomputed GEX h5ad was supplied
+    if (run_optimus) {
     call optimus.Optimus as Optimus {
         input:
             cloud_provider = cloud_provider,
@@ -114,8 +128,10 @@ workflow Multiome {
             gex_expected_cells = expected_cells,
             run_cellbender = run_cellbender
     }
+    }
 
-    # Call the ATAC workflow
+    # Call the ATAC workflow unless a precomputed ATAC h5ad and fragment file were supplied
+    if (run_atac) {
     call atac.ATAC as Atac {
         input:
             cloud_provider = cloud_provider,
@@ -132,19 +148,27 @@ workflow Multiome {
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
+            ordmag_anchor_cells = ordmag_anchor_cells,
+            filter_cells_to_expected = filter_cells_to_expected,
             peak_calling = false,
             aligned_ATAC_bam = aligned_ATAC_bam
 
     }
+    }
+
+    # JoinBarcodes uses the filtered ATAC h5ad when filtering is enabled, otherwise the unfiltered one
+    File join_atac_h5ad = select_first([atac_h5ad, Atac.snap_metrics_filtered, Atac.snap_metrics])
+    File join_gex_h5ad = select_first([gex_h5ad, Optimus.h5ad_output_file])
+    File join_atac_fragment = select_first([atac_fragment_file, Atac.fragment_file])
 
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
             docker_path = docker_prefix + snap_atac_docker_image,
-            atac_h5ad = Atac.snap_metrics,
-            gex_h5ad = Optimus.h5ad_output_file,
+            atac_h5ad = join_atac_h5ad,
+            gex_h5ad = join_gex_h5ad,
             gex_whitelist = gex_whitelist,
             atac_whitelist = atac_whitelist,
-            atac_fragment = Atac.fragment_file,
+            atac_fragment = join_atac_fragment,
             input_gtf = annotations_gtf,
             input_bwa_reference = tar_bwa_reference,
             gex_whitelist_gs_path = gex_whitelist,
@@ -174,23 +198,27 @@ workflow Multiome {
         File atac_whitelist_used = JoinBarcodes.atac_whitelist_name_file
 
 
-        # atac outputs
-        File bam_aligned_output_atac = Atac.bam_aligned_output
+        # atac outputs (File? outputs from the ATAC workflow are absent when atac_h5ad and atac_fragment_file are supplied)
+        File? bam_aligned_output_atac = Atac.bam_aligned_output
         File fragment_file_atac = JoinBarcodes.atac_fragment_tsv
         File fragment_file_index = JoinBarcodes.atac_fragment_tsv_index
+        # Joined ATAC h5ad; built from the filtered ATAC h5ad when filter_cells_to_expected is true
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
-        File atac_library_metrics = Atac.library_metrics_file
+        # Unfiltered per-barcode ATAC h5ad (every barcode with a fragment) and the filtered copy, before joining
+        File? snap_metrics_atac_unfiltered = Atac.snap_metrics
+        File? snap_metrics_atac_filtered = Atac.snap_metrics_filtered
+        File? atac_library_metrics = Atac.library_metrics_file
         File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad
         File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad
 
-        # optimus outputs
-        File genomic_reference_version_gex = Optimus.genomic_reference_version
-        File bam_gex = Optimus.bam
-        File matrix_gex = Optimus.matrix
-        File matrix_row_index_gex = Optimus.matrix_row_index
-        File matrix_col_index_gex = Optimus.matrix_col_index
-        File cell_metrics_gex = Optimus.cell_metrics
-        File gene_metrics_gex = Optimus.gene_metrics
+        # optimus outputs (File? outputs from the Optimus workflow are absent when gex_h5ad is supplied)
+        File? genomic_reference_version_gex = Optimus.genomic_reference_version
+        File? bam_gex = Optimus.bam
+        File? matrix_gex = Optimus.matrix
+        File? matrix_row_index_gex = Optimus.matrix_row_index
+        File? matrix_col_index_gex = Optimus.matrix_col_index
+        File? cell_metrics_gex = Optimus.cell_metrics
+        File? gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
         File? multimappers_EM_matrix = Optimus.multimappers_EM_matrix

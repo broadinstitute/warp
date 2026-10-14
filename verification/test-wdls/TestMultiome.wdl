@@ -56,6 +56,15 @@ workflow TestMultiome {
       Boolean run_cellbender = false
       Boolean run_peak_calling = false
 
+      # ATAC cell calling / filtering
+      Int expected_cells = 3000
+      Int ordmag_anchor_cells = 10000
+      Boolean filter_cells_to_expected = true
+
+      # Precomputed inputs (skip Optimus and/or ATAC and go straight to JoinBarcodes)
+      File? gex_h5ad
+      File? atac_h5ad
+      File? atac_fragment_file
     }
 
     meta {
@@ -91,39 +100,44 @@ workflow TestMultiome {
         gex_nhash_id = gex_nhash_id,
         atac_nhash_id = atac_nhash_id,
         run_peak_calling = run_peak_calling,
-        aligned_ATAC_bam = aligned_ATAC_bam
+        aligned_ATAC_bam = aligned_ATAC_bam,
+        expected_cells = expected_cells,
+        ordmag_anchor_cells = ordmag_anchor_cells,
+        filter_cells_to_expected = filter_cells_to_expected,
+        gex_h5ad = gex_h5ad,
+        atac_h5ad = atac_h5ad,
+        atac_fragment_file = atac_fragment_file
     }
 
     
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
-                                    [ # Optimus file outputs
+                                    [ # File outputs
                                     Multiome.h5ad_output_file_gex,
-                                    Multiome.matrix_col_index_gex,
-                                    Multiome.matrix_row_index_gex,
-                                    Multiome.matrix_gex,
-                                    Multiome.bam_gex,
-                                    Multiome.genomic_reference_version_gex,
-                                    # atac file outputs
                                     Multiome.fragment_file_atac,
-                                    Multiome.bam_aligned_output_atac,
                                     Multiome.snap_metrics_atac
                                     ],
-                                    # File? outputs
-                                    select_all([Multiome.cell_calls_gex]),
+                                    # File? outputs (Optimus and ATAC outputs are optional because Multiome can skip either sub-workflow)
+                                    select_all([Multiome.matrix_col_index_gex,
+                                                Multiome.matrix_row_index_gex,
+                                                Multiome.matrix_gex,
+                                                Multiome.bam_gex,
+                                                Multiome.genomic_reference_version_gex,
+                                                Multiome.bam_aligned_output_atac,
+                                                Multiome.snap_metrics_atac_unfiltered,
+                                                Multiome.snap_metrics_atac_filtered,
+                                                Multiome.cell_calls_gex]),
                                     
     ])
 
     
     # Collect all of the pipeline metrics into single Array[String]
     Array[String] pipeline_metrics = flatten([
-                                    [ # File outputs
-                                    Multiome.gene_metrics_gex,
-                                    Multiome.cell_metrics_gex,
-                                    Multiome.atac_library_metrics
-                                    ],
                                     # File? outputs
-                                    select_all([Multiome.library_metrics]),
+                                    select_all([Multiome.gene_metrics_gex,
+                                                Multiome.cell_metrics_gex,
+                                                Multiome.atac_library_metrics,
+                                                Multiome.library_metrics]),
     ])
 
     # Copy results of pipeline to test results bucket
@@ -152,25 +166,25 @@ workflow TestMultiome {
         }
         call Utilities.GetValidationInputs as GetOptimusBam {
           input:
-            input_file = Multiome.bam_gex,
+            input_file = select_first([Multiome.bam_gex]),
             results_path = results_path,
             truth_path = truth_path
         }
         call Utilities.GetValidationInputs as GetGeneMetrics {
           input:
-            input_file = Multiome.gene_metrics_gex,
+            input_file = select_first([Multiome.gene_metrics_gex]),
             results_path = results_path,
             truth_path = truth_path
         }
         call Utilities.GetValidationInputs as GetCellMetrics {
           input:
-            input_file = Multiome.cell_metrics_gex,
+            input_file = select_first([Multiome.cell_metrics_gex]),
             results_path = results_path,
             truth_path = truth_path
         }
         call Utilities.GetValidationInputs as GetAtacBam {
           input:
-            input_file = Multiome.bam_aligned_output_atac,
+            input_file = select_first([Multiome.bam_aligned_output_atac]),
             results_path = results_path,
             truth_path = truth_path
         }
@@ -198,7 +212,7 @@ workflow TestMultiome {
 
         call Utilities.GetValidationInputs as GetAtacLibraryMetrics {
             input:
-            input_file = Multiome.atac_library_metrics,
+            input_file = select_first([Multiome.atac_library_metrics]),
             results_path = results_path,
             truth_path = truth_path
         }

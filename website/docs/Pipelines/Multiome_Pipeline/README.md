@@ -59,7 +59,12 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
 | gex_nhash_id | Optional identifier for the library aliquot; when specified, the gene expression workflow will echo the ID in the gene expression output h5ads (in the adata.uns section) and in the library-level metrics CSV. |
 | atac_nhash_id | Optional identifier for the library aliquot; when specified, the workflow will echo the ID in the ATAC output h5ads (in the adata.uns section) and in the library-level metrics CSV. 
-| expected_cells | Number of cells loaded for library preparation; default is set to 3000. | Integer |
+| expected_cells | Number of cells loaded for library preparation; default is set to 3000. Also the number of barcodes kept in the filtered ATAC h5ad that JoinBarcodes uses. | Integer |
+| ordmag_anchor_cells | Anchor for SnapATAC2's OrdMag cell caller used for the ATAC `number_of_cells` library metric; does not change which barcodes are written; default is set to 10000. | Integer |
+| filter_cells_to_expected | Optional boolean; when true the ATAC workflow writes a filtered h5ad with the top `expected_cells` barcodes and JoinBarcodes uses it; default is "true". | Boolean |
+| gex_h5ad | Optional precomputed Optimus h5ad. When supplied, the Optimus sub-workflow is skipped and this file is passed to JoinBarcodes. | File |
+| atac_h5ad | Optional precomputed ATAC h5ad (the filtered h5ad from a previous run, or any per-barcode ATAC h5ad). When supplied together with `atac_fragment_file`, the ATAC sub-workflow is skipped. | File |
+| atac_fragment_file | Optional precomputed, bgzipped ATAC fragment file. When supplied together with `atac_h5ad`, the ATAC sub-workflow is skipped. | File |
 | annotations_gtf | GTF file containing gene annotations used for GEX cell metric calculation and ATAC fragment metrics; must match the GTF used to build the STAR aligner. | File |
 | gex_r1_fastq | Array of read 1 FASTQ files representing a single GEX 10x library. | Array[File] |
 | gex_r2_fastq | Array of read 2 FASTQ files representing a single GEX 10x library.| Array[File] |
@@ -103,7 +108,7 @@ The Multiome pipeline is currently available on the cloud-based platform Terra. 
 
 ## Tasks
 
-The Multiome workflow calls two WARP subworkflows, one external subworkflow (optional), and an additional task, which are described briefly in the table below. For more details on each subworkflow and task, see the documentation and WDL scripts linked in the table.
+The Multiome workflow calls two WARP subworkflows, one external subworkflow (optional), and an additional task, which are described briefly in the table below. Either WARP subworkflow can be skipped by supplying its outputs directly (`gex_h5ad` for Optimus; `atac_h5ad` plus `atac_fragment_file` for ATAC), in which case the pipeline proceeds straight to JoinBarcodes. For more details on each subworkflow and task, see the documentation and WDL scripts linked in the table.
 
 | Subworkflow | Software | Description | 
 | ----------- | -------- | ----------- |
@@ -119,12 +124,14 @@ The Multiome workflow calls two WARP subworkflows, one external subworkflow (opt
 | multiome_pipeline_version_out | N.A. | String describing the version of the Multiome pipeline used. |
 | gex_whitelist_used | `gex_whitelist_input.txt` | File describing the whitelist used for the Optimus pipeline |
 | atac_whitelist_used | `atac_whitelist_input.txt` | File describing the whitelist used for the ATAC pipeline |
-| bam_aligned_output_atac | `<input_id>_atac.bam` | BAM file containing aligned reads from ATAC workflow. |
+| bam_aligned_output_atac | `<input_id>_atac.bam` | Optional BAM file containing aligned reads from ATAC workflow; absent when the ATAC sub-workflow is skipped. |
 | fragment_file_atac | `<input_id>_atac.fragments.sorted.tsv.gz` | Sorted and bgzipped TSV file containing fragment start and stop coordinates per barcode. The columns are "Chromosome", "Start", "Stop", "ATAC Barcode", "Number of reads", and "GEX Barcode". | 
 | fragment_file_index |  `<input_id>_atac.fragments.sorted.tsv.gz.csi` | Tabix CSI index file for the fragment file. |
-| snap_metrics_atac | `<input_id>_atac.metrics.h5ad` | h5ad (Anndata) file containing per-barcode metrics from SnapATAC2. Also contains the equivalent gene expression barcode for each ATAC barcode in the `gex_barcodes` column of the `h5ad.obs` property. See the [ATAC Count Matrix Overview](../ATAC/count-matrix-overview.md) for more details. |
-| atac_library_metrics | `<input_id>_atac_<nhash_id>_library_metrics.csv` | CSV with library-level metrics produced by SnapATAC2. See the ATAC [Library Level Metrics Overview](../ATAC/library-metrics.md) for more details. |
-| genomic_reference_version_gex | `<reference_version>.txt` | File containing the Genome build, source and GTF annotation version. |
+| snap_metrics_atac | `<input_id>_atac.filtered.metrics.h5ad` (or `<input_id>_atac.metrics.h5ad` when filtering is off) | h5ad (Anndata) file containing per-barcode metrics from SnapATAC2 for the barcodes passed to JoinBarcodes (the top `expected_cells` barcodes when `filter_cells_to_expected` is true). Also contains the equivalent gene expression barcode for each ATAC barcode in the `gex_barcodes` column of the `h5ad.obs` property. See the [ATAC Count Matrix Overview](../ATAC/count-matrix-overview.md) for more details. |
+| snap_metrics_atac_unfiltered | `<input_id>_atac.metrics.h5ad` | Optional unfiltered ATAC h5ad with every barcode that has a fragment, before joining; absent when the ATAC sub-workflow is skipped. |
+| snap_metrics_atac_filtered | `<input_id>_atac.filtered.metrics.h5ad` | Optional filtered ATAC h5ad (top `expected_cells` barcodes), before joining; absent when filtering is off or the ATAC sub-workflow is skipped. |
+| atac_library_metrics | `<input_id>_atac_<nhash_id>_library_metrics.csv` | Optional CSV with library-level metrics produced by SnapATAC2; absent when the ATAC sub-workflow is skipped. See the ATAC [Library Level Metrics Overview](../ATAC/library-metrics.md) for more details. |
+| genomic_reference_version_gex | `<reference_version>.txt` | File containing the Genome build, source and GTF annotation version. Optional; this and the other Optimus-derived outputs below are absent when the Optimus sub-workflow is skipped via `gex_h5ad`. |
 | bam_gex | `<input_id>_gex.bam` | BAM file containing aligned reads from Optimus workflow. |
 | matrix_gex | `<input_id>_gex_sparse_counts.npz` | NPZ file containing raw gene by cell counts. |
 | matrix_row_index_gex | `<input_id>_gex_sparse_counts_row_index.npy` | NPY file containing the row indices. |

@@ -19,8 +19,12 @@ workflow TestATAC {
       # Additional library aliquot ID
       String? atac_nhash_id
 
-      #Expected cells from library preparation
+      #Expected cells from library preparation (also the number of barcodes kept in the filtered h5ad)
       Int atac_expected_cells = 3000
+      # Anchor for SnapATAC2's OrdMag cell caller (number_of_cells metric only)
+      Int ordmag_anchor_cells = 10000
+      # Write the filtered h5ad with the top atac_expected_cells barcodes
+      Boolean filter_cells_to_expected = true
 
       # Option for running files with preindex
       Boolean preindex = false
@@ -70,6 +74,8 @@ workflow TestATAC {
         cloud_provider = cloud_provider,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
+        ordmag_anchor_cells = ordmag_anchor_cells,
+        filter_cells_to_expected = filter_cells_to_expected,
         preindex = preindex,
         tar_bwa_reference = tar_bwa_reference,
         num_threads_bwa = num_threads_bwa,
@@ -93,7 +99,9 @@ workflow TestATAC {
                                     ATAC.bam_aligned_output,
                                     ATAC.snap_metrics,
                                     ATAC.library_metrics_file
-                                    ],                                  
+                                    ],
+                                    # File? outputs
+                                    select_all([ATAC.snap_metrics_filtered]),
     ])
 
     

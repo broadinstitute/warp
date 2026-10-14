@@ -1,3 +1,10 @@
+# 7.1.0
+2026-10-14 (Date of Last Commit)
+
+* Added optional inputs `gex_h5ad`, `atac_h5ad` and `atac_fragment_file`; when supplied, the Optimus and/or ATAC sub-workflows are skipped and the pipeline proceeds directly to JoinBarcodes with the supplied files. Outputs produced by a skipped sub-workflow are now optional (`File?`)
+* Added `ordmag_anchor_cells` and `filter_cells_to_expected` inputs, forwarded to the ATAC workflow (see the ATAC changelog); JoinBarcodes now uses the filtered ATAC h5ad (top `expected_cells` barcodes) when filtering is enabled
+* Added outputs `snap_metrics_atac_unfiltered` and `snap_metrics_atac_filtered` (the ATAC h5ads before joining)
+
 # 7.0.4
 2026-10-08 (Date of Last Commit)
 

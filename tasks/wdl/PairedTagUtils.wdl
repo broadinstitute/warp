@@ -312,6 +312,8 @@ task MaskPeakCallingMetrics {
       "fraction_of_high-quality_fragments_overlapping_peaks"
       "number_of_peaks"
       "fraction_of_transposition_events_in_peaks_in_cells"
+      "min_fragments_in_peaks_in_cells"
+      "min_fragments_in_peaks_retained"
     )
 
     # Copy input file to working directory
