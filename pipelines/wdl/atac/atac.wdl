@@ -24,7 +24,7 @@ workflow ATAC {
     # Additional library aliquot ID
     String? atac_nhash_id
 
-    #Expected cells from library preparation. Also the number of barcodes kept in the filtered h5ad.
+    # Expected cells from library preparation. Also the number of barcodes kept in the filtered h5ad.
     Int atac_expected_cells = 3000
     # Anchor for SnapATAC2's OrdMag cell caller (number_of_cells metric only; does not filter)
     Int ordmag_anchor_cells = 10000
