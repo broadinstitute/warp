@@ -23,10 +23,9 @@ task MergeSampleChunksVcfsWithPaste {
 
         fifos_to_paste=()
         md5sums=()
-
         # Keep only meta header lines here. The #CHROM line is merged in the paste stream.
         bcftools view -h --no-version ${vcfs[0]} | awk '!/^#CHROM/' > header.vcf
-        n_lines=$(bcftools view -h --no-version ${vcfs[0]} | wc -l)
+        n_lines=$(wc -l header.vcf | cut -d' ' -f1)
 
         mkfifo fifo_to_md5_0
 
@@ -48,7 +47,7 @@ task MergeSampleChunksVcfsWithPaste {
 
         file_name_md5sum="md5sum_$i"
         md5sums+=("$file_name_md5sum")
-        n_lines=$(bcftools view -h --no-version $vcf | wc -l)
+        n_lines=$(bcftools view -h --no-version $vcf | awk '!/^#CHROM/' | wc -l | cut -d' ' -f1)
 
         bcftools view --no-version $vcf > "$fifo_name" &
         tail +$((n_lines)) "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
@@ -107,9 +106,9 @@ task ExtractAnnotations {
         # Ensure index is localized so bcftools can use it for random access if needed
         ls ~{imputed_vcf_or_bcf_index} > /dev/null
 
-        printf 'CHROM\tPOS\tREF\tALT\tRAF\tAF\tINFO\tN_PATHS\tN_PATHS_TOTAL\n' > annotations_batch_~{batch_index}.tsv
+        printf 'CHROM\tPOS\tREF\tALT\tAF\tINFO\tN_PATHS\tN_PATHS_TOTAL\n' > annotations_batch_~{batch_index}.tsv
         bcftools query \
-        -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/RAF\t%INFO/AF\t%INFO/INFO\t%INFO/N_PATHS\t%INFO/N_PATHS_TOTAL\n' \
+        -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\t%INFO/N_PATHS\t%INFO/N_PATHS_TOTAL\n' \
         ~{imputed_vcf_or_bcf} >> annotations_batch_~{batch_index}.tsv
 
         bgzip annotations_batch_~{batch_index}.tsv
@@ -136,11 +135,6 @@ task RecomputeAndAnnotate {
 
         Array[Int] num_samples
 
-        # set RAF='.' when RAF <= allele_count_censoring_threshold / (2 * num_panel_samples) to comply with All of Us requirements
-        # https://support.researchallofus.org/hc/en-us/articles/22346276580372-Data-and-Statistics-Dissemination-Policy
-        Int allele_count_censoring_threshold = 20
-        Int num_panel_samples = 12554
-
         String output_basename
 
         String docker_merge
@@ -154,61 +148,7 @@ task RecomputeAndAnnotate {
     command <<<
         set -euo pipefail
 
-        NUM_BATCHES=~{length(annotations)}
-
-        if [ "$NUM_BATCHES" -eq 0 ]; then
-            # TODO for now, we implement single-batch in awk to minimize number of traversals
-            # (using bcftools requires multiple traversals due to limitations when reheadering and converting BCF to VCF)
-            # will refactor later along with postprocessing tasks
-            echo "Single batch detected (BCF expected). Using awk single-pass fast-path for RAF censoring..."
-
-            THRESHOLD=$(awk -v ac=~{allele_count_censoring_threshold} -v ns=~{num_panel_samples} 'BEGIN { print ac / (2.0 * ns) }')
-            NEW_HDR='##INFO=<ID=RAF,Number=A,Type=Float,Description="ALT allele frequency in the reference panel. Values <= ~{allele_count_censoring_threshold} / (2 * ~{num_panel_samples}) are set to missing to comply with the All of Us Data and Statistics Dissemination Policy.">'
-
-            bcftools view ~{merged_vcf_or_bcf} | \
-            awk -F'\t' -v thresh="$THRESHOLD" -v new_hdr="$NEW_HDR" 'BEGIN {OFS="\t"}
-                /^##INFO=<ID=RAF,/ {
-                    # Replace the old RAF header line in place
-                    print new_hdr
-                    next
-                }
-                /^#/ {
-                    # Pass all other metadata lines untouched (including #CHROM)
-                    print $0
-                    next
-                }
-                {
-                    # Data lines: Split INFO field ($8)
-                    n_tags = split($8, tags, ";")
-
-                    for (i=1; i<=n_tags; i++) {
-                        if (tags[i] ~ /^RAF=/) {
-                            val = substr(tags[i], 5) # Extract value after "RAF="
-                            if (val != "." && val <= thresh) {
-                                tags[i] = "RAF=."
-                            }
-                            break # RAF found and handled, stop looping through tags
-                        }
-                    }
-
-                    # Reconstruct the INFO field
-                    $8 = tags[1]
-                    for (i=2; i<=n_tags; i++) {
-                        $8 = $8 ";" tags[i]
-                    }
-
-                    print $0
-                }
-            ' | bcftools view -O z -o ~{output_basename}.vcf.gz
-
-            # Create a dummy annotations file to satisfy the output block requirements
-            touch aggregated_annotations.tsv
-            bgzip aggregated_annotations.tsv
-
-        else
-            echo "Multiple batches detected (VCFs expected). Using Python aggregation and censoring script..."
-
-            cat <<EOF > script.py
+        cat <<EOF > script.py
 import pandas as pd
 import numpy as np
 
@@ -228,11 +168,11 @@ readers = [pd.read_csv(f, sep='\t', chunksize=chunk_size) for f in input_filenam
 with open('aggregated_annotations.tsv', 'w') as out:
     for chunks in zip(*readers):
         # Validate that all batches have identical sites for this chunk
-        ref_loci = chunks[0][['CHROM', 'POS', 'REF', 'ALT', 'RAF', 'N_PATHS', 'N_PATHS_TOTAL']].reset_index(drop=True)
+        ref_loci = chunks[0][['CHROM', 'POS', 'REF', 'ALT', 'N_PATHS', 'N_PATHS_TOTAL']].reset_index(drop=True)
         for i, chunk in enumerate(chunks[1:], 1):
-            if not ref_loci.equals(chunk[['CHROM', 'POS', 'REF', 'ALT', 'RAF', 'N_PATHS', 'N_PATHS_TOTAL']].reset_index(drop=True)):
+            if not ref_loci.equals(chunk[['CHROM', 'POS', 'REF', 'ALT', 'N_PATHS', 'N_PATHS_TOTAL']].reset_index(drop=True)):
                 raise RuntimeError(f'Sites in chunk do not match between batch 0 and batch {i}. '
-                                   f'First mismatch at: {ref_loci[~ref_loci.eq(chunk[["CHROM","POS","REF","ALT","RAF","N_PATHS","N_PATHS_TOTAL"]].reset_index(drop=True)).all(axis=1)].head(1).to_dict("records")}')
+                                   f'First mismatch at: {ref_loci[~ref_loci.eq(chunk[["CHROM","POS","REF","ALT","N_PATHS","N_PATHS_TOTAL"]].reset_index(drop=True)).all(axis=1)].head(1).to_dict("records")}')
 
         # Vectorized weighted AF across batches
         agg_af = sum(chunks[i]['AF'].values * num_samples[i] for i in range(num_batches)) / total_samples
@@ -253,31 +193,19 @@ with open('aggregated_annotations.tsv', 'w') as out:
             return round(float(x), n - 1 - int(np.floor(np.log10(abs(x)))))
 
         result = ref_loci.copy()
-
-        # Censor RAF by replacing it with '.' (missing) if it falls below the threshold
-        threshold = ~{allele_count_censoring_threshold} / (2.0 * ~{num_panel_samples})
-        result['RAF'] = np.where(result['RAF'] <= threshold, '.', result['RAF'])
-
         # Cap INFO and AF values at 3 sig-figs to avoid blowing up the output file size w/ overprecision
         result['AF'] = np.vectorize(round_to_n_sig_figs)(agg_af, 3)
         result['INFO'] = np.vectorize(round_to_n_sig_figs)(agg_info, 3)
-
-        result = result[['CHROM', 'POS', 'REF', 'ALT', 'RAF', 'AF', 'INFO', 'N_PATHS', 'N_PATHS_TOTAL']]
+        result = result[['CHROM', 'POS', 'REF', 'ALT', 'AF', 'INFO', 'N_PATHS', 'N_PATHS_TOTAL']]
         result.to_csv(out, sep='\t', header=False, index=False)
+
 EOF
+        python3 script.py
 
-            python3 script.py
+        bgzip aggregated_annotations.tsv
+        tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
 
-            bgzip aggregated_annotations.tsv
-            tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
-
-            bcftools view -h ~{merged_vcf_or_bcf} | grep -v '##INFO=<ID=RAF,' > new_header.txt
-            echo '##INFO=<ID=RAF,Number=A,Type=Float,Description="ALT allele frequency in the reference panel. Values <= ~{allele_count_censoring_threshold} / (2 * ~{num_panel_samples}) are set to missing to comply with the All of Us Data and Statistics Dissemination Policy.">' > raf_header.txt
-
-            # Note RAF is preceded by . in -c to ensure that RAF values are overwritten with missing
-            bcftools reheader -h new_header.txt ~{merged_vcf_or_bcf} | \
-                bcftools annotate -h raf_header.txt -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,.RAF,AF,INFO,N_PATHS,N_PATHS_TOTAL -O z -o ~{output_basename}.vcf.gz
-        fi
+        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO,N_PATHS,N_PATHS_TOTAL -O z -o ~{output_basename}.vcf.gz ~{merged_vcf_or_bcf}
     >>>
 
     runtime {
@@ -292,6 +220,41 @@ EOF
     output {
         File merged_imputed_vcf = "~{output_basename}.vcf.gz"
         File aggregated_annotations = "aggregated_annotations.tsv.gz"
+    }
+}
+
+task CensorRaf {
+    input {
+        File input_vcf
+        String output_basename
+
+        Float raf_censoring_threshold
+
+        String docker = "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + 20)
+        Int mem_gb = 4
+        Int cpu = 1
+        Int preemptible = 3
+    }
+
+    command <<<
+        set -euo pipefail
+
+        bcftools annotate -x INFO/RAF -i 'INFO/RAF<=~{raf_censoring_threshold}' --keep-sites -O z -o "~{output_basename}.vcf.gz" "~{input_vcf}"
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+        maxRetries: 1
+        noAddress: true
+    }
+
+    output {
+        File output_vcf = "~{output_basename}.vcf.gz"
     }
 }
 

@@ -36,13 +36,7 @@ workflow TestGlimpse2SVImputation {
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
 
-        # set RAF='.' when RAF <= allele_count_censoring_threshold / (2 * num_panel_samples) to comply with All of Us requirements
-        # https://support.researchallofus.org/hc/en-us/articles/22346276580372-Data-and-Statistics-Dissemination-Policy
-        # Note that although our test panel only has 50 samples, the RAFs there are drawn from the full panel with 12,554 samples,
-        # so we can leave these paramters set to default values for testing
-        Int? allele_count_censoring_threshold
-        Int? num_panel_samples
-
+        Float? raf_censoring_threshold
         Float? info_filter_for_inclusion
 
         String? glimpse2_docker
@@ -75,8 +69,7 @@ workflow TestGlimpse2SVImputation {
         extra_phase_args = extra_phase_args,
         glimpse_phase_cpu_override = glimpse_phase_cpu_override,
         pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
-        allele_count_censoring_threshold = allele_count_censoring_threshold,
-        num_panel_samples = num_panel_samples,
+        raf_censoring_threshold = raf_censoring_threshold,
         info_filter_for_inclusion = info_filter_for_inclusion,
         glimpse2_docker = glimpse2_docker,
     }

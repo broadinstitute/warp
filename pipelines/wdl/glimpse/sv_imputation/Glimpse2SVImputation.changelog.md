@@ -1,7 +1,7 @@
 # 1.1.0
 2026-10-13 (Date of Last Commit)
 
-* Added censoring of RAF to missing under specified AC threshold
+* Added censoring of RAF via removal when under threshold
 
 # 1.0.5
 2026-10-01 (Date of Last Commit)
