@@ -25,7 +25,7 @@ task MergeSampleChunksVcfsWithPaste {
         md5sums=()
         # Keep only meta header lines here. The #CHROM line is merged in the paste stream.
         bcftools view -h --no-version ${vcfs[0]} | awk '!/^#CHROM/' > header.vcf
-        n_lines=$(wc -l header.vcf | cut -d' ' -f1)
+        n_lines=$(bcftools view -h --no-version ${vcfs[0]} | wc -l)
 
         mkfifo fifo_to_md5_0
 
@@ -47,7 +47,7 @@ task MergeSampleChunksVcfsWithPaste {
 
         file_name_md5sum="md5sum_$i"
         md5sums+=("$file_name_md5sum")
-        n_lines=$(bcftools view -h --no-version $vcf | awk '!/^#CHROM/' | wc -l | cut -d' ' -f1)
+        n_lines=$(bcftools view -h --no-version $vcf | wc -l)
 
         bcftools view --no-version $vcf > "$fifo_name" &
         tail +$((n_lines)) "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
