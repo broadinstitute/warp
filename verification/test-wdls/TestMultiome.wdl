@@ -48,6 +48,8 @@ workflow TestMultiome {
 
       # Optional aligned ATAC bam file
       File? aligned_ATAC_bam
+      Int expected_cells = 3000
+      Boolean atac_anchor_cell_calling = false
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -91,7 +93,9 @@ workflow TestMultiome {
         gex_nhash_id = gex_nhash_id,
         atac_nhash_id = atac_nhash_id,
         run_peak_calling = run_peak_calling,
-        aligned_ATAC_bam = aligned_ATAC_bam
+        aligned_ATAC_bam = aligned_ATAC_bam,
+        expected_cells = expected_cells,
+        atac_anchor_cell_calling = atac_anchor_cell_calling
     }
 
     
