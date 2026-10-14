@@ -16,10 +16,8 @@ workflow Glimpse2LowPassImputation {
         File? cram_manifest
         String output_basename
 
-        # set RAF='.' when RAF <= allele_count_censoring_threshold / (2 * num_panel_samples) to comply with All of Us requirements
-        # https://support.researchallofus.org/hc/en-us/articles/22346276580372-Data-and-Statistics-Dissemination-Policy
-        Int allele_count_censoring_threshold = 20
-        Int num_panel_samples = 515579
+        # remove RAF when RAF <= raf_censoring_threshold
+        Float raf_censoring_threshold = 0.0
 
         # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCF
         Float info_filter_for_inclusion = 0.0
@@ -112,17 +110,15 @@ workflow Glimpse2LowPassImputation {
                     input_vcfs = batch_vcfs_for_contig,
                     output_vcf_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged"
             }
-        }
 
-        call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate {
-            input:
-                merged_vcf = select_first([MergeContigVcfs.output_vcf, batch_vcfs_for_contig[0]]),
-                annotations = select_first([ExtractAnnotations.annotations, []]),
-                num_samples = RunBatch.total_samples,
-                output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated",
-                allele_count_censoring_threshold = allele_count_censoring_threshold,
-                num_panel_samples = num_panel_samples,
-                docker_merge = docker_merge
+            call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate {
+                input:
+                    merged_vcf = MergeContigVcfs.output_vcf,
+                    annotations = ExtractAnnotations.annotations,
+                    num_samples = RunBatch.total_samples,
+                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated",
+                    docker_merge = docker_merge
+            }
         }
 
         File annotated_contig_vcf = select_first([RecomputeAndAnnotate.merged_imputed_vcf, batch_vcfs_for_contig[0]])
@@ -138,10 +134,21 @@ workflow Glimpse2LowPassImputation {
 
         File filtered_contig_vcf = select_first([FilterContigVcfByInfo.output_vcf, annotated_contig_vcf])
 
+        if (raf_censoring_threshold > 0.0) {
+            call Glimpse2LowPassImputationTasks.CensorRaf as CensorFilteredContigRaf {
+                input:
+                    input_vcf = filtered_contig_vcf,
+                    raf_censoring_threshold = raf_censoring_threshold,
+                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.raf_censored"
+            }
+        }
+        
+        File censored_filtered_contig_vcf = select_first([CensorFilteredContigRaf.output_vcf, filtered_contig_vcf])
+
         # Update VCF header with reference dictionary and pipeline header line (if provided)
         call Glimpse2LowPassImputationTasks.UpdateHeader {
             input:
-                vcf = filtered_contig_vcf,
+                vcf = censored_filtered_contig_vcf,
                 ref_dict = ref_dict,
                 pipeline_header_line = pipeline_header_line,
                 output_basename = output_basename + "." + contigs[contig_idx] + ".imputed",
