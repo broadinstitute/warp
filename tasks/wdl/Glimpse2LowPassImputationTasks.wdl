@@ -174,15 +174,15 @@ with open('aggregated_annotations.tsv', 'w') as out:
         polymorphic = (agg_af != 0) & (agg_af != 1)
         agg_info = np.where(polymorphic, 1 - np.divide(numerator, denominator, where=polymorphic, out=np.zeros_like(denominator)), 1.0)
 
-        def round_to_n_sig_figs(x, n):
+        def round_to_n_sig_figs_and_clip(x, n):
             if x == 0:
                 return 0.0
-            return round(float(x), n - 1 - int(np.floor(np.log10(abs(x)))))
+            return np.clip(round(float(x), n - 1 - int(np.floor(np.log10(abs(x))))), 0.0, 1.0)
 
         result = ref_loci.copy()
-        # Cap INFO and AF values at 3 sig-figs to avoid blowing up the output file size w/ overprecision
-        result['AF'] = np.vectorize(round_to_n_sig_figs)(agg_af, 3)
-        result['INFO'] = np.vectorize(round_to_n_sig_figs)(agg_info, 3)
+        # Cap AF and INFO values at 3 sig-figs and clip to [0, 1] (note floating-point math can yield negative epsilons for agg_info above)
+        result['AF'] = np.vectorize(round_to_n_sig_figs_and_clip)(agg_af, 3)
+        result['INFO'] = np.vectorize(round_to_n_sig_figs_and_clip)(agg_info, 3)
         result.to_csv(out, sep='\t', header=False, index=False)
 
 EOF
