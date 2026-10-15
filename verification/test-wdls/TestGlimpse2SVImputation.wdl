@@ -36,6 +36,7 @@ workflow TestGlimpse2SVImputation {
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
 
+        Float? raf_censoring_threshold
         Float? info_filter_for_inclusion
 
         String? glimpse2_docker
@@ -68,6 +69,7 @@ workflow TestGlimpse2SVImputation {
         extra_phase_args = extra_phase_args,
         glimpse_phase_cpu_override = glimpse_phase_cpu_override,
         pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
+        raf_censoring_threshold = raf_censoring_threshold,
         info_filter_for_inclusion = info_filter_for_inclusion,
         glimpse2_docker = glimpse2_docker,
     }
