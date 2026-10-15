@@ -1,3 +1,8 @@
+# 4.1.2
+2026-10-13 (Date of Last Commit)
+
+* UpdateHeader tasks now asks for more disk.  TODO ADD SOMETHING HERE ABOUT PREEMPTIBLE CHANGES IF WE WANT TO DO THAT
+
 # 4.1.1
 2026-10-01 (Date of Last Commit)
 

@@ -623,7 +623,7 @@ task MergeSampleChunksVcfsWithPaste {
     disks: "local-disk " + disk_size_gb + " HDD"
     memory: mem_gb + " GiB"
     cpu: cpu
-    preemptible: preemptible
+    preemptible: 0
     maxRetries: 1
     noAddress: true
   }
@@ -844,7 +844,7 @@ task AggregateChunkedDR2AndAF {
     disks: "local-disk " + disk_size_gb + " HDD"
     memory: mem_gb + " GiB"
     cpu: cpu
-    preemptible: preemptible
+    preemptible: 0
     maxRetries: 1
     noAddress: true
   }
@@ -920,7 +920,7 @@ task ReannotateDR2AndAF {
     disks: "local-disk " + disk_size_gb + " HDD"
     memory: mem_gb + " GiB"
     cpu: cpu
-    preemptible: preemptible
+    preemptible: 0
     maxRetries: 1
     noAddress: true
   }
