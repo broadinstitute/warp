@@ -139,6 +139,6 @@ workflow ImputationBeagleCheckChunks {
     File chunks_info = StoreMetricsInfo.chunks_info
     File failed_chunks = StoreMetricsInfo.failed_chunks
     File contigs_info = StoreMetricsInfo.contigs_info
-    File n_failed_chunks = StoreMetricsInfo.n_failed_chunks
+    Int n_failed_chunks = StoreMetricsInfo.n_failed_chunks
   }
 }
