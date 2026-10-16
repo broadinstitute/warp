@@ -2,13 +2,12 @@ version 1.0
 
 import "../atac/atac.wdl" as atac
 import "../optimus/Optimus.wdl" as optimus
-import "../../../tasks/wdl/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/wdl/PairedTagUtils.wdl" as Demultiplexing
 import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "3.0.3"
+    String pipeline_version = "3.0.4"
 
     input {
         String input_id
@@ -29,6 +28,7 @@ workflow PairedTag {
         # Optimus (an unspecified subversion defaults to the v4_TRU whitelist; see Optimus.wdl).
         Int tenx_chemistry_version = 3
         Int emptydrops_lower = 100
+        Int? emptydrops_seed
         Boolean force_no_check = false
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Forward"
@@ -99,6 +99,7 @@ workflow PairedTag {
             tenx_chemistry_version = tenx_chemistry_version,
             whitelist = gex_whitelist,
             emptydrops_lower = emptydrops_lower,
+            emptydrops_seed = emptydrops_seed,
             force_no_check = force_no_check,
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,

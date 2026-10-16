@@ -18,5 +18,6 @@
     "Glimpse2SVImputation.genetic_maps_tsv": "gs://pd-test-storage-public/Glimpse2SVImputation/inputs/b38_genetic_map.tsv",
     "Glimpse2SVImputation.chunked_panel_json": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/json/hgsvc-hprc-50.chunked_panel.json",
     "Glimpse2SVImputation.pop_glimpse2_panel_resources_json": "gs://pd-test-storage-public/Glimpse2SVImputation/ref_panels/hgsvc_hprc_50/json/hgsvc-hprc-50.panel.pop_panel_resources.json",
-    "Glimpse2SVImputation.glimpse_phase_cpu_override": 1
+    "Glimpse2SVImputation.glimpse_phase_cpu_override": 1,
+    "Glimpse2SVImputation.raf_censoring_threshold": 0.02
 }
