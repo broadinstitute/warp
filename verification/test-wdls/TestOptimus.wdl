@@ -36,6 +36,8 @@ workflow TestOptimus {
 
     # Emptydrops lower cutoff
     Int emptydrops_lower = 100
+    # Fixed seed so emptyDrops p-values are reproducible against truth
+    Int emptydrops_seed = 42
 
     # Set to true to override input checks and allow pipeline to proceed with invalid input
     Boolean force_no_check = false
@@ -83,6 +85,7 @@ workflow TestOptimus {
       tenx_chemistry_version     = tenx_chemistry_version,
       tenx_chemistry_subversion  = tenx_chemistry_subversion,
       emptydrops_lower           = emptydrops_lower,
+      emptydrops_seed            = emptydrops_seed,
       force_no_check             = force_no_check,
       star_strand_mode           = star_strand_mode,
       ignore_r1_read_length      = ignore_r1_read_length,
