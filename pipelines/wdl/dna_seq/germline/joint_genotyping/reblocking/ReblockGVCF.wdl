@@ -21,6 +21,7 @@ workflow ReblockGVCF {
     Boolean? move_filters_to_genotypes
     String gvcf_file_extension = ".g.vcf.gz"
     String cloud_provider
+    Int disk_size
   }
 
   String gvcf_basename = basename(gvcf, gvcf_file_extension)
@@ -65,7 +66,8 @@ workflow ReblockGVCF {
         calling_intervals_defined = defined(calling_interval_list),
         is_gvcf = true,
         extra_args = "--no-overlaps",
-        docker_path = gatk_docker
+        docker_path = gatk_docker,
+        disk_size  = disk_size
     }
 
   output {

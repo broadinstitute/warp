@@ -625,11 +625,12 @@ task ValidateVCF {
     #Setting default docker value for workflows that haven't yet been azurized.
     String docker_path = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int machine_mem_mb = 7000
+    Int disk_size = 300
   }
 
   Int command_mem_mb = machine_mem_mb - 2000
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(size(input_vcf, "GiB") + size(calling_interval_list, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
+  #Int disk_size = ceil(size(input_vcf, "GiB") + size(calling_interval_list, "GiB") + size(dbsnp_vcf, "GiB") +ref_size) + 20
 
   command {
     set -e
