@@ -5,7 +5,7 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "1.0.5"
+    String pipeline_version = "1.1.0"
     String preprocess_pls_gvcf_pipeline_version = "1.0.2"
     String batch_pipeline_version = "1.0.2"
     String quota_consumed_version = "1.0.0"
@@ -39,6 +39,9 @@ workflow Glimpse2SVImputation {
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
+
+        # remove RAF when RAF <= raf_censoring_threshold
+        Float raf_censoring_threshold = 0.0
 
         # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCFs
         Float info_filter_for_inclusion = 0.0
@@ -141,9 +144,20 @@ workflow Glimpse2SVImputation {
 
         File final_filtered_popped_contig_vcf = select_first([FilterPoppedContigByInfo.output_vcf, final_popped_contig_vcf])
 
+        if (raf_censoring_threshold > 0.0) {
+            call Glimpse2SVImputationTasks.CensorRaf as CensorFilteredPoppedContigRaf {
+                input:
+                    input_vcf = final_filtered_popped_contig_vcf,
+                    raf_censoring_threshold = raf_censoring_threshold,
+                    output_basename = output_basename + "." + chromosomes[contig_idx] + ".glimpse2.popped.raf_censored"
+            }
+        }
+        
+        File final_censored_filtered_popped_contig_vcf = select_first([CensorFilteredPoppedContigRaf.output_vcf, final_filtered_popped_contig_vcf])
+
         call Glimpse2SVImputationTasks.CreateVcfIndexAndMd5 as IndexFinalPoppedContig {
             input:
-                vcf_input_or_bcf = final_filtered_popped_contig_vcf,
+                vcf_input_or_bcf = final_censored_filtered_popped_contig_vcf,
                 output_basename = output_basename + "." + chromosomes[contig_idx],
                 gatk_docker = gatk_docker,
                 preemptible = 0

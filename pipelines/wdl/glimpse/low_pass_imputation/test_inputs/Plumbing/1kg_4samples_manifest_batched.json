@@ -7,5 +7,6 @@
     "Glimpse2LowPassImputation.fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
     "Glimpse2LowPassImputation.fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
     "Glimpse2LowPassImputation.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
-    "Glimpse2LowPassImputation.glimpse_phase_cpu_override": 1
+    "Glimpse2LowPassImputation.glimpse_phase_cpu_override": 1,
+    "Glimpse2LowPassImputation.raf_censoring_threshold": 0.002
 }

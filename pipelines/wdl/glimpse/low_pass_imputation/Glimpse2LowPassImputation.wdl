@@ -4,7 +4,7 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "2.0.1"
+    String pipeline_version = "2.1.0"
     String batch_pipeline_version = "1.1.0"
     String quota_consumed_version = "1.0.1"
     String input_qc_version = "1.1.1"
@@ -15,6 +15,10 @@ workflow Glimpse2LowPassImputation {
         Array[File]? cram_indices
         File? cram_manifest
         String output_basename
+
+        # remove RAF when RAF <= raf_censoring_threshold
+        Float raf_censoring_threshold = 0.0
+
         # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCF
         Float info_filter_for_inclusion = 0.0
 
@@ -130,10 +134,21 @@ workflow Glimpse2LowPassImputation {
 
         File filtered_contig_vcf = select_first([FilterContigVcfByInfo.output_vcf, annotated_contig_vcf])
 
+        if (raf_censoring_threshold > 0.0) {
+            call Glimpse2LowPassImputationTasks.CensorRaf as CensorFilteredContigRaf {
+                input:
+                    input_vcf = filtered_contig_vcf,
+                    raf_censoring_threshold = raf_censoring_threshold,
+                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.raf_censored"
+            }
+        }
+        
+        File censored_filtered_contig_vcf = select_first([CensorFilteredContigRaf.output_vcf, filtered_contig_vcf])
+
         # Update VCF header with reference dictionary and pipeline header line (if provided)
         call Glimpse2LowPassImputationTasks.UpdateHeader {
             input:
-                vcf = filtered_contig_vcf,
+                vcf = censored_filtered_contig_vcf,
                 ref_dict = ref_dict,
                 pipeline_header_line = pipeline_header_line,
                 output_basename = output_basename + "." + contigs[contig_idx] + ".imputed",
