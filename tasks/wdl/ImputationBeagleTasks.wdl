@@ -293,7 +293,7 @@ task StoreMetricsInfo {
     File chunks_info = "~{basename}_chunk_info.tsv"
     File failed_chunks = "~{basename}_failed_chunks.tsv"
     File contigs_info = "~{basename}_contig_info.tsv"
-    File n_failed_chunks = "n_failed_chunks.txt"
+    Int n_failed_chunks = read_int("n_failed_chunks.txt")
   }
 }
 
