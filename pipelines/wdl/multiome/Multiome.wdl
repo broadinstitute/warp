@@ -53,8 +53,8 @@ workflow Multiome {
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         File? aligned_ATAC_bam
-        # If true, anchor ATAC cell calling to expected_cells and filter the ATAC h5ad to the top expected_cells called barcodes by total fragments
-        Boolean atac_anchor_cell_calling = false
+        # If true, skip ATAC cell estimation and use the top expected_cells ATAC barcodes by total fragments as the cells
+        Boolean atac_force_cells = false
 
         # CellBender
         Boolean run_cellbender = false
@@ -134,7 +134,7 @@ workflow Multiome {
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
-            anchor_cell_calling = atac_anchor_cell_calling,
+            force_cells = atac_force_cells,
             peak_calling = false,
             aligned_ATAC_bam = aligned_ATAC_bam
 
@@ -182,7 +182,6 @@ workflow Multiome {
         File fragment_file_atac = JoinBarcodes.atac_fragment_tsv
         File fragment_file_index = JoinBarcodes.atac_fragment_tsv_index
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
-        File? snap_metrics_atac_called_cells = Atac.snap_metrics_called_cells
         File atac_library_metrics = Atac.library_metrics_file
         File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad
         File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad

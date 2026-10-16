@@ -21,7 +21,7 @@ workflow TestATAC {
 
       #Expected cells from library preparation
       Int atac_expected_cells = 3000
-      Boolean anchor_cell_calling = false
+      Boolean force_cells = false
 
       # Option for running files with preindex
       Boolean preindex = false
@@ -71,7 +71,7 @@ workflow TestATAC {
         cloud_provider = cloud_provider,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
-        anchor_cell_calling = anchor_cell_calling,
+        force_cells = force_cells,
         preindex = preindex,
         tar_bwa_reference = tar_bwa_reference,
         num_threads_bwa = num_threads_bwa,

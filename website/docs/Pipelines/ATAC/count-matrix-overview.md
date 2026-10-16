@@ -8,7 +8,7 @@ The [ATAC pipeline's](README.md) default count matrix output is an h5ad file gen
 
 The h5ad file contains unstructured metadata (`h5ad.uns`; [Table 1](#table-1-global-attributes)) as well as per-barcode quality metrics (`h5ad.obs`; [Table 2](#table-2-cell-metrics)). It also contains an equivalent gene expression barcode for each ATAC barcode. Raw fragments are stored in the `h5ad.obsm['insertion']` property of the h5ad file. For more information, see the [`import_data` function](https://kzhang.org/SnapATAC2/api/_autosummary/snapatac2.pp.import_data.html#snapatac2.pp.import_data) in the SnapATAC2 documentation.
 
-When the pipeline runs with `anchor_cell_calling` set to `true` (`atac_anchor_cell_calling` in Multiome), it produces two h5ad files with the same structure: the default h5ad, which contains only the retained cells (the top `atac_expected_cells` called cells by total fragments), and a second `called_cells` h5ad that contains every called cell. Cells are called on fragments overlapping peaks (`n_frag_overlap_peak`) and filtered on total fragments (`n_fragment`). The `is_cell_called` and `is_retained` columns in `h5ad.obs` identify each barcode's status.
+The h5ad file contains only the barcodes called as cells, and the per-cell library metrics are computed over the same barcodes. By default, cells are called with SnapATAC2's OrdMag method on fragments overlapping peaks (`n_frag_overlap_peak`); when the pipeline runs with `force_cells` set to `true` (`atac_force_cells` in Multiome), the cells are the top `atac_expected_cells` barcodes by total fragments (`n_fragment`).
 
 The h5ad file does not contain per-gene metrics, meaning the variables/features data frame (`h5ad.var`) is empty.
 
@@ -31,9 +31,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 | `n_fragment` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Number of unique fragments corresponding to the ATAC cell barcode. Fragments are stored in the `h5ad.obsm` property of the output h5ad file. Learn more about cell barcodes and fragments in the [Definitions section](#definitions) below. |
 | `frac_dup` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Fraction of reads associated with the cell barcode that are duplicates. |
 | `frac_mito` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Fraction of reads associated with the cell barcode that are mitochondrial. |
-| `n_frag_overlap_peak` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Number of fragments overlapping the library-level MACS3 peaks; the quantity cell calling is based on. |
-| `is_cell_called` | WARP | Present only when `anchor_cell_calling` is `true`. `True` if SnapATAC2 cell calling (anchored to `atac_expected_cells`) called the barcode as a cell; every barcode in both h5ad files is a called cell. |
-| `is_retained` | WARP | Present only when `anchor_cell_calling` is `true`. `True` if the barcode is among the top `atac_expected_cells` called cells by `n_fragment` and is therefore kept in the default (filtered) h5ad; `False` for called cells that appear only in the `called_cells` h5ad. |
+| `n_frag_overlap_peak` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Number of fragments overlapping the library-level MACS3 peaks; the quantity default cell calling is based on. |
 | `gex_barcodes` | [AnnData](https://anndata.readthedocs.io/en/latest/index.html) | Gene expression barcode associated with each ATAC cell barcode. This column is only produced when ATAC is run as part of the Multiome pipeline. |
 
 
