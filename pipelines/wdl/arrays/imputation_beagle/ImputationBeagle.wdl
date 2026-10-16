@@ -77,7 +77,7 @@ workflow ImputationBeagle {
       error_count_override = error_count_override
   }
 
-  # GATHER CHECK CHUNKS OUTPUT: top level is contig, next level is chunks, so [[chr1.chunk0, chr1.chunk1], [chr2.chunk0, chr2.chunk1], ...]
+  # GATHER CHECK CHUNKS OUTPUT: top level is contig, next level is chunks, so [chr][chunk], or [[chr1.chunk0, chr1.chunk1], [chr2.chunk0, chr2.chunk1], ...]
   Array[Array[File]] chunked_filtered_vcfs_with_overlaps_for_imputation = CheckChunks.chunked_vcfs_with_overlaps_for_imputation
 
   Boolean multiple_sample_batches = num_sample_batches > 1
@@ -131,93 +131,130 @@ workflow ImputationBeagle {
     }
   }
 
-  # GATHER IMPUTATION BATCH OUTPUT [batch][contig] = File
-  Array[Array[File]] imputed_multi_sample_vcf_batches = RunBatch.imputed_multi_sample_vcfs
-  Array[Array[File]] imputed_multi_sample_vcf_index_batches = RunBatch.imputed_multi_sample_vcf_indexes
-
-  # TRANSPOSE to [contig][batch] = File
-  Array[Array[File]] imputed_multi_sample_vcfs_by_contig = transpose(imputed_multi_sample_vcf_batches)
-  Array[Array[File]] imputed_multi_sample_vcf_indexes_by_contig = transpose(imputed_multi_sample_vcf_index_batches)
+  # GATHER IMPUTATION BATCH OUTPUT [batch][contig][chunk] = File
+  Array[Array[Array[File]]] imputed_batched_contigs_chunked_vcfs = RunBatch.imputed_contigs_chunked_multi_sample_vcfs
+  Array[Array[Array[File]]] imputed_batched_contigs_chunked_vcf_index_batches = RunBatch.imputed_contigs_chunked_multi_sample_vcf_indexes
 
   scatter (contig_index in range(length(contigs_to_process))) {
+
+    # reorganize the arrays to ultimately have [chunk][batch] = File for each contig
+    scatter (batch_index in range(num_sample_batches)) {
+      # for this contig and batch; [chunk] = File
+      Array[File] imputed_chunked_vcfs_for_this_batch_and_contig = imputed_batched_contigs_chunked_vcfs[batch_index][contig_index]
+      Array[File] imputed_chunked_vcf_indexes_for_this_batch_and_contig = imputed_batched_contigs_chunked_vcf_index_batches[batch_index][contig_index]
+    }
+    # for this contig; [batch][chunk] = File
+    Array[Array[File]] imputed_batched_chunked_vcfs_by_contig = imputed_chunked_vcfs_for_this_batch_and_contig
+    Array[Array[File]] imputed_batched_chunked_vcf_indexes_by_contig = imputed_chunked_vcf_indexes_for_this_batch_and_contig
+    # TRANSPOSE to [chunk][batch] = File
+    Array[Array[File]] imputed_chunked_batched_multi_sample_vcfs_by_contig = transpose(imputed_batched_chunked_vcfs_by_contig)
+    Array[Array[File]] imputed_chunked_batched_multi_sample_vcf_indexes_by_contig = transpose(imputed_batched_chunked_vcf_indexes_by_contig)
+
     String contig_basename = "${output_basename}.${contigs_to_process[contig_index]}"
 
-    # only merge sample chunks if there is more than one
-    if (multiple_sample_batches) {
-      scatter (batch_index in range(length(imputed_multi_sample_vcfs_by_contig[contig_index]))) {
-        call beagleTasks.QuerySampleChunkedVcfForReannotation {
-          input:
-            vcf = imputed_multi_sample_vcfs_by_contig[contig_index][batch_index],
+    scatter (chunk_index in range(length(imputed_chunked_batched_multi_sample_vcfs_by_contig))) {
+      String contig_chunk_basename = "${contig_basename}.chunk_${chunk_index}.imputed"
+
+      # only process and merge sample chunks if there is more than one
+      if (multiple_sample_batches) {
+        # pre-process batched chunks for merging
+        scatter (batch_index in range(length(imputed_chunked_batched_multi_sample_vcfs_by_contig[chunk_index]))) {
+          call beagleTasks.QuerySampleChunkedVcfForReannotation {
+            input:
+              vcf = imputed_chunked_batched_multi_sample_vcfs_by_contig[chunk_index][batch_index],
+            }
+
+          call beagleTasks.RemoveAPAnnotations {
+            input:
+              vcf = imputed_chunked_batched_multi_sample_vcfs_by_contig[chunk_index][batch_index],
+              vcf_index = imputed_chunked_batched_multi_sample_vcf_indexes_by_contig[chunk_index][batch_index],
           }
 
-        call beagleTasks.RemoveAPAnnotations {
+          call beagleTasks.AggregateDSandAPValuesChunked {
+            input:
+              query_file = QuerySampleChunkedVcfForReannotation.output_query_file,
+              n_samples = QuerySampleChunkedVcfForReannotation.n_samples,
+          }
+        } # end of batch scatter
+
+        call beagleTasks.RecomputeDR2AndAfFromChunks {
           input:
-            vcf = imputed_multi_sample_vcfs_by_contig[contig_index][batch_index],
-            vcf_index = imputed_multi_sample_vcf_indexes_by_contig[contig_index][batch_index],
+            sample_chunked_annotation_files = AggregateDSandAPValuesChunked.output_summary_file
         }
 
-        call beagleTasks.AggregateDSandAPValuesChunked {
+        call beagleTasks.MergeSampleChunksVcfsWithPaste {
           input:
-            query_file = QuerySampleChunkedVcfForReannotation.output_query_file,
-            n_samples = QuerySampleChunkedVcfForReannotation.n_samples,
+            input_vcfs = RemoveAPAnnotations.output_vcf,
+            output_vcf_basename = "${contig_chunk_basename}.samples_merged",
+        }
+
+        call beagleTasks.CreateVcfIndex as IndexMergedSampleChunksVcfs {
+          input:
+            vcf_input = MergeSampleChunksVcfsWithPaste.output_vcf,
+            gatk_docker = gatk_docker
+        }
+
+        call beagleTasks.ReannotateDR2AndAF {
+          input:
+            vcf = IndexMergedSampleChunksVcfs.output_vcf,
+            vcf_index = IndexMergedSampleChunksVcfs.output_vcf_index,
+            annotations_tsv = RecomputeDR2AndAfFromChunks.output_annotations_file,
+            annotations_tsv_index = RecomputeDR2AndAfFromChunks.output_annotations_file_index
+        }
+      } # end of sample-batch level processing
+
+      if (!multiple_sample_batches) {
+        # there's only one sample batch
+        File only_batch_contig_chunk_vcf = imputed_chunked_batched_multi_sample_vcfs_by_contig[chunk_index][0]
+        File only_batch_contig_chunk_vcf_index = imputed_chunked_batched_multi_sample_vcf_indexes_by_contig[chunk_index][0]
+      }
+
+      # Define contig-chunk VCF for all input samples
+      File all_samples_contig_chunk_vcf = select_first([ReannotateDR2AndAF.output_vcf, only_batch_contig_chunk_vcf])
+      File all_samples_contig_chunk_vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, only_batch_contig_chunk_vcf_index])
+
+      # optionally filter by dr2
+      if (min_dr2_for_inclusion > 0.0) {
+        call beagleTasks.FilterVcfByDR2 {
+            input:
+            vcf = all_samples_contig_chunk_vcf,
+            vcf_index = all_samples_contig_chunk_vcf_index,
+            basename = "${contig_chunk_basename}.dr2_filtered",
+            dr2_threshold = min_dr2_for_inclusion
         }
       }
 
-      call beagleTasks.MergeSampleChunksVcfsWithPaste {
+      call tasks.UpdateHeader {
         input:
-          input_vcfs = RemoveAPAnnotations.output_vcf,
-          output_vcf_basename = "${contig_basename}.imputed",
-      }
-
-      call beagleTasks.CreateVcfIndex as IndexMergedSampleChunksVcfs {
-        input:
-          vcf_input = MergeSampleChunksVcfsWithPaste.output_vcf,
+          vcf = select_first([FilterVcfByDR2.output_vcf, all_samples_contig_chunk_vcf]),
+          vcf_index = select_first([FilterVcfByDR2.output_vcf_index, all_samples_contig_chunk_vcf_index]),
+          ref_dict = ref_dict,
+          basename = "~{contig_chunk_basename}.update_header",
+          disable_sequence_dictionary_validation = false,
+          pipeline_header_line = pipeline_header_line,
           gatk_docker = gatk_docker
       }
+    } # end of chunk-level processing
     
-      call beagleTasks.AggregateChunkedDR2AndAF {
-        input:
-          sample_chunked_annotation_files = AggregateDSandAPValuesChunked.output_summary_file
-      }
-
-      call beagleTasks.ReannotateDR2AndAF {
-        input:
-          vcf = IndexMergedSampleChunksVcfs.output_vcf,
-          vcf_index = IndexMergedSampleChunksVcfs.output_vcf_index,
-          annotations_tsv = AggregateChunkedDR2AndAF.output_annotations_file,
-          annotations_tsv_index = AggregateChunkedDR2AndAF.output_annotations_file_index
-      }
+    # gather contig-wide VCFs
+    call beagleTasks.GatherVcfsNoIndex as GatherVcfsNoIndexContig {
+    input:
+      input_vcfs = UpdateHeader.output_vcf,
+      output_vcf_basename = "~{contig_basename}.imputed",
+      gatk_docker = gatk_docker
     }
 
-    if (!multiple_sample_batches) {
-      # there's only one sample batch
-      File single_batch_contig_vcf = imputed_multi_sample_vcfs_by_contig[contig_index][0]
-      File single_batch_contig_vcf_index = imputed_multi_sample_vcf_indexes_by_contig[contig_index][0]
+    call beagleTasks.CreateVcfIndex as CreateIndexForGatheredVcfContig {
+      input:
+        vcf_input = GatherVcfsNoIndexContig.output_vcf,
+        gatk_docker = gatk_docker,
+        preemptible = 0
     }
-
-    # Define contig VCF for all input samples
-    File all_samples_contig_vcf = select_first([ReannotateDR2AndAF.output_vcf, single_batch_contig_vcf])
-    File all_samples_contig_vcf_index = select_first([ReannotateDR2AndAF.output_vcf_index, single_batch_contig_vcf_index])
-
-    # only filter by dr2 if the user has defined a threshold greater than 0
-    if (min_dr2_for_inclusion > 0.0) {
-      call beagleTasks.FilterVcfByDR2 {
-          input:
-          vcf = all_samples_contig_vcf,
-          vcf_index = all_samples_contig_vcf_index,
-          basename = "${contig_basename}.imputed",
-          dr2_threshold = min_dr2_for_inclusion
-      }
-    }
-
-    # Define contig VCF for all input samples with filtering
-    File all_samples_contig_vcf_final = select_first([FilterVcfByDR2.output_vcf, all_samples_contig_vcf])
-    File all_samples_contig_vcf_index_final = select_first([FilterVcfByDR2.output_vcf_index, all_samples_contig_vcf_index])
-  }
+  } # end of contig scatter
   
   output {
-    Array[File] imputed_multi_sample_vcfs = all_samples_contig_vcf_final
-    Array[File] imputed_multi_sample_vcf_indexes = all_samples_contig_vcf_index_final
+    Array[File] imputed_multi_sample_vcfs = CreateIndexForGatheredVcfContig.output_vcf
+    Array[File] imputed_multi_sample_vcf_indexes = CreateIndexForGatheredVcfContig.output_vcf_index
     File chunks_info = CheckChunks.chunks_info
     File contigs_info = CheckChunks.contigs_info
   }

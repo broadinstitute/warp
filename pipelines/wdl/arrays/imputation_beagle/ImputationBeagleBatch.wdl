@@ -90,39 +90,15 @@ workflow ImputationBeagleBatch {
           output_basename = "${chunk_basename}.imputed.no_overlaps",
           gatk_docker = gatk_docker
       }
-
-      # need to update header before gathering
-      call tasks.UpdateHeader {
-      input:
-        vcf = LocalizeAndSubsetVcfToRegion.output_vcf,
-        vcf_index = LocalizeAndSubsetVcfToRegion.output_vcf_index,
-        ref_dict = ref_dict,
-        basename = "${chunk_basename}.imputed.no_overlaps.update_header",
-        disable_sequence_dictionary_validation = false,
-        pipeline_header_line = pipeline_header_line,
-        gatk_docker = gatk_docker
-      }
     }
-
-    # gather contig-wide VCFs
-    call beagleTasks.GatherVcfsNoIndex as GatherVcfsNoIndexContig {
-    input:
-      input_vcfs = UpdateHeader.output_vcf,
-      output_vcf_basename = "${output_basename}.${contig}.imputed",
-      gatk_docker = gatk_docker
-    }
-
-    call beagleTasks.CreateVcfIndex as CreateIndexForGatheredVcfContig {
-      input:
-        vcf_input = GatherVcfsNoIndexContig.output_vcf,
-        gatk_docker = gatk_docker,
-        preemptible = 0
-    }
-
+    # chunks per contig
+    Array[File] imputed_contig_chunked_vcfs = LocalizeAndSubsetVcfToRegion.output_vcf
+    Array[File] imputed_contig_chunked_vcf_indexes = LocalizeAndSubsetVcfToRegion.output_vcf_index
   }
 
   output {
-    Array[File] imputed_multi_sample_vcfs = CreateIndexForGatheredVcfContig.output_vcf
-    Array[File] imputed_multi_sample_vcf_indexes = CreateIndexForGatheredVcfContig.output_vcf_index
+    # outer array is contig, inner array is chunk
+    Array[Array[File]] imputed_contigs_chunked_multi_sample_vcfs = imputed_contig_chunked_vcfs
+    Array[Array[File]] imputed_contigs_chunked_multi_sample_vcf_indexes = imputed_contig_chunked_vcf_indexes
   }
 }

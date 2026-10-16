@@ -637,7 +637,7 @@ task QuerySampleChunkedVcfForReannotation {
     Int disk_size_gb = ceil(2 * size(vcf, "GiB")) + 10
     Int mem_gb = 4
     Int cpu = 1
-    Int preemptible = 0
+    Int preemptible = 3
   }
   String vcf_basename = basename(vcf)
 
@@ -674,7 +674,7 @@ task AggregateDSandAPValuesChunked {
     Int chunksize = 30000
     # Upper bound on (rows * 3 * n_samples) values held per chunk (~8 bytes each); rows per chunk shrinks as n_samples grows
     Int max_chunk_values = 20000000
-    Int preemptible = 0
+    Int preemptible = 3
   }
 
   command <<<
@@ -728,7 +728,7 @@ task AggregateDSandAPValuesChunked {
   }
 }
 
-task AggregateChunkedDR2AndAF {
+task RecomputeDR2AndAfFromChunks {
   input {
     Array[File] sample_chunked_annotation_files
     Int disk_size_gb = ceil(2 * size(sample_chunked_annotation_files, "GiB")) + 10
@@ -834,7 +834,7 @@ task RemoveAPAnnotations {
     Int disk_size_gb = ceil(2 * size(vcf, "GiB")) + 10
     Int mem_gb = 4
     Int cpu = 1
-    Int preemptible = 0
+    Int preemptible = 3
   }
 
   String output_base = basename(vcf, ".vcf.gz")
