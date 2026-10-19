@@ -148,26 +148,15 @@ workflow Glimpse2SVImputation {
                         annotations = ExtractPoppedAnnotations.annotations,
                         num_samples = PreProcessGVCFsBatch.num_samples,
                         output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.annotated",
-                        region = region, 
+                        region = region,
+                        raf_censoring_threshold = raf_censoring_threshold,
                         info_filter_threshold = info_filter_for_inclusion
                 }
-
-                if (raf_censoring_threshold > 0.0) {
-                    call Glimpse2SVImputationTasks.CensorRaf as CensorFilteredPoppedRaf {
-                        input:
-                            input_vcf = RecomputePoppedAfInfo.merged_imputed_vcf,
-                            raf_censoring_threshold = raf_censoring_threshold,
-                            output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.raf_censored"
-                    }
-                }
-
-                File final_region_vcf = select_first([RecomputePoppedAfInfo.merged_imputed_vcf_idx, CensorFilteredPoppedRaf.output_vcf])
             }
 
             call Glimpse2SVImputationTasks.ConcatAndFinalizeVcfs as FinalizeMultiBatch {
                 input:
-                    vcfs = final_region_vcf,
-                    vcf_idxs = RecomputePoppedAfInfo.merged_imputed_vcf_idx,
+                    vcfs = RecomputePoppedAfInfo.merged_imputed_vcf,
                     output_basename = output_basename + "." + chr,
                     extra_args = "--naive"
             }
@@ -175,12 +164,13 @@ workflow Glimpse2SVImputation {
 
         # BRANCH 2: Single-batch (Format conversion and optional filtering)
         if (!multiple_batches) {
-            call Glimpse2SVImputationTasks.FilterAndFinalizeBcf as FinalizeSingleBatch {
+            call Glimpse2SVImputationTasks.PostprocessAndFinalizeBcf as FinalizeSingleBatch {
                 input:
                     bcf = popped_bcfs_for_contig[0],
                     bcf_idx = popped_bcf_idxs_for_contig[0],
-                    info_filter_threshold = info_filter_for_inclusion,
-                    output_basename = output_basename + "." + chr
+                    output_basename = output_basename + "." + chr,
+                    raf_censoring_threshold = raf_censoring_threshold,
+                    info_filter_threshold = info_filter_for_inclusion
             }
         }
 
