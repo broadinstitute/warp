@@ -1,3 +1,8 @@
+# 1.1.1
+2026-10-19 (Date of Last Commit)
+
+* Update quota_consumed_version to `1.0.1` and input_qc_version to `1.0.4`, which add the `raf_censoring_threshold` input
+
 # 1.1.0
 2026-10-13 (Date of Last Commit)
 
