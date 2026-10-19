@@ -19,13 +19,11 @@ task ExtractAnnotations {
         # Ensure index is localized so bcftools can use it for random access if needed
         ls ~{imputed_vcf_or_bcf_index} > /dev/null
 
-        printf 'CHROM\tPOS\tREF\tALT\tAF\tINFO\tN_PATHS\tN_PATHS_TOTAL\n' > annotations_batch_~{batch_index}.tsv
+        printf 'CHROM\tPOS\tREF\tALT\tAF\tINFO\tN_PATHS\tN_PATHS_TOTAL\n' | bgzip -c > annotations_batch_~{batch_index}.tsv.gz
         bcftools query \
         ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} \
         -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\t%INFO/N_PATHS\t%INFO/N_PATHS_TOTAL\n' \
-        ~{imputed_vcf_or_bcf} >> annotations_batch_~{batch_index}.tsv
-
-        bgzip annotations_batch_~{batch_index}.tsv
+        ~{imputed_vcf_or_bcf} | bgzip -c >> annotations_batch_~{batch_index}.tsv.gz
     >>>
 
     runtime {
@@ -52,7 +50,8 @@ task RecomputeAndAnnotate {
 
         String output_basename
         String? region
-        Float info_filter_threshold = 0.0
+        Float raf_censoring_threshold
+        Float info_filter_threshold
 
         Int disk_size_gb = ceil(2.2 * size(merged_vcf_or_bcf, "GiB") + size(annotations, "GiB") + 50)
         Int mem_gb = 6
@@ -114,25 +113,24 @@ with open('aggregated_annotations.tsv', 'w') as out:
         result['INFO'] = np.vectorize(round_to_n_sig_figs_and_clip)(agg_info, 3)
         result = result[['CHROM', 'POS', 'REF', 'ALT', 'AF', 'INFO', 'N_PATHS', 'N_PATHS_TOTAL']]
         result.to_csv(out, sep='\t', header=False, index=False)
-
 EOF
+
         python3 script.py
 
         bgzip aggregated_annotations.tsv
         tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
 
+        PIPE="bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO,N_PATHS,N_PATHS_TOTAL ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ~{merged_vcf_or_bcf} -Ou"
+        if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            PIPE="$PIPE | bcftools filter -i \"INFO/INFO >= ~{info_filter_threshold}\" -Ou"
+        fi
+        if awk -v t="~{raf_censoring_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            PIPE="$PIPE | bcftools annotate -x INFO/RAF -i 'INFO/RAF<=~{raf_censoring_threshold}' --keep-sites -Ou"
+        fi
+
         # bcftools 1.18 only allows index-on-the-fly format to be specified via ##idx## notation: https://github.com/samtools/bcftools/issues/2008
         # Use quotes around the output argument to prevent bash from treating ## as a comment
-        if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
-            bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO,N_PATHS,N_PATHS_TOTAL \
-                ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ~{merged_vcf_or_bcf} -Ou | \
-                bcftools filter -i "INFO/INFO >= ~{info_filter_threshold}" \
-                    -Oz --write-index -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi"
-        else
-            bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO,N_PATHS,N_PATHS_TOTAL \
-                ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ~{merged_vcf_or_bcf} \
-                -Oz --write-index -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi"
-        fi
+        eval "$PIPE | bcftools view -Oz --write-index -o \"~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi\""
     >>>
 
     runtime {
@@ -151,45 +149,9 @@ EOF
     }
 }
 
-task CensorRaf {
-    input {
-        File input_vcf
-        String output_basename
-
-        Float raf_censoring_threshold
-
-        String docker = "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
-        Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + 20)
-        Int mem_gb = 4
-        Int cpu = 1
-        Int preemptible = 3
-    }
-
-    command <<<
-        set -euo pipefail
-
-        bcftools annotate -x INFO/RAF -i 'INFO/RAF<=~{raf_censoring_threshold}' --keep-sites -O z -o "~{output_basename}.vcf.gz" "~{input_vcf}"
-    >>>
-
-    runtime {
-        docker: docker
-        disks: "local-disk " + disk_size_gb + " HDD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: 1
-        noAddress: true
-    }
-
-    output {
-        File output_vcf = "~{output_basename}.vcf.gz"
-    }
-}
-
 task ConcatAndFinalizeVcfs {
     input{
         Array[File] vcfs
-        Array[File] vcf_idxs
         String output_basename
         String? extra_args
     }
@@ -227,12 +189,13 @@ task ConcatAndFinalizeVcfs {
     }
 }
 
-task FilterAndFinalizeBcf {
+task PostprocessAndFinalizeBcf {
     input {
         File bcf
         File bcf_idx
-        Float info_filter_threshold
         String output_basename
+        Float raf_censoring_threshold
+        Float info_filter_threshold
 
         Int disk_gb = ceil(2.1 * size(bcf, "GiB")) + 10
     }
@@ -240,17 +203,19 @@ task FilterAndFinalizeBcf {
     command <<<
         set -euox pipefail
 
+        PIPE="bcftools view ~{bcf} -Ou"
+
         if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
-            echo "Filtering single batch contig at INFO >= ~{info_filter_threshold}..."
-            bcftools filter -i "INFO/INFO >= ~{info_filter_threshold}" \
-                -Oz --write-index -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi" \
-                ~{bcf}
-        else
-            echo "No filtering requested (INFO threshold <= 0.0). Converting to VCF..."
-            bcftools view \
-                -Oz --write-index -o "~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi" \
-                ~{bcf}
+            echo "Applying INFO >= ~{info_filter_threshold} filter..."
+            PIPE="$PIPE | bcftools filter -i \"INFO/INFO >= ~{info_filter_threshold}\" -Ou"
         fi
+
+        if awk -v t="~{raf_censoring_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            echo "Censoring RAF <= ~{raf_censoring_threshold}..."
+            PIPE="$PIPE | bcftools annotate -x INFO/RAF -i 'INFO/RAF<=~{raf_censoring_threshold}' --keep-sites -Ou"
+        fi
+
+        eval "$PIPE | bcftools view -Oz --write-index -o \"~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi\""
 
         echo "Calculating MD5..."
         md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
