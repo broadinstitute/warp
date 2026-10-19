@@ -2,13 +2,13 @@ version 1.0
 
 workflow QuotaConsumed {
     # if this changes, update the quota_consumed_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.1"
+    String pipeline_version = "1.0.2"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
         File cram_manifest
         String output_basename
-        Float? info_filter_for_inclusion
+        Float info_filter_for_inclusion = 0.0
 
         Array[String] contigs
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
@@ -16,6 +16,7 @@ workflow QuotaConsumed {
         File fasta
         File fasta_index
         File ref_dict
+        Float raf_censoring_threshold = 0.0
 
         # optional additional header line to add to the output VCF
         String? pipeline_header_line
