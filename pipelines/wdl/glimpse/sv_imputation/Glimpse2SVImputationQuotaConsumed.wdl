@@ -2,7 +2,7 @@ version 1.0
 
 workflow QuotaConsumed {
     # if this changes, update the quota_consumed_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.1"
 
     input {
         # service expects only gvcf_manifest even though main wdl can alternatively take input arrays
@@ -22,7 +22,8 @@ workflow QuotaConsumed {
 
         File pop_glimpse2_panel_resources_json
 
-        Float? info_filter_for_inclusion
+        Float info_filter_for_inclusion = 0.0
+        Float raf_censoring_threshold = 0.0
 
         # optional additional header line to add to the output VCF
         String? pipeline_header_line
