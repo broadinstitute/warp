@@ -43,8 +43,8 @@ workflow ImputationBeagle {
 
     # the following are used to set `preemptible = 0` for specific tasks based on number of samples in the input
     Int merge_sample_chunks_vcfs_with_paste_preemptible_sample_cutoff = 10000
-    Int aggregate_chunked_dr2_and_af_preemptible_sample_cutoff = 30000
-    Int reannotate_dr2_and_af = 4000
+    Int recompute_dr2_and_af_from_chunks_preemptible_sample_cutoff = 30000
+    Int reannotate_dr2_and_af_preemptible_sample_cutoff = 4000
 
   }
 
@@ -192,14 +192,15 @@ workflow ImputationBeagle {
 
         call beagleTasks.RecomputeDR2AndAfFromChunks {
           input:
-            sample_chunked_annotation_files = AggregateDSandAPValuesChunked.output_summary_file
+            sample_chunked_annotation_files = AggregateDSandAPValuesChunked.output_summary_file,
+            preemptible = if (CountSamples.nSamples > recompute_dr2_and_af_from_chunks_preemptible_sample_cutoff) then 0 else 3,
         }
 
         call beagleTasks.MergeSampleChunksVcfsWithPaste {
           input:
             input_vcfs = RemoveAPAnnotations.output_vcf,
             output_vcf_basename = "${contig_chunk_basename}.samples_merged",
-            preemptible = if (CountSamples.nSamples > merge_sample_chunks_vcfs_with_paste_preemptible_sample_cutoff) then 0 else 3
+            preemptible = if (CountSamples.nSamples > merge_sample_chunks_vcfs_with_paste_preemptible_sample_cutoff) then 0 else 3,
         }
 
         call beagleTasks.CreateVcfIndex as IndexMergedSampleChunksVcfs {
@@ -214,7 +215,7 @@ workflow ImputationBeagle {
             vcf_index = IndexMergedSampleChunksVcfs.output_vcf_index,
             annotations_tsv = RecomputeDR2AndAfFromChunks.output_annotations_file,
             annotations_tsv_index = RecomputeDR2AndAfFromChunks.output_annotations_file_index,
-            preemptible = if (CountSamples.nSamples > reannotate_dr2_and_af_preemptible_sample_cutoff) then 0 else 3
+            preemptible = if (CountSamples.nSamples > reannotate_dr2_and_af_preemptible_sample_cutoff) then 0 else 3,
         }
       } # end of sample-batch level processing
 

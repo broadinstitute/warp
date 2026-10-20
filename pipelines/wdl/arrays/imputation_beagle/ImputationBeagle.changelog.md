@@ -1,5 +1,5 @@
 # 4.2.0
-2026-10-13 (Date of Last Commit)
+2026-10-20 (Date of Last Commit)
 
 * Refactor batching strategy to batch by sample before position. Add new subworkflows `ImputationBeagleCheckChunks` and `ImputationBeagleBatch`.
 * Reduce memory use of the `AggregateDSandAPValuesChunked` task: rows per chunk now scale inversely with the number of samples, per-sample columns are no longer copied, and annotations are written incrementally. Output is unchanged.
