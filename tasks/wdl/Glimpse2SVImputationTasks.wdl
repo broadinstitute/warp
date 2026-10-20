@@ -32,6 +32,7 @@ task ExtractAnnotations {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        maxRetries: 1
         noAddress: true
     }
 
@@ -139,6 +140,7 @@ EOF
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        maxRetries: 1
         noAddress: true
     }
 
@@ -157,6 +159,7 @@ task ConcatAndFinalizeVcfs {
     }
 
     Int disk_gb = ceil(2.1 * size(vcfs, "GiB")) + 10
+    Int preemptible = 3
 
     command <<<
         set -euox pipefail
@@ -182,8 +185,8 @@ task ConcatAndFinalizeVcfs {
         cpu: 1
         memory: "4 GiB"
         disks: "local-disk " + disk_gb + " SSD"
-        preemptible: 3
-        maxRetries: 0
+        preemptible: preemptible
+        maxRetries: 1
         docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
         noAddress: true
     }
@@ -198,6 +201,7 @@ task PostprocessAndFinalizeBcf {
         Float info_filter_threshold
 
         Int disk_gb = ceil(2.1 * size(bcf, "GiB")) + 10
+        Int preemptible = 3
     }
 
     command <<<
@@ -231,8 +235,8 @@ task PostprocessAndFinalizeBcf {
         cpu: 1
         memory: "4 GiB"
         disks: "local-disk " + disk_gb + " SSD"
-        preemptible: 3
-        maxRetries: 0
+        preemptible: preemptible
+        maxRetries: 1
         docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
         noAddress: true
     }
@@ -386,6 +390,8 @@ task ConcatBcfs {
         Array[File] bcf_idxs
         String output_basename
         String? extra_args
+
+        Int preemptible = 3
     }
 
     Int disk_gb = ceil(2.1 * size(bcfs, "GiB")) + 10
@@ -409,8 +415,8 @@ task ConcatBcfs {
         cpu: 1
         memory: "4 GiB"
         disks: "local-disk " + disk_gb + " SSD"
-        preemptible: 3
-        maxRetries: 0
+        preemptible: preemptible
+        maxRetries: 1
         docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
         noAddress: true
     }
