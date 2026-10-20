@@ -105,6 +105,63 @@ The table below summarizes the workflow outputs. These appear as arrays of per-c
 | `chunks_info` | TSV produced by `StoreMetricsInfo` containing chunk-level intervals, variant counts, and pass/fail status for each chunk. | `File` |
 | `contigs_info` | TSV produced by `StoreMetricsInfo` containing contig-level summary metrics for the processed chromosomes. | `File` |
 
+## ArrayImputationQuotaConsumed summary
+
+The auxiliary `QuotaConsumed` workflow computes the service quota metric for the Array Imputation workflow by counting the number of samples in the input multi-sample VCF.
+
+### Inputs
+
+| Input | Description |
+|---------------------------|---------------------------------------------------------|
+| `multi_sample_vcf` | Input VCF from which the sample count is derived. |
+| `output_basename` | Basename kept for API compatibility with the service layer. |
+| `min_dr2_for_inclusion` | Optional DR2 filter value retained for interface consistency; not used by the quota workflow. |
+| `contigs` | Requested contigs; retained for interface compatibility. |
+| `genetic_maps_path` | Genetic-map path retained for interface compatibility. |
+| `ref_dict` | Reference dictionary retained for interface compatibility. |
+| `reference_panel_path_prefix` | Reference-panel prefix retained for interface compatibility. |
+| `pipeline_header_line` | Optional header line retained for interface compatibility. |
+
+### Outputs
+
+| Output | Description |
+|------------------|---------------------------------------------------|
+| `quota_consumed` | Number of samples in the input VCF (`CountSamples.nSamples`). |
+
+## ArrayImputationQC summary
+
+The auxiliary `InputQC` workflow validates the input multi-sample VCF before the imputation job runs. It checks chromosome compatibility, VCF structure, and basic reference-panel compatibility using the shared QC task library.
+
+### Inputs
+
+| Input | Description |
+|---------------------------|---------------------------------------------------------|
+| `multi_sample_vcf` | Input VCF to evaluate. |
+| `output_basename` | Basename kept for interface compatibility. |
+| `min_dr2_for_inclusion` | Optional DR2 filter retained for interface compatibility. |
+| `contigs` | Allowed contigs for the workflow. |
+| `genetic_maps_path` | Genetic maps path retained for compatibility with service interfaces. |
+| `ref_dict` | Reference dictionary used for contig and header checks. |
+| `reference_panel_path_prefix` | Reference-panel prefix retained for compatibility. |
+| `pipeline_header_line` | Optional header line retained for compatibility. |
+
+### Outputs
+
+| Output | Description |
+|----------------|----------------------------------------------------------|
+| `passes_qc` | Boolean indicating whether the input passed the QC checks. |
+| `qc_messages` | Optional string describing any QC failure messages. |
+
+### QC checks
+
+The `QcChecks` task performs the App/analysis-side validation for the input VCF, including checks such as:
+
+- VCF format version compatibility
+- contig compatibility with the expected reference assembly
+- absence of obvious array/WGS data issues that would invalidate imputation
+- basic structural checks for sorted/valid VCF records
+- compatibility with the reference dictionary and allowed contig set
+
 ## Important notes
 
 - Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
@@ -132,4 +189,3 @@ The workflow script is released under the **WDL open source code license (BSD-3)
 - [Beagle](https://faculty.washington.edu/browning/beagle/beagle.html)
 - [bcftools](https://github.com/samtools/bcftools/blob/develop/LICENSE)
 - [vcftools](http://vcftools.sourceforge.net/license.html)
-
