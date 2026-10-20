@@ -2,134 +2,190 @@
 sidebar_position: 1
 slug: /Pipelines/ImputationBeagle_Pipeline/README
 ---
- 
+
 # Imputation Overview
- 
+
 |                                                  Pipeline Version                                                  | Date Updated |        Documentation Author        |                             Questions or Feedback                              |
 |:------------------------------------------------------------------------------------------------------------------:|:------------:|:----------------------------------:|:------------------------------------------------------------------------------:|
 | See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation_beagle/ImputationBeagle.changelog.md) for version information. | See changelog | Terra Scientific Pipeline Services | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). | |
- 
+
 ## Introduction to the Array Imputation pipeline
-The Array Imputation pipeline imputes missing genotypes from either a multi-sample VCF or an array of single-sample VCFs using a large genomic reference panel. It uses [Beagle](https://faculty.washington.edu/browning/beagle/beagle.html) as the imputation tool. Overall, the pipeline filters, phases, and performs imputation on a multi-sample VCF. It outputs one imputed multi-sample VCF per contig, along with key imputation metrics.
- 
+
+The Array Imputation pipeline imputes missing genotypes from a multi-sample VCF using a large genomic reference panel. It uses [Beagle](https://faculty.washington.edu/browning/beagle/beagle.html) for phasing and imputation. The workflow chunks each requested contig, validates each chunk against the reference panel, phases/imputes each sample chunk, strips overlap regions, merges sample chunks back together, and emits per-contig imputed VCFs with QC summaries.
+
 ![](pipeline.png)
+
 ## Set-up
- 
+
 ### Workflow installation and requirements
 
-The [Array Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation_beagle/ImputationBeagle.wdl) is written in the Workflow Description Language (WDL) and can be deployed using a WDL-compatible execution engine like [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms.
-To identify the latest workflow version and release notes, please see the Imputation workflow [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation_beagle/ImputationBeagle.changelog.md).
-The latest release of the workflow, example data, and dependencies are available from the WARP releases page. To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
+The [Array Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation_beagle/ImputationBeagle.wdl) is written in the Workflow Description Language (WDL) and can be deployed using a WDL-compatible execution engine like [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH-compliant workflow manager that supports multiple computing platforms.
 
-Using the Array Imputation pipeline
-This pipeline is used by the [All of Us + AnVIL Imputation Service](http://allofus-anvil-imputation.terra.bio). If you choose to use this service, you can impute your samples against the 515,000+ genomes in the All of Us + AnVIL reference panel, which can provide greater accuracy at more sites.
+To identify the latest workflow version and release notes, see the Imputation workflow [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation_beagle/ImputationBeagle.changelog.md).
+
+### Using the Array Imputation pipeline
+
+This pipeline is used by the [All of Us + AnVIL Imputation Service](http://allofus-anvil-imputation.terra.bio). If you choose to use this service, you can impute your samples against the reference panel hosted in cloud storage.
 
 :::tip Try the Imputation pipeline in Terra
 You can alternatively run the pipeline with your own panel, using this [WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation_beagle/ImputationBeagle.wdl).
 :::
- 
+
 ### Input descriptions
-The table below describes each of the Array Imputation pipeline inputs. The workflow requires a  multi-sample VCF. These samples must be from the same species and genotyping chip.
 
-For examples of how to specify each input in a configuration file, as well as cloud locations for different example input files, see the [example input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation_beagle/test_inputs/Plumbing/NA12878_x10_hg38_arrays.json).
- 
-| Input name                  | Description                                                                                              | Type             |
+The table below describes the Array Imputation pipeline inputs. The workflow requires a multi-sample VCF and a reference-panel layout for the contigs being processed.
+
+For examples of how to specify each input in a configuration file, see the [example input JSONs](https://github.com/broadinstitute/warp/tree/develop/pipelines/wdl/arrays/imputation_beagle/test_inputs).
+
+| Input name | Description | Type |
 |-----------------------------|----------------------------------------------------------------------------------------------------------|------------------|
-| multi_sample_vcf            | Multi-sample VCF file containing genotype data                                                           | File             |
-| ref_dict                    | Reference dictionary for contig information and header updating                                          | File             |
-| contigs                     | Array of allowed contigs/chromosomes to process                                                          | Array of strings |
-| reference_panel_path_prefix | Path to the cloud storage containing the reference panel files for all contigs                           | String           |
-| genetic_maps_path           | Path to the cloud storage containing the genetic map files for all contigs                               | String           |
-| output_basename             | Basename for intermediate and output files                                                               | String           |
-| chunkLength                 | Size of chunks; default set to 25 MB                                                                     | Int              |
-| chunkOverlaps               | Padding added to the beginning and end of each chunk to reduce edge effects; default set 2 MB           | Int              |
-| sample_chunk_size           | Number of samples to chunk by when processing (default: 1,000)                                           | Int              |
-| pipeline_header_line        | Optional additional header lines to add to the output VCF                                                | String           |
-| min_dr2_for_inclusion       | Min value of DR2 to include in final output (default: 0.0)                                               | Float            |
-| bref3_suffix                | File extension used for the BREF3 in the reference panel (default: .bref3)                               | String           |
-| unique_variant_ids_suffix   | File extension for unique variant ID files (default: .unique_variants)                                   | String           |
-| gatk_docker                 | GATK Docker image (default: us.gcr.io/broad-gatk/gatk:4.6.0.0)                                           | String           |
-| ubuntu_docker               | Ubuntu Docker image (default: us.gcr.io/broad-dsde-methods/ubuntu:20.04)                                 | String           |
-| error_count_override        | Override for error check on chunk qc (set to 0 for workflow to continue no matter how many errors exist) | Int              |
-| beagle_cpu                  | Number of CPUs to use for Beagle Phase and Impute tasks (default: 8)                                     | Int              |
-| beagle_phase_memory_in_gb   | Memory, in GB, to use for Beagle Phase task (default: 40)                                                | Int              |
-| beagle_impute_memory_in_gb  | Memory, in GB, to use for Beagle Impute task (default: 45)                                               | Int              |
+| `multi_sample_vcf` | Multi-sample VCF file containing genotype data. | `File` |
+| `ref_dict` | Reference dictionary used to calculate contig lengths and update VCF headers. | `File` |
+| `contigs` | Allowed contigs/chromosomes to process. The workflow filters the input VCF to these contigs. | `Array[String]` |
+| `reference_panel_path_prefix` | Prefix to the reference panel files for all contigs (e.g. `.../panel.<chr>`). | `String` |
+| `genetic_maps_path` | Prefix to the genetic map files for all contigs. | `String` |
+| `output_basename` | Basename used for intermediate and final outputs. | `String` |
+| `chunkLength` | Size of each genomic chunk in base pairs; default `25000000`. | `Int` |
+| `chunkOverlaps` | Padding added to each chunk to reduce edge effects; default `2000000`. | `Int` |
+| `sample_chunk_size` | Number of samples processed per imputation sample chunk; default `1000`. | `Int` |
+| `pipeline_header_line` | Optional additional VCF header line to append to output VCFs. | `String?` |
+| `min_dr2_for_inclusion` | Minimum DR2 threshold to include a variant in the final output VCF; default `0.0` (disabled). | `Float?` |
+| `bref3_suffix` | Suffix used for reference panel `.bref3` files; default `.bref3`. | `String` |
+| `unique_variant_ids_suffix` | Suffix used for per-contig unique-variant ID files; default `.unique_variants`. | `String` |
+| `gatk_docker` | Docker image used by GATK-based tasks; default `us.gcr.io/broad-gatk/gatk:4.6.0.0`. | `String` |
+| `ubuntu_docker` | Docker image used for dictionary/utility tasks; default `us.gcr.io/broad-dsde-methods/ubuntu:20.04`. | `String` |
+| `error_count_override` | Optional override for QC failure count; set to `0` to continue despite failed chunks. | `Int?` |
+| `beagle_cpu` | Beagle CPU count for phase/impute tasks; default `8`. | `Int` |
+| `beagle_phase_memory_in_gb` | Memory for Beagle phase step; default `40`. | `Int` |
+| `beagle_impute_memory_in_gb` | Memory for Beagle impute step; default `45`. | `Int` |
+| `merge_sample_chunks_vcfs_with_paste_preemptible_sample_cutoff` | Sample-count cutoff for setting `preemptible = 0` on `MergeSampleChunksVcfsWithPaste`; default `10000`. | `Int` |
+| `aggregate_chunked_dr2_and_af_preemptible_sample_cutoff` | Sample-count cutoff for setting `preemptible = 0` on `AggregateChunkedDR2AndAF`; default `30000`. | `Int` |
+| `reannotate_dr2_and_af` | Sample-count cutoff for setting `preemptible = 0` on `ReannotateDR2AndAF`; default `4000`. | `Int` |
 
-
- 
 ## Workflow tasks and tools
 
-The [Array Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation_beagle/ImputationBeagle.wdl) imports a series of tasks from the ImputationTasks WDL and ImputationBeagleTasks WDL, which are hosted in the Broad [tasks library](https://github.com/broadinstitute/warp/tree/develop/tasks/wdl). The table below describes each workflow task, including the task name, tools, relevant software and non-default parameters. 
+The [Array Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/arrays/imputation_beagle/ImputationBeagle.wdl) imports tasks from `ImputationTasks.wdl` and `ImputationBeagleTasks.wdl`, both hosted under the Broad tasks library. The table below summarizes the workflow tasks and their roles.
 
-| Task name (alias) in WDL                 | Tool                                                           | Software                           | Description                                                                                                                                                                                                                                                                                                                       |
+| Task name (alias) in WDL | Tool | Software | Description |
 |------------------------------------------|----------------------------------------------------------------|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| CountSamples                             | query                                                          | bcftools                           | Uses the merged input VCF file to count the number of samples and output a TXT file containing the count.                                                                                                                                                                                                                         |
-| CreateVcfIndex                           | index                                                          | bcftools                           | Creates index of input multisample vcf                                                                                                                                                                                                                                                                                            |
-| CalculateContigsToProcess                | Determine which contigs will be processed by the workflow      | multi_sample_vcf, contigs          | Extracts contigs from input VCF and filters by allowed contigs                                                                                                                                                                                                                                                                    |
-| CalculateChromsomeLength                 | grep                                                           | bash                               | Reads chromosome lengths from the reference dictionary and uses these to generate chunk intervals for the GenerateChunk task.                                                                                                                                                                                                     |
-| GenerateChunk                            | SelectVariants                                                 | GATK                               | Performs site filtering by selecting SNPs only and excluding InDels, removing duplicate sites from the VCF, selecting biallelic variants, excluding symbolic/mixed variants, and removing sites with a maximum fraction of samples with no-call genotypes greater than 0.1. Also subsets to only a specified chunk of the genome. |
-| ExtractUniqueVariantIds                  | SelectVariants, query                                          | GATK, bcftools                     | Extracts and counts unique variant IDs from an optionally specified interval of the input VCF in CHROM:POS:REF:ALT format                                                                                                                                                                                                         |
-| CountUniqueVariantIdsInOverlap           | comm                                                           | bash                               | Counts variants in the filtered VCF chunk using unique variant ID lists; Returns the number of variants in the chunk and variants also present in the reference panel.                                                                                                                                                            |                                                                                           |
-| CheckChunks                              | convert                                                        | bcftools                           | Confirms that there are no chunks where less than 3 sites or less than 50% of the sites in the array are also in the reference panel; if valid, creates a new VCF output.                                                                                                                                                         |
-| CountValidContigChunks                   |                                                                | bash                               | Counts the number of valid chunks by counting true values in the validation boolean array                                                                                                                                                                                                                                         |
-| StoreMetricsInfo                         |                                                                | Python (pandas)                    | Gathers all results from CheckChunks; creates chunk-level and contig-level (chromosome-level) metrics files with variant counts                                                                                                                                                                                                   |
-| ErrorWithMessageIfErrorCountNotZero      |                                                                | bash                               | Fails workflow if any chunks fail qc check.  Can be overridden with error_count_override input                                                                                                                                                                                                                                    |
-| SelectSamplesWithCut                     | cut                                                            | bash                               | Chunks vcf by sample_chunk_size if more than sample_chunk_size samples exist in input vcf                                                                                                                                                                                                                                         |
-| Phase                                    |                                                                | Beagle                             | Performs phasing on the filtered, validated VCF                                                                                                                                                                                                                                                                                   |
-| Impute                                   |                                                                | Beagle                             | Performs imputation on the prephased VCF;                                                                                                                                                                                                                                                                                         |
-| LocalizeAndSubsetVcfToRegion             | SelectVariants                                                 | GATK                               | Remove padding from imputed vcf                                                                                                                                                                                                                                                                                                   |
-| QuerySampleChunkedVcfForReannotation     | query                                                          | bcftools                           | Query DS, AP1, AP2 from sample chunked VCFs to be used when merging samples together                                                                                                                                                                                                                                              |
-| RemoveAPAnnotations                      | annotate                                                       | bcftools                           | Remove AP1, AP2 annotations to reduce file size now that they’re no longer needed                                                                                                                                                                                                                                                 |
-| RecalculateDR2AndAFChunked               |                                                                | python                             | Used query output to summarize DS, AP1, AP2 values                                                                                                                                                                                                                                                                                |
-| MergeSampleChunksVcfsWithPaste           | Paste, view                                                    | Bash, bcftools                     | Merge sample chunked VCFs                                                                                                                                                                                                                                                                                                         |
-| IndexMergedSampleChunksVcfs              | index                                                          | bcftools                           | Creates index for sample chunk merged VCF                                                                                                                                                                                                                                                                                         |
-| AggregateChunkedDR2AndAF                 |                                                                | python                             | Take summarized DS, AP1, AP2 data and calculate AF and DR2                                                                                                                                                                                                                                                                        |
-| ReannotateDR2AndAF                       | annotate                                                       | bcftools                           | Reannotate DR2 and AF for sample chunk merged vcf                                                                                                                                                                                                                                                                                 |
-| FilterVcfByDR2                           | Filter variants by DR2 threshold                               | imputed VCF, min_dr2_for_inclusion | Removes variants below provided min_dr2_for_inclusion value                                                                                                                                                                                                                                                                       |
-| UpdateHeader                             | UpdateVCFSequenceDictionary                                    | GATK                               | Updates the header of the imputed VCF; adds contig lengths                                                                                                                                                                                                                                                                        |
-| GatherVcfsNoIndex (GatherVcfsNoIndexContig) | Combine all chunks for a contig                             | bcftools                           | Creates one output VCF per contig                                                                                                                                                                                                                                                                                                 |
-| CreateVcfIndex (CreateIndexForGatheredVcfContig) | index                                                     | bcftools                           | Creates an index for the gathered per-contig VCF                                                                                                                                                                                                                                                                                  |
-
+| `CreateVcfIndex` | index | bcftools | Indexes the input multi-sample VCF so later tasks can query and subset it efficiently. |
+| `CountSamples` | query | bcftools | Counts the number of samples in the input VCF to drive sample-chunking and resource sizing. |
+| `CalculateContigsToProcess` | custom script | Python / bash | Determines which contigs in the input VCF are eligible for imputation based on the workflow `contigs` input. |
+| `CalculateChromosomeLength` | grep / bash | bash | Reads chromosome lengths from the reference dictionary and derives chunk bounds for each contig. |
+| `ExtractUniqueVariantIds` | SelectVariants + query | GATK + bcftools | Extracts unique CHROM:POS:REF:ALT identifiers for a contig or chunk to compare against the reference panel. |
+| `CountUniqueVariantIdsInOverlap` | comm | bash | Counts the overlap between filtered chunk variants and the panel’s unique variant IDs. |
+| `CheckChunks` | custom validation | bcftools / bash | Validates the chunk QC check and marks chunks with insufficient overlap or too few variants. |
+| `CountValidContigChunks` | bash | bash | Counts invalid chunks so the workflow can fail early if QC is not acceptable. |
+| `FailQCNChunks` (`ErrorWithMessageIfErrorCountNotZero`) | bash | bash | Stops the workflow if the number of failed chunks is non-zero, unless overridden. |
+| `SelectSamplesWithCut` | cut | bash | Splits a chunked VCF by sample chunks when `sample_chunk_size` requires a scatter by sample. |
+| `Phase` | Beagle | Beagle | Phases the filtered chunk using the reference panel and genetic map. |
+| `Impute` | Beagle | Beagle | Performs Beagle imputation for the phased chunk. |
+| `LocalizeAndSubsetVcfToRegion` | SelectVariants | GATK | Removes the overlap padding from each imputed chunk so that only the intended genomic interval remains. |
+| `QuerySampleChunkedVcfForReannotation` | query | bcftools | Extracts the DS/AP annotations needed to recompute DR2 and AF after sample-chunk merging. |
+| `RemoveAPAnnotations` | annotate | bcftools | Removes AP annotations after the chunk-level reannotation step to reduce file size. |
+| `RecalculateDR2AndAFChunked` | Python | Python | Recomputes DR2 and AF for each sample-chunked VCF using the query output. |
+| `MergeSampleChunksVcfsWithPaste` | Paste + view | bash + bcftools | Merges per-sample-chunk VCFs back together by pasting sample columns. |
+| `IndexMergedSampleChunksVcfs` | index | bcftools | Builds the VCF index for the merged sample-chunk result. |
+| `AggregateChunkedDR2AndAF` | Python | Python | Combines the per-sample-chunk DR2/AF summary files into a single annotation table. |
+| `ReannotateDR2AndAF` | annotate | bcftools | Adds the merged DR2/AF values back to the sample-merged VCF. |
+| `FilterVcfByDR2` | filter | GATK | Removes variants below the `min_dr2_for_inclusion` threshold when a threshold is supplied. |
+| `UpdateHeader` | UpdateVCFSequenceDictionary | GATK | Updates the VCF header with the reference dictionary and any optional pipeline header line. |
+| `GatherVcfsNoIndex` | Combine VCFs | bcftools | Merges the per-chunk VCFs for a contig into a single contig-level VCF. |
+| `CreateIndexForGatheredVcfContig` | index | bcftools | Creates the index for the final per-contig VCF. |
+| `StoreMetricsInfo` | Python / pandas | Python | Aggregates chunk- and contig-level variant QC metrics into the final metrics tables. |
 
 ## Workflow outputs
 
-The table below summarizes the workflow outputs. If running the workflow on Cromwell, these outputs are found in the task execution directory.
- 
-| Output name                          | Description                                                                                                                                                                                                                  | Type  |
-|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
-| imputed_multi_sample_vcfs            | Array of final imputed multi-sample VCFs, one per contig                                                                                                                                                                     | Array[File] |
-| imputed_multi_sample_vcf_indexes     | Index files for each per-contig imputed VCF                                                                                                                                                                                  | Array[File] |
-| chunks_info                          | TSV from StoreMetricsInfo task; contains the chunk intervals, variant counts per chunk (filtered input and overlap with reference panel), and whether each chunk was successfully imputed.                                   | TSV   |
-| contigs_info                         | TSV from StoreMetricsInfo task; contains contig-level (chromosome-level) aggregated metrics including total variant counts in the raw input, filtered input, and overlap with reference panel for each processed chromosome. | TSV   |
+The table below summarizes the workflow outputs. These appear as arrays of per-contig VCFs and QC metrics tables.
 
+| Output name | Description | Type |
+|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
+| `imputed_multi_sample_vcfs` | Final imputed multi-sample VCFs, one per contig. | `Array[File]` |
+| `imputed_multi_sample_vcf_indexes` | Index files for the per-contig imputed VCFs. | `Array[File]` |
+| `chunks_info` | TSV produced by `StoreMetricsInfo` containing chunk-level intervals, variant counts, and pass/fail status for each chunk. | `File` |
+| `contigs_info` | TSV produced by `StoreMetricsInfo` containing contig-level summary metrics for the processed chromosomes. | `File` |
 
- 
+## ArrayImputationQuotaConsumed summary
+
+The auxiliary `QuotaConsumed` workflow computes the service quota metric for the Array Imputation workflow by counting the number of samples in the input multi-sample VCF.
+
+### Inputs
+
+| Input | Description |
+|---------------------------|---------------------------------------------------------|
+| `multi_sample_vcf` | Input VCF from which the sample count is derived. |
+| `output_basename` | Basename kept for API compatibility with the service layer. |
+| `min_dr2_for_inclusion` | Optional DR2 filter value retained for interface consistency; not used by the quota workflow. |
+| `contigs` | Requested contigs; retained for interface compatibility. |
+| `genetic_maps_path` | Genetic-map path retained for interface compatibility. |
+| `ref_dict` | Reference dictionary retained for interface compatibility. |
+| `reference_panel_path_prefix` | Reference-panel prefix retained for interface compatibility. |
+| `pipeline_header_line` | Optional header line retained for interface compatibility. |
+
+### Outputs
+
+| Output | Description |
+|------------------|---------------------------------------------------|
+| `quota_consumed` | Number of samples in the input VCF (`CountSamples.nSamples`). |
+
+## ArrayImputationQC summary
+
+The auxiliary `InputQC` workflow validates the input multi-sample VCF before the imputation job runs. It checks chromosome compatibility, VCF structure, and basic reference-panel compatibility using the shared QC task library.
+
+### Inputs
+
+| Input | Description |
+|---------------------------|---------------------------------------------------------|
+| `multi_sample_vcf` | Input VCF to evaluate. |
+| `output_basename` | Basename kept for interface compatibility. |
+| `min_dr2_for_inclusion` | Optional DR2 filter retained for interface compatibility. |
+| `contigs` | Allowed contigs for the workflow. |
+| `genetic_maps_path` | Genetic maps path retained for compatibility with service interfaces. |
+| `ref_dict` | Reference dictionary used for contig and header checks. |
+| `reference_panel_path_prefix` | Reference-panel prefix retained for compatibility. |
+| `pipeline_header_line` | Optional header line retained for compatibility. |
+
+### Outputs
+
+| Output | Description |
+|----------------|----------------------------------------------------------|
+| `passes_qc` | Boolean indicating whether the input passed the QC checks. |
+| `qc_messages` | Optional string describing any QC failure messages. |
+
+### QC checks
+
+The `QcChecks` task performs the App/analysis-side validation for the input VCF, including checks such as:
+
+- VCF format version compatibility
+- contig compatibility with the expected reference assembly
+- absence of obvious array/WGS data issues that would invalidate imputation
+- basic structural checks for sorted/valid VCF records
+- compatibility with the reference dictionary and allowed contig set
+
 ## Important notes
- 
+
 - Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
+- The workflow fails early when a chunk fails the reference-panel overlap QC, unless `error_count_override` is set to permit continuation.
+- When processing many samples, the workflow splits by sample chunk and merges the outputs after recomputing DR2/AF annotations.
 
 ## Citing the Imputation Pipeline
 
 If you use the Imputation Pipeline in your research, please consider citing our preprint:
 
 Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Kiernan, E., Konwar, K., Mathews, K.L., Palis, K., et al. Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis. Bioinformatics 2025; btaf494. https://doi.org/10.1093/bioinformatics/btaf494
- 
+
 ## Contact us
 
 Help us make our tools better by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues); we welcome pipeline-related suggestions or questions.
- 
+
 ## Licensing
- 
+
 Copyright Broad Institute, 2020 | BSD-3
- 
+
 The workflow script is released under the **WDL open source code license (BSD-3)** (full license text at https://github.com/broadinstitute/warp/blob/master/LICENSE). However, please note that the programs it calls may be subject to different licenses. Users are responsible for checking that they are authorized to run all programs before running this script.
- 
+
 - [GATK](https://github.com/broadinstitute/gatk/blob/master/LICENSE.TXT)
 - [Picard](https://github.com/broadinstitute/picard/blob/master/LICENSE.txt)
 - [Beagle](https://faculty.washington.edu/browning/beagle/beagle.html)
 - [bcftools](https://github.com/samtools/bcftools/blob/develop/LICENSE)
 - [vcftools](http://vcftools.sourceforge.net/license.html)
- 
- 
-
-
