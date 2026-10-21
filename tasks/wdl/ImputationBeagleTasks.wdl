@@ -672,8 +672,6 @@ task AggregateDSandAPValuesChunked {
     Int mem_gb = 4
     Int cpu = 1
     Int chunksize = 30000
-    # Upper bound on (rows * 3 * n_samples) values held per chunk (~8 bytes each); rows per chunk shrinks as n_samples grows
-    Int max_chunk_values = 20000000
     Int preemptible = 3
   }
 
@@ -685,9 +683,7 @@ task AggregateDSandAPValuesChunked {
     import numpy as np
 
     n_samples = ~{n_samples}
-
-    # Keep per-chunk memory roughly constant regardless of the number of samples in the batch
-    rows_per_chunk = max(1000, min(~{chunksize}, ~{max_chunk_values} // (3 * n_samples)))
+    rows_per_chunk = ~{chunksize}
 
     dtypes_dict = {f'sample_{i}_{col}': 'float' for i in range(n_samples) for col in ("DS", "AP1", "AP2")}
     csv_names = ["CHROM","POS","REF","ALT"] + [f'sample_{i}_{col}' for i in range(n_samples) for col in ("DS", "AP1", "AP2")]
