@@ -74,7 +74,7 @@ workflow scANVI {
 
   # Docker image (same container for both tasks; only Task 2 gets GPUs attached)
   # Exposes run_gex_only_model for GEX-only mode (warp-tools/3rd-party-tools/scvi-scanvi).
-  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:e3ac81e74796993e1d37c0fc0c6226aae9e9c7dcff26093c9fcd22e6cbf60fc2"
+  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:077d776c1957029b32ef79f12b6dac02e43d5673b70e915d1d690d95612a9831"
   # Step 1: CPU-only preprocessing and filtering of all three h5ad inputs
   call PreprocessFilter {
       input:
