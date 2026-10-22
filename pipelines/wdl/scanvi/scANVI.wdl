@@ -465,9 +465,10 @@ CODE
 # Task 2: MultiomeLabelTransfer — SCVI/SCANVI model training + label transfer.
 #
 # Runs label_transfer_from_preprocessed.py in the container on the PreprocessFilter outputs
-# (obtain the SCANVI model — load a supplied one or train — transfer labels, finalize metadata,
-# write annotated matrices + predictions + minimal model). Two variants that are IDENTICAL except
-# for the runtime GPU attributes (Cromwell cannot conditionally omit them from a single task):
+# (obtain the SCANVI model — load a supplied one or train — transfer labels, write annotated
+# matrices + predictions + minimal model; no sample metadata is added). Two variants that are
+# IDENTICAL except for the runtime GPU attributes (Cromwell cannot conditionally omit them from a
+# single task):
 #   - MultiomeLabelTransfer     requests a GPU (gpu_count > 0)
 #   - MultiomeLabelTransferCpu  is CPU-only (gpu_count = 0, e.g. the pretrained-model prediction path)
 # scvi-tools auto-detects the accelerator, so the command is identical for both. KEEP the two tasks'
