@@ -2,6 +2,7 @@
 2026-10-22 (Date of Last Commit)
 
 * Removed the placeholder sample-metadata columns that the scvi-scanvi container stamped onto every cell of the SCANVI_predictions output (biosample_id, donor_id, species, species__ontology_label, disease, disease__ontology_label, organ, organ__ontology_label, library_preparation_protocol, library_preparation_protocol__ontology_label, data_modality, sex). They were constants (sample_001, donor_001, Homo sapiens, brain, 10x multiome, ...) whatever the input, so they were wrong for most runs. The pipeline now adds no sample metadata: obs carries the input h5ads' columns plus the pipeline's own annotation columns (celltype, C_scANVI, modality, and max_probability when requested). Sample metadata is joined downstream from the data archive's sample manifests, not by this pipeline
+* Updated the pinned scvi-scanvi docker image to the 1.3.0 build that no longer writes the placeholder metadata (scvi-tools 1.5.1 and snapatac2 2.10.0 unchanged)
 
 # 2.2.0
 2026-10-08 (Date of Last Commit)
