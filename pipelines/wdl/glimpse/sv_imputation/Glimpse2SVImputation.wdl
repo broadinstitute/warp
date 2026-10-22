@@ -154,7 +154,7 @@ workflow Glimpse2SVImputation {
                 }
             }
 
-            call Glimpse2SVImputationTasks.ConcatAndFinalizeVcfs as FinalizeMultiBatch {
+            call Glimpse2SVImputationTasks.ConcatAndFinalizeVcfs as ConcatAndFinalizeMultiBatch {
                 input:
                     vcfs = RecomputePoppedAfInfoAndFilterInfoAndCensorRaf.merged_imputed_vcf,
                     output_basename = output_basename + "." + chr,
@@ -164,7 +164,7 @@ workflow Glimpse2SVImputation {
 
         # BRANCH 2: Single-batch (Format conversion and optional filtering and censoring)
         if (!multiple_batches) {
-            call Glimpse2SVImputationTasks.FilterInfoAndCensorRafAndFinalizeBcf as FinalizeSingleBatch {
+            call Glimpse2SVImputationTasks.FilterInfoAndCensorRafAndFinalizeBcf as FilterInfoAndCensorRafAndFinalizeBcf {
                 input:
                     bcf = popped_bcfs_for_contig[0],
                     bcf_idx = popped_bcf_idxs_for_contig[0],
@@ -174,8 +174,8 @@ workflow Glimpse2SVImputation {
             }
         }
 
-        File imputed_vcf_for_contig = select_first([FinalizeMultiBatch.concatenated_vcf, FinalizeSingleBatch.filtered_vcf])
-        File imputed_vcf_idx_for_contig = select_first([FinalizeMultiBatch.concatenated_vcf_idx, FinalizeSingleBatch.filtered_vcf_idx])
+        File imputed_vcf_for_contig = select_first([ConcatAndFinalizeMultiBatch.concatenated_vcf, FilterInfoAndCensorRafAndFinalizeBcf.filtered_vcf])
+        File imputed_vcf_idx_for_contig = select_first([ConcatAndFinalizeMultiBatch.concatenated_vcf_idx, FilterInfoAndCensorRafAndFinalizeBcf.filtered_vcf_idx])
     }
 
     output {
