@@ -158,7 +158,7 @@ Loads the preprocessed h5ad files and performs **only** model training, label tr
 4. **Predict labels** — `transfer_labels()` uses the trained SCANVI model to predict cell types (`C_scANVI`) for every cell, extracts the latent representation (`X_scANVI`), and computes a neighborhood graph and UMAP embedding.
 5. **Propagate labels** — Copies the predicted `C_scANVI` labels from the concatenated object back into the original GEX (and, in multiome mode, ATAC) AnnData objects using the barcode-suffix index created by `ad.concat`.
 6. **Write annotated matrices** — Saves `~{input_id}_gex_annotated_matrix.h5ad` (and `~{input_id}_atac_annotated_matrix.h5ad` in multiome mode).
-7. **Finalize predictions** — `finalize_output()` adds placeholder metadata (biosample, donor, species, disease, organ, library prep, sex), renames `final_annotation` → `celltype`, and copies counts into the `.raw` layer for SCP ingest. Writes `~{input_id}_SCANVI_predictions.h5ad`.
+7. **Finalize predictions** — `finalize_output()` renames `final_annotation` → `celltype` and copies counts into the `.raw` layer for downstream ingest. No sample metadata is added. Writes `~{input_id}_SCANVI_predictions.h5ad`.
 
 ### Workflow diagram
 
@@ -217,11 +217,15 @@ All output filenames are prefixed with `~{input_id}_`.
 
 | Output Variable Name | Filename | Output Type | Output Format |
 | --- | --- | --- | --- |
-| `scanvi_predictions_h5ad` | `<input_id>_SCANVI_predictions.h5ad` | Combined AnnData with SCANVI cell type predictions, UMAP, and metadata. | H5AD |
+| `scanvi_predictions_h5ad` | `<input_id>_SCANVI_predictions.h5ad` | Combined AnnData (query + reference cells) with SCANVI cell type predictions (`celltype`) and UMAP; counts in `.raw`. | H5AD |
 | `gex_annotated_h5ad` | `<input_id>_gex_annotated_matrix.h5ad` | Preprocessed GEX AnnData annotated with transferred cell type labels. | H5AD |
 | `atac_annotated_h5ad` | `<input_id>_atac_annotated_matrix.h5ad` | ATAC gene-activity AnnData annotated with transferred cell type labels. Produced only in multiome mode (absent in GEX-only mode). | H5AD |
 | `scanvi_model_out` | `<input_id>_scanvi_model.tar.gz` | The run's trained (or loaded) SCANVI model, saved without bundled AnnData (~tens of MB). Can be passed back as `scanvi_model` on a later run to skip training. | TAR.GZ |
 | `pipeline_version_out` | N/A | Version of the processing pipeline run on this data. | String |
+
+:::note No sample metadata
+The pipeline adds no sample-level metadata (donor, species, organ, disease, library preparation, sex) to any output. `obs` carries the columns of the input h5ads plus the pipeline's own annotation columns (`celltype` in the predictions file, `final_annotation` in the annotated matrices, `C_scANVI`, `modality`, and `max_probability` when requested). Sample metadata is joined downstream from the data archive's sample manifests, not by this pipeline.
+:::
 
 ## Runtime configuration
 
