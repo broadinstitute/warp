@@ -18,7 +18,7 @@ The GLIMPSE2 SV Imputation pipeline imputes structural variants, SNPs, and INDEL
 The `Glimpse2SVImputation` workflow is a WDL-based pipeline for structural variant imputation using [GLIMPSE2](https://odelaneau.github.io/GLIMPSE/).
 This top-level workflow acts as a gateway that scales to large cohorts by splitting samples into batches, running preprocess + batch imputation subworkflows per batch, then merging per-batch results back into cohort-level per-contig VCFs.
 
-The workflow processes requested chromosomes independently, extracts/reformats bubble likelihoods, phases and ligates imputed chunks, pops/marginalizes collisions, merges batch sample columns, recomputes AF/INFO across all samples, optionally filters by INFO threshold, and indexes final outputs.
+The workflow processes requested chromosomes independently, extracts/reformats bubble likelihoods, phases and ligates imputed chunks, pops/marginalizes collisions, merges batch sample columns, recomputes AF/INFO across all samples, optionally filters by INFO threshold, optionally censors values of RAF below threshold, and indexes final outputs.
 
 ![](pipeline.png)
 
@@ -60,8 +60,8 @@ This gateway workflow expects manifest- or array-based GVCF inputs plus SV panel
 | `extra_phase_args` | Command-line arguments passed to `GLIMPSE2_phase`. Default value is the default in the workflow input block. |
 | `glimpse_phase_cpu_override` | Optional CPU override for GLIMPSE2 chunk phasing. If unset, the batch workflow defaults to `4` threads. |
 | `pop_glimpse2_panel_resources_json` | JSON containing panel resources used in pop/marginalize processing. |
-| `raf_censoring_threshold` | Remove RAF annotations for sites with RAF `<=` this value; default `0.0` (disabled). |
 | `info_filter_for_inclusion` | Optional INFO threshold for variant inclusion; default `0.0` (disabled). |
+| `raf_censoring_threshold` | Remove RAF annotations for sites with RAF `<=` this value; default `0.0` (disabled). |
 | `pipeline_header_line` | Optional additional header line added to output VCF headers. |
 | `glimpse2_docker` | Docker image used for GLIMPSE2 phases and ligation tasks. |
 | `merge_docker` | Docker image used for AF/INFO re-annotation merge tasks. |
@@ -77,12 +77,11 @@ The top-level workflow orchestrates batching, per-batch preprocessing/imputation
 | `SplitIntoSampleBatches` | Split the manifest into sample-level batches | `gvcf_manifest_to_use`, `sample_batch_size` | Enables gateway-level cohort scaling |
 | `PreProcessGVCFsBatch` (`PreprocessPLsGVCF`) | Preprocess one batch of GVCFs into a merged BCF | Batch manifest + preprocessing resources | Produces one preprocessed BCF/index per batch |
 | `RunBatch` (`Glimpse2SVImputationBatch`) | Run per-batch chunked SV phase/ligate/pop processing | Preprocessed BCF + chromosome/map/chunk/panel resources | Produces per-batch per-contig popped posterior BCFs |
-| `ExtractPoppedAnnotations` | Extract AF/INFO annotations from each batch contig BCF | Per-batch popped BCF + indexes | Captures per-batch annotations for cohort recomputation |
-| `MergePoppedContigVcfs` (`MergeSampleChunksVcfsWithPaste`) | Merge sample columns across batches for each contig | Arrays of per-batch contig VCFs | Creates the full-cohort contig VCF |
-| `RecomputePoppedAfInfo` | Recompute AF/INFO across the merged cohort and re-annotate | Merged contig VCF + annotations + sample counts | Restores cohort-correct AF/INFO values |
-| `FilterPoppedContigByInfo` | Optionally filter low-confidence variants by INFO | Re-annotated contig VCF + threshold | Removes variants below threshold |
-| `CensorFilteredPoppedContigRaf` | Optionally remove low RAF annotations | Filtered contig VCF + `raf_censoring_threshold` | Drops low-value RAF records |
-| `IndexFinalPoppedContig` | Finalize VCF/index outputs | Filtered or unfiltered contig VCF | Emits `imputed_vcf` and `imputed_vcf_index` per contig |
+| `ExtractPoppedAnnotations` | Extract AF/INFO annotations from each batch contig BCF in shard regions | Per-batch-and-contig popped BCF + index | Captures per-batch-and-shard annotations for cohort recomputation |
+| `MergePoppedRegion` | Merge sample columns across batches for each shard | Arrays of per-batch-and-shard VCFs | Creates the full-cohort shard VCF |
+| `RecomputePoppedAfInfoAndFilterInfoAndCensorRaf` | Recompute AF/INFO across the merged cohort and re-annotate for each shard and optionally filter by INFO and censor RAF | Merged per-shard VCFs + annotations + sample counts + INFO and RAF thresholds | Restores cohort-correct AF/INFO values |
+| `ConcatAndFinalizeMultiBatch` | Concat shards and finalize VCF/index outputs | Per-shard re-annotated+filtered+censored VCFs | Emits `imputed_vcf` and `imputed_vcf_index` per contig |
+| `FilterInfoAndCensorRafAndFinalizeBcf` | Optionally filter by INFO and censor RAF and then finalize VCF/index outputs for single batches | Popped contig BCF | Emits `imputed_vcf` and `imputed_vcf_index` per contig |
 
 ### Outputs
 

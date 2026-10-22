@@ -42,9 +42,6 @@ workflow Glimpse2SVImputation {
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
 
-        # remove RAF when RAF <= raf_censoring_threshold
-        Float raf_censoring_threshold = 0.0
-
         # Multilevel Paste Configuration
         Array[Int] merge_batch_sizes = [100]        # adjust or add levels if needed
         Array[Boolean] merge_do_localization = [true]
@@ -52,6 +49,9 @@ workflow Glimpse2SVImputation {
 
         # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCFs
         Float info_filter_for_inclusion = 0.0
+
+        # remove RAF when RAF <= raf_censoring_threshold
+        Float raf_censoring_threshold = 0.0
 
         # optional additional header line to add to the output VCF
         String? pipeline_header_line
@@ -149,8 +149,8 @@ workflow Glimpse2SVImputation {
                         num_samples = PreProcessGVCFsBatch.num_samples,
                         output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.annotated",
                         region = region,
-                        raf_censoring_threshold = raf_censoring_threshold,
-                        info_filter_threshold = info_filter_for_inclusion
+                        info_filter_threshold = info_filter_for_inclusion,
+                        raf_censoring_threshold = raf_censoring_threshold
                 }
             }
 
@@ -169,8 +169,8 @@ workflow Glimpse2SVImputation {
                     bcf = popped_bcfs_for_contig[0],
                     bcf_idx = popped_bcf_idxs_for_contig[0],
                     output_basename = output_basename + "." + chr,
-                    raf_censoring_threshold = raf_censoring_threshold,
-                    info_filter_threshold = info_filter_for_inclusion
+                    info_filter_threshold = info_filter_for_inclusion,
+                    raf_censoring_threshold = raf_censoring_threshold
             }
         }
 
