@@ -51,8 +51,8 @@ task RecomputeAndAnnotate {
 
         String output_basename
         String? region
-        Float raf_censoring_threshold
         Float info_filter_threshold
+        Float raf_censoring_threshold
 
         Int disk_size_gb = ceil(2.2 * size(merged_vcf_or_bcf, "GiB") + size(annotations, "GiB") + 50)
         Int mem_gb = 6
@@ -197,8 +197,8 @@ task FilterInfoAndCensorRafAndFinalizeBcf {
         File bcf
         File bcf_idx
         String output_basename
-        Float raf_censoring_threshold
         Float info_filter_threshold
+        Float raf_censoring_threshold
 
         Int disk_gb = ceil(2.1 * size(bcf, "GiB")) + 10
         Int preemptible = 3
