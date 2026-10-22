@@ -7,11 +7,11 @@ import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelMerge
 
 workflow Glimpse2SVImputation {
     String pipeline_version = "1.1.2"
-    String preprocess_pls_gvcf_pipeline_version = "1.0.5"
-    String batch_pipeline_version = "1.0.5"
+    String preprocess_pls_gvcf_pipeline_version = "1.0.4"
+    String batch_pipeline_version = "1.0.4"
+    String multilevel_merge_pipeline_version = "1.0.4"
     String quota_consumed_version = "1.0.0"
     String input_qc_version = "1.0.3"
-    String multilevel_merge_pipeline_version = "1.0.5"
 
     input {
         # if both array inputs and gvcf_manifest are provided, array inputs take precedence
@@ -141,7 +141,7 @@ workflow Glimpse2SVImputation {
                         output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.merged"
                 }
 
-                call Glimpse2SVImputationTasks.RecomputeAndAnnotate as RecomputePoppedAfInfo {
+                call Glimpse2SVImputationTasks.RecomputeAndAnnotate as RecomputePoppedAfInfoAndFilterInfoAndCensorRaf {
                     input:
                         merged_vcf_or_bcf = MergePoppedRegion.merged_bcf,
                         merged_vcf_or_bcf_idx = MergePoppedRegion.merged_bcf_idx,
@@ -156,15 +156,15 @@ workflow Glimpse2SVImputation {
 
             call Glimpse2SVImputationTasks.ConcatAndFinalizeVcfs as FinalizeMultiBatch {
                 input:
-                    vcfs = RecomputePoppedAfInfo.merged_imputed_vcf,
+                    vcfs = RecomputePoppedAfInfoAndFilterInfoAndCensorRaf.merged_imputed_vcf,
                     output_basename = output_basename + "." + chr,
                     extra_args = "--naive"
             }
         }
 
-        # BRANCH 2: Single-batch (Format conversion and optional filtering)
+        # BRANCH 2: Single-batch (Format conversion and optional filtering and censoring)
         if (!multiple_batches) {
-            call Glimpse2SVImputationTasks.PostprocessAndFinalizeBcf as FinalizeSingleBatch {
+            call Glimpse2SVImputationTasks.FilterInfoAndCensorRafAndFinalizeBcf as FinalizeSingleBatch {
                 input:
                     bcf = popped_bcfs_for_contig[0],
                     bcf_idx = popped_bcf_idxs_for_contig[0],

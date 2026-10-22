@@ -192,7 +192,7 @@ task ConcatAndFinalizeVcfs {
     }
 }
 
-task PostprocessAndFinalizeBcf {
+task FilterInfoAndCensorRafAndFinalizeBcf {
     input {
         File bcf
         File bcf_idx
