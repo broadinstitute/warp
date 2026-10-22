@@ -40,6 +40,7 @@ workflow Glimpse2SVImputationBatch {
     # to tasks that are inside nested scatters, so we need to define a non-optional variable that we can use to pass the
     # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
     Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
+    String defined_glimpse_phase_cpu_platform_override = select_first([glimpse_phase_cpu_platform_override, "AMD Genoa"])
 
     scatter (chromosome in chromosomes) {
         String genetic_map = genetic_maps_dict[chromosome]
@@ -71,7 +72,7 @@ workflow Glimpse2SVImputationBatch {
                     docker = glimpse2_docker,
                     mem_gb = phase_mem_gb,
                     threads = defined_glimpse_phase_cpu_override,
-                    cpu_platform = glimpse_phase_cpu_platform_override
+                    cpu_platform = defined_glimpse_phase_cpu_platform_override
             }
         }
 
