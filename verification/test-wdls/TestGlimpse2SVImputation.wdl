@@ -32,6 +32,7 @@ workflow TestGlimpse2SVImputation {
 
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
         Int? glimpse_phase_cpu_override
+        String? glimpse_phase_cpu_platform_override
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
@@ -68,6 +69,7 @@ workflow TestGlimpse2SVImputation {
         ref_dict = ref_dict,
         extra_phase_args = extra_phase_args,
         glimpse_phase_cpu_override = glimpse_phase_cpu_override,
+        glimpse_phase_cpu_platform_override = glimpse_phase_cpu_platform_override,
         pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
         raf_censoring_threshold = raf_censoring_threshold,
         info_filter_for_inclusion = info_filter_for_inclusion,
