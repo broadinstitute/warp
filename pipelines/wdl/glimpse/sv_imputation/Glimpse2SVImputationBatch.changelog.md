@@ -1,8 +1,12 @@
+# 1.0.5
+2026-10-22 (Date of Last Commit)
+
+* Changed GLIMPSE2Phase cpuPlatform to AMD Milan.
+
 # 1.0.3
 2026-10-13 (Date of Last Commit)
 
 * Updated a task in the imported Glimpse2SVImputationTasks that is not used in this workflow
-
 
 # 1.0.2
 2026-09-24 (Date of Last Commit)
