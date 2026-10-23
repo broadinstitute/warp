@@ -13,6 +13,10 @@ task ExtractAnnotations {
         Int preemptible = 3
     }
 
+    meta {
+        volatile: true
+    }
+
     command <<<
         set -euo pipefail
 
@@ -59,6 +63,10 @@ task RecomputeAndAnnotate {
         Int cpu = 1
         Int preemptible = 3
         Int chunk_size = 100000
+    }
+
+    meta {
+        volatile: true
     }
 
     command <<<
@@ -161,6 +169,10 @@ task ConcatAndFinalizeVcfs {
     Int disk_gb = ceil(2.1 * size(vcfs, "GiB")) + 10
     Int preemptible = 3
 
+    meta {
+        volatile: true
+    }
+
     command <<<
         set -euox pipefail
 
@@ -202,6 +214,10 @@ task FilterInfoAndCensorRafAndFinalizeBcf {
 
         Int disk_gb = ceil(2.1 * size(bcf, "GiB")) + 10
         Int preemptible = 3
+    }
+
+    meta {
+        volatile: true
     }
 
     command <<<

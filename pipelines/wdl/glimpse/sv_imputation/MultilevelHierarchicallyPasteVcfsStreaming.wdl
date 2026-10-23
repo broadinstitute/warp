@@ -173,6 +173,10 @@ task CreateBatches {
         RuntimeAttr? runtime_attr_override
     }
 
+    meta {
+        volatile: true
+    }
+
     command <<<
         set -euxo pipefail
 
@@ -222,6 +226,10 @@ task MergeVcfs {
         Int cpu = 2
 
         RuntimeAttr? runtime_attr_override
+    }
+
+    meta {
+        volatile: true
     }
 
     # Dynamically sizes disk if localizing, defaults to 50GB if streaming
