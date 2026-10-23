@@ -4,7 +4,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "1.0.3"
+    String pipeline_version = "1.0.5"
 
     input {
         File input_preprocessed_joint_vcf_or_bcf
@@ -18,6 +18,7 @@ workflow Glimpse2SVImputationBatch {
         String? extra_phase_args
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
         Int? glimpse_phase_cpu_override
+        String? glimpse_phase_cpu_platform_override
 
         String output_basename
 
@@ -39,6 +40,7 @@ workflow Glimpse2SVImputationBatch {
     # to tasks that are inside nested scatters, so we need to define a non-optional variable that we can use to pass the
     # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
     Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
+    String defined_glimpse_phase_cpu_platform_override = select_first([glimpse_phase_cpu_platform_override, "AMD Milan"])
 
     scatter (chromosome in chromosomes) {
         String genetic_map = genetic_maps_dict[chromosome]
@@ -69,7 +71,8 @@ workflow Glimpse2SVImputationBatch {
                     extra_phase_args = extra_phase_args,
                     docker = glimpse2_docker,
                     mem_gb = phase_mem_gb,
-                    threads = defined_glimpse_phase_cpu_override
+                    threads = defined_glimpse_phase_cpu_override,
+                    cpu_platform = defined_glimpse_phase_cpu_platform_override
             }
         }
 
@@ -126,6 +129,7 @@ workflow Glimpse2SVImputationBatch {
 struct RuntimeAttr {
     Float? mem_gb
     Int? cpu_cores
+    String? cpu_platform
     Int? disk_gb
     Int? boot_disk_gb
     Boolean? use_ssd
@@ -162,6 +166,7 @@ task GLIMPSE2Phase {
         Int seed = 15052011
         Int mem_gb = 16
         Int threads = 4
+        String cpu_platform = "AMD Milan"
         String? extra_phase_args
 
         String docker
@@ -220,6 +225,7 @@ task GLIMPSE2Phase {
     #########################
     RuntimeAttr default_attr = object {
         cpu_cores:          threads,
+        cpu_platform:       cpu_platform,
         mem_gb:             mem_gb,
         disk_gb:            disk_size_gb,
         use_ssd:            true,
@@ -230,6 +236,7 @@ task GLIMPSE2Phase {
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
         cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
+        cpuPlatform:            select_first([runtime_attr.cpu_platform,      default_attr.cpu_platform])
         memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
         disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + if select_first([runtime_attr.use_ssd, default_attr.use_ssd]) then " SSD" else " HDD"
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])

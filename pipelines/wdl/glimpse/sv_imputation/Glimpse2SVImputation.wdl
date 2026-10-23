@@ -5,9 +5,9 @@ import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow Glimpse2SVImputation {
-    String pipeline_version = "1.1.1"
+    String pipeline_version = "1.1.3"
     String preprocess_pls_gvcf_pipeline_version = "1.0.2"
-    String batch_pipeline_version = "1.0.2"
+    String batch_pipeline_version = "1.0.5"
     String quota_consumed_version = "1.0.1"
     String input_qc_version = "1.0.4"
 
@@ -36,6 +36,7 @@ workflow Glimpse2SVImputation {
 
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
         Int? glimpse_phase_cpu_override
+        String? glimpse_phase_cpu_platform_override
 
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
@@ -96,6 +97,7 @@ workflow Glimpse2SVImputation {
                 pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
                 glimpse2_docker = glimpse2_docker,
                 glimpse_phase_cpu_override = glimpse_phase_cpu_override,
+                glimpse_phase_cpu_platform_override = glimpse_phase_cpu_platform_override,
                 pipeline_header_line = pipeline_header_line
         }
     }
