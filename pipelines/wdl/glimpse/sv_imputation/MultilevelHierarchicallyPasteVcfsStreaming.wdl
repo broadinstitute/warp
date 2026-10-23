@@ -174,7 +174,7 @@ task CreateBatches {
     }
 
     command <<<
-        set -euox pipefail
+        set -euxo pipefail
 
         # Split with -a 4 guarantees strict alphanumeric ordering up to 456,976 batches
         cat ~{write_lines(vcfs_or_bcfs)} | split -a 4 -l ~{batch_size} - vcf_batch_
@@ -228,7 +228,7 @@ task MergeVcfs {
     Int disk_gb = if length(vcfs_or_bcfs_localize) > 0 then ceil(2.1*size(vcfs_or_bcfs_localize, "GiB")) + 10 else ceil(1.1*size(vcfs_or_bcfs_stream, "GiB")) + 10
 
     command <<<
-        set -euox pipefail
+        set -euxo pipefail
 
         if [ ~{length(vcfs_or_bcfs_localize)} -gt 0 ]; then
             echo "Localizing files natively via Cromwell..."
@@ -247,7 +247,7 @@ task MergeVcfs {
 
             # Prepend the line number (NR) using awk, separated by a pipe, and pass to xargs
             awk '{print NR"|"$0}' remote_list.txt | xargs -P ~{cpu} -I {} bash -c '
-                set -euox pipefail
+                set -euxo pipefail
 
                 # Split the line number and the URL
                 IFS="|" read -r LINE_NUM URL <<< "{}"
