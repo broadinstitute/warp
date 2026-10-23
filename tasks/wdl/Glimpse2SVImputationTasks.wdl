@@ -11,6 +11,10 @@ task MergeSampleChunksVcfsWithPaste {
         Int preemptible = 0
     }
 
+    meta {
+        volatile: true
+    }
+
     command <<<
         set -euo pipefail
 
@@ -100,6 +104,10 @@ task ExtractAnnotations {
         Int preemptible = 3
     }
 
+    meta {
+        volatile: true
+    }
+
     command <<<
         set -euo pipefail
 
@@ -143,6 +151,10 @@ task RecomputeAndAnnotate {
         Int cpu = 1
         Int preemptible = 0
         Int chunk_size = 100000
+    }
+
+    meta {
+        volatile: true
     }
 
     command <<<
@@ -237,6 +249,10 @@ task CensorRaf {
         Int preemptible = 3
     }
 
+    meta {
+        volatile: true
+    }
+
     command <<<
         set -euo pipefail
 
@@ -268,6 +284,10 @@ task CreateVcfIndexAndMd5 {
         Int memory_mb = 6000
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
         Int preemptible = 3
+    }
+
+    meta {
+        volatile: true
     }
 
     command <<<
@@ -311,6 +331,10 @@ task FilterVcfByInfo {
         Int mem_gb = 4
         Int cpu = 1
         Int preemptible = 3
+    }
+
+    meta {
+        volatile: true
     }
 
     command <<<
