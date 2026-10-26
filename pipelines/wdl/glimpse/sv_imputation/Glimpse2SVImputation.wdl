@@ -45,7 +45,7 @@ workflow Glimpse2SVImputation {
         # Multilevel Paste Configuration
         Array[Int] merge_batch_sizes = [100]        # adjust or add levels if needed
         Array[Boolean] merge_do_localization = [true]
-        Array[Int] merge_timeouts_min = [120]
+        Array[Int] merge_timeouts_min = [0]
 
         # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCFs
         Float info_filter_for_inclusion = 0.0
