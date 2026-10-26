@@ -127,6 +127,7 @@ workflow Glimpse2SVImputationBatch {
 }
 
 struct RuntimeAttr {
+    String? predefined_machine_type
     Float? mem_gb
     Int? cpu_cores
     String? cpu_platform
@@ -185,6 +186,19 @@ task GLIMPSE2Phase {
 
     Int disk_size_gb = 2*ceil(size(input_vcf_or_bcf, "GiB") + size(panel_split_chunk_bin, "GiB") + size(genetic_map, "GiB") + 30)
 
+    # Determine requested memory taking runtime overrides into account
+    Int requested_mem = select_first([select_first([runtime_attr_override, object {}]).mem_gb, mem_gb])
+
+    # Select the smallest C3D shape where RAM > requested_mem
+    String auto_c3d_machine = 
+        if requested_mem < 8 then "c3d-highcpu-4"
+        else if requested_mem < 16 then "c3d-standard-4"
+        else if requested_mem < 32 then "c3d-highmem-4"
+        else if requested_mem < 64 then "c3d-standard-16"
+        else if requested_mem < 128 then "c3d-highmem-16"
+        else if requested_mem < 240 then "c3d-highmem-30"
+        else "c3d-highmem-60"
+
     command <<<
         set -euxo pipefail
 
@@ -224,7 +238,7 @@ task GLIMPSE2Phase {
 
     #########################
     RuntimeAttr default_attr = object {
-        cpu_cores:          threads,
+        predefined_machine_type: auto_c3d_machine,
         cpu_platform:       cpu_platform,
         mem_gb:             mem_gb,
         disk_gb:            disk_size_gb,
@@ -235,9 +249,10 @@ task GLIMPSE2Phase {
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {
-        cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
+#        cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
+#        memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
         cpuPlatform:            select_first([runtime_attr.cpu_platform,      default_attr.cpu_platform])
-        memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
+        predefinedMachineType: select_first([runtime_attr.predefined_machine_type, default_attr.predefined_machine_type])
         disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + if select_first([runtime_attr.use_ssd, default_attr.use_ssd]) then " SSD" else " HDD"
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
