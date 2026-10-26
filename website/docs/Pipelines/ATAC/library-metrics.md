@@ -31,6 +31,6 @@ The [ATAC pipeline](README.md) uses [SnapATAC2](https://github.com/kaizhang/Snap
 | Number_of_peaks | The total number of peaks, or regions of accessible chromatin, identified in the dataset, representing potential regulatory elements. |
 | fraction_of_genome_in_peaks | The fraction of the genome that is covered by identified peaks, indicating the extent of chromatin accessibility across the genome. |
 | fraction_of_high-quality_fragments_overlapping_peaks | The fraction of high-quality fragments that overlap with identified peaks, providing an indication of the efficiency of the assay in capturing accessible regions. |
-| atac_percent_target | Percent of cells recovered; value is calculated as estimated_cells/expected_cells. |
+| atac_percent_target | Percent of cells recovered; value is calculated as estimated_cells/expected_cells. The value can exceed 100% when more cells are called than `atac_expected_cells`, which is common when `anchor_cell_calling` is `true`, because anchoring does not cap the number of cells called. A value well above 100% suggests `atac_expected_cells` is lower than the number of nuclei in the library, or that some called barcodes are not real cells. |
 
 
