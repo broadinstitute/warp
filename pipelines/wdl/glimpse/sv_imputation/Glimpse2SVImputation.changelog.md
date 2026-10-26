@@ -1,3 +1,8 @@
+# 1.1.2
+2026-10-19 (Date of Last Commit)
+
+* Scatter and streamline postprocessing tasks
+
 # 1.1.1
 2026-10-19 (Date of Last Commit)
 
