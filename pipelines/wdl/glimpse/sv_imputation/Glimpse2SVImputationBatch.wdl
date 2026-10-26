@@ -234,14 +234,14 @@ task GLIMPSE2Phase {
         docker:             docker
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
-    Int final_mem_gb = select_first([runtime_attr.mem_gb, default_attr.mem_gb])
+    Float final_mem_gb = select_first([runtime_attr.mem_gb, default_attr.mem_gb])
     String auto_c3d_machine = 
-        if final_mem_gb < 8 then "c3d-highcpu-4"
-        else if final_mem_gb < 16 then "c3d-standard-4"
-        else if final_mem_gb < 32 then "c3d-highmem-4"
-        else if final_mem_gb < 64 then "c3d-standard-16"
-        else if final_mem_gb < 128 then "c3d-highmem-16"
-        else if final_mem_gb < 240 then "c3d-highmem-30"
+        if final_mem_gb < 8.0 then "c3d-highcpu-4"
+        else if final_mem_gb < 16.0 then "c3d-standard-4"
+        else if final_mem_gb < 32.0 then "c3d-highmem-4"
+        else if final_mem_gb < 64.0 then "c3d-standard-16"
+        else if final_mem_gb < 128.0 then "c3d-highmem-16"
+        else if final_mem_gb < 240.0 then "c3d-highmem-30"
         else "c3d-highmem-60"
     runtime {
         predefinedMachineType: auto_c3d_machine
