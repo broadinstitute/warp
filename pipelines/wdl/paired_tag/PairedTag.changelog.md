@@ -1,7 +1,7 @@
 # 3.0.5
-2026-10-16 (Date of Last Commit)
+2026-10-26 (Date of Last Commit)
 
-* Updated the ATAC workflow to 2.10.0 to add the optional `force_cells` input; this change has no functional impact on PairedTag
+* Updated the ATAC workflow to 2.10.0 to add the optional `anchor_cell_calling` input; this change has no functional impact on PairedTag
 
 # 3.0.4
 2026-10-08 (Date of Last Commit)

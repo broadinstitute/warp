@@ -1,7 +1,7 @@
 # 2.10.0
-2026-10-16 (Date of Last Commit)
+2026-10-26 (Date of Last Commit)
 
-* Added optional `force_cells` input (default `false`). When `true`, the CreateFragmentFile task bypasses SnapATAC2's cell estimation and uses the top `atac_expected_cells` barcodes by total fragments as the cells, for both the per-cell library metrics and the `snap_metrics` h5ad. Default runs are unaffected
+* Added optional `anchor_cell_calling` input (default `false`). When `true`, the CreateFragmentFile task anchors SnapATAC2's OrdMag cell calling to `atac_expected_cells` instead of letting it estimate the cell count; the per-cell library metrics and the `snap_metrics` h5ad both use the called cells. Default runs are unaffected
 
 # 2.9.4
 2026-09-16 (Date of Last Commit)

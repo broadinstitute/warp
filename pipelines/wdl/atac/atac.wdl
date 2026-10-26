@@ -26,8 +26,8 @@ workflow ATAC {
 
     #Expected cells from library preparation
     Int atac_expected_cells = 3000
-    # If true, skip SnapATAC2 cell estimation and use the top atac_expected_cells barcodes by total fragments as the cells
-    Boolean force_cells = false
+    # If true, anchor SnapATAC2's cell calling to atac_expected_cells instead of letting it estimate the cell count
+    Boolean anchor_cell_calling = false
 
     # Option for running files with preindex
     Boolean preindex = false
@@ -88,7 +88,7 @@ workflow ATAC {
     num_threads_bwa: "Number of threads for bwa-mem2 task (default: 128)"
     mem_size_bwa: "Memory size in GB for bwa-mem2 task (default: 512)"
     cpu_platform_bwa: "CPU platform for bwa-mem2 task (default: Intel Ice Lake)"
-    force_cells: "If true, bypass SnapATAC2 cell estimation and use the top atac_expected_cells barcodes by total fragments (n_fragment) as the cells, for both the per-cell library metrics and the snap_metrics h5ad (default: false)"
+    anchor_cell_calling: "If true, SnapATAC2's OrdMag cell calling uses atac_expected_cells as its expected cell count instead of estimating it from the data; the per-cell library metrics and the snap_metrics h5ad both use the resulting cells (default: false)"
  }
 
   if (!defined(aligned_ATAC_bam)) {
@@ -156,7 +156,7 @@ workflow ATAC {
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
-        force_cells = force_cells,
+        anchor_cell_calling = anchor_cell_calling,
         input_id = input_id
     }
   }
@@ -170,7 +170,7 @@ workflow ATAC {
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
-        force_cells = force_cells,
+        anchor_cell_calling = anchor_cell_calling,
         input_id = input_id
     }
     if (peak_calling) {
@@ -552,7 +552,7 @@ task CreateFragmentFile {
     String atac_nhash_id = ""
     String input_id
     Int atac_expected_cells = 3000
-    Boolean force_cells = false
+    Boolean anchor_cell_calling = false
     String gtf_path = annotations_gtf
   }
 
@@ -563,7 +563,7 @@ task CreateFragmentFile {
     disk_size: "Disk size used in create fragment file step."
     mem_size: "The size of memory used in create fragment file."
     docker_path: "The docker image path containing the runtime environment for this task"
-    force_cells: "If true, use the top atac_expected_cells barcodes by total fragments as the cells instead of SnapATAC2's cell estimate."
+    anchor_cell_calling: "If true, anchor SnapATAC2's OrdMag cell calling to atac_expected_cells instead of letting it estimate the cell count."
   }
 
   command <<<
@@ -591,7 +591,7 @@ task CreateFragmentFile {
     atac_nhash_id = "~{atac_nhash_id}"
     mito_list = "~{sep=' ' mito_list}"
     expected_cells = ~{atac_expected_cells}
-    force_cells = "~{force_cells}" == "true"
+    anchor_cell_calling = "~{anchor_cell_calling}" == "true"
 
     print(mito_list)
     mito_list = mito_list.split(" ")
@@ -604,16 +604,17 @@ task CreateFragmentFile {
         key, value = line.strip().split()
         chrom_size_dict[str(key)] = int(value)
 
-    # SnapATAC2's call_cells self-estimates the cell count, which collapses when a few hundred barcodes are much
-    # deeper than real nuclei. When requested, replace the function the recipe looks up (snapatac2.pp.call_cells)
-    # with one that takes the top expected_cells barcodes by total fragments, so the recipe's per-cell metrics
-    # and its in-place subset of the h5ad both use exactly those cells.
-    if force_cells:
-      def forced_call_cells(data, use_rep, inplace=False, n_jobs=8):
-        n_fragment = data.obs['n_fragment'].to_numpy()
-        return np.sort(np.argsort(-n_fragment, kind='stable')[:expected_cells])
-      pp.call_cells = forced_call_cells
-      print("Forcing cells to the top barcodes by fragment count:", expected_cells)
+    # SnapATAC2's call_cells self-estimates the cell count (recovered_cells=None), which collapses when a few
+    # barcodes are much deeper than real nuclei. When requested, replace the function the recipe looks up
+    # (snapatac2.pp.call_cells) with one that runs the same OrdMag caller anchored to expected_cells. The recipe's
+    # per-cell metrics and its in-place subset of the h5ad both use the resulting cells.
+    if anchor_cell_calling:
+      from snapatac2.preprocessing._cell_calling import filter_cellular_barcodes_ordmag
+      def anchored_call_cells(data, use_rep, inplace=False, n_jobs=8):
+        counts = data.obs[use_rep].to_numpy()
+        return filter_cellular_barcodes_ordmag(counts, expected_cells)[0]
+      pp.call_cells = anchored_call_cells
+      print("Anchoring cell calling to expected cells:", expected_cells)
 
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":

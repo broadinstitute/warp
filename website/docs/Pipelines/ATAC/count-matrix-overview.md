@@ -8,7 +8,7 @@ The [ATAC pipeline's](README.md) default count matrix output is an h5ad file gen
 
 The h5ad file contains unstructured metadata (`h5ad.uns`; [Table 1](#table-1-global-attributes)) as well as per-barcode quality metrics (`h5ad.obs`; [Table 2](#table-2-cell-metrics)). It also contains an equivalent gene expression barcode for each ATAC barcode. Raw fragments are stored in the `h5ad.obsm['insertion']` property of the h5ad file. For more information, see the [`import_data` function](https://kzhang.org/SnapATAC2/api/_autosummary/snapatac2.pp.import_data.html#snapatac2.pp.import_data) in the SnapATAC2 documentation.
 
-The h5ad file contains only the barcodes called as cells, and the per-cell library metrics are computed over the same barcodes. By default, cells are called with SnapATAC2's OrdMag method on fragments overlapping peaks (`n_frag_overlap_peak`); when the pipeline runs with `force_cells` set to `true` (`atac_force_cells` in Multiome), the cells are the top `atac_expected_cells` barcodes by total fragments (`n_fragment`).
+The h5ad file contains only the barcodes called as cells, and the per-cell library metrics are computed over the same barcodes. Cells are called with SnapATAC2's OrdMag method on fragments overlapping peaks (`n_frag_overlap_peak`). By default the method estimates the expected cell count from the data; when the pipeline runs with `anchor_cell_calling` set to `true` (`atac_anchor_cell_calling` in Multiome), it uses `atac_expected_cells` instead.
 
 The h5ad file does not contain per-gene metrics, meaning the variables/features data frame (`h5ad.var`) is empty.
 

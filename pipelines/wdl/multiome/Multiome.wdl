@@ -53,8 +53,8 @@ workflow Multiome {
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         File? aligned_ATAC_bam
-        # If true, skip ATAC cell estimation and use the top expected_cells ATAC barcodes by total fragments as the cells
-        Boolean atac_force_cells = false
+        # If true, anchor ATAC cell calling to expected_cells instead of letting SnapATAC2 estimate the cell count
+        Boolean atac_anchor_cell_calling = false
 
         # CellBender
         Boolean run_cellbender = false
@@ -134,7 +134,7 @@ workflow Multiome {
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
-            force_cells = atac_force_cells,
+            anchor_cell_calling = atac_anchor_cell_calling,
             peak_calling = false,
             aligned_ATAC_bam = aligned_ATAC_bam
 

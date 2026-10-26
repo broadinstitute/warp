@@ -1,8 +1,8 @@
 # 7.1.0
-2026-10-16 (Date of Last Commit)
+2026-10-26 (Date of Last Commit)
 
 * Updated the ATAC workflow to 2.10.0
-* Added optional `atac_force_cells` input (default `false`), passed to ATAC, that bypasses ATAC cell estimation and uses the top `expected_cells` ATAC barcodes by total fragments as the cells, for both the ATAC library metrics and the ATAC h5ad. Default runs are unaffected
+* Added optional `atac_anchor_cell_calling` input (default `false`), passed to ATAC, that anchors ATAC cell calling to `expected_cells` instead of letting SnapATAC2 estimate the cell count; the ATAC library metrics and the ATAC h5ad both use the called cells. Default runs are unaffected
 
 # 7.0.4
 2026-10-08 (Date of Last Commit)
