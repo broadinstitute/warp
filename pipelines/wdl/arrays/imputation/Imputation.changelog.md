@@ -1,3 +1,8 @@
+# 1.1.24
+2026-10-13 (Date of Last Commit)
+
+* UpdateHeader tasks now asks for more disk.
+
 # 1.1.23
 2025-10-03 (Date of Last Commit)
 
