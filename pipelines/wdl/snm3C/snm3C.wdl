@@ -144,6 +144,7 @@ workflow snm3C {
         Array[File] all_reads_3C_contacts_array = Summary_PerCellOutput.all_reads_3C_contacts_array
         Array[File] unique_reads_cgn_extraction_allc_extract_array = Summary_PerCellOutput.unique_reads_cgn_extraction_allc_extract_array
         Array[File] unique_reads_cgn_extraction_tbi_extract_array = Summary_PerCellOutput.unique_reads_cgn_extraction_tbi_extract_array
+        Array[File] deduped_bam_tar_array = Merge_sort_analyze.deduped_bam_tar
     }
 }
 
@@ -966,6 +967,9 @@ task Merge_sort_analyze {
       tar -cf - ~{cromwell_root_dir}/output_bams/*.matrix.txt | pigz > ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz
       tar -cf - *.hisat3n_dna.all_reads.name_sort.bam | pigz > ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz
 
+      # tar deduped bams + indices (input to bam-to-allc)
+      (cd ~{cromwell_root_dir}/output_bams && tar -cf - *.deduped.bam *.deduped.bam.bai) | pigz > ~{plate_id}.hisat3n_dna.all_reads.deduped_bams.tar.gz
+
       # tar outputs of call_chromatin_contacts
       tar -cf - *.hisat3n_dna.all_reads.3C.contact.tsv.gz | pigz > ~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz
       tar -cf - *.hisat3n_dna.all_reads.dedup_contacts.tsv.gz | pigz > ~{plate_id}.hisat3n_dna.all_reads.dedup_contacts.tar.gz
@@ -999,6 +1003,7 @@ task Merge_sort_analyze {
         File allc_uniq_reads_stats = "~{plate_id}.allc.count.tar.gz"
         File extract_allc_output_tbi_tar = "~{plate_id}.extract-allc_tbi.tar.gz"
         File extract_allc_output_allc_tar  = "~{plate_id}.extract-allc.tar.gz"
+        File deduped_bam_tar = "~{plate_id}.hisat3n_dna.all_reads.deduped_bams.tar.gz"
      }
 }
 
