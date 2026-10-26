@@ -1,7 +1,8 @@
 # 3.0.5
 2026-10-26 (Date of Last Commit)
 
-* Updated the ATAC workflow to 3.0.0 to add the optional `anchor_cell_calling` input; this change has no functional impact on PairedTag
+* Updated the ATAC workflow to 3.0.0 to add the optional `anchor_cell_calling` input
+* Added optional `atac_expected_cells` (default 3000, the ATAC default) and `atac_anchor_cell_calling` (default `false`) inputs, passed to ATAC; when `atac_anchor_cell_calling` is `true`, ATAC cell calling is anchored to `atac_expected_cells` instead of letting SnapATAC2 estimate the cell count. Default runs are unaffected
 
 # 3.0.4
 2026-10-08 (Date of Last Commit)

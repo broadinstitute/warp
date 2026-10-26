@@ -53,6 +53,10 @@ workflow PairedTag {
         File atac_whitelist = if cloud_provider == "gcp" then "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt" else "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_atac.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
         # Optional aligned ATAC bam file
         File? aligned_ATAC_bam
+        # Expected number of cells for the ATAC library; used for atac_percent_target and, when atac_anchor_cell_calling is true, as the cell-calling anchor
+        Int atac_expected_cells = 3000
+        # If true, anchor ATAC cell calling to atac_expected_cells instead of letting SnapATAC2 estimate the cell count
+        Boolean atac_anchor_cell_calling = false
 
         # PairedTag
         Boolean preindex
@@ -141,7 +145,9 @@ workflow PairedTag {
             cloud_provider = cloud_provider,
             vm_size = vm_size,
             atac_nhash_id = atac_nhash_id,
-            aligned_ATAC_bam = aligned_ATAC_bam
+            aligned_ATAC_bam = aligned_ATAC_bam,
+            atac_expected_cells = atac_expected_cells,
+            anchor_cell_calling = atac_anchor_cell_calling
     }
 
     if (preindex) {

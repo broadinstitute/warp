@@ -87,6 +87,8 @@ The Paired-Tag workflow inputs are specified in JSON configuration files. Exampl
 | adapter_seq_read3 | Optional string describing the adapter sequence for ATAC read 2 paired-end reads to be used during adapter trimming with Cutadapt; default is "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG". | String |
 | atac_whitelist | Optional file containing the list of valid barcodes for 10x multiome ATAC adata; default is "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt". | File |
 | preindex | Optional boolean for the ATAC workflow; if “true”, the pipeline will run the ATAC workflow with a preindexing task necessary for processing of droplet-based Paired-Tag data where sample barcodes from read2 are combined with cell barcodes into the BB tag of the output BAM file; if “false”, the pipeline will run the ATAC workflow without preindexing and cell barcodes are stored in the CB tag of the output BAM file; default is “true”. | Boolean |
+| atac_expected_cells | Optional integer for the expected number of cells in the ATAC library; used to calculate `atac_percent_target` and, when `atac_anchor_cell_calling` is `true`, as the ATAC cell-calling anchor; default is 3000. With `preindex` set to `true`, cells are called on cell barcode plus sample barcode (`BB` tag), so choose the value accordingly. | Integer |
+| atac_anchor_cell_calling | Optional boolean; default is `false`. When `true`, ATAC cell calling uses `atac_expected_cells` as SnapATAC2's expected cell count instead of estimating it from the data. The number of cells called can differ from `atac_expected_cells`, so `atac_percent_target` can be above or below 100%. See the [ATAC Overview](../ATAC/README.md) for details. | Boolean |
 
 
 ## Paired-Tag tasks and tools
