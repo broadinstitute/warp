@@ -225,7 +225,7 @@ All output filenames are prefixed with `~{input_id}_`.
 | `pipeline_version_out` | N/A | Version of the processing pipeline run on this data. | String |
 
 :::note No sample metadata
-The pipeline adds no sample-level metadata (donor, species, organ, disease, library preparation, sex) to any output. `obs` carries the columns of the input h5ads plus the pipeline's own annotation columns (`celltype` in the predictions file, `final_annotation` in the annotated matrices, `C_scANVI`, `modality`, and `max_probability` when requested). Sample metadata is joined downstream from the data archive's sample manifests, not by this pipeline.
+The pipeline adds no sample-level metadata (donor, species, organ, disease, library preparation, sex) to any output. The predictions file retains only input `obs` columns shared by all concatenated datasets, plus pipeline-generated annotation columns; columns present in only one input, such as a reference-only `donor_id`, are not retained there. The annotated matrices retain their preprocessed modality-specific `obs` columns and transferred labels. Sample metadata is joined downstream from the data archive's sample manifests, not by this pipeline.
 :::
 
 ## Runtime configuration
