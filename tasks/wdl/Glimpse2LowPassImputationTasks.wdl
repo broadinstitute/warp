@@ -3,6 +3,8 @@ version 1.0
 task MergeSampleChunksVcfsWithPaste {
     input {
         Array[File] input_vcfs
+        Array[File]? input_vcf_indices
+        String? region
         String output_vcf_basename
 
         Int disk_size_gb = ceil(2.2 * size(input_vcfs, "GiB") + 50)
@@ -23,49 +25,59 @@ task MergeSampleChunksVcfsWithPaste {
 
         fifos_to_paste=()
         md5sums=()
+
+        # Extract header lines excluding the #CHROM line
         bcftools view -h --no-version ${vcfs[0]} | awk '!/^#CHROM/' > header.vcf
-        n_lines=$(bcftools view -h --no-version ${vcfs[0]} | wc -l)
+        
+        # Extract the base #CHROM line (columns 1-9 plus batch 0 samples)
+        bcftools view -h "${vcfs[0]}" | grep '^#CHROM' > chrom_0.txt
+        chrom_files=("chrom_0.txt")
 
-        bgzip -d ${vcfs[0]} -o fifo_0 &
-
-        tail +$((n_lines)) fifo_0 | tee fifo_to_paste_0 | cut -f1-5,9 | md5sum > md5sum_0 &
+        bcftools view -H ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ${vcfs[0]} > fifo_0 &
+        cat fifo_0 | tee fifo_to_paste_0 | cut -f1-5,9 | md5sum > md5sum_0 &
 
         for vcf in "${vcfs[@]:1}"; do
-        fifo_name="fifo_$i"
-        mkfifo "$fifo_name"
+            fifo_name="fifo_$i"
+            mkfifo "$fifo_name"
 
-        fifo_name_to_md5="fifo_to_md5_$i"
-        mkfifo "$fifo_name_to_md5"
+            fifo_name_to_md5="fifo_to_md5_$i"
+            mkfifo "$fifo_name_to_md5"
 
-        fifo_name_to_paste="fifo_to_paste_$i"
-        mkfifo "$fifo_name_to_paste"
-        fifos_to_paste+=("$fifo_name_to_paste")
+            fifo_name_to_paste="fifo_to_paste_$i"
+            mkfifo "$fifo_name_to_paste"
+            fifos_to_paste+=("$fifo_name_to_paste")
 
-        file_name_md5sum="md5sum_$i"
-        md5sums+=("$file_name_md5sum")
-        n_lines=$(bcftools view -h --no-version $vcf | wc -l)
+            file_name_md5sum="md5sum_$i"
+            md5sums+=("$file_name_md5sum")
 
-        bgzip -d ${vcf} -o "$fifo_name" &
-        tail +$((n_lines)) "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
-        cut -f1-5,9 "$fifo_name_to_md5" | md5sum > "$file_name_md5sum" &
+            # Extract just the sample columns (10+) from the header for this batch
+            bcftools view -h "$vcf" | grep '^#CHROM' | cut -f 10- > "chrom_$i.txt"
+            chrom_files+=("chrom_$i.txt")
 
-        ((i++))
+            bcftools view -H ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ${vcf} > "$fifo_name" &
+            cat "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
+            cut -f1-5,9 "$fifo_name_to_md5" | md5sum > "$file_name_md5sum" &
+
+            ((i++))
         done
+
+        # Horizontally merge the #CHROM line fragments to match the data body
+        paste "${chrom_files[@]}" > full_chrom_line.txt
 
         mkfifo fifo_to_cat
 
         paste fifo_to_paste_0 "${fifos_to_paste[@]}" | tee fifo_to_cat | awk 'NR % 5000000 == 0' | cut -f 1-5 &
 
-        cat header.vcf fifo_to_cat | bgzip -o ~{output_vcf_basename}.vcf.gz
+        # Feed the header, merged #CHROM line, and merged data body into bcftools
+        cat header.vcf full_chrom_line.txt fifo_to_cat | bcftools view -Oz --write-index=tbi -o "~{output_vcf_basename}.vcf.gz"
 
         for md5sum_file in "${md5sums[@]}"; do
-        diff <(cat md5sum_0) <(cat $md5sum_file) >> /dev/null || (echo "Fields 1-5,9 do not match for $md5sum_file" && exit 1)
+            diff <(cat md5sum_0) <(cat $md5sum_file) >> /dev/null || (echo "Fields 1-5,9 do not match for $md5sum_file" && exit 1)
         done
 
         for fifo in fifo_*; do
-        rm $fifo
+            rm $fifo
         done
-
     >>>
 
     runtime {
@@ -80,6 +92,7 @@ task MergeSampleChunksVcfsWithPaste {
 
     output {
         File output_vcf = "~{output_vcf_basename}.vcf.gz"
+        File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
     }
 }
 
@@ -88,6 +101,7 @@ task ExtractAnnotations {
         File imputed_vcf
         File imputed_vcf_index
         Int batch_index
+        String? region
 
         String docker_extract_annotations
         Int disk_size_gb = ceil(2 * size(imputed_vcf, "GiB") + 50)
@@ -103,7 +117,7 @@ task ExtractAnnotations {
         ls ~{imputed_vcf_index} > /dev/null
 
         printf 'CHROM\tPOS\tREF\tALT\tAF\tINFO\n' | bgzip -c > annotations_batch_~{batch_index}.tsv.gz
-        bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\n' ~{imputed_vcf} | bgzip -c >> annotations_batch_~{batch_index}.tsv.gz
+        bcftools query ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\n' ~{imputed_vcf} | bgzip -c >> annotations_batch_~{batch_index}.tsv.gz
     >>>
 
     runtime {
@@ -123,6 +137,7 @@ task ExtractAnnotations {
 task RecomputeAndAnnotate {
     input {
         File merged_vcf
+        File merged_vcf_index
         Array[File] annotations
 
         Array[Int] num_samples
@@ -130,6 +145,7 @@ task RecomputeAndAnnotate {
         String output_basename
         Float info_filter_threshold
         Float raf_censoring_threshold
+        String? region
 
         String docker_merge
         Int disk_size_gb = ceil(2.2 * size(merged_vcf, "GiB") + size(annotations, "GiB") + 50)
@@ -197,12 +213,12 @@ EOF
         bgzip aggregated_annotations.tsv
         tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
 
-        PIPE="bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO ~{merged_vcf} -Ou"
-        
+        PIPE="bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ~{merged_vcf} -Ou"
+
         if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
             PIPE="$PIPE | bcftools filter -i \"INFO/INFO >= ~{info_filter_threshold}\" -Ou"
         fi
-        
+
         if awk -v t="~{raf_censoring_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
             PIPE="$PIPE | bcftools annotate -x INFO/RAF -i 'INFO/RAF<=~{raf_censoring_threshold}' --keep-sites -Ou"
         fi
@@ -279,6 +295,91 @@ task FilterInfoAndCensorRafAndFinalizeVcf {
     }
 }
 
+task CreateContigRegions {
+    input {
+        File fasta_index
+        String contig
+        Int shard_size_bp = 25000000
+    }
+    
+    command <<<
+        set -euxo pipefail
+
+        python3 <<EOF
+        import sys
+
+        contig = "~{contig}"
+        shard_size = ~{shard_size_bp}
+
+        with open("~{fasta_index}", "r") as f:
+            for line in f:
+                parts = line.strip().split('\t')
+                if parts[0] == contig:
+                    length = int(parts[1])
+                    for start in range(1, length + 1, shard_size):
+                        end = min(start + shard_size - 1, length)
+                        print(f"{contig}:{start}-{end}")
+                    sys.exit(0)
+                    
+        print(f"Contig {contig} not found in FASTA index", file=sys.stderr)
+        sys.exit(1)
+        EOF
+    >>>
+    
+    output {
+        Array[String] regions = read_lines(stdout())
+    }
+    
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        memory: "1 GiB"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        noAddress: true
+    }
+}
+
+task ConcatAndFinalizeVcfs {
+    input {
+        Array[File] vcfs
+        String output_basename
+        String? extra_args
+    }
+
+    Int disk_gb = ceil(2.1 * size(vcfs, "GiB")) + 10
+    Int preemptible = 3
+
+    command <<<
+        set -euxo pipefail
+
+        # on-the-fly indexing is not allowed with --naive, so we do it separately afterwards
+        bcftools concat \
+            -f ~{write_lines(vcfs)} \
+            ~{extra_args} \
+            -Oz -o ~{output_basename}.vcf.gz
+        bcftools index -t ~{output_basename}.vcf.gz
+
+        echo "Calculating MD5..."
+        md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
+    >>>
+
+    output {
+        File concatenated_vcf = "~{output_basename}.vcf.gz"
+        File concatenated_vcf_idx = "~{output_basename}.vcf.gz.tbi"
+        File concatenated_vcf_md5sum = "~{output_basename}.md5sum"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "4 GiB"
+        disks: "local-disk " + disk_gb + " SSD"
+        preemptible: preemptible
+        maxRetries: 1
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        noAddress: true
+    }
+}
+
 task MergeQCMetrics {
     input {
         Array[File] qc_metrics
@@ -292,7 +393,7 @@ task MergeQCMetrics {
     }
 
     command <<<
-        set -xeuo pipefail
+        set -euxo pipefail
 
         python3 <<EOF
         import pandas as pd
@@ -372,7 +473,7 @@ task ConvertInputArraysToManifest {
     }
 
     command <<<
-        set -euo pipefail
+        set -euxo pipefail
 
         python3 << 'EOF'
         import sys
@@ -422,7 +523,7 @@ task UpdateHeader {
     }
 
     command <<<
-        set -xeuo pipefail
+        set -euxo pipefail
 
         # Set correct reference dictionary
         bcftools view -h --no-version ~{vcf} > old_header.vcf
@@ -436,8 +537,9 @@ task UpdateHeader {
         fi
 
         # Apply the final header (with ref dict and optionally pipeline_header_line) to the VCF
-        # Output unindexed for downstream filtering
+        # Output indexed for downstream use
         bcftools reheader -h updated_header.vcf -o ~{output_basename}.vcf.gz ~{vcf}
+        bcftools index -t ~{output_basename}.vcf.gz
     >>>
 
     runtime {
@@ -452,6 +554,7 @@ task UpdateHeader {
 
     output {
         File output_vcf = "~{output_basename}.vcf.gz"
+        File output_vcf_idx = "~{output_basename}.vcf.gz.tbi"
     }
 }
 
@@ -469,7 +572,7 @@ task GatherVcfsNoIndex {
     Int max_heap = memory_mb - 1000
 
     command <<<
-        set -e -o pipefail
+        set -euxo pipefail
 
         gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
         GatherVcfs \
@@ -510,7 +613,7 @@ task CollectQCMetrics {
     Int disk_size_gb = ceil(2*size(imputed_vcf, "GiB") + 50)
 
     command <<<
-        set -euo pipefail
+        set -euxo pipefail
 
         cat <<'EOF' > script.py
         import hail as hl
