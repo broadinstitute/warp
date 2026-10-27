@@ -1,3 +1,8 @@
+# 1.1.2
+2026-10-27 (Date of Last Commit)
+
+* Moved UpdateHeader from top-level workflow into this workflow
+
 # 1.1.1
 2026-09-23 (Date of Last Commit)
 
