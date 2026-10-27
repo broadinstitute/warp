@@ -4,7 +4,7 @@ import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
 
 workflow Glimpse2LowPassImputation {
-    String pipeline_version = "2.1.1"
+    String pipeline_version = "2.1.2"
     String batch_pipeline_version = "1.1.0"
     String quota_consumed_version = "1.0.2"
     String input_qc_version = "1.1.2"
@@ -65,6 +65,8 @@ workflow Glimpse2LowPassImputation {
             batch_size = sample_batch_size,
             cram_manifest = cram_manifest_to_use
     }
+    
+    Boolean multiple_batches = length(SplitIntoSampleBatches.cram_manifest_batches) > 1
 
     scatter(batch_idx in range(length(SplitIntoSampleBatches.cram_manifest_batches))) {
         call Glimpse2LowPassImputationBatch.Glimpse2LowPassImputationBatch as RunBatch {
@@ -91,9 +93,8 @@ workflow Glimpse2LowPassImputation {
         Array[File] batch_vcfs_for_contig = transpose(RunBatch.imputed_contig_ligated_vcfs)[contig_idx]
         Array[File] batch_vcf_indices_for_contig = transpose(RunBatch.imputed_contig_ligated_vcf_indices)[contig_idx]
 
-        # For multiple batches: paste sample columns together, recompute AF/INFO as weighted averages.
-        # For a single batch: skip both steps since the batch VCF already has correct annotations.
-        if (length(SplitIntoSampleBatches.cram_manifest_batches) > 1) {
+        # For multiple batches: extract annotations, paste sample columns together, re-header, then recompute AF/INFO as weighted averages and apply filters.
+        if (multiple_batches) {
             # Extract AF and INFO annotations from each batch before merging so they can be recalculated
             scatter(batch_annot_idx in range(length(batch_vcfs_for_contig))) {
                 call Glimpse2LowPassImputationTasks.ExtractAnnotations {
@@ -101,7 +102,7 @@ workflow Glimpse2LowPassImputation {
                         imputed_vcf = batch_vcfs_for_contig[batch_annot_idx],
                         imputed_vcf_index = batch_vcf_indices_for_contig[batch_annot_idx],
                         batch_index = batch_annot_idx,
-                        docker_extract_annotations = gatk_docker
+                        docker_extract_annotations = docker_merge
                 }
             }
 
@@ -111,61 +112,55 @@ workflow Glimpse2LowPassImputation {
                     output_vcf_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged"
             }
 
+            call Glimpse2LowPassImputationTasks.UpdateHeader as UpdateHeaderMulti {
+                input:
+                    vcf = MergeContigVcfs.output_vcf,
+                    ref_dict = ref_dict,
+                    pipeline_header_line = pipeline_header_line,
+                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reheadered",
+                    docker = glimpse_docker
+            }
+
             call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate {
                 input:
-                    merged_vcf = MergeContigVcfs.output_vcf,
+                    merged_vcf = UpdateHeaderMulti.output_vcf,
                     annotations = ExtractAnnotations.annotations,
                     num_samples = RunBatch.total_samples,
-                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.reannotated",
+                    info_filter_threshold = info_filter_for_inclusion,
+                    raf_censoring_threshold = raf_censoring_threshold,
+                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed",
                     docker_merge = docker_merge
             }
         }
 
-        File annotated_contig_vcf = select_first([RecomputeAndAnnotate.merged_imputed_vcf, batch_vcfs_for_contig[0]])
-
-        if (info_filter_for_inclusion > 0.0) {
-            call Glimpse2LowPassImputationTasks.FilterVcfByInfo as FilterContigVcfByInfo {
+        # For a single batch: re-header, then apply info filters and RAF censoring via bcftools pipe.
+        if (!multiple_batches) {
+            call Glimpse2LowPassImputationTasks.UpdateHeader as UpdateHeaderSingle {
                 input:
-                    vcf = annotated_contig_vcf,
-                    info_threshold = info_filter_for_inclusion,
-                    basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.info_filtered"
+                    vcf = batch_vcfs_for_contig[0],
+                    ref_dict = ref_dict,
+                    pipeline_header_line = pipeline_header_line,
+                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.reheadered",
+                    docker = glimpse_docker
             }
-        }
 
-        File filtered_contig_vcf = select_first([FilterContigVcfByInfo.output_vcf, annotated_contig_vcf])
-
-        if (raf_censoring_threshold > 0.0) {
-            call Glimpse2LowPassImputationTasks.CensorRaf as CensorFilteredContigRaf {
+            call Glimpse2LowPassImputationTasks.FilterInfoAndCensorRafAndFinalizeVcf {
                 input:
-                    input_vcf = filtered_contig_vcf,
+                    vcf = UpdateHeaderSingle.output_vcf,
+                    info_filter_threshold = info_filter_for_inclusion,
                     raf_censoring_threshold = raf_censoring_threshold,
-                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed.merged.raf_censored"
+                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed"
             }
         }
-        
-        File censored_filtered_contig_vcf = select_first([CensorFilteredContigRaf.output_vcf, filtered_contig_vcf])
 
-        # Update VCF header with reference dictionary and pipeline header line (if provided)
-        call Glimpse2LowPassImputationTasks.UpdateHeader {
-            input:
-                vcf = censored_filtered_contig_vcf,
-                ref_dict = ref_dict,
-                pipeline_header_line = pipeline_header_line,
-                output_basename = output_basename + "." + contigs[contig_idx] + ".imputed",
-                docker = glimpse_docker
-        }
-
-        call Glimpse2LowPassImputationTasks.CreateVcfIndexAndMd5 {
-            input:
-                vcf_input = UpdateHeader.output_vcf,
-                gatk_docker = gatk_docker,
-                preemptible = 0
-        }
+        File final_contig_vcf = select_first([RecomputeAndAnnotate.merged_imputed_vcf, FilterInfoAndCensorRafAndFinalizeVcf.filtered_vcf])
+        File final_contig_vcf_idx = select_first([RecomputeAndAnnotate.merged_imputed_vcf_idx, FilterInfoAndCensorRafAndFinalizeVcf.filtered_vcf_idx])
+        File final_contig_vcf_md5sum = select_first([RecomputeAndAnnotate.merged_imputed_vcf_md5sum, FilterInfoAndCensorRafAndFinalizeVcf.filtered_vcf_md5sum])
     }
 
     call Glimpse2LowPassImputationTasks.GatherVcfsNoIndex as GatherContigVcfsForQcMetrics {
         input:
-            input_vcfs = UpdateHeader.output_vcf,
+            input_vcfs = final_contig_vcf,
             output_vcf_basename = output_basename + ".allchr.imputed",
             gatk_docker = gatk_docker
     }
@@ -177,9 +172,9 @@ workflow Glimpse2LowPassImputation {
     }
 
     output {
-        Array[File] imputed_vcfs = CreateVcfIndexAndMd5.output_vcf
-        Array[File] imputed_vcf_indexes = CreateVcfIndexAndMd5.output_vcf_index
-        Array[File] imputed_vcf_md5sums = CreateVcfIndexAndMd5.output_vcf_md5sum
+        Array[File] imputed_vcfs = final_contig_vcf
+        Array[File] imputed_vcf_indexes = final_contig_vcf_idx
+        Array[File] imputed_vcf_md5sums = final_contig_vcf_md5sum
 
         File qc_metrics = CollectQCMetrics.qc_metrics
     }
