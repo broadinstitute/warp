@@ -1,5 +1,5 @@
-# 2.2.0
-2026-10-22 (Date of Last Commit)
+# 3.0.0
+2026-10-27 (Date of Last Commit)
 
 * Updated the pinned scvi-scanvi docker image to the build with scvi-tools 1.5.1 and snapatac2 2.10.0 (previously scvi-tools 1.2.0 and snapatac2 2.7.0). SCVI/SCANVI training and prediction now run on the newer library, which may produce slightly different (not qualitatively different) label assignments and embeddings
 * Fixed the celltype column of the SCANVI predictions h5ad so query cells carry their SCANVI-predicted label instead of Unknown; the GEX and ATAC annotated matrices are unchanged
