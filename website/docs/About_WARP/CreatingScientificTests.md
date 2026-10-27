@@ -138,7 +138,7 @@ comparison.
 ### Exclude genuinely non-comparable artifacts — but archive them
 Some outputs can't be meaningfully compared (e.g. trained model weights, which differ every
 run). Don't verify them, but still **copy them to the results/truth bucket** so they're
-available for debugging and reuse. Say so in a comment (scANVI archives `scanvi_model_out`
+available for debugging and reuse. Say so in a comment (scANVI archives `scanvi_models_out`
 without verifying it).
 
 ### Keep the compare task pipeline-local

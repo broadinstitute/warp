@@ -24,7 +24,11 @@ The workspace ships with a preloaded WDL workflow configuration for running scAN
 
 1. Open the [Multiome SCVI and SCANVI](https://app.terra.bio/#workspaces/warp-pipelines/Multiome%20SCVI%20and%20SCANVI) workspace on Terra.
 2. Navigate to the **Workflows** tab and select the preloaded **scANVI** workflow.
-3. Set the inputs. At minimum provide `input_id` plus either the direct file inputs (`gex_h5ad` and `ref_h5ad`, and optionally `atac_h5ad`) or an `input_bucket`. To run **inference only** from a previously trained model, supply `scanvi_model` and set `gpu_count = 0` for a cheaper CPU-only run. See the [Inputs section of the pipeline overview](./README.md) for the full input list and reference requirements.
+3. Set the inputs. At minimum provide `input_ids`, `gex_h5ads` and `ref_h5ad`, and optionally `atac_h5ads`.
+   - To label each sample in its own workflow, run on the `sample` table with `input_ids` = `this.sample_id` and `gex_h5ads` (and `atac_h5ads`) mapped to the file columns. Terra wraps each single value into a one-element array, and a row without ATAC runs GEX-only.
+   - To label a whole `sample_set` in one workflow, with the reference prepared once, use `this.samples.<column>`, and keep multiome and GEX-only samples in separate sets.
+
+   To run **inference only** from a previously trained model, supply `scanvi_model` and set `gpu_count = 0` for a cheaper CPU-only run. See the [Inputs section of the pipeline overview](./README.md) for the full input list and reference requirements.
 4. Launch the analysis. Training runs request GPUs by default (`gpu_count = 2`); CPU-only prediction runs set `gpu_count = 0`.
 
 For full documentation — all inputs, outputs, task descriptions, and runtime configuration — see the [scANVI pipeline overview](./README.md).

@@ -1,11 +1,22 @@
 # 3.0.0
 2026-10-27 (Date of Last Commit)
 
+### Breaking changes
+
+* Removed the placeholder sample-metadata columns that the scvi-scanvi container stamped onto every cell of the SCANVI_predictions output (biosample_id, donor_id, species, species__ontology_label, disease, disease__ontology_label, organ, organ__ontology_label, library_preparation_protocol, library_preparation_protocol__ontology_label, data_modality, sex). They were constants (sample_001, donor_001, Homo sapiens, brain, 10x multiome, ...) whatever the input, so they were wrong for most runs. The pipeline now adds no sample metadata: obs carries the input h5ads' columns plus the pipeline's own annotation columns (celltype, C_scANVI, modality, and max_probability when requested). Sample metadata is joined downstream from the data archive's sample manifests, not by this pipeline
+* Changed the query inputs to arrays so one run labels one or more query files against the same reference. input_ids and gex_h5ads, paired by position, replace input_id and gex_h5ad, and the optional atac_h5ads (one ATAC h5ad per GEX h5ad, or empty for GEX-only mode) replaces atac_h5ad. A single query is a one-element array: an inputs JSON needs the brackets, while Terra wraps a single data-table value into an array
+* Changed the outputs to arrays with one entry per query, in input order. scanvi_predictions_h5ads, gex_annotated_h5ads, atac_annotated_h5ads (empty in GEX-only mode) and scanvi_models_out replace scanvi_predictions_h5ad, gex_annotated_h5ad, atac_annotated_h5ad and scanvi_model_out; file names are unchanged and still begin with the query's input id
+* Removed bucket mode (input_bucket, gex_filename, atac_filename and ref_filename) and made ref_h5ad a required input. Bucket mode could not run in the pinned image, which has no gsutil; list the files in gex_h5ads and atac_h5ads instead
+
+### Additional changes
+
 * Updated the pinned scvi-scanvi docker image to the build with scvi-tools 1.5.1 and snapatac2 2.10.0 (previously scvi-tools 1.2.0 and snapatac2 2.7.0). SCVI/SCANVI training and prediction now run on the newer library, which may produce slightly different (not qualitatively different) label assignments and embeddings
 * Fixed the celltype column of the SCANVI predictions h5ad so query cells carry their SCANVI-predicted label instead of Unknown; the GEX and ATAC annotated matrices are unchanged
 * Added the optional seed input, which makes SCVI/SCANVI training reproducible; unset (the default) keeps training nondeterministic
 * Updated model loading to require exactly one model.pt in a supplied scanvi_model archive and to extract it with Python's safe data filter
-* Removed the placeholder sample-metadata columns that the scvi-scanvi container stamped onto every cell of the SCANVI_predictions output (biosample_id, donor_id, species, species__ontology_label, disease, disease__ontology_label, organ, organ__ontology_label, library_preparation_protocol, library_preparation_protocol__ontology_label, data_modality, sex). They were constants (sample_001, donor_001, Homo sapiens, brain, 10x multiome, ...) whatever the input, so they were wrong for most runs. The pipeline now adds no sample metadata: obs carries the input h5ads' columns plus the pipeline's own annotation columns (celltype, C_scANVI, modality, and max_probability when requested). Sample metadata is joined downstream from the data archive's sample manifests, not by this pipeline
+* Added the PreprocessReference task, which prepares the reference once per run and shares it with every query. PreprocessFilter now preprocesses one query's GEX and ATAC h5ads, and it and the label-transfer task run once per query, in parallel; a single-query run gives the same outputs as before
+* Applied a supplied scanvi_model to every query in a run. Without one, each query trains its own SCVI/SCANVI model on the reference plus that query, so training cost grows with the number of queries
+* Added a check that fails the run before any query is processed when input_ids, gex_h5ads and atac_h5ads do not line up. ATAC must be given for every query or for none, and in multiome mode every query must produce an ATAC-annotated matrix
 
 # 2.1.0
 2026-07-09 (Date of Last Commit)

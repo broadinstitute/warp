@@ -9,15 +9,12 @@ import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 workflow TestscANVI {
 
     input {
-      # scANVI pipeline inputs (ATAC is optional; omit it for GEX-only mode)
-      String? input_bucket
-      File? gex_h5ad
-      File? atac_h5ad
-      File? ref_h5ad
-      String gex_filename = "gex.h5ad"
-      String atac_filename = "atac.h5ad"
-      String ref_filename = "ref.h5ad"
-      String input_id
+      # scANVI pipeline inputs: query arrays paired by position (a single query is a one-element
+      # array). ATAC is optional; leave atac_h5ads empty for GEX-only mode.
+      Array[String] input_ids
+      Array[File] gex_h5ads
+      File ref_h5ad
+      Array[File] atac_h5ads = []
 
       # Optional reference-column / genome overrides, forwarded to scANVI. Unset => the
       # pipeline's own defaults (AIT subclass/donor_id; genome hg38), so existing tests are unchanged.
@@ -60,14 +57,10 @@ workflow TestscANVI {
 
     call scANVI.scANVI {
       input:
-        input_bucket  = input_bucket,
-        gex_h5ad      = gex_h5ad,
-        atac_h5ad     = atac_h5ad,
-        ref_h5ad      = ref_h5ad,
-        gex_filename  = gex_filename,
-        atac_filename = atac_filename,
-        ref_filename     = ref_filename,
-        input_id         = input_id,
+        input_ids        = input_ids,
+        gex_h5ads        = gex_h5ads,
+        ref_h5ad         = ref_h5ad,
+        atac_h5ads       = atac_h5ads,
         ref_label_column = ref_label_column,
         ref_batch_column = ref_batch_column,
         genome           = genome,
@@ -82,18 +75,15 @@ workflow TestscANVI {
         disk_size        = disk_size
     }
 
-    # Collect all of the pipeline outputs into a single Array[String].
-    # atac_annotated_h5ad is optional (only produced in multiome mode), so it is
-    # included via select_all and contributes nothing in GEX-only mode.
-    # scanvi_model_out is archived to results/truth (not verified — model weights are
+    # Collect all of the pipeline outputs (every query's) into a single Array[String].
+    # atac_annotated_h5ads is empty in GEX-only mode.
+    # scanvi_models_out is archived to results/truth (not verified — model weights are
     # non-deterministic across training runs).
     Array[String] pipeline_outputs = flatten([
-                                    [ # always produced
-                                    scANVI.scanvi_predictions_h5ad,
-                                    scANVI.gex_annotated_h5ad,
-                                    scANVI.scanvi_model_out,
-                                    ],
-                                    select_all([scANVI.atac_annotated_h5ad]),
+                                    scANVI.scanvi_predictions_h5ads,
+                                    scANVI.gex_annotated_h5ads,
+                                    scANVI.scanvi_models_out,
+                                    scANVI.atac_annotated_h5ads,
     ])
 
     # Copy results of pipeline to test results bucket
@@ -113,38 +103,43 @@ workflow TestscANVI {
     }
 
     if (!update_truth){
+      # Verify each query's outputs against its own truth files (matched by file name, which
+      # input_ids makes unique).
+      scatter (i in range(length(input_ids))) {
         call Utilities.GetValidationInputs as GetScanviPredictions {
           input:
-            input_file = scANVI.scanvi_predictions_h5ad,
+            input_file = scANVI.scanvi_predictions_h5ads[i],
             results_path = results_path,
             truth_path = truth_path
         }
         call Utilities.GetValidationInputs as GetGexAnnotated {
           input:
-            input_file = scANVI.gex_annotated_h5ad,
+            input_file = scANVI.gex_annotated_h5ads[i],
             results_path = results_path,
             truth_path = truth_path
         }
-        # ATAC-annotated output only exists in multiome mode
-        if (defined(scANVI.atac_annotated_h5ad)) {
+        # ATAC-annotated output only exists in multiome mode (keyed off the test's own input, so a
+        # multiome test that loses its ATAC outputs fails here instead of skipping the comparison)
+        if (length(atac_h5ads) > 0) {
           call Utilities.GetValidationInputs as GetAtacAnnotated {
             input:
-              input_file = select_first([scANVI.atac_annotated_h5ad]),
+              input_file = scANVI.atac_annotated_h5ads[i],
               results_path = results_path,
               truth_path = truth_path
           }
         }
 
-      call VerifyScANVI.VerifyScANVI as Verify {
-        input:
-          truth_scanvi_predictions_h5ad = GetScanviPredictions.truth_file,
-          test_scanvi_predictions_h5ad  = GetScanviPredictions.results_file,
-          truth_gex_annotated_h5ad      = GetGexAnnotated.truth_file,
-          test_gex_annotated_h5ad       = GetGexAnnotated.results_file,
-          truth_atac_annotated_h5ad     = GetAtacAnnotated.truth_file,
-          test_atac_annotated_h5ad      = GetAtacAnnotated.results_file,
-          check_label_distribution      = check_label_distribution,
-          done = CopyToTestResults.done
+        call VerifyScANVI.VerifyScANVI as Verify {
+          input:
+            truth_scanvi_predictions_h5ad = GetScanviPredictions.truth_file,
+            test_scanvi_predictions_h5ad  = GetScanviPredictions.results_file,
+            truth_gex_annotated_h5ad      = GetGexAnnotated.truth_file,
+            test_gex_annotated_h5ad       = GetGexAnnotated.results_file,
+            truth_atac_annotated_h5ad     = GetAtacAnnotated.truth_file,
+            test_atac_annotated_h5ad      = GetAtacAnnotated.results_file,
+            check_label_distribution      = check_label_distribution,
+            done = CopyToTestResults.done
+        }
       }
     }
 }
