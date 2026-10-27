@@ -1,12 +1,13 @@
 version 1.0
 
-import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelHierarchicallyPasteVcfsStreaming
+import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelMerge
 import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
 
 workflow PreprocessPLsGVCF {
     # if this changes, update the preprocessing_pls_gvcf_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "1.0.2"
-    String multi_level_paste_pipeline_version = "1.0.1"
+    String pipeline_version = "1.0.4"
+    String multilevel_merge_pipeline_version = "1.0.4"
+
     input {
         File input_gvcf_manifest
 
@@ -37,7 +38,7 @@ workflow PreprocessPLsGVCF {
     }
 
     # two-level localized hierarchical merge over entire chromosome
-    call MultilevelHierarchicallyPasteVcfsStreaming.MultilevelHierarchicallyMergeVcfs as PastePreprocessPLsGVCFs {
+    call MultilevelMerge.MultilevelHierarchicallyMergeVcfs as PastePreprocessPLsGVCFs {
         input:
             vcfs_or_bcfs_array = PreprocessPLsGVCF.preprocessed_pls_bcf,
             vcf_or_bcf_idxs_array = PreprocessPLsGVCF.preprocessed_pls_bcf_idx,
