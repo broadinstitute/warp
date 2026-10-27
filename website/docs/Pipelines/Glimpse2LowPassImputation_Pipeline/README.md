@@ -17,7 +17,7 @@ The GLIMPSE2 Low-Pass Imputation pipeline imputes missing genotypes from a list 
 The `Glimpse2LowPassImputation` workflow is a WDL-based pipeline for low-pass whole genome imputation using [GLIMPSE2](https://odelaneau.github.io/GLIMPSE/).  
 This top-level workflow is now a gateway that scales to large cohorts by splitting samples into batches, running a per-batch imputation subworkflow, then merging batch outputs back into cohort-level results.
 
-The workflow processes each requested contig independently, imputes each sample batch against reference-defined chunks, ligates chunk outputs per batch/contig, merges sample columns across batches, re-headers outputs, optionally filters variants and censors RAF via bcftools piping, recomputes AF/INFO annotations, and returns contig-level indexed file outputs.
+The workflow processes each requested contig independently, imputes each sample batch against reference-defined chunks, ligates chunk outputs per batch/contig, dynamically splits contigs into sub-regions using the FASTA index, merges sample columns across batches for each region, optionally filters variants and censors RAF via bcftools piping, recomputes AF/INFO annotations, concatenates the regions back together, and returns contig-level indexed file outputs.
 
 ![](pipeline.png)
 
@@ -26,7 +26,7 @@ The workflow processes each requested contig independently, imputes each sample 
 | Pipeline features       | Description                                                                                                        | Source                                                                   |
 |-------------------------|--------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
 | Assay type              | Low-pass whole genome imputation using GLIMPSE2                                                                    | [GLIMPSE2](https://odelaneau.github.io/GLIMPSE/)                         |
-| Overall workflow        | CRAM calling, shard-based phasing/imputation, ligation, batch merge, inline filtering, and QC                      | Defined in `Glimpse2LowPassImputation.wdl` + imported subworkflows/tasks |
+| Overall workflow        | CRAM calling, shard-based phasing/imputation, ligation, header updates, batch merge, inline filtering, and QC      | Defined in `Glimpse2LowPassImputation.wdl` + imported subworkflows/tasks |
 | Workflow language       | WDL 1.0                                                                                                            | [openWDL](https://github.com/openwdl/wdl)                                |
 | Sub-workflows           | Gateway workflow + `Glimpse2LowPassImputationBatch`                                                                | Imported from `Glimpse2LowPassImputationBatch.wdl`                       |
 | Genomic processing      | Contig-by-contig and reference-chunk-based processing                                                              | Workflow scatter logic                                                   |
@@ -36,7 +36,7 @@ The workflow processes each requested contig independently, imputes each sample 
 | Data input file format  | CRAM/CRAI arrays or a CRAM manifest                                                                                | Workflow input block                                                     |
 | Data output file format | Per-contig imputed VCFs, indexes, md5s, and QC metrics                                                            | Workflow outputs                                                         |
 | Containers              | GATK, GLIMPSE2, bcftools/samtools suite, Hail, Python, Ubuntu                                                      | Runtime blocks                                                           |
-| Resource optimization   | Parallelization by sample batch, contig, and reference shard                                                       | Workflow architecture                                                    |
+| Resource optimization   | Parallelization by sample batch, contig, dynamic contig regions, and reference shard                               | Workflow architecture                                                    |
 
 ### Inputs
 
@@ -51,14 +51,15 @@ This gateway workflow expects CRAM-based inputs and a GLIMPSE2-compatible refere
 | `contigs` | Array of contigs/chromosomes to process. |
 | `reference_panel_prefix` | Prefix for the reference panel files, ending in `/`; expected files include `sites.<contig>.vcf.gz`, `sites_table.<contig>.gz`, and `reference_chunks.<contig>.txt`. |
 | `fasta` | Reference FASTA used for CRAM splitting and calling. |
-| `fasta_index` | FASTA index for `fasta`. |
-| `ref_dict` | Reference dictionary used when updating VCF headers. |
+| `fasta_index` | FASTA index for `fasta` used for dynamic region splitting. |
+| `ref_dict` | Reference dictionary used when updating VCF headers in the batch subworkflow. |
 | `raf_censoring_threshold` | Remove RAF annotations for sites with RAF `<=` this value; default `0.0` (disabled). |
 | `info_filter_for_inclusion` | Optional INFO threshold; variants with INFO below this value are excluded from the final output VCF; default `0.0` (disabled). |
 | `impute_reference_only_variants` | Whether to impute reference-only variants; default `false`. |
 | `call_indels` | Whether to include indels during calling/imputation; default `false`. |
 | `calling_batch_size` | Internal calling batch size within each `Glimpse2LowPassImputationBatch` run; default `100`. |
 | `sample_batch_size` | Gateway-level batch size used to split large cohorts; default `500`. |
+| `postprocessing_shard_size_bp` | Size of genomic shards (in base pairs) for parallelizing postprocessing steps; default `25000000` (25 Mb). |
 | `glimpse_phase_cpu_override` | Optional override for the GLIMPSE2 phase task CPU count; if unset, the batch workflow defaults to `4` threads. |
 | `pipeline_header_line` | Optional extra VCF header line to append to the output headers. |
 | `gatk_docker` | Docker image for GATK-based tasks. |
@@ -73,12 +74,13 @@ The top-level workflow orchestrates batching, per-batch imputation, and cohort-l
 |------------------------------------------------------|-------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
 | `ConvertInputArraysToManifest` | Convert CRAM/CRAI arrays into a manifest | `crams`, `cram_indices` | Allows large input sets to be passed as a manifest |
 | `SplitIntoSampleBatches` | Split the manifest into sample-level batches | `cram_manifest_to_use`, `sample_batch_size` | Enables large-cohort scaling at gateway level |
-| `RunBatch` (`Glimpse2LowPassImputationBatch`) | Run full low-pass imputation on each batch | Batch manifest + reference inputs + `calling_batch_size` | Produces per-batch, per-contig ligated imputed VCFs |
+| `RunBatch` (`Glimpse2LowPassImputationBatch`) | Run full low-pass imputation and header updating on each batch | Batch manifest + reference inputs + `calling_batch_size` + `ref_dict` | Produces per-batch, per-contig ligated imputed VCFs with updated headers |
+| `CreateContigRegions` | Generate sub-regions for scalable parallel merging | `fasta_index` and contig | Parses FASTA index to generate balanced chunks |
 | `ExtractAnnotations` | Extract AF/INFO annotations from each batch contig VCF | Batch ligated VCFs and indexes | Captures per-batch annotations needed for cohort recomputation |
-| `MergeContigVcfs` (`MergeSampleChunksVcfsWithPaste`) | Merge sample columns across batch VCFs for one contig | Array of batch VCFs for a contig | Creates the full-cohort contig VCF |
-| `UpdateHeader` (`UpdateHeaderMulti` / `UpdateHeaderSingle`) | Update contig VCF header with reference info and optional pipeline header line | `MergeContigVcfs.output_vcf` or single batch VCF | Prepares normalized metadata before re-annotation and index generation |
-| `RecomputeAndAnnotate` | Recompute cohort-level AF/INFO, filter by INFO, censor RAF, and write updated/indexed VCFs | Merged & reheadered contig VCF + extracted annotations + thresholds | Restores cohort-correct annotations after paste-based merge and finalized multi-batch VCF |
-| `FilterInfoAndCensorRafAndFinalizeVcf` | Filter variants below INFO, censor RAF, and finalize outputs (Single Batch branch) | Reheadered single-batch VCF + thresholds | Finalizes indexed and filtered outputs for single-batch cohorts |
+| `MergeContigVcfs` (`MergeSampleChunksVcfsWithPaste`) | Merge sample columns across batch VCFs for one contig region | Array of batch VCFs for a contig region | Creates the full-cohort contig region VCF |
+| `RecomputeAndAnnotate` | Recompute cohort-level AF/INFO, filter by INFO, censor RAF, and write updated/indexed VCFs | Merged region VCF + extracted annotations + thresholds | Restores cohort-correct annotations after paste-based merge |
+| `ConcatAndFinalizeVcfs` (`ConcatRegions`) | Concatenate processed multi-batch regions back together | Array of `RecomputeAndAnnotate.merged_imputed_vcf` | Yields the finalized contig-level VCF from multi-batch inputs |
+| `FilterInfoAndCensorRafAndFinalizeVcf` | Filter variants below INFO, censor RAF, and finalize outputs (Single Batch branch) | Ligated single-batch VCF + thresholds | Finalizes indexed and filtered outputs for single-batch cohorts |
 | `GatherContigVcfsForQcMetrics` | Combine all contig VCFs into one all-chromosome VCF | Output from finalizing tasks | Provides a single VCF to calculate QC metrics |
 | `CollectQCMetrics` | Compute cohort-level QC metrics table | `GatherContigVcfsForQcMetrics.output_vcf` | Produces the final QC metrics output |
 
@@ -103,6 +105,7 @@ It is designed for cohorts up to roughly 1000 samples per batch, then returns co
 - runs low-pass variant calling from CRAMs at reference-panel sites
 - phases/imputes each contig in reference-defined chunks using GLIMPSE2
 - ligates chunk-level outputs back into one imputed VCF per contig
+- updates the final VCF header using the reference dictionary
 - emits optional coverage metrics aggregated across chunks/contigs
 
 ### Batch Inputs
@@ -114,6 +117,8 @@ It is designed for cohorts up to roughly 1000 samples per batch, then returns co
 | `cram_manifest` | TSV file containing CRAM/CRAI paths and sample rows |
 | `fasta` / `fasta_index` | Reference FASTA and index |
 | `output_basename` | Basename for intermediate and emitted files |
+| `ref_dict` | Reference dictionary used when updating VCF headers |
+| `pipeline_header_line` | Optional extra VCF header line to append |
 | `impute_reference_only_variants` | Pass-through option for GLIMPSE2 phase |
 | `call_indels` | Whether to include indels during calling/imputation |
 | `calling_batch_size` | Internal batch size for CRAM calling fan-out within this subworkflow |
@@ -132,12 +137,13 @@ It is designed for cohorts up to roughly 1000 samples per batch, then returns co
 | `ComputeShardsAndMemoryPerShard` | Reads reference chunks and computes per-shard memory estimates |
 | `GlimpsePhase` | Runs `GLIMPSE2_phase` for each reference shard |
 | `GlimpseLigate` | Ligates shard outputs to one contig-level imputed VCF |
+| `UpdateHeader` | Rebuilds/updates headers with dictionary and optional pipeline line |
 
 ### Batch Outputs
 
 | Output | Description |
 |--------------------------------------|-------------------------------------------------------|
-| `imputed_contig_ligated_vcfs` | Per-contig ligated imputed VCFs for this sample batch |
+| `imputed_contig_ligated_vcfs` | Per-contig ligated imputed VCFs for this sample batch (with updated headers) |
 | `imputed_contig_ligated_vcf_indices` | Index files for each contig ligated VCF |
 | `total_samples` | Total number of samples represented in the batch |
 
