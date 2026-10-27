@@ -12,7 +12,7 @@ task MergeSampleChunksVcfsWithPaste {
     }
 
     command <<<
-        set -euo pipefail
+        set -euxo pipefail
 
         vcfs=(~{sep=" " input_vcfs})
 
@@ -97,8 +97,13 @@ task ExtractAnnotations {
     }
 
     command <<<
-        gatk VariantsToTable -V ~{imputed_vcf} -O annotations_batch_~{batch_index}.tsv -F CHROM -F POS -F REF -F ALT -F AF -F INFO
-        bgzip annotations_batch_~{batch_index}.tsv
+        set -euxo pipefail
+
+        # Ensure index is localized so bcftools can use it if needed
+        ls ~{imputed_vcf_index} > /dev/null
+
+        printf 'CHROM\tPOS\tREF\tALT\tAF\tINFO\n' | bgzip -c > annotations_batch_~{batch_index}.tsv.gz
+        bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\n' ~{imputed_vcf} | bgzip -c >> annotations_batch_~{batch_index}.tsv.gz
     >>>
 
     runtime {
@@ -123,6 +128,8 @@ task RecomputeAndAnnotate {
         Array[Int] num_samples
 
         String output_basename
+        Float info_filter_threshold
+        Float raf_censoring_threshold
 
         String docker_merge
         Int disk_size_gb = ceil(2.2 * size(merged_vcf, "GiB") + size(annotations, "GiB") + 50)
@@ -133,7 +140,7 @@ task RecomputeAndAnnotate {
     }
 
     command <<<
-        set -euo pipefail
+        set -euxo pipefail
 
         cat <<EOF > script.py
 import pandas as pd
@@ -184,14 +191,26 @@ with open('aggregated_annotations.tsv', 'w') as out:
         result['AF'] = np.vectorize(round_to_n_sig_figs_and_clip)(agg_af, 3)
         result['INFO'] = np.vectorize(round_to_n_sig_figs_and_clip)(agg_info, 3)
         result.to_csv(out, sep='\t', header=False, index=False)
-
 EOF
         python3 script.py
 
         bgzip aggregated_annotations.tsv
         tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
 
-        bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO -O z -o ~{output_basename}.vcf.gz ~{merged_vcf}
+        PIPE="bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO ~{merged_vcf} -Ou"
+        
+        if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            PIPE="$PIPE | bcftools filter -i \"INFO/INFO >= ~{info_filter_threshold}\" -Ou"
+        fi
+        
+        if awk -v t="~{raf_censoring_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            PIPE="$PIPE | bcftools annotate -x INFO/RAF -i 'INFO/RAF<=~{raf_censoring_threshold}' --keep-sites -Ou"
+        fi
+
+        eval "$PIPE | bcftools view -Oz --write-index -o \"~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi\""
+        
+        echo "Calculating MD5..."
+        md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
     >>>
 
     runtime {
@@ -205,7 +224,58 @@ EOF
 
     output {
         File merged_imputed_vcf = "~{output_basename}.vcf.gz"
+        File merged_imputed_vcf_idx = "~{output_basename}.vcf.gz.tbi"
+        File merged_imputed_vcf_md5sum = "~{output_basename}.md5sum"
         File aggregated_annotations = "aggregated_annotations.tsv.gz"
+    }
+}
+
+task FilterInfoAndCensorRafAndFinalizeVcf {
+    input {
+        File vcf
+        String output_basename
+        Float info_filter_threshold
+        Float raf_censoring_threshold
+
+        Int disk_gb = ceil(2.1 * size(vcf, "GiB")) + 10
+        Int preemptible = 3
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        PIPE="bcftools view ~{vcf} -Ou"
+
+        if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            echo "Applying INFO >= ~{info_filter_threshold} filter..."
+            PIPE="$PIPE | bcftools filter -i \"INFO/INFO >= ~{info_filter_threshold}\" -Ou"
+        fi
+
+        if awk -v t="~{raf_censoring_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            echo "Censoring RAF <= ~{raf_censoring_threshold}..."
+            PIPE="$PIPE | bcftools annotate -x INFO/RAF -i 'INFO/RAF<=~{raf_censoring_threshold}' --keep-sites -Ou"
+        fi
+
+        eval "$PIPE | bcftools view -Oz --write-index -o \"~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi\""
+
+        echo "Calculating MD5..."
+        md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
+    >>>
+
+    output {
+        File filtered_vcf = "~{output_basename}.vcf.gz"
+        File filtered_vcf_idx = "~{output_basename}.vcf.gz.tbi"
+        File filtered_vcf_md5sum = "~{output_basename}.md5sum"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "4 GiB"
+        disks: "local-disk " + disk_gb + " SSD"
+        preemptible: preemptible
+        maxRetries: 1
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        noAddress: true
     }
 }
 
@@ -223,7 +293,6 @@ task MergeQCMetrics {
 
     command <<<
         set -xeuo pipefail
-
 
         python3 <<EOF
         import pandas as pd
@@ -244,77 +313,6 @@ task MergeQCMetrics {
         cpu: cpu
         preemptible: preemptible
         noAddress: true
-    }
-}
-
-task FilterVcfByInfo {
-    input {
-        File vcf
-        File? vcf_index
-        Float info_threshold
-        String basename
-
-        Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
-        Int cpu = 1
-        Int mem_gb = 4
-        String docker = "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
-    }
-
-    command <<<
-        set -e -o pipefail
-
-        bcftools filter -i 'INFO/INFO >= ~{info_threshold}' -Oz -o ~{basename}.vcf.gz ~{vcf}
-        bcftools index -t ~{basename}.vcf.gz
-    >>>
-
-    runtime {
-        docker: docker
-        disks: "local-disk ${disk_size_gb} SSD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: 3
-        maxRetries: 1
-        noAddress: true
-    }
-
-    output {
-        File output_vcf = "~{basename}.vcf.gz"
-        File output_vcf_index = "~{basename}.vcf.gz.tbi"
-    }
-}
-
-task CensorRaf {
-    input {
-        File input_vcf
-        String output_basename
-
-        Float raf_censoring_threshold
-
-        String docker = "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
-        Int disk_size_gb = ceil(2.2 * size(input_vcf, "GiB") + 20)
-        Int mem_gb = 4
-        Int cpu = 1
-        Int preemptible = 3
-    }
-
-    command <<<
-        set -euo pipefail
-
-        bcftools annotate -x INFO/RAF -i 'INFO/RAF<=~{raf_censoring_threshold}' --keep-sites -O z -o "~{output_basename}.vcf.gz" "~{input_vcf}"
-    >>>
-
-    runtime {
-        docker: docker
-        disks: "local-disk " + disk_size_gb + " HDD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: 1
-        noAddress: true
-    }
-
-    output {
-        File output_vcf = "~{output_basename}.vcf.gz"
     }
 }
 
@@ -438,6 +436,7 @@ task UpdateHeader {
         fi
 
         # Apply the final header (with ref dict and optionally pipeline_header_line) to the VCF
+        # Output unindexed for downstream filtering
         bcftools reheader -h updated_header.vcf -o ~{output_basename}.vcf.gz ~{vcf}
     >>>
 
@@ -488,44 +487,6 @@ task GatherVcfsNoIndex {
     }
     output {
         File output_vcf = "~{output_vcf_basename}.vcf.gz"
-    }
-}
-
-task CreateVcfIndexAndMd5 {
-    input {
-        File vcf_input
-
-        Int disk_size_gb = ceil(1.1*size(vcf_input, "GiB")) + 10
-        Int cpu = 1
-        Int memory_mb = 6000
-        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
-        Int preemptible = 3
-    }
-
-    String vcf_basename = basename(vcf_input, ".vcf.gz")
-
-    command <<<
-        set -e -o pipefail
-
-        ln -sf ~{vcf_input} ~{vcf_basename}.vcf.gz
-
-        bcftools index -t ~{vcf_basename}.vcf.gz
-
-        md5sum ~{vcf_basename}.vcf.gz | awk '{ print $1 }' > ~{vcf_basename}.md5sum
-    >>>
-    runtime {
-        docker: gatk_docker
-        disks: "local-disk ${disk_size_gb} SSD"
-        memory: "${memory_mb} MiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: 1
-        noAddress: true
-    }
-    output {
-        File output_vcf = "~{vcf_basename}.vcf.gz"
-        File output_vcf_index = "~{vcf_basename}.vcf.gz.tbi"
-        File output_vcf_md5sum = "~{vcf_basename}.md5sum"
     }
 }
 
