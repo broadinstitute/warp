@@ -40,6 +40,6 @@ UltimaGenomicsWholeGenomeGermline	 1.2.2	2026-01-29
 VariantCalling	 2.2.8	2026-01-21 
 WholeGenomeGermlineSingleSample	 3.3.8	2026-07-31 
 WholeGenomeReprocessing	 3.3.8	2026-07-31 
-atac	 3.0.0	2026-10-26 
+atac	 3.0.0	2026-10-27 
 scANVI	 2.1.0	2026-07-09 
 snm3C	 4.1.1	2025-09-19 
