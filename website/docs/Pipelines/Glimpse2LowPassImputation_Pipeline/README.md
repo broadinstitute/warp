@@ -17,7 +17,7 @@ The GLIMPSE2 Low-Pass Imputation pipeline imputes missing genotypes from a list 
 The `Glimpse2LowPassImputation` workflow is a WDL-based pipeline for low-pass whole genome imputation using [GLIMPSE2](https://odelaneau.github.io/GLIMPSE/).  
 This top-level workflow is now a gateway that scales to large cohorts by splitting samples into batches, running a per-batch imputation subworkflow, then merging batch outputs back into cohort-level results.
 
-The workflow processes each requested contig independently, imputes each sample batch against reference-defined chunks, ligates chunk outputs per batch/contig, merges sample columns across batches, recomputes AF/INFO annotations, and returns contig-level file outputs.
+The workflow processes each requested contig independently, imputes each sample batch against reference-defined chunks, ligates chunk outputs per batch/contig, merges sample columns across batches, re-headers outputs, optionally filters variants and censors RAF via bcftools piping, recomputes AF/INFO annotations, and returns contig-level indexed file outputs.
 
 ![](pipeline.png)
 
@@ -26,12 +26,12 @@ The workflow processes each requested contig independently, imputes each sample 
 | Pipeline features       | Description                                                                                                        | Source                                                                   |
 |-------------------------|--------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
 | Assay type              | Low-pass whole genome imputation using GLIMPSE2                                                                    | [GLIMPSE2](https://odelaneau.github.io/GLIMPSE/)                         |
-| Overall workflow        | CRAM calling, shard-based phasing/imputation, ligation, batch merge, and QC                                        | Defined in `Glimpse2LowPassImputation.wdl` + imported subworkflows/tasks |
+| Overall workflow        | CRAM calling, shard-based phasing/imputation, ligation, batch merge, inline filtering, and QC                      | Defined in `Glimpse2LowPassImputation.wdl` + imported subworkflows/tasks |
 | Workflow language       | WDL 1.0                                                                                                            | [openWDL](https://github.com/openwdl/wdl)                                |
 | Sub-workflows           | Gateway workflow + `Glimpse2LowPassImputationBatch`                                                                | Imported from `Glimpse2LowPassImputationBatch.wdl`                       |
 | Genomic processing      | Contig-by-contig and reference-chunk-based processing                                                              | Workflow scatter logic                                                   |
 | Cohort scalability      | Inputs optionally specified via `cram_manifest`, sample batching (`sample_batch_size`) then per-contig batch merge | Gateway orchestration in `Glimpse2LowPassImputation.wdl`                 |
-| Algorithms              | `bcftools` mpileup/call/norm/merge + GLIMPSE2 phase/ligate + post-merge re-annotation                              | Task commands in batch and task WDLs                                     |
+| Algorithms              | `bcftools` mpileup/call/norm/merge/filter + GLIMPSE2 phase/ligate + post-merge re-annotation                       | Task commands in batch and task WDLs                                     |
 | Quality control         | Sample QC metrics and optional coverage-metrics aggregation                                                        | `CollectQCMetrics`, `CombineCoverageMetrics`                             |
 | Data input file format  | CRAM/CRAI arrays or a CRAM manifest                                                                                | Workflow input block                                                     |
 | Data output file format | Per-contig imputed VCFs, indexes, md5s, and QC metrics                                                            | Workflow outputs                                                         |
@@ -76,12 +76,10 @@ The top-level workflow orchestrates batching, per-batch imputation, and cohort-l
 | `RunBatch` (`Glimpse2LowPassImputationBatch`) | Run full low-pass imputation on each batch | Batch manifest + reference inputs + `calling_batch_size` | Produces per-batch, per-contig ligated imputed VCFs |
 | `ExtractAnnotations` | Extract AF/INFO annotations from each batch contig VCF | Batch ligated VCFs and indexes | Captures per-batch annotations needed for cohort recomputation |
 | `MergeContigVcfs` (`MergeSampleChunksVcfsWithPaste`) | Merge sample columns across batch VCFs for one contig | Array of batch VCFs for a contig | Creates the full-cohort contig VCF |
-| `RecomputeAndAnnotate` | Recompute AF/INFO across the merged cohort and write updated VCFs | Merged contig VCF + extracted annotations + `RunBatch.total_samples` | Restores cohort-correct annotations after paste-based merge |
-| `FilterContigVcfByInfo` | Filter variants below the INFO threshold (optional) | `annotated_contig_vcf`, `info_filter_for_inclusion` | Removes low-confidence variants from the final VCF |
-| `CensorFilteredContigRaf` | Remove RAF annotations at or below the censoring threshold (optional) | `filtered_contig_vcf`, `raf_censoring_threshold` | Drops low-value RAF entries before finalization |
-| `UpdateHeader` | Update contig VCF header with reference info and optional pipeline header line | `censored_filtered_contig_vcf`, `ref_dict`, `pipeline_header_line` | Normalizes final metadata on each output VCF |
-| `CreateVcfIndexAndMd5` | Index and checksum final contig VCFs | `UpdateHeader.output_vcf` | Produces `.tbi` and md5 files |
-| `GatherContigVcfsForQcMetrics` | Combine all contig VCFs into one all-chromosome VCF | `UpdateHeader.output_vcf` | Provides a single VCF to calculate QC metrics |
+| `UpdateHeader` (`UpdateHeaderMulti` / `UpdateHeaderSingle`) | Update contig VCF header with reference info and optional pipeline header line | `MergeContigVcfs.output_vcf` or single batch VCF | Prepares normalized metadata before re-annotation and index generation |
+| `RecomputeAndAnnotate` | Recompute cohort-level AF/INFO, filter by INFO, censor RAF, and write updated/indexed VCFs | Merged & reheadered contig VCF + extracted annotations + thresholds | Restores cohort-correct annotations after paste-based merge and finalized multi-batch VCF |
+| `FilterInfoAndCensorRafAndFinalizeVcf` | Filter variants below INFO, censor RAF, and finalize outputs (Single Batch branch) | Reheadered single-batch VCF + thresholds | Finalizes indexed and filtered outputs for single-batch cohorts |
+| `GatherContigVcfsForQcMetrics` | Combine all contig VCFs into one all-chromosome VCF | Output from finalizing tasks | Provides a single VCF to calculate QC metrics |
 | `CollectQCMetrics` | Compute cohort-level QC metrics table | `GatherContigVcfsForQcMetrics.output_vcf` | Produces the final QC metrics output |
 
 ### Outputs
@@ -191,4 +189,3 @@ The workflow script is released under the **WDL open source code license (BSD-3)
 - [GLIMPSE](https://github.com/odelaneau/GLIMPSE/blob/master/LICENSE)
 - [bcftools](https://github.com/samtools/bcftools/blob/develop/LICENSE)
 - [vcftools](http://vcftools.sourceforge.net/license.html)
-
