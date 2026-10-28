@@ -161,7 +161,7 @@ workflow scANVI {
       # Exactly one of the two label-transfer tasks runs; select_first picks it.
       Array[File] scanvi_predictions_h5ads = select_first([MultiomeLabelTransfer.scanvi_predictions_h5ads, MultiomeLabelTransferCpu.scanvi_predictions_h5ads])
       Array[File] gex_annotated_h5ads = select_first([MultiomeLabelTransfer.gex_annotated_h5ads, MultiomeLabelTransferCpu.gex_annotated_h5ads])
-      Array[File] atac_annotated_h5ads = select_first([MultiomeLabelTransfer.atac_annotated_h5ads, MultiomeLabelTransferCpu.atac_annotated_h5ads])
+      Array[File] atac_annotated_h5ads = if multiome then select_first([MultiomeLabelTransfer.atac_annotated_h5ads, MultiomeLabelTransferCpu.atac_annotated_h5ads]) else []
       Array[File] scanvi_models_out = select_first([MultiomeLabelTransfer.scanvi_models_out, MultiomeLabelTransferCpu.scanvi_models_out])
       String pipeline_version_out = pipeline_version
   }
@@ -361,7 +361,9 @@ task MultiomeLabelTransfer {
         set -euo pipefail
         mapfile -t IDS < ~{write_lines(input_ids)}
         mapfile -t GEX < ~{write_lines(gex_h5ads)}
-        mapfile -t ATAC < ~{write_lines(atac_h5ads)}
+        # Cromwell writes an empty list as one blank line, so read ATAC only when there is some.
+        ATAC=()
+        if [ ~{length(atac_h5ads)} -gt 0 ]; then mapfile -t ATAC < ~{write_lines(atac_h5ads)}; fi
 
         # Fail in seconds, naming the sample, if any input is missing, unreadable or mismatched.
         python3 /usr/local/validate_inputs.py --input-ids "${IDS[@]}" --gex "${GEX[@]}" --atac "${ATAC[@]}"
@@ -472,7 +474,9 @@ task MultiomeLabelTransferCpu {
         set -euo pipefail
         mapfile -t IDS < ~{write_lines(input_ids)}
         mapfile -t GEX < ~{write_lines(gex_h5ads)}
-        mapfile -t ATAC < ~{write_lines(atac_h5ads)}
+        # Cromwell writes an empty list as one blank line, so read ATAC only when there is some.
+        ATAC=()
+        if [ ~{length(atac_h5ads)} -gt 0 ]; then mapfile -t ATAC < ~{write_lines(atac_h5ads)}; fi
 
         # Fail in seconds, naming the sample, if any input is missing, unreadable or mismatched.
         python3 /usr/local/validate_inputs.py --input-ids "${IDS[@]}" --gex "${GEX[@]}" --atac "${ATAC[@]}"
