@@ -107,7 +107,7 @@ task ExtractAnnotations {
         Int disk_size_gb = ceil(2 * size(imputed_vcf, "GiB") + 50)
         Int mem_gb = 2
         Int cpu = 1
-        Int preemptible = 1
+        Int preemptible = 3
     }
 
     command <<<
@@ -126,6 +126,7 @@ task ExtractAnnotations {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        maxRetries: 1
         noAddress: true
     }
 
@@ -151,7 +152,7 @@ task RecomputeAndAnnotate {
         Int disk_size_gb = ceil(2.2 * size(merged_vcf, "GiB") + size(annotations, "GiB") + 50)
         Int mem_gb = 6
         Int cpu = 1
-        Int preemptible = 0
+        Int preemptible = 3
         Int chunk_size = 100000
     }
 
@@ -235,6 +236,7 @@ EOF
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        maxRetries: 1
         noAddress: true
     }
 
@@ -300,8 +302,10 @@ task CreateContigRegions {
         File fasta_index
         String contig
         Int shard_size_bp = 25000000
+
+        Int preemptible = 3
     }
-    
+
     command <<<
         set -euxo pipefail
 
@@ -335,6 +339,8 @@ task CreateContigRegions {
         memory: "1 GiB"
         cpu: 1
         disks: "local-disk 10 HDD"
+        preemptible: preemptible
+        maxRetries: 1
         noAddress: true
     }
 }
@@ -413,6 +419,7 @@ task MergeQCMetrics {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        maxRetries: 1
         noAddress: true
     }
 }
@@ -457,6 +464,7 @@ task SplitCramManifestIntoBatches {
         disks: "local-disk 10 HDD"
         memory: "1 GiB"
         preemptible: 3
+        maxRetries: 1
         noAddress: true
     }
 
@@ -500,6 +508,7 @@ task ConvertInputArraysToManifest {
         memory: "1 GiB"
         disks: "local-disk 10 HDD"
         preemptible: 3
+        maxRetries: 1
         noAddress: true
     }
 
@@ -515,11 +524,12 @@ task UpdateHeader {
         String? pipeline_header_line
         String output_basename
 
+        String docker
+
+        Int disk_size_gb = ceil(2.1 * size(vcf, "GiB") + 5)
         Int mem_gb = 2
         Int cpu = 1
-        Int disk_size_gb = ceil(2.1 * size(vcf, "GiB") + 5)
-        Int max_retries = 1
-        String docker
+        Int preemptible = 3
     }
 
     command <<<
@@ -547,8 +557,8 @@ task UpdateHeader {
         disks: "local-disk " + disk_size_gb + " SSD"
         memory: mem_gb + " GiB"
         cpu: cpu
-        maxRetries: max_retries
-        preemptible: 3
+        preemptible: preemptible
+        maxRetries: 1
         noAddress: true
     }
 
@@ -638,6 +648,7 @@ task CollectQCMetrics {
         memory: mem_gb + " GiB"
         cpu: cpu
         preemptible: preemptible
+        maxRetries: 1
         noAddress: true
     }
 
