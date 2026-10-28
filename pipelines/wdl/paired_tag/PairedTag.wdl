@@ -54,7 +54,7 @@ workflow PairedTag {
         # Optional aligned ATAC bam file
         File? aligned_ATAC_bam
         # Expected number of cells for the ATAC library; used for atac_percent_target and, when atac_anchor_cell_calling is true, as the cell-calling anchor
-        Int atac_expected_cells = 3000
+        Int atac_expected_cells
         # If true, anchor ATAC cell calling to atac_expected_cells instead of letting SnapATAC2 estimate the cell count
         Boolean atac_anchor_cell_calling = false
 

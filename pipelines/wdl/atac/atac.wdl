@@ -25,7 +25,7 @@ workflow ATAC {
     String? atac_nhash_id
 
     #Expected cells from library preparation
-    Int atac_expected_cells = 3000
+    Int atac_expected_cells
     # If true, anchor SnapATAC2's cell calling to atac_expected_cells instead of letting it estimate the cell count
     Boolean anchor_cell_calling = false
 

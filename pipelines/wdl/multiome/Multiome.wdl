@@ -17,7 +17,7 @@ workflow Multiome {
         # Additional library aliquot ID
         String? gex_nhash_id
         String? atac_nhash_id
-        Int expected_cells = 3000
+        Int expected_cells
 
         # Optimus inputs
         String counting_mode = "sn_rna"
