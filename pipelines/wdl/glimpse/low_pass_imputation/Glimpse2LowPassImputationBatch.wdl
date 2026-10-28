@@ -231,6 +231,7 @@ task SplitCramManifestIntoBatchesOfStrings {
         disks: "local-disk 10 HDD"
         memory: "1 GiB"
         preemptible: 3
+        maxRetries: 1
         noAddress: true
     }
 
@@ -266,6 +267,7 @@ task ComputeShardsAndMemoryPerShard {
 
     runtime {
         docker : "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        maxRetries: 1
         noAddress: true
     }
 
