@@ -71,7 +71,7 @@ workflow scANVI {
   String pipeline_version = "3.0.0"
 
   # Docker image (same container for every task; only the label-transfer task gets GPUs attached)
-  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:077d776c1957029b32ef79f12b6dac02e43d5673b70e915d1d690d95612a9831"
+  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:775d02a46203eaecdb12cd99635f1e1a2de20efb37419cb675951ecd56cfb64e"
 
   # Multiome or GEX-only is decided here, once for every sample, by whether ATAC files were given.
   Boolean multiome = length(atac_h5ads) > 0
