@@ -71,7 +71,7 @@ workflow scANVI {
   String pipeline_version = "3.0.0"
 
   # Docker image (same container for every task; only the label-transfer task gets GPUs attached)
-  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:5764b99116daedef6c73a83483028ac78e318b1ec33de8824a9861b4d3201b52"
+  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:2f32323adcb5dafcca4ce4326316eb0a23dc9a1701ce96fd13b175e10907ffba"
 
   # Multiome or GEX-only is decided here, once for every sample, by whether ATAC files were given.
   Boolean multiome = length(atac_h5ads) > 0
@@ -98,6 +98,18 @@ workflow scANVI {
   Float ref_gib = if defined(scanvi_model) then 0.0 else size(ref_h5ad, "GiB")
   Int label_transfer_disk = select_first([disk_size, ceil(4 * sample_gib + (3 + n_samples) * ref_gib + size(scanvi_model, "GiB")) + 50])
 
+  # Each sample's output file names, in input order. They are the label-transfer task's outputs, so
+  # outputs[i] belongs to input_ids[i], and Cromwell knows every output before the task runs (on
+  # Google Cloud it saves only outputs it can name in advance). This loop only builds strings: it
+  # calls no task and starts no machines. All samples are labelled on the one machine below.
+  scatter (id in input_ids) {
+    String predictions_name = id + "_SCANVI_predictions.h5ad"
+    String gex_name         = id + "_gex_annotated_matrix.h5ad"
+    String atac_name        = id + "_atac_annotated_matrix.h5ad"
+    String model_name       = id + "_scanvi_model.tar.gz"
+  }
+  Array[String] atac_names = if multiome then atac_name else []
+
   if (inputs_paired && can_label) {
     # Step 1 (training only): prepare the reference once for every sample
     if (!defined(scanvi_model)) {
@@ -117,6 +129,10 @@ workflow scANVI {
       call MultiomeLabelTransfer {
           input:
             input_ids = input_ids,
+            predictions_names = predictions_name,
+            gex_names = gex_name,
+            atac_names = atac_names,
+            model_names = model_name,
             gex_h5ads = gex_h5ads,
             atac_h5ads = atac_h5ads,
             genome = genome,
@@ -138,6 +154,10 @@ workflow scANVI {
       call MultiomeLabelTransferCpu {
           input:
             input_ids = input_ids,
+            predictions_names = predictions_name,
+            gex_names = gex_name,
+            atac_names = atac_names,
+            model_names = model_name,
             gex_h5ads = gex_h5ads,
             atac_h5ads = atac_h5ads,
             genome = genome,
@@ -161,7 +181,7 @@ workflow scANVI {
       # Exactly one of the two label-transfer tasks runs; select_first picks it.
       Array[File] scanvi_predictions_h5ads = select_first([MultiomeLabelTransfer.scanvi_predictions_h5ads, MultiomeLabelTransferCpu.scanvi_predictions_h5ads])
       Array[File] gex_annotated_h5ads = select_first([MultiomeLabelTransfer.gex_annotated_h5ads, MultiomeLabelTransferCpu.gex_annotated_h5ads])
-      Array[File] atac_annotated_h5ads = if multiome then select_first([MultiomeLabelTransfer.atac_annotated_h5ads, MultiomeLabelTransferCpu.atac_annotated_h5ads]) else []
+      Array[File] atac_annotated_h5ads = select_first([MultiomeLabelTransfer.atac_annotated_h5ads, MultiomeLabelTransferCpu.atac_annotated_h5ads])
       Array[File] scanvi_models_out = select_first([MultiomeLabelTransfer.scanvi_models_out, MultiomeLabelTransferCpu.scanvi_models_out])
       String pipeline_version_out = pipeline_version
   }
@@ -316,6 +336,11 @@ task MultiomeLabelTransfer {
     input {
         # Every sample of the run, paired by position; atac_h5ads is empty in GEX-only mode
         Array[String] input_ids
+        # Each sample's output file names, in input order (built by the workflow from input_ids)
+        Array[String] predictions_names
+        Array[String] gex_names
+        Array[String] atac_names
+        Array[String] model_names
         Array[File] gex_h5ads
         Array[File] atac_h5ads = []
         String genome = "hg38"
@@ -340,6 +365,10 @@ task MultiomeLabelTransfer {
 
     parameter_meta {
         input_ids: "One id per sample; it prefixes the sample's output file names and is recorded in each output's uns."
+        predictions_names: "Output file names, one per sample in input order; set by the workflow."
+        gex_names: "Output file names, one per sample in input order; set by the workflow."
+        atac_names: "Output file names, one per sample in input order (empty in GEX-only mode); set by the workflow."
+        model_names: "Output file names, one per sample in input order; set by the workflow."
         gex_h5ads: "The samples' GEX h5ads (Optimus output), in the same order as input_ids."
         atac_h5ads: "The samples' ATAC cell-by-bin h5ads for multiome mode, one per GEX h5ad; empty for GEX-only mode."
         genome: "Genome for the ATAC gene-activity conversion: hg38, mm10 or mm39."
@@ -369,16 +398,14 @@ task MultiomeLabelTransfer {
         python3 /usr/local/validate_inputs.py --input-ids "${IDS[@]}" --gex "${GEX[@]}" --atac "${ATAC[@]}"
 
         # One sample at a time, each in its own process and scratch directory, so memory and disk
-        # are freed before the next. Outputs are listed in input order, so outputs[i] is input i's.
+        # are freed before the next.
         OUT=$(pwd)
-        : > predictions.txt; : > gex_annotated.txt; : > atac_annotated.txt; : > models.txt
         for i in "${!IDS[@]}"; do
             id="${IDS[$i]}"
             atac_args=()
             if [ "${#ATAC[@]}" -gt 0 ]; then atac_args=(--atac "${ATAC[$i]}"); fi
 
             mkdir "work_$i" && cd "work_$i"
-            ln -s /usr/local/gencode.v41.basic.annotation.gff3.gz .
             python3 /usr/local/scanvi_sample.py \
                 --input-id "$id" \
                 --gex "${GEX[$i]}" \
@@ -393,11 +420,6 @@ task MultiomeLabelTransfer {
                 ~{true="--output-max-probability" false="" output_max_probability}
             mv "${id}"_* "$OUT"/
             cd "$OUT" && rm -rf "work_$i"
-
-            echo "${id}_SCANVI_predictions.h5ad" >> predictions.txt
-            echo "${id}_gex_annotated_matrix.h5ad" >> gex_annotated.txt
-            echo "${id}_scanvi_model.tar.gz" >> models.txt
-            if [ "${#ATAC[@]}" -gt 0 ]; then echo "${id}_atac_annotated_matrix.h5ad" >> atac_annotated.txt; fi
         done
     >>>
 
@@ -417,10 +439,11 @@ task MultiomeLabelTransfer {
     }
 
     output {
-        Array[File] scanvi_predictions_h5ads = read_lines("predictions.txt")
-        Array[File] gex_annotated_h5ads      = read_lines("gex_annotated.txt")
-        Array[File] atac_annotated_h5ads     = read_lines("atac_annotated.txt")
-        Array[File] scanvi_models_out        = read_lines("models.txt")
+        # The names come from the workflow, in input order; a missing file fails the task.
+        Array[File] scanvi_predictions_h5ads = predictions_names
+        Array[File] gex_annotated_h5ads      = gex_names
+        Array[File] atac_annotated_h5ads     = atac_names
+        Array[File] scanvi_models_out        = model_names
     }
 }
 
@@ -431,6 +454,11 @@ task MultiomeLabelTransferCpu {
     input {
         # Every sample of the run, paired by position; atac_h5ads is empty in GEX-only mode
         Array[String] input_ids
+        # Each sample's output file names, in input order (built by the workflow from input_ids)
+        Array[String] predictions_names
+        Array[String] gex_names
+        Array[String] atac_names
+        Array[String] model_names
         Array[File] gex_h5ads
         Array[File] atac_h5ads = []
         String genome = "hg38"
@@ -454,6 +482,10 @@ task MultiomeLabelTransferCpu {
 
     parameter_meta {
         input_ids: "One id per sample; it prefixes the sample's output file names and is recorded in each output's uns."
+        predictions_names: "Output file names, one per sample in input order; set by the workflow."
+        gex_names: "Output file names, one per sample in input order; set by the workflow."
+        atac_names: "Output file names, one per sample in input order (empty in GEX-only mode); set by the workflow."
+        model_names: "Output file names, one per sample in input order; set by the workflow."
         gex_h5ads: "The samples' GEX h5ads (Optimus output), in the same order as input_ids."
         atac_h5ads: "The samples' ATAC cell-by-bin h5ads for multiome mode, one per GEX h5ad; empty for GEX-only mode."
         genome: "Genome for the ATAC gene-activity conversion: hg38, mm10 or mm39."
@@ -482,16 +514,14 @@ task MultiomeLabelTransferCpu {
         python3 /usr/local/validate_inputs.py --input-ids "${IDS[@]}" --gex "${GEX[@]}" --atac "${ATAC[@]}"
 
         # One sample at a time, each in its own process and scratch directory, so memory and disk
-        # are freed before the next. Outputs are listed in input order, so outputs[i] is input i's.
+        # are freed before the next.
         OUT=$(pwd)
-        : > predictions.txt; : > gex_annotated.txt; : > atac_annotated.txt; : > models.txt
         for i in "${!IDS[@]}"; do
             id="${IDS[$i]}"
             atac_args=()
             if [ "${#ATAC[@]}" -gt 0 ]; then atac_args=(--atac "${ATAC[$i]}"); fi
 
             mkdir "work_$i" && cd "work_$i"
-            ln -s /usr/local/gencode.v41.basic.annotation.gff3.gz .
             python3 /usr/local/scanvi_sample.py \
                 --input-id "$id" \
                 --gex "${GEX[$i]}" \
@@ -506,11 +536,6 @@ task MultiomeLabelTransferCpu {
                 ~{true="--output-max-probability" false="" output_max_probability}
             mv "${id}"_* "$OUT"/
             cd "$OUT" && rm -rf "work_$i"
-
-            echo "${id}_SCANVI_predictions.h5ad" >> predictions.txt
-            echo "${id}_gex_annotated_matrix.h5ad" >> gex_annotated.txt
-            echo "${id}_scanvi_model.tar.gz" >> models.txt
-            if [ "${#ATAC[@]}" -gt 0 ]; then echo "${id}_atac_annotated_matrix.h5ad" >> atac_annotated.txt; fi
         done
     >>>
 
@@ -526,9 +551,10 @@ task MultiomeLabelTransferCpu {
     }
 
     output {
-        Array[File] scanvi_predictions_h5ads = read_lines("predictions.txt")
-        Array[File] gex_annotated_h5ads      = read_lines("gex_annotated.txt")
-        Array[File] atac_annotated_h5ads     = read_lines("atac_annotated.txt")
-        Array[File] scanvi_models_out        = read_lines("models.txt")
+        # The names come from the workflow, in input order; a missing file fails the task.
+        Array[File] scanvi_predictions_h5ads = predictions_names
+        Array[File] gex_annotated_h5ads      = gex_names
+        Array[File] atac_annotated_h5ads     = atac_names
+        Array[File] scanvi_models_out        = model_names
     }
 }

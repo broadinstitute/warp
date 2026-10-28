@@ -188,7 +188,7 @@ Runs once per run. It first checks every input with `validate_inputs.py`, then r
 4. **Write the annotated matrices** — Copies each cell's label (and `max_probability` when asked) and latent row into the GEX (and ATAC) matrix, then makes it SCP-ready (`scp_output.py`; see [Outputs](#outputs)). Writes `~{input_id}_gex_annotated_matrix.h5ad` (and `~{input_id}_atac_annotated_matrix.h5ad`).
 5. **Write the predictions and the model** — `finalize_output()` renames `final_annotation` → `celltype` and copies the counts into `.raw`; writes `~{input_id}_SCANVI_predictions.h5ad` and `~{input_id}_scanvi_model.tar.gz`.
 
-The task lists each sample's output files in input order as it goes and reads its output arrays from those lists, so `outputs[i]` always belongs to `input_ids[i]`.
+The workflow names each sample's output files from `input_ids`, in input order, and those names are the task's outputs, so `outputs[i]` always belongs to `input_ids[i]`; a missing output fails the task.
 
 ### Workflow diagram
 
@@ -244,7 +244,7 @@ The annotated matrices are written in the form SCP reads, compressed with gzip:
 | `obsm['X_umap']` | A 2-column UMAP fitted on the sample's own latent: the layout SCP plots. Each sample fits its own, so UMAP axes are not comparable between samples. |
 | `obsm['X_scANVI']` | The full scANVI latent (30 dimensions). Comparable between samples labelled with the same model. |
 | `obs['final_annotation']` | The transferred cell-type label (plus `max_probability` when requested). |
-| `uns` | Run provenance: `scanvi_input_id`, `scanvi_input_file` (the GEX file's name) and `scanvi_model`, the model's name: the reference it was trained on (see [Model names](#model-names)). |
+| `uns` | Run provenance: `scanvi_input_id`, `scanvi_input_file` (the GEX file's name) and `scanvi_model`, the model's name: the reference it was trained on (see [Model names](#model-names)). `scanvi_versions` records the key library versions of the image that wrote the file (scvi-tools, torch, scanpy, anndata, snapatac2, numpy, scipy). |
 
 #### Model names
 
@@ -264,7 +264,7 @@ All tasks use the same Docker image (pinned by digest). GPU and CUDA setup is ha
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:5764b99116daedef6c73a83483028ac78e318b1ec33de8824a9861b4d3201b52` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:2f32323adcb5dafcca4ce4326316eb0a23dc9a1701ce96fd13b175e10907ffba` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk` 3 × the reference size + 20 GB, SSD |
 | `memory` | `104 GiB` |
@@ -275,7 +275,7 @@ All tasks use the same Docker image (pinned by digest). GPU and CUDA setup is ha
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:5764b99116daedef6c73a83483028ac78e318b1ec33de8824a9861b4d3201b52` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:2f32323adcb5dafcca4ce4326316eb0a23dc9a1701ce96fd13b175e10907ffba` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk` `disk_size`, or sized from the inputs (see [Workflow inputs](#workflow-inputs)), SSD |
 | `memory` | `mem_size` (default `104 GiB`) |
