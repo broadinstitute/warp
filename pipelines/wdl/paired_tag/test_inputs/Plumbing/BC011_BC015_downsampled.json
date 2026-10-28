@@ -1,4 +1,5 @@
 {
+  "PairedTag.atac_expected_cells": 3000,
   "PairedTag.annotations_gtf":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf",
   "PairedTag.input_id":"BC011_BC015_downsampled",
   "PairedTag.gex_r1_fastq":[
