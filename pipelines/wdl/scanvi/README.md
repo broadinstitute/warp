@@ -10,7 +10,7 @@ scANVI is a cloud-optimized WDL workflow that performs **cell type label transfe
 
 ATAC is optional. When no ATAC h5ads are supplied, the pipeline runs in **GEX-only mode** and trains/annotates from the reference atlas using gene expression and reference data alone, without using ATAC.
 
-One run labels one or more samples, each independently and with its own outputs, on one machine, one sample after another. The annotated matrices are written ready for Single Cell Portal (counts in `.raw`, normalized `.X`, a 2-D UMAP and the scANVI latent), and every output records its sample's id, input file name and model file name in `uns`. No sample metadata is added.
+One run labels one or more samples, each independently and with its own outputs, on one machine, one sample after another. The annotated matrices are written ready for Single Cell Portal (counts in `.raw`, normalized `.X`, a 2-D UMAP and the scANVI latent), and every output records its sample's id, its input file name and its model's name, which is the reference the model was trained on, in `uns`. No sample metadata is added.
 
 The pipeline has two tasks:
 

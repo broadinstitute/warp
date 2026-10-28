@@ -175,7 +175,8 @@ Prepares the annotated reference once per run; a run with a supplied `scanvi_mod
 1. **Load the reference** — Reads `ref_h5ad` (scanpy).
 2. **Adapt the reference** — Detects an AIT-schema reference from `uns['schema_version']` plus `uns['hierarchy']`; materializes counts from `.raw` (keeping the `.var` gene symbols) when `.X` is absent; and maps the label and batch columns, from `ref_label_column` / `ref_batch_column` or the defaults (see [Reference requirements](#reference-requirements)), to `final_annotation` and `batch`.
 3. **Modality tag** — Tags the reference cells `rna_annotated`.
-4. **Write output** — `preprocessed_ref.h5ad`, which the label-transfer task reads.
+4. **Reference id** — Names the reference (see [Model names](#model-names)); every model trained on it carries that name.
+5. **Write output** — `preprocessed_ref.h5ad`, which the label-transfer task reads.
 
 #### 2. MultiomeLabelTransfer (GPU or CPU)
 
@@ -230,8 +231,8 @@ Every output except `pipeline_version_out` is an array with one entry per sample
 | --- | --- | --- | --- |
 | `gex_annotated_h5ads` | `<input_id>_gex_annotated_matrix.h5ad` | The sample's filtered GEX cells with their transferred labels (`final_annotation`), SCP-ready (below). | H5AD |
 | `atac_annotated_h5ads` | `<input_id>_atac_annotated_matrix.h5ad` | The sample's ATAC gene-activity cells with their transferred labels, in the same form. Produced only in multiome mode; empty in GEX-only mode. | H5AD |
-| `scanvi_predictions_h5ads` | `<input_id>_SCANVI_predictions.h5ad` | The labelled data the model saw, with SCANVI predictions (`celltype`), latent and UMAP; counts in `.raw`. The sample's cells only with a supplied model; the sample plus the reference when training. | H5AD |
-| `scanvi_models_out` | `<input_id>_scanvi_model.tar.gz` | The sample's trained, loaded or mapped SCANVI model, saved without bundled AnnData. Can be passed back as `scanvi_model`. | TAR.GZ |
+| `scanvi_predictions_h5ads` | `<input_id>_SCANVI_predictions.h5ad` | The labelled data the model saw, with SCANVI predictions (`celltype`), latent and UMAP; counts in `.raw`. The sample's cells only with a supplied model; the sample plus the reference when training. Its `obs` keeps only the columns shared by every dataset combined into it (GEX, ATAC, and the reference when training), so a column only one input has, such as a reference-only `donor_id`, is dropped; use the annotated matrices for each input's own columns. | H5AD |
+| `scanvi_models_out` | `<input_id>_scanvi_model.tar.gz` | The sample's trained, loaded or mapped SCANVI model, saved without bundled AnnData, with its reference's name in `reference.txt`. Can be passed back as `scanvi_model`. | TAR.GZ |
 | `pipeline_version_out` | N/A | Version of the processing pipeline run on this data. | String |
 
 The annotated matrices are written in the form SCP reads, compressed with gzip:
@@ -239,14 +240,20 @@ The annotated matrices are written in the form SCP reads, compressed with gzip:
 | Slot | Contents |
 | --- | --- |
 | `.raw` | The counts (float32), over every gene the matrix keeps. |
-| `.X` | Counts normalized to 10,000 per cell, then `log1p` (float32). |
+| `.X` | log2(CPM + 1) (float32): counts per million, then log base 2, so a difference of 1 is a doubling and the units are bits. This is the Allen Institute's convention, the same as the ABC Atlas log2 matrices and the `log2CPM` input of MapMyCells; `uns['log1p']['base']` records the base as 2. |
 | `obsm['X_umap']` | A 2-column UMAP fitted on the sample's own latent: the layout SCP plots. Each sample fits its own, so UMAP axes are not comparable between samples. |
 | `obsm['X_scANVI']` | The full scANVI latent (30 dimensions). Comparable between samples labelled with the same model. |
 | `obs['final_annotation']` | The transferred cell-type label (plus `max_probability` when requested). |
-| `uns` | Run provenance: `scanvi_input_id`, `scanvi_input_file` (the GEX file's name) and `scanvi_model` (the supplied model's file name, or the model this run wrote when training). |
+| `uns` | Run provenance: `scanvi_input_id`, `scanvi_input_file` (the GEX file's name) and `scanvi_model`, the model's name: the reference it was trained on (see [Model names](#model-names)). |
+
+#### Model names
+
+A model is named by the reference it was trained on: the reference's `uns['title']` (the Allen taxonomy and CELLxGENE schemas both define it), or its file name when it has none, made file-name safe, followed by the first 8 hex digits of the reference file's sha256. For example, `Mouse_cortex_hippocampus_10X_seq_04042025-f3177e00`. The title says which reference; the hash tells apart subsets and rebuilds that share a title.
+
+A training run computes the name in PreprocessReference and writes it into each model archive as `reference.txt`, next to `model.pt`; a supplied model's `reference.txt` is read and carried forward. Every output records it as `uns['scanvi_model']`. A model archive without `reference.txt`, such as one from before scANVI 3.0.0, is named by its archive's file name instead. Each model archive holds one SCANVI model; the scVI encoder and decoder it was built from are part of it, but there is no separate scVI model.
 
 :::note Run metadata, not sample metadata
-Each output records which sample, input file and model produced it, in `uns` under keys prefixed `scanvi_`; the prefix keeps them apart from the `uns['input_id']` and `uns['pipeline_version']` an Optimus h5ad already carries. The pipeline adds no sample-level metadata (donor, species, organ, disease, library preparation, sex) to any output. Sample metadata is joined downstream from the data archive's sample manifests, not by this pipeline.
+The annotated matrices keep every `obs` column of their own input (the Optimus QC columns, for example) plus the transferred label; the predictions file keeps only columns shared by the datasets combined into it. Each output records which sample, input file and model produced it, in `uns` under keys prefixed `scanvi_`; the prefix keeps them apart from the `uns['input_id']` and `uns['pipeline_version']` an Optimus h5ad already carries. The pipeline adds no sample-level metadata (donor, species, organ, disease, library preparation, sex) to any output. Sample metadata is joined downstream from the data archive's sample manifests, not by this pipeline.
 :::
 
 ## Runtime configuration
@@ -257,7 +264,7 @@ All tasks use the same Docker image (pinned by digest). GPU and CUDA setup is ha
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:775d02a46203eaecdb12cd99635f1e1a2de20efb37419cb675951ecd56cfb64e` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:5764b99116daedef6c73a83483028ac78e318b1ec33de8824a9861b4d3201b52` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk` 3 × the reference size + 20 GB, SSD |
 | `memory` | `104 GiB` |
@@ -268,7 +275,7 @@ All tasks use the same Docker image (pinned by digest). GPU and CUDA setup is ha
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:775d02a46203eaecdb12cd99635f1e1a2de20efb37419cb675951ecd56cfb64e` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:5764b99116daedef6c73a83483028ac78e318b1ec33de8824a9861b4d3201b52` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk` `disk_size`, or sized from the inputs (see [Workflow inputs](#workflow-inputs)), SSD |
 | `memory` | `mem_size` (default `104 GiB`) |

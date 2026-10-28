@@ -71,7 +71,7 @@ workflow scANVI {
   String pipeline_version = "3.0.0"
 
   # Docker image (same container for every task; only the label-transfer task gets GPUs attached)
-  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:775d02a46203eaecdb12cd99635f1e1a2de20efb37419cb675951ecd56cfb64e"
+  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:5764b99116daedef6c73a83483028ac78e318b1ec33de8824a9861b4d3201b52"
 
   # Multiome or GEX-only is decided here, once for every sample, by whether ATAC files were given.
   Boolean multiome = length(atac_h5ads) > 0
@@ -175,6 +175,8 @@ workflow scANVI {
 #   - Materializes counts from .raw for AIT-schema references (which have no .X)
 #   - Maps the chosen label/batch obs columns to final_annotation/batch
 #   - Tags the reference cells with modality rna_annotated
+#   - Records the reference's id (its title or file name, plus a sha256 prefix of the file) in
+#     uns['scanvi_reference']; every model trained on it carries that id as its name
 # A run with a supplied scanvi_model skips it: the model needs no reference.
 # ──────────────────────────────────────────────────────────────────────────────
 task PreprocessReference {
@@ -205,8 +207,12 @@ task PreprocessReference {
         set -euo pipefail
 
         python3 <<CODE
+import sys
 import anndata as ad
 import scanpy as sc
+
+sys.path.insert(0, "/usr/local")
+from reference_id import reference_id
 
 # Reference-adaptation controls (from WDL inputs; empty = use defaults).
 ref_label_column = "~{default='' ref_label_column}".strip()
@@ -269,6 +275,8 @@ print(f"  Reference loaded: {ref.shape}")
 # Adapt AIT-schema (or other) references into the trainer's expected form.
 ref = normalize_reference(ref, ref_label_column, ref_batch_column)
 ref.obs["modality"] = "rna_annotated"
+ref.uns["scanvi_reference"] = reference_id("~{ref_h5ad}", ref.uns)
+print(f"  Reference id: {ref.uns['scanvi_reference']}")
 
 print("Writing preprocessed reference...")
 ref.write_h5ad("preprocessed_ref.h5ad")

@@ -178,6 +178,8 @@ task CompareScanviH5ad {
         sample = sample.toarray() if hasattr(sample, "toarray") else np.asarray(sample)
         if np.allclose(sample, np.round(sample)):
             sys.exit("FAIL: test .X holds integer counts; expected normalized expression")
+        if test.uns.get("log1p", {}).get("base") != 2:
+            sys.exit(f"FAIL: test uns['log1p'] is {test.uns.get('log1p')!r}; expected base 2 (log2(CPM + 1))")
         print(f"PASS: SCP form (X_umap {test.obsm['X_umap'].shape}, X_scANVI {test.obsm['X_scANVI'].shape})")
 
     # 2. Annotation column must be present in both
