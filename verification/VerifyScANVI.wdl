@@ -15,6 +15,10 @@ import "../tasks/wdl/Utilities.wdl" as Utilities
 ##
 ## The ATAC-annotated output is optional: it is only produced (and only verified) in
 ## multiome mode. In GEX-only mode the *_atac_annotated_matrix.h5ad inputs are absent.
+##
+## The test outputs (not truth) are also checked for their run provenance (uns records the
+## sample's id, input file name and model file name), and the annotated matrices for the form
+## SCP reads: counts in .raw, normalized .X, a 2-column X_umap and the X_scANVI latent.
 workflow VerifyScANVI {
 
     input {
@@ -30,6 +34,9 @@ workflow VerifyScANVI {
         # false: skip the novel-label and proportion-correlation checks (structural only)
         Boolean check_label_distribution = true
 
+        # The id this sample was run with; its outputs must record it in uns['scanvi_input_id']
+        String expected_input_id
+
         Boolean? done
     }
 
@@ -39,7 +46,8 @@ workflow VerifyScANVI {
             truth_h5ad = truth_scanvi_predictions_h5ad,
             test_h5ad  = test_scanvi_predictions_h5ad,
             label_key  = "celltype",
-            check_label_distribution = check_label_distribution
+            check_label_distribution = check_label_distribution,
+            expected_input_id = expected_input_id
     }
 
     # Annotated GEX matrix: predictions stored in 'final_annotation'
@@ -48,7 +56,9 @@ workflow VerifyScANVI {
             truth_h5ad = truth_gex_annotated_h5ad,
             test_h5ad  = test_gex_annotated_h5ad,
             label_key  = "final_annotation",
-            check_label_distribution = check_label_distribution
+            check_label_distribution = check_label_distribution,
+            expected_input_id = expected_input_id,
+            check_scp_form = true
     }
 
     # ATAC-annotated output is optional (produced only in multiome mode). Fail loudly if
@@ -69,7 +79,9 @@ workflow VerifyScANVI {
                 truth_h5ad = select_first([truth_atac_annotated_h5ad]),
                 test_h5ad  = select_first([test_atac_annotated_h5ad]),
                 label_key  = "final_annotation",
-                check_label_distribution = check_label_distribution
+                check_label_distribution = check_label_distribution,
+                expected_input_id = expected_input_id,
+                check_scp_form = true
         }
     }
 
@@ -115,6 +127,10 @@ task CompareScanviH5ad {
     Float max_novel_label_fraction = 0.01
     # false: stop after the structural checks (cell count, label column present, no null labels)
     Boolean check_label_distribution = true
+    # The test file must record this id in uns['scanvi_input_id'], plus its input file and model names
+    String expected_input_id
+    # true for the annotated matrices: also check the form SCP reads
+    Boolean check_scp_form = false
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.7.1"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 50
     Int memory_gb = 16
@@ -140,6 +156,29 @@ task CompareScanviH5ad {
     # 1. Cell counts must match truth
     if truth.n_obs != test.n_obs:
         sys.exit(f"FAIL: n_obs differs (truth={truth.n_obs}, test={test.n_obs})")
+
+    # 1b. The test file records its run provenance (truth may predate it, so only test is checked)
+    for key in ("scanvi_input_id", "scanvi_input_file", "scanvi_model"):
+        if not str(test.uns.get(key, "")):
+            sys.exit(f"FAIL: test uns['{key}'] is missing or empty")
+    if test.uns["scanvi_input_id"] != "~{expected_input_id}":
+        sys.exit(f"FAIL: test uns['scanvi_input_id'] is {test.uns['scanvi_input_id']!r}, expected '~{expected_input_id}'")
+    print(f"PASS: provenance {[str(test.uns[k]) for k in ('scanvi_input_id', 'scanvi_input_file', 'scanvi_model')]}")
+
+    # 1c. Annotated matrices are in the form SCP reads
+    if "~{check_scp_form}" == "true":
+        n = test.n_obs
+        if test.raw is None or test.raw.n_obs != n:
+            sys.exit("FAIL: test .raw (the counts) is missing")
+        if test.obsm.get("X_umap") is None or test.obsm["X_umap"].shape != (n, 2):
+            sys.exit(f"FAIL: test obsm['X_umap'] must be {n} x 2")
+        if test.obsm.get("X_scANVI") is None or test.obsm["X_scANVI"].shape[0] != n:
+            sys.exit(f"FAIL: test obsm['X_scANVI'] must have {n} rows")
+        sample = test.X[:200]
+        sample = sample.toarray() if hasattr(sample, "toarray") else np.asarray(sample)
+        if np.allclose(sample, np.round(sample)):
+            sys.exit("FAIL: test .X holds integer counts; expected normalized expression")
+        print(f"PASS: SCP form (X_umap {test.obsm['X_umap'].shape}, X_scANVI {test.obsm['X_scANVI'].shape})")
 
     # 2. Annotation column must be present in both
     for name, a in [("truth", truth), ("test", test)]:

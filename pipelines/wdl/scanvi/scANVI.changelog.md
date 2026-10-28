@@ -1,22 +1,30 @@
 # 3.0.0
-2026-10-27 (Date of Last Commit)
+2026-10-28 (Date of Last Commit)
 
 ### Breaking changes
 
-* Removed the placeholder sample-metadata columns that the scvi-scanvi container stamped onto every cell of the SCANVI_predictions output (biosample_id, donor_id, species, species__ontology_label, disease, disease__ontology_label, organ, organ__ontology_label, library_preparation_protocol, library_preparation_protocol__ontology_label, data_modality, sex). They were constants (sample_001, donor_001, Homo sapiens, brain, 10x multiome, ...) whatever the input, so they were wrong for most runs. The pipeline now adds no sample metadata: obs carries the input h5ads' columns plus the pipeline's own annotation columns (celltype, C_scANVI, modality, and max_probability when requested). Sample metadata is joined downstream from the data archive's sample manifests, not by this pipeline
-* Changed the query inputs to arrays so one run labels one or more query files against the same reference. input_ids and gex_h5ads, paired by position, replace input_id and gex_h5ad, and the optional atac_h5ads (one ATAC h5ad per GEX h5ad, or empty for GEX-only mode) replaces atac_h5ad. A single query is a one-element array: an inputs JSON needs the brackets, while Terra wraps a single data-table value into an array
-* Changed the outputs to arrays with one entry per query, in input order. scanvi_predictions_h5ads, gex_annotated_h5ads, atac_annotated_h5ads (empty in GEX-only mode) and scanvi_models_out replace scanvi_predictions_h5ad, gex_annotated_h5ad, atac_annotated_h5ad and scanvi_model_out; file names are unchanged and still begin with the query's input id
-* Removed bucket mode (input_bucket, gex_filename, atac_filename and ref_filename) and made ref_h5ad a required input. Bucket mode could not run in the pinned image, which has no gsutil; list the files in gex_h5ads and atac_h5ads instead
+* Removed the placeholder sample-metadata columns that the scvi-scanvi container stamped onto every cell of the SCANVI_predictions output (biosample_id, donor_id, species, species__ontology_label, disease, disease__ontology_label, organ, organ__ontology_label, library_preparation_protocol, library_preparation_protocol__ontology_label, data_modality, sex). They were constants (sample_001, donor_001, Homo sapiens, brain, 10x multiome, ...) whatever the input, so they were wrong for most runs. The pipeline adds no sample metadata; sample metadata is joined downstream from the data archive's sample manifests
+* Changed the sample inputs to arrays so one run labels one or more samples. input_ids and gex_h5ads, paired by position, replace input_id and gex_h5ad, and the optional atac_h5ads (one ATAC h5ad per GEX h5ad, or empty for GEX-only mode) replaces atac_h5ad. A single sample is a one-element array: an inputs JSON needs the brackets, while Terra wraps a single data-table value into an array
+* Changed the outputs to arrays with one entry per sample, in input order. scanvi_predictions_h5ads, gex_annotated_h5ads, atac_annotated_h5ads (empty in GEX-only mode) and scanvi_models_out replace scanvi_predictions_h5ad, gex_annotated_h5ad, atac_annotated_h5ad and scanvi_model_out; file names are unchanged and still begin with the sample's input id
+* Removed bucket mode (input_bucket, gex_filename, atac_filename and ref_filename). Bucket mode could not run in the pinned image, which has no gsutil; list the files in gex_h5ads and atac_h5ads instead
+* Changed the annotated GEX and ATAC matrices to the form Single Cell Portal reads: the counts move to .raw (float32), .X holds counts normalized to 10,000 per cell and log1p-transformed (float32), obsm gains X_scANVI (the 30-dimensional scANVI latent) and X_umap (a 2-column UMAP fitted on the sample's own latent), and the duplicate counts layer is dropped. Readers that took counts from .X or layers['counts'] must read .raw instead
+* Changed the predictions file of a run with a supplied scanvi_model to hold the sample's cells only; a training run still writes the sample plus the reference
+* Removed the PreprocessFilter task and its nested inputs. Each sample's preprocessing now runs inside the label-transfer task, in the container's preprocess_query.py, with the same steps
+* Changed the label-transfer task to run every sample of a run on one machine, one after another, instead of one machine per sample. Its default size drops from 32 CPUs and 120 GiB to 16 CPUs and 104 GiB, which Terra finds more readily; memory only has to fit the largest sample
 
 ### Additional changes
 
 * Updated the pinned scvi-scanvi docker image to the build with scvi-tools 1.5.1 and snapatac2 2.10.0 (previously scvi-tools 1.2.0 and snapatac2 2.7.0). SCVI/SCANVI training and prediction now run on the newer library, which may produce slightly different (not qualitatively different) label assignments and embeddings
-* Fixed the celltype column of the SCANVI predictions h5ad so query cells carry their SCANVI-predicted label instead of Unknown; the GEX and ATAC annotated matrices are unchanged
+* Fixed the celltype column of the SCANVI predictions h5ad so query cells carry their SCANVI-predicted label instead of Unknown
 * Added the optional seed input, which makes SCVI/SCANVI training reproducible; unset (the default) keeps training nondeterministic
 * Updated model loading to require exactly one model.pt in a supplied scanvi_model archive and to extract it with Python's safe data filter
-* Added the PreprocessReference task, which prepares the reference once per run and shares it with every query. PreprocessFilter now preprocesses one query's GEX and ATAC h5ads, and it and the label-transfer task run once per query, in parallel; a single-query run gives the same outputs as before
-* Applied a supplied scanvi_model to every query in a run. Without one, each query trains its own SCVI/SCANVI model on the reference plus that query, so training cost grows with the number of queries
-* Added a check that fails the run before any query is processed when input_ids, gex_h5ads and atac_h5ads do not line up. ATAC must be given for every query or for none, and in multiome mode every query must produce an ATAC-annotated matrix
+* Added query mapping for models trained on the reference alone, such as those from warp-scanvi-training. When a supplied model does not know a sample's batch label, the sample is mapped onto it with scArches (load_query_data plus a short training on the sample alone), set by the new optional query_max_epochs input (default 100). A model this pipeline trained still loads as is
+* Made ref_h5ad optional: it is needed only to train. A run with a supplied scanvi_model neither prepares nor loads the reference, so its cost no longer grows with the reference's size; the run fails at once when neither is given
+* Added the PreprocessReference task, which prepares the reference once per training run and shares it with every sample, on a 16-CPU, 104 GiB machine with disk sized from the reference
+* Added run provenance to every output h5ad: uns records scanvi_input_id (the sample's id), scanvi_input_file (the GEX file's name) and scanvi_model (the supplied model's file name, or the model the run wrote when training). The scanvi_ prefix keeps these apart from the input_id and pipeline_version an Optimus h5ad already carries
+* Added a check that fails the run before any sample is processed when input_ids, gex_h5ads and atac_h5ads do not line up, and a check in the label-transfer task that every input file opens as an h5ad and the ids are unique, reporting every problem at once
+* Changed disk_size to an optional input: when unset, the label-transfer disk is sized from the inputs (4 times the samples' input size, plus 3 plus the number of samples times the reference size when training, plus the model and 50 GB)
+* Added gzip compression to every output h5ad
 
 # 2.1.0
 2026-07-09 (Date of Last Commit)

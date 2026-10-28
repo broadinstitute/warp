@@ -35,7 +35,7 @@ For full documentation — all inputs, outputs, task descriptions, and runtime c
 
 ### Example run costs
 
-Representative Terra costs for scANVI runs across three references (mouse hippocampus, human neocortex, and PBMC) in both training and CPU-inference modes. Costs are from single runs on GCP `us-central1` (training on **2× NVIDIA T4** GPUs; inference CPU-only via `gpu_count = 0`) and will vary with region, machine type, preemption, and dataset. "Cells labelled" is the number of query cells annotated (after PreprocessFilter; for multiome, after the GEX↔ATAC shared-barcode intersection); "Reference" is the annotated `ref_h5ad`.
+Representative Terra costs for scANVI runs across three references (mouse hippocampus, human neocortex, and PBMC) in both training and CPU-inference modes. Costs are from single runs on GCP `us-central1` (training on **2× NVIDIA T4** GPUs; inference CPU-only via `gpu_count = 0`) and will vary with region, machine type, preemption, and dataset. "Cells labelled" is the number of query cells annotated (after preprocessing; for multiome, after the GEX↔ATAC shared-barcode intersection); "Reference" is the annotated `ref_h5ad`.
 
 | Dataset (reference) | Mode | Compute | Cost | Cells labelled | Cost / cell | Cost / 1k cells | Query input | Cost / GB (query) | Reference (cells / GB) |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |

@@ -13,7 +13,7 @@ workflow TestscANVI {
       # array). ATAC is optional; leave atac_h5ads empty for GEX-only mode.
       Array[String] input_ids
       Array[File] gex_h5ads
-      File ref_h5ad
+      File? ref_h5ad
       Array[File] atac_h5ads = []
 
       # Optional reference-column / genome overrides, forwarded to scANVI. Unset => the
@@ -26,6 +26,8 @@ workflow TestscANVI {
       # Optional cap on SCVI/SCANVI training epochs, forwarded to scANVI (the training-Plumbing
       # test sets this to 2 for a fast run; unset => the pipeline's container default of 500).
       Int? max_epochs
+      # Epochs when mapping a sample onto a reference-only model, forwarded to scANVI.
+      Int? query_max_epochs
 
       # SCVI/SCANVI minibatch size, forwarded to scANVI. Default 128. Exposed for completeness /
       # large-VRAM cloud runs; our tests leave it at the default.
@@ -37,9 +39,9 @@ workflow TestscANVI {
       # The pretrained Plumbing test sets scanvi_model + gpu_count=0 + small mem/cpu/disk.
       File? scanvi_model
       Int gpu_count = 2
-      Int mem_size = 120
-      Int nthreads = 32
-      Int disk_size = 500
+      Int mem_size = 104
+      Int nthreads = 16
+      Int? disk_size
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -66,6 +68,7 @@ workflow TestscANVI {
         genome           = genome,
         output_max_probability = output_max_probability,
         max_epochs       = max_epochs,
+        query_max_epochs = query_max_epochs,
         batch_size       = batch_size,
         seed             = seed,
         scanvi_model     = scanvi_model,
@@ -138,6 +141,7 @@ workflow TestscANVI {
             truth_atac_annotated_h5ad     = GetAtacAnnotated.truth_file,
             test_atac_annotated_h5ad      = GetAtacAnnotated.results_file,
             check_label_distribution      = check_label_distribution,
+            expected_input_id             = input_ids[i],
             done = CopyToTestResults.done
         }
       }
