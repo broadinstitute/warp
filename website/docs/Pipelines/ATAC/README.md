@@ -54,6 +54,7 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
 | preindex | Boolean used for paired-tag data and not applicable to ATAC data types; default is set to false. | 
 | atac_expected_cells | Number of cells loaded to create the ATAC library; default is set to 3000. |
+| anchor_cell_calling | Optional boolean; default is `false`. When `true`, SnapATAC2's OrdMag cell calling uses `atac_expected_cells` as its expected cell count instead of estimating it from the data (the estimate can collapse to a few hundred cells when a small number of barcodes are far deeper than real nuclei). The number of cells called can differ from `atac_expected_cells`, so `atac_percent_target` can be above or below 100%. Both the per-cell library metrics and the `snap_metrics` h5ad use the called cells, so set `atac_expected_cells` to the expected cell number. |
 | tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files). |
 | num_threads_bwa | Optional integer defining the number of CPUs per node for the BWA-mem alignment task (default: 128). |
 | mem_size_bwa | Optional integer defining the memory size for the BWA-mem alignment task in GB (default: 512). |
@@ -95,7 +96,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 |--- | --- | --- | 
 | bam_aligned_output | `<input_id>`.bam | BAM containing aligned reads from ATAC workflow. |
 | fragment_file | `<input_id>`.fragments.sorted.tsv.gz | Bgzipped TSV containing fragment start and stop coordinates per barcode. In order, the columns are "Chromosome", "Start", "Stop", "ATAC Barcode", and "Number Reads". | 
-| snap_metrics | `<input_id`.metrics.h5ad | h5ad (Anndata) containing per barcode metrics from [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
+| snap_metrics | `<input_id`.metrics.h5ad | h5ad (Anndata) containing per barcode metrics from [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). Contains only the barcodes called as cells. |
  library_metrics | `<input_id>`_`<atac_nhash_id>`_library_metrics.csv | CSV file containing library-level metrics. Read more in the [Library Metrics Overview](library-metrics.md) |
 | snap_cellbybin | `<input_id>`.cellbybin.h5ad | h5ad (Anndata) containing peaks (called by MACS3) per cluster. [SnapATAC2](https://github.com/kaizhang/SnapATAC2). |
 | snap_cellbypeak | `<input_id>`.cellbypeak.h5ad | h5ad (Anndata) containing merged peaks (called by MACS3) per cluster and count matrix of insertion sites per peak and cell. [SnapATAC2](https://github.com/kaizhang/SnapATAC2).|

@@ -25,7 +25,9 @@ workflow ATAC {
     String? atac_nhash_id
 
     #Expected cells from library preparation
-    Int atac_expected_cells = 3000
+    Int atac_expected_cells
+    # If true, anchor SnapATAC2's cell calling to atac_expected_cells instead of letting it estimate the cell count
+    Boolean anchor_cell_calling = false
 
     # Option for running files with preindex
     Boolean preindex = false
@@ -55,7 +57,7 @@ workflow ATAC {
     File? aligned_ATAC_bam
   }
 
-  String pipeline_version = "2.9.4"
+  String pipeline_version = "3.0.0"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -86,6 +88,7 @@ workflow ATAC {
     num_threads_bwa: "Number of threads for bwa-mem2 task (default: 128)"
     mem_size_bwa: "Memory size in GB for bwa-mem2 task (default: 512)"
     cpu_platform_bwa: "CPU platform for bwa-mem2 task (default: Intel Ice Lake)"
+    anchor_cell_calling: "If true, SnapATAC2's OrdMag cell calling uses atac_expected_cells as its expected cell count instead of estimating it from the data; the per-cell library metrics and the snap_metrics h5ad both use the resulting cells (default: false)"
  }
 
   if (!defined(aligned_ATAC_bam)) {
@@ -137,6 +140,12 @@ workflow ATAC {
 
   File aligned_bam = select_first([aligned_ATAC_bam, BWAPairedEndAlignment.bam_aligned_output])
 
+  # Anchoring is decided here, not in CreateFragmentFile: cell_calling_expected_cells is defined only when
+  # anchor_cell_calling is true. Left undefined, OrdMag estimates the cell count from the data.
+  if (anchor_cell_calling) {
+    Int cell_calling_expected_cells = atac_expected_cells
+  }
+
   if (preindex) {
     call AddBB.AddBBTag as BBTag {
       input:
@@ -149,10 +158,11 @@ workflow ATAC {
         bam = BBTag.bb_bam,
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf,
-        preindex = preindex,
+        barcode_tag = "BB",
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
+        cell_calling_expected_cells = cell_calling_expected_cells,
         input_id = input_id
     }
   }
@@ -162,10 +172,11 @@ workflow ATAC {
         bam = aligned_bam,
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf,
-        preindex = preindex,
+        barcode_tag = "CB",
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
+        cell_calling_expected_cells = cell_calling_expected_cells,
         input_id = input_id
     }
     if (peak_calling) {
@@ -537,7 +548,7 @@ task CreateFragmentFile {
     File bam
     File annotations_gtf
     File chrom_sizes
-    Boolean preindex
+    String barcode_tag
     Array[String] mito_list = ['chrM', 'M']
     Int disk_size = 500
     Int mem_size = 64
@@ -546,17 +557,21 @@ task CreateFragmentFile {
     String docker_path
     String atac_nhash_id = ""
     String input_id
-    Int atac_expected_cells = 3000
+    Int atac_expected_cells
+    Int? cell_calling_expected_cells
     String gtf_path = annotations_gtf
   }
 
   parameter_meta {
-    bam: "Aligned bam with CB in CB tag. This is the output of the BWAPairedEndAlignment task."
+    bam: "Aligned BAM; the cell barcode is in the tag named by barcode_tag (CB, or BB added by AddBBTag when preindex is true)."
     chrom_sizes: "Text file containing chrom_sizes for genome build (i.e. hg38)."
     annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
     disk_size: "Disk size used in create fragment file step."
     mem_size: "The size of memory used in create fragment file."
     docker_path: "The docker image path containing the runtime environment for this task"
+    barcode_tag: "BAM tag holding the cell barcode: CB, or BB (cell plus sample barcode) for preindexed data."
+    cell_calling_expected_cells: "Expected cell count for SnapATAC2's OrdMag cell calling. Leave unset to let OrdMag estimate it from the data (SnapATAC2's default)."
+    atac_expected_cells: "Expected number of cells; used only as the denominator of atac_percent_target. Cell calling uses cell_calling_expected_cells."
   }
 
   command <<<
@@ -580,10 +595,10 @@ task CreateFragmentFile {
     input_id = "~{input_id}"
     chrom_sizes = "~{chrom_sizes}"
     atac_gtf = "~{annotations_gtf}"
-    preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
     mito_list = "~{sep=' ' mito_list}"
     expected_cells = ~{atac_expected_cells}
+    cell_calling_expected_cells = ~{default="None" cell_calling_expected_cells}
 
     print(mito_list)
     mito_list = mito_list.split(" ")
@@ -596,11 +611,20 @@ task CreateFragmentFile {
         key, value = line.strip().split()
         chrom_size_dict[str(key)] = int(value)
 
-    # extract CB or BB (if preindex is true) tag from bam file to create fragment file
-    if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
-    elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
+    # SnapATAC2's call_cells always lets OrdMag estimate the cell count (recovered_cells=None), which collapses when a
+    # few barcodes are much deeper than real nuclei. Replace the function the recipe looks up (snapatac2.pp.call_cells)
+    # with the same OrdMag call given cell_calling_expected_cells: None is exactly SnapATAC2's own call, a number
+    # anchors it. The recipe's per-cell metrics and its in-place subset of the h5ad both use the resulting cells.
+    # The log shows which ran: "Found recovered_cells" (estimated) or "Using provided recovered_cells" (anchored).
+    # Matches SnapATAC2 2.7.1 (snapatac2:2.0.0 image); recheck when the image changes.
+    from snapatac2.preprocessing._cell_calling import filter_cellular_barcodes_ordmag
+    def ordmag_call_cells(data, use_rep, inplace=False, n_jobs=8):
+      counts = data.obs[use_rep].to_numpy()
+      return filter_cellular_barcodes_ordmag(counts, cell_calling_expected_cells)[0]
+    pp.call_cells = ordmag_call_cells
+
+    # extract the cell barcode from barcode_tag (CB, or BB with preindex) to create the fragment file
+    data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="~{barcode_tag}", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
 
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
