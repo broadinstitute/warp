@@ -63,10 +63,8 @@ workflow CisMvSusie {
     Int? mashr_seed
     Int fit_memory_gb = 16
 
-    # Container images (defaults are the collaborator's images)
-    String genotype_docker = "ghcr.io/aou-multiomics-analysis/mvsusier-prepare-window-genotypes:latest"
-    String phenotype_docker = "ghcr.io/aou-multiomics-analysis/mvsusier-prepare-window-phenotypes:latest"
-    String mvsusie_docker = "ghcr.io/aou-multiomics-analysis/mvsusier-trans-window-mvsusie:latest"
+    # One image for every task (build it from cis-mvsusie-docker.zip)
+    String docker_image
   }
 
   # 0. Optional: list candidate genes for a first test run, then stop.
@@ -83,7 +81,7 @@ workflow CisMvSusie {
         min_variants = test_min_variants,
         max_variants = test_max_variants,
         n_candidates = test_n_candidates,
-        docker_image = mvsusie_docker
+        docker_image = docker_image
     }
   }
 
@@ -100,18 +98,18 @@ workflow CisMvSusie {
         protein_covariates = protein_covariates,
         keep_samples = keep_samples,
         min_shared_samples = min_shared_samples,
-        docker_image = phenotype_docker
+        docker_image = docker_image
     }
 
     # 2. bgzip + tabix + lookup table for each phenotype BED (needed for fast per-gene reads)
     call PreparePhenotypeBed as IndexExpression {
-      input: bed = expression_phenotypes, modality = "expression", docker_image = phenotype_docker
+      input: bed = expression_phenotypes, modality = "expression", docker_image = docker_image
     }
     call PreparePhenotypeBed as IndexSplicing {
-      input: bed = splicing_phenotypes, modality = "splicing", docker_image = phenotype_docker
+      input: bed = splicing_phenotypes, modality = "splicing", docker_image = docker_image
     }
     call PreparePhenotypeBed as IndexProtein {
-      input: bed = protein_phenotypes, modality = "protein", docker_image = phenotype_docker
+      input: bed = protein_phenotypes, modality = "protein", docker_image = docker_image
     }
 
     # 3. Choose genes and build the per-gene window, association and target tables
@@ -129,7 +127,7 @@ workflow CisMvSusie {
         min_modalities = min_modalities,
         gene_list = gene_list,
         max_genes = max_genes,
-        docker_image = mvsusie_docker
+        docker_image = docker_image
     }
 
     # 4. One pass per gene
@@ -140,7 +138,7 @@ workflow CisMvSusie {
           trans_window_associations = BuildCisWindows.cis_window_associations,
           genome_dosage = genome_dosage,
           genome_dosage_tbi = genome_dosage_tbi,
-          docker_image = genotype_docker
+          docker_image = docker_image
       }
 
       call PrepareWindowPhenotypes {
@@ -157,7 +155,7 @@ workflow CisMvSusie {
           protein_phenotypes = IndexProtein.bed_bgz,
           protein_phenotypes_tbi = IndexProtein.bed_tbi,
           protein_phenotype_lookup = IndexProtein.lookup,
-          docker_image = phenotype_docker
+          docker_image = docker_image
       }
 
       call PrepareMvSusieInput {
@@ -173,7 +171,7 @@ workflow CisMvSusie {
           keep_samples = CheckSamples.shared_samples,
           min_genotype_variance = min_genotype_variance,
           min_phenotype_variance = min_phenotype_variance,
-          docker_image = mvsusie_docker
+          docker_image = docker_image
       }
 
       call FitMvSusie {
@@ -193,7 +191,7 @@ workflow CisMvSusie {
           mashr_strong_lfsr = mashr_strong_lfsr,
           mashr_seed = mashr_seed,
           memory_gb = fit_memory_gb,
-          docker_image = mvsusie_docker
+          docker_image = docker_image
       }
 
       call SummarizeMvSusie {
@@ -201,7 +199,7 @@ workflow CisMvSusie {
           window_id = window_id,
           prepared_window = FitMvSusie.prepared_window_output,
           mvsusie_fit = FitMvSusie.mvsusie_fit,
-          docker_image = mvsusie_docker
+          docker_image = docker_image
       }
 
       call PlotMvSusie {
@@ -209,7 +207,7 @@ workflow CisMvSusie {
           window_id = window_id,
           prepared_window = FitMvSusie.prepared_window_output,
           mvsusie_fit = FitMvSusie.mvsusie_fit,
-          docker_image = mvsusie_docker
+          docker_image = docker_image
       }
     }
 
@@ -219,35 +217,35 @@ workflow CisMvSusie {
         files = SummarizeMvSusie.variant_pip,
         window_ids = BuildCisWindows.window_ids,
         output_name = "cis_mvsusie.variant_pip.tsv.gz",
-        docker_image = phenotype_docker
+        docker_image = docker_image
     }
     call GatherTables as GatherCredibleSets {
       input:
         files = SummarizeMvSusie.credible_sets,
         window_ids = BuildCisWindows.window_ids,
         output_name = "cis_mvsusie.credible_sets.tsv.gz",
-        docker_image = phenotype_docker
+        docker_image = docker_image
     }
     call GatherTables as GatherCredibleSetMembers {
       input:
         files = SummarizeMvSusie.credible_set_members,
         window_ids = BuildCisWindows.window_ids,
         output_name = "cis_mvsusie.credible_set_members.tsv.gz",
-        docker_image = phenotype_docker
+        docker_image = docker_image
     }
     call GatherTables as GatherComponentSupport {
       input:
         files = SummarizeMvSusie.component_feature_support,
         window_ids = BuildCisWindows.window_ids,
         output_name = "cis_mvsusie.component_feature_support.tsv.gz",
-        docker_image = phenotype_docker
+        docker_image = docker_image
     }
     call GatherTables as GatherWindowQc {
       input:
         files = SummarizeMvSusie.window_qc,
         window_ids = BuildCisWindows.window_ids,
         output_name = "cis_mvsusie.window_qc.tsv.gz",
-        docker_image = phenotype_docker
+        docker_image = docker_image
     }
   }
 
