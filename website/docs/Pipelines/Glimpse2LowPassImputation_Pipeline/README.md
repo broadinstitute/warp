@@ -14,7 +14,7 @@ The GLIMPSE2 Low-Pass Imputation pipeline imputes missing genotypes from a list 
 
 ## GLIMPSE2 Low-Pass Imputation Summary
 
-The `Glimpse2LowPassImputation` workflow is a WDL-based pipeline for low-pass whole genome imputation using [GLIMPSE2](https://odelaneau.github.io/GLIMPSE/).  
+The `Glimpse2LowPassImputation` workflow is a WDL-based pipeline for low-pass whole genome imputation using [GLIMPSE2](https://odelaneau.github.io/GLIMPSE/).
 This top-level workflow is now a gateway that scales to large cohorts by splitting samples into batches, running a per-batch imputation subworkflow, then merging batch outputs back into cohort-level results.
 
 The workflow processes each requested contig independently, imputes each sample batch against reference-defined chunks, ligates chunk outputs per batch/contig, dynamically splits contigs into sub-regions using the FASTA index, merges sample columns across batches for each region, optionally filters variants and censors RAF via bcftools piping, recomputes AF/INFO annotations, concatenates the regions back together, and returns contig-level indexed file outputs.
@@ -32,9 +32,9 @@ The workflow processes each requested contig independently, imputes each sample 
 | Genomic processing      | Contig-by-contig and reference-chunk-based processing                                                              | Workflow scatter logic                                                   |
 | Cohort scalability      | Inputs optionally specified via `cram_manifest`, sample batching (`sample_batch_size`) then per-contig batch merge | Gateway orchestration in `Glimpse2LowPassImputation.wdl`                 |
 | Algorithms              | `bcftools` mpileup/call/norm/merge/filter + GLIMPSE2 phase/ligate + post-merge re-annotation                       | Task commands in batch and task WDLs                                     |
-| Quality control         | Sample QC metrics and optional coverage-metrics aggregation                                                        | `CollectQCMetrics`, `CombineCoverageMetrics`                             |
+| Quality control         | Sample QC metrics                                                                                                  | `CollectQCMetrics`                                                       |
 | Data input file format  | CRAM/CRAI arrays or a CRAM manifest                                                                                | Workflow input block                                                     |
-| Data output file format | Per-contig imputed VCFs, indexes, md5s, and QC metrics                                                            | Workflow outputs                                                         |
+| Data output file format | Per-contig imputed VCFs, indexes, md5s, and QC metrics                                                             | Workflow outputs                                                         |
 | Containers              | GATK, GLIMPSE2, bcftools/samtools suite, Hail, Python, Ubuntu                                                      | Runtime blocks                                                           |
 | Resource optimization   | Parallelization by sample batch, contig, dynamic contig regions, and reference shard                               | Workflow architecture                                                    |
 
@@ -79,7 +79,7 @@ The top-level workflow orchestrates batching, per-batch imputation, and cohort-l
 | `ExtractAnnotations` | Extract AF/INFO annotations from each batch contig VCF | Batch ligated VCFs and indexes | Captures per-batch annotations needed for cohort recomputation |
 | `MergeContigVcfs` (`MergeSampleChunksVcfsWithPaste`) | Merge sample columns across batch VCFs for one contig region | Array of batch VCFs for a contig region | Creates the full-cohort contig region VCF |
 | `RecomputeAndAnnotate` | Recompute cohort-level AF/INFO, filter by INFO, censor RAF, and write updated/indexed VCFs | Merged region VCF + extracted annotations + thresholds | Restores cohort-correct annotations after paste-based merge |
-| `ConcatAndFinalizeVcfs` (`ConcatRegions`) | Concatenate processed multi-batch regions back together | Array of `RecomputeAndAnnotate.merged_imputed_vcf` | Yields the finalized contig-level VCF from multi-batch inputs |
+| `ConcatAndFinalizeVcfs` (`ConcatAndFinalizeMultiBatch`) | Concatenate processed multi-batch regions back together | Array of `RecomputeAndAnnotate.merged_imputed_vcf` | Yields the finalized contig-level VCF from multi-batch inputs |
 | `FilterInfoAndCensorRafAndFinalizeVcf` | Filter variants below INFO, censor RAF, and finalize outputs (Single Batch branch) | Ligated single-batch VCF + thresholds | Finalizes indexed and filtered outputs for single-batch cohorts |
 | `GatherContigVcfsForQcMetrics` | Combine all contig VCFs into one all-chromosome VCF | Output from finalizing tasks | Provides a single VCF to calculate QC metrics |
 | `CollectQCMetrics` | Compute cohort-level QC metrics table | `GatherContigVcfsForQcMetrics.output_vcf` | Produces the final QC metrics output |
@@ -160,8 +160,8 @@ Quota is derived from number of CRAM entries found in the provided CRAM manifest
 
 The `InputQC` workflow validates CRAM-based inputs supplied by the `cram_manifest` for GLIMPSE2 low-pass imputation. Checks include:
 
-- required manifest columns are present: `sample_id`, `cram_path`, `cram_index_path`
-- counts of CRAMs, CRAIs, and sample IDs match
+- required manifest columns are present: `cram_path`, `cram_index_path`
+- counts of CRAMs, CRAIs match
 - sample IDs are unique
 - CRAM paths are unique
 - CRAM file names end with `.cram` and indices end with `.crai`
