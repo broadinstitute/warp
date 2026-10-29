@@ -123,6 +123,14 @@ Every sample emits its SCANVI model in `scanvi_models_out`, a small `.tar.gz` wi
 
 Either way, the predictions file holds the sample's cells only. For a cheap run, also set `gpu_count = 0` and smaller `mem_size` / `nthreads`. Training once and then labelling many samples on CPU this way is far cheaper than training per sample (see [Example run costs](#example-run-costs)).
 
+Reference-only models come from [warp-scanvi-training](https://github.com/rsc3/warp-scanvi-training), which trains scVI and SCANVI on a whole atlas out of core and writes the deliverable SCANVI checkpoint in the form `scanvi_model` takes. Mapping is slow on CPU when a model covers every gene of a large atlas, so run such batches with `gpu_count` of 1 or more.
+
+:::note Coming soon
+- **Validated query mapping (coming soon).** Mapping is implemented and tested on the Plumbing data: mapped as a new sample, a reference's own cells get their known labels back. Its accuracy on real samples has not been measured yet.
+- **Multiome samples on a reference-only model (coming soon).** Mapping GEX plus ATAC gene activity onto a model trained on a reference alone is implemented but not yet tested; GEX-only samples are tested.
+- **The mouse whole brain model (coming soon).** The AIT33 (BICCN whole mouse brain consensus) model is still training.
+:::
+
 #### Running on Terra: per sample or per set
 
 Terra can feed the sample arrays from a data table in two ways. The column names below (`sample_id`, `gex_h5ad`, `atac_h5ad`) are examples; use your own table's names.
@@ -250,7 +258,7 @@ The annotated matrices are written in the form SCP reads, compressed with gzip:
 
 A model is named by the reference it was trained on: the reference's `uns['title']` (the Allen taxonomy and CELLxGENE schemas both define it), or its file name when it has none, made file-name safe, followed by the first 8 hex digits of the reference file's sha256. For example, `Mouse_cortex_hippocampus_10X_seq_04042025-f3177e00`. The title says which reference; the hash tells apart subsets and rebuilds that share a title.
 
-A training run computes the name in PreprocessReference and writes it into each model archive as `reference.txt`, next to `model.pt`; a supplied model's `reference.txt` is read and carried forward. Every output records it as `uns['scanvi_model']`. A model archive without `reference.txt`, such as one from before scANVI 3.0.0, is named by its archive's file name instead. Each model archive holds one SCANVI model; the scVI encoder and decoder it was built from are part of it, but there is no separate scVI model.
+A training run computes the name in PreprocessReference and writes it into each model archive as `reference.txt`, next to `model.pt`; a supplied model's `reference.txt` is read and carried forward. Every output records it as `uns['scanvi_model']`. A model archive without `reference.txt`, such as one from before scANVI 3.0.0, is named by its archive's file name instead. Models from warp-scanvi-training carry the same `reference.txt`, written by the same rule. Each model archive holds one SCANVI model; the scVI encoder and decoder it was built from are part of it, but there is no separate scVI model.
 
 :::note Run metadata, not sample metadata
 The annotated matrices keep every `obs` column of their own input (the Optimus QC columns, for example) plus the transferred label; the predictions file keeps only columns shared by the datasets combined into it. Each output records which sample, input file and model produced it, in `uns` under keys prefixed `scanvi_`; the prefix keeps them apart from the `uns['input_id']` and `uns['pipeline_version']` an Optimus h5ad already carries. The pipeline adds no sample-level metadata (donor, species, organ, disease, library preparation, sex) to any output. Sample metadata is joined downstream from the data archive's sample manifests, not by this pipeline.

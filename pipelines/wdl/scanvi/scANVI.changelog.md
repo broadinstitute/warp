@@ -1,5 +1,5 @@
 # 3.0.0
-2026-10-28 (Date of Last Commit)
+2026-10-29 (Date of Last Commit)
 
 ### Breaking changes
 
@@ -14,7 +14,7 @@
 
 ### Additional changes
 
-* Updated the pinned scvi-scanvi docker image to the build with scvi-tools 1.5.1 and snapatac2 2.10.0 (previously scvi-tools 1.2.0 and snapatac2 2.7.0). SCVI/SCANVI training and prediction now run on the newer library, which may produce slightly different (not qualitatively different) label assignments and embeddings
+* Updated the pinned scvi-scanvi docker image to image 1.5.0, with scvi-tools 1.5.1, snapatac2 2.10.0, anndata 0.13.4, scipy 1.18.1 and torch 2.15.0 (previously scvi-tools 1.2.0, snapatac2 2.7.0, and scipy held below 1.14). SCVI/SCANVI training and prediction now run on the newer libraries, which may produce slightly different (not qualitatively different) label assignments and embeddings. Each output records the image's key library versions in uns['scanvi_versions']
 * Fixed the celltype column of the SCANVI predictions h5ad so query cells carry their SCANVI-predicted label instead of Unknown
 * Added the optional seed input, which makes SCVI/SCANVI training reproducible; unset (the default) keeps training nondeterministic
 * Updated model loading to require exactly one model.pt in a supplied scanvi_model archive and to extract it with Python's safe data filter
