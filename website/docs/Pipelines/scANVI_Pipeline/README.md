@@ -123,11 +123,10 @@ Every sample emits its SCANVI model in `scanvi_models_out`, a small `.tar.gz` wi
 
 Either way, the predictions file holds the sample's cells only. For a cheap run, also set `gpu_count = 0` and smaller `mem_size` / `nthreads`. Training once and then labelling many samples on CPU this way is far cheaper than training per sample (see [Example run costs](#example-run-costs)).
 
-Reference-only models come from [warp-scanvi-training](https://github.com/rsc3/warp-scanvi-training), which trains scVI and SCANVI on a whole atlas out of core and writes the deliverable SCANVI checkpoint in the form `scanvi_model` takes. Mapping is slow on CPU when a model covers every gene of a large atlas, so run such batches with `gpu_count` of 1 or more.
+Reference-only models come from [warp-scanvi-training](https://github.com/rsc3/warp-scanvi-training), which trains scVI and SCANVI on a whole atlas out of core and writes the deliverable SCANVI checkpoint in the form `scanvi_model` takes. Mapping is slow on CPU when a model covers every gene of a large atlas, so run such batches with `gpu_count` of 1 or more. Multiome samples on a reference-only model run but are untested: the ATAC gene-activity matrix is a stand-in for expression, and scVI's assumptions fit it poorly.
 
 :::note Coming soon
 - **Validated query mapping (coming soon).** Mapping is implemented and tested on the Plumbing data: mapped as a new sample, a reference's own cells get their known labels back. Its accuracy on real samples has not been measured yet.
-- **Multiome samples on a reference-only model (coming soon).** Mapping GEX plus ATAC gene activity onto a model trained on a reference alone is implemented but not yet tested; GEX-only samples are tested.
 - **The mouse whole brain model (coming soon).** The AIT33 (BICCN whole mouse brain consensus) model is still training.
 :::
 
