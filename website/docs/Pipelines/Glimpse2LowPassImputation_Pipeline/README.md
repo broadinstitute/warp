@@ -75,12 +75,12 @@ The top-level workflow orchestrates batching, per-batch imputation, and cohort-l
 | `ConvertInputArraysToManifest` | Convert CRAM/CRAI arrays into a manifest | `crams`, `cram_indices` | Allows large input sets to be passed as a manifest |
 | `SplitIntoSampleBatches` | Split the manifest into sample-level batches | `cram_manifest_to_use`, `sample_batch_size` | Enables large-cohort scaling at gateway level |
 | `RunBatch` (`Glimpse2LowPassImputationBatch`) | Run full low-pass imputation and header updating on each batch | Batch manifest + reference inputs + `calling_batch_size` + `ref_dict` | Produces per-batch, per-contig ligated imputed VCFs with updated headers |
-| `CreateContigRegions` | Generate sub-regions for scalable parallel merging | `fasta_index` and contig | Parses FASTA index to generate balanced chunks |
-| `ExtractAnnotations` | Extract AF/INFO annotations from each batch contig VCF | Batch ligated VCFs and indexes | Captures per-batch annotations needed for cohort recomputation |
-| `MergeContigVcfs` (`MergeSampleChunksVcfsWithPaste`) | Merge sample columns across batch VCFs for one contig region | Array of batch VCFs for a contig region | Creates the full-cohort contig region VCF |
-| `RecomputeAndAnnotate` | Recompute cohort-level AF/INFO, filter by INFO, censor RAF, and write updated/indexed VCFs | Merged region VCF + extracted annotations + thresholds | Restores cohort-correct annotations after paste-based merge |
-| `ConcatAndFinalizeVcfs` (`ConcatAndFinalizeMultiBatch`) | Concatenate processed multi-batch regions back together | Array of `RecomputeAndAnnotate.merged_imputed_vcf` | Yields the finalized contig-level VCF from multi-batch inputs |
-| `FilterInfoAndCensorRafAndFinalizeVcf` | Filter variants below INFO, censor RAF, and finalize outputs (Single Batch branch) | Ligated single-batch VCF + thresholds | Finalizes indexed and filtered outputs for single-batch cohorts |
+| `CreateContigRegions` | Generate region shards for scalable parallel merging | `fasta_index` and contig | Parses FASTA index to generate balanced chunks |
+| `ExtractAnnotations` |  Extract AF/INFO annotations from each batch contig VCF in shard regions | Per-batch-and-contig ligated VCF + index | Captures per-batch-and-shard annotations for cohort recomputation |
+| `MergeRegion` (`MergeSampleChunksVcfsWithPaste`) | Merge sample columns across batches for each shard | Arrays of per-batch-and-shard VCFs | Creates the full-cohort shard VCF |
+| `RecomputeAfInfoAndFilterInfoAndCensorRaf` (`RecomputeAndAnnotate`) | Recompute AF/INFO across the merged cohort and re-annotate for each shard and optionally filter by INFO and censor RAF | Merged per-shard VCFs + annotations + sample counts + INFO and RAF thresholds | Restores cohort-correct AF/INFO values |
+| `ConcatAndFinalizeMultiBatch` (`ConcatAndFinalizeVcfs`) | Concat shards and finalize VCF/index outputs | Per-shard re-annotated+filtered+censored VCFs | Yields the finalized contig-level VCF from multi-batch inputs |
+| `FilterInfoAndCensorRafAndFinalizeVcf` | Optionally filter by INFO and censor RAF and then finalize VCF/index outputs for single batches | Ligated contig VCF + thresholds | Finalizes indexed and filtered outputs for single-batch cohorts |
 | `GatherContigVcfsForQcMetrics` | Combine all contig VCFs into one all-chromosome VCF | Output from finalizing tasks | Provides a single VCF to calculate QC metrics |
 | `CollectQCMetrics` | Compute cohort-level QC metrics table | `GatherContigVcfsForQcMetrics.output_vcf` | Produces the final QC metrics output |
 
@@ -97,7 +97,7 @@ Upon successful completion, the workflow emits final contig-level imputed output
 
 ## Glimpse2LowPassImputationBatch summary
 
-The `Glimpse2LowPassImputationBatch` workflow is the per-batch subworkflow used by the top-level `Glimpse2LowPassImputation` gateway workflow.  
+The `Glimpse2LowPassImputationBatch` workflow is the per-batch subworkflow used by the top-level `Glimpse2LowPassImputation` gateway workflow.
 It is designed for cohorts up to roughly 1000 samples per batch, then returns contig-level ligated imputed VCFs that can be merged across batches upstream.
 
 ### Batch Workflow Role
@@ -106,7 +106,6 @@ It is designed for cohorts up to roughly 1000 samples per batch, then returns co
 - phases/imputes each contig in reference-defined chunks using GLIMPSE2
 - ligates chunk-level outputs back into one imputed VCF per contig
 - updates the final VCF header using the reference dictionary
-- emits optional coverage metrics aggregated across chunks/contigs
 
 ### Batch Inputs
 
@@ -153,7 +152,7 @@ As part of the batch merge and re-annotation step in the top-level workflow, we 
 
 ## Glimpse2LowPassImputationQuotaConsumed summary
 
-The `QuotaConsumed` workflow computes submitted sample count for service quota accounting.  
+The `QuotaConsumed` workflow computes submitted sample count for service quota accounting.
 Quota is derived from number of CRAM entries found in the provided CRAM manifest.
 
 ## Glimpse2LowPassImputationQC summary

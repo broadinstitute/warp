@@ -79,7 +79,7 @@ The top-level workflow orchestrates batching, per-batch preprocessing/imputation
 | `MergePoppedRegion` | Merge sample columns across batches for each shard | Arrays of per-batch-and-shard VCFs | Creates the full-cohort shard VCF |
 | `RecomputePoppedAfInfoAndFilterInfoAndCensorRaf` | Recompute AF/INFO across the merged cohort and re-annotate for each shard and optionally filter by INFO and censor RAF | Merged per-shard VCFs + annotations + sample counts + INFO and RAF thresholds | Restores cohort-correct AF/INFO values |
 | `ConcatAndFinalizeMultiBatch` | Concat shards and finalize VCF/index outputs | Per-shard re-annotated+filtered+censored VCFs | Emits `imputed_vcf` and `imputed_vcf_index` per contig |
-| `FilterInfoAndCensorRafAndFinalizeBcf` | Optionally filter by INFO and censor RAF and then finalize VCF/index outputs for single batches | Popped contig BCF | Emits `imputed_vcf` and `imputed_vcf_index` per contig |
+| `FilterInfoAndCensorRafAndFinalizeBcf` | Optionally filter by INFO and censor RAF and then finalize VCF/index outputs for single batches | Popped contig BCF + thresholds | Emits `imputed_vcf` and `imputed_vcf_index` per contig |
 
 ### Outputs
 
