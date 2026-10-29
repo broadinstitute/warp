@@ -386,44 +386,6 @@ task ConcatAndFinalizeVcfs {
     }
 }
 
-task MergeQCMetrics {
-    input {
-        Array[File] qc_metrics
-        String docker = "us.gcr.io/broad-dsde-methods/python-data-slim:1.1"
-        String output_basename
-
-        Int disk_size_gb = ceil(2.2 * size(qc_metrics, "GiB") + 50)
-        Int mem_gb = 4
-        Int cpu = 2
-        Int preemptible = 1
-    }
-
-    command <<<
-        set -euxo pipefail
-
-        python3 <<EOF
-        import pandas as pd
-        qc_metrics = ['~{sep="', '" qc_metrics}']
-        merged_qc_metrics = pd.concat([pd.read_csv(qc_metric, sep='\t', dtype=str) for qc_metric in qc_metrics])
-        merged_qc_metrics.to_csv('~{output_basename}.qc_metrics.tsv', sep='\t', index=False)
-        EOF
-    >>>
-
-    output {
-        File merged_qc_metrics = "~{output_basename}.qc_metrics.tsv"
-    }
-
-    runtime {
-        docker: docker
-        disks: "local-disk " + disk_size_gb + " HDD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: 1
-        noAddress: true
-    }
-}
-
 task SplitCramManifestIntoBatches {
     input {
         Int batch_size
