@@ -1,4 +1,5 @@
 {
+  "Multiome.expected_cells": 3000,
   "Multiome.annotations_gtf":"gs://gcp-public-data--broad-references/M.mulatta/Mmul_10/star/v2_7_10a/10x_filtered/mt_v103_modified.annotation.gtf",
   "Multiome.input_id":"macaque_CK03",
   "Multiome.cloud_provider":"gcp",

@@ -48,7 +48,7 @@ workflow TestMultiome {
 
       # Optional aligned ATAC bam file
       File? aligned_ATAC_bam
-      Int expected_cells = 3000
+      Int expected_cells
       Boolean atac_anchor_cell_calling = false
 
       # These values will be determined and injected into the inputs by the scala test framework

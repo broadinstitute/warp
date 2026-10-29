@@ -1,9 +1,9 @@
 # 3.0.0
 2026-10-27 (Date of Last Commit)
 
+* Removed the default of 3000 from the `atac_expected_cells` input; it is now required so that the percent-target denominator and the cell-calling anchor always reflect the library
 * Added optional anchor_cell_calling input (default false). When true, the CreateFragmentFile task passes atac_expected_cells to SnapATAC2’s OrdMag cell calling as a hint for the expected number of cells. OrdMag still decides which barcodes are cells, so the final count can differ from atac_expected_cells; the hint only sets where it starts looking for the cutoff between cells and background. When false, OrdMag works out the expected cell count from the distribution of barcode counts in the data. In both modes, the per-cell library metrics and the snap_metrics h5ad use the called cells. Default runs are unaffected
 * Refactored CreateFragmentFile so the ATAC workflow, not the task, chooses the BAM barcode tag (BB with preindex, CB otherwise); outputs are unchanged
-* atac_expected_cells is now a required input and no longer defaulted
 
 # 2.9.4
 2026-09-16 (Date of Last Commit)
