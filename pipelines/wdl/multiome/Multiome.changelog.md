@@ -1,9 +1,9 @@
 # 8.0.0
 2026-10-26 (Date of Last Commit)
 
+* Removed the default of 3000 from the `expected_cells` input; it is now required and is passed to both Optimus and ATAC
 * Updated the ATAC workflow to 3.0.0
 * Added optional `atac_anchor_cell_calling` input (default `false`), passed to ATAC, that anchors ATAC cell calling to `expected_cells` instead of letting SnapATAC2 estimate the cell count; the ATAC library metrics and the ATAC h5ad both use the called cells. Default runs are unaffected
-* expected_cells is now a required input and no longer defaulted
 
 # 7.0.4
 2026-10-08 (Date of Last Commit)
