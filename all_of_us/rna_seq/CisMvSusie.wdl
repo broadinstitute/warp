@@ -460,6 +460,7 @@ task SelectTestGenes {
     cpu: 1
     memory: "8 GiB"
     disks: "local-disk 50 SSD"
+    bootDiskSizeGb: 30
   }
 }
 
@@ -567,6 +568,7 @@ task CheckSamples {
     cpu: 1
     memory: "4 GiB"
     disks: "local-disk 100 SSD"
+    bootDiskSizeGb: 30
   }
 }
 
@@ -625,6 +627,7 @@ task PreparePhenotypeBed {
     cpu: 2
     memory: "16 GiB"
     disks: "local-disk 200 SSD"
+    bootDiskSizeGb: 30
   }
 }
 
@@ -847,6 +850,7 @@ task BuildCisWindows {
     cpu: 2
     memory: "16 GiB"
     disks: "local-disk 100 SSD"
+    bootDiskSizeGb: 30
   }
 }
 
@@ -960,6 +964,7 @@ task PrepareWindowGenotypes {
     cpu: 2
     memory: "16 GiB"
     disks: "local-disk 500 SSD"
+    bootDiskSizeGb: 30
   }
 }
 
@@ -1030,6 +1035,7 @@ task PrepareWindowPhenotypes {
     cpu: 2
     memory: "16 GiB"
     disks: "local-disk 500 SSD"
+    bootDiskSizeGb: 30
   }
 }
 
@@ -1096,6 +1102,7 @@ task PrepareMvSusieInput {
     cpu: 2
     memory: "16 GiB"
     disks: "local-disk 500 SSD"
+    bootDiskSizeGb: 30
   }
 }
 
@@ -1180,6 +1187,7 @@ task FitMvSusie {
     cpu: 2
     memory: "~{memory_gb} GiB"
     disks: "local-disk 500 SSD"
+    bootDiskSizeGb: 30
   }
 }
 
@@ -1230,6 +1238,7 @@ task SummarizeMvSusie {
     cpu: 2
     memory: "16 GiB"
     disks: "local-disk 500 SSD"
+    bootDiskSizeGb: 30
   }
 }
 
@@ -1272,6 +1281,7 @@ task PlotMvSusie {
     cpu: 2
     memory: "16 GiB"
     disks: "local-disk 500 SSD"
+    bootDiskSizeGb: 30
   }
 }
 
@@ -1329,5 +1339,6 @@ task GatherTables {
     cpu: 1
     memory: "4 GiB"
     disks: "local-disk 50 SSD"
+    bootDiskSizeGb: 30
   }
 }
