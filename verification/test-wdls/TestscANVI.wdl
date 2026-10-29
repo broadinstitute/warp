@@ -17,8 +17,8 @@ workflow TestscANVI {
       Array[File] atac_h5ads = []
 
       # Optional reference-column / genome overrides, forwarded to scANVI. Unset => the
-      # pipeline's own defaults (AIT subclass/donor_id; genome hg38), so existing tests are unchanged.
-      String? ref_label_column
+      # pipeline's own defaults (AIT subclass/donor_id; genome hg38).
+      Array[String] ref_label_columns = []
       String? ref_batch_column
       String genome = "hg38"
       Boolean output_max_probability = false
@@ -63,7 +63,7 @@ workflow TestscANVI {
         gex_h5ads        = gex_h5ads,
         ref_h5ad         = ref_h5ad,
         atac_h5ads       = atac_h5ads,
-        ref_label_column = ref_label_column,
+        ref_label_columns = ref_label_columns,
         ref_batch_column = ref_batch_column,
         genome           = genome,
         output_max_probability = output_max_probability,
@@ -79,11 +79,10 @@ workflow TestscANVI {
     }
 
     # Collect all of the pipeline outputs (every query's) into a single Array[String].
-    # atac_annotated_h5ads is empty in GEX-only mode.
+    # atac_annotated_h5ads is empty in GEX-only mode, scanvi_models_out when a model is supplied.
     # scanvi_models_out is archived to results/truth (not verified — model weights are
     # non-deterministic across training runs).
     Array[String] pipeline_outputs = flatten([
-                                    scANVI.scanvi_predictions_h5ads,
                                     scANVI.gex_annotated_h5ads,
                                     scANVI.scanvi_models_out,
                                     scANVI.atac_annotated_h5ads,
@@ -106,15 +105,9 @@ workflow TestscANVI {
     }
 
     if (!update_truth){
-      # Verify each query's outputs against its own truth files (matched by file name, which
-      # input_ids makes unique).
+      # Verify each query's outputs against its own truth files (matched by file name; outputs
+      # are named after the input files, which must have distinct names).
       scatter (i in range(length(input_ids))) {
-        call Utilities.GetValidationInputs as GetScanviPredictions {
-          input:
-            input_file = scANVI.scanvi_predictions_h5ads[i],
-            results_path = results_path,
-            truth_path = truth_path
-        }
         call Utilities.GetValidationInputs as GetGexAnnotated {
           input:
             input_file = scANVI.gex_annotated_h5ads[i],
@@ -134,8 +127,6 @@ workflow TestscANVI {
 
         call VerifyScANVI.VerifyScANVI as Verify {
           input:
-            truth_scanvi_predictions_h5ad = GetScanviPredictions.truth_file,
-            test_scanvi_predictions_h5ad  = GetScanviPredictions.results_file,
             truth_gex_annotated_h5ad      = GetGexAnnotated.truth_file,
             test_gex_annotated_h5ad       = GetGexAnnotated.results_file,
             truth_atac_annotated_h5ad     = GetAtacAnnotated.truth_file,

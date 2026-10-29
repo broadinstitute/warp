@@ -15,13 +15,13 @@ The scANVI pipeline is a cloud-optimized WDL workflow that performs **cell type 
 
 ATAC is optional. When no ATAC h5ads are supplied, the pipeline runs in **GEX-only mode** and trains/annotates from the reference atlas using gene expression and reference data alone, without using ATAC. When ATAC is supplied it runs in multiome mode (GEX + ATAC + reference).
 
-One run labels **one or more samples**. Each sample is labelled independently and gets its own outputs, and every sample of a run goes through **one machine, one after another**, so a run of many samples starts one machine instead of one per sample. The model comes from one of three places:
+One run labels **one or more samples**. Each sample is labelled independently and gets its own outputs, and every sample of a run goes through **one machine, one after another**, so a run of many samples starts one machine instead of one per sample. Each sample is labelled at one or more **label levels** of the reference, such as `class` and `subclass`, one SCANVI model per level. The models come from one of three places:
 
-- **No model supplied:** each sample trains its own SCVI/SCANVI model on the annotated reference plus that sample.
+- **No model supplied:** each sample trains its own models on the annotated reference plus that sample.
 - **A model this pipeline trained** (`scanvi_models_out` of an earlier run): it is loaded and predicts every sample as is.
 - **A model trained on the reference alone**, for example by [warp-scanvi-training](https://github.com/rsc3/warp-scanvi-training): each sample is mapped onto it with scArches (query mapping), a short training on the sample alone.
 
-With a supplied model the reference is not needed. The annotated matrices are written ready for [Single Cell Portal](https://singlecell.broadinstitute.org) (SCP): counts in `.raw`, normalized expression in `.X`, a 2-D UMAP and the scANVI latent. Every output records which sample, input file and model produced it.
+With a supplied model the reference is not needed. Each input file `<name>.h5ad` gives one `<name>_annotated.h5ad`, written ready for [Single Cell Portal](https://singlecell.broadinstitute.org) (SCP): counts in `.raw`, normalized expression in `.X`, and per level the labels, a 2-D UMAP and the scANVI latent. Every output records which sample, input file, model and levels produced it.
 
 ### How the label transfer works: SCVI + SCANVI
 
@@ -29,9 +29,9 @@ scANVI annotates in two stages — an **unsupervised** representation-learning s
 
 1. **SCVI — unsupervised embedding.** [SCVI](https://docs.scvi-tools.org/en/1.4.1/user_guide/models/scvi.html) is a variational autoencoder trained on the **concatenation** of the query and reference cells (GEX, plus the ATAC gene-activity matrix in multiome mode) **without using any cell-type labels**. It learns a low-dimensional latent representation that captures biological variation while correcting batch effects — across donors, and between the query and the reference (and across modalities). Being unsupervised, it uses every cell, so the embedding is shaped by the full dataset rather than only the annotated subset.
 
-2. **SCANVI — semi-supervised annotation.** [SCANVI](https://docs.scvi-tools.org/en/1.4.1/user_guide/models/scanvi.html) is initialized **from the trained SCVI model** and adds a cell-type classifier on top of that latent space. It is trained **semi-supervised**: the reference cells provide their known labels (the supervision signal) while the unlabeled query cells (tagged `Unknown`) continue to shape the latent space (the unsupervised signal). The result is a label-aware embedding in which query cells sit near reference cells of the same type, and SCANVI then predicts a cell type for every query cell (`C_scANVI`).
+2. **SCANVI — semi-supervised annotation.** [SCANVI](https://docs.scvi-tools.org/en/1.4.1/user_guide/models/scanvi.html) is initialized **from the trained SCVI model** and adds a cell-type classifier on top of that latent space. It is trained **semi-supervised**: the reference cells provide their known labels (the supervision signal) while the unlabeled query cells (tagged `Unknown`) continue to shape the latent space (the unsupervised signal). The result is a label-aware embedding in which query cells sit near reference cells of the same type, and SCANVI then predicts a cell type for every query cell. Each label level gets its own SCANVI model, initialized from the same SCVI model, so a run with the levels `class` and `subclass` predicts both for every cell.
 
-This unsupervised → semi-supervised design is more robust than training a supervised classifier on the reference alone: SCVI first integrates query and reference into a common, batch-corrected space using all available cells, and SCANVI only has to learn the annotation boundaries **within** that shared space. Labels are transferred by propagating each query cell's `C_scANVI` prediction back onto the original matrices.
+This unsupervised → semi-supervised design is more robust than training a supervised classifier on the reference alone: SCVI first integrates query and reference into a common, batch-corrected space using all available cells, and SCANVI only has to learn the annotation boundaries **within** that shared space. Labels are transferred by propagating each query cell's predictions back onto the original matrices.
 
 #### ATAC gene-activity conversion (Multiome mode)
 
@@ -63,7 +63,7 @@ The following table provides a quick glance at the scANVI pipeline features:
 | Models | SCVI (unsupervised VAE) + SCANVI (semi-supervised classifier) | [scvi-tools 1.5.1](https://docs.scvi-tools.org/) |
 | ATAC gene-activity conversion | Cell-by-bin matrix → gene activity matrix (hg38 GENCODE) | [snapatac2 2.10](https://kzhang.org/SnapATAC2/) |
 | Data input format | AnnData h5ad files: one annotated reference and one or more GEX queries (required), plus one ATAC cell-by-bin file per query (optional) | [AnnData](https://anndata.readthedocs.io/) |
-| Data output format | Annotated h5ad files with predicted cell types and UMAP | [AnnData](https://anndata.readthedocs.io/) |
+| Data output format | One annotated h5ad per input file, with predicted cell types, latent and UMAP per label level | [AnnData](https://anndata.readthedocs.io/) |
 
 ## Set-up
 
@@ -75,7 +75,7 @@ scANVI can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stabl
 
 ### Inputs
 
-scANVI takes its samples as arrays paired by position: `input_ids[i]`, `gex_h5ads[i]` and, in multiome mode, `atac_h5ads[i]` describe sample *i*. A single sample is a one-element array. Give either `scanvi_model` (to label with a saved model) or `ref_h5ad` (to train); the run fails at once with neither.
+scANVI takes its samples as arrays paired by position: `input_ids[i]`, `gex_h5ads[i]` and, in multiome mode, `atac_h5ads[i]` describe sample *i*. A single sample is a one-element array. Outputs are named after the input files, so the input files of a run must have distinct names. Give either `scanvi_model` (to label with a saved model) or `ref_h5ad` (to train); the run fails at once with neither.
 
 Example input JSON files are available in the [`example_inputs`](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/scanvi/example_inputs) folder.
 
@@ -83,28 +83,28 @@ Example input JSON files are available in the [`example_inputs`](https://github.
 
 | Input | Type | Description | Default |
 | --- | --- | --- | --- |
-| `input_ids` | Array[String] | One identifier per sample, in the same order as `gex_h5ads`. `input_ids[i]` starts every output file name of sample *i* and is recorded in each of its outputs, so ids must be unique and cannot contain `/`. | — (required) |
+| `input_ids` | Array[String] | One identifier per sample (for example the library's id), in the same order as `gex_h5ads`. `input_ids[i]` is recorded in each output of sample *i* as `uns['scanvi_input_id']`; ids must be unique. | — (required) |
 | `gex_h5ads` | Array[File] | Gene expression AnnData h5ad files from Multiome / Optimus, one per sample. | — (required) |
 | `atac_h5ads` | Array[File] | **Optional** ATAC cell-by-bin AnnData h5ad files from Multiome / PeakCalling, one per `gex_h5ads` entry and in the same order; empty runs every sample in GEX-only mode. | `[]` |
-| `scanvi_model` | File? | **Optional** saved SCANVI model (`.tar.gz` of a saved model directory, no bundled AnnData), used for every sample instead of training. A model this pipeline trained loads as is; a model trained on the reference alone gets each sample mapped onto it (see [Using a saved model](#using-a-saved-model)). | — |
+| `scanvi_model` | File? | **Optional** model archive (`.tar.gz`: a reference's scVI model and one SCANVI model per label level, no bundled AnnData; see [Model archives](#model-archives)), used for every sample instead of training. Every level labels every sample. A model this pipeline trained loads as is; a model trained on the reference alone gets each sample mapped onto it (see [Using a saved model](#using-a-saved-model)). | — |
 | `ref_h5ad` | File? | Annotated reference AnnData h5ad file. Needed only to train, that is, when `scanvi_model` is not given; ignored otherwise. | — |
 | `max_epochs` | Int? | Optional cap on SCVI/SCANVI training epochs, applied in both multiome and GEX-only modes. When unset, the container default (500) is used. | — |
 | `query_max_epochs` | Int? | Epochs when mapping a sample onto a reference-only model. When unset, the container default (100) is used. | — |
 | `batch_size` | Int | SCVI/SCANVI minibatch size (the SGD minibatch described above). Lower it to fit a high-cardinality reference on a small GPU (activation memory scales with `batch_size` × number of labels); raise it on a large-VRAM cloud GPU. | `128` |
 | `seed` | Int? | Optional random seed for SCVI/SCANVI training. Set it to make a run reproducible (the test wrappers pin one); unset keeps training nondeterministic. | — |
-| `ref_label_column` | String? | When training, the reference `obs` column to use as the cell-type label. When unset, defaults to `subclass` for AIT references and `final_annotation` otherwise. | — |
+| `ref_label_columns` | Array[String] | When training, the label levels: the reference `obs` columns to label each sample with, one SCANVI model each, for example `["class", "subclass"]`. The first gives the default UMAP. When empty, defaults to `["subclass"]` for AIT references and `["final_annotation"]` otherwise. | `[]` |
 | `ref_batch_column` | String? | When training, the reference `obs` column to use as the batch. When unset, defaults to `donor_id` for AIT references and `batch` otherwise. | — |
 | `genome` | String | Genome for the ATAC cell-by-bin → gene-activity conversion (multiome only): `hg38` (default), `mm10`, or `mm39`. | `"hg38"` |
-| `output_max_probability` | Boolean | When `true`, add a `max_probability` obs column (per-cell maximum SCANVI posterior — the assigned label's confidence) to every output h5ad. | `false` |
+| `output_max_probability` | Boolean | When `true`, add a `<level>_max_probability` obs column per level (per-cell maximum SCANVI posterior — the assigned label's confidence) to every annotated h5ad. | `false` |
 | `gpu_count` | Int | GPUs for the label-transfer machine. Set `0` for a CPU-only run, which suits a supplied model. | `2` |
 | `mem_size` | Int | Memory (GiB) for the label-transfer machine. Samples run one at a time, so it only has to fit the largest sample (plus the reference when training). | `104` |
 | `nthreads` | Int | CPUs for the label-transfer machine. | `16` |
-| `disk_size` | Int? | Disk (GB) for the label-transfer machine. When unset, it is sized from the inputs: 4 × the samples' input size, plus (3 + number of samples) × the reference size when training, plus the model, plus 50 GB. | sized from inputs |
+| `disk_size` | Int? | Disk (GB) for the label-transfer machine. When unset, it is sized from the inputs: 4 × the samples' input size, plus 3 × the reference size when training, plus the model, plus 50 GB. | sized from inputs |
 
 :::note One sample or many
 
 - Pairing is by position. The run fails before any sample is processed if `gex_h5ads` is empty, `input_ids` differs in length, or `atac_h5ads` is neither empty nor the same length. ATAC is all or none per run.
-- The label-transfer task then checks every input file (it exists, is not empty, opens as an h5ad) and that the ids are unique, and fails in seconds naming every problem, before any sample is labelled.
+- The label-transfer task then checks every input file (it exists, is not empty, opens as an h5ad), that the ids are unique and that no two input files share a name, and fails in seconds naming every problem, before any sample is labelled.
 - In an inputs JSON a single sample still needs brackets: `"scANVI.input_ids": ["10k_PBMC"]`, `"scANVI.gex_h5ads": ["gs://…"]`. A Terra data-table column such as `this.gex_h5ad` maps to an array input directly, because Terra wraps the single value.
 - Samples run one after another on one machine, so wall time is the sum of the samples. One bad sample fails the whole run, and a retry redoes every sample; call caching applies to the run as a whole.
 
@@ -116,14 +116,14 @@ The ATAC input is optional. Leave `atac_h5ads` empty (the default) and every sam
 
 #### Using a saved model
 
-Every sample emits its SCANVI model in `scanvi_models_out`, a small `.tar.gz` with no bundled data. Pass a model as `scanvi_model` and every sample of the run is labelled with it, without training SCVI/SCANVI on the reference and without loading the reference at all. The pipeline reads the model's saved batch categories and chooses one of two paths per sample:
+A run that trains saves each sample's models in `scanvi_models_out`, one small model archive per sample with no bundled data. Pass a model archive as `scanvi_model` and every sample of the run is labelled with it at each of its levels, without training on the reference and without loading the reference at all. For each level, the pipeline reads the model's saved batch categories and chooses one of two paths:
 
 - **The model knows the sample's batch label.** A model this pipeline trained does, because the pipeline labels every sample's GEX batch `pd-multiome_sci_gex` (and ATAC `pd-multiome_sci_atac`). It is loaded and predicts as is.
 - **The batch is new to the model.** A model trained on the reference alone knows only the reference's batches. The sample is mapped onto it with scArches: `SCANVI.load_query_data` followed by `query_max_epochs` of training on the sample alone, with the reference weights frozen.
 
-Either way, the predictions file holds the sample's cells only. For a cheap run, also set `gpu_count = 0` and smaller `mem_size` / `nthreads`. Training once and then labelling many samples on CPU this way is far cheaper than training per sample (see [Example run costs](#example-run-costs)).
+Each level is mapped separately, so mapping time grows with the number of levels. For a cheap run, also set `gpu_count = 0` and smaller `mem_size` / `nthreads`. Training once and then labelling many samples on CPU this way is far cheaper than training per sample (see [Example run costs](#example-run-costs)).
 
-Reference-only models come from [warp-scanvi-training](https://github.com/rsc3/warp-scanvi-training), which trains scVI and SCANVI on a whole atlas out of core and writes the deliverable SCANVI checkpoint in the form `scanvi_model` takes. Mapping is slow on CPU when a model covers every gene of a large atlas, so run such batches with `gpu_count` of 1 or more. Multiome samples on a reference-only model run but are untested: the ATAC gene-activity matrix is a stand-in for expression, and scVI's assumptions fit it poorly.
+Reference-only models come from [warp-scanvi-training](https://github.com/rsc3/warp-scanvi-training), which trains scVI and a SCANVI per label level on a whole atlas out of core and writes the model archive `scanvi_model` takes. Mapping is slow on CPU when a model covers every gene of a large atlas, so run such batches with `gpu_count` of 1 or more. Multiome samples on a reference-only model run but are untested: the ATAC gene-activity matrix is a stand-in for expression, and scVI's assumptions fit it poorly.
 
 :::note Coming soon
 - **Validated query mapping (coming soon).** Mapping is implemented and tested on the Plumbing data: mapped as a new sample, a reference's own cells get their known labels back. Its accuracy on real samples has not been measured yet.
@@ -162,7 +162,7 @@ Without a data table, list the samples in the inputs JSON. For two multiome samp
 When training, the reference h5ad must provide cell-type labels and a batch. Two reference forms are supported:
 
 - **PBMC-style** (default): counts in `.X`, labels in `obs['final_annotation']`, batch in `obs['batch']`.
-- **AIT-schema** (Allen Institute Taxonomy): auto-detected via `uns['schema_version']` + `uns['hierarchy']`. These typically have **no `.X`** (counts are materialized from `.raw`, keeping the gene symbols from `.var`), a cell-type **hierarchy** (e.g. `class`/`subclass`/`cluster_id`), and a batch column such as `donor_id`. By default the label is taken from `subclass` and the batch from `donor_id`; override with `ref_label_column` / `ref_batch_column`. For a mouse AIT reference used in multiome mode, set `genome` to `mm10`/`mm39` so the ATAC gene-activity conversion uses the correct genome.
+- **AIT-schema** (Allen Institute Taxonomy): auto-detected via `uns['schema_version']` + `uns['hierarchy']`. These typically have **no `.X`** (counts are materialized from `.raw`, keeping the gene symbols from `.var`), a cell-type **hierarchy** (e.g. `class`/`subclass`/`cluster_id`), and a batch column such as `donor_id`. By default the label is taken from `subclass` and the batch from `donor_id`; override with `ref_label_columns` (one or more levels) / `ref_batch_column`. For a mouse AIT reference used in multiome mode, set `genome` to `mm10`/`mm39` so the ATAC gene-activity conversion uses the correct genome.
 
 The query datasets (GEX, and ATAC when present) do not need pre-existing annotations — placeholder `Unknown` labels are added automatically before training.
 
@@ -172,7 +172,7 @@ The [scANVI workflow](https://github.com/broadinstitute/warp/blob/master/pipelin
 
 | Task name | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [PreprocessReference](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/scanvi/scANVI.wdl) | scanpy | Python | Runs only when training, once per run: materializes counts from `.raw` for AIT references, maps the chosen label/batch columns to `final_annotation`/`batch`, and tags the reference cells with modality `rna_annotated`. |
+| [PreprocessReference](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/scanvi/scANVI.wdl) | scanpy | Python | Runs only when training, once per run: materializes counts from `.raw` for AIT references, keeps the chosen label levels as strings and maps the batch column to `batch`. |
 | [MultiomeLabelTransfer](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/scanvi/scANVI.wdl) | scanpy, snapatac2, scvi-tools | Python (GPU, or CPU as MultiomeLabelTransferCpu) | Checks every input, then preprocesses and labels each sample in turn and writes its outputs. |
 
 #### 1. PreprocessReference (CPU-only, training only)
@@ -180,22 +180,19 @@ The [scANVI workflow](https://github.com/broadinstitute/warp/blob/master/pipelin
 Prepares the annotated reference once per run; a run with a supplied `scanvi_model` skips it. Steps:
 
 1. **Load the reference** — Reads `ref_h5ad` (scanpy).
-2. **Adapt the reference** — Detects an AIT-schema reference from `uns['schema_version']` plus `uns['hierarchy']`; materializes counts from `.raw` (keeping the `.var` gene symbols) when `.X` is absent; and maps the label and batch columns, from `ref_label_column` / `ref_batch_column` or the defaults (see [Reference requirements](#reference-requirements)), to `final_annotation` and `batch`.
-3. **Modality tag** — Tags the reference cells `rna_annotated`.
-4. **Reference id** — Names the reference (see [Model names](#model-names)); every model trained on it carries that name.
-5. **Write output** — `preprocessed_ref.h5ad`, which the label-transfer task reads.
+2. **Adapt the reference** — Detects an AIT-schema reference from `uns['schema_version']` plus `uns['hierarchy']`; materializes counts from `.raw` (keeping the `.var` gene symbols) when `.X` is absent; keeps the label levels from `ref_label_columns` (or the defaults, see [Reference requirements](#reference-requirements)) as string columns, listed in `uns['scanvi_levels']`; and maps the batch column to `batch`.
+3. **Reference id** — Names the reference (see [Model names](#model-names)); every model trained on it carries that name.
+4. **Write output** — `preprocessed_ref.h5ad`, which the label-transfer task reads.
 
 #### 2. MultiomeLabelTransfer (GPU or CPU)
 
 Runs once per run. It first checks every input with `validate_inputs.py`, then runs the container's `scanvi_sample.py` once per sample, each in its own process and scratch directory, so memory and disk are freed before the next sample. For each sample:
 
-1. **Preprocess** (`preprocess_query.py`) — Reads the sample's GEX (plus its ATAC cell-by-bin in multiome mode); adds `star_IsCell = True` and `gex_barcodes` when absent; keeps STARsolo cell calls; removes genes and cells with fewer than 3 counts. In multiome mode it reindexes ATAC by `gex_barcodes`, keeps the barcodes shared with GEX, and converts the cell-by-bin matrix into a gene activity matrix with `snapatac2.pp.make_gene_matrix` for `genome`. It sets the batch labels (`pd-multiome_sci_gex`, `pd-multiome_sci_atac`), the placeholder label `Unknown`, and the modality tags.
-2. **Obtain the model** — Trains SCVI then SCANVI on the reference plus the sample when no model is supplied (`run_multi_model` / `run_gex_only_model`: genes in ≥ 5 cells, 5,000 highly variable genes, a 2-layer SCVI with 30 latent dimensions, up to 500 epochs each). With a supplied model, loads it or maps the sample onto it (see [Using a saved model](#using-a-saved-model)).
-3. **Predict labels** — `transfer_labels()` predicts a cell type (`C_scANVI`) for every cell and extracts the scANVI latent (`X_scANVI`).
-4. **Write the annotated matrices** — Copies each cell's label (and `max_probability` when asked) and latent row into the GEX (and ATAC) matrix, then makes it SCP-ready (`scp_output.py`; see [Outputs](#outputs)). Writes `~{input_id}_gex_annotated_matrix.h5ad` (and `~{input_id}_atac_annotated_matrix.h5ad`).
-5. **Write the predictions and the model** — `finalize_output()` renames `final_annotation` → `celltype` and copies the counts into `.raw`; writes `~{input_id}_SCANVI_predictions.h5ad` and `~{input_id}_scanvi_model.tar.gz`.
+1. **Preprocess** (`preprocess_query.py`) — Reads the sample's GEX (plus its ATAC cell-by-bin in multiome mode); adds `star_IsCell = True` and `gex_barcodes` when absent; keeps STARsolo cell calls; removes genes and cells with fewer than 3 counts. In multiome mode it reindexes ATAC by `gex_barcodes`, keeps the barcodes shared with GEX, and converts the cell-by-bin matrix into a gene activity matrix with `snapatac2.pp.make_gene_matrix` for `genome`. It sets the batch labels (`pd-multiome_sci_gex`, `pd-multiome_sci_atac`) and the modality tags.
+2. **Obtain the models and predict** — When no model is supplied, trains SCVI once on the reference plus the sample (`train_scvi`: genes in ≥ 5 cells, 5,000 highly variable genes, a 2-layer SCVI with 30 latent dimensions, up to 500 epochs), then a SCANVI from it per label level (`train_scanvi`), and saves them all as one model archive. With a supplied model, loads each level or maps the sample onto it (see [Using a saved model](#using-a-saved-model)). Each level's model predicts a label for every cell and gives its scANVI latent.
+3. **Write the annotated matrices** — Copies each cell's labels (and `<level>_max_probability` when asked) and latent rows into the GEX (and ATAC) matrix, then makes it SCP-ready (`scp_output.py`; see [Outputs](#outputs)), and writes `<input file name>_annotated.h5ad`.
 
-The workflow names each sample's output files from `input_ids`, in input order, and those names are the task's outputs, so `outputs[i]` always belongs to `input_ids[i]`; a missing output fails the task.
+The workflow names each sample's output files from its input files, in input order, and those names are the task's outputs, so `outputs[i]` always belongs to `input_ids[i]`; a missing output fails the task.
 
 ### Workflow diagram
 
@@ -214,14 +211,14 @@ The workflow names each sample's output files from `input_ids`, in input order, 
 │                                                               │
 │  check every input                                            │
 │  for each sample i, one after another:                        │
-│      preprocess → obtain model → predict → write outputs      │
+│      preprocess → for each level: obtain model → predict      │
+│      → write outputs                                          │
 └───────────────────────────────┬───────────────────────────────┘
                                 │
                                 ▼
-           input_ids[i]_gex_annotated_matrix.h5ad    (SCP-ready)
-           input_ids[i]_atac_annotated_matrix.h5ad   (multiome only)
-           input_ids[i]_SCANVI_predictions.h5ad
-           input_ids[i]_scanvi_model.tar.gz
+           <gex file name>_annotated.h5ad       (SCP-ready)
+           <atac file name>_annotated.h5ad      (multiome only)
+           <gex file name>_scanvi_model.tar.gz  (training only)
 ```
 
 ### Design rationale
@@ -232,14 +229,13 @@ The workflow names each sample's output files from `input_ids`, in input order, 
 
 ### Outputs
 
-Every output except `pipeline_version_out` is an array with one entry per sample, in the order of `input_ids`; each file name starts with that sample's input id.
+Every output except `pipeline_version_out` is an array with one entry per sample, in the order of `input_ids`; each file is named after the sample's input file, with `.h5ad` replaced.
 
 | Output Variable Name | Filename | Output Type | Output Format |
 | --- | --- | --- | --- |
-| `gex_annotated_h5ads` | `<input_id>_gex_annotated_matrix.h5ad` | The sample's filtered GEX cells with their transferred labels (`final_annotation`), SCP-ready (below). | H5AD |
-| `atac_annotated_h5ads` | `<input_id>_atac_annotated_matrix.h5ad` | The sample's ATAC gene-activity cells with their transferred labels, in the same form. Produced only in multiome mode; empty in GEX-only mode. | H5AD |
-| `scanvi_predictions_h5ads` | `<input_id>_SCANVI_predictions.h5ad` | The labelled data the model saw, with SCANVI predictions (`celltype`), latent and UMAP; counts in `.raw`. The sample's cells only with a supplied model; the sample plus the reference when training. Its `obs` keeps only the columns shared by every dataset combined into it (GEX, ATAC, and the reference when training), so a column only one input has, such as a reference-only `donor_id`, is dropped; use the annotated matrices for each input's own columns. | H5AD |
-| `scanvi_models_out` | `<input_id>_scanvi_model.tar.gz` | The sample's trained, loaded or mapped SCANVI model, saved without bundled AnnData, with its reference's name in `reference.txt`. Can be passed back as `scanvi_model`. | TAR.GZ |
+| `gex_annotated_h5ads` | `<gex file name>_annotated.h5ad` | The sample's filtered GEX cells with their transferred labels at each level, SCP-ready (below). | H5AD |
+| `atac_annotated_h5ads` | `<atac file name>_annotated.h5ad` | The sample's ATAC gene-activity cells with their transferred labels, in the same form. Produced only in multiome mode; empty in GEX-only mode. | H5AD |
+| `scanvi_models_out` | `<gex file name>_scanvi_model.tar.gz` | Training runs only (empty with a supplied model): the sample's trained model archive, the scVI model and a SCANVI model per level, saved without bundled AnnData (see [Model archives](#model-archives)). Can be passed back as `scanvi_model`. | TAR.GZ |
 | `pipeline_version_out` | N/A | Version of the processing pipeline run on this data. | String |
 
 The annotated matrices are written in the form SCP reads, compressed with gzip:
@@ -248,19 +244,34 @@ The annotated matrices are written in the form SCP reads, compressed with gzip:
 | --- | --- |
 | `.raw` | The counts (float32), over every gene the matrix keeps. |
 | `.X` | log2(CPM + 1) (float32): counts per million, then log base 2, so a difference of 1 is a doubling and the units are bits. This is the Allen Institute's convention, the same as the ABC Atlas log2 matrices and the `log2CPM` input of MapMyCells; `uns['log1p']['base']` records the base as 2. |
-| `obsm['X_umap']` | A 2-column UMAP fitted on the sample's own latent: the layout SCP plots. Each sample fits its own, so UMAP axes are not comparable between samples. |
-| `obsm['X_scANVI']` | The full scANVI latent (30 dimensions). Comparable between samples labelled with the same model. |
-| `obs['final_annotation']` | The transferred cell-type label (plus `max_probability` when requested). |
-| `uns` | Run provenance: `scanvi_input_id`, `scanvi_input_file` (the GEX file's name) and `scanvi_model`, the model's name: the reference it was trained on (see [Model names](#model-names)). `scanvi_versions` records the key library versions of the image that wrote the file (scvi-tools, torch, scanpy, anndata, snapatac2, numpy, scipy). |
+| `obs['<level>']` | The transferred cell-type label at each level, in a column named after the level, for example `obs['class']` and `obs['subclass']` (plus `<level>_max_probability` when requested). A column of the input with the same name is replaced. |
+| `obsm['X_scANVI_<level>']` | Each level's full scANVI latent (30 dimensions). Comparable between samples labelled with the same model. |
+| `obsm['X_umap_<level>']` | A 2-column UMAP fitted on that level's latent, for the sample's own cells. Each sample fits its own, so UMAP axes are not comparable between samples. |
+| `obsm['X_umap']` | A copy of the first level's UMAP: the layout SCP plots by default. |
+| `uns` | Run provenance: `scanvi_input_id`, `scanvi_input_file` (the GEX file's name), `scanvi_model`, the model's name: the reference it was trained on (see [Model names](#model-names)), and `scanvi_levels`, the levels in order. `scanvi_versions` records the key library versions of the image that wrote the file (scvi-tools, torch, scanpy, anndata, snapatac2, numpy, scipy). |
+
+#### Model archives
+
+A model archive is one `.tar.gz` that holds every model trained from one reference, so a reference's models are tracked as a single file:
+
+```text
+scanvi_model/
+  reference.txt             the model's name (below)
+  levels.txt                the label levels, one per line, in order
+  scvi/model.pt             the scVI model the SCANVI models were trained from
+  scanvi/<level>/model.pt   one SCANVI model per label level
+```
+
+Every model is saved without data. Level names become `obs` columns and part of `obsm` keys, so they are limited to letters, digits, `_`, `.` and `-`. The archive is written and read by the image's `model_archive.py`, which warp-scanvi-training shares, so its archives load as is.
 
 #### Model names
 
 A model is named by the reference it was trained on: the reference's `uns['title']` (the Allen taxonomy and CELLxGENE schemas both define it), or its file name when it has none, made file-name safe, followed by the first 8 hex digits of the reference file's sha256. For example, `Mouse_cortex_hippocampus_10X_seq_04042025-f3177e00`. The title says which reference; the hash tells apart subsets and rebuilds that share a title.
 
-A training run computes the name in PreprocessReference and writes it into each model archive as `reference.txt`, next to `model.pt`; a supplied model's `reference.txt` is read and carried forward. Every output records it as `uns['scanvi_model']`. A model archive without `reference.txt`, such as one from before scANVI 3.0.0, is named by its archive's file name instead. Models from warp-scanvi-training carry the same `reference.txt`, written by the same rule. Each model archive holds one SCANVI model; the scVI encoder and decoder it was built from are part of it, but there is no separate scVI model.
+A training run computes the name in PreprocessReference and writes it into each model archive as `reference.txt`; a supplied model's `reference.txt` is read and carried forward. Every output records it as `uns['scanvi_model']`. Models from warp-scanvi-training carry the same `reference.txt`, written by the same rule.
 
 :::note Run metadata, not sample metadata
-The annotated matrices keep every `obs` column of their own input (the Optimus QC columns, for example) plus the transferred label; the predictions file keeps only columns shared by the datasets combined into it. Each output records which sample, input file and model produced it, in `uns` under keys prefixed `scanvi_`; the prefix keeps them apart from the `uns['input_id']` and `uns['pipeline_version']` an Optimus h5ad already carries. The pipeline adds no sample-level metadata (donor, species, organ, disease, library preparation, sex) to any output. Sample metadata is joined downstream from the data archive's sample manifests, not by this pipeline.
+The annotated matrices keep every `obs` column of their own input (the Optimus QC columns, for example) plus the transferred labels. Each output records which sample, input file, model and levels produced it, in `uns` under keys prefixed `scanvi_`; the prefix keeps them apart from the `uns['input_id']` and `uns['pipeline_version']` an Optimus h5ad already carries. The pipeline adds no sample-level metadata (donor, species, organ, disease, library preparation, sex) to any output. Sample metadata is joined downstream from the data archive's sample manifests, not by this pipeline.
 :::
 
 ## Runtime configuration

@@ -10,12 +10,12 @@ scANVI is a cloud-optimized WDL workflow that performs **cell type label transfe
 
 ATAC is optional. When no ATAC h5ads are supplied, the pipeline runs in **GEX-only mode** and trains/annotates from the reference atlas using gene expression and reference data alone, without using ATAC.
 
-One run labels one or more samples, each independently and with its own outputs, on one machine, one sample after another. The annotated matrices are written ready for Single Cell Portal (counts in `.raw`, normalized `.X`, a 2-D UMAP and the scANVI latent), and every output records its sample's id, its input file name and its model's name, which is the reference the model was trained on, in `uns`. No sample metadata is added.
+One run labels one or more samples, each independently and with its own outputs, on one machine, one sample after another. Each sample is labelled at one or more label levels (for example `class` and `subclass`), one SCANVI model per level, and each input file `<name>.h5ad` gives one `<name>_annotated.h5ad`, written ready for Single Cell Portal (counts in `.raw`, normalized `.X`, and per level the labels, a 2-D UMAP and the scANVI latent). Every output records its sample's id, its input file name, its model's name, which is the reference the model was trained on, and the levels in `uns`. No sample metadata is added.
 
 The pipeline has two tasks:
 
 - **PreprocessReference** (CPU-only, once per run, training only) — adapts the annotated reference (AIT or PBMC-style) into the form the trainer expects.
-- **MultiomeLabelTransfer** (GPU, or CPU as MultiomeLabelTransferCpu) — checks every input, then preprocesses and labels each sample in turn: trains SCVI / SCANVI on the reference plus the sample, or uses a supplied model, mapping the sample onto it when the model was trained on the reference alone.
+- **MultiomeLabelTransfer** (GPU, or CPU as MultiomeLabelTransferCpu) — checks every input, then preprocesses and labels each sample in turn: trains SCVI and a SCANVI per level on the reference plus the sample, or uses a supplied model archive, mapping the sample onto it when the model was trained on the reference alone.
 
 ## Running the pipeline
 
@@ -25,18 +25,18 @@ Example input JSON files are in [`example_inputs/`](./example_inputs).
 
 Required inputs:
 
-- `scANVI.input_ids` and `scANVI.gex_h5ads` — arrays paired by position, one entry per sample; `input_ids[i]` prefixes every output of `gex_h5ads[i]` and is recorded in its outputs. A single sample is a one-element array (in JSON, `["gs://..."]`).
-- `scANVI.scanvi_model` (a saved model, used for every sample) or `scANVI.ref_h5ad` (the annotated reference, to train on).
+- `scANVI.input_ids` and `scANVI.gex_h5ads` — arrays paired by position, one entry per sample; `input_ids[i]` is recorded in every output of `gex_h5ads[i]`. Outputs are named after the input files, which must have distinct names. A single sample is a one-element array (in JSON, `["gs://..."]`).
+- `scANVI.scanvi_model` (a model archive, used for every sample) or `scANVI.ref_h5ad` (the annotated reference, to train on).
 
 The ATAC input `scANVI.atac_h5ads` is **optional**: leave it empty (the default) for GEX-only mode, or give one ATAC h5ad per `gex_h5ads` entry, in the same order, for multiome mode. In GEX-only mode `atac_annotated_h5ads` is empty. See [`example_inputs/scANVI.gex_only.json`](./example_inputs/scANVI.gex_only.json) for a GEX-only example.
 
 A supplied `scANVI.scanvi_model` is used for every sample and the reference is not needed; without one, each sample trains its own model, so training cost grows with the number of samples.
 
-When training, the reference h5ad must provide cell-type labels and a batch. **PBMC-style** references have counts in `.X`, labels in `obs['final_annotation']`, and a batch in `obs['batch']`. **AIT-schema** (Allen Institute Taxonomy) references are auto-detected and adapted: counts are pulled from `.raw`, and the label/batch default to `subclass`/`donor_id` (override with `scANVI.ref_label_column` / `scANVI.ref_batch_column`). For a mouse AIT reference in multiome mode, set `scANVI.genome` to `mm10`/`mm39` (default `hg38`).
+When training, the reference h5ad must provide cell-type labels and a batch. **PBMC-style** references have counts in `.X`, labels in `obs['final_annotation']`, and a batch in `obs['batch']`. **AIT-schema** (Allen Institute Taxonomy) references are auto-detected and adapted: counts are pulled from `.raw`, and the label/batch default to `subclass`/`donor_id` (override with `scANVI.ref_label_columns`, one or more label levels, and `scANVI.ref_batch_column`). For a mouse AIT reference in multiome mode, set `scANVI.genome` to `mm10`/`mm39` (default `hg38`).
 
 ### Optional: per-cell label confidence
 
-Set `scANVI.output_max_probability` to `true` to add a `max_probability` obs column to every output h5ad — the per-cell maximum SCANVI posterior probability, i.e. the confidence of the assigned label. Default `false` leaves outputs unchanged. Useful for thresholding or flagging low-confidence calls downstream.
+Set `scANVI.output_max_probability` to `true` to add a `<level>_max_probability` obs column per level to every annotated h5ad — the per-cell maximum SCANVI posterior probability, i.e. the confidence of the assigned label. Default `false` leaves outputs unchanged. Useful for thresholding or flagging low-confidence calls downstream.
 
 ## Versioning
 

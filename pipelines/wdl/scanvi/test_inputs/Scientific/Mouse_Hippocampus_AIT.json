@@ -5,6 +5,6 @@
   "scANVI.gex_h5ads": [
     "gs://pd-test-storage-public/scANVI/input/scientific/Mouse_Hippocampus_AIT/Mouse_Hippocampus_gex.h5ad"
   ],
-  "scANVI.scanvi_model": "gs://pd-test-storage-public/scANVI/input/scientific/Mouse_Hippocampus_AIT/Mouse_cortex_hippocampus_10X_seq_04042025-f3177e00_scanvi_model.tar.gz",
+  "scANVI.scanvi_model": "gs://pd-test-storage-public/scANVI/input/scientific/Mouse_Hippocampus_AIT/Mouse_cortex_hippocampus_10X_seq_04042025-f3177e00_subclass_scanvi_model.tar.gz",
   "scANVI.gpu_count": 0
 }
