@@ -244,7 +244,7 @@ The annotated matrices are written in the form SCP reads, compressed with gzip:
 | --- | --- |
 | `.raw` | The counts (float32), over every gene the matrix keeps. |
 | `.X` | log2(CPM + 1) (float32): counts per million, then log base 2, so a difference of 1 is a doubling and the units are bits. This is the Allen Institute's convention, the same as the ABC Atlas log2 matrices and the `log2CPM` input of MapMyCells; `uns['log1p']['base']` records the base as 2. |
-| `obs['<level>']` | The transferred cell-type label at each level, in a column named after the level, for example `obs['class']` and `obs['subclass']` (plus `<level>_max_probability` when requested). A column of the input with the same name is replaced. |
+| `obs['<level>']` | The transferred cell-type label at each level, in a column named after the level, for example `obs['class']` and `obs['subclass']` (plus `<level>_max_probability` when requested). A column of the input with the same name is replaced. Each level is predicted by its own model, so a cell's labels at two levels can disagree with the reference's hierarchy (on the Plumbing data, about 9% of cells for class versus subclass). |
 | `obsm['X_scANVI_<level>']` | Each level's full scANVI latent (30 dimensions). Comparable between samples labelled with the same model. |
 | `obsm['X_umap_<level>']` | A 2-column UMAP fitted on that level's latent, for the sample's own cells. Each sample fits its own, so UMAP axes are not comparable between samples. |
 | `obsm['X_umap']` | A copy of the first level's UMAP: the layout SCP plots by default. |
@@ -282,7 +282,7 @@ All tasks use the same Docker image (pinned by digest). GPU and CUDA setup is ha
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:1104c3af170132945a61757e3558bab15e13b53c408629a5e8aa532566bfe7e6` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:eaadce983e21a8cac8461d99bc20489b887451f0e24f364a7f9a1013b972d811` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk` 3 × the reference size + 20 GB, SSD |
 | `memory` | `104 GiB` |
@@ -293,7 +293,7 @@ All tasks use the same Docker image (pinned by digest). GPU and CUDA setup is ha
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:1104c3af170132945a61757e3558bab15e13b53c408629a5e8aa532566bfe7e6` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:eaadce983e21a8cac8461d99bc20489b887451f0e24f364a7f9a1013b972d811` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk` `disk_size`, or sized from the inputs (see [Workflow inputs](#workflow-inputs)), SSD |
 | `memory` | `mem_size` (default `104 GiB`) |
