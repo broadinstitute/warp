@@ -1,3 +1,8 @@
+# 1.1.3
+2026-10-19 (Date of Last Commit)
+
+* Fix auxiliary WDL versions (QC, quota) to latest
+
 # 1.1.2
 2026-10-19 (Date of Last Commit)
 
