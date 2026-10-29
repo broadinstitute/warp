@@ -123,7 +123,7 @@ workflow Glimpse2LowPassImputation {
                     }
                 }
 
-                call Glimpse2LowPassImputationTasks.MergeSampleChunksVcfsWithPaste as MergeContigVcfs {
+                call Glimpse2LowPassImputationTasks.MergeSampleChunksVcfsWithPaste as MergeRegion {
                     input:
                         input_vcfs = batch_vcfs_for_contig,
                         input_vcf_indices = batch_vcf_indices_for_contig,
@@ -131,10 +131,10 @@ workflow Glimpse2LowPassImputation {
                         output_vcf_basename = output_basename + "." + contigs[contig_idx] + "." + region_id + ".imputed.merged"
                 }
 
-                call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate {
+                call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate as RecomputeAfInfoAndFilterInfoAndCensorRaf {
                     input:
-                        merged_vcf = MergeContigVcfs.output_vcf,
-                        merged_vcf_index = MergeContigVcfs.output_vcf_index,
+                        merged_vcf = MergeRegion.output_vcf,
+                        merged_vcf_index = MergeRegion.output_vcf_index,
                         annotations = ExtractAnnotations.annotations,
                         num_samples = RunBatch.total_samples,
                         info_filter_threshold = info_filter_for_inclusion,
@@ -147,7 +147,7 @@ workflow Glimpse2LowPassImputation {
 
             call Glimpse2LowPassImputationTasks.ConcatAndFinalizeVcfs as ConcatAndFinalizeMultiBatch {
                 input:
-                    vcfs = RecomputeAndAnnotate.merged_imputed_vcf,
+                    vcfs = RecomputeAfInfoAndFilterInfoAndCensorRaf.merged_imputed_vcf,
                     output_basename = output_basename + "." + contigs[contig_idx] + ".imputed",
                     extra_args = "--naive"
             }
