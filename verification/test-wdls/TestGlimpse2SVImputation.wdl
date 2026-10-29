@@ -36,8 +36,8 @@ workflow TestGlimpse2SVImputation {
         # inputs for PopAndMarginalizeCollisions
         File pop_glimpse2_panel_resources_json
 
-        Float? raf_censoring_threshold
         Float? info_filter_for_inclusion
+        Float? raf_censoring_threshold
 
         String? glimpse2_docker
 

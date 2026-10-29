@@ -4,7 +4,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "1.0.3"
+    String pipeline_version = "1.0.4"
 
     input {
         File input_preprocessed_joint_vcf_or_bcf
@@ -255,7 +255,7 @@ task GLIMPSE2Ligate {
     Int disk_size_gb = ceil(2.1*size(phased_vcfs_or_bcfs, "GB")) + 10
 
     command <<<
-        set -euox pipefail
+        set -euxo pipefail
 
         /bin/GLIMPSE2_ligate --input ~{write_lines(phased_vcfs_or_bcfs)} --output ~{output_basename}.bcf --threads ~{cpu}
 
@@ -309,7 +309,7 @@ task PopAndMarginalizeCollisions {
     Int disk_gb = ceil(3*size(posteriors_vcf_or_bcf, "GB")) + ceil(size([panel_bubble_split_sites_only_vcf, panel_popped_sites_only_vcf_gz], "GB")) + 10
 
     command <<<
-        set -euox pipefail
+        set -euxo pipefail
 
         # this now only works for pop-glimpse2-joint-opt.rs;
         # the sort may also be extraneous, but we keep it in to guard against getting out of sync with the popped panel
@@ -368,7 +368,7 @@ task UpdateHeader {
     }
 
     command <<<
-        set -xeuo pipefail
+        set -euxo pipefail
 
         export GCS_OAUTH_TOKEN=$(/google-cloud-sdk/bin/gcloud auth application-default print-access-token)
 

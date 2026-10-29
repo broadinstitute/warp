@@ -30,7 +30,7 @@ Our update is very small, so we don’t need to [file an issue](https://github.c
 ### 2. Read the guidelines for changelog updates.
 Since we’re making an update to the workflow WDL and need to update the changelog, we need to read the [changelog style guide](https://broadinstitute.github.io/warp/docs/contribution/contribute_to_warp/changelog_style) and [versioning guide](https://broadinstitute.github.io/warp/docs/About_WARP/VersionAndReleasePipelines) to identify the new version number.
 
-In this example case, the existing pipeline version is `4.2.5`. Since our change does not break the pipeline, affect inputs/outputs or cause scientific changes, the guides tell us that this update is a patch. The new pipeline version will be `4.2.6`. 
+In this example case, the existing pipeline version is `4.2.5`. Since our change does not break the pipeline, remove or rename inputs or outputs, or cause scientific changes, the guides tell us that this update is a patch. The new pipeline version will be `4.2.6`.
 
 ### 3. Make a fork of the WARP repository.
 Since we don't have permission to make a branch in WARP, we’ll need to [make a fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) instead. To do this from the GitHub UI, we navigate to [WARP](https://github.com/broadinstitute/warp) and click the fork icon.

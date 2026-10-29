@@ -15,7 +15,7 @@ The [ATAC pipeline](README.md) uses [SnapATAC2](https://github.com/kaizhang/Snap
 | fraction_valid_barcode | The fraction of reads that contain a valid barcode, indicating the proportion of reads that are correctly assigned to a specific cell or sample. |
 | fraction_Q30_bases_in_read_1 | The proportion of bases in Read 1 that have a Phred quality score of 30 or higher, indicating high-confidence base calls. |
 | fraction_Q30_bases_in_read_2 | The proportion of bases in Read 2 that have a Phred quality score of 30 or higher, indicating high-confidence base calls. |
-| number_of_cells | The estimated number of cells captured and sequenced in the experiment, based on the barcodes identified. |
+| number_of_cells | The estimated number of cells captured and sequenced in the experiment, based on the barcodes identified. Cells are called with SnapATAC2's OrdMag method on fragments overlapping peaks. By default the method estimates the expected cell count from the data; when `anchor_cell_calling` is `true`, it uses `atac_expected_cells` instead. The per-cell metrics below are computed over the same cells as the h5ad output. |
 | mean_raw_read_pairs_per_cell | The average number of raw read pairs associated with each cell, providing an indication of the sequencing depth per cell. |
 | median_high-quality_fragments_per_cell | The median number of high-quality (e.g., confidently mapped) fragments associated with each cell, representing typical fragment quality across cells. |
 | fraction of high-quality fragments in cells | The fraction of high-quality fragments that are associated with identified cells, indicating the proportion of good-quality data that is cell-associated. |
@@ -31,6 +31,6 @@ The [ATAC pipeline](README.md) uses [SnapATAC2](https://github.com/kaizhang/Snap
 | Number_of_peaks | The total number of peaks, or regions of accessible chromatin, identified in the dataset, representing potential regulatory elements. |
 | fraction_of_genome_in_peaks | The fraction of the genome that is covered by identified peaks, indicating the extent of chromatin accessibility across the genome. |
 | fraction_of_high-quality_fragments_overlapping_peaks | The fraction of high-quality fragments that overlap with identified peaks, providing an indication of the efficiency of the assay in capturing accessible regions. |
-| atac_percent_target | Percent of cells recovered; value is calculated as estimated_cells/expected_cells. |
+| atac_percent_target | Percent of cells recovered; value is calculated as estimated_cells/expected_cells. The value can exceed 100% when more cells are called than `atac_expected_cells`, which is common when `anchor_cell_calling` is `true`, because anchoring does not cap the number of cells called. A value well above 100% suggests `atac_expected_cells` is lower than the number of nuclei in the library, or that some called barcodes are not real cells. |
 
 
