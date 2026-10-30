@@ -21,7 +21,7 @@ workflow TestscANVI {
       Array[String] ref_label_columns = []
       String? ref_batch_column
       String genome = "hg38"
-      Boolean output_max_probability = false
+      Boolean output_max_probability = true
 
       # Optional cap on SCVI/SCANVI training epochs, forwarded to scANVI (the training-Plumbing
       # test sets this to 2 for a fast run; unset => the pipeline's container default of 500).

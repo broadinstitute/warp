@@ -57,9 +57,9 @@ workflow scANVI {
       # "hg38" (default, human), "mm10", or "mm39" (mouse).
       String genome = "hg38"
 
-      # Optional: also emit each level's per-cell maximum SCANVI posterior probability (the
-      # confidence of the assigned label) as a <level>_max_probability obs column.
-      Boolean output_max_probability = false
+      # Each level's per-cell maximum SCANVI posterior probability (the confidence of the
+      # assigned label), as a <level>_max_probability obs column. Set false to leave it out.
+      Boolean output_max_probability = true
 
       # Label-transfer machine. Every sample runs on it in turn, so memory only has to fit the
       # largest sample. The disk is sized from the inputs unless set. For a supplied-model run on
@@ -352,7 +352,7 @@ task MultiomeLabelTransfer {
         Int? query_max_epochs
         Int batch_size = 128
         Int? seed
-        Boolean output_max_probability = false
+        Boolean output_max_probability = true
 
         # Runtime attributes
         String docker
@@ -376,7 +376,7 @@ task MultiomeLabelTransfer {
         query_max_epochs: "Epochs when mapping a sample onto a reference-only model (container default 100)."
         batch_size: "SCVI/SCANVI minibatch size."
         seed: "Random seed for reproducible training; unset keeps training nondeterministic."
-        output_max_probability: "Also write a <level>_max_probability obs column (each assigned label's confidence)."
+        output_max_probability: "Write a <level>_max_probability obs column (each assigned label's confidence); default true."
         docker: "Docker image containing the scvi-scanvi runtime environment."
         gpu_count: "GPUs to request (default 2)."
         disk_size: "Disk size in GB."
@@ -476,7 +476,7 @@ task MultiomeLabelTransferCpu {
         Int? query_max_epochs
         Int batch_size = 128
         Int? seed
-        Boolean output_max_probability = false
+        Boolean output_max_probability = true
 
         # Runtime attributes
         String docker
@@ -499,7 +499,7 @@ task MultiomeLabelTransferCpu {
         query_max_epochs: "Epochs when mapping a sample onto a reference-only model (container default 100)."
         batch_size: "SCVI/SCANVI minibatch size."
         seed: "Random seed for reproducible training; unset keeps training nondeterministic."
-        output_max_probability: "Also write a <level>_max_probability obs column (each assigned label's confidence)."
+        output_max_probability: "Write a <level>_max_probability obs column (each assigned label's confidence); default true."
         docker: "Docker image containing the scvi-scanvi runtime environment."
         disk_size: "Disk size in GB."
         mem_size: "Memory in GiB; it only has to fit the largest sample, because samples run one at a time."

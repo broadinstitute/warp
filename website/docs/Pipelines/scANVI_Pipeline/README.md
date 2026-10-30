@@ -119,7 +119,7 @@ Example input JSON files, including a GEX-only one, are in the [`example_inputs`
 | `batch_size` | Int | SCVI/SCANVI minibatch size. Lower it to fit a high-cardinality reference on a small GPU (activation memory scales with `batch_size` × number of labels); raise it on a large-VRAM GPU. | `128` |
 | `seed` | Int? | Random seed for SCVI/SCANVI training and mapping. Set it to make a run reproducible (the test wrappers pin one); unset keeps training nondeterministic. | — |
 | `genome` | String | Genome for the ATAC gene-activity conversion (multiome only): `hg38`, `mm10` or `mm39`. | `"hg38"` |
-| `output_max_probability` | Boolean | When `true`, add a `<level>_max_probability` obs column per level (the per-cell maximum SCANVI posterior: the assigned label's confidence) to every annotated h5ad. | `false` |
+| `output_max_probability` | Boolean | Add a `<level>_max_probability` obs column per level (the per-cell maximum SCANVI posterior: the assigned label's confidence) to every annotated h5ad. Set `false` to leave it out. | `true` |
 | `gpu_count` | Int | GPUs for the label-transfer machine. `0` gives a CPU-only run, which suits a supplied model that needs no mapping. | `2` |
 | `mem_size` | Int | Memory (GiB) for the label-transfer machine. Samples run one at a time, so it only has to fit the largest sample (plus the reference when training). | `104` |
 | `nthreads` | Int | CPUs for the label-transfer machine. | `16` |
@@ -269,7 +269,7 @@ The annotated matrices are written in the form SCP reads, compressed with gzip:
 | --- | --- |
 | `.raw` | The counts (float32), over every gene the matrix keeps. |
 | `.X` | log2(CPM + 1) (float32): counts per million, then log base 2, so a difference of 1 is a doubling and the units are bits. This is the Allen Institute's convention, the same as the ABC Atlas log2 matrices and the `log2CPM` input of MapMyCells; `uns['log1p']['base']` records the base as 2. |
-| `obs['<level>']` | The label at each level, in a column named after the level, for example `obs['class']` and `obs['subclass']` (plus `<level>_max_probability` when requested). A column of the input with the same name is replaced. |
+| `obs['<level>']` | The label at each level, in a column named after the level, for example `obs['class']` and `obs['subclass']`, and next to each its confidence, `obs['<level>_max_probability']` (the maximum SCANVI posterior; left out when `output_max_probability` is `false`). A column of the input with the same name is replaced. |
 | `obsm['X_scANVI_<level>']` | Each level's full scANVI latent (30 dimensions). Comparable between samples labelled with the same model. |
 | `obsm['X_umap_<level>']` | A 2-column UMAP fitted on that level's latent, for the sample's own cells. Each sample fits its own, so UMAP axes are not comparable between samples. |
 | `obsm['X_umap']` | A copy of the first level's UMAP: the layout SCP plots by default. |

@@ -173,6 +173,14 @@ task CompareScanviH5ad {
             if label_key not in a.obs.columns:
                 sys.exit(f"FAIL: label column '{label_key}' missing from {name}.obs")
 
+        # The label's confidence, written by default: a probability for every cell
+        prob_key = f"{label_key}_max_probability"
+        if prob_key in test.obs.columns:
+            prob = test.obs[prob_key].to_numpy()
+            if np.isnan(prob).any() or (prob < 0).any() or (prob > 1).any():
+                sys.exit(f"FAIL: test obs['{prob_key}'] must be a probability for every cell")
+            print(f"PASS: {prob_key} in [0, 1] (median {np.median(prob):.3f})")
+
         # Reject null labels before stringifying: .astype(str) turns NaN into the literal label
         # "nan", which the novel-label tolerance below would then silently absorb (up to
         # max_novel_frac of cells), letting a partially-unannotated output pass. Missing
