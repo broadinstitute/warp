@@ -1,3 +1,8 @@
+# 1.0.5
+2026-10-30 (Date of Last Commit)
+
+* Set `maxRetries` to 1 in `MergeVcfs` task
+
 # 1.0.4
 2026-10-19 (Date of Last Commit)
 

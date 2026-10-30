@@ -287,6 +287,7 @@ task SplitVcfManifestIntoBatches {
         disks: "local-disk 10 HDD"
         memory: "1 GiB"
         preemptible: 3
+        maxRetries: 1
         noAddress: true
     }
 
@@ -331,6 +332,7 @@ task ConvertInputArraysToManifest {
         memory: "1 GiB"
         disks: "local-disk 10 HDD"
         preemptible: 3
+        maxRetries: 1
         noAddress: true
     }
 
@@ -375,6 +377,7 @@ task ParseVcfManifestIntoArrays {
         memory: "1 GiB"
         disks: "local-disk 10 HDD"
         preemptible: 3
+        maxRetries: 1
         noAddress: true
     }
 
