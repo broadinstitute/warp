@@ -17,9 +17,10 @@
 
 ### Additional changes
 
-* Updated the scvi-scanvi image to 1.6.0 (scvi-tools 1.5.1, snapatac2 2.10.0, anndata 0.13.4, scipy 1.18.1, torch 2.15.0), which may shift labels and embeddings slightly
+* Updated the scvi-scanvi image to 1.7.0 (scvi-tools 1.5.1, snapatac2 2.10.0, anndata 0.13.4, scipy 1.18.1, torch 2.15.0), which may shift labels and embeddings slightly
 * Added the optional seed input for reproducible training
 * Added scArches query mapping for supplied models that do not know a sample's batch, with the optional query_max_epochs input (default 100)
+* Added gene matching by Ensembl ID: a supplied model whose genes are Ensembl IDs is matched through the sample's ensembl_ids column, and the log reports how many of the model's genes the sample has
 * Made ref_h5ad optional; it is needed only to train
 * Added the PreprocessReference task, which prepares the reference once per training run
 * Added run provenance to each output's uns: scanvi_input_id, scanvi_input_file, scanvi_model, scanvi_levels and scanvi_versions

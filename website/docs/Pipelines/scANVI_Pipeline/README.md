@@ -182,6 +182,8 @@ scanvi_model/
 
 Every model is saved without data. Level names become `obs` columns and part of `obsm` keys, so they are limited to letters, digits, `_`, `.` and `-`. The archive is written and read by the image's `model_archive.py`; an archive in the older single-model form is refused with a message naming this layout.
 
+A sample's genes are matched to the model's by name. A model whose genes are Ensembl IDs, such as a warp-scanvi-training model trained with `--gene-names ensembl_id`, is matched through the sample's Optimus `ensembl_ids` column instead, which finds genes renamed between annotation versions: a SCORCH sample has 99.5 % of the AIT33 atlas's genes by Ensembl ID and 93.3 % by symbol. The annotated outputs keep the sample's own gene names, and the log reports how many of the model's genes the sample has.
+
 Archives come from two places:
 
 - **A training run of this pipeline:** `scanvi_models_out` holds one archive per sample, trained on the reference plus that sample. Passed back as `scanvi_model`, it loads as is.
