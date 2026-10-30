@@ -4,9 +4,11 @@ version 1.0
 # to approximately 1000 samples and be used as a subworkflow for Glimpse2LowPassImputation.wdl,
 # which can handle larger sample sizes by splitting into batches and then merging results.
 
+import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
+
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.1.1"
+    String pipeline_version = "1.1.2"
 
     input {
 
@@ -19,6 +21,9 @@ workflow Glimpse2LowPassImputationBatch {
         File fasta
         File fasta_index
         String output_basename
+
+        File ref_dict
+        String? pipeline_header_line
 
         Boolean impute_reference_only_variants = false
         Boolean call_indels = false
@@ -37,6 +42,10 @@ workflow Glimpse2LowPassImputationBatch {
     # to tasks that are inside nested scatters, so we need to define a non-optional variable that we can use to pass the
     # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
     Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
+
+    # similarly, this needs to be defined since it will effectively be in a nested scatter in the top-level workflow
+    # and Cromwell cannot resolve scope across the task import boundary
+    String defined_pipeline_header_line = ""
 
     call SplitCramManifestIntoBatchesOfStrings {
         input:
@@ -157,11 +166,20 @@ workflow Glimpse2LowPassImputationBatch {
                 output_basename = output_basename,
                 docker = glimpse_docker
         }
+
+        call Glimpse2LowPassImputationTasks.UpdateHeader {
+            input:
+                vcf = GlimpseLigate.imputed_vcf,
+                ref_dict = ref_dict,
+                pipeline_header_line = defined_pipeline_header_line,
+                output_basename = output_basename + "." + contigs[contig_index] + ".imputed",
+                docker = glimpse_docker
+        }
     }
 
     output {
-        Array[File] imputed_contig_ligated_vcfs = GlimpseLigate.imputed_vcf
-        Array[File] imputed_contig_ligated_vcf_indices = GlimpseLigate.imputed_vcf_index
+        Array[File] imputed_contig_ligated_vcfs = UpdateHeader.output_vcf
+        Array[File] imputed_contig_ligated_vcf_indices = UpdateHeader.output_vcf_idx
         Int total_samples = SplitCramManifestIntoBatchesOfStrings.total_samples
     }
 }
@@ -213,6 +231,7 @@ task SplitCramManifestIntoBatchesOfStrings {
         disks: "local-disk 10 HDD"
         memory: "1 GiB"
         preemptible: 3
+        maxRetries: 1
         noAddress: true
     }
 
@@ -248,6 +267,7 @@ task ComputeShardsAndMemoryPerShard {
 
     runtime {
         docker : "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        maxRetries: 1
         noAddress: true
     }
 
