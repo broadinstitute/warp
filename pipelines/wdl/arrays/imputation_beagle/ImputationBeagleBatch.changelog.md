@@ -1,3 +1,8 @@
+# 1.0.2
+2026-10-30 (Date of Last Commit)
+
+* Predefined machine types
+
 # 1.0.1
 2026-10-26 (Date of Last Commit)
 
