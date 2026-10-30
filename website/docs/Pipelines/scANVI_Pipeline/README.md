@@ -276,7 +276,7 @@ The annotated matrices are written in the form SCP reads, compressed with gzip:
 | `uns` | Run provenance: `scanvi_input_id`, `scanvi_input_file` (the GEX file's name), `scanvi_model` (the model's name, see [Model names](#model-names)), `scanvi_levels` (the levels in order) and `scanvi_versions` (the key library versions of the image that wrote the file: scvi-tools, torch, scanpy, anndata, snapatac2, numpy, scipy). |
 
 :::note Run metadata, not sample metadata
-The annotated matrices keep every `obs` column of their own input (the Optimus QC columns, for example) plus the labels. The `scanvi_` prefix on the provenance keys keeps them apart from the `uns['input_id']` and `uns['pipeline_version']` an Optimus h5ad already carries. The pipeline adds no sample-level metadata (donor, species, organ, disease, library preparation, sex); sample metadata is joined downstream from the data archive's sample manifests.
+The annotated matrices keep every `obs` column of their own input (the Optimus QC columns, for example) plus the labels and the few columns preprocessing adds (see [Annotated h5ad spec](#annotated-h5ad-spec)). The `scanvi_` prefix on the provenance keys keeps them apart from the `uns['input_id']` and `uns['pipeline_version']` an Optimus h5ad already carries. The pipeline adds no sample-level metadata (donor, species, organ, disease, library preparation, sex); sample metadata is joined downstream from the data archive's sample manifests.
 :::
 
 ## Runtime configuration
@@ -363,3 +363,28 @@ Please also cite the underlying scvi-tools models, and scArches when samples wer
 ## Feedback
 
 Please help us make our tools better by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues); we welcome pipeline-related suggestions or questions.
+
+## Annotated h5ad spec
+
+The format of each `<input file name>_annotated.h5ad`: one per GEX input, and one per ATAC input in multiome mode, compressed with gzip. n is the number of cells.
+
+| Slot | Type | Contents |
+| --- | --- | --- |
+| `obs_names` | str | Input cell barcodes: GEX cells called by STARsolo (`star_IsCell`) with at least 3 counts; in multiome mode, only barcodes present in both GEX and ATAC. ATAC rows use the matching GEX barcode. |
+| `var_names` | str | GEX: input genes with at least 3 counts. ATAC: the genes of the genome annotation. |
+| `.X` | CSR, float32 | log2(CPM + 1) |
+| `.raw.X` | CSR, float32 | Counts (ATAC: gene-activity counts) |
+| `obs`, input columns | as input | Kept unchanged |
+| `obs['n_counts']`, `var['n_counts']` | float32 | GEX only: counts per cell and per gene |
+| `obs['batch']`, `obs['modality']` | category | Tags used in training: `pd-multiome_sci_gex` and `rna_unannotated` (ATAC: `pd-multiome_sci_atac` and `atac_unannotated`) |
+| `obs['<level>']` | category | Predicted label at each level, for example `obs['subclass']` |
+| `obs['<level>_max_probability']` | float32 | Maximum SCANVI posterior; omitted when `output_max_probability` is `false` |
+| `obsm['X_scVI_<level>']` | float32, n × 30 | scVI latent at each level |
+| `obsm['X_umap_<level>']` | float32, n × 2 | UMAP of that latent, fitted on this sample's cells |
+| `obsm['X_umap']` | float32, n × 2 | Copy of the first level's UMAP |
+| `uns`, input keys | as input | Kept, for example Optimus's `input_id` and `pipeline_version` |
+| `uns['log1p']` | dict | `{'base': 2}` |
+| `uns['scanvi_input_id']`, `uns['scanvi_input_file']`, `uns['scanvi_model']` | str | Sample id, GEX file name, model name |
+| `uns['scanvi_levels']` | str array | Levels, in order |
+| `uns['scanvi_versions']` | dict | Library versions of the image: scvi-tools, torch, scanpy, anndata, snapatac2, numpy, scipy |
+| Not written | | `layers`, `obsp`, `varm`, `varp`, sample metadata |
