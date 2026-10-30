@@ -29,7 +29,7 @@ The latest release of the workflow, example data, and dependencies are available
 
 ### Inputs
 
-The workflow requires that each input is specified in a JSON file. All sample and reference files should be stored in cloud storage, such as a Google Bucket, and the path to the file location should be specified in the JSON. 
+Workflow inputs are specified in a JSON file. All sample and reference files should be stored in cloud storage, such as a Google Bucket, and the path to the file location should be specified in the JSON.
 
 Some tasks, such as rare variant calling, fingerprinting, and genotype concordance, are optional. 
 
