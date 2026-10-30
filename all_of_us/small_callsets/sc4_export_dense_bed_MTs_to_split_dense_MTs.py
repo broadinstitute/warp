@@ -102,6 +102,13 @@ def calculate_info(mt: hl.MatrixTable) -> hl.MatrixTable:
     """
     fields_to_drop = ["variant_qc", "info"]
     mt = mt.drop(*(f for f in fields_to_drop if f in mt.entry or f in mt.row or f in mt.col))
+
+    # Recompute variant_qc from the (post-split) genotypes. Required, not optional: the incoming
+    # variant_qc was just dropped above, and upstream (SC1) already moved AC/AF/AN/homozygote_count out
+    # of variant_qc and into info, so there is nothing valid to read from. Splitting multiallelics also
+    # re-codes genotypes, so these counts have to be recomputed rather than carried over.
+    mt = hl.variant_qc(mt)
+
     mt = mt.annotate_rows(info = hl.struct(AC=mt.variant_qc.AC[1:],
                                        AF=mt.variant_qc.AF[1:],
                                        AN=mt.variant_qc.AN,

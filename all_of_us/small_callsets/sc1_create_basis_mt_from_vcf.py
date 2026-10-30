@@ -150,14 +150,19 @@ def validate_input_chromosomes(test_chromosomes: list, reference_chromosomes: li
     reference_chromosomes (List): List of reference chromosomes to compare against.
 
     Returns:
-    bool: Returns True if all chromosomes in 'test_chromosomes' are valid and present in 'reference_chromosomes'.
-          Returns False if 'test_chromosomes' contains any invalid chromosomes not present in 'reference_chromosomes'
-                        and exits analysis.
+    bool: True if all chromosomes in 'test_chromosomes' are present in 'reference_chromosomes'.
+
+    Raises:
+    ValueError: If any chromosome is not in 'reference_chromosomes'. This raises rather than just
+                returning False because the caller would otherwise go on to filter against an invalid
+                contig name and silently produce an empty MatrixTable.
     """
     for value in test_chromosomes:
         if value not in reference_chromosomes:
-            print("Input test chromosomes '{}' contains invalid chromosomes. Exiting analysis.".format(value))
-            return False
+            raise ValueError(
+                f"--test_chrs contains an invalid chromosome: '{value}'. "
+                f"Expected one of the GRCh38 primary contigs (chr1-chr22, chrX, chrY)."
+            )
     return True
 
 
@@ -170,13 +175,16 @@ def perform_chr_filtering_if_needed(mt: hl.MatrixTable, is_test: bool, test_chrs
     Parameters:
     mt (hl.MatrixTable): The input MatrixTable.
     is_test (bool): Flag indicating if this is a test run. Ignored if False.
-    test_chrs (Optional[str]): Chromosome(s) to filter to, delimiter can be , _ or space.
+    test_chrs (Optional[str]): Chromosome(s) to filter to, delimiter can be , _ or space. If empty/None,
+                        no chromosome filtering is applied even on a test run -- a test run may be scoped
+                        by --test_intervals instead. (Without this guard, an empty string splits to [''],
+                        which matches no contig and silently yields an empty MatrixTable.)
 
     Returns:
     hl.MatrixTable: The optionally chromosome-filtered MatrixTable.
     """
-    if is_test:
-        test_chrs_list = re.split(r'[,_\s]+', test_chrs)
+    if is_test and test_chrs:
+        test_chrs_list = [c for c in re.split(r'[,_\s]+', test_chrs.strip()) if c]
         chrs_grch38 = hl.get_reference('GRCh38').contigs
         chrs_grch38 = chrs_grch38[0:24]
         validate_input_chromosomes(test_chrs_list, chrs_grch38)

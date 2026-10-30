@@ -250,6 +250,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/small_callsets/sc1_create_basis_mt_from_vds.wdl
 
+  - name: sc1_create_basis_mt_from_vcf
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/small_callsets/sc1_create_basis_mt_from_vcf.wdl
+
   - name: sc2_export_basis_mt_to_dense_bed_mts
     subclass: WDL
     primaryDescriptorPath: /all_of_us/small_callsets/sc2_export_basis_mt_to_dense_bed_mts.wdl
