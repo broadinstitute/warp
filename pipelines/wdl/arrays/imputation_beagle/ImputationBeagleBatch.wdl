@@ -9,7 +9,7 @@ import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 
 workflow ImputationBeagleBatch {
   # if this changes, update the batch_pipeline_version value in ImputationBeagle.wdl
-  String pipeline_version = "1.0.1"
+  String pipeline_version = "1.0.2"
 
   input {
     Array[Array[File]] pre_chunked_multi_sample_vcfs # pre-chunked multi-sample VCFs organized by contig and chunk
@@ -39,8 +39,14 @@ workflow ImputationBeagleBatch {
     Int? error_count_override
     # the following are used to define the resources for Beagle tasks
     Int beagle_cpu
-    Int beagle_phase_memory_in_gb
-    Int beagle_impute_memory_in_gb
+    Int beagle_phase_memory_in_gb # TODO: remove
+    Int beagle_impute_memory_in_gb # TODO: remove
+
+    String beagle_phase_initial_machine_type
+    String beagle_phase_retry_machine_type
+    String beagle_impute_initial_machine_type
+    String beagle_impute_retry_machine_type
+    Array[Int] beagle_allowed_return_codes = [0, 137]
   }
 
   scatter (contig_index in range(length(contigs_to_process))) {
@@ -54,7 +60,7 @@ workflow ImputationBeagleBatch {
     scatter (chunk_index in range(length(pre_chunked_multi_sample_vcfs[contig_index]))) {
       String chunk_basename = "${contig}_chunk_${chunk_index}"
 
-      call beagleTasks.Phase {
+      call beagleTasks.Phase as Phase_Try1 {
         input:
           dataset_vcf = pre_chunked_multi_sample_vcfs[contig_index][chunk_index],
           ref_panel_bref3 = bref3_filename,
@@ -64,26 +70,69 @@ workflow ImputationBeagleBatch {
           start = starts_with_overlaps[contig_index][chunk_index],
           end = ends_with_overlaps[contig_index][chunk_index],
           cpu = beagle_cpu,
-          memory_mb = beagle_phase_memory_in_gb * 1024
-        }
-
-      call beagleTasks.Impute {
-        input:
-        dataset_vcf = Phase.vcf,
-        ref_panel_bref3 = bref3_filename,
-        chrom = contig,
-        basename = "${chunk_basename}.imputed",
-        genetic_map_file = genetic_map_filename,
-        start = starts_with_overlaps[contig_index][chunk_index],
-        end = ends_with_overlaps[contig_index][chunk_index],
-        impute_with_allele_probabilities = impute_with_allele_probabilities,
-        cpu = beagle_cpu,
-        memory_mb = beagle_impute_memory_in_gb * 1024
+          memory_mb = beagle_phase_memory_in_gb * 1024, # TODO: remove
+          machine_type = beagle_phase_initial_machine_type,
+          allowed_return_codes = beagle_allowed_return_codes
       }
+
+      if (!defined(Phase_Try1.vcf)) {
+        call beagleTasks.Phase as Phase_Try2 {
+          input:
+            dataset_vcf = pre_chunked_multi_sample_vcfs[contig_index][chunk_index],
+            ref_panel_bref3 = bref3_filename,
+            chrom = contig,
+            basename = "${chunk_basename}.phased",
+            genetic_map_file = genetic_map_filename,
+            start = starts_with_overlaps[contig_index][chunk_index],
+            end = ends_with_overlaps[contig_index][chunk_index],
+            cpu = beagle_cpu,
+            memory_mb = beagle_phase_memory_in_gb * 1024, # TODO: remove
+            machine_type = beagle_phase_retry_machine_type,
+            allowed_return_codes = [0]
+        }
+      }
+
+      File final_phase_vcf = select_first([Phase_Try1.vcf, Phase_Try2.vcf])
+
+      call beagleTasks.Impute as Impute_Try1 {
+        input:
+          dataset_vcf = final_phase_vcf,
+          ref_panel_bref3 = bref3_filename,
+          chrom = contig,
+          basename = "${chunk_basename}.imputed",
+          genetic_map_file = genetic_map_filename,
+          start = starts_with_overlaps[contig_index][chunk_index],
+          end = ends_with_overlaps[contig_index][chunk_index],
+          impute_with_allele_probabilities = impute_with_allele_probabilities,
+          cpu = beagle_cpu,
+          memory_mb = beagle_impute_memory_in_gb * 1024, # TODO: remove
+          machine_type = beagle_impute_initial_machine_type,
+          allowed_return_codes = beagle_allowed_return_codes
+      }
+
+      if (!defined(Impute_Try1.vcf)) {
+        call beagleTasks.Impute as Impute_Try2 {
+          input:
+            dataset_vcf = final_phase_vcf,
+            ref_panel_bref3 = bref3_filename,
+            chrom = contig,
+            basename = "${chunk_basename}.imputed",
+            genetic_map_file = genetic_map_filename,
+            start = starts_with_overlaps[contig_index][chunk_index],
+            end = ends_with_overlaps[contig_index][chunk_index],
+            impute_with_allele_probabilities = impute_with_allele_probabilities,
+            cpu = beagle_cpu,
+            memory_mb = beagle_impute_memory_in_gb * 1024, # TODO: remove
+            machine_type = beagle_impute_retry_machine_type,
+            allowed_return_codes = [0]
+        }
+      }
+
+      File final_impute_vcf = select_first([Impute_Try1.vcf, Impute_Try2.vcf])
     
       call beagleTasks.LocalizeAndSubsetVcfToRegion {
           input:
-          vcf = Impute.vcf,
+          vcf = final_impute_vcf,
           start = starts[contig_index][chunk_index],
           end = ends[contig_index][chunk_index],
           contig = contig,
