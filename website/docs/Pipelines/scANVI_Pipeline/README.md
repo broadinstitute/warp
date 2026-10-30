@@ -270,7 +270,7 @@ The annotated matrices are written in the form SCP reads, compressed with gzip:
 | `.raw` | The counts (float32), over every gene the matrix keeps. |
 | `.X` | log2(CPM + 1) (float32): counts per million, then log base 2, so a difference of 1 is a doubling and the units are bits. This is the Allen Institute's convention, the same as the ABC Atlas log2 matrices and the `log2CPM` input of MapMyCells; `uns['log1p']['base']` records the base as 2. |
 | `obs['<level>']` | The label at each level, in a column named after the level, for example `obs['class']` and `obs['subclass']`, and next to each its confidence, `obs['<level>_max_probability']` (the maximum SCANVI posterior; left out when `output_max_probability` is `false`). A column of the input with the same name is replaced. |
-| `obsm['X_scANVI_<level>']` | Each level's full scANVI latent (30 dimensions). Comparable between samples labelled with the same model. |
+| `obsm['X_scVI_<level>']` | Each level's 30-dimensional scVI latent: the encoder's latent variable z, as trained with that level's SCANVI model. Comparable between samples labelled with the same model. |
 | `obsm['X_umap_<level>']` | A 2-column UMAP fitted on that level's latent, for the sample's own cells. Each sample fits its own, so UMAP axes are not comparable between samples. |
 | `obsm['X_umap']` | A copy of the first level's UMAP: the layout SCP plots by default. |
 | `uns` | Run provenance: `scanvi_input_id`, `scanvi_input_file` (the GEX file's name), `scanvi_model` (the model's name, see [Model names](#model-names)), `scanvi_levels` (the levels in order) and `scanvi_versions` (the key library versions of the image that wrote the file: scvi-tools, torch, scanpy, anndata, snapatac2, numpy, scipy). |

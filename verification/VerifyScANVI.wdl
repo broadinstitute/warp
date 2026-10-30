@@ -19,7 +19,7 @@ import "../tasks/wdl/Utilities.wdl" as Utilities
 ## The test outputs (not truth) are also checked for their run provenance (uns records the
 ## sample's id, input file name, model name and levels) and for the form SCP reads: counts
 ## in .raw, log2(CPM + 1) in .X, and per level a 2-column X_umap_<level> and the
-## X_scANVI_<level> latent, plus X_umap.
+## X_scVI_<level> latent, plus X_umap.
 workflow VerifyScANVI {
 
     input {
@@ -156,15 +156,15 @@ task CompareScanviH5ad {
         if test.obsm.get(key) is None or test.obsm[key].shape != (n, 2):
             sys.exit(f"FAIL: test obsm['{key}'] must be {n} x 2")
     for level in levels:
-        if test.obsm.get(f"X_scANVI_{level}") is None or test.obsm[f"X_scANVI_{level}"].shape[0] != n:
-            sys.exit(f"FAIL: test obsm['X_scANVI_{level}'] must have {n} rows")
+        if test.obsm.get(f"X_scVI_{level}") is None or test.obsm[f"X_scVI_{level}"].shape[0] != n:
+            sys.exit(f"FAIL: test obsm['X_scVI_{level}'] must have {n} rows")
     sample = test.X[:200]
     sample = sample.toarray() if hasattr(sample, "toarray") else np.asarray(sample)
     if np.allclose(sample, np.round(sample)):
         sys.exit("FAIL: test .X holds integer counts; expected normalized expression")
     if test.uns.get("log1p", {}).get("base") != 2:
         sys.exit(f"FAIL: test uns['log1p'] is {test.uns.get('log1p')!r}; expected base 2 (log2(CPM + 1))")
-    print("PASS: SCP form (X_umap and, per level, X_umap_<level> and X_scANVI_<level>)")
+    print("PASS: SCP form (X_umap and, per level, X_umap_<level> and X_scVI_<level>)")
 
     for label_key in levels:
         print(f"--- level {label_key} ---")
