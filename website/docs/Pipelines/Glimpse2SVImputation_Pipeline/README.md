@@ -35,7 +35,7 @@ The workflow processes requested chromosomes independently, extracts/reformats b
 | Algorithms              | GLIMPSE2 phase/ligate + custom paste/concat + cohort AF/INFO recomputation                                     | Task commands in batch/task WDLs                                    |
 | Data input file format  | GVCF/GVCF index manifest or GVCF/index arrays                                                                  | Workflow input block                                                |
 | Data output file format | Per-contig imputed VCFs with index files                                                                       | Workflow outputs                                                    |
-| Containers              | GLIMPSE2, GATK, bcftools/samtools, Python, custom SV tooling containers                                        | Runtime blocks                                                      |
+| Containers              | GLIMPSE2, bcftools/samtools, Python, custom SV tooling containers                                              | Runtime blocks                                                      |
 | Resource optimization   | Parallelization by sample batch, chromosome, chunk, and pop region                                             | Workflow architecture                                               |
 
 ### Inputs
@@ -64,8 +64,6 @@ This gateway workflow expects manifest- or array-based GVCF inputs plus SV panel
 | `raf_censoring_threshold` | Remove RAF annotations for sites with RAF `<=` this value; default `0.0` (disabled). |
 | `pipeline_header_line` | Optional additional header line added to output VCF headers. |
 | `glimpse2_docker` | Docker image used for GLIMPSE2 phases and ligation tasks. |
-| `merge_docker` | Docker image used for AF/INFO re-annotation merge tasks. |
-| `gatk_docker` | Docker image used for GATK-based annotation and index tasks. |
 
 ### Workflow Tasks
 
