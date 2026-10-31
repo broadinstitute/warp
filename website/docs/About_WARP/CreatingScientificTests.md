@@ -10,10 +10,10 @@ agent standing up a test for a different pipeline.
 This document does **not** cover the file layout, CI YAML, Dockstore registration, or
 truth-bucket mechanics. Those are already written down; do not duplicate them:
 
-- **`AGENTS.md` → "Registering a CI test for a pipeline (Plumbing / Scientific)"** — the
+- **`agents/ci-tests.md` → "Registering a CI test for a pipeline (Plumbing / Scientific)"** — the
   7-artifact checklist (`Test<Pipeline>.wdl`, `Verify<Pipeline>.wdl`, `test_<pipeline>.yml`,
   `.dockstore.yml` publish, truth seeding, womtool blind spots).
-- **`AGENTS.md` → "Test inputs"** — where test JSONs live and how stale inputs break silently.
+- **`agents/ci-tests.md` → "Test inputs"** — where test JSONs live and how stale inputs break silently.
 - **[TestingPipelines.md](TestingPipelines.md)** — the canonical framework reference.
 - **[VersionAndReleasePipelines.md](VersionAndReleasePipelines.md)** — version/release rules.
 
@@ -81,7 +81,7 @@ Scientific test data should be **realistic and representative, but bounded**:
   trivially memorized (query identical to a training row) unless that's deliberately the
   thing under test.
 
-Host the data under the public test bucket per the AGENTS.md mechanics. Record where it came
+Host the data under the public test bucket per the agents/ci-tests.md mechanics. Record where it came
 from and how it was subsampled (a `test_data_overview.md` next to the inputs, as several
 pipelines do), so the next person knows what the numbers *should* look like.
 
@@ -144,7 +144,7 @@ without verifying it).
 ### Keep the compare task pipeline-local
 Put the pipeline's compare task in its own `Verify<Pipeline>.wdl`, **not** the shared
 `verification/VerifyTasks.wdl` — editing the shared file triggers every pipeline's CI (see
-AGENTS.md). Keep the verifier's own container light and its dependencies minimal; it runs on
+agents/ci-tests.md). Keep the verifier's own container light and its dependencies minimal; it runs on
 every compare.
 
 ## Step 4 — Truth is a scientific judgment, not just a file
@@ -160,7 +160,7 @@ sign-off, not a mechanical step:
 - **Re-bless deliberately when outputs legitimately change.** A change that intentionally
   alters outputs (new metadata field, model change, a genuinely better result) *requires*
   updating truth — and requires re-inspecting it. Note the reason in the changelog.
-- **Truth is keyed by the test JSON filename**, not `input_id` (see AGENTS.md step 6): a new
+- **Truth is keyed by the test JSON filename**, not `input_id` (see agents/ci-tests.md step 6): a new
   test case needs its truth seeded first, or the first compare run fails with nothing to diff
   — the most common "new test" failure.
 
@@ -181,7 +181,7 @@ Scientific tests use real compute, so right-size but don't cripple:
 
 Standing up a Scientific test is iterative:
 
-1. Write inputs + `Test<Pipeline>.wdl` + `Verify<Pipeline>.wdl` (mechanics per AGENTS.md);
+1. Write inputs + `Test<Pipeline>.wdl` + `Verify<Pipeline>.wdl` (mechanics per agents/ci-tests.md);
    validate with womtool.
 2. **Seed truth** (`updateTruth: true`) and **inspect** the outputs (Step 4).
 3. Run a **compare** run (`updateTruth: false`). Expect to tune: threshold too tight → tighten
@@ -201,7 +201,7 @@ Standing up a Scientific test is iterative:
 - [ ] Non-comparable artifacts excluded from comparison but still archived.
 - [ ] Compare task lives in `Verify<Pipeline>.wdl`, not the shared `VerifyTasks.wdl`.
 - [ ] Truth seeded from a known-good version and visually inspected before blessing.
-- [ ] Mechanics (CI YAML, Dockstore publish, permissions) done per AGENTS.md.
+- [ ] Mechanics (CI YAML, Dockstore publish, permissions) done per agents/ci-tests.md.
 
 ---
 
