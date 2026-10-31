@@ -1,3 +1,35 @@
+# 3.0.0
+2026-10-30 (Date of Last Commit)
+
+### Breaking changes
+
+* Removed the placeholder sample-metadata obs columns (biosample_id, donor_id, species, disease, organ, library_preparation_protocol, their ontology labels, data_modality and sex); sample metadata is joined downstream
+* Changed the sample inputs to arrays paired by position: input_ids, gex_h5ads and atac_h5ads replace input_id, gex_h5ad and atac_h5ad
+* Changed the outputs to arrays with one entry per sample: gex_annotated_h5ads, atac_annotated_h5ads and scanvi_models_out replace gex_annotated_h5ad, atac_annotated_h5ad and scanvi_model_out
+* Removed the scanvi_predictions_h5ad output; its labels and latents are in the annotated matrices
+* Named outputs after their input files (sample.h5ad gives sample_annotated.h5ad and, when training, sample_scanvi_model.tar.gz); input file names must be distinct
+* Added label levels: ref_label_columns (a list) replaces ref_label_column, and a level such as subclass puts its labels in obs['subclass'] instead of obs['final_annotation'] and its confidence in obs['subclass_max_probability']
+* Changed the model archive to hold one scVI model plus one SCANVI model per level; archives in the old single-model form are refused
+* Removed bucket mode (input_bucket, gex_filename, atac_filename and ref_filename)
+* Changed the annotated matrices to the Single Cell Portal form: counts in .raw, log2(CPM + 1) in .X, and per level a 30-dimensional scVI latent (obsm['X_scVI_subclass'] for the subclass level) and a 2-column UMAP in obsm, with X_umap set to the first level's; read counts from .raw
+* Removed the PreprocessFilter task and its nested inputs; preprocessing runs inside the label-transfer task
+* Changed the label-transfer task to run every sample on one machine, by default 16 CPUs and 104 GiB instead of 32 CPUs and 120 GiB
+
+### Additional changes
+
+* Updated the scvi-scanvi image to 1.7.0 (scvi-tools 1.5.1, snapatac2 2.10.0, anndata 0.13.4, scipy 1.18.1, torch 2.15.0), which may shift labels and embeddings slightly
+* Added the optional seed input for reproducible training
+* Added scArches query mapping for supplied models that do not know a sample's batch, with the optional query_max_epochs input (default 100)
+* Added gene matching by Ensembl ID: a supplied model whose genes are Ensembl IDs is matched through the sample's ensembl_ids column, and the log reports how many of the model's genes the sample has
+* Made ref_h5ad optional; it is needed only to train
+* Added the PreprocessReference task, which prepares the reference once per training run
+* Added run provenance to each output's uns: scanvi_input_id, scanvi_input_file, scanvi_model, scanvi_levels and scanvi_versions
+* Added input checks that fail the run early when the input arrays do not line up, ids repeat, file names collide or a file is not an h5ad
+* Changed output_max_probability to default to true
+* Changed disk_size to optional; when unset, the disk is sized from the inputs
+* Changed model-archive extraction to Python's safe data filter
+* Added gzip compression to every output h5ad
+
 # 2.1.0
 2026-07-09 (Date of Last Commit)
 
