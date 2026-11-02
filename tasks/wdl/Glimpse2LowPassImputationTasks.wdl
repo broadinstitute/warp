@@ -3,8 +3,8 @@ version 1.0
 task MergeSampleChunksVcfsWithPaste {
     input {
         Array[File] input_vcfs
-        Array[File]? input_vcf_indices
-        String? region
+        Array[File] input_vcf_indices
+        String region
         String output_vcf_basename
 
         Int disk_size_gb = ceil(2.2 * size(input_vcfs, "GiB") + 50)
