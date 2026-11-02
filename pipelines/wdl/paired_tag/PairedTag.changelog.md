@@ -1,3 +1,8 @@
+# 3.0.4
+2026-11-02 (Date of Last Commit)
+
+* Updated the shared atac, Optimus, and H5adUtils.wdl workflows to support configurable h5ad metadata key names. PairedTag does not set the new inputs, so output is unchanged except that the ATAC snap_metrics h5ad now always carries the `input_id` key
+
 # 3.0.3
 2026-09-16 (Date of Last Commit)
 

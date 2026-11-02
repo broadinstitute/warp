@@ -65,6 +65,11 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | adapter_seq_read3 | TrimAdapters input: Sequence adapter for read 3 fastq. |
 | vm_size | String defining the Azure virtual machine family for the workflow (default: "Standard_M128s"). 
 | atac_nhash_id | String that represents an optional library aliquot identifier. When used, it is echoed in the h5ad unstructured data. |
+| input_name | Optional name for the `adata.uns` metadata key that stores the `input_id` value; defaults to `input_id`. |
+| nhash_id_name | Optional name for the `adata.uns` metadata key that stores the `atac_nhash_id` value; defaults to `NHashID`. |
+| additional_sample_id | Optional additional sample identifier; when specified, it is echoed in the h5ad unstructured metadata. |
+| additional_sample_name | Optional name for the `adata.uns` metadata key that stores the `additional_sample_id` value; defaults to `additional_sample_id`. |
+| input_id_metadata_value | Optional value to store under the `input_id` metadata key; defaults to `input_id` (the Multiome pipeline uses this to store the un-suffixed base id). |
 | peak_calling | Optional boolean used to determine if the ATAC pipeline should run Peak Calling; default is "false".  | Boolean |
 
 ## ATAC tasks and tools
@@ -99,6 +104,18 @@ To see specific tool parameters, select the task WDL link in the table; then vie
  library_metrics | `<input_id>`_`<atac_nhash_id>`_library_metrics.csv | CSV file containing library-level metrics. Read more in the [Library Metrics Overview](library-metrics.md) |
 | snap_cellbybin | `<input_id>`.cellbybin.h5ad | h5ad (Anndata) containing peaks (called by MACS3) per cluster. [SnapATAC2](https://github.com/kaizhang/SnapATAC2). |
 | snap_cellbypeak | `<input_id>`.cellbypeak.h5ad | h5ad (Anndata) containing merged peaks (called by MACS3) per cluster and count matrix of insertion sites per peak and cell. [SnapATAC2](https://github.com/kaizhang/SnapATAC2).|
+
+### Configurable global metadata keys
+
+The `snap_metrics` h5ad records sample provenance as global metadata in `adata.uns`. By default these keys are `NHashID` (the library aliquot, from `atac_nhash_id`) and `input_id` (the sample id). You can rename the keys and add an optional sample id — none of this changes any metrics or barcodes:
+
+| Value input | What it stores | Default key | Input to rename the key |
+| --- | --- | --- | --- |
+| `atac_nhash_id` | Library aliquot id | `NHashID` | `nhash_id_name` |
+| `input_id` (or `input_id_metadata_value`) | Sample id | `input_id` | `input_name` |
+| `additional_sample_id` (optional) | An extra sample id | `additional_sample_id` | `additional_sample_name` |
+
+If you leave these inputs unset, the metadata is unchanged from previous versions, except that the `snap_metrics` h5ad now always includes the `input_id` key.
 
 ## Versioning and testing
 

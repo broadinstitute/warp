@@ -1,3 +1,8 @@
+# 3.6.10
+2026-11-02 (Date of Last Commit)
+
+* Updated the shared H5adUtils.wdl used for h5ad generation to support configurable metadata key names; no functional impact on SlideSeq outputs
+
 # 3.6.9
 2026-09-16 (Date of Last Commit)
 

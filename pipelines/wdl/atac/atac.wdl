@@ -24,6 +24,16 @@ workflow ATAC {
     # Additional library aliquot ID
     String? atac_nhash_id
 
+    # Configurable h5ad global (uns) metadata key labels + optional additional sample id.
+    # Defaults preserve prior output: nhash_id_name -> 'NHashID', input_name -> 'input_id'.
+    String nhash_id_name = "NHashID"
+    String input_name = "input_id"
+    String additional_sample_id = ""
+    String additional_sample_name = "additional_sample_id"
+    # Value stored for the input_id uns entry; defaults to input_id. Multiome passes the
+    # un-suffixed base id here while input_id carries the '_atac' suffix for filenames.
+    String input_id_metadata_value = input_id
+
     #Expected cells from library preparation
     Int atac_expected_cells = 3000
 
@@ -55,7 +65,7 @@ workflow ATAC {
     File? aligned_ATAC_bam
   }
 
-  String pipeline_version = "2.9.4"
+  String pipeline_version = "2.10.0"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -153,7 +163,12 @@ workflow ATAC {
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
-        input_id = input_id
+        input_id = input_id,
+        nhash_id_name = nhash_id_name,
+        input_name = input_name,
+        additional_sample_id = additional_sample_id,
+        additional_sample_name = additional_sample_name,
+        input_id_metadata_value = input_id_metadata_value
     }
   }
   if (!preindex) {
@@ -166,7 +181,12 @@ workflow ATAC {
         docker_path = docker_prefix + snap_atac_docker,
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
-        input_id = input_id
+        input_id = input_id,
+        nhash_id_name = nhash_id_name,
+        input_name = input_name,
+        additional_sample_id = additional_sample_id,
+        additional_sample_name = additional_sample_name,
+        input_id_metadata_value = input_id_metadata_value
     }
     if (peak_calling) {
       call peakcalling.PeakCalling as PeakCalling{
@@ -548,6 +568,12 @@ task CreateFragmentFile {
     String input_id
     Int atac_expected_cells = 3000
     String gtf_path = annotations_gtf
+    # Configurable h5ad global (uns) metadata key labels + optional additional sample id
+    String nhash_id_name = "NHashID"
+    String input_name = "input_id"
+    String additional_sample_id = ""
+    String additional_sample_name = "additional_sample_id"
+    String input_id_metadata_value = input_id
   }
 
   parameter_meta {
@@ -584,6 +610,12 @@ task CreateFragmentFile {
     atac_nhash_id = "~{atac_nhash_id}"
     mito_list = "~{sep=' ' mito_list}"
     expected_cells = ~{atac_expected_cells}
+    # Configurable uns metadata key labels + values
+    nhash_id_name = "~{nhash_id_name}"
+    input_name = "~{input_name}"
+    additional_sample_id = "~{additional_sample_id}"
+    additional_sample_name = "~{additional_sample_name}"
+    input_id_metadata_value = "~{input_id_metadata_value}"
 
     print(mito_list)
     mito_list = mito_list.split(" ")
@@ -634,8 +666,17 @@ task CreateFragmentFile {
     print(f"Dictionary successfully written to {csv_file_path}")
 
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
-    # Add nhash_id to h5ad file as unstructured metadata
-    atac_data.uns['NHashID'] = atac_nhash_id
+    # Add nhash_id to h5ad file as unstructured metadata, under a configurable key
+    # label (nhash_id_name, default 'NHashID' to preserve prior output).
+    atac_data.uns[nhash_id_name] = atac_nhash_id
+
+    # Store the input_id value under a configurable key label (input_name, default
+    # 'input_id'). input_id_metadata_value is the base (un-suffixed) id in Multiome.
+    atac_data.uns[input_name] = input_id_metadata_value
+
+    # Optional additional sample id, under a configurable key label.
+    if additional_sample_id != "":
+        atac_data.uns[additional_sample_name] = additional_sample_id
 
     # Add GTF to uns field
     # Original path from args.annotation_file

@@ -1,3 +1,8 @@
+# 2.0.4
+2026-11-02 (Date of Last Commit)
+
+* Updated the shared Optimus workflow to support configurable h5ad metadata key names; SlideTags does not set the new inputs, so no functional impact on its outputs
+
 # 2.0.3
 2026-09-16 (Date of Last Commit)
 

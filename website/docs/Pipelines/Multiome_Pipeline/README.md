@@ -59,6 +59,10 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
 | gex_nhash_id | Optional identifier for the library aliquot; when specified, the gene expression workflow will echo the ID in the gene expression output h5ads (in the adata.uns section) and in the library-level metrics CSV. |
 | atac_nhash_id | Optional identifier for the library aliquot; when specified, the workflow will echo the ID in the ATAC output h5ads (in the adata.uns section) and in the library-level metrics CSV. 
+| input_name | Optional name for the `adata.uns` metadata key that stores the `input_id` value; defaults to `input_id`. | String |
+| nhash_id_name | Optional name for the `adata.uns` metadata key that stores the `gex_nhash_id`/`atac_nhash_id` value; defaults to `NHashID`. | String |
+| additional_sample_id | Optional additional sample identifier (for example, a barcoded cell sample ID); when specified, it is echoed in both the ATAC and GEX output h5ads (in the `adata.uns` section). | String |
+| additional_sample_name | Optional name for the `adata.uns` metadata key that stores the `additional_sample_id` value; defaults to `additional_sample_id`. | String |
 | expected_cells | Number of cells loaded for library preparation; default is set to 3000. | Integer |
 | annotations_gtf | GTF file containing gene annotations used for GEX cell metric calculation and ATAC fragment metrics; must match the GTF used to build the STAR aligner. | File |
 | gex_r1_fastq | Array of read 1 FASTQ files representing a single GEX 10x library. | Array[File] |
@@ -160,6 +164,18 @@ import anndata
 adata = anndata.read_h5ad("<file_name>.h5ad")
 print(adata.uns["whitelists"])
 ```
+
+### Configurable global metadata keys
+
+Both the GEX and ATAC output h5ads record sample provenance as global metadata in `adata.uns`. By default these keys are `NHashID` (the library aliquot) and `input_id` (the sample/job id). You can rename the keys and add an optional sample id — none of this changes any counts, metrics, or barcodes:
+
+| Value input | What it stores | Default key | Input to rename the key |
+| --- | --- | --- | --- |
+| `gex_nhash_id` / `atac_nhash_id` | Library aliquot id | `NHashID` | `nhash_id_name` |
+| `input_id` | Sample / job id | `input_id` | `input_name` |
+| `additional_sample_id` (optional) | An extra sample id | `additional_sample_id` | `additional_sample_name` |
+
+For example, setting `nhash_id_name = "Library_Aliquot_ID"`, `input_name = "Local_Name_and_Job_ID"`, and `additional_sample_name = "Barcoded_Cell_Sample_ID"` writes those three keys to `adata.uns`. In Multiome, the value stored under the `input_id` key is the shared base `input_id` (without the `_gex`/`_atac` suffix), so it matches across both h5ads. If you leave these inputs unset, the metadata is identical to previous versions.
 
 
 ## Versioning and testing

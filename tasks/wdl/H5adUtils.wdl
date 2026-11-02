@@ -15,6 +15,12 @@ task OptimusH5adGeneration {
     String? input_name
     String? input_id_metadata_field
     String? input_name_metadata_field
+    # Configurable uns metadata key labels + optional additional sample id
+    String? nhash_id_name
+    String? additional_sample_id
+    String? additional_sample_name
+    # value stored for the input_id uns entry (defaults to input_id downstream)
+    String? input_id_metadata_value
     # gene annotation file in GTF format
     File annotation_file
     File? cellbarcodes
@@ -72,6 +78,7 @@ task OptimusH5adGeneration {
           --output_path_for_h5ad "~{input_id}" \
           --input_id ~{input_id} \
           ~{"--input_name " + input_name} \
+          ~{"--input_id_metadata_value " + input_id_metadata_value} \
           ~{"--input_id_metadata_field " + input_id_metadata_field} \
           ~{"--input_name_metadata_field " + input_name_metadata_field} \
           --count_matrix ~{sparse_count_matrix} \
@@ -88,6 +95,7 @@ task OptimusH5adGeneration {
           --output_path_for_h5ad "~{input_id}" \
           --input_id ~{input_id} \
           ~{"--input_name " + input_name} \
+          ~{"--input_id_metadata_value " + input_id_metadata_value} \
           ~{"--input_id_metadata_field " + input_id_metadata_field} \
           ~{"--input_name_metadata_field " + input_name_metadata_field} \
           --count_matrix ~{sparse_count_matrix} \
@@ -101,6 +109,9 @@ task OptimusH5adGeneration {
      --gex_h5ad "~{input_id}.h5ad" \
      --cellbarcodes ~{cellbarcodes} \
      ~{"--gex_nhash_id " + gex_nhash_id} \
+     ~{"--nhash_id_name " + nhash_id_name} \
+     ~{"--additional_sample_id " + additional_sample_id} \
+     ~{"--additional_sample_name " + additional_sample_name} \
      --library_csv ~{library_metrics} \
      --input_id ~{input_id} \
      --counting_mode ~{counting_mode} \

@@ -9,7 +9,7 @@ import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "7.0.3"
+    String pipeline_version = "7.1.0"
 
     input {
         String cloud_provider
@@ -17,6 +17,12 @@ workflow Multiome {
         # Additional library aliquot ID
         String? gex_nhash_id
         String? atac_nhash_id
+        # Configurable h5ad global (uns) metadata key labels + optional additional sample id.
+        # These name the uns KEYS; defaults (applied downstream) preserve prior output.
+        String? input_name
+        String? nhash_id_name
+        String? additional_sample_id
+        String? additional_sample_name
         Int expected_cells = 3000
 
         # Optimus inputs
@@ -98,6 +104,11 @@ workflow Multiome {
             input_id = input_id + "_gex",
             output_bam_basename = input_id + "_gex",
             gex_nhash_id = gex_nhash_id,
+            input_name = input_name,
+            nhash_id_name = nhash_id_name,
+            additional_sample_id = additional_sample_id,
+            additional_sample_name = additional_sample_name,
+            input_id_metadata_value = input_id,
             tar_star_reference = tar_star_reference,
             annotations_gtf = annotations_gtf,
             mt_genes = mt_genes,
@@ -128,6 +139,11 @@ workflow Multiome {
             vm_size = vm_size,
             annotations_gtf = annotations_gtf,
             atac_nhash_id = atac_nhash_id,
+            nhash_id_name = select_first([nhash_id_name, "NHashID"]),
+            input_name = select_first([input_name, "input_id"]),
+            additional_sample_id = select_first([additional_sample_id, ""]),
+            additional_sample_name = select_first([additional_sample_name, "additional_sample_id"]),
+            input_id_metadata_value = input_id,
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
             peak_calling = false,

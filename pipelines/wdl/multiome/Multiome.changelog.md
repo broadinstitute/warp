@@ -1,3 +1,8 @@
+# 7.1.0
+2026-11-02 (Date of Last Commit)
+
+* Added optional inputs that let you name the keys in the ATAC and GEX h5ad global (`uns`) metadata, and supply an optional sample id: `input_name`, `nhash_id_name`, `additional_sample_name`, and `additional_sample_id`. The value stored under the `input_id` key is now the shared base `input_id`, without the `_gex`/`_atac` suffix, so both files match. Each name defaults to its current key, so output is unchanged unless you set these inputs; the GEX changes require the updated warp-tools Docker image
+
 # 7.0.3
 2026-09-16 (Date of Last Commit)
 

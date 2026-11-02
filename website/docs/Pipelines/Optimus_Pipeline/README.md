@@ -106,7 +106,11 @@ The example configuration files also contain metadata for the reference files, d
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/build_indices/BuildIndices.wdl). | N/A |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | N/A |
 | gex_nhash_id | Optional string to identify the library aliquot; will be echoed in the output h5ad file in the adata.uns and the library-level metrics CSV; default is null (`""`) | N/A |
-| input_name | Optional string that can be used to further identify the original biological sample. | N/A |
+| input_name | Optional name for the `adata.uns` metadata key that stores the `input_id` value; defaults to `input_id`. This value is no longer written as its own separate `input_name` entry. | N/A |
+| nhash_id_name | Optional name for the `adata.uns` metadata key that stores the `gex_nhash_id` value; defaults to `NHashID`. | N/A |
+| additional_sample_id | Optional additional sample identifier; when specified, it is echoed in the output h5ad `adata.uns`. | N/A |
+| additional_sample_name | Optional name for the `adata.uns` metadata key that stores the `additional_sample_id` value; defaults to `additional_sample_id`. | N/A |
+| input_id_metadata_value | Optional value to store under the `input_id` metadata key; defaults to `input_id`. | N/A |
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the input_id. | N/A |
 | input_name_metadata_field | Optional string describing, when applicable, the metadata field containing the input_name. | N/A |
 | annotations_gtf | GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | N/A |
@@ -258,6 +262,16 @@ import anndata
 adata = anndata.read_h5ad("<file_name>.h5ad")
 print(adata.uns["whitelist"])
 ```
+
+**Configurable global metadata keys:** The output h5ad records sample provenance as global metadata in `adata.uns`. By default these keys are `NHashID` (the library aliquot, from `gex_nhash_id`) and `input_id` (the sample id). You can rename the keys and add an optional sample id without changing any counts or metrics:
+
+| Value input | What it stores | Default key | Input to rename the key |
+| --- | --- | --- | --- |
+| `gex_nhash_id` | Library aliquot id | `NHashID` | `nhash_id_name` |
+| `input_id` (or `input_id_metadata_value`) | Sample id | `input_id` | `input_name` |
+| `additional_sample_id` (optional) | An extra sample id | `additional_sample_id` | `additional_sample_name` |
+
+If you leave these inputs unset, the metadata is unchanged from previous versions, except that the separate `input_name` entry is no longer written.
 
 #### 7. Optional: Run CellBender
 This task runs when the `run_cellbender` input is set to true. CellBender is a tool for removing background UMIs and thereby helps to flag empty drops. Learn more in the [CellBender documentation](https://cellbender.readthedocs.io/en/latest/).
