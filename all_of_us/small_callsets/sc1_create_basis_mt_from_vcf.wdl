@@ -9,10 +9,17 @@ version 1.0
 # inputs specific to sc1_create_basis_mt_from_vcf.py (test_intervals, sample_ids,
 # overwrite_existing_outputs). See that script/WDL for the VDS-input sibling.
 #
-# STUB STATUS: structurally complete and mirrors the validated sc1-VDS WDL, but not yet run through
-# Cromwell/Terra -- needs an actual end-to-end WDL execution test before being considered validated,
-# separate from the Python script's own notebook-based validation (see
-# sc1_create_basis_mt_from_vcf_validation_notes.md).
+# STATUS: validated end-to-end in Terra (2026-11-02). A real run produced output identical to the
+# notebook-validated reference -- (1465, 535662) rows x samples on the chr21:10494999-10547000 test
+# region, bed breakdown exome=375, clinvar=2, acaf_threshold=1111. See
+# sc1_create_basis_mt_from_vcf_validation_notes.md for the Python script's own validation.
+#
+# NOTE ON RESOURCE INPUTS: this workflow pins --worker-machine-type n1-standard-4 (4 vCPU / 15 GB) and
+# --master-machine-type n1-highmem-16 (16 vCPU / 104 GB) below, but takes executor_cores,
+# executor_memory and driver_memory as free-form inputs with no defaults. Values that exceed those
+# machines (e.g. 8 executor cores on a 4-vCPU worker) are not rejected -- YARN simply leaves the
+# container request pending indefinitely, which presents as a hung job with no error. Known-good
+# values: executor_cores="4", executor_memory="10g", driver_memory="80g".
 #
 ## Requirements/expectations:
 ## - **This script CAN ONLY BE RUN in Terra and will NOT work in vanilla cromwell**

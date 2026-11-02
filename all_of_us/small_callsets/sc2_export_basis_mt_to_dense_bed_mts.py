@@ -144,7 +144,7 @@ def filter_mt_by_bed_name(bed_names: list, dense_mts_dict: Dict[str,str], basis_
         logging.info(f'Starting {bed_name.upper()} dense MT (multi): {output_url}')
         print(f'Starting {bed_name.upper()} dense MT (multi): {output_url}')
         mt_url = basis_dense_mt_dict["dense_mt"]
-        dense_mt_bed = filter_dense_to_bed(hl.read_matrix_table(mt_url), bed_name)
+        dense_mt_bed = filter_dense_to_bed(hl.read_matrix_table(mt_url), bed_name, bed_names)
         dense_mt_bed.write(output_url, overwrite = True)
     return
 
