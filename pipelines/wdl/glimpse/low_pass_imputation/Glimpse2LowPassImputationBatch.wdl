@@ -23,7 +23,7 @@ workflow Glimpse2LowPassImputationBatch {
         String output_basename
 
         File ref_dict
-        String? pipeline_header_line
+        String pipeline_header_line = ""
 
         Boolean impute_reference_only_variants = false
         Boolean call_indels = false
@@ -42,10 +42,6 @@ workflow Glimpse2LowPassImputationBatch {
     # to tasks that are inside nested scatters, so we need to define a non-optional variable that we can use to pass the
     # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
     Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
-
-    # similarly, this needs to be defined since it will effectively be in a nested scatter in the top-level workflow
-    # and Cromwell cannot resolve scope across the task import boundary
-    String defined_pipeline_header_line = ""
 
     call SplitCramManifestIntoBatchesOfStrings {
         input:
@@ -171,7 +167,7 @@ workflow Glimpse2LowPassImputationBatch {
             input:
                 vcf = GlimpseLigate.imputed_vcf,
                 ref_dict = ref_dict,
-                pipeline_header_line = defined_pipeline_header_line,
+                pipeline_header_line = pipeline_header_line,
                 output_basename = output_basename + "." + contigs[contig_index] + ".imputed",
                 docker = glimpse_docker
         }
