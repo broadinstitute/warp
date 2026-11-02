@@ -1,7 +1,12 @@
-# 2.0.4
+# 2.0.5
 2026-11-02 (Date of Last Commit)
 
 * Updated the shared Optimus workflow to support configurable h5ad metadata key names; SlideTags does not set the new inputs, so no functional impact on its outputs
+
+# 2.0.4
+2026-10-08 (Date of Last Commit)
+
+* Added optional `emptydrops_seed` input, passed to Optimus, that makes emptyDrops p-values reproducible when `counting_mode` = "sc_rna"; unset (the default) keeps the existing nondeterministic behavior. Default `sn_rna` runs are unaffected
 
 # 2.0.3
 2026-09-16 (Date of Last Commit)

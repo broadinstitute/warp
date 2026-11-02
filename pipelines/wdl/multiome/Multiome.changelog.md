@@ -1,7 +1,19 @@
-# 7.1.0
+# 8.1.0
 2026-11-02 (Date of Last Commit)
 
 * Added optional inputs that let you name the keys in the ATAC and GEX h5ad global (`uns`) metadata, and supply an optional sample id: `input_name`, `nhash_id_name`, `additional_sample_name`, and `additional_sample_id`. The value stored under the `input_id` key is now the shared base `input_id`, without the `_gex`/`_atac` suffix, so both files match. Each name defaults to its current key, so output is unchanged unless you set these inputs; the GEX changes require the updated warp-tools Docker image
+
+# 8.0.0
+2026-10-26 (Date of Last Commit)
+
+* Removed the default of 3000 from the `expected_cells` input; it is now required and is passed to both Optimus and ATAC
+* Updated the ATAC workflow to 3.0.0
+* Added optional `atac_anchor_cell_calling` input (default `false`), passed to ATAC, that anchors ATAC cell calling to `expected_cells` instead of letting SnapATAC2 estimate the cell count; the ATAC library metrics and the ATAC h5ad both use the called cells. Default runs are unaffected
+
+# 7.0.4
+2026-10-08 (Date of Last Commit)
+
+* Added optional `emptydrops_seed` input, passed to Optimus, that makes emptyDrops p-values reproducible when `counting_mode` = "sc_rna"; unset (the default) keeps the existing nondeterministic behavior. Default `sn_rna` runs are unaffected
 
 # 7.0.3
 2026-09-16 (Date of Last Commit)

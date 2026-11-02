@@ -2,13 +2,12 @@ version 1.0
 
 import "../atac/atac.wdl" as atac
 import "../optimus/Optimus.wdl" as optimus
-import "../../../tasks/wdl/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/wdl/PairedTagUtils.wdl" as Demultiplexing
 import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow PairedTag {
 
-    String pipeline_version = "3.0.4"
+    String pipeline_version = "4.0.1"
 
     input {
         String input_id
@@ -29,6 +28,7 @@ workflow PairedTag {
         # Optimus (an unspecified subversion defaults to the v4_TRU whitelist; see Optimus.wdl).
         Int tenx_chemistry_version = 3
         Int emptydrops_lower = 100
+        Int? emptydrops_seed
         Boolean force_no_check = false
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Forward"
@@ -53,6 +53,10 @@ workflow PairedTag {
         File atac_whitelist = if cloud_provider == "gcp" then "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt" else "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_atac.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
         # Optional aligned ATAC bam file
         File? aligned_ATAC_bam
+        # Expected number of cells for the ATAC library; used for atac_percent_target and, when atac_anchor_cell_calling is true, as the cell-calling anchor
+        Int atac_expected_cells
+        # If true, anchor ATAC cell calling to atac_expected_cells instead of letting SnapATAC2 estimate the cell count
+        Boolean atac_anchor_cell_calling = false
 
         # PairedTag
         Boolean preindex
@@ -99,6 +103,7 @@ workflow PairedTag {
             tenx_chemistry_version = tenx_chemistry_version,
             whitelist = gex_whitelist,
             emptydrops_lower = emptydrops_lower,
+            emptydrops_seed = emptydrops_seed,
             force_no_check = force_no_check,
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
@@ -140,7 +145,9 @@ workflow PairedTag {
             cloud_provider = cloud_provider,
             vm_size = vm_size,
             atac_nhash_id = atac_nhash_id,
-            aligned_ATAC_bam = aligned_ATAC_bam
+            aligned_ATAC_bam = aligned_ATAC_bam,
+            atac_expected_cells = atac_expected_cells,
+            anchor_cell_calling = atac_anchor_cell_calling
     }
 
     if (preindex) {

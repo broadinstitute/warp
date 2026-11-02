@@ -2,13 +2,13 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.1.0"
+    String pipeline_version = "1.1.2"
 
     input {
         # service expects only cram_manifest even though main wdl can alternatively take input arrays
         File cram_manifest
         String output_basename
-        Float? info_filter_for_inclusion
+        Float info_filter_for_inclusion = 0.0
 
         Array[String] contigs
         # this is the path to a directory that contains sites vcf, sites table, and reference chunks file. should end with a "/"
@@ -16,6 +16,7 @@ workflow InputQC {
         File fasta
         File fasta_index
         File ref_dict
+        Float raf_censoring_threshold = 0.0
 
         # used for warp tests only (which use inputs in an RP bucket). service does not support RP buckets and will not provide this input.
         String? billing_project_for_rp
@@ -49,9 +50,18 @@ workflow InputQC {
         }
     }
 
+    Boolean passes_qc_final = select_first([ValidateCramContents.passes_qc, ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
+
+    # Only define this variable if QC failed. If QC passes, this block is skipped,
+    # making defined_qc_messages evaluate to null
+    if (!passes_qc_final) {
+        String defined_qc_messages = select_first([ValidateCramContents.qc_messages, ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
+    }
+
     output {
-        Boolean passes_qc = select_first([ValidateCramContents.passes_qc, ValidateCramsAndIndicesAndSampleIds.passes_qc, ConvertCramManifestToInputArrays.passes_qc])
-        String qc_messages = select_first([ValidateCramContents.qc_messages, ValidateCramsAndIndicesAndSampleIds.qc_messages, ConvertCramManifestToInputArrays.qc_messages])
+        Boolean passes_qc = passes_qc_final
+        # Output as String? (optional) using the variable created in the if-block
+        String? qc_messages = defined_qc_messages
     }
 }
 

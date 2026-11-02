@@ -1,7 +1,14 @@
-# 2.10.0
+# 3.1.0
 2026-11-02 (Date of Last Commit)
 
 * Added optional inputs that let you name the keys in the ATAC snap_metrics h5ad global (`uns`) metadata: `nhash_id_name` names the key holding `atac_nhash_id`, `input_name` names the key holding `input_id`, and `additional_sample_name` names the key holding a new optional `additional_sample_id` value. `input_id_metadata_value` sets the value stored under the `input_id` key. Each name defaults to its current key, so output is unchanged unless you set these inputs, except that the ATAC h5ad now always carries the `input_id` key
+
+# 3.0.0
+2026-10-27 (Date of Last Commit)
+
+* Removed the default of 3000 from the `atac_expected_cells` input; it is now required so that the percent-target denominator and the cell-calling anchor always reflect the library
+* Added optional anchor_cell_calling input (default false). When true, the CreateFragmentFile task passes atac_expected_cells to SnapATAC2’s OrdMag cell calling as a hint for the expected number of cells. OrdMag still decides which barcodes are cells, so the final count can differ from atac_expected_cells; the hint only sets where it starts looking for the cutoff between cells and background. When false, OrdMag works out the expected cell count from the distribution of barcode counts in the data. In both modes, the per-cell library metrics and the snap_metrics h5ad use the called cells. Default runs are unaffected
+* Refactored CreateFragmentFile so the ATAC workflow, not the task, chooses the BAM barcode tag (BB with preindex, CB otherwise); outputs are unchanged
 
 # 2.9.4
 2026-09-16 (Date of Last Commit)

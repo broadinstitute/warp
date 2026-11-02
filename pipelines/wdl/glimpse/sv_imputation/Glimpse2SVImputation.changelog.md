@@ -1,3 +1,49 @@
+# 1.1.4
+2026-10-30 (Date of Last Commit)
+
+* Set `maxRetries` to 1 in `MergeVcfs` task in `MultilevelHierarchicallyPasteVcfsStreaming` subworkflow and in manifest tasks
+
+# 1.1.3
+2026-10-19 (Date of Last Commit)
+
+* Fix auxiliary WDL versions (QC, quota) to latest
+
+# 1.1.2
+2026-10-19 (Date of Last Commit)
+
+* Scatter and streamline postprocessing tasks
+
+# 1.1.1
+2026-10-19 (Date of Last Commit)
+
+* Update quota_consumed_version to `1.0.1` and input_qc_version to `1.0.4`, which add the `raf_censoring_threshold` input
+
+# 1.1.0
+2026-10-13 (Date of Last Commit)
+
+* Added censoring of `RAF` via removal when under threshold
+* Added clipping of `AF` and `INFO` to [0, 1] in `RecomputeAndAnnotate` to fix negative epsilons from floating-point math in the latter
+
+# 1.0.5
+2026-10-01 (Date of Last Commit)
+
+* Update input_qc_version to `1.0.3` which makes `qc_messages` output an Optional output
+
+# 1.0.4
+2026-09-29 (Date of Last Commit)
+
+* Update linked input_qc_version to 1.0.2
+
+# 1.0.3
+2026-09-25 (Date of Last Commit)
+
+* Update linked input_qc_version to 1.0.1
+
+# 1.0.2
+2026-09-24 (Date of Last Commit)
+
+* Update version of PreprocessPLsGVCF to pull in update to ParseVcfManifestIntoArrays task: return Array[String] rather than Array[File] to avoid call caching issues
+
 # 1.0.1
 2026-09-23 (Date of Last Commit)
 

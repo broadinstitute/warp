@@ -1,7 +1,15 @@
-# 9.3.0
+# 9.4.0
 2026-11-02 (Date of Last Commit)
 
 * Added optional inputs that let you name the keys in the h5ad global (`uns`) metadata: `nhash_id_name` names the key holding `gex_nhash_id`, `input_name` names the key holding `input_id`, and `additional_sample_name` names the key holding a new optional `additional_sample_id` value. `input_id_metadata_value` sets the value stored under the `input_id` key. Each name defaults to its current key, so output is unchanged unless you set these inputs; the previously separate `input_name` entry is no longer written. Requires the updated warp-tools Docker image
+
+# 9.3.0
+2026-10-08 (Date of Last Commit)
+
+* Added optional `emptydrops_seed` input that makes emptyDrops p-values reproducible; unset (the default) keeps the existing nondeterministic behavior
+* Updated the RunEmptyDrops task to fail when npz2rds or emptyDrops fails, instead of reporting success after a failed step
+* Updated the empty-drops Docker image to add the `--seed` option to the emptyDrops wrapper; the image was rebuilt from scratch, so emptyDrops results may differ slightly from the previous image (no reprocessing needed)
+* Removed the unused `FastqProcessing` import
 
 # 9.2.1
 2026-09-16 (Date of Last Commit)

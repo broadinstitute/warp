@@ -29,7 +29,7 @@ This workflow leverages Beagle's advanced algorithms for phasing and imputation 
 
 ### Inputs
 
-The Beagle workflow requires several essential inputs to perform genotype imputation effectively. These inputs include the source VCF data, reference materials for alignment and phasing, and configuration parameters that control the chunking strategy and processing behavior.
+The Beagle workflow takes several inputs to perform genotype imputation effectively. These inputs include the source VCF data, reference materials for alignment and phasing, and optional configuration parameters that control the chunking strategy and processing behavior.
 
 | Input                         | Description                                                              |
 |-------------------------------|--------------------------------------------------------------------------|

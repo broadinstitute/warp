@@ -9,4 +9,3 @@ The full documentation for the GLIMPSE2 SV Imputation pipeline can be found at t
 ## Versioning
 
 See [Glimpse2SVImputation.changelog.md](Glimpse2SVImputation.changelog.md) for the full release history.
-
