@@ -11,6 +11,10 @@ task MergeSampleChunksVcfsWithPaste {
         Int preemptible = 0
     }
 
+    meta {
+        volatile: true
+    }
+
     command <<<
         set -euo pipefail
 
@@ -95,6 +99,10 @@ task ExtractAnnotations {
         Int cpu = 1
         Int preemptible = 1
     }
+    
+    meta {
+        volatile: true
+    }
 
     command <<<
         gatk VariantsToTable -V ~{imputed_vcf} -O annotations_batch_~{batch_index}.tsv -F CHROM -F POS -F REF -F ALT -F AF -F INFO
@@ -130,6 +138,10 @@ task RecomputeAndAnnotate {
         Int cpu = 1
         Int preemptible = 0
         Int chunk_size = 100000
+    }
+
+    meta {
+        volatile: true
     }
 
     command <<<
@@ -259,6 +271,10 @@ task FilterVcfByInfo {
         Int mem_gb = 4
         String docker = "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
     }
+    
+    meta {
+        volatile: true
+    }
 
     command <<<
         set -e -o pipefail
@@ -295,6 +311,10 @@ task CensorRaf {
         Int mem_gb = 4
         Int cpu = 1
         Int preemptible = 3
+    }
+    
+    meta {
+        volatile: true
     }
 
     command <<<
@@ -422,6 +442,10 @@ task UpdateHeader {
         Int max_retries = 1
         String docker
     }
+    
+    meta {
+        volatile: true
+    }
 
     command <<<
         set -xeuo pipefail
@@ -466,6 +490,7 @@ task GatherVcfsNoIndex {
         Int memory_mb = 10000
         Int disk_size_gb = ceil(3*size(input_vcfs, "GiB")) + 10
     }
+    
     Int command_mem = memory_mb - 1500
     Int max_heap = memory_mb - 1000
 
@@ -500,6 +525,10 @@ task CreateVcfIndexAndMd5 {
         Int memory_mb = 6000
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
         Int preemptible = 3
+    }
+    
+    meta {
+        volatile: true
     }
 
     String vcf_basename = basename(vcf_input, ".vcf.gz")
