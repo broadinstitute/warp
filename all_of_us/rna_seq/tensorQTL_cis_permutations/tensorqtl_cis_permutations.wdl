@@ -25,7 +25,7 @@ task tensorqtl_cis_permutations {
         Int num_gpus
         Int num_preempt
 
-        String pipeline_version = "aou_9.0.0"
+        String pipeline_version = "aou_9.1.0"
     }
 
     command <<<
