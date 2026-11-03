@@ -624,7 +624,7 @@ task CreateFragmentFile {
     atac_nhash_id = "~{atac_nhash_id}"
     mito_list = "~{sep=' ' mito_list}"
     expected_cells = ~{atac_expected_cells}
-    cell_calling_expected_cells = ~{default="None" cell_calling_expected_cells},
+    cell_calling_expected_cells = ~{default="None" cell_calling_expected_cells}
     # Configurable uns metadata key labels + values
     nhash_id_name = "~{nhash_id_name}"
     input_name = "~{input_name}"
