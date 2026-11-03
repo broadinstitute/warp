@@ -12,6 +12,10 @@ task MergeSampleChunksVcfsOrBcfsWithPaste {
         Int cpu = 4
         Int preemptible = 0
     }
+    
+    meta {
+        volatile: true
+    }
 
     command <<<
         set -euxo pipefail
@@ -109,6 +113,10 @@ task ExtractAnnotations {
         Int cpu = 1
         Int preemptible = 3
     }
+    
+    meta {
+        volatile: true
+    }
 
     command <<<
         set -euxo pipefail
@@ -154,6 +162,10 @@ task RecomputeAndAnnotate {
         Int cpu = 1
         Int preemptible = 3
         Int chunk_size = 100000
+    }
+    
+    meta {
+        volatile: true
     }
 
     command <<<
@@ -258,6 +270,10 @@ task FilterInfoAndCensorRafAndFinalizeVcf {
 
         Int disk_gb = ceil(3.1 * size(bcf, "GiB")) + 10
         Int preemptible = 3
+    }
+    
+    meta {
+        volatile: true
     }
 
     command <<<
@@ -367,6 +383,10 @@ task ConcatAndFinalizeVcfs {
         String output_basename
         String? extra_args
         File updated_header
+    }
+    
+    meta {
+        volatile: true
     }
 
     Int disk_gb = ceil(3.1 * size(vcfs, "GiB")) + 10
@@ -523,6 +543,10 @@ task UpdateHeader {
         Int mem_gb = 2
         Int cpu = 1
         Int preemptible = 3
+    }
+    
+    meta {
+        volatile: true
     }
 
     command <<<
