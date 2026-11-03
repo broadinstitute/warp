@@ -246,6 +246,7 @@ task export_basis_MT_to_bed_dense_MTs {
                         --task_label ~{task_label}
                         --output_dense_mts_json_file_name ~{output_dense_mts_json_file_name}
                         --output_gs_url ~{output_gs_url}
+                        --staging_bucket gs://{cluster_staging_bucket}/{cluster_name}
                     """
 
                     print("Running: " + submit_cmd)
