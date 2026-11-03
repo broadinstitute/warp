@@ -54,7 +54,7 @@ task tensorqtl_cis_permutations {
         preemptible: "~{num_preempt}"
         gpuType: "nvidia-tesla-t4"
         gpuCount: "~{num_gpus}"
-        zones: ["us-central1-c"]
+        zones: ["us-central1-a", "us-central1-b", "us-central1-c", "us-central1-f"]
     }
 
     output {
