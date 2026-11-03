@@ -204,7 +204,7 @@ def parse_arguments() -> argparse.Namespace:
     argparse.Namespace: Parsed arguments.
     """
     parser = argparse.ArgumentParser(description="Process basis MatrixTable to create dense MatrixTable for "
-                                                 "each BED name.", required=True)
+                                                 "each BED name.")
     parser.add_argument('--executor_memory', help='Memory assigned to each worker', required=True)
     parser.add_argument('--executor_cores', help='CPUs assigned to each worker', required=True)
     parser.add_argument('--driver_memory', help='Memory assigned to the driver (master)', required=True)
