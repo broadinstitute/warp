@@ -48,11 +48,11 @@ task tensorqtl_cis_permutations {
     runtime {
         docker: "gcr.io/broad-cga-francois-gtex/tensorqtl@sha256:f6efb9e592eb32c46cb75070be2769b34381d60cbb2709d2885771324abfe32a"
         memory: "~{memory}GB"
-        disks: "local-disk ~{disk_space} HDD"
+        disks: "local-disk ~{disk_space} SSD"
         bootDiskSizeGb: 25
         cpu: "~{num_threads}"
         preemptible: "~{num_preempt}"
-        gpuType: "nvidia-tesla-p100"
+        gpuType: "nvidia-tesla-t4"
         gpuCount: "~{num_gpus}"
         zones: ["us-central1-c"]
     }
