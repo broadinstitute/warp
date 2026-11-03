@@ -54,7 +54,10 @@ workflow export_dense_bed_MTs_to_split_dense_MTs {
         String executor_memory  # Memory assigned to each Spark executor
         String driver_memory  # Memory assigned to the Spark driver
         String output_gs_url  # Google Cloud Storage path for the output MatrixTable
-        File input_dense_mts_json_path # File name of the bed dense MatrixTables json file, suffix should be .json
+        String input_dense_mts_json_path # gs:// path of the bed dense MatrixTables json file from SC2. Must be
+                                         # String, not File: the Python script gsutil-copies this value, so it
+                                         # needs the gs:// URL. A File input would be localized by Cromwell to a
+                                         # /mnt/disks/cromwell_root/... path and the gsutil copy would fail.
         String output_split_dense_mts_json_file_name # File name for the split bed dense MatrixTables json file, suffix should be .json
 
         # Cluster Parameters
@@ -113,7 +116,7 @@ task export_dense_bed_MTs_to_split_dense_MTs {
         RuntimeAttr? runtime_attr_override
         String gcs_subnetwork_name
         String hail_docker
-        File input_dense_mts_json_path
+        String input_dense_mts_json_path
         String output_split_dense_mts_json_file_name
     }
 
