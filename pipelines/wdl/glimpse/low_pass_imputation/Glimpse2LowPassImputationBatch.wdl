@@ -475,8 +475,8 @@ task GlimpsePhase {
 
         Boolean impute_reference_only_variants
         Boolean call_indels
-        Int n_burnin = 1
-        Int n_main = 1
+        Int? n_burnin
+        Int? n_main
         Int? effective_population_size
         Int seed = 15052011
 
