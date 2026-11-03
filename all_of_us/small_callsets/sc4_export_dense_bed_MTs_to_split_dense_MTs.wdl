@@ -235,6 +235,7 @@ task export_dense_bed_MTs_to_split_dense_MTs {
                         --input_dense_mts_json_path ~{input_dense_mts_json_path}
                         --output_split_dense_mts_json_file_name ~{output_split_dense_mts_json_file_name}
                         --output_gs_url ~{output_gs_url}
+                        --staging_bucket gs://{cluster_staging_bucket}/{cluster_name}
                     """
 
                     print("Running: " + submit_cmd)
