@@ -97,6 +97,7 @@ workflow Glimpse2LowPassImputation {
     scatter(contig_idx in range(length(contigs))) {
         Array[File] batch_bcfs_for_contig = transpose(RunBatch.imputed_contig_ligated_bcfs)[contig_idx]
         Array[File] batch_bcf_indices_for_contig = transpose(RunBatch.imputed_contig_ligated_bcf_indices)[contig_idx]
+        Array[File] batch_text_headers_for_contig = transpose(RunBatch.updated_headers)[contig_idx]
 
         # For multiple batches: extract annotations, paste sample columns together, then recompute AF/INFO as weighted averages and apply filters.
         if (multiple_batches) {
@@ -149,7 +150,8 @@ workflow Glimpse2LowPassImputation {
                 input:
                     vcfs = RecomputeAfInfoAndFilterInfoAndCensorRaf.merged_imputed_vcf,
                     output_basename = output_basename + "." + contigs[contig_idx] + ".imputed",
-                    extra_args = "--naive"
+                    extra_args = "--naive",
+                    updated_header = batch_text_headers_for_contig[0]
             }
         }
 
@@ -160,7 +162,8 @@ workflow Glimpse2LowPassImputation {
                     bcf = batch_bcfs_for_contig[0],
                     info_filter_threshold = info_filter_for_inclusion,
                     raf_censoring_threshold = raf_censoring_threshold,
-                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed"
+                    output_basename = output_basename + "." + contigs[contig_idx] + ".imputed",
+                    updated_header = batch_text_headers_for_contig[0]
             }
         }
 
