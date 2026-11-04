@@ -1,9 +1,9 @@
 version 1.0
 
-import "../../tasks/broad/Utilities.wdl" as Utilities
+import "../../tasks/wdl/Utilities.wdl" as Utilities
 import "../../verification/VerifyRNAWithUMIs.wdl" as VerifyRNAWithUMIs
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
-import "../../pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../pipelines/wdl/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
 
 workflow TestRNAWithUMIsPipeline {
   
@@ -34,6 +34,8 @@ workflow TestRNAWithUMIsPipeline {
       File population_vcf
       File population_vcf_index
 
+      String? billing_project
+
       # transcriptome results will only be deterministic in both Fastp and STAR are run single threaded.
       # if expected to be deterministic, transcriptome comparisons should be exact.
       # if not, tolerances should be included
@@ -48,8 +50,6 @@ workflow TestRNAWithUMIsPipeline {
       String truth_path
       String results_path
       Boolean update_truth
-      String vault_token_path
-      String google_account_vault_path
   }
 
   meta {
@@ -79,6 +79,7 @@ workflow TestRNAWithUMIsPipeline {
         exonBedFile          = exonBedFile,
         population_vcf       = population_vcf,
         population_vcf_index = population_vcf_index,
+        billing_project      = billing_project
   }
 
   Array[String] pipeline_outputs = select_all([
@@ -110,21 +111,17 @@ workflow TestRNAWithUMIsPipeline {
   Array[String] pipeline_text_metrics = select_all([RNAWithUMIsPipeline.rnaseqc2_metrics])
 
   #Copy results of pipeline to test results bucket
-  call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
+  call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
     input:
       files_to_copy             = flatten([pipeline_outputs, pipeline_metrics, pipeline_text_metrics]),
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path,
       destination_cloud_path    = results_path
   }
 
   # If updating truth then copy pipeline results to truth bucket
   if (update_truth) {
-    call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
+    call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
     input:
       files_to_copy             = flatten([pipeline_outputs, pipeline_metrics, pipeline_text_metrics]),
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path,
       destination_cloud_path    = truth_path
     }
   }

@@ -1,0 +1,11 @@
+{
+  "BuildIndices.annotations_gtf": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/246437-Tupaia_chinensis__TupChi_1-0/genes/genes.gtf.gz",
+  "BuildIndices.biotypes": "gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Biotypes.tsv",
+  "BuildIndices.genome_build": "TupChi_1.0",
+  "BuildIndices.genome_fa": "gs://fc-secure-aae9980f-2d1b-4f56-ab67-3968a0f95aef/246437-Tupaia_chinensis__TupChi_1-0/fasta/genome.fa",
+  "BuildIndices.genome_source": "NCBI",
+  "BuildIndices.gtf_annotation_version": "GCF_000334495.1",
+  "BuildIndices.organism": "Treeshrew",
+  "BuildIndices.run_mitofinder": "false",
+  "BuildIndices.skip_gtf_modification": "true"
+}

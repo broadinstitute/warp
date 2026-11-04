@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl" as UltimaGenomicsWholeGenomeGermline
+import "../../pipelines/wdl/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl" as UltimaGenomicsWholeGenomeGermline
 import "../../verification/VerifyUltimaGenomicsWholeGenomeGermline.wdl" as VerifyUltimaGenomicsWholeGenomeGermline
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestUltimaGenomicsWholeGenomeGermline {
 
@@ -26,8 +26,6 @@ workflow TestUltimaGenomicsWholeGenomeGermline {
       String truth_path
       String results_path
       Boolean update_truth
-      String vault_token_path
-      String google_account_vault_path
     }
 
     meta {
@@ -66,7 +64,7 @@ workflow TestUltimaGenomicsWholeGenomeGermline {
                                     UltimaGenomicsWholeGenomeGermline.output_vcf_index,
                                     UltimaGenomicsWholeGenomeGermline.output_vcf,
                                     UltimaGenomicsWholeGenomeGermline.output_gvcf_index,
-                                    UltimaGenomicsWholeGenomeGermline.output_gvcf,
+                                    UltimaGenomicsWholeGenomeGermline.output_gvcf
                                     ],
                                     # File? outputs
                                     select_all([UltimaGenomicsWholeGenomeGermline.agg_alignment_summary_pdf]),
@@ -92,21 +90,17 @@ workflow TestUltimaGenomicsWholeGenomeGermline {
     ])
 
     # Copy results of pipeline to test results bucket
-    call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
+    call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
       input:
         files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-        vault_token_path          = vault_token_path,
-        google_account_vault_path = google_account_vault_path,
         destination_cloud_path    = results_path
     }
   
     # If updating truth then copy output to truth bucket
     if (update_truth){
-      call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
+      call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
         input: 
           files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-          vault_token_path          = vault_token_path,
-          google_account_vault_path = google_account_vault_path,
           destination_cloud_path    = truth_path
       }
     }
@@ -143,9 +137,22 @@ workflow TestUltimaGenomicsWholeGenomeGermline {
             results_path = results_path,
             truth_path = truth_path
         }
+        call Utilities.GetValidationInputs as GetFilteredVcfIndex {
+          input:
+            input_file = UltimaGenomicsWholeGenomeGermline.filtered_vcf_index,
+            results_path = results_path,
+            truth_path = truth_path
+        }
         call Utilities.GetValidationInputs as GetGvcf {
           input:
             input_file = UltimaGenomicsWholeGenomeGermline.output_gvcf,
+            results_path = results_path,
+            truth_path = truth_path
+        }
+
+        call Utilities.GetValidationInputs as GetGvcfIndex {
+          input:
+            input_file = UltimaGenomicsWholeGenomeGermline.output_gvcf_index,
             results_path = results_path,
             truth_path = truth_path
         }
@@ -160,10 +167,15 @@ workflow TestUltimaGenomicsWholeGenomeGermline {
           test_crai = GetCrai.results_file,
           truth_vcf = GetVcf.truth_file, 
           test_vcf = GetVcf.results_file,
-          truth_filtered_vcf = GetFilteredVcf.truth_file, 
+          truth_filtered_vcf = GetFilteredVcf.truth_file,
+          truth_filtered_vcf_index = GetFilteredVcfIndex.truth_file, 
           test_filtered_vcf = GetFilteredVcf.results_file,
-          truth_gvcf = GetGvcf.truth_file, 
+          test_filtered_vcf_index = GetFilteredVcfIndex.results_file,
+          truth_gvcf = GetGvcf.truth_file,
           test_gvcf = GetGvcf.results_file,
+          truth_gvcf_index = GetGvcfIndex.truth_file,
+          test_gvcf_index = GetGvcfIndex.results_file,
+          sample_name = UltimaGenomicsWholeGenomeGermline.sample_name,
           done = CopyToTestResults.done
       }
     }

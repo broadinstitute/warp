@@ -3,12 +3,13 @@ const path = require("path");
 
 module.exports = {
   title: 'WARP',
-  tagline: 'WDL Analysis Research Pipelines',
+  tagline: 'Warp Analysis Research Pipelines',
   url: 'https://broadinstitute.github.io',
   baseUrl: '/warp/', // FIXME: /warp/
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
+  trailingSlash: false,
   organizationName: 'broadinstitute', // Usually your GitHub org/user name.
   projectName: 'warp', // Usually your repo name.
   plugins: [

@@ -32,7 +32,7 @@ workflow VerifyJointGenotyping {
         actual_index = test_vcf_indexes[idx],
         expected = truth_vcfs[idx],
         expected_index = truth_vcf_indexes[idx],
-        extra_args = "--ignore-attribute VQSLOD --ignore-attribute AS_VQSLOD --ignore-filters --ignore-attribute culprit "
+        extra_args = "--ignore-attribute VQSLOD --ignore-attribute AS_VQSLOD --ignore-attribute SCORE --ignore-attribute CALIBRATION_SENSITIVITY --ignore-filters --ignore-attribute culprit "
         + " --ignore-attribute AS_culprit --ignore-attribute AS_FilterStatus --ignore-attribute ExcessHet --ignore-attribute AS_SOR "
         +"--ignore-attribute AS_FS --ignore-attribute AS_BaseQRankSum --ignore-attribute AS_ReadPosRankSum --ignore-attribute AS_MQRankSum"
     }
@@ -93,7 +93,7 @@ task CompareFingerprints {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
     preemptible: 3

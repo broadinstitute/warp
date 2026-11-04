@@ -14,6 +14,6 @@ If you read the WDL 1.0 spec’s [Command Section](https://github.com/openwdl/wd
 ## Resources
 Below are some example WDLs that either use scripting languages in-line or call scripts written in particular languages.
 
-* [Example of WDL that uses in-line perl script (see line #348 of the Build Indices workflow)](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/BuildIndices.wdl)
-* [Example of WDL task that uses in-line python script (see line #28 of Utilities WDL](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Utilities.wdl)
-* [Example of WDL that uses an R script (line 39 of the emptyDrops task)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl)
+* [Example of WDL that uses in-line perl script (see line #348 of the Build Indices workflow)](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/build_indices/BuildIndices.wdl)
+* [Example of WDL task that uses in-line python script (see line #28 of Utilities WDL](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/Utilities.wdl)
+* [Example of WDL that uses an R script (line 39 of the emptyDrops task)](https://github.com/broadinstitute/warp/blob/master/tasks/wdl/RunEmptyDrops.wdl)

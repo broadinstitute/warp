@@ -6,16 +6,17 @@ slug: /Pipelines/snm3C/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [snm3C_v4.0.0](https://github.com/broadinstitute/warp/releases) | March, 2024 | [Kaylee Mathews](mailto:warp-pipelines-help@broadinsitute.org) | Please file GitHub issues in the [WARP repository](https://github.com/broadinstitute/warp/issues) |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/snm3C/snm3C.changelog.md) for version information. | See changelog | Kaylee Mathews | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues).  |
 
+![snm3C_diagram](snm3C_diagram.png)
 
 ## Introduction to snm3C
 
 The Single Nucleus Methly-Seq and Chromatin Capture (snm3C) workflow is an open-source, cloud-optimized computational workflow for processing single-nucleus methylome and chromatin contact (snm3C) sequencing data. The workflow is designed to demultiplex and align raw sequencing reads, call chromatin contacts, and generate summary metrics. 
 
-The workflow is developed in collaboration with Hanqing Liu, Wei Tian, Wubin Ding, Huaming Chen, Chongyuan Luo, Jingtian Zhou, and the entire laboratory of Joseph Ecker. 
+The workflow is developed in collaboration with Hanqing Liu, Wei Tian, Wubin Ding, Huaming Chen, Chongyuan Luo, Jingtian Zhou, and the entire laboratory of Joseph Ecker. Please see the [Acknowledgments](#acknowledgements) section below.
 
-For more information about the snm3C tools and analysis, please see the [YAP documentation](https://hq-1.gitbook.io/mc/) or the [cemba_data](https://github.com/lhqing/cemba_data) GitHub repository created by Hanqing Liu.
+For more information about the snm3C tools and analysis, please see the [YAP documentation](https://hq-1.gitbook.io/mc/) or the cemba_data GitHub repositories created by [Hanqing Liu](https://github.com/lhqing/cemba_data) and [Wubin Ding](https://github.com/DingWB/cemba_data).
 
 ## Quickstart table
 The following table provides a quick glance at the Multiome pipeline features:
@@ -35,7 +36,7 @@ The following table provides a quick glance at the Multiome pipeline features:
 
 ### snm3C installation
 
-To download the latest snm3C release, see the release tags prefixed with "snm3C" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All snm3C pipeline releases are documented in the [snm3C changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snm3C/snm3C.changelog.md). 
+To download the latest snm3C release, see the release tags prefixed with "snm3C" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All snm3C pipeline releases are documented in the [snm3C changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/snm3C/snm3C.changelog.md). 
 
 To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
@@ -46,7 +47,7 @@ The snm3C workflow can be deployed using [Cromwell](https://cromwell.readthedocs
 
 ### Inputs
 
-The snm3C workflow requires a JSON configuration file specifying the input files and parameters for the analysis. Example configuration files can be found in the snm3C [`test_inputs`](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/snm3C/test_inputs) directory in the WARP repository.
+The snm3C workflow requires a JSON configuration file specifying the input files and parameters for the analysis. Example configuration files can be found in the snm3C [`test_inputs`](https://github.com/broadinstitute/warp/tree/develop/pipelines/wdl/snm3C/test_inputs) directory in the WARP repository.
 
 #### Input descriptions
 
@@ -84,7 +85,7 @@ Overall, the snm3C workflow:
 
 The tools each snm3C task employs are detailed in the table below. 
 
-To see specific tool parameters, select the [workflow WDL link](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snm3C/snm3C.wdl); then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `# runtime values` section as `docker: `. More details about these tools and parameters can be found in the [YAP documentation](https://hq-1.gitbook.io/mc/).
+To see specific tool parameters, select the [workflow WDL link](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/snm3C/snm3C.wdl); then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `# runtime values` section as `docker: `. More details about these tools and parameters can be found in the [YAP documentation](https://hq-1.gitbook.io/mc/).
 
 | Task name | Tool | Software | Description |
 | --- | --- | --- | --- |
@@ -92,6 +93,7 @@ To see specific tool parameters, select the [workflow WDL link](https://github.c
 | Hisat-paired-end | Cutadapt, HISAT-3N, [hisat3n_general.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/hisat3n_general.py), [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py) | [Cutadapt](https://cutadapt.readthedocs.io/en/stable/), [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/), python3 | Sorts, filters, and trims reads using the `r1_adapter`, `r2_adapter`, `r1_left_cut`, `r1_right_cut`, `r2_left_cut`, and `r2_right_cut` input parameters; performs paired-end read alignment; imports 2 custom python3 scripts developed by Hanqing Liu and calls the `separate_unique_and_multi_align_reads()` and `split_hisat3n_unmapped_reads()` functions to separate unmapped, uniquely aligned, multi-aligned reads from HISAT-3N BAM file, then splits the unmapped reads FASTQ file by all possible enzyme cut sites and output new R1 and R2 FASTQ files; unmapped reads are stored in unmapped FASTQ files and uniquely and multi-aligned reads are stored in separate BAM files. |
 | Hisat_single_end | HISAT-3N, [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py) | [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/), python3 | Performs single-end alignment of unmapped reads to maximize read mapping, imports a custom python3 script developed by Hanqing Liu, and calls the `remove_overlap_read_parts()` function to remove overlapping reads from the split alignment BAM file produced during single-end alignment. |
 | Merge_sort_analyze | merge, sort, MarkDuplicates, [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py), bam-to-allc, extract-allc | [samtools](https://www.htslib.org/), [Picard](https://broadinstitute.github.io/picard/), python3, [ALLCools](https://lhqing.github.io/ALLCools/intro.html) | Merges and sorts all mapped reads from the paired-end and single-end alignments; creates a position-sorted BAM file and a name-sorted BAM file; removes duplicate reads from the position-sorted, merged BAM file; imports a custom python3 script developed by Hanqing Liu and calls the `call_chromatin_contacts()` function to call chromatin contacts from the name-sorted, merged BAM file; reads are considered chromatin contacts if they are greater than 2,500 base pairs apart; creates a first ALLC file with a list of methylation points and a second ALLC file containing methylation contexts. |
+| Summary_PerCellOutput | Custom function | bash | Untar files needed at per cell level. |
 | Summary | [summary.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/summary.py) | python3 | Imports a custom python3 script developed by Hanqing Liu and calls the `snm3c_summary()` function to generate a single, summary file for the pipeline in CSV format; contains trimming, mapping, deduplication, chromatin contact, and AllC site statistics. |
 
 
@@ -158,7 +160,7 @@ The following table lists the output variables and files produced by the pipelin
 
 ## Versioning
 
-All snm3C pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snm3C/snm3C.changelog.md).
+All snm3C pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/snm3C/snm3C.changelog.md).
 
 ## Citing the snm3C Pipeline
 
@@ -174,17 +176,17 @@ Liu, H., Zhou, J., Tian, W. et al. DNA methylation atlas of the mouse brain at s
 
 Please cite the following preprint for the WARP repository and website:
 
-Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Kiernan, E., Konwar, K., Mathews, K.L., Palis, K., et al. Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis. Bioinformatics 2025; btaf494. https://doi.org/10.1093/bioinformatics/btaf494
 
 
 ## Consortia support
 This pipeline is supported by the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN). 
 
-If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org).
+If your organization also uses this pipeline, we would like to list you! Please reach out to us by [filing an issue in WARP](https://github.com/broadinstitute/warp/issues).
 
 ## Acknowledgements
 We are immensely grateful to the members of the BRAIN Initiative ([BICAN](https://brainblog.nih.gov/brain-blog/brain-issues-suite-funding-opportunities-advance-brain-cell-atlases-through-centers) Sequencing Working Group) and [SCORCH](https://nida.nih.gov/about-nida/organization/divisions/division-neuroscience-behavior-dnb/basic-research-hiv-substance-use-disorder/scorch-program) for their invaluable and exceptional contributions to this pipeline. Our heartfelt appreciation goes to our collaborators and the developers of these tools, Hanqing Liu, Wei Tian, Wubin Ding, Huaming Chen, Chongyuan Luo, Jingtian Zhou, and the entire laboratory of Joseph Ecker. 
 
 ## Feedback
 
-For questions, suggestions, or feedback related to the snm3C pipeline, please contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org). Your feedback is valuable for improving the pipeline and addressing any issues that may arise during its usage.
+For questions, suggestions, or feedback related to the snm3C pipeline, please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). Your feedback is valuable for improving the pipeline and addressing any issues that may arise during its usage.

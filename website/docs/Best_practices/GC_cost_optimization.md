@@ -93,7 +93,7 @@ As with the other tips, running in parallel might not be necessary for all use c
 ## Tip 5: Use a VM that already has your reference
 When you run WDL workflows in Terra, you have the option to use a VM that already has reference files loaded. This is important because you can avoid localization costs of necessary reference files, saving you time in the VM and ultimately, money.
 
-Let’s look at an example of how using preloaded references helped optimize timing for the alignment task of a real workflow, the [Smart-seq2 Single Nucleus Multi-Sample Pipeline](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl). 
+Let’s look at an example of how using preloaded references helped optimize timing for the alignment task of a real workflow, the [Smart-seq2 Single Nucleus Multi-Sample Pipeline](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl). 
 
 Prior to using preloaded references, the timing for the alignment task using STAR was the following:
 

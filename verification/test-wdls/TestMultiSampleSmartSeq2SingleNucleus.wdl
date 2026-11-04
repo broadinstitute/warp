@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl" as MultiSampleSmartSeq2SingleNucleus
+import "../../pipelines/wdl/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl" as MultiSampleSmartSeq2SingleNucleus
 import "../../verification/VerifyMultiSampleSmartSeq2SingleNucleus.wdl" as VerifyMultiSampleSmartSeq2SingleNucleus
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestMultiSampleSmartSeq2SingleNucleus {
 
@@ -31,8 +31,8 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
       String truth_path
       String results_path
       Boolean update_truth
-      String vault_token_path
-      String google_account_vault_path
+
+      String cloud_provider
     }
 
     meta {
@@ -57,7 +57,8 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
         species = species,
         organ = organ,
         input_name_metadata_field = input_name_metadata_field,
-        input_id_metadata_field = input_id_metadata_field
+        input_id_metadata_field = input_id_metadata_field,
+        cloud_provider = cloud_provider
   
     }
 
@@ -65,7 +66,7 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
-                                    MultiSampleSmartSeq2SingleNucleus.loom_output,
+                                    MultiSampleSmartSeq2SingleNucleus.h5ad_output,
                                     ],
                                     # Array[File] outputs
                                     MultiSampleSmartSeq2SingleNucleus.bam_files,
@@ -76,21 +77,17 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
     
 
     # Copy results of pipeline to test results bucket
-    call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
+    call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
       input:
         files_to_copy             = flatten([pipeline_outputs]),
-        vault_token_path          = vault_token_path,
-        google_account_vault_path = google_account_vault_path,
         destination_cloud_path    = results_path
     }
   
     # If updating truth then copy output to truth bucket
     if (update_truth){
-      call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
+      call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
         input: 
           files_to_copy             = flatten([pipeline_outputs]),
-          vault_token_path          = vault_token_path,
-          google_account_vault_path = google_account_vault_path,
           destination_cloud_path    = truth_path
       }
     }
@@ -103,9 +100,9 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
             results_path = results_path,
             truth_path = truth_path
         }
-        call Utilities.GetValidationInputs as GetLoom {
+        call Utilities.GetValidationInputs as GetH5ad {
           input:
-            input_file = MultiSampleSmartSeq2SingleNucleus.loom_output,
+            input_file = MultiSampleSmartSeq2SingleNucleus.h5ad_output,
             results_path = results_path,
             truth_path = truth_path
         }
@@ -114,8 +111,8 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
         input:
           truth_bams = GetBams.truth_files, 
           test_bams = GetBams.results_files,
-          truth_loom = GetLoom.truth_file, 
-          test_loom = GetLoom.results_file,
+          truth_h5ad = GetH5ad.truth_file,
+          test_h5ad = GetH5ad.results_file,
           done = CopyToTestResults.done
       }
     }

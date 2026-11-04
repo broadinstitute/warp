@@ -6,8 +6,8 @@ workflow VerifyMultiSampleSmartSeq2SingleNucleus {
 	input {
     Array[File] truth_bams
     Array[File] test_bams
-    File truth_loom
-    File test_loom
+    File truth_h5ad
+    File test_h5ad
 
     Boolean? done
   }
@@ -21,10 +21,10 @@ workflow VerifyMultiSampleSmartSeq2SingleNucleus {
     }
 	}
   
-  call VerifyTasks.CompareLooms as CompareLooms {
+  call VerifyTasks.CompareH5adFilesGEX as CompareH5adFiles {
     input:
-      test_loom  = test_loom,
-      truth_loom = truth_loom
+      test_h5ad  = test_h5ad,
+      truth_h5ad = truth_h5ad
   }
 
   output{}

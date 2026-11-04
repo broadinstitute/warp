@@ -2,12 +2,17 @@
 sidebar_position: 1
 ---
 
-# Welcome to WARP
+# Welcome to WARP 
 
-WARP (WDL Analysis Research Pipelines) repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators.
+The Warp Analysis Research Pipelines repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators.
 
 The contents of this repository are open source and released under the [BSD 3-Clause license](https://github.com/broadinstitute/warp/blob/master/LICENSE).
 
+## WARP Philosophy
+
+Our mission is to develop production-grade, cloud-optimized pipelines that serve the needs of large-scale research consortia and the broader scientific community. Since many of these consortia have adopted Terra as their primary computing environment, most WARP pipelines are written in WDL and tuned for optimal performance on Terra. As community needs evolve, WARP will adapt accordingly to support those environments.
+
+We do not position WDL as inherently superior to workflow languages like Nextflow or Snakemake. Rather, we focus on addressing the specific needs of scientific consortia and research communities that prioritize reproducibility, scalability, and seamless integration with the Terra platform. 
 
 ## WARP Overview
 
@@ -33,7 +38,7 @@ Try our pipelines in [Terra](https://app.terra.bio/#workspaces?tagsFilter%5B0%5D
 
 All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad Institute’s Genomics Platform), cemba (pipelines for the BRAIN Initiative) or skylab (pipelines for the BRAIN Initiative and Human Cell Atlas Project).
 
-Each pipeline directory hosts a main workflow WDL that includes a pipeline version number and a corresponding changelog file.
+Each pipeline directory hosts a main workflow (WDL) that includes a pipeline version number and a corresponding changelog file.
 
 Workflows may call additional WDLs, referred to as tasks, that are located in the [tasks](https://github.com/broadinstitute/warp/tree/master/tasks) directory.
 
@@ -88,7 +93,7 @@ Each pipeline in WARP has accompanying continuous integration tests that run on 
 
 ## Feedback
 
-WARP is always evolving! Please file any issues in GitHub or contact [the WARP Team](mailto:warp-pipelines-help@broadinstitute.org) with suggestions, feedback, or questions. We are always excited to discuss cloud data processing, provenance and reproducibility in scientific analysis, new pipeline features, or potential collaborations. Don’t hesitate to reach out!
+WARP is always evolving! Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues) with suggestions, feedback, or questions. We are always excited to discuss cloud data processing, provenance and reproducibility in scientific analysis, new pipeline features, or potential collaborations. Don’t hesitate to reach out!
 
 Our planned upcoming improvements include:
 
@@ -101,7 +106,7 @@ Our planned upcoming improvements include:
 ## Citing WARP
 When citing WARP, please use the following:
 
-Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+Degatano, K., Awdeh, A., Cox III, R.S., Dingman, W., Grant, G., Khajouei, F., Kiernan, E., Konwar, K., Mathews, K.L., Palis, K., et al. Warp Analysis Research Pipelines: Cloud-optimized workflows for biological data processing and reproducible analysis. Bioinformatics 2025; btaf494. https://doi.org/10.1093/bioinformatics/btaf494
 
 ## Acknowledgements
 

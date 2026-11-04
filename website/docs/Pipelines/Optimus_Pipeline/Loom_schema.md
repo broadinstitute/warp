@@ -32,6 +32,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 | `input_id_metadata_field` | Optional string that describes, when applicable, the metadata field containing the `input_id`. |
 | `input_name_metadata_field` | Optional string that describes, when applicable, the metadata field containing the `input_name`. |
 | `pipeline_version` | String describing the version of the Optimus pipeline run on the data. |
+| `NHashID` | String that represents NHashID (an optional library aliquot identifier) if specified during the worfklow run. |
 
 ## Table 2. Cell metrics
 
@@ -40,7 +41,9 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`CellID` | [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The unique identifier for each cell based on cell barcodes (sequences used to identify unique cells); identical to `cell_names`. Learn more about cell barcodes in the [Definitions](#definitions) section below. |
 |`cell_names` |  [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The unique identifier for each cell based on cell barcodes; identical to `CellID`. |
 | `input_id` | Provided as pipeline input | The sample or cell ID listed in the pipeline configuration file. This can be any string, but we recommend it be consistent with any sample metadata. |
+| `star_IsCell` | STARsolo | A true/false flag demarcating if the STARsolo aligner called a cell barcode as a cell. |
 |`n_reads`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The number of reads associated with the cell. Like all metrics, `n_reads` is calculated from the Optimus output BAM file. Prior to alignment, reads are checked against the whitelist and any within one edit distance (Hamming distance) are corrected. These CB-corrected reads are aligned using STARsolo, where they get further CB correction. For this reason, most reads in the aligned BAM file have both `CB` and `UB` tags. Therefore, `n_reads` represents CB-corrected reads, rather than all reads in the input FASTQ files. |
+| `tso_reads` | [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The number of reads that have 20 or more bp of TSO sequence clipped from the 5' end. Calculated using the first number of cN tag in the BAM, which is specific to the number of TSO nucleotides clipped. | 
 |`noise_reads`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| Number of reads that are categorized by 10x Genomics Cell Ranger as "noise". Refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. |
 |`perfect_molecule_barcodes`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The number of reads with molecule barcodes (sequences used to identify unique transcripts) that have no errors. Learn more about UMIs in the [Definitions](#definitions) section below. |
 | `reads_mapped_exonic` | STARsolo and [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The number of unique reads counted as exon; counted when BAM file's `sF` tag is assigned to `1` or `3` and the `NH:i` tag is `1`; mitochondrial reads are excluded. |
@@ -67,6 +70,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`fragments_per_molecule`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The average number of fragments associated with each molecule in the cell. |
 |`fragments_with_single_read_evidence`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The number of fragments associated with the cell that are observed by only one read. |
 |`molecules_with_single_read_evidence`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)|The number of molecules associated with the cell that are observed by only one read. |
+| `reads_mapped_mitochondrial` | [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The number unique reads (NH:i:1 BAM tag) that come from mitochondrial genes. | 
 |`perfect_cell_barcodes`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)|The number of reads whose cell barcodes contain no error. |
 |`reads_mapped_too_many_loci`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The number of reads that were mapped to too many loci across the genome and as a consequence, are reported unmapped by the aligner. |
 |`cell_barcode_fraction_bases_above_30_variance`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The variance of the fraction of Illumina base calls for the cell barcode sequence that are greater than 30, across molecules. |
@@ -82,6 +86,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 | `reads_mapped_intergenic` | STARsolo and [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The number of reads counted as intergenic; counted when the BAM file's `sF` tag is assigned to a `7` and the `NH:i` tag is `1`. |
 | `reads_unmapped` | [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The total number of reads that are unmapped; counted when the BAM file's `sF` tag is `0`. |
 |`reads_per_molecule`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The average number of reads associated with each molecule in the cell. |
+| `doublet_score` | Modified version of [DoubletFinder](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6853612/) | A score produced by a modified version of the DoubletFinder software that normalizes data using scanpy and then uses the k-nearest neighbors algorithm to determine cells. This program is non-deterministic, so results will vary across runs of the workflow. The metrics are used to determine overall library quality.  |
 
 ## Table 3. Gene metrics
 
@@ -91,6 +96,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 | `Gene` | [GENCODE GTF](https://www.gencodegenes.org/) | The unique `gene_name` provided in the GENCODE GTF file; identical to the `gene_names` attribute. |
 |`gene_names` | [GENCODE GTF](https://www.gencodegenes.org/) | The unique `gene_name` provided in the GENCODE GTF file; identical to the `Gene` attribute. |
 |`n_reads`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The number of reads associated with this gene. |
+| `tso_reads` | [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The number of reads that have 20 or more bp of TSO sequence clipped from the 5' end. Calculated using the first number of cN tag in the BAM, which is specific to the number of TSO nucleotides clipped. |
 |`noise_reads`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| Not currently calculated for Optimus output; number of reads that are categorized by 10x Genomics Cell Ranger as "noise"; refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. |
 |`perfect_molecule_barcodes`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The number of reads with molecule barcodes (sequences used to identify unique transcripts) that have no errors. Learn more about UMIs in the [Definitions](#definitions) section below. |
 | `reads_mapped_exonic` | STARsolo and [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The number of unique reads counted as exon; counted when BAM file's `sF` tag is assigned to `1` or `3` and the `NH:i` tag is `1`; mitochondrial reads are excluded. |
@@ -115,6 +121,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`fragments_per_molecule`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The average number of fragments associated with each molecule in the gene. |
 |`fragments_with_single_read_evidence`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The number of fragments associated with the gene that are observed by only one read. |
 |`molecules_with_single_read_evidence`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The number of molecules associated with the gene that are observed by only one read. |
+| `reads_mapped_mitochondrial` | [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The number unique reads (NH:i:1 BAM tag) that come from mitochondrial genes. |
 |`number_cells_detected_multiple`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The number of cells which observe more than one read of the gene. |
 |`number_cells_expressing`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The number of cells that detect the gene. |
 

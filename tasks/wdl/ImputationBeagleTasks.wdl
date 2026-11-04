@@ -1,0 +1,969 @@
+version 1.0
+
+task CalculateContigsToProcess {
+  input {
+    File vcf_input
+    Array[String] allowed_contigs
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    Int cpu = 1
+    Int memory_mb = 16000
+    Int disk_size_gb = ceil(size(vcf_input, "GiB")) + 10
+  }
+
+  command <<<
+    set -e -o pipefail
+
+    # extract all chromosomes in input
+    gunzip -c ~{vcf_input} | grep -v "#" | cut -f1 | sort -u > chromosomes.txt
+    echo "Extracted chromosomes: $(cat chromosomes.txt | tr '\n' ' ')"
+
+    # filter to allowed contigs, enforcing order
+    for chr in ~{sep=" " allowed_contigs}; do
+        if grep -q "^${chr}$" "chromosomes.txt"; then
+            echo "${chr}" >> filtered_chromosomes.txt
+        fi
+    done
+
+    echo "Filtered chromosomes: $(cat filtered_chromosomes.txt | tr '\n' ' ')"
+  >>>
+
+  output {
+    Array[String] contigs_to_process = read_lines("filtered_chromosomes.txt")
+  }
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} SSD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+
+}
+
+task ExtractUniqueVariantIds {
+  input {
+    File vcf
+    File vcf_index
+    String? chrom
+    Int? start
+    Int? end
+
+    Int disk_size_gb = ceil(size(vcf, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 4000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+    Int preemptible = 3
+  }
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
+
+  String output_base = basename(vcf, ".vcf.gz")
+
+  String chrom_option = if defined(chrom) then "-L ~{chrom}" else ""
+  String region_option = if defined(chrom) && defined(start) && defined(end) then "-L ~{chrom}:~{start}-~{end}" else chrom_option
+
+  command <<<
+    set -e -o pipefail
+
+    echo "REGION OPTION IS SET TO: "
+    echo ~{region_option}
+
+    # use gatk to stream only the needed interval of the input vcf
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+      SelectVariants \
+      -V ~{vcf} \
+      ~{region_option} \
+      ~{"-select 'POS >= " + start + "'"} \
+      -O selected.vcf.gz
+
+    # create variant ids file
+    bcftools query -f "%CHROM:%POS:%REF:%ALT\n" selected.vcf.gz | uniq > unique_variants
+
+    # sort and remove blank lines
+    sort unique_variants | sed '/^$/d' > ~{output_base}.unique_variants.sorted
+
+    # count variants
+    wc -l ~{output_base}.unique_variants.sorted | awk '{print $1}' > var_count
+
+  >>>
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 1
+    noAddress: true
+  }
+
+  parameter_meta {
+    vcf: {
+       description: "vcf",
+       localization_optional: true
+     }
+    vcf_index: {
+       description: "vcf index",
+       localization_optional: true
+     }
+  }
+
+  output {
+    File unique_variant_ids = "~{output_base}.unique_variants.sorted"
+    Int unique_variant_count = read_int("var_count")
+  }
+}
+
+task CountUniqueVariantIdsInOverlap {
+  input {
+    File variant_ids_1
+    File variant_ids_2
+
+    String docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
+    Int cpu = 1
+    Int memory_mb = 16000
+    Int disk_size_gb = ceil(size(variant_ids_1, "GiB") + size(variant_ids_2, "GiB")) + 10
+  }
+
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
+
+  command <<<
+    set -e -o pipefail
+
+    sort ~{variant_ids_1}> variant_ids_1_sorted
+    sort ~{variant_ids_2} > variant_ids_2_sorted
+
+    # output lines common to both files, then count them
+    comm -12 variant_ids_1_sorted variant_ids_2_sorted | wc -l | awk '{print $1}' > var_overlap
+  >>>
+
+  output {
+    Int var_overlap = read_int("var_overlap")
+  }
+  runtime {
+    docker: docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+}
+
+task CheckChunks {
+  input {
+    Int var_in_original
+    Int var_also_in_reference
+
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
+    Int cpu = 1
+    Int memory_mb = 4000
+  }
+  command <<<
+    set -e -o pipefail
+
+    if [ $(( ~{var_also_in_reference} * 2 - ~{var_in_original})) -gt 0 ] && [ ~{var_also_in_reference} -gt 3 ]; then
+      echo true > valid_file.txt
+    else
+      echo false > valid_file.txt
+    fi
+  >>>
+  output {
+    Boolean valid = read_boolean("valid_file.txt")
+  }
+  runtime {
+    docker: bcftools_docker
+    disks: "local-disk 10 HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+}
+
+task CountValidContigChunks {
+  input {
+    Array[Boolean] valids
+  }
+
+  command <<<
+    set -e -o pipefail
+
+    # Count the number of "true" values in the array
+    count=0
+    for val in ~{sep=" " valids}; do
+      if [ "$val" = "true" ]; then
+        count=$((count + 1))
+      fi
+    done
+    echo "$count" > n_valid_chunks.txt
+  >>>
+
+  output {
+    Int n_valid_chunks = read_int("n_valid_chunks.txt")
+    Int n_invalid_chunks = length(valids) - n_valid_chunks
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    cpu: 1
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+}
+
+task StoreMetricsInfo {
+  input {
+    Array[String] chunk_chroms
+    Array[Int] starts
+    Array[Int] ends
+    Array[Int] vars_in_array
+    Array[Int] vars_in_panel
+    Array[Boolean] valids
+    Array[String] chroms
+    Array[Int] vars_in_raw_input
+    String basename
+
+    String python_docker = "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 10
+  }
+  command <<<
+    python3 << "EOF"
+    import pandas as pd
+
+    # assemble chunk_info DataFrame
+    chunk_info = pd.DataFrame({
+        'chrom': ["~{sep='", "' chunk_chroms}"],
+        'start': [~{sep=', ' starts}],
+        'end': [~{sep=', ' ends}],
+        'var_in_filtered_input': [~{sep=', ' vars_in_array}],
+        'var_in_panel': [~{sep=', ' vars_in_panel}],
+        'chunk_was_imputed': [v.lower() == "true" for v in ["~{sep='", "' valids}"]]
+    })
+
+    # Filter for failed chunks and drop the chunk_was_imputed column
+    failed_chunks = chunk_info[~chunk_info['chunk_was_imputed']].drop(columns=['chunk_was_imputed'])
+    n_failed_chunks = len(failed_chunks)
+
+    # Aggregate variant counts by chromosome
+    contig_info_from_chunks = chunk_info.groupby('chrom', sort=False).agg({
+        'var_in_filtered_input': 'sum',
+        'var_in_panel': 'sum'
+    }).reset_index()
+
+    # add raw input counts
+    contig_info = pd.DataFrame({
+        'chrom': ["~{sep='", "' chroms}"],
+        'var_in_raw_input': [~{sep=', ' vars_in_raw_input}]
+    })
+    contig_info = contig_info.merge(contig_info_from_chunks, on='chrom', how='left')
+
+    # add columns for percent_passing_filter and percent_overlap_with_panel, rounded to two decimal places
+    contig_info['percent_passing_filter'] = round(contig_info['var_in_filtered_input'] / contig_info['var_in_raw_input'] * 100, 2)
+    contig_info['percent_overlap_with_panel'] = round(contig_info['var_in_panel'] / contig_info['var_in_filtered_input'] * 100, 2)
+
+    # Write outputs
+    chunk_info.to_csv("~{basename}_chunk_info.tsv", sep='\t', index=False)
+    failed_chunks.to_csv("~{basename}_failed_chunks.tsv", sep='\t', index=False)
+    contig_info.to_csv("~{basename}_contig_info.tsv", sep='\t', index=False)
+    with open("n_failed_chunks.txt", 'w') as f:
+        f.write(str(n_failed_chunks))
+    EOF
+  >>>
+  runtime {
+    docker: python_docker
+    disks : "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+  output {
+    File chunks_info = "~{basename}_chunk_info.tsv"
+    File failed_chunks = "~{basename}_failed_chunks.tsv"
+    File contigs_info = "~{basename}_contig_info.tsv"
+    Int n_failed_chunks = read_int("n_failed_chunks.txt")
+  }
+}
+
+task Phase {
+  input {
+    File dataset_vcf
+    File ref_panel_bref3
+    File genetic_map_file
+    String basename
+    String chrom
+    Int start
+    Int end
+
+    String beagle_docker = "us.gcr.io/broad-gotc-prod/imputation-beagle:3.1.0-0b17ad0-1768971822"
+    Int cpu = 8                    # This parameter is used as the nthreads input to Beagle which is part of how we make it determinstic.  Changing this value may change the output generated by the tool
+    Int memory_mb = 32000          # value depends on chunk size, the number of samples in ref and target panel
+    Int disk_size_gb = ceil((3 * size(dataset_vcf, "GiB")) + size(ref_panel_bref3, "GiB")) + 10
+  }
+
+  command <<<
+    set -e -o pipefail
+
+    java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 -XX:-UseCompressedOops \
+    -jar /usr/gitc/beagle.0b17ad0.jar \
+    gt=~{dataset_vcf} \
+    ref=~{ref_panel_bref3} \
+    map=~{genetic_map_file} \
+    out=phased_~{basename} \
+    chrom=~{chrom}:~{start}-~{end} \
+    impute=false \
+    nthreads=~{cpu} \
+    seed=-99999
+
+  >>>
+  output {
+    File vcf = "phased_~{basename}.vcf.gz"
+    File log = "phased_~{basename}.log"
+  }
+  runtime {
+    docker: beagle_docker
+    disks: "local-disk ${disk_size_gb} SSD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+}
+
+task Impute {
+  input {
+    File dataset_vcf
+    File ref_panel_bref3
+    File genetic_map_file
+    String basename
+    String chrom
+    Int start
+    Int end
+    Boolean impute_with_allele_probabilities
+
+    String beagle_docker = "us.gcr.io/broad-gotc-prod/imputation-beagle:3.1.0-0b17ad0-1768971822"
+    Int cpu = 8                    # This parameter is used as the nthreads input to Beagle which is part of how we make it determinstic.  Changing this value may change the output generated by the tool
+    Int memory_mb = 32000          # value depends on chunk size, the number of samples in ref and target panel
+    Int disk_size_gb = ceil((3 * size(dataset_vcf, "GiB")) + size(ref_panel_bref3, "GiB")) + 10
+  }
+
+  command <<<
+    set -e -o pipefail
+
+    java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 -XX:-UseCompressedOops \
+    -jar /usr/gitc/beagle.0b17ad0.jar \
+    gt=~{dataset_vcf} \
+    ref=~{ref_panel_bref3} \
+    map=~{genetic_map_file} \
+    out=imputed_~{basename} \
+    chrom=~{chrom}:~{start}-~{end} \
+    impute=true \
+    ~{if impute_with_allele_probabilities then "ap=true" else ""} \
+    gp=true \
+    nthreads=~{cpu} \
+    seed=-99999
+
+  >>>
+  output {
+    File vcf = "imputed_~{basename}.vcf.gz"
+    File log = "imputed_~{basename}.log"
+  }
+  runtime {
+    docker: beagle_docker
+    disks: "local-disk ${disk_size_gb} SSD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+}
+
+task ErrorWithMessageIfErrorCountNotZero {
+  input {
+    Int errorCount
+    String message
+  }
+  command <<<
+    if [[ ~{errorCount} -gt 0 ]]; then
+      >&2 echo "Error: ~{message}"
+      exit 1
+    else
+      exit 0
+    fi
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+  output {
+    Boolean done = true
+  }
+}
+
+task CreateVcfIndex {
+  input {
+    File vcf_input
+
+    Int disk_size_gb = ceil(1.1*size(vcf_input, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 6000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    Int preemptible = 3
+  }
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
+
+  String vcf_basename = basename(vcf_input)
+
+  command {
+    set -e -o pipefail
+
+    ln -sf ~{vcf_input} ~{vcf_basename}
+
+    bcftools index -t ~{vcf_basename}
+  }
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} SSD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 1
+    noAddress: true
+  }
+  output {
+    File output_vcf = "~{vcf_basename}"
+    File output_vcf_index = "~{vcf_basename}.tbi"
+  }
+}
+
+task LocalizeAndSubsetVcfToRegion {
+  input {
+    File vcf
+    String output_basename
+    String contig
+    Int start
+    Int end
+    Boolean exclude_filtered = false
+
+    Int disk_size_gb = ceil(3*size(vcf, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 6000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+  }
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
+
+  command {
+    set -e -o pipefail
+
+    tabix ~{vcf}
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants \
+    -V ~{vcf} \
+    -L ~{contig}:~{start}-~{end} \
+    -select 'POS >= ~{start}' ~{if exclude_filtered then "--exclude-filtered" else ""} \
+    -O ~{output_basename}.vcf.gz
+  }
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+
+  output {
+    File output_vcf = "~{output_basename}.vcf.gz"
+    File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
+  }
+}
+
+task SelectSamplesWithCut {
+  input {
+    File vcf
+
+    Int cut_start_field
+    Int cut_end_field
+    String basename
+
+    Int disk_size_gb = ceil(1.5 * size(vcf, "GiB")) + 10
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
+    Int cpu = 2
+    Int memory_mb = 6000
+  }
+
+  command <<<
+    set -euo pipefail
+
+    mkfifo fifo_bgzip
+    mkfifo fifo_cut
+
+    bcftools view -h --no-version ~{vcf} | awk '!/^#CHROM/' > header.vcf
+    n_lines=$(wc -l header.vcf | cut -d' ' -f1)
+
+    cat header.vcf
+    echo $n_lines
+
+    bgzip -d ~{vcf} -o fifo_bgzip &
+    tail +$((n_lines)) fifo_bgzip | cut -f 1-9,~{cut_start_field}-~{cut_end_field} > fifo_cut &
+
+    cat header.vcf fifo_cut | bgzip -o ~{basename}.vcf.gz
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
+    disks: "local-disk " + disk_size_gb + " HDD"
+    memory: memory_mb + " MiB"
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+    cpu: cpu
+  }
+
+  output {
+    File output_vcf = "~{basename}.vcf.gz"
+  }
+}
+
+task MergeSampleChunksVcfsWithPaste {
+  input {
+    Array[File] input_vcfs
+    String output_vcf_basename
+
+    Int disk_size_gb = ceil(2.2 * size(input_vcfs, "GiB") + 50)
+    Int mem_gb = 12
+    Int cpu = 4
+    Int preemptible = 3
+  }
+
+  command <<<
+    set -euo pipefail
+
+    vcfs=(~{sep=" " input_vcfs})
+
+    mkfifo fifo_0
+    mkfifo fifo_to_paste_0
+
+    i=1
+
+    fifos_to_paste=()
+    md5sums=()
+    bcftools view -h --no-version ${vcfs[0]} | awk '!/^#CHROM/' > header.vcf
+    n_lines=$(bcftools view -h --no-version ${vcfs[0]} | wc -l)
+
+    bgzip -d ${vcfs[0]} -o fifo_0 &
+
+    tail +$((n_lines)) fifo_0 | tee fifo_to_paste_0 | cut -f1-5,9 | md5sum > md5sum_0 &
+
+    for vcf in "${vcfs[@]:1}"; do
+      fifo_name="fifo_$i"
+      mkfifo "$fifo_name"
+
+      fifo_name_to_md5="fifo_to_md5_$i"
+      mkfifo "$fifo_name_to_md5"
+
+      fifo_name_to_paste="fifo_to_paste_$i"
+      mkfifo "$fifo_name_to_paste"
+      fifos_to_paste+=("$fifo_name_to_paste")
+
+      file_name_md5sum="md5sum_$i"
+      md5sums+=("$file_name_md5sum")
+      n_lines=$(bcftools view -h --no-version $vcf | wc -l)
+
+      bgzip -d ${vcf} -o "$fifo_name" &
+      tail +$((n_lines)) "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
+      cut -f1-5,9 "$fifo_name_to_md5" | md5sum > "$file_name_md5sum" &
+
+      ((i++))
+    done
+
+    mkfifo fifo_to_cat
+
+    paste fifo_to_paste_0 "${fifos_to_paste[@]}" | tee fifo_to_cat | awk 'NR % 5000000 == 0' | cut -f 1-5 &
+
+
+    cat header.vcf fifo_to_cat | bgzip -o ~{output_vcf_basename}.vcf.gz
+
+    for md5sum_file in "${md5sums[@]}"; do
+    diff <(cat md5sum_0) <(cat $md5sum_file) >> /dev/null || (echo "Fields 1-5,9 do not match for $md5sum_file" && exit 1)
+    done
+
+    for fifo in fifo_*; do
+    rm $fifo
+    done
+
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
+    disks: "local-disk " + disk_size_gb + " HDD"
+    memory: mem_gb + " GiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 1
+    noAddress: true
+  }
+
+  output {
+    File output_vcf = "~{output_vcf_basename}.vcf.gz"
+  }
+}
+
+task QuerySampleChunkedVcfForReannotation {
+  input {
+    File vcf
+    Int disk_size_gb = ceil(2 * size(vcf, "GiB")) + 10
+    Int mem_gb = 4
+    Int cpu = 1
+    Int preemptible = 3
+  }
+  String vcf_basename = basename(vcf)
+
+  command <<<
+    set -euo pipefail
+
+    bcftools query -f '%CHROM,%POS,%REF,%ALT[,%DS,%AP1,%AP2]\n' ~{vcf} | gzip -c > query_tbl.csv.gz
+    bcftools query -l ~{vcf} | wc -l | awk '{print $1}' > n_samples.txt
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+    disks: "local-disk " + disk_size_gb + " HDD"
+    memory: mem_gb + " GiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 1
+    noAddress: true
+  }
+
+  output {
+    File output_query_file = "query_tbl.csv.gz"
+    Int n_samples = read_int("n_samples.txt")
+  }
+}
+
+task AggregateDSandAPValuesChunked {
+  input {
+    File query_file
+    Int n_samples
+    Int disk_size_gb = ceil(2 * size(query_file, "GiB")) + 10
+    Int mem_gb = 4
+    Int cpu = 1
+    Int chunksize = 30000
+    Int preemptible = 3
+  }
+
+  command <<<
+    set -euo pipefail
+
+    python3 << EOF
+    import pandas as pd
+    import numpy as np
+
+    n_samples = ~{n_samples}
+    rows_per_chunk = ~{chunksize}
+
+    dtypes_dict = {f'sample_{i}_{col}': 'float' for i in range(n_samples) for col in ("DS", "AP1", "AP2")}
+    csv_names = ["CHROM","POS","REF","ALT"] + [f'sample_{i}_{col}' for i in range(n_samples) for col in ("DS", "AP1", "AP2")]
+
+    # Truncate the output, then append each chunk's annotations as they are computed
+    open("chunked_annotations.tsv", "w").close()
+
+    for chunk in pd.read_csv("~{query_file}", names=csv_names, dtype=dtypes_dict, na_values=".", chunksize=rows_per_chunk, lineterminator="\n"):
+      # sample columns are interleaved DS, AP1, AP2 per sample; reshape to (variants, samples, 3) and sum over views
+      values = chunk.iloc[:, 4:].to_numpy().reshape(len(chunk), n_samples, 3)
+
+      chunk_annotations = chunk[["CHROM","POS","REF","ALT"]].copy()
+      chunk_annotations["SUM_DS"] = np.sum(values[:, :, 0], axis=1)
+      chunk_annotations["SUM_AP1"] = np.sum(values[:, :, 1], axis=1)
+      chunk_annotations["SUM_AP1_SQUARED"] = np.sum(values[:, :, 1] ** 2, axis=1)
+      chunk_annotations["SUM_AP2"] = np.sum(values[:, :, 2], axis=1)
+      chunk_annotations["SUM_AP2_SQUARED"] = np.sum(values[:, :, 2] ** 2, axis=1)
+      chunk_annotations["NUM_SAMPLES"] = n_samples
+
+      chunk_annotations.to_csv("chunked_annotations.tsv", sep="\t", index=False, header=False, mode="a")
+      del chunk, values, chunk_annotations
+    EOF
+
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+    disks: "local-disk " + disk_size_gb + " HDD"
+    memory: mem_gb + " GiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 1
+    noAddress: true
+  }
+
+  output {
+    File output_summary_file = "chunked_annotations.tsv"
+  }
+}
+
+task RecomputeDR2AndAfFromChunks {
+  input {
+    Array[File] sample_chunked_annotation_files
+    Int disk_size_gb = ceil(2 * size(sample_chunked_annotation_files, "GiB")) + 10
+    Int mem_gb = 4
+    Int cpu = 1
+    Int preemptible = 3
+    Int line_chunk_size = 100000
+  }
+
+  command <<<
+    set -euo pipefail
+
+    echo "$(date) - recomputing annotations"
+
+    python3 << EOF
+    import pandas as pd
+    import numpy as np
+    import gc
+
+    # pandas spits out a view vs copy warning a lot of times which isn't relevant to this code
+    pd.options.mode.chained_assignment = None  # default='warn'
+
+    dtypes_dict = {f'{col}': 'float' for col in ("SUM_DS", "SUM_AP1", "SUM_AP1_SQUARED", "SUM_AP2", "SUM_AP2_SQUARED")}
+    dtypes_dict["NUM_SAMPLES"] = "int"
+
+    file_paths = ["~{sep='", "' sample_chunked_annotation_files}"]
+    line_chunk_size = ~{line_chunk_size}
+    column_names = ["CHROM", "POS", "REF", "ALT", "SUM_DS", "SUM_AP1", "SUM_AP1_SQUARED", "SUM_AP2", "SUM_AP2_SQUARED", "NUM_SAMPLES"]
+
+    # Truncate the output, then append each aggregated chunk as it is computed
+    open("aggregated_annotations.tsv", "w").close()
+
+    # Stream every file once in lockstep (all files have the same number of lines), instead of re-parsing from the top with skiprows
+    readers = [pd.read_csv(file_path, sep="\t", header=None, names=column_names, dtype=dtypes_dict, chunksize=line_chunk_size) for file_path in file_paths]
+
+    for chunked_dfs in zip(*readers):
+      combined_chunk_df = pd.concat(chunked_dfs)
+
+      # Group by CHROM, POS, REF, ALT and aggregate SUM_DS, SUM_AP1, SUM_AP2
+      aggregated_df = combined_chunk_df.groupby(["CHROM", "POS", "REF", "ALT"]).agg({
+          "SUM_DS": "sum",
+          "SUM_AP1": "sum",
+          "SUM_AP1_SQUARED": "sum",
+          "SUM_AP2": "sum",
+          "SUM_AP2_SQUARED": "sum",
+          "NUM_SAMPLES": "sum"
+      }).reset_index()
+
+      # Aggregated NUM_SAMPLES should be the same across all rows, so we can take the first value
+      num_samples = aggregated_df["NUM_SAMPLES"].iloc[0]
+
+      # Calculate AF
+      af = aggregated_df["SUM_DS"] / (2 * num_samples)
+      aggregated_df["AF"] = np.round(af, 4)
+
+      # Calculate DR2
+      sum_squared_ap1_ap2 = aggregated_df["SUM_AP1_SQUARED"] + aggregated_df["SUM_AP2_SQUARED"]
+      sum_ap1_ap2 = aggregated_df["SUM_AP1"] + aggregated_df["SUM_AP2"]
+
+      denominator = (2 * num_samples * sum_ap1_ap2) - (sum_ap1_ap2)**2
+
+      aggregated_df["DR2"] = np.where(
+          (af == 0) | (af == 1) | (denominator == 0), 0.00, np.round(((2 * num_samples * sum_squared_ap1_ap2) - (sum_ap1_ap2**2)) / denominator, 2)
+      )
+
+      # Select relevant columns for output and add to final output
+      aggregated_df = aggregated_df[["CHROM", "POS", "REF", "ALT", "AF", "DR2"]]
+      aggregated_df.to_csv("aggregated_annotations.tsv", sep="\t", index=False, header=False, mode="a")
+
+      # clean up memory
+      del chunked_dfs, combined_chunk_df, aggregated_df
+      gc.collect()
+    EOF
+
+    echo "$(date) - annotations recomputed"
+
+    bgzip aggregated_annotations.tsv
+    tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
+
+    echo "$(date) - done zipping and indexing aggregated annotations"
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+    disks: "local-disk " + disk_size_gb + " HDD"
+    memory: mem_gb + " GiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 1
+    noAddress: true
+  }
+
+  output {
+    File output_annotations_file = "aggregated_annotations.tsv.gz"
+    File output_annotations_file_index = "aggregated_annotations.tsv.gz.tbi"
+  }
+}
+
+task RemoveAPAnnotations {
+  input {
+    File vcf
+    File vcf_index
+    Int disk_size_gb = ceil(2 * size(vcf, "GiB")) + 10
+    Int mem_gb = 4
+    Int cpu = 1
+    Int preemptible = 3
+  }
+
+  String output_base = basename(vcf, ".vcf.gz")
+
+  command <<<
+    set -euo pipefail
+
+    echo "$(date) - removing ap1 and ap2 annotations from vcf"
+    bcftools annotate --no-version -x FORMAT/AP1,FORMAT/AP2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
+  >>>
+
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+    disks: "local-disk " + disk_size_gb + " HDD"
+    memory: mem_gb + " GiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 1
+    noAddress: true
+  }
+
+  output {
+    File output_vcf = "~{output_base}.vcf.gz"
+  }
+}
+
+task ReannotateDR2AndAF {
+  input {
+    File vcf
+    File vcf_index
+    File annotations_tsv
+    File annotations_tsv_index
+    Int disk_size_gb = ceil(2 * size(vcf, "GiB") + size(annotations_tsv, "GiB")) + 10
+    Int mem_gb = 4
+    Int cpu = 1
+    Int preemptible = 3
+  }
+
+  String output_base = basename(vcf, ".vcf.gz")
+
+  command <<<
+    set -euo pipefail
+
+    echo "$(date) - annotating vcf with recalculated af and dr2 annotations"
+    bcftools annotate --no-version -a ~{annotations_tsv} -c CHROM,POS,REF,ALT,AF,DR2 -Oz -o ~{output_base}.vcf.gz ~{vcf}
+
+    echo "$(date) - indexing annotated vcf"
+    bcftools index -t ~{output_base}.vcf.gz
+  >>>
+
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/samtools-suite:v1.1"
+    disks: "local-disk " + disk_size_gb + " HDD"
+    memory: mem_gb + " GiB"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: 1
+    noAddress: true
+  }
+
+  output {
+    File output_vcf = "~{output_base}.vcf.gz"
+    File output_vcf_index = "~{output_base}.vcf.gz.tbi"
+  }
+}
+
+task GatherVcfsNoIndex {
+  input {
+    Array[File] input_vcfs
+    String output_vcf_basename
+
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+    Int cpu = 2
+    Int memory_mb = 10000
+    Int disk_size_gb = ceil(3*size(input_vcfs, "GiB")) + 10
+  }
+  Int command_mem = memory_mb - 1500
+  Int max_heap = memory_mb - 1000
+
+  command <<<
+    set -e -o pipefail
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    GatherVcfs \
+    -I ~{sep=' -I ' input_vcfs} \
+    --REORDER_INPUT_BY_FIRST_VARIANT \
+    -O ~{output_vcf_basename}.vcf.gz
+  >>>
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} SSD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    maxRetries: 1
+    noAddress: true
+  }
+  output {
+    File output_vcf = "~{output_vcf_basename}.vcf.gz"
+  }
+}
+
+task FilterVcfByDR2 {
+  input {
+    File vcf
+    File vcf_index
+    Float dr2_threshold
+    String basename
+
+    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 10
+    Int cpu = 1
+    Int memory_mb = 6000
+    String docker = "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0" # bcftools version 1.21
+  }
+
+  command {
+    set -e -o pipefail
+
+    bcftools filter -i 'INFO/DR2 >= ~{dr2_threshold}' -Oz -o ~{basename}.vcf.gz ~{vcf}
+    bcftools index -t ~{basename}.vcf.gz
+  }
+  runtime {
+    docker: docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+    preemptible: 3
+    maxRetries: 1
+    noAddress: true
+  }
+  output {
+    File output_vcf = "~{basename}.vcf.gz"
+    File output_vcf_index = "~{basename}.vcf.gz.tbi"
+  }
+}

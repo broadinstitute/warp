@@ -1,0 +1,17 @@
+{
+  "hailrunner_run.workers": 4,
+  "hailrunner_run.preemptibles": 0,
+  "hailrunner_run.worker_type": "n1-highmem-8",
+  "hailrunner_run.driver_type": "n1-highmem-16",
+
+  "hailrunner_run.worker_disk_gb": 100,
+  "hailrunner_run.driver_disk_gb": 200,
+
+  "hailrunner_run.executor_cores": 4,
+  "hailrunner_run.executor_memory": "26g",
+  "hailrunner_run.driver_cores": 4,
+  "hailrunner_run.driver_memory": "80g",
+
+  "hailrunner_run.max_idle": 10,
+  "hailrunner_run.max_age": 180
+}

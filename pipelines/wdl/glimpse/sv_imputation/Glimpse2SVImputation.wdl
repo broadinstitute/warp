@@ -1,0 +1,186 @@
+version 1.0
+
+import "./PreprocessPLsGVCF.wdl" as PreprocessPLsGVCF
+import "./Glimpse2SVImputationBatch.wdl" as Glimpse2SVImputationBatch
+import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
+import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelMerge
+
+workflow Glimpse2SVImputation {
+    String pipeline_version = "1.1.4"
+    String preprocess_pls_gvcf_pipeline_version = "1.0.5"
+    String batch_pipeline_version = "1.0.5"
+    String multilevel_merge_pipeline_version = "1.0.5"
+    String quota_consumed_version = "1.0.1"
+    String input_qc_version = "1.0.4"
+
+    input {
+        # if both array inputs and gvcf_manifest are provided, array inputs take precedence
+        Array[File]? input_gvcfs
+        Array[File]? input_gvcf_idxs
+        File? gvcf_manifest
+        Int sample_batch_size = 1000
+
+        String output_basename
+
+        File preprocess_panel_bubble_split_sites_only_vcf       # can be subset of panel, e.g., simple bubble alleles only
+        File preprocess_panel_bubble_split_sites_only_vcf_idx
+        String? extract_bubble_likelihoods_extra_args
+
+        Array[String] paste_regions
+
+        # inputs for Batch wdl
+        Array[String] chromosomes
+        File genetic_maps_tsv
+        File ref_dict
+        File chunked_panel_json
+
+        String extra_phase_args = "--impute-reference-only-variants --keep-monomorphic-ref-sites --Kpbwt 1000 --main 10 --burnin 5 --err-imp 1E-3"
+
+        # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
+        Int? glimpse_phase_cpu_override
+
+        # inputs for PopAndMarginalizeCollisions
+        File pop_glimpse2_panel_resources_json
+
+        # Multilevel Paste Configuration
+        Array[Int] merge_batch_sizes = [100]        # adjust or add levels if needed
+        Array[Boolean] merge_do_localization = [true]
+        Array[Int] merge_timeouts_min = [0]
+
+        # Optional filter: variants with INFO score below this threshold will be excluded from the final output VCFs
+        Float info_filter_for_inclusion = 0.0
+
+        # remove RAF when RAF <= raf_censoring_threshold
+        Float raf_censoring_threshold = 0.0
+
+        # optional additional header line to add to the output VCF
+        String? pipeline_header_line
+
+        String glimpse2_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.2.0-8671138-1784681771"
+    }
+
+    Map[String, ChunkedPanelChromosome] chunked_panel = read_json(chunked_panel_json)
+    Map[String, PopAndMarginalizePanelResourcesChromosome] pop_glimpse2_panel_resources = read_json(pop_glimpse2_panel_resources_json)
+
+    Boolean using_arrays = defined(input_gvcfs) && defined(input_gvcf_idxs)
+
+    if (using_arrays) {
+        call Glimpse2SVImputationTasks.ConvertInputArraysToManifest {
+            input:
+                gvcf_paths = select_first([input_gvcfs]),
+                gvcf_index_paths = select_first([input_gvcf_idxs])
+        }
+    }
+
+    # if neither the full array input set nor gvcf_manifest is provided the workflow will fail at runtime
+    File gvcf_manifest_to_use = select_first([ConvertInputArraysToManifest.output_gvcf_manifest, gvcf_manifest])
+
+    call Glimpse2SVImputationTasks.SplitVcfManifestIntoBatches as SplitIntoSampleBatches {
+        input:
+            batch_size = sample_batch_size,
+            gvcf_manifest = gvcf_manifest_to_use
+    }
+
+    scatter (batch_idx in range(length(SplitIntoSampleBatches.gvcf_manifest_batches))) {
+        call PreprocessPLsGVCF.PreprocessPLsGVCF as PreProcessGVCFsBatch {
+            input:
+                input_gvcf_manifest = SplitIntoSampleBatches.gvcf_manifest_batches[batch_idx],
+                preprocess_panel_bubble_split_sites_only_vcf = preprocess_panel_bubble_split_sites_only_vcf,
+                preprocess_panel_bubble_split_sites_only_vcf_idx = preprocess_panel_bubble_split_sites_only_vcf_idx,
+                extract_bubble_likelihoods_extra_args = extract_bubble_likelihoods_extra_args,
+                paste_regions = paste_regions
+        }
+
+        call Glimpse2SVImputationBatch.Glimpse2SVImputationBatch as RunBatch {
+            input:
+                input_preprocessed_joint_vcf_or_bcf = PreProcessGVCFsBatch.preprocessed_pls_bcf,
+                input_preprocessed_joint_vcf_or_bcf_idx = PreProcessGVCFsBatch.preprocessed_pls_bcf_idx,
+                chromosomes = chromosomes,
+                genetic_maps_tsv = genetic_maps_tsv,
+                ref_dict = ref_dict,
+                chunked_panel_json = chunked_panel_json,
+                extra_phase_args = extra_phase_args,
+                output_basename = output_basename + ".batch_" + batch_idx,
+                pop_glimpse2_panel_resources_json = pop_glimpse2_panel_resources_json,
+                glimpse2_docker = glimpse2_docker,
+                glimpse_phase_cpu_override = glimpse_phase_cpu_override,
+                pipeline_header_line = pipeline_header_line
+        }
+    }
+
+    scatter (contig_idx in range(length(chromosomes))) {
+        String chr = chromosomes[contig_idx]
+        Array[File] popped_bcfs_for_contig = transpose(RunBatch.glimpse2_popped_posteriors_vcf)[contig_idx]
+        Array[File] popped_bcf_idxs_for_contig = transpose(RunBatch.glimpse2_popped_posteriors_vcf_idx)[contig_idx]
+
+        Array[String] contig_regions = select_first([pop_glimpse2_panel_resources[chr].pop_regions, chunked_panel[chr].output_regions])
+
+        Boolean multiple_batches = length(popped_bcfs_for_contig) > 1
+
+        # BRANCH 1: Multi-batch (Scatter, Merge, Recompute, and optionally Filter)
+        if (multiple_batches) {
+            scatter (region in contig_regions) {
+                scatter (batch_annot_idx in range(length(popped_bcfs_for_contig))) {
+                    call Glimpse2SVImputationTasks.ExtractAnnotations as ExtractPoppedAnnotations {
+                        input:
+                            imputed_vcf_or_bcf = popped_bcfs_for_contig[batch_annot_idx],
+                            imputed_vcf_or_bcf_index = popped_bcf_idxs_for_contig[batch_annot_idx],
+                            batch_index = batch_annot_idx,
+                            region = region
+                    }
+                }
+
+                call MultilevelMerge.MultilevelHierarchicallyMergeVcfs as MergePoppedRegion {
+                    input:
+                        vcfs_or_bcfs_array = popped_bcfs_for_contig,
+                        vcf_or_bcf_idxs_array = popped_bcf_idxs_for_contig,
+                        regions = [region],
+                        batch_sizes = merge_batch_sizes,
+                        do_localization = merge_do_localization,
+                        timeouts_min = merge_timeouts_min,
+                        output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.merged"
+                }
+
+                call Glimpse2SVImputationTasks.RecomputeAndAnnotate as RecomputePoppedAfInfoAndFilterInfoAndCensorRaf {
+                    input:
+                        merged_vcf_or_bcf = MergePoppedRegion.merged_bcf,
+                        merged_vcf_or_bcf_idx = MergePoppedRegion.merged_bcf_idx,
+                        annotations = ExtractPoppedAnnotations.annotations,
+                        num_samples = PreProcessGVCFsBatch.num_samples,
+                        output_basename = output_basename + "." + chr + "." + region + ".glimpse2.popped.annotated",
+                        region = region,
+                        info_filter_threshold = info_filter_for_inclusion,
+                        raf_censoring_threshold = raf_censoring_threshold
+                }
+            }
+
+            call Glimpse2SVImputationTasks.ConcatAndFinalizeVcfs as ConcatAndFinalizeMultiBatch {
+                input:
+                    vcfs = RecomputePoppedAfInfoAndFilterInfoAndCensorRaf.merged_imputed_vcf,
+                    output_basename = output_basename + "." + chr,
+                    extra_args = "--naive"
+            }
+        }
+
+        # BRANCH 2: Single-batch (Format conversion and optional filtering and censoring)
+        if (!multiple_batches) {
+            call Glimpse2SVImputationTasks.FilterInfoAndCensorRafAndFinalizeBcf as FilterInfoAndCensorRafAndFinalizeBcf {
+                input:
+                    bcf = popped_bcfs_for_contig[0],
+                    bcf_idx = popped_bcf_idxs_for_contig[0],
+                    output_basename = output_basename + "." + chr,
+                    info_filter_threshold = info_filter_for_inclusion,
+                    raf_censoring_threshold = raf_censoring_threshold
+            }
+        }
+
+        File imputed_vcf_for_contig = select_first([ConcatAndFinalizeMultiBatch.concatenated_vcf, FilterInfoAndCensorRafAndFinalizeBcf.filtered_vcf])
+        File imputed_vcf_idx_for_contig = select_first([ConcatAndFinalizeMultiBatch.concatenated_vcf_idx, FilterInfoAndCensorRafAndFinalizeBcf.filtered_vcf_idx])
+    }
+
+    output {
+        Array[File] imputed_vcfs = imputed_vcf_for_contig
+        Array[File] imputed_vcf_indexes = imputed_vcf_idx_for_contig
+    }
+}
+

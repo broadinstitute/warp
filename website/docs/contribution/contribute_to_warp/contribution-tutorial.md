@@ -5,7 +5,7 @@ This example provides step-by-step instructions for how to apply the WARP [Contr
 Read the [Contribution Guidelines](./contribution-guidelines.md) for more information on the contribution process, types of contributions, and the review process.
 
 ### Background
-For this example contribution, we'll make a simple change to the `input_id` metadata description in the [Optimus workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.wdl).  
+For this example contribution, we'll make a simple change to the `input_id` metadata description in the [Optimus workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/optimus/Optimus.wdl).  
 
 This parameter description is currently listed in the pipeline's WDL workflow as: 
 
@@ -30,7 +30,7 @@ Our update is very small, so we don’t need to [file an issue](https://github.c
 ### 2. Read the guidelines for changelog updates.
 Since we’re making an update to the workflow WDL and need to update the changelog, we need to read the [changelog style guide](https://broadinstitute.github.io/warp/docs/contribution/contribute_to_warp/changelog_style) and [versioning guide](https://broadinstitute.github.io/warp/docs/About_WARP/VersionAndReleasePipelines) to identify the new version number.
 
-In this example case, the existing pipeline version is `4.2.5`. Since our change does not break the pipeline, affect inputs/outputs or cause scientific changes, the guides tell us that this update is a patch. The new pipeline version will be `4.2.6`. 
+In this example case, the existing pipeline version is `4.2.5`. Since our change does not break the pipeline, remove or rename inputs or outputs, or cause scientific changes, the guides tell us that this update is a patch. The new pipeline version will be `4.2.6`.
 
 ### 3. Make a fork of the WARP repository.
 Since we don't have permission to make a branch in WARP, we’ll need to [make a fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) instead. To do this from the GitHub UI, we navigate to [WARP](https://github.com/broadinstitute/warp) and click the fork icon.
@@ -83,4 +83,4 @@ Once our updates are merged to the **master** branch, the pipeline will be relea
 
 
 ## Have questions?
-Contact us by [filing an issue](https://github.com/broadinstitute/warp/issues/new) or email [the WARP team](mailto:warp-pipelines-help@broadinstitute.org ). 
+Contact us by [filing an issue](https://github.com/broadinstitute/warp/issues/new). 

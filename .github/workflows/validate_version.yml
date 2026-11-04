@@ -1,0 +1,68 @@
+
+name: WARP Validate Version
+
+# Controls when the workflow will run
+on:
+  pull_request:
+    #runs on PRs to develop, staging, and master
+    branches: [ "develop", "staging", "master"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  PROJECT_NAME: WARP
+  # Github repo name
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  validate-versions:
+    runs-on: ubuntu-latest
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Fetch all history for all tags and branches
+    - name: Check working directory
+      run: |
+        echo "Current directory: "
+        pwd
+        ls -lht
+    - name: Set up Git
+      run: |
+        git fetch --all
+    - name: Validate versions
+      id: validate_script
+      run: |
+        set -e
+        echo "Validating all versions for all pipelines..."
+        result=$(scripts/validate_release.sh -g origin/staging 2>&1 || echo "validation_failed")  # don't exit on script failure
+        # Escape newlines, carriage returns, and percent signs
+        escaped_result=$(echo "$result" | sed ':a;N;$!ba;s/\r/\\r/g;s/\n/\\n/g;s/%/%%/g')
+        echo "result=$escaped_result" >> $GITHUB_OUTPUT
+
+    - name: Post validation results as a comment
+      if: always()  # This ensures it runs regardless of previous step success/failure
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          try {
+            const output = "${{ steps.validate_script.outputs.result }}".replace(/\\n/g, '\n').replace(/\\r/g, '\r');
+            const issue_number = context.payload.pull_request.number;
+            const message = `### 🔍Version Validation Results:\n\`\`\`\n${output}\n\`\`\``;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: message
+            });
+          } catch (error) {
+            console.error('Failed to post comment:', error);
+          }
+    - name: Fail if validation failed
+      if: contains(steps.validate_script.outputs.result, 'validation_failed')
+      run: exit 1
+      
+      

@@ -1,0 +1,15 @@
+{
+  "HLAGenotyping.convert_alleles_python_script": "gs://fc-secure-2c6158c7-7f84-4a16-b615-5da8ad46b089/resources/convert_to_g_group.py",
+  "HLAGenotyping.count_two_field_alleles_python_script": "gs://fc-secure-2c6158c7-7f84-4a16-b615-5da8ad46b089/resources/detect_two_field.py",
+  "HLAGenotyping.gatk_docker": "us.gcr.io/broad-gatk/gatk",
+  "HLAGenotyping.hla_groups_file": "gs://pd-test-storage-public/HLAGenotyping/hla_nom_g_groups.txt",
+  "HLAGenotyping.hla_intervals": "gs://pd-test-storage-public/HLAGenotyping/hg38_chr6_hla_region.bed",
+  "HLAGenotyping.hlahd_docker": "gcr.io/broad-dsde-methods/aou-auxiliary/hla/hlahd",
+  "HLAGenotyping.optitype_docker": "gcr.io/broad-dsde-methods/aou-auxiliary/hla/optitype",
+  "HLAGenotyping.original_bam": "gs://fc-secure-2c6158c7-7f84-4a16-b615-5da8ad46b089/resources/NA12878-chr6.bam",
+  "HLAGenotyping.original_bam_idx": "gs://fc-secure-2c6158c7-7f84-4a16-b615-5da8ad46b089/resources/NA12878-chr6.bai",
+  "HLAGenotyping.polysolver_docker": "gcr.io/broad-dsde-methods/aou-auxiliary/hla/polysolver",
+  "HLAGenotyping.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+  "HLAGenotyping.ref_fai": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "HLAGenotyping.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta"
+}
