@@ -1,13 +1,13 @@
 version 1.0
 
-task MergeSampleChunksVcfsWithPaste {
+task MergeSampleChunksVcfsOrBcfsWithPaste {
     input {
-        Array[File] input_vcfs
-        Array[File] input_vcf_indices
+        Array[File] input_vcfs_or_bcfs
+        Array[File] input_vcf_or_bcf_indices
         String region
-        String output_vcf_basename
+        String output_bcf_basename
 
-        Int disk_size_gb = ceil(2.2 * size(input_vcfs, "GiB") + 50)
+        Int disk_size_gb = ceil(2.2 * size(input_vcfs_or_bcfs, "GiB") + 50)
         Int mem_gb = 8
         Int cpu = 4
         Int preemptible = 0
@@ -16,7 +16,7 @@ task MergeSampleChunksVcfsWithPaste {
     command <<<
         set -euxo pipefail
 
-        vcfs=(~{sep=" " input_vcfs})
+        vcfs_or_bcfs=(~{sep=" " input_vcfs_or_bcfs})
 
         mkfifo fifo_0
         mkfifo fifo_to_paste_0
@@ -27,16 +27,16 @@ task MergeSampleChunksVcfsWithPaste {
         md5sums=()
 
         # Extract header lines excluding the #CHROM line
-        bcftools view -h --no-version ${vcfs[0]} | awk '!/^#CHROM/' > header.vcf
+        bcftools view -h --no-version ${vcfs_or_bcfs[0]} | awk '!/^#CHROM/' > header.vcf
         
         # Extract the base #CHROM line (columns 1-9 plus batch 0 samples)
-        bcftools view -h "${vcfs[0]}" | grep '^#CHROM' > chrom_0.txt
+        bcftools view -h "${vcfs_or_bcfs[0]}" | grep '^#CHROM' > chrom_0.txt
         chrom_files=("chrom_0.txt")
 
-        bcftools view -H ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ${vcfs[0]} > fifo_0 &
+        bcftools view -H ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ${vcfs_or_bcfs[0]} > fifo_0 &
         cat fifo_0 | tee fifo_to_paste_0 | cut -f1-5,9 | md5sum > md5sum_0 &
 
-        for vcf in "${vcfs[@]:1}"; do
+        for vcf_or_bcf in "${vcfs_or_bcfs[@]:1}"; do
             fifo_name="fifo_$i"
             mkfifo "$fifo_name"
 
@@ -51,10 +51,10 @@ task MergeSampleChunksVcfsWithPaste {
             md5sums+=("$file_name_md5sum")
 
             # Extract just the sample columns (10+) from the header for this batch
-            bcftools view -h "$vcf" | grep '^#CHROM' | cut -f 10- > "chrom_$i.txt"
+            bcftools view -h "$vcf_or_bcf" | grep '^#CHROM' | cut -f 10- > "chrom_$i.txt"
             chrom_files+=("chrom_$i.txt")
 
-            bcftools view -H ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ${vcf} > "$fifo_name" &
+            bcftools view -H ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ${vcf_or_bcf} > "$fifo_name" &
             cat "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
             cut -f1-5,9 "$fifo_name_to_md5" | md5sum > "$file_name_md5sum" &
 
@@ -69,7 +69,7 @@ task MergeSampleChunksVcfsWithPaste {
         paste fifo_to_paste_0 "${fifos_to_paste[@]}" | tee fifo_to_cat | awk 'NR % 5000000 == 0' | cut -f 1-5 &
 
         # Feed the header, merged #CHROM line, and merged data body into bcftools
-        cat header.vcf full_chrom_line.txt fifo_to_cat | bcftools view -Oz --write-index=tbi -o "~{output_vcf_basename}.vcf.gz"
+        cat header.vcf full_chrom_line.txt fifo_to_cat | bcftools view -Ob --write-index=csi -o "~{output_bcf_basename}.bcf"
 
         for md5sum_file in "${md5sums[@]}"; do
             diff <(cat md5sum_0) <(cat $md5sum_file) >> /dev/null || (echo "Fields 1-5,9 do not match for $md5sum_file" && exit 1)
@@ -91,20 +91,20 @@ task MergeSampleChunksVcfsWithPaste {
     }
 
     output {
-        File output_vcf = "~{output_vcf_basename}.vcf.gz"
-        File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
+        File output_bcf = "~{output_bcf_basename}.bcf"
+        File output_bcf_index = "~{output_bcf_basename}.bcf.csi"
     }
 }
 
 task ExtractAnnotations {
     input {
-        File imputed_vcf
-        File imputed_vcf_index
+        File imputed_vcf_or_bcf
+        File imputed_vcf_or_bcf_index
         Int batch_index
         String? region
 
         String docker_extract_annotations
-        Int disk_size_gb = ceil(2 * size(imputed_vcf, "GiB") + 50)
+        Int disk_size_gb = ceil(2 * size(imputed_vcf_or_bcf, "GiB") + 50)
         Int mem_gb = 2
         Int cpu = 1
         Int preemptible = 3
@@ -114,10 +114,10 @@ task ExtractAnnotations {
         set -euxo pipefail
 
         # Ensure index is localized so bcftools can use it if needed
-        ls ~{imputed_vcf_index} > /dev/null
+        ls ~{imputed_vcf_or_bcf_index} > /dev/null
 
         printf 'CHROM\tPOS\tREF\tALT\tAF\tINFO\n' | bgzip -c > annotations_batch_~{batch_index}.tsv.gz
-        bcftools query ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\n' ~{imputed_vcf} | bgzip -c >> annotations_batch_~{batch_index}.tsv.gz
+        bcftools query ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\n' ~{imputed_vcf_or_bcf} | bgzip -c >> annotations_batch_~{batch_index}.tsv.gz
     >>>
 
     runtime {
@@ -137,8 +137,8 @@ task ExtractAnnotations {
 
 task RecomputeAndAnnotate {
     input {
-        File merged_vcf
-        File merged_vcf_index
+        File merged_vcf_or_bcf
+        File merged_vcf_or_bcf_index
         Array[File] annotations
 
         Array[Int] num_samples
@@ -149,7 +149,7 @@ task RecomputeAndAnnotate {
         String? region
 
         String docker_merge
-        Int disk_size_gb = ceil(2.2 * size(merged_vcf, "GiB") + size(annotations, "GiB") + 50)
+        Int disk_size_gb = ceil(2.2 * size(merged_vcf_or_bcf, "GiB") + size(annotations, "GiB") + 50)
         Int mem_gb = 6
         Int cpu = 1
         Int preemptible = 3
@@ -214,7 +214,7 @@ EOF
         bgzip aggregated_annotations.tsv
         tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
 
-        PIPE="bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ~{merged_vcf} -Ou"
+        PIPE="bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ~{merged_vcf_or_bcf} -Ou"
 
         if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
             PIPE="$PIPE | bcftools filter -i \"INFO/INFO >= ~{info_filter_threshold}\" -Ou"
@@ -250,19 +250,19 @@ EOF
 
 task FilterInfoAndCensorRafAndFinalizeVcf {
     input {
-        File vcf
+        File bcf
         String output_basename
         Float info_filter_threshold
         Float raf_censoring_threshold
 
-        Int disk_gb = ceil(2.1 * size(vcf, "GiB")) + 10
+        Int disk_gb = ceil(2.1 * size(bcf, "GiB")) + 10
         Int preemptible = 3
     }
 
     command <<<
         set -euxo pipefail
 
-        PIPE="bcftools view ~{vcf} -Ou"
+        PIPE="bcftools view ~{bcf} -Ou"
 
         if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
             echo "Applying INFO >= ~{info_filter_threshold} filter..."
@@ -481,14 +481,14 @@ task ConvertInputArraysToManifest {
 
 task UpdateHeader {
     input {
-        File vcf
+        File bcf
         File ref_dict
         String? pipeline_header_line
         String output_basename
 
         String docker
 
-        Int disk_size_gb = ceil(2.1 * size(vcf, "GiB") + 5)
+        Int disk_size_gb = ceil(2.1 * size(bcf, "GiB") + 5)
         Int mem_gb = 2
         Int cpu = 1
         Int preemptible = 3
@@ -498,7 +498,7 @@ task UpdateHeader {
         set -euxo pipefail
 
         # Set correct reference dictionary
-        bcftools view -h --no-version ~{vcf} > old_header.vcf
+        bcftools view -h --no-version ~{bcf} > old_header.vcf
         java -jar /picard.jar UpdateVcfSequenceDictionary -I old_header.vcf --SD ~{ref_dict} -O updated_header.vcf
 
         # Add pipeline_header_line if provided
@@ -508,10 +508,10 @@ task UpdateHeader {
             sed -i "${TOTAL_LINES}i\##${REMOVED_COMMENT_CHARACTER_HEADER_LINE}" updated_header.vcf
         fi
 
-        # Apply the final header (with ref dict and optionally pipeline_header_line) to the VCF
+        # Apply the final header (with ref dict and optionally pipeline_header_line) to the BCF
         # Output indexed for downstream use
-        bcftools reheader -h updated_header.vcf -o ~{output_basename}.vcf.gz ~{vcf}
-        bcftools index -t ~{output_basename}.vcf.gz
+        bcftools reheader -h updated_header.vcf -o ~{output_basename}.bcf ~{bcf}
+        bcftools index ~{output_basename}.bcf
     >>>
 
     runtime {
@@ -525,8 +525,8 @@ task UpdateHeader {
     }
 
     output {
-        File output_vcf = "~{output_basename}.vcf.gz"
-        File output_vcf_idx = "~{output_basename}.vcf.gz.tbi"
+        File output_bcf = "~{output_basename}.bcf"
+        File output_bcf_idx = "~{output_basename}.bcf.csi"
     }
 }
 
