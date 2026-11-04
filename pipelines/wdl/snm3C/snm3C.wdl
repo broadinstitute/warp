@@ -29,6 +29,9 @@ workflow snm3C {
     }
     #docker images
     String m3c_yap_hisat_docker = "m3c-yap-hisat:2.4"
+    # TEMPORARY: standalone cytozip image, used only by the Cytozip
+    # benchmarking task. Goes away once cytozip is in m3c-yap-hisat.
+    String cytozip_docker = "cytozip:0.4.1"
     # Determine docker prefix based on cloud provider
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
     String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
@@ -100,6 +103,17 @@ workflow snm3C {
                cromwell_root_dir = cromwell_root_dir,
                cloud_provider = cloud_provider
         }
+        # TEMPORARY benchmarking task -- see the task definition for why this is
+        # separate and what is/isn't comparable between it and Merge_sort_analyze.
+        call Cytozip {
+            input:
+               deduped_bam_tar = Merge_sort_analyze.deduped_bam_tar,
+               genome_fa = genome_fa,
+               num_upstr_bases = num_upstr_bases,
+               num_downstr_bases = num_downstr_bases,
+               plate_id = plate_id,
+               docker = docker_prefix + cytozip_docker
+        }
     }
 
     call Summary_PerCellOutput {
@@ -145,6 +159,8 @@ workflow snm3C {
         Array[File] unique_reads_cgn_extraction_allc_extract_array = Summary_PerCellOutput.unique_reads_cgn_extraction_allc_extract_array
         Array[File] unique_reads_cgn_extraction_tbi_extract_array = Summary_PerCellOutput.unique_reads_cgn_extraction_tbi_extract_array
         Array[File] deduped_bam_tar_array = Merge_sort_analyze.deduped_bam_tar
+        Array[File] cz_tar_array = Cytozip.cz_tar
+        Array[File] cz_count_tar_array = Cytozip.cz_count_tar
     }
 }
 
@@ -1005,6 +1021,100 @@ task Merge_sort_analyze {
         File extract_allc_output_allc_tar  = "~{plate_id}.extract-allc.tar.gz"
         File deduped_bam_tar = "~{plate_id}.hisat3n_dna.all_reads.deduped_bams.tar.gz"
      }
+}
+
+# TEMPORARY benchmarking task: converts the same deduped BAMs that
+# Merge_sort_analyze feeds to `allcools bam-to-allc` into cytozip .cz instead.
+#
+# This exists as a separate task only because the m3c-yap-hisat image does not
+# contain cytozip yet. Once it does, this collapses into Merge_sort_analyze as a
+# few extra lines and this task should be deleted.
+#
+# Comparing the two: compare the logged "Elapsed time to ..." seconds, NOT task
+# cost or task wall-clock. As a separate task this pays for VM boot, localizing
+# genome_fa (~3 GB) and the BAM tar, and re-running samtools faidx -- none of
+# which the merged version would pay. The runtime block below mirrors
+# Merge_sort_analyze exactly so the conversion timings are comparable; pass the
+# same cpu_platform override that Merge_sort_analyze gets.
+task Cytozip {
+    input {
+        String plate_id
+        File deduped_bam_tar
+        File genome_fa
+        Int num_upstr_bases
+        Int num_downstr_bases
+        String docker
+
+        # mirrors Merge_sort_analyze so the two run on equivalent hardware
+        String cpu_platform = "Intel Ice Lake"
+        Int disk_size = 1000
+        Int mem_size = 40
+        Int cpu = 16
+        Int preemptible_tries = 2
+    }
+
+    command <<<
+      set -euo pipefail
+      set -x
+      lscpu
+
+      start=$(date +%s)
+      echo "Untar deduped bams"
+      mkdir -p deduped_bams
+      pigz -dc ~{deduped_bam_tar} | tar -xf - -C deduped_bams
+      end=$(date +%s)
+      echo "Elapsed time to untar deduped bams $((end - start)) seconds"
+
+      # Same indexing step Merge_sort_analyze performs; cytozip requires a .fai.
+      start=$(date +%s)
+      echo "Reference and index fasta"
+      mkdir reference
+      cp ~{genome_fa} reference/
+      genome_base=$(basename ~{genome_fa})
+      samtools faidx "reference/$genome_base"
+      end=$(date +%s)
+      echo "Elapsed time to index fasta $((end - start)) seconds"
+
+      # --mode full stores the same columns as allc (pos,strand,context,mc,cov)
+      # and needs no reference .cz, so this task takes no extra inputs.
+      # NOTE: cytozip's --convert_bam_strandness takes a BOOL value rather than
+      # being a bare flag like the allcools one, and already defaults to True,
+      # so it is deliberately not passed.
+      for bam in deduped_bams/*.hisat3n_dna.all_reads.deduped.bam; do
+        sample_id=$(basename "$bam" .hisat3n_dna.all_reads.deduped.bam)
+        echo "$sample_id"
+        start=$(date +%s)
+        echo "Call czip bam_to_cz from deduped.bams"
+        czip bam_to_cz \
+          -I "$bam" \
+          -g "reference/$genome_base" \
+          -O "${sample_id}.cz" \
+          --mode full \
+          --num_upstr_bases ~{num_upstr_bases} \
+          --num_downstr_bases ~{num_downstr_bases} \
+          --save_count_df
+        end=$(date +%s)
+        echo "Elapsed time to czip bam_to_cz $((end - start)) seconds"
+      done
+
+      echo "Tar files."
+      tar -cf - *.cz | pigz > ~{plate_id}.cz.tar.gz
+      tar -cf - *.cz.count.csv | pigz > ~{plate_id}.cz.count.tar.gz
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} SSD"
+        cpu: cpu
+        memory: "${mem_size} GiB"
+        cpuPlatform: cpu_platform
+        preemptible: preemptible_tries
+    }
+
+    output {
+        File cz_tar = "~{plate_id}.cz.tar.gz"
+        File cz_count_tar = "~{plate_id}.cz.count.tar.gz"
+    }
 }
 
 task Summary_PerCellOutput {
