@@ -338,8 +338,6 @@ task Phase {
     docker: beagle_docker
     predefinedMachineType: machine_type
     disks: "local-disk ${disk_size_gb} SSD"
-    memory: "${memory_mb} MiB"     # TODO: remove (overridden by predefinedMachineType)
-    cpu: cpu                       # TODO: remove from runtime block (overridden by predefinedMachineType)
     continueOnReturnCode: allowed_return_codes
     preemptible: 3
     maxRetries: 1
@@ -391,8 +389,6 @@ task Impute {
     docker: beagle_docker
     predefinedMachineType: machine_type
     disks: "local-disk ${disk_size_gb} SSD"
-    memory: "${memory_mb} MiB"     # TODO: remove (overridden by predefinedMachineType)
-    cpu: cpu                       # TODO: remove from runtime block (overridden by predefinedMachineType)
     continueOnReturnCode: allowed_return_codes
     preemptible: 3
     maxRetries: 1
