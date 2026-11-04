@@ -176,6 +176,7 @@ workflow Glimpse2LowPassImputationBatch {
     output {
         Array[File] imputed_contig_ligated_bcfs = UpdateHeader.output_bcf
         Array[File] imputed_contig_ligated_bcf_indices = UpdateHeader.output_bcf_idx
+        Array[File] updated_headers = UpdateHeader.updated_header
         Int total_samples = SplitCramManifestIntoBatchesOfStrings.total_samples
     }
 }
