@@ -254,8 +254,9 @@ task FilterInfoAndCensorRafAndFinalizeVcf {
         String output_basename
         Float info_filter_threshold
         Float raf_censoring_threshold
+        File updated_header
 
-        Int disk_gb = ceil(2.1 * size(bcf, "GiB")) + 10
+        Int disk_gb = ceil(3.1 * size(bcf, "GiB")) + 10
         Int preemptible = 3
     }
 
@@ -274,7 +275,22 @@ task FilterInfoAndCensorRafAndFinalizeVcf {
             PIPE="$PIPE | bcftools annotate -x INFO/RAF -i 'INFO/RAF<=~{raf_censoring_threshold}' --keep-sites -Ou"
         fi
 
-        eval "$PIPE | bcftools view -Oz --write-index -o \"~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi\""
+        eval "$PIPE | bcftools view -Oz -o temp.vcf.gz"
+
+        # Extract current header
+        bcftools view -h temp.vcf.gz > current_header.vcf
+        
+        # Extract Picard-sorted ##contig lines from donor header
+        grep '^##contig=' ~{updated_header} > sorted_contigs.txt
+        
+        # Strip unsorted ##contig lines from current header
+        grep -v '^##contig=' current_header.vcf > stripped_header.vcf
+        
+        # Splice sorted contigs into current header before the #CHROM line
+        awk '/^#CHROM/ {system("cat sorted_contigs.txt")} {print}' stripped_header.vcf > final_header.vcf
+
+        bcftools reheader -h final_header.vcf -o ~{output_basename}.vcf.gz temp.vcf.gz
+        bcftools index -t ~{output_basename}.vcf.gz
 
         echo "Calculating MD5..."
         md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
@@ -350,9 +366,10 @@ task ConcatAndFinalizeVcfs {
         Array[File] vcfs
         String output_basename
         String? extra_args
+        File updated_header
     }
 
-    Int disk_gb = ceil(2.1 * size(vcfs, "GiB")) + 10
+    Int disk_gb = ceil(3.1 * size(vcfs, "GiB")) + 10
     Int preemptible = 3
 
     command <<<
@@ -362,7 +379,21 @@ task ConcatAndFinalizeVcfs {
         bcftools concat \
             -f ~{write_lines(vcfs)} \
             ~{extra_args} \
-            -Oz -o ~{output_basename}.vcf.gz
+            -Oz -o temp.vcf.gz
+
+        # Extract current header containing the full sample list
+        bcftools view -h temp.vcf.gz > current_header.vcf
+        
+        # Extract Picard-sorted ##contig lines from donor header
+        grep '^##contig=' ~{updated_header} > sorted_contigs.txt
+        
+        # Strip unsorted ##contig lines from current header
+        grep -v '^##contig=' current_header.vcf > stripped_header.vcf
+        
+        # Splice sorted contigs into current header before the #CHROM line
+        awk '/^#CHROM/ {system("cat sorted_contigs.txt")} {print}' stripped_header.vcf > final_header.vcf
+
+        bcftools reheader -h final_header.vcf -o ~{output_basename}.vcf.gz temp.vcf.gz
         bcftools index -t ~{output_basename}.vcf.gz
 
         echo "Calculating MD5..."
@@ -527,6 +558,7 @@ task UpdateHeader {
     output {
         File output_bcf = "~{output_basename}.bcf"
         File output_bcf_idx = "~{output_basename}.bcf.csi"
+        File updated_header = "updated_header.vcf"
     }
 }
 
