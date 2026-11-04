@@ -165,7 +165,7 @@ workflow Glimpse2LowPassImputationBatch {
 
         call Glimpse2LowPassImputationTasks.UpdateHeader {
             input:
-                vcf = GlimpseLigate.imputed_vcf,
+                bcf = GlimpseLigate.imputed_bcf,
                 ref_dict = ref_dict,
                 pipeline_header_line = pipeline_header_line,
                 output_basename = output_basename + "." + contigs[contig_index] + ".imputed",
@@ -174,8 +174,8 @@ workflow Glimpse2LowPassImputationBatch {
     }
 
     output {
-        Array[File] imputed_contig_ligated_vcfs = UpdateHeader.output_vcf
-        Array[File] imputed_contig_ligated_vcf_indices = UpdateHeader.output_vcf_idx
+        Array[File] imputed_contig_ligated_bcfs = UpdateHeader.output_bcf
+        Array[File] imputed_contig_ligated_bcf_indices = UpdateHeader.output_bcf_idx
         Int total_samples = SplitCramManifestIntoBatchesOfStrings.total_samples
     }
 }
@@ -585,10 +585,10 @@ task GlimpseLigate {
         NPROC=$(nproc)
         echo "nproc reported ${NPROC} CPUs, using that number as the threads argument for GLIMPSE."
 
-        /bin/GLIMPSE2_ligate --input ~{write_lines(imputed_chunks)} --output ~{output_basename}.imputed.vcf.gz --threads ${NPROC}
+        /bin/GLIMPSE2_ligate --input ~{write_lines(imputed_chunks)} --output ~{output_basename}.imputed.bcf --threads ${NPROC}
 
         # GLIMPSE2_ligate creates an index, but it is not compatible with GATK tools so we regenerate it with tabix
-        tabix -f ~{output_basename}.imputed.vcf.gz
+        bcftools index -f ~{output_basename}.imputed.bcf
     >>>
 
     runtime {
@@ -602,7 +602,7 @@ task GlimpseLigate {
     }
 
     output {
-        File imputed_vcf = "~{output_basename}.imputed.vcf.gz"
-        File imputed_vcf_index = "~{output_basename}.imputed.vcf.gz.tbi"
+        File imputed_bcf = "~{output_basename}.imputed.bcf"
+        File imputed_bcf_index = "~{output_basename}.imputed.bcf.csi"
     }
 }

@@ -92,11 +92,11 @@ workflow Glimpse2LowPassImputation {
     }
 
     # Transpose from [batch x contig] to [contig x batch], then paste sample columns together per contig.
-    # Use the raw ligated VCFs (all sites) — every batch is imputed to the same reference panel sites,
+    # Use the raw ligated BCFs (all sites) — every batch is imputed to the same reference panel sites,
     # so site lists are identical across batches and the paste md5sum check will pass.
     scatter(contig_idx in range(length(contigs))) {
-        Array[File] batch_vcfs_for_contig = transpose(RunBatch.imputed_contig_ligated_vcfs)[contig_idx]
-        Array[File] batch_vcf_indices_for_contig = transpose(RunBatch.imputed_contig_ligated_vcf_indices)[contig_idx]
+        Array[File] batch_bcfs_for_contig = transpose(RunBatch.imputed_contig_ligated_bcfs)[contig_idx]
+        Array[File] batch_bcf_indices_for_contig = transpose(RunBatch.imputed_contig_ligated_bcf_indices)[contig_idx]
 
         # For multiple batches: extract annotations, paste sample columns together, then recompute AF/INFO as weighted averages and apply filters.
         if (multiple_batches) {
@@ -112,29 +112,29 @@ workflow Glimpse2LowPassImputation {
                 String region_id = sub(region, ":", "_")
                 
                 # Extract AF and INFO annotations from each batch before merging so they can be recalculated
-                scatter(batch_annot_idx in range(length(batch_vcfs_for_contig))) {
+                scatter(batch_annot_idx in range(length(batch_bcfs_for_contig))) {
                     call Glimpse2LowPassImputationTasks.ExtractAnnotations {
                         input:
-                            imputed_vcf = batch_vcfs_for_contig[batch_annot_idx],
-                            imputed_vcf_index = batch_vcf_indices_for_contig[batch_annot_idx],
+                            imputed_vcf_or_bcf = batch_bcfs_for_contig[batch_annot_idx],
+                            imputed_vcf_or_bcf_index = batch_bcf_indices_for_contig[batch_annot_idx],
                             batch_index = batch_annot_idx,
                             region = region,
                             docker_extract_annotations = docker_merge
                     }
                 }
 
-                call Glimpse2LowPassImputationTasks.MergeSampleChunksVcfsWithPaste as MergeRegion {
+                call Glimpse2LowPassImputationTasks.MergeSampleChunksVcfsOrBcfsWithPaste as MergeRegion {
                     input:
-                        input_vcfs = batch_vcfs_for_contig,
-                        input_vcf_indices = batch_vcf_indices_for_contig,
+                        input_vcfs_or_bcfs = batch_bcfs_for_contig,
+                        input_vcf_or_bcf_indices = batch_bcf_indices_for_contig,
                         region = region,
-                        output_vcf_basename = output_basename + "." + contigs[contig_idx] + "." + region_id + ".imputed.merged"
+                        output_bcf_basename = output_basename + "." + contigs[contig_idx] + "." + region_id + ".imputed.merged"
                 }
 
                 call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate as RecomputeAfInfoAndFilterInfoAndCensorRaf {
                     input:
-                        merged_vcf = MergeRegion.output_vcf,
-                        merged_vcf_index = MergeRegion.output_vcf_index,
+                        merged_vcf_or_bcf = MergeRegion.output_bcf,
+                        merged_vcf_or_bcf_index = MergeRegion.output_bcf_index,
                         annotations = ExtractAnnotations.annotations,
                         num_samples = RunBatch.total_samples,
                         info_filter_threshold = info_filter_for_inclusion,
@@ -157,7 +157,7 @@ workflow Glimpse2LowPassImputation {
         if (!multiple_batches) {
             call Glimpse2LowPassImputationTasks.FilterInfoAndCensorRafAndFinalizeVcf {
                 input:
-                    vcf = batch_vcfs_for_contig[0],
+                    bcf = batch_bcfs_for_contig[0],
                     info_filter_threshold = info_filter_for_inclusion,
                     raf_censoring_threshold = raf_censoring_threshold,
                     output_basename = output_basename + "." + contigs[contig_idx] + ".imputed"
