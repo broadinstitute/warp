@@ -24,8 +24,6 @@ task tensorqtl_cis_permutations {
         Int num_threads
         Int num_gpus
         Int num_preempt
-
-        String pipeline_version = "aou_9.1.0"
     }
 
     command <<<
@@ -91,7 +89,7 @@ workflow tensorqtl_cis_permutations_workflow {
         Int num_preempt
     }
 
-    String pipeline_version = "aou_9.0.0"
+    String pipeline_version = "aou_9.1.0"
 
     call tensorqtl_cis_permutations {
         input:
@@ -111,8 +109,7 @@ workflow tensorqtl_cis_permutations_workflow {
             disk_space = disk_space,
             num_threads = num_threads,
             num_gpus = num_gpus,
-            num_preempt = num_preempt,
-            pipeline_version = pipeline_version
+            num_preempt = num_preempt
     }
 
     output {
