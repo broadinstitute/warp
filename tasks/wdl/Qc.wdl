@@ -619,7 +619,7 @@ task ValidateVCF {
     File calling_interval_list
     File? calling_interval_list_index  # if the interval list is a VCF, than an index file makes VcfToIntervalList run faster
     Boolean calling_intervals_defined = true
-    Int preemptible_tries = 3
+    Int preemptible_tries = 0
     Boolean is_gvcf = true
     String? extra_args
     #Setting default docker value for workflows that haven't yet been azurized.
