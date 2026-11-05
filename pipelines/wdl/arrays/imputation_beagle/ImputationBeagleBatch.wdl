@@ -75,7 +75,7 @@ workflow ImputationBeagleBatch {
           allowed_return_codes = beagle_allowed_return_codes
       }
 
-      if (!defined(Phase_Try1.vcf)) {
+      if (!defined(Phase_Try1.success_marker)) {
         call beagleTasks.Phase as Phase_Try2 {
           input:
             dataset_vcf = pre_chunked_multi_sample_vcfs[contig_index][chunk_index],
@@ -110,7 +110,7 @@ workflow ImputationBeagleBatch {
           allowed_return_codes = beagle_allowed_return_codes
       }
 
-      if (!defined(Impute_Try1.vcf)) {
+      if (!defined(Impute_Try1.success_marker)) {
         call beagleTasks.Impute as Impute_Try2 {
           input:
             dataset_vcf = final_phase_vcf,
