@@ -229,7 +229,7 @@ task Reblock {
     Int? disk_size_gb
   }
 
-  Int disk_size = disk_size_gb ?? ceil((size(gvcf, "GiB")) * 4) + additional_disk
+  Int disk_size = select_first([disk_size_gb, ceil(size(gvcf, "GiB") * 4) + additional_disk])
 
 
   command {
