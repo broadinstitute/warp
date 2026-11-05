@@ -318,7 +318,7 @@ task Phase {
   command <<<
     set -e -o pipefail
 
-    java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 -XX:-UseCompressedOops \
+    java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 -XX:-UseCompressedOops -XX:OnOutOfMemoryError="kill -9 %p" \
     -jar /usr/gitc/beagle.0b17ad0.jar \
     gt=~{dataset_vcf} \
     ref=~{ref_panel_bref3} \
@@ -329,10 +329,12 @@ task Phase {
     nthreads=~{cpu} \
     seed=-99999
 
+    touch success.marker
   >>>
   output {
     File? vcf = "phased_~{basename}.vcf.gz"
     File? log = "phased_~{basename}.log"
+    File? success_marker = "success.marker"
   }
   runtime {
     docker: beagle_docker
@@ -367,7 +369,7 @@ task Impute {
   command <<<
     set -e -o pipefail
 
-    java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 -XX:-UseCompressedOops \
+    java -ea -XX:MaxRAMPercentage=90.0 -XX:MinRAMPercentage=90.0 -XX:-UseCompressedOops -XX:OnOutOfMemoryError="kill -9 %p" \
     -jar /usr/gitc/beagle.0b17ad0.jar \
     gt=~{dataset_vcf} \
     ref=~{ref_panel_bref3} \
@@ -380,10 +382,12 @@ task Impute {
     nthreads=~{cpu} \
     seed=-99999
 
+    touch success.marker
   >>>
   output {
     File? vcf = "imputed_~{basename}.vcf.gz"
     File? log = "imputed_~{basename}.log"
+    File? success_marker = "success.marker"
   }
   runtime {
     docker: beagle_docker
