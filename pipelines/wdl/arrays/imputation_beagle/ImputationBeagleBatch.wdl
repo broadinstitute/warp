@@ -92,7 +92,7 @@ workflow ImputationBeagleBatch {
         }
       }
 
-      File final_phase_vcf = select_first([Phase_Try1.vcf, Phase_Try2.vcf])
+      File final_phase_vcf = select_first([if defined(Phase_Try1.success_marker) then Phase_Try1.vcf else Phase_Try2.vcf])
 
       call beagleTasks.Impute as Impute_Try1 {
         input:
@@ -128,7 +128,7 @@ workflow ImputationBeagleBatch {
         }
       }
 
-      File final_impute_vcf = select_first([Impute_Try1.vcf, Impute_Try2.vcf])
+      File final_impute_vcf = select_first([if defined(Impute_Try1.success_marker) then Impute_Try1.vcf else Impute_Try2.vcf])
     
       call beagleTasks.LocalizeAndSubsetVcfToRegion {
           input:
