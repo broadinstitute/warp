@@ -289,7 +289,7 @@ All tasks use the same Docker image, pinned by digest. GPU and CUDA setup is han
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:59206dd15b3fb8170b63c0da429b35ba597847ee30e4cf520b513ed9bebad22e` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:29147e532b3f84d8251a48e6d5c860e73fcfa4bc1522d0a5711308a979086b94` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk` 3 × the reference size + 20 GB, SSD |
 | `memory` | `104 GiB` |
@@ -300,7 +300,7 @@ All tasks use the same Docker image, pinned by digest. GPU and CUDA setup is han
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:59206dd15b3fb8170b63c0da429b35ba597847ee30e4cf520b513ed9bebad22e` |
+| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:29147e532b3f84d8251a48e6d5c860e73fcfa4bc1522d0a5711308a979086b94` |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk` `disk_size`, or sized from the inputs (see [Workflow inputs](#workflow-inputs)), SSD |
 | `memory` | `mem_size` (default `104 GiB`) |
