@@ -1,0 +1,184 @@
+# SET UP THE ENVIRONMENT
+from datetime import datetime
+import os
+import pandas as pd
+import numpy as np
+import argparse
+import subprocess
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--contig',                         help='contig to run, in hg38 format (e.g. chr20)')
+parser.add_argument('--temp_bucket',                    help='GCS bucket used for spark.local.dir, likely the cluster bucket')
+# INPUTS
+parser.add_argument('--input_aou_vcf_url',              help="GCS url to the AoU-only VCF file to process, produced by Step 1 script")
+parser.add_argument('--input_anvil_mt_url',             help="GCS url to the Anvil CCDG-only MT file to process, produced by Step 2 script")
+parser.add_argument('--input_aou_vds_url',              help='GCS url to the AoU-only VDS file to process (e.g. gs://bucket/path/to/file.vds)')
+parser.add_argument('--input_anvil_vds_url',            help='GCS path to the AnVIL CCDG-only VDS file to process (e.g. gs://bucket/path/to/file.vds)')
+# OUTPUTS
+parser.add_argument('--output_aou_filtered_vds_url',    help="GCS url where the filtered AoU VDS will be written")
+parser.add_argument('--output_anvil_filtered_vds_url',  help="GCS url where the filtered AnVIL CCDG VDS will be written")
+parser.add_argument('--output_report_url',              help='GCS url where the report output will be copied')
+args = parser.parse_args()
+
+
+def run_subprocess(cmd, errorMessage):
+    if isinstance(cmd, list):
+        cmd = ' '.join(cmd)
+    try:
+        # print("running command: " + cmd)
+        return subprocess.check_output(
+            cmd, shell=True, universal_newlines=True)
+    except subprocess.CalledProcessError as e:
+        print(errorMessage)
+        print("Exited with " + str(e.returncode) + "-" + e.output)
+        exit(1)
+
+
+# START THE TIME COUNTER
+start = datetime.now()
+
+# DEFINE BUCKETS
+temp_bucket = args.temp_bucket
+
+## RIG DETAILS AND COST
+# Main:
+# CPUs = 32
+# Memory = 208
+# Disk size = 150
+# Workers:
+# Workers = 2
+# Preemptibles = 50
+# CPUs = 4
+# Memory = 26
+# Disk size = 150
+rig_cost=7.80
+
+# SET UP HAIL ENVIRONMENT (+ PLOTTING)
+import hail as hl
+
+temp_dir = f'{temp_bucket}/Step_3/temp'
+
+spark_conf_more_ram = dict()
+spark_conf_more_ram["spark.executor.memory"] = "8g"
+spark_conf_more_ram["spark.executor.cores"] = "4"
+spark_conf_more_ram["spark.driver.memory"] = "60g"
+spark_conf_more_ram["spark.driver.cores"] = "32"
+spark_conf_more_ram["spark.local.dir"] = temp_dir
+
+hl.init(idempotent=True,
+        tmp_dir=temp_dir,
+        spark_conf=spark_conf_more_ram)
+
+hl.default_reference('GRCh38')
+
+# DEFINE ALL PATHS
+CHR_VAR = args.contig # 'chr20' # VARIABLE!!!
+
+VCF_AOU_PATH = args.input_aou_vcf_url # f'{bucket}/Combined_Data/AOU/{CHR_VAR}_AOU_v8.2_allsamples_filtered_ADu12_NewWay.vcf.bgz'
+MT_ANVIL_PATH = args.input_anvil_mt_url # f'{bucket}/Combined_Data/ANVIL/{CHR_VAR}_ANVIL_v8.2_allsamples_filtered_ADu12_NewWay.mt'
+
+VDS_ANVIL_PATH = args.input_anvil_vds_url # 'gs://fc-secure-759ddb91-68ac-4234-8fab-9c9325c3484f/CCDG_consent.vds'
+VDS_AOU_PATH = args.input_aou_vds_url # 'gs://prod-drc-broad/v8/wgs/vds/aou_srwgs_short_variants_v8r1.vds/merged'
+
+VDS_ANVIL_FIL_PATH = args.output_anvil_filtered_vds_url
+VDS_AOU_FIL_PATH = args.output_aou_filtered_vds_url
+
+rep_url = args.output_report_url
+
+# READ VDS files
+VDS_ANVIL = hl.vds.read_vds(VDS_ANVIL_PATH)
+VDS_AOU = hl.vds.read_vds(VDS_AOU_PATH)
+
+# FILTER VDS TO CHROMOSOME (REGIONAL FILTERING OPTION 1)
+VDS_ANVIL_X = hl.vds.filter_chromosomes(VDS_ANVIL, keep=CHR_VAR)
+VDS_AOU_X = hl.vds.filter_chromosomes(VDS_AOU, keep=CHR_VAR)
+
+# IMPORT AOU VCF FILE
+mt_AOU = hl.import_vcf(VCF_AOU_PATH, reference_genome = 'GRCh38', force_bgz = True, n_partitions = 3000)
+
+# IMPORT ANVIL EXCLUSION TABLE
+VAR_RM = hl.read_matrix_table(MT_ANVIL_PATH)
+
+# FILTER TO VARIANTS TO KEEP
+KEEP_ROWS = mt_AOU.select_rows().rows()
+REMOVE_ROWS = VAR_RM.select_rows().rows()
+
+# KEY BY LOCUS
+KEEP_ROWS = KEEP_ROWS.key_by('locus')
+REMOVE_ROWS = REMOVE_ROWS.key_by('locus')
+
+# REPARTITION
+KEEP_ROWS = KEEP_ROWS.repartition(2000)
+REMOVE_ROWS = REMOVE_ROWS.repartition(2000)
+
+# ANNOTATE VARIANTS TO KEEP AND TO REMOVE
+UNI_KP = KEEP_ROWS.annotate(REMOVE_ROWS = hl.if_else(hl.is_defined(REMOVE_ROWS[KEEP_ROWS.locus]), -1, 0),
+                            KEEP_ROWS = 1)
+
+# ANNOTATE FINAL VARIANTS
+UNI_KP = UNI_KP.annotate(FINAL_ROWS = UNI_KP.KEEP_ROWS + UNI_KP.REMOVE_ROWS)
+
+# PULL VARIANTS
+UNI_KP_DUO = UNI_KP.filter(UNI_KP.FINAL_ROWS == 1)
+
+# Filter both VDS files to keep only the selected list of variants
+VDS_FIL_ANVIL = hl.vds.filter_variants(VDS_ANVIL_X, UNI_KP_DUO, keep = True)
+VDS_FIL_AOU = hl.vds.filter_variants(VDS_AOU_X, UNI_KP_DUO, keep = True)
+
+# Define fields to drop
+DROP_AOU_VAR = ['truth_sensitivity_snp_threshold', 'truth_sensitivity_indel_threshold', 'filters', 'as_vets', 'PS', 'FT']
+DROP_AOU_REF = ['ref_block_max_length', 'GT']
+DROP_ANVIL_VAR = ['LPGT', 'LPL', 'gvcf_info', 'DP', 'MIN_DP', 'PID', 'SB', 'rsid']
+DROP_ANVIL_REF = ['ref_allele', 'DP']
+
+# Drop fields that are not present in both AOU and ANVIL data
+VDS_FIL_AOU_VAR = VDS_FIL_AOU.variant_data.drop(*DROP_AOU_VAR)
+VDS_FIL_AOU_REF = VDS_FIL_AOU.reference_data.drop(*DROP_AOU_REF)
+
+VDS_FIL_ANVIL_VAR = VDS_FIL_ANVIL.variant_data.drop(*DROP_ANVIL_VAR)
+VDS_FIL_ANVIL_REF = VDS_FIL_ANVIL.reference_data.drop(*DROP_ANVIL_REF)
+
+# Define fields to select
+SELECT_VAR = ['GQ', 'RGQ', 'LGT', 'LAD', 'LA']
+SELECT_REF = ['GQ', 'END']
+
+# Drop fields that are not present in both AOU and ANVIL data
+VDS_FIL_AOU_VAR = VDS_FIL_AOU_VAR.select_entries(*SELECT_VAR)
+VDS_FIL_AOU_REF = VDS_FIL_AOU_REF.select_entries(*SELECT_REF)
+
+VDS_FIL_ANVIL_VAR = VDS_FIL_ANVIL_VAR.select_entries(*SELECT_VAR)
+VDS_FIL_ANVIL_REF = VDS_FIL_ANVIL_REF.select_entries(*SELECT_REF)
+
+# Recombine variant and reference data
+VDS_FILCOM_AOU = hl.vds.VariantDataset(VDS_FIL_AOU_REF, VDS_FIL_AOU_VAR)
+VDS_FILCOM_ANVIL = hl.vds.VariantDataset(VDS_FIL_ANVIL_REF, VDS_FIL_ANVIL_VAR)
+
+# Write VDS file for AOU
+VDS_FILCOM_AOU.write(VDS_AOU_FIL_PATH, overwrite=True)
+
+# Write VDS file for AOU
+VDS_FILCOM_ANVIL.write(VDS_ANVIL_FIL_PATH, overwrite=True)
+
+# Cost
+end = datetime.now()
+time_est = (end - start).total_seconds() / 3600
+cost_est = rig_cost * time_est
+
+# Write report
+export_report = (
+    f"Chro:\t{CHR_VAR}\n"
+    f"Path:\t{VDS_ANVIL_FIL_PATH},{VDS_AOU_FIL_PATH}\n"
+    f"Time:\t{time_est}\n"
+    f"Rigs:\t{rig_cost}\n"
+    f"Cost:\t{cost_est}")
+
+# Save it to a GS url
+local_fname2 = "tmp_vcf_report.txt"
+fp = open(local_fname2, 'w')
+fp.write(export_report)
+fp.flush()
+fp.close()
+
+# Copy the file to gs space
+run_subprocess(f"gcloud storage cp {local_fname2} {rep_url}", f"Error copying report - {local_fname2} to {rep_url}")
