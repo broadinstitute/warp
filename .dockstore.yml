@@ -274,6 +274,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/small_callsets/sc6_export_split_dense_bed_MTs_to_plink_bed.wdl
 
+  - name: sc7_export_split_dense_bed_MTs_to_vcf
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/small_callsets/sc7_export_split_dense_bed_MTs_to_vcf.wdl
+
   - name: SplitMultisampleVcf
     subclass: WDL
 
