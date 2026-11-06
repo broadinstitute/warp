@@ -10,6 +10,7 @@ import subprocess
 parser = argparse.ArgumentParser()
 parser.add_argument('--contig',                     help='contig to run, in hg38 format (e.g. chr20)')
 parser.add_argument('--temp_bucket',                help='GCS bucket used for spark.local.dir, likely the cluster temp bucket')
+parser.add_argument('--bed_url',                    help='GCS url to BED file for interval filtering')
 # INPUTS
 parser.add_argument('--input_aou_vds_url',          help='GCS url to the AoU-only VDS file to process (e.g. gs://bucket/path/to/file.vds)')
 # OUTPUTS
@@ -72,6 +73,7 @@ hl.default_reference('GRCh38')
 
 # DEFINE ALL PATHS
 CHR_VAR = args.contig # 'chr20' # VARIABLE!!!
+BED_URL = args.bed_url
 
 # INPUTS
 AOU_VDS_PATH = args.input_aou_vds_url # 'gs://prod-drc-broad/v8/wgs/vds/aou_srwgs_short_variants_v8r1.vds/merged'
@@ -86,6 +88,8 @@ VDS = hl.vds.read_vds(AOU_VDS_PATH)
 
 ## FILTER VDS TO CHROMOSOME (REGIONAL FILTERING)
 VDS_FIL = hl.vds.filter_chromosomes(VDS, keep=CHR_VAR)
+bed_intervals = hl.import_bed(BED_URL, reference_genome='GRCh38')
+VDS_FIL = hl.vds.filter_intervals(VDS_FIL, bed_intervals, split_reference_blocks=True)
 
 ## DENSIFY THE VDS FILE TO MT
 mt = hl.vds.to_dense_mt(VDS_FIL)

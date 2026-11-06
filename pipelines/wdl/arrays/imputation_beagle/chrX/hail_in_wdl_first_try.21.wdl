@@ -85,6 +85,7 @@ workflow RunAoUAnvilMergeFilterAndQc {
         # Input files/paths
         String aou_vds_url
         String anvil_vds_url
+        String bed_url
 
         # Contigs of interest.  If a contig is present in the bed file, but not in this list, the contig will be ignored.
         #   In other words, this is a contig level intersection with the bed file.
@@ -141,6 +142,7 @@ workflow RunAoUAnvilMergeFilterAndQc {
             input:
                 input_aou_vds_url = aou_vds_url,
                 contig = contig,
+                bed_url = bed_url,
                 prefix = prefix,
                 gcs_project = gcs_project,
                 gcs_subnetwork_name = gcs_subnetwork_name,
@@ -154,6 +156,7 @@ workflow RunAoUAnvilMergeFilterAndQc {
             input: 
                 input_anvil_vds_url = anvil_vds_url,
                 contig = contig,
+                bed_url = bed_url,
                 prefix = prefix,
                 gcs_project = gcs_project,
                 gcs_subnetwork_name = gcs_subnetwork_name,
@@ -170,6 +173,7 @@ workflow RunAoUAnvilMergeFilterAndQc {
                 input_aou_vcf_url = Step1.aou_vcf,
                 input_anvil_mt_url = Step2.anvil_mt,
                 contig = contig,
+                bed_url = bed_url,
                 prefix = prefix,
                 gcs_project = gcs_project,
                 gcs_subnetwork_name = gcs_subnetwork_name,
@@ -183,6 +187,7 @@ workflow RunAoUAnvilMergeFilterAndQc {
             input:
                 input_anvil_filtered_vds_url = Step3.anvil_filtered_vds,
                 contig = contig,
+                bed_url = bed_url,
                 prefix = prefix,
                 gcs_project = gcs_project,
                 gcs_subnetwork_name = gcs_subnetwork_name,
@@ -197,6 +202,7 @@ workflow RunAoUAnvilMergeFilterAndQc {
                 input_aou_filtered_vds_url = Step3.aou_filtered_vds,
                 input_anvil_filtered_vds_url = Step3b.anvil_renamed_vds,
                 contig = contig,
+                bed_url = bed_url,
                 prefix = prefix,
                 gcs_project = gcs_project,
                 gcs_subnetwork_name = gcs_subnetwork_name,
@@ -212,6 +218,7 @@ workflow RunAoUAnvilMergeFilterAndQc {
                 input_anvil_mt_url = Step2.anvil_mt,
                 input_combined_vds_url = Step4.combined_vds,
                 contig = contig,
+                bed_url = bed_url,
                 prefix = prefix,
                 gcs_project = gcs_project,
                 gcs_subnetwork_name = gcs_subnetwork_name,
@@ -225,6 +232,7 @@ workflow RunAoUAnvilMergeFilterAndQc {
             input:
                 input_filtered_vds_url = Step5a.filtered_vds,
                 contig = contig,
+                bed_url = bed_url,
                 prefix = prefix,
                 gcs_project = gcs_project,
                 gcs_subnetwork_name = gcs_subnetwork_name,
@@ -271,6 +279,7 @@ task Step1 {
     input {
         # You must treat a VDS as a String, since it is a directory and not a single file
         String input_aou_vds_url
+        String bed_url
 
         # Cannot make this localization_optional
         File submission_script
@@ -372,6 +381,7 @@ task Step1 {
                     --output_aou_vcf_header_url ~{output_aou_vcf_header_url} \
                     --output_report_url ~{output_report_url} \
                     --contig ~{contig} \
+                    --bed_url ~{bed_url} \
                     --temp_bucket gs://{cluster_temp_bucket}/{cluster_name}'''
 
                     print("Running: " + submit_cmd)
@@ -416,6 +426,7 @@ task Step2 {
     input {
         # You must treat a VDS as a String, since it is a directory and not a single file
         String input_anvil_vds_url
+        String bed_url
 
         # Cannot make this localization_optional
         File submission_script
@@ -515,6 +526,7 @@ task Step2 {
                     --output_anvil_mt_url ~{output_anvil_mt_url} \
                     --output_report_url ~{output_report_url} \
                     --contig ~{contig} \
+                    --bed_url ~{bed_url} \
                     --temp_bucket gs://{cluster_temp_bucket}/{cluster_name}'''
                     print("Running: " + submit_cmd)
                     f = os.popen(submit_cmd)
@@ -561,6 +573,7 @@ task Step3 {
 
         String input_aou_vcf_url     # output from Step 1
         String input_anvil_mt_url    # output from Step 2
+        String bed_url
 
         # Cannot make this localization_optional
         File submission_script
@@ -665,6 +678,7 @@ task Step3 {
                     --output_anvil_filtered_vds_url ~{output_anvil_filtered_vds_url} \
                     --output_report_url ~{output_report_url} \
                     --contig ~{contig} \
+                    --bed_url ~{bed_url} \
                     --temp_bucket gs://{cluster_temp_bucket}/{cluster_name}'''
 
                     print("Running: " + submit_cmd)
@@ -709,6 +723,7 @@ task Step3b {
     input {
         # You must treat a VDS as a String, since it is a directory and not a single file
         String input_anvil_filtered_vds_url # output from Step 3
+        String bed_url
 
         # Cannot make this localization_optional
         File submission_script
@@ -808,6 +823,7 @@ task Step3b {
                     --output_anvil_renamed_vds_url ~{output_anvil_renamed_vds_url} \
                     --output_report_url ~{output_report_url} \
                     --contig ~{contig} \
+                    --bed_url ~{bed_url} \
                     --temp_bucket gs://{cluster_temp_bucket}/{cluster_name}'''
 
                     print("Running: " + submit_cmd)
@@ -852,6 +868,7 @@ task Step4 {
         # You must treat a VDS as a String, since it is a directory and not a single file
         String input_aou_filtered_vds_url       # output from Step 3
         String input_anvil_filtered_vds_url     # output from Step 3
+        String bed_url
 
         # Cannot make this localization_optional
         File submission_script
@@ -952,6 +969,7 @@ task Step4 {
                     --output_combined_vds_url ~{output_combined_vds_url} \
                     --output_report_url ~{output_report_url} \
                     --contig ~{contig} \
+                    --bed_url ~{bed_url} \
                     --temp_bucket gs://{cluster_temp_bucket}/{cluster_name}'''
 
                     print("Running: " + submit_cmd)
@@ -997,6 +1015,7 @@ task Step5a {
         String input_aou_vcf_url            # output from Step 1
         String input_anvil_mt_url           # output from Step 2
         String input_combined_vds_url       # output from Step 4
+        String bed_url
 
         # Cannot make this localization_optional
         File submission_script
@@ -1098,6 +1117,7 @@ task Step5a {
                     --output_filtered_vds_url ~{output_filtered_vds_url} \
                     --output_report_url ~{output_report_url} \
                     --contig ~{contig} \
+                    --bed_url ~{bed_url} \
                     --temp_bucket gs://{cluster_temp_bucket}/{cluster_name}'''
 
                     print("Running: " + submit_cmd)
@@ -1141,6 +1161,7 @@ task Step5b {
     input {
         # You must treat a VDS as a String, since it is a directory and not a single file
         String input_filtered_vds_url      # output from Step 5a
+        String bed_url
 
         # Cannot make this localization_optional
         File submission_script
@@ -1242,6 +1263,7 @@ task Step5b {
                     --output_final_vcf_header_url ~{output_final_vcf_header_url} \
                     --output_report_url ~{output_report_url} \
                     --contig ~{contig} \
+                    --bed_url ~{bed_url} \
                     --temp_bucket gs://{cluster_temp_bucket}/{cluster_name}'''
 
                     print("Running: " + submit_cmd)

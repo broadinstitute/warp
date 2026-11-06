@@ -10,6 +10,7 @@ import subprocess
 parser = argparse.ArgumentParser()
 parser.add_argument('--contig',                         help='contig to run, in hg38 format (e.g. chr20)')
 parser.add_argument('--temp_bucket',                    help='GCS bucket used for spark.local.dir, likely the cluster bucket')
+parser.add_argument('--bed_url',                        help='GCS url to BED file for interval filtering')
 # INPUTS
 parser.add_argument('--input_aou_filtered_vds_url',     help="GCS url to the filtered AoU VDS input")
 parser.add_argument('--input_anvil_filtered_vds_url',   help="GCS url to the filtered AnVIL CCDG VDS input")
@@ -71,6 +72,7 @@ hl.default_reference('GRCh38')
 
 # DEFINE ALL PATHS
 CHR_VAR = args.contig # 'chr20' # VARIABLE!!!
+BED_URL = args.bed_url
 
 VDS_ANVIL_FIL_PATH = args.input_anvil_filtered_vds_url # f'{bucket}/Combined_Data/ANVIL_{NAME_BASE}.vds'
 VDS_AOU_FIL_PATH = args.input_aou_filtered_vds_url # f'{bucket}/Combined_Data/AOU_{NAME_BASE}.vds'
