@@ -619,17 +619,20 @@ task ValidateVCF {
     File calling_interval_list
     File? calling_interval_list_index  # if the interval list is a VCF, than an index file makes VcfToIntervalList run faster
     Boolean calling_intervals_defined = true
-    Int preemptible_tries = 3
+    Int preemptible_tries = 0
     Boolean is_gvcf = true
     String? extra_args
     #Setting default docker value for workflows that haven't yet been azurized.
     String docker_path = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int machine_mem_mb = 7000
+    Int? disk_size
   }
 
   Int command_mem_mb = machine_mem_mb - 2000
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(size(input_vcf, "GiB") + size(calling_interval_list, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
+  # Size the disk from the inputs, but never drop below a 200 GiB floor 
+  Int computed_disk = ceil(size(input_vcf, "GiB") + size(input_vcf_index, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 50
+  Int disk_size_final = select_first([disk_size, if computed_disk > 200 then computed_disk else 200])
 
   command {
     set -e
@@ -661,7 +664,7 @@ task ValidateVCF {
     preemptible: preemptible_tries
     memory: machine_mem_mb + " MiB"
     bootDiskSizeGb: 15
-    disks: "local-disk " + disk_size + " HDD"
+    disks: "local-disk " + disk_size_final + " HDD"
   }
 }
 
