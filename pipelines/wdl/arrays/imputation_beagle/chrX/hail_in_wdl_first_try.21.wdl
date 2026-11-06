@@ -347,7 +347,7 @@ task Step1 {
         from google.cloud import dataproc_v1 as dataproc
 
         # Must match pattern (?:[a-z](?:[-a-z0-9]{0,49}[a-z0-9])?)
-        cluster_name = f'~{prefix}-~{contig}-hail-step1-{str(uuid.uuid4())[0:13]}'
+        cluster_name = f'~{prefix}-~{contig}-hail-step1-{str(uuid.uuid4())[0:13]}'.lower()
 
         # Must be local filepath
         script_path = "~{submission_script}"
@@ -493,7 +493,7 @@ task Step2 {
         from google.cloud import dataproc_v1 as dataproc
 
         # Must match pattern (?:[a-z](?:[-a-z0-9]{0,49}[a-z0-9])?)
-        cluster_name = f'~{prefix}-~{contig}-hail-step2-{str(uuid.uuid4())[0:13]}'
+        cluster_name = f'~{prefix}-~{contig}-hail-step2-{str(uuid.uuid4())[0:13]}'.lower()
 
         # Must be local filepath
         script_path = "~{submission_script}"
@@ -641,7 +641,7 @@ task Step3 {
         from google.cloud import dataproc_v1 as dataproc
 
         # Must match pattern (?:[a-z](?:[-a-z0-9]{0,49}[a-z0-9])?)
-        cluster_name = f'~{prefix}-~{contig}-hail-step3-{str(uuid.uuid4())[0:13]}'
+        cluster_name = f'~{prefix}-~{contig}-hail-step3-{str(uuid.uuid4())[0:13]}'.lower()
 
         # Must be local filepath
         script_path = "~{submission_script}"
@@ -790,7 +790,7 @@ task Step3b {
         from google.cloud import dataproc_v1 as dataproc
 
         # Must match pattern (?:[a-z](?:[-a-z0-9]{0,49}[a-z0-9])?)
-        cluster_name = f'~{prefix}-~{contig}-hail-step3b-{str(uuid.uuid4())[0:13]}'
+        cluster_name = f'~{prefix}-~{contig}-hail-step3b-{str(uuid.uuid4())[0:13]}'.lower()
 
         # Must be local filepath
         script_path = "~{submission_script}"
@@ -935,7 +935,7 @@ task Step4 {
         from google.cloud import dataproc_v1 as dataproc
 
         # Must match pattern (?:[a-z](?:[-a-z0-9]{0,49}[a-z0-9])?)
-        cluster_name = f'~{prefix}-~{contig}-hail-step4-{str(uuid.uuid4())[0:13]}'
+        cluster_name = f'~{prefix}-~{contig}-hail-step4-{str(uuid.uuid4())[0:13]}'.lower()
 
         # Must be local filepath
         script_path = "~{submission_script}"
@@ -1082,7 +1082,7 @@ task Step5a {
         from google.cloud import dataproc_v1 as dataproc
 
         # Must match pattern (?:[a-z](?:[-a-z0-9]{0,49}[a-z0-9])?)
-        cluster_name = f'~{prefix}-~{contig}-hail-step5a-{str(uuid.uuid4())[0:13]}'
+        cluster_name = f'~{prefix}-~{contig}-hail-step5a-{str(uuid.uuid4())[0:13]}'.lower()
 
         # Must be local filepath
         script_path = "~{submission_script}"
@@ -1229,7 +1229,7 @@ task Step5b {
         from google.cloud import dataproc_v1 as dataproc
 
         # Must match pattern (?:[a-z](?:[-a-z0-9]{0,49}[a-z0-9])?)
-        cluster_name = f'~{prefix}-~{contig}-hail-step5b-{str(uuid.uuid4())[0:13]}'
+        cluster_name = f'~{prefix}-~{contig}-hail-step5b-{str(uuid.uuid4())[0:13]}'.lower()
 
         # Must be local filepath
         script_path = "~{submission_script}"
