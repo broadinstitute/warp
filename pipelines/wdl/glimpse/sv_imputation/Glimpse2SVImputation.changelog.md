@@ -1,3 +1,8 @@
+# 1.1.5
+2026-10-30 (Date of Last Commit)
+
+* Changed GLIMPSE2Phase cpuPlatform to AMD Milan.
+
 # 1.1.4
 2026-10-30 (Date of Last Commit)
 
