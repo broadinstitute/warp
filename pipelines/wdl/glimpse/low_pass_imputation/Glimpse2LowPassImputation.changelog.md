@@ -1,3 +1,14 @@
+# 2.1.1
+2026-10-19 (Date of Last Commit)
+
+* Update quota_consumed_version to `1.0.2` and input_qc_version to `1.1.2`, which add the `raf_censoring_threshold` input
+
+# 2.1.0
+2026-10-14 (Date of Last Commit)
+
+* Added censoring of `RAF` via removal when under threshold
+* Added clipping of `AF` and `INFO` to [0, 1] in `RecomputeAndAnnotate` to fix negative epsilons from floating-point math in the latter
+
 # 2.0.1
 2026-10-01 (Date of Last Commit)
 

@@ -1,3 +1,9 @@
+# 1.0.4
+2026-10-19 (Date of Last Commit)
+
+* Added `raf_censoring_threshold` input (default `0.0`) to match the main workflow
+* Made `info_filter_for_inclusion` a non-optional input with a default of `0.0` to match scientific wdl
+
 # 1.0.3
 2026-10-01 (Date of Last Commit)
 

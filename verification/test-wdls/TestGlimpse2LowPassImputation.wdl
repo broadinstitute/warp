@@ -24,6 +24,8 @@ workflow TestGlimpse2LowPassImputation {
         File fasta
         File fasta_index
         String output_basename
+
+        Float? raf_censoring_threshold
         Float? info_filter_for_inclusion
 
         File ref_dict
@@ -51,6 +53,7 @@ workflow TestGlimpse2LowPassImputation {
         sample_batch_size = sample_batch_size,
         glimpse_phase_cpu_override = glimpse_phase_cpu_override,
         output_basename = output_basename,
+        raf_censoring_threshold = raf_censoring_threshold,
         info_filter_for_inclusion = info_filter_for_inclusion,
     }
 
