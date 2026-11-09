@@ -1,0 +1,36 @@
+{
+  "RunAoUAnvilMergeFilterAndQc.Step1.master_machine_type": "n1-highmem-8",
+  "RunAoUAnvilMergeFilterAndQc.Step1.worker_machine_type": "n1-highmem-8",
+  "RunAoUAnvilMergeFilterAndQc.Step1.num_workers": 2,
+  "RunAoUAnvilMergeFilterAndQc.Step1.num_preemptible_workers": 50,
+
+  "RunAoUAnvilMergeFilterAndQc.Step2.master_machine_type": "n1-highmem-4",
+  "RunAoUAnvilMergeFilterAndQc.Step2.worker_machine_type": "n1-highmem-4",
+  "RunAoUAnvilMergeFilterAndQc.Step2.num_workers": 2,
+  "RunAoUAnvilMergeFilterAndQc.Step2.num_preemptible_workers": 2,
+
+  "RunAoUAnvilMergeFilterAndQc.Step3.master_machine_type": "n1-highmem-4",
+  "RunAoUAnvilMergeFilterAndQc.Step3.worker_machine_type": "n1-highmem-4",
+  "RunAoUAnvilMergeFilterAndQc.Step3.num_workers": 2,
+  "RunAoUAnvilMergeFilterAndQc.Step3.num_preemptible_workers": 2,
+
+  "RunAoUAnvilMergeFilterAndQc.Step3b.master_machine_type": "n1-highmem-4",
+  "RunAoUAnvilMergeFilterAndQc.Step3b.worker_machine_type": "n1-highmem-4",
+  "RunAoUAnvilMergeFilterAndQc.Step3b.num_workers": 2,
+  "RunAoUAnvilMergeFilterAndQc.Step3b.num_preemptible_workers": 2,
+
+  "RunAoUAnvilMergeFilterAndQc.Step4.master_machine_type": "n1-highmem-4",
+  "RunAoUAnvilMergeFilterAndQc.Step4.worker_machine_type": "n1-highmem-4",
+  "RunAoUAnvilMergeFilterAndQc.Step4.num_workers": 2,
+  "RunAoUAnvilMergeFilterAndQc.Step4.num_preemptible_workers": 2,
+
+  "RunAoUAnvilMergeFilterAndQc.Step5a.master_machine_type": "n1-highmem-4",
+  "RunAoUAnvilMergeFilterAndQc.Step5a.worker_machine_type": "n1-highmem-4",
+  "RunAoUAnvilMergeFilterAndQc.Step5a.num_workers": 2,
+  "RunAoUAnvilMergeFilterAndQc.Step5a.num_preemptible_workers": 2,
+
+  "RunAoUAnvilMergeFilterAndQc.Step5b.master_machine_type": "n1-highmem-4",
+  "RunAoUAnvilMergeFilterAndQc.Step5b.worker_machine_type": "n1-highmem-4",
+  "RunAoUAnvilMergeFilterAndQc.Step5b.num_workers": 2,
+  "RunAoUAnvilMergeFilterAndQc.Step5b.num_preemptible_workers": 2
+}
