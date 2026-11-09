@@ -4,7 +4,7 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 
 workflow Glimpse2SVImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "1.0.5"
+    String pipeline_version = "1.0.6"
 
     input {
         File input_preprocessed_joint_vcf_or_bcf
@@ -18,6 +18,11 @@ workflow Glimpse2SVImputationBatch {
         String? extra_phase_args
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
         Int? glimpse_phase_cpu_override
+        
+        # New machine family and memory retry parameters
+        String? glimpse_phase_machine_family_override
+        Array[Int] glimpse_phase_allowed_return_codes = [0, 137]
+        Float glimpse_phase_memory_multiplier = 2.0
 
         String output_basename
 
@@ -39,6 +44,7 @@ workflow Glimpse2SVImputationBatch {
     # to tasks that are inside nested scatters, so we need to define a non-optional variable that we can use to pass the
     # value down to the GlimpsePhase task. If not defined, Cromwell fails the workflow
     Int defined_glimpse_phase_cpu_override = select_first([glimpse_phase_cpu_override, 4])
+    String defined_glimpse_phase_machine_family_override = select_first([glimpse_phase_machine_family_override, "N2D"])
 
     scatter (chromosome in chromosomes) {
         String genetic_map = genetic_maps_dict[chromosome]
@@ -57,7 +63,7 @@ workflow Glimpse2SVImputationBatch {
         scatter (k in range(length(output_regions))) {
             Int phase_mem_gb = if (k < length(defined_phase_base_mem_values)) then defined_phase_base_mem_values[k] else 16
 
-            call GLIMPSE2Phase as ChunkedGLIMPSE2Phase {
+            call GLIMPSE2Phase as ChunkedGLIMPSE2Phase_Try1 {
                 input:
                     input_vcf_or_bcf = input_preprocessed_joint_vcf_or_bcf,
                     input_vcf_or_bcf_idx = input_preprocessed_joint_vcf_or_bcf_idx,
@@ -69,14 +75,40 @@ workflow Glimpse2SVImputationBatch {
                     extra_phase_args = extra_phase_args,
                     docker = glimpse2_docker,
                     mem_gb = phase_mem_gb,
-                    threads = defined_glimpse_phase_cpu_override
+                    threads = defined_glimpse_phase_cpu_override,
+                    machine_family = defined_glimpse_phase_machine_family_override,
+                    allowed_return_codes = glimpse_phase_allowed_return_codes
             }
+
+            # If Try1 fails (e.g. exit code 137), phased_bcf won't be defined. Trigger Try2 with multiplied memory.
+            if (!defined(ChunkedGLIMPSE2Phase_Try1.phased_bcf)) {
+                call GLIMPSE2Phase as ChunkedGLIMPSE2Phase_Try2 {
+                    input:
+                        input_vcf_or_bcf = input_preprocessed_joint_vcf_or_bcf,
+                        input_vcf_or_bcf_idx = input_preprocessed_joint_vcf_or_bcf_idx,
+                        panel_split_chunk_bin = panel_split_chunk_bins[k],
+                        input_region = input_regions[k],
+                        output_region = output_regions[k],
+                        genetic_map = genetic_map,
+                        output_basename = output_basename + ".shard-" + k + ".glimpse2.phased",
+                        extra_phase_args = extra_phase_args,
+                        docker = glimpse2_docker,
+                        mem_gb = phase_mem_gb * glimpse_phase_memory_multiplier,
+                        threads = defined_glimpse_phase_cpu_override,
+                        machine_family = defined_glimpse_phase_machine_family_override,
+                        allowed_return_codes = [0] # Only allow success on the final retry
+                }
+            }
+
+            # Select the output from whichever attempt completed successfully
+            File final_phased_bcf = select_first([ChunkedGLIMPSE2Phase_Try1.phased_bcf, ChunkedGLIMPSE2Phase_Try2.phased_bcf])
+            File final_phased_bcf_idx = select_first([ChunkedGLIMPSE2Phase_Try1.phased_bcf_idx, ChunkedGLIMPSE2Phase_Try2.phased_bcf_idx])
         }
 
         call GLIMPSE2Ligate {
             input:
-                phased_vcfs_or_bcfs = ChunkedGLIMPSE2Phase.phased_bcf,
-                phased_vcf_or_bcf_idxs = ChunkedGLIMPSE2Phase.phased_bcf_idx,
+                phased_vcfs_or_bcfs = final_phased_bcf,
+                phased_vcf_or_bcf_idxs = final_phased_bcf_idx,
                 output_basename = output_basename + ".glimpse2.bubble",
                 docker = glimpse2_docker
         }
@@ -126,6 +158,7 @@ workflow Glimpse2SVImputationBatch {
 struct RuntimeAttr {
     Float? mem_gb
     Int? cpu_cores
+    String? machine_family
     Int? disk_gb
     Int? boot_disk_gb
     Boolean? use_ssd
@@ -160,8 +193,10 @@ task GLIMPSE2Phase {
         File genetic_map
         String output_basename
         Int seed = 15052011
-        Int mem_gb = 16
+        Float mem_gb = 16.0
         Int threads = 4
+        String machine_family = "N2D"
+        Array[Int] allowed_return_codes = [0]
         String? extra_phase_args
 
         String docker
@@ -213,13 +248,15 @@ task GLIMPSE2Phase {
     >>>
 
     output {
-        File phased_bcf = "~{output_basename}.bcf"
-        File phased_bcf_idx = "~{output_basename}.bcf.csi"
+        # Outputs must be optional because a 137 OOM exit code produces no files
+        File? phased_bcf = "~{output_basename}.bcf"
+        File? phased_bcf_idx = "~{output_basename}.bcf.csi"
     }
 
     #########################
     RuntimeAttr default_attr = object {
         cpu_cores:          threads,
+        machine_family:     machine_family,
         mem_gb:             mem_gb,
         disk_gb:            disk_size_gb,
         use_ssd:            true,
@@ -227,16 +264,40 @@ task GLIMPSE2Phase {
         max_retries:        3,
         docker:             docker
     }
+    
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
+    Float final_mem_gb = select_first([runtime_attr.mem_gb, default_attr.mem_gb])
+    String final_machine_family = select_first([runtime_attr.machine_family, default_attr.machine_family])
+    
+    # Matches predefined sizes depending on family request
+    String auto_machine = 
+        if final_machine_family == "C3D" then
+            if final_mem_gb < 8.0 then "c3d-highcpu-4"
+            else if final_mem_gb < 16.0 then "c3d-standard-4"
+            else if final_mem_gb < 32.0 then "c3d-highmem-4"
+            else if final_mem_gb < 64.0 then "c3d-standard-16"
+            else if final_mem_gb < 128.0 then "c3d-highmem-16"
+            else if final_mem_gb < 240.0 then "c3d-highmem-30"
+            else "c3d-highmem-60"
+        else
+            if final_mem_gb < 8.0 then "n2d-highcpu-4"
+            else if final_mem_gb < 16.0 then "n2d-standard-4"
+            else if final_mem_gb < 32.0 then "n2d-highmem-4"
+            else if final_mem_gb < 64.0 then "n2d-standard-16"
+            else if final_mem_gb < 128.0 then "n2d-highmem-16"
+            else if final_mem_gb < 256.0 then "n2d-highmem-32"
+            else "n2d-highmem-48"
+            
     runtime {
-        cpu:                    select_first([runtime_attr.cpu_cores,         default_attr.cpu_cores])
-        memory:                 select_first([runtime_attr.mem_gb,            default_attr.mem_gb]) + " GiB"
-        disks: "local-disk " +  select_first([runtime_attr.disk_gb,           default_attr.disk_gb]) + if select_first([runtime_attr.use_ssd, default_attr.use_ssd]) then " SSD" else " HDD"
-        preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
-        maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
-        docker:                 select_first([runtime_attr.docker,            default_attr.docker])
-        checkpointFile:         "checkpoint.bin"
-        noAddress: true
+        predefinedMachineType: auto_machine
+        memory:                final_mem_gb + " GiB" 
+        disks: "local-disk " + select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + if select_first([runtime_attr.use_ssd, default_attr.use_ssd]) then " SSD" else " HDD"
+        preemptible:           select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
+        maxRetries:            select_first([runtime_attr.max_retries, default_attr.max_retries])
+        docker:                select_first([runtime_attr.docker, default_attr.docker])
+        checkpointFile:        "checkpoint.bin"
+        noAddress:             true
+        continueOnReturnCode:  allowed_return_codes
     }
 }
 
