@@ -2,6 +2,7 @@
 2026-11-02 (Date of Last Commit)
 
 * Updated the shared atac, Optimus, and H5adUtils.wdl workflows to support configurable h5ad metadata key names. PairedTag does not set the new inputs, so output is unchanged except that the ATAC snap_metrics h5ad now always carries the `input_id` key
+* The `gex_nhash_id` and `atac_nhash_id` inputs now tolerate spaces between comma-separated library aliquot IDs (e.g. `LA-x, LA-y`); spaces are stripped before use, so output is unchanged for existing inputs
 
 # 4.0.0
 2026-10-26 (Date of Last Commit)

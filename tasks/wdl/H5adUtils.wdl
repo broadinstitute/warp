@@ -58,6 +58,10 @@ task OptimusH5adGeneration {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
+  # Normalize nhash_id: strip spaces so comma-separated library aliquot IDs can be
+  # provided with or without spaces between entries (e.g. "LA-x, LA-y" -> "LA-x,LA-y").
+  String gex_nhash_id_clean = sub(select_first([gex_nhash_id, ""]), " ", "")
+
   command <<<
     set -euo pipefail
 
@@ -108,7 +112,7 @@ task OptimusH5adGeneration {
     python3 /warptools/scripts/add_library_tso_doublets.py \
      --gex_h5ad "~{input_id}.h5ad" \
      --cellbarcodes ~{cellbarcodes} \
-     ~{"--gex_nhash_id " + gex_nhash_id} \
+     ~{if gex_nhash_id_clean != "" then "--gex_nhash_id " + gex_nhash_id_clean else ""} \
      ~{"--nhash_id_name " + nhash_id_name} \
      ~{"--additional_sample_id " + additional_sample_id} \
      ~{"--additional_sample_name " + additional_sample_name} \
@@ -126,7 +130,7 @@ task OptimusH5adGeneration {
     CODE
 
 
-    mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_library_metrics.csv
+    mv library_metrics.csv ~{input_id}_~{gex_nhash_id_clean}_library_metrics.csv
 
   >>>
 
@@ -141,7 +145,7 @@ task OptimusH5adGeneration {
 
   output {
     File h5ad_output = "~{input_id}.h5ad"
-    File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
+    File library_metrics = "~{input_id}_~{gex_nhash_id_clean}_library_metrics.csv"
     File whitelist_name_file = "whitelist_input.txt"
   }
 }
@@ -203,6 +207,10 @@ task SingleNucleusOptimusH5adOutput {
         preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
     }
 
+    # Normalize nhash_id: strip spaces so comma-separated library aliquot IDs can be
+    # provided with or without spaces between entries (e.g. "LA-x, LA-y" -> "LA-x,LA-y").
+    String gex_nhash_id_clean = sub(select_first([gex_nhash_id, ""]), " ", "")
+
     command <<<
         set -euo pipefail
 
@@ -232,7 +240,7 @@ task SingleNucleusOptimusH5adOutput {
         python3 /warptools/scripts/add_library_tso_doublets.py \
         --gex_h5ad "~{input_id}.h5ad" \
         --cellbarcodes ~{cellbarcodes} \
-        ~{"--gex_nhash_id " + gex_nhash_id} \
+        ~{if gex_nhash_id_clean != "" then "--gex_nhash_id " + gex_nhash_id_clean else ""} \
         --library_csv ~{library_metrics} \
         --input_id ~{input_id} \
         --counting_mode ~{counting_mode} \
@@ -246,7 +254,7 @@ task SingleNucleusOptimusH5adOutput {
         CODE
 
 
-        mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_library_metrics.csv
+        mv library_metrics.csv ~{input_id}_~{gex_nhash_id_clean}_library_metrics.csv
 
     >>>
     runtime {
@@ -260,7 +268,7 @@ task SingleNucleusOptimusH5adOutput {
 
     output {
         File h5ad_output = "~{input_id}.h5ad"
-        File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
+        File library_metrics = "~{input_id}_~{gex_nhash_id_clean}_library_metrics.csv"
         File whitelist_name_file = "whitelist_input.txt"
     }
 }

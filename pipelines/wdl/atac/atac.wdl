@@ -588,6 +588,10 @@ task CreateFragmentFile {
     String input_id_metadata_value = input_id
   }
 
+  # Normalize nhash_id: strip spaces so comma-separated library aliquot IDs can be
+  # provided with or without spaces between entries (e.g. "LA-x, LA-y" -> "LA-x,LA-y").
+  String atac_nhash_id_clean = sub(atac_nhash_id, " ", "")
+
   parameter_meta {
     bam: "Aligned BAM; the cell barcode is in the tag named by barcode_tag (CB, or BB added by AddBBTag when preindex is true)."
     chrom_sizes: "Text file containing chrom_sizes for genome build (i.e. hg38)."
@@ -621,7 +625,7 @@ task CreateFragmentFile {
     input_id = "~{input_id}"
     chrom_sizes = "~{chrom_sizes}"
     atac_gtf = "~{annotations_gtf}"
-    atac_nhash_id = "~{atac_nhash_id}"
+    atac_nhash_id = "~{atac_nhash_id_clean}"
     mito_list = "~{sep=' ' mito_list}"
     expected_cells = ~{atac_expected_cells}
     cell_calling_expected_cells = ~{default="None" cell_calling_expected_cells}
@@ -682,7 +686,7 @@ task CreateFragmentFile {
     flattened_data = [(metric if metric == 'NHashID' else str(metric).lower(), value) for metric, value in flattened_data]
     
     # Write to CSV
-    csv_file_path = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
+    csv_file_path = "~{input_id}_~{atac_nhash_id_clean}_library_metrics.csv"
     with open(csv_file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(flattened_data)  # Write data
@@ -692,7 +696,10 @@ task CreateFragmentFile {
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
     # Add nhash_id to h5ad file as unstructured metadata, under a configurable key
     # label (nhash_id_name, default 'NHashID' to preserve prior output).
-    atac_data.uns[nhash_id_name] = atac_nhash_id
+    # Only add the uns key when a value is provided, so we don't write an empty
+    # global-metadata key. The library metrics CSV above is unaffected.
+    if atac_nhash_id != "":
+        atac_data.uns[nhash_id_name] = atac_nhash_id
 
     # Store the input_id value under a configurable key label (input_name, default
     # 'input_id'). input_id_metadata_value is the base (un-suffixed) id in Multiome.
@@ -735,6 +742,6 @@ task CreateFragmentFile {
     File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
     File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
     File Snap_metrics = "~{input_id}.metrics.h5ad"
-    File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
+    File atac_library_metrics = "~{input_id}_~{atac_nhash_id_clean}_library_metrics.csv"
   }
 }
