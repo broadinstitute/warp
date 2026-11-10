@@ -4,7 +4,7 @@ import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 
 workflow QuotaConsumed {
     # if this changes, update the quota_consumed_version value in ImputationBeagle.wdl
-    String pipeline_version = "1.1.1"
+    String pipeline_version = "1.1.2"
 
     input {
         # user provided inputs

@@ -9,7 +9,7 @@ import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "7.0.4"
+    String pipeline_version = "8.0.0"
 
     input {
         String cloud_provider
@@ -17,7 +17,7 @@ workflow Multiome {
         # Additional library aliquot ID
         String? gex_nhash_id
         String? atac_nhash_id
-        Int expected_cells = 3000
+        Int expected_cells
 
         # Optimus inputs
         String counting_mode = "sn_rna"
@@ -53,6 +53,8 @@ workflow Multiome {
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         File? aligned_ATAC_bam
+        # If true, anchor ATAC cell calling to expected_cells instead of letting SnapATAC2 estimate the cell count
+        Boolean atac_anchor_cell_calling = false
 
         # CellBender
         Boolean run_cellbender = false
@@ -132,6 +134,7 @@ workflow Multiome {
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
+            anchor_cell_calling = atac_anchor_cell_calling,
             peak_calling = false,
             aligned_ATAC_bam = aligned_ATAC_bam
 
