@@ -8,7 +8,7 @@
 #
 # ponytail: intentionally NOT wired into CI yet (the test system is flaky and a
 # blocking gate would add noise, not signal). Run it by hand before a cleanup PR.
-# Future wiring: see AGENTS.md "Stale CI path filters".
+# Future wiring: see agents/ci-tests.md "Stale CI path filters".
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

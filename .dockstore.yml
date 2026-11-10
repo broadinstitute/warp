@@ -71,7 +71,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/wdl/reprocessing/exome/ExomeReprocessing.wdl
 
-
   - name: FilterMTAndExportToVCF
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/MTtoVCF/FilterMTAndExportToVCF.wdl
@@ -164,6 +163,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/hla/MakeTable.wdl
 
+  - name: MapMyCells
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/mapmycells/MapMyCells.wdl
+
   - name: MitochondriaMerge
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/merge/mitochondria_merge.wdl
@@ -175,6 +178,18 @@ workflows:
   - name: MitoPostProcessing
     subclass: WDL
     primaryDescriptorPath: /all_of_us/mitochondria/merge/mito_post_processing.wdl
+
+  - name: MMIDAS_Analyze
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/mmidas/MMIDAS_Analyze.wdl
+
+  - name: MMIDAS_DataPrep
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/mmidas/MMIDAS_DataPrep.wdl
+
+  - name: MMIDAS_Train
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/wdl/mmidas/MMIDAS_Train.wdl
 
   - name: Multiome
     subclass: WDL
@@ -359,6 +374,10 @@ workflows:
   - name: TestJointGenotyping
     subclass: WDL
     primaryDescriptorPath: /verification/test-wdls/TestJointGenotyping.wdl
+
+  - name: TestMapMyCells
+    subclass: WDL
+    primaryDescriptorPath: /verification/test-wdls/TestMapMyCells.wdl
 
   - name: TestMultiome
     subclass: WDL
