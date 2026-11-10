@@ -1,3 +1,37 @@
+# 4.2.1
+2026-10-26 (Date of Last Commit)
+
+* Fixed incorrectly pasted header lines in MergeSampleChunksVcfsWithPaste.
+
+
+# 4.2.0
+2026-10-21 (Date of Last Commit)
+
+* Refactor batching strategy to batch by sample before position. Add new subworkflows `ImputationBeagleCheckChunks` and `ImputationBeagleBatch`.
+* Reduce memory use of the `AggregateDSandAPValuesChunked` task: per-sample columns are no longer copied and annotations are written incrementally. Output is unchanged.
+* Reduce memory use and runtime of the `AggregateChunkedDR2AndAF` task: each sample-chunk file is now streamed once and the aggregated annotations are written incrementally rather than accumulated for the whole contig. Output is unchanged.
+
+# 4.1.2
+2026-10-13 (Date of Last Commit)
+
+* UpdateHeader tasks now asks for more disk
+* Add workflow variables that control preemptibility of certain tasks based on sample number of the input
+
+# 4.1.1
+2026-10-01 (Date of Last Commit)
+
+* Update input_qc_version to `1.3.2` which makes `qc_messages` output an Optional output
+
+# 4.1.0
+2026-09-24 (Date of Last Commit)
+
+* Added FORMAT/GP annotation to output VCFs.
+
+# 4.0.1
+2026-09-24 (Date of Last Commit)
+
+* Update quota_consumed_version to `1.1.1` and input_qc_version to `1.3.1` to remove optional inputs that are not used in the service
+
 # 4.0.0
 2026-09-08 (Date of Last Commit)
 

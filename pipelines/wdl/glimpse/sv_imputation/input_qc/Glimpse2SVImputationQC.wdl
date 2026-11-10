@@ -2,7 +2,7 @@ version 1.0
 
 workflow InputQC {
     # if this changes, update the input_qc_version value in Glimpse2SVImputation.wdl
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.4"
 
     input {
         # service expects only gvcf_manifest even though main wdl can alternatively take input arrays
@@ -22,7 +22,8 @@ workflow InputQC {
 
         File pop_glimpse2_panel_resources_json
 
-        Float? info_filter_for_inclusion
+        Float info_filter_for_inclusion = 0.0
+        Float raf_censoring_threshold = 0.0
 
         # used for warp tests only (which use inputs in an RP bucket). service does not support RP buckets and will not provide this input.
         String? billing_project_for_rp
@@ -51,9 +52,18 @@ workflow InputQC {
         }
     }
 
+    Boolean passes_qc_final = select_first([ValidateGvcfInput.passes_qc, ValidateGvcfManifest.passes_qc])
+
+    # Only define this variable if QC failed. If QC passes, this block is skipped,
+    # making defined_qc_messages evaluate to null
+    if (!passes_qc_final) {
+        String defined_qc_messages = select_first([ValidateGvcfInput.qc_messages, ValidateGvcfManifest.qc_messages])
+    }
+
     output {
-        Boolean passes_qc = select_first([ValidateGvcfInput.passes_qc, ValidateGvcfManifest.passes_qc])
-        String qc_messages = select_first([ValidateGvcfInput.qc_messages, ValidateGvcfManifest.qc_messages])
+        Boolean passes_qc = passes_qc_final
+        # Output as String? (optional) using the variable created in the if-block
+        String? qc_messages = defined_qc_messages
     }
 }
 
@@ -359,10 +369,10 @@ task ValidateGvcfInput {
                 # Ensure the PL and GT FORMAT/ID annotations are declared in the header.
                 format_lines=$(grep '^##FORMAT=<' "header_${worker_id}.vcf")
                 missing_format_fields=()
-                if ! echo "$format_lines" | grep -q 'ID=PL[,>]'; then
+                if ! echo "$format_lines" | grep 'ID=PL[,>]' > /dev/null; then
                     missing_format_fields+=("PL")
                 fi
-                if ! echo "$format_lines" | grep -q 'ID=GT[,>]'; then
+                if ! echo "$format_lines" | grep 'ID=GT[,>]' > /dev/null; then
                     missing_format_fields+=("GT")
                 fi
                 if [ ${#missing_format_fields[@]} -gt 0 ]; then

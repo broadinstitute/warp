@@ -9,7 +9,7 @@ import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "7.0.2"
+    String pipeline_version = "8.0.0"
 
     input {
         String cloud_provider
@@ -17,7 +17,7 @@ workflow Multiome {
         # Additional library aliquot ID
         String? gex_nhash_id
         String? atac_nhash_id
-        Int expected_cells = 3000
+        Int expected_cells
 
         # Optimus inputs
         String counting_mode = "sn_rna"
@@ -32,6 +32,7 @@ workflow Multiome {
         # Optimus (an unspecified subversion defaults to the v4_TRU whitelist; see Optimus.wdl).
         Int tenx_chemistry_version = 3
         Int emptydrops_lower = 100
+        Int? emptydrops_seed
         Boolean force_no_check = false
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Forward"
@@ -52,6 +53,8 @@ workflow Multiome {
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         File? aligned_ATAC_bam
+        # If true, anchor ATAC cell calling to expected_cells instead of letting SnapATAC2 estimate the cell count
+        Boolean atac_anchor_cell_calling = false
 
         # CellBender
         Boolean run_cellbender = false
@@ -104,6 +107,7 @@ workflow Multiome {
             tenx_chemistry_version = tenx_chemistry_version,
             whitelist = gex_whitelist,
             emptydrops_lower = emptydrops_lower,
+            emptydrops_seed = emptydrops_seed,
             force_no_check = force_no_check,
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
@@ -130,6 +134,7 @@ workflow Multiome {
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,
             atac_expected_cells = expected_cells,
+            anchor_cell_calling = atac_anchor_cell_calling,
             peak_calling = false,
             aligned_ATAC_bam = aligned_ATAC_bam
 

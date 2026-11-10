@@ -25,7 +25,7 @@ import "../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow SlideSeq {
 
-    String pipeline_version = "3.6.8"
+    String pipeline_version = "3.6.9"
 
     input {
         Array[File] r1_fastq
@@ -50,7 +50,7 @@ workflow SlideSeq {
     # docker images
     String pytools_docker = "pytools:1.0.0-1661263730"
     String picard_cloud_docker = "picard-cloud:2.26.10"
-    String warp_tools_docker = "warp-tools:2.6.1"
+    String warp_tools_docker = "warp-tools:2.7.1"
     String star_merge_docker = "star-merge-npz:1.3.0"
 
     String ubuntu_docker = "ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"

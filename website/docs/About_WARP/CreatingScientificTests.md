@@ -10,10 +10,10 @@ agent standing up a test for a different pipeline.
 This document does **not** cover the file layout, CI YAML, Dockstore registration, or
 truth-bucket mechanics. Those are already written down; do not duplicate them:
 
-- **`AGENTS.md` → "Registering a CI test for a pipeline (Plumbing / Scientific)"** — the
+- **`agents/ci-tests.md` → "Registering a CI test for a pipeline (Plumbing / Scientific)"** — the
   7-artifact checklist (`Test<Pipeline>.wdl`, `Verify<Pipeline>.wdl`, `test_<pipeline>.yml`,
   `.dockstore.yml` publish, truth seeding, womtool blind spots).
-- **`AGENTS.md` → "Test inputs"** — where test JSONs live and how stale inputs break silently.
+- **`agents/ci-tests.md` → "Test inputs"** — where test JSONs live and how stale inputs break silently.
 - **[TestingPipelines.md](TestingPipelines.md)** — the canonical framework reference.
 - **[VersionAndReleasePipelines.md](VersionAndReleasePipelines.md)** — version/release rules.
 
@@ -54,10 +54,11 @@ differently:
 Example (scANVI, a stochastic label-transfer pipeline):
 
 > Structural: output h5ad has the **same number of cells** as truth; the annotation column
-> is **present**; the predicted-label vocabulary is a **subset** of truth's (the model may
-> not invent labels the reference never had).
-> Distributional: **per-cell-type proportions correlate** with truth at or above a
-> threshold.
+> is **present**.
+> Distributional: the predicted-label vocabulary is **almost entirely a subset** of truth's —
+> a small, bounded fraction of cells (`max_novel_label_fraction`) may carry novel labels the
+> broad reference leaks onto the query, so this is a tolerance, not a hard containment check;
+> and **per-cell-type proportions correlate** with truth at or above a threshold.
 
 Doing this first turns "compare the outputs" into a concrete, reviewable specification and
 tells you exactly what the verification WDL must check.
@@ -80,7 +81,7 @@ Scientific test data should be **realistic and representative, but bounded**:
   trivially memorized (query identical to a training row) unless that's deliberately the
   thing under test.
 
-Host the data under the public test bucket per the AGENTS.md mechanics. Record where it came
+Host the data under the public test bucket per the agents/ci-tests.md mechanics. Record where it came
 from and how it was subsampled (a `test_data_overview.md` next to the inputs, as several
 pipelines do), so the next person knows what the numbers *should* look like.
 
@@ -96,10 +97,17 @@ equality, or a tight numeric tolerance. Any drift is a real change.
 ### Stochastic / ML / float-sensitive pipelines
 If outputs vary run-to-run (random seeds, GPU nondeterminism, threading), **exact comparison
 is wrong** — it will be flaky and will force people to re-bless truth constantly, destroying
-its value. Instead verify the invariants from Step 1:
+its value. First check whether the randomness comes from a seedable tool: if so, expose an
+optional seed input on the pipeline (unset in production), pin it in the test wrapper, and
+compare exactly. Optimus does this for emptyDrops (`emptydrops_seed`, pinned to 42 in
+`TestOptimus.wdl`). Otherwise verify the invariants from Step 1:
 
-1. **Check structural invariants exactly.** Cell/row counts, presence of columns/files,
-   label vocabulary containment. These are deterministic even when values aren't.
+1. **Check structural invariants exactly.** Cell/row counts, presence of columns/files.
+   These are deterministic even when values aren't. Label vocabulary is *usually*
+   structural too, but when a stochastic annotator draws labels from a reference larger
+   than the query, a few novel labels can appear run-to-run — tolerate a bounded fraction
+   rather than requiring exact containment (see scANVI's `max_novel_label_fraction` under
+   *Calibrating the tolerance*).
 2. **Check distributional invariants against a threshold.** Correlate distributions, compare
    summary statistics, bound a divergence — whatever captures "close to the reference." In
    scANVI this is a correlation of per-cell-type proportions with a `min_proportion_corr`
@@ -115,7 +123,10 @@ A threshold that's too tight is flaky; too loose passes garbage. Calibrate empir
 generate truth, then run the pipeline **a few more times** and measure the natural
 run-to-run variance of your distributional metric. Set the threshold comfortably *below* the
 worst honest run but *above* what a real regression would produce. Document the chosen number
-and why (scANVI: `min_proportion_corr = 0.95`).
+and why (scANVI: `min_proportion_corr = 0.70`, set below the worst observed variant —
+GEX ~0.875, ATAC ~0.783 — since the reference is far larger than the query; plus
+`max_novel_label_fraction = 0.01` to tolerate rare labels the broad reference leaks onto
+the query).
 
 ### Fail loudly on things "tolerant" must NOT excuse
 Tolerance is about *values*, not *existence*. A whole output disappearing, a column
@@ -127,13 +138,13 @@ comparison.
 ### Exclude genuinely non-comparable artifacts — but archive them
 Some outputs can't be meaningfully compared (e.g. trained model weights, which differ every
 run). Don't verify them, but still **copy them to the results/truth bucket** so they're
-available for debugging and reuse. Say so in a comment (scANVI archives `scanvi_model_out`
+available for debugging and reuse. Say so in a comment (scANVI archives `scanvi_models_out`
 without verifying it).
 
 ### Keep the compare task pipeline-local
 Put the pipeline's compare task in its own `Verify<Pipeline>.wdl`, **not** the shared
 `verification/VerifyTasks.wdl` — editing the shared file triggers every pipeline's CI (see
-AGENTS.md). Keep the verifier's own container light and its dependencies minimal; it runs on
+agents/ci-tests.md). Keep the verifier's own container light and its dependencies minimal; it runs on
 every compare.
 
 ## Step 4 — Truth is a scientific judgment, not just a file
@@ -149,7 +160,7 @@ sign-off, not a mechanical step:
 - **Re-bless deliberately when outputs legitimately change.** A change that intentionally
   alters outputs (new metadata field, model change, a genuinely better result) *requires*
   updating truth — and requires re-inspecting it. Note the reason in the changelog.
-- **Truth is keyed by the test JSON filename**, not `input_id` (see AGENTS.md step 6): a new
+- **Truth is keyed by the test JSON filename**, not `input_id` (see agents/ci-tests.md step 6): a new
   test case needs its truth seeded first, or the first compare run fails with nothing to diff
   — the most common "new test" failure.
 
@@ -163,12 +174,14 @@ Scientific tests use real compute, so right-size but don't cripple:
   training epochs) — that's what the Plumbing test is for. If you find yourself wanting to,
   you're building a Plumbing test.
 - Lean on `useCallCache` during development to avoid re-running unchanged upstream steps.
+  But turn it **off** when you check run-to-run variance or a determinism fix: a cached
+  stochastic task reuses its earlier output, so a passing compare proves nothing.
 
 ## The development loop
 
 Standing up a Scientific test is iterative:
 
-1. Write inputs + `Test<Pipeline>.wdl` + `Verify<Pipeline>.wdl` (mechanics per AGENTS.md);
+1. Write inputs + `Test<Pipeline>.wdl` + `Verify<Pipeline>.wdl` (mechanics per agents/ci-tests.md);
    validate with womtool.
 2. **Seed truth** (`updateTruth: true`) and **inspect** the outputs (Step 4).
 3. Run a **compare** run (`updateTruth: false`). Expect to tune: threshold too tight → tighten
@@ -188,7 +201,7 @@ Standing up a Scientific test is iterative:
 - [ ] Non-comparable artifacts excluded from comparison but still archived.
 - [ ] Compare task lives in `Verify<Pipeline>.wdl`, not the shared `VerifyTasks.wdl`.
 - [ ] Truth seeded from a known-good version and visually inspected before blessing.
-- [ ] Mechanics (CI YAML, Dockstore publish, permissions) done per AGENTS.md.
+- [ ] Mechanics (CI YAML, Dockstore publish, permissions) done per agents/ci-tests.md.
 
 ---
 

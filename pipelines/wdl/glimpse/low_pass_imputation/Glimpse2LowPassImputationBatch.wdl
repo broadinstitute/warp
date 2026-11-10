@@ -6,7 +6,7 @@ version 1.0
 
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.1.0"
+    String pipeline_version = "1.1.1"
 
     input {
 
@@ -374,7 +374,7 @@ task BcftoolsCall {
     command <<<
         set -xeuo pipefail
 
-        bcftools call -Aim -C alleles -T ~{sites_table} -Oz ~{mpileup_bcf} -o calls.bcf.gz
+        bcftools call -Am -C alleles -T ~{sites_table} -Oz ~{mpileup_bcf} -o calls.bcf.gz
         bcftools index calls.bcf.gz
     >>>
 

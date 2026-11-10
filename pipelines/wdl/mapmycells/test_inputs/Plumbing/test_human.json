@@ -1,0 +1,7 @@
+{
+  "MapMyCells.input_id": "human_mtg_example",
+  "MapMyCells.query_h5ad": "gs://pd-test-storage-public/MapMyCells/input/plumbing/human/10xhumanmtgsea-adccn20230505_example_1kcells_36601genes.h5ad",
+  "MapMyCells.reference_atlas": "Human_MTG",
+  "MapMyCells.cpu": 2,
+  "MapMyCells.memory_gb": 8
+}
