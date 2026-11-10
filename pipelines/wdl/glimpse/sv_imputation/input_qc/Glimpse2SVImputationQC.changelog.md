@@ -1,3 +1,25 @@
+# 1.0.4
+2026-10-19 (Date of Last Commit)
+
+* Added `raf_censoring_threshold` input (default `0.0`) to match the main workflow
+* Made `info_filter_for_inclusion` a non-optional input with a default of `0.0` to match scientific wdl
+
+# 1.0.3
+2026-10-01 (Date of Last Commit)
+
+* `qc_messages` output is now an Optional output, which will be null if input passes all quality checks
+
+# 1.0.2
+2026-09-29 (Date of Last Commit)
+
+* Reverts previous fix for streaming errors in favor of fix for pipefail race condition
+
+# 1.0.1
+2026-09-26 (Date of Last Commit)
+
+* Fixes for silent transient streaming errors
+* Reduced per-GVCF logging for files with no findings
+
 # 1.0.0
 2026-09-09 (Date of Last Commit)
 

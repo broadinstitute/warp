@@ -24,6 +24,8 @@ workflow TestGlimpse2LowPassImputation {
         File fasta
         File fasta_index
         String output_basename
+
+        Float? raf_censoring_threshold
         Float? info_filter_for_inclusion
 
         File ref_dict
@@ -51,24 +53,22 @@ workflow TestGlimpse2LowPassImputation {
         sample_batch_size = sample_batch_size,
         glimpse_phase_cpu_override = glimpse_phase_cpu_override,
         output_basename = output_basename,
+        raf_censoring_threshold = raf_censoring_threshold,
         info_filter_for_inclusion = info_filter_for_inclusion,
     }
 
 
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
-                                    [ # File outputs
-                                    Glimpse2LowPassImputation.imputed_vcf,
-                                    Glimpse2LowPassImputation.imputed_hom_ref_sites_only_vcf
-                                    ]
+                                    Glimpse2LowPassImputation.imputed_vcfs
     ])
 
 
     # Collect all of the pipeline metrics into single Array[String]
     Array[String] pipeline_metrics = flatten([
-                                    [ # File outputs
+                                  [ # File outputs
                                     Glimpse2LowPassImputation.qc_metrics
-                                    ]
+                                  ]
     ])
 
     # Copy results of pipeline to test results bucket
@@ -95,28 +95,19 @@ workflow TestGlimpse2LowPassImputation {
             results_path = results_path,
             truth_path = truth_path
         }
-        call Utilities.GetValidationInputs as GetImputedMultiSampleVcf {
+        call Utilities.GetValidationInputs as GetImputedMultiSampleVcfs {
           input:
-            input_file = Glimpse2LowPassImputation.imputed_vcf,
+            input_files = Glimpse2LowPassImputation.imputed_vcfs,
             results_path = results_path,
             truth_path = truth_path
         }
-        call Utilities.GetValidationInputs as GetImputedSitesOnlyVcf {
-          input:
-            input_file = Glimpse2LowPassImputation.imputed_hom_ref_sites_only_vcf,
-            results_path = results_path,
-            truth_path = truth_path
-        }
-
 
       call VerifyGlimpse2LowPassImputation.VerifyGlimpse2LowPassImputation as Verify {
         input:
           truth_metrics = GetMetrics.truth_files,
           test_metrics = GetMetrics.results_files,
-          multi_sample_truth_vcf = GetImputedMultiSampleVcf.truth_file,
-          multi_sample_test_vcf = GetImputedMultiSampleVcf.results_file,
-          hom_ref_truth_vcf = GetImputedSitesOnlyVcf.truth_file,
-          hom_ref_test_vcf = GetImputedSitesOnlyVcf.results_file,
+          multi_sample_truth_vcfs = GetImputedMultiSampleVcfs.truth_files,
+          multi_sample_test_vcfs = GetImputedMultiSampleVcfs.results_files,
           done = CopyToTestResults.done
       }
     }

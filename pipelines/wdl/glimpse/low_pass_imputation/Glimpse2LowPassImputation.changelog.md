@@ -1,3 +1,31 @@
+# 2.1.1
+2026-10-19 (Date of Last Commit)
+
+* Update quota_consumed_version to `1.0.2` and input_qc_version to `1.1.2`, which add the `raf_censoring_threshold` input
+
+# 2.1.0
+2026-10-14 (Date of Last Commit)
+
+* Added censoring of `RAF` via removal when under threshold
+* Added clipping of `AF` and `INFO` to [0, 1] in `RecomputeAndAnnotate` to fix negative epsilons from floating-point math in the latter
+
+# 2.0.1
+2026-10-01 (Date of Last Commit)
+
+* Update input_qc_version to `1.1.1` which makes `qc_messages` output an Optional output
+
+# 2.0.0
+2026-09-28 (Date of Last Commit)
+
+### Breaking changes
+* Outputs `imputed_vcf`, `imputed_vcf_index`, and `imputed_vcf_md5sum` have been changed from `File` type to `Array[File]` type, and renamed to `imputed_vcfs`, `imputed_vcf_indexes`, and `imputed_vcf_md5sums`. The VCF outputs now contain all imputed variants and homozygous reference sites per chromosome/contig.
+* The output `imputed_hom_ref_sites_only_vcf` and its index have been removed, as these data (imputed homozygous reference sites) are now included in the `imputed_vcfs` output.
+
+# 1.1.1
+2026-09-23 (Date of Last Commit)
+
+* Update version of Glimpse2LowPassImputationBatch to remove -i flag from bcftools call task
+
 # 1.1.0
 2026-08-26 (Date of Last Commit)
 

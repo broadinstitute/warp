@@ -10,6 +10,7 @@ on:
     ####################################
     paths:
       - 'pipelines/wdl/glimpse/low_pass_imputation/**'
+      - '!pipelines/wdl/glimpse/low_pass_imputation/README.md'
       - '!pipelines/wdl/glimpse/low_pass_imputation/input_qc/**'
       - 'tasks/wdl/Glimpse2LowPassImputationTasks.wdl'
       - 'verification/VerifyGlimpse2LowPassImputation.wdl'

@@ -1,3 +1,20 @@
+# 4.0.0
+2026-10-26 (Date of Last Commit)
+
+* Updated the ATAC workflow to 3.0.0 to add the optional `anchor_cell_calling` input
+* Added a required `atac_expected_cells` input (no default) and an optional `atac_anchor_cell_calling` input (default `false`), both passed to ATAC; when `atac_anchor_cell_calling` is `true`, ATAC cell calling is anchored to `atac_expected_cells` instead of letting SnapATAC2 estimate the cell count. Existing input JSONs must add `atac_expected_cells`
+
+# 3.0.4
+2026-10-08 (Date of Last Commit)
+
+* Added optional `emptydrops_seed` input, passed to Optimus, that makes emptyDrops p-values reproducible when `counting_mode` = "sc_rna"; unset (the default) keeps the existing nondeterministic behavior. Default `sn_rna` runs are unaffected
+* Removed the unused `H5adUtils` import
+
+# 3.0.3
+2026-09-16 (Date of Last Commit)
+
+* Updated the warp-tools Docker image to 2.7.1 (Debian bookworm base); no functional impact on pipeline outputs
+
 # 3.0.2
 2026-07-10 (Date of Last Commit)
 
