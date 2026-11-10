@@ -1,3 +1,18 @@
+# 1.0.5
+2026-10-30 (Date of Last Commit)
+
+* Updated tasks in the imported Glimpse2SVImputationTasks that are not used in this workflow
+
+# 1.0.4
+2026-10-19 (Date of Last Commit)
+
+* Updated a task in the imported Glimpse2SVImputationTasks that is not used in this workflow
+
+# 1.0.3
+2026-10-13 (Date of Last Commit)
+
+* Updated a task in the imported Glimpse2SVImputationTasks that is not used in this workflow
+
 # 1.0.2
 2026-09-24 (Date of Last Commit)
 
