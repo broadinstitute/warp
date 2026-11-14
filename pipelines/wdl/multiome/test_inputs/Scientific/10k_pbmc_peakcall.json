@@ -1,4 +1,5 @@
 {
+  "Multiome.expected_cells": 3000,
   "Multiome.annotations_gtf":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf",
   "Multiome.gex_i1_fastq":[
     "gs://pd-test-storage-public/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L001_I1_001.fastq.gz",

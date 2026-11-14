@@ -1,3 +1,10 @@
+# 2.4.5
+2026-11-04 (Date of Last Commit)
+
+* Updated the GCP GATK Docker image used by the ReblockGVCF workflow for compatibility with gVCFs produced by newer versions of DRAGEN; this only expands the set of gVCFs that can pass reblocking and does not change the outputs of gVCFs that previously passed
+* Updated the shared ValidateVCF and Reblock tasks to expose configurable disk_size and preemptible_tries inputs; no functional impact on this pipeline's outputs
+
+
 # 2.4.4
 2026-01-29 (Date of Last Commit)
 

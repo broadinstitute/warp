@@ -20,7 +20,7 @@ workflow TestATAC {
       String? atac_nhash_id
 
       #Expected cells from library preparation
-      Int atac_expected_cells = 3000
+      Int atac_expected_cells
       Boolean anchor_cell_calling = false
 
       # Option for running files with preindex

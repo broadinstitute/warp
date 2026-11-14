@@ -1,3 +1,18 @@
+# 1.1.4
+2026-10-30 (Date of Last Commit)
+
+* Set `maxRetries` to 1 in `MergeVcfs` task in `MultilevelHierarchicallyPasteVcfsStreaming` subworkflow and in manifest tasks
+
+# 1.1.3
+2026-10-19 (Date of Last Commit)
+
+* Fix auxiliary WDL versions (QC, quota) to latest
+
+# 1.1.2
+2026-10-19 (Date of Last Commit)
+
+* Scatter and streamline postprocessing tasks
+
 # 1.1.1
 2026-10-19 (Date of Last Commit)
 

@@ -1,3 +1,9 @@
+# 4.2.1
+2026-10-26 (Date of Last Commit)
+
+* Fixed incorrectly pasted header lines in MergeSampleChunksVcfsWithPaste.
+
+
 # 4.2.0
 2026-10-21 (Date of Last Commit)
 

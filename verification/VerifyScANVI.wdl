@@ -5,43 +5,45 @@ import "../tasks/wdl/Utilities.wdl" as Utilities
 ## Verification workflow for the scANVI pipeline.
 ##
 ## scANVI trains stochastic SCVI/SCANVI models, so outputs are not bit-reproducible.
-## Each output h5ad is compared to truth tolerantly (see CompareScanviH5ad): cell
-## counts must match, the annotation column must be present, the predicted-label
-## vocabulary must match truth's except for a small tolerated fraction of
-## novel-labelled cells (max_novel_label_fraction), and per-cell-type proportions
-## must correlate with truth above a threshold.
+## Each annotated h5ad is compared to truth tolerantly (see CompareScanviH5ad): cell
+## counts and label levels must match, and at each level the predicted-label vocabulary
+## must match truth's except for a small tolerated fraction of novel-labelled cells
+## (max_novel_label_fraction), and per-cell-type proportions must correlate with truth
+## above a threshold. With check_label_distribution = false (Plumbing), only the
+## structural checks run: the pipeline ran and produced well-formed outputs, without
+## judging labels from a deliberately tiny training run.
 ##
 ## The ATAC-annotated output is optional: it is only produced (and only verified) in
-## multiome mode. In GEX-only mode the *_atac_annotated_matrix.h5ad inputs are absent.
+## multiome mode.
+##
+## The test outputs (not truth) are also checked for their run provenance (uns records the
+## sample's id, input file name, model name and levels) and for the form SCP reads: counts
+## in .raw, log2(CPM + 1) in .X, and per level a 2-column X_umap_<level> and the
+## X_scVI_<level> latent, plus X_umap.
 workflow VerifyScANVI {
 
     input {
-        File test_scanvi_predictions_h5ad
-        File truth_scanvi_predictions_h5ad
-
         File test_gex_annotated_h5ad
         File truth_gex_annotated_h5ad
 
         File? test_atac_annotated_h5ad
         File? truth_atac_annotated_h5ad
 
+        # false: skip the novel-label and proportion-correlation checks (structural only)
+        Boolean check_label_distribution = true
+
+        # The id this sample was run with; its outputs must record it in uns['scanvi_input_id']
+        String expected_input_id
+
         Boolean? done
     }
 
-    # SCANVI predictions: finalize_output renames the annotation column to 'celltype'
-    call CompareScanviH5ad as CompareScanviPredictions {
-        input:
-            truth_h5ad = truth_scanvi_predictions_h5ad,
-            test_h5ad  = test_scanvi_predictions_h5ad,
-            label_key  = "celltype"
-    }
-
-    # Annotated GEX matrix: predictions stored in 'final_annotation'
     call CompareScanviH5ad as CompareGexAnnotated {
         input:
             truth_h5ad = truth_gex_annotated_h5ad,
             test_h5ad  = test_gex_annotated_h5ad,
-            label_key  = "final_annotation"
+            check_label_distribution = check_label_distribution,
+            expected_input_id = expected_input_id
     }
 
     # ATAC-annotated output is optional (produced only in multiome mode). Fail loudly if
@@ -61,7 +63,8 @@ workflow VerifyScANVI {
             input:
                 truth_h5ad = select_first([truth_atac_annotated_h5ad]),
                 test_h5ad  = select_first([test_atac_annotated_h5ad]),
-                label_key  = "final_annotation"
+                check_label_distribution = check_label_distribution,
+                expected_input_id = expected_input_id
         }
     }
 
@@ -70,12 +73,12 @@ workflow VerifyScANVI {
     }
 }
 
-# Tolerant comparison for the scANVI pipeline outputs. SCVI/SCANVI training is
+# Tolerant comparison for the scANVI annotated matrices. SCVI/SCANVI training is
 # stochastic, so predicted labels/embeddings/counts are NOT bit-reproducible
 # across runs. Instead of exact equality, this verifies that test and truth are
 # structurally and distributionally consistent:
-#   - same number of cells (n_obs)
-#   - the annotation column (label_key) is present in both
+#   - same number of cells (n_obs) and the same label levels (uns['scanvi_levels'])
+#   - at each level, the label column (obs[<level>]) is present in both, without nulls
 #   - novel predicted labels (absent from truth) cover at most max_novel_label_fraction of cells
 #   - per-cell-type proportions correlate with truth at or above min_proportion_corr
 #
@@ -85,7 +88,6 @@ task CompareScanviH5ad {
   input {
     File truth_h5ad
     File test_h5ad
-    String label_key
     # Lowered from 0.95: the annotation reference is always much larger than the query
     # (often orders of magnitude) and carries cell types absent from the sample — e.g.
     # pbmc_reference's HSPC/progenitor labels vs mature peripheral blood — so query
@@ -105,6 +107,10 @@ task CompareScanviH5ad {
     # Absolute meaning: 0.01 = at most 1% of test cells (~100 per 10,000 cells) may hold a
     # novel label; the check prints the exact n_novel/n_obs it saw at runtime.
     Float max_novel_label_fraction = 0.01
+    # false: stop after the structural checks (cell count, levels, label columns, no null labels)
+    Boolean check_label_distribution = true
+    # The test file must record this id in uns['scanvi_input_id'], plus its input file, model and levels
+    String expected_input_id
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.7.1"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 50
     Int memory_gb = 16
@@ -119,71 +125,114 @@ task CompareScanviH5ad {
     import numpy as np
     import pandas as pd
 
-    label_key = "~{label_key}"
     min_corr = float("~{min_proportion_corr}")
     max_novel_frac = float("~{max_novel_label_fraction}")
 
     truth = ad.read_h5ad("~{truth_h5ad}")
     test = ad.read_h5ad("~{test_h5ad}")
-    print(f"truth: {truth.shape} | test: {test.shape} | label_key={label_key}")
+    levels = [str(level) for level in test.uns.get("scanvi_levels", [])]
+    print(f"truth: {truth.shape} | test: {test.shape} | levels={levels}")
 
-    # 1. Cell counts must match truth
+    # 1. Cell counts and label levels must match truth
     if truth.n_obs != test.n_obs:
         sys.exit(f"FAIL: n_obs differs (truth={truth.n_obs}, test={test.n_obs})")
+    truth_levels = [str(level) for level in truth.uns.get("scanvi_levels", [])]
+    if not levels or levels != truth_levels:
+        sys.exit(f"FAIL: label levels differ (truth={truth_levels}, test={levels})")
 
-    # 2. Annotation column must be present in both
-    for name, a in [("truth", truth), ("test", test)]:
-        if label_key not in a.obs.columns:
-            sys.exit(f"FAIL: label_key '{label_key}' missing from {name}.obs")
+    # 1b. The test file records its run provenance (truth may predate it, so only test is checked)
+    for key in ("scanvi_input_id", "scanvi_input_file", "scanvi_model"):
+        if not str(test.uns.get(key, "")):
+            sys.exit(f"FAIL: test uns['{key}'] is missing or empty")
+    if test.uns["scanvi_input_id"] != "~{expected_input_id}":
+        sys.exit(f"FAIL: test uns['scanvi_input_id'] is {test.uns['scanvi_input_id']!r}, expected '~{expected_input_id}'")
+    print(f"PASS: provenance {[str(test.uns[k]) for k in ('scanvi_input_id', 'scanvi_input_file', 'scanvi_model')]}")
 
-    # Reject null labels before stringifying: .astype(str) turns NaN into the literal label
-    # "nan", which the novel-label tolerance below would then silently absorb (up to
-    # max_novel_frac of cells), letting a partially-unannotated output pass. Missing
-    # annotations are a hard failure, not a tolerated "novel" label.
-    for name, a in [("truth", truth), ("test", test)]:
-        n_null = int(a.obs[label_key].isna().sum())
-        if n_null:
-            sys.exit(f"FAIL: {name} has {n_null} cells with a null {label_key} label")
+    # 1c. The form SCP reads
+    n = test.n_obs
+    if test.raw is None or test.raw.n_obs != n:
+        sys.exit("FAIL: test .raw (the counts) is missing")
+    for key in ["X_umap"] + [f"X_umap_{level}" for level in levels]:
+        if test.obsm.get(key) is None or test.obsm[key].shape != (n, 2):
+            sys.exit(f"FAIL: test obsm['{key}'] must be {n} x 2")
+    for level in levels:
+        if test.obsm.get(f"X_scVI_{level}") is None or test.obsm[f"X_scVI_{level}"].shape[0] != n:
+            sys.exit(f"FAIL: test obsm['X_scVI_{level}'] must have {n} rows")
+    sample = test.X[:200]
+    sample = sample.toarray() if hasattr(sample, "toarray") else np.asarray(sample)
+    if np.allclose(sample, np.round(sample)):
+        sys.exit("FAIL: test .X holds integer counts; expected normalized expression")
+    if test.uns.get("log1p", {}).get("base") != 2:
+        sys.exit(f"FAIL: test uns['log1p'] is {test.uns.get('log1p')!r}; expected base 2 (log2(CPM + 1))")
+    print("PASS: SCP form (X_umap and, per level, X_umap_<level> and X_scVI_<level>)")
 
-    truth_labels = truth.obs[label_key].astype(str)
-    test_labels = test.obs[label_key].astype(str)
+    for label_key in levels:
+        print(f"--- level {label_key} ---")
+        # 2. The level's label column must be present in both
+        for name, a in [("truth", truth), ("test", test)]:
+            if label_key not in a.obs.columns:
+                sys.exit(f"FAIL: label column '{label_key}' missing from {name}.obs")
 
-    # 3. Novel labels (present in test, absent from truth) are tolerated up to a small
-    #    fraction of cells: a broad AIT reference can assign a handful of query cells to
-    #    subclasses outside the truth's vocabulary (e.g. an entorhinal-cortex subclass
-    #    leaking onto a hippocampus query). Fail only when they exceed max_novel_frac.
-    novel = set(test_labels.unique()) - set(truth_labels.unique())
-    if novel:
-        n_novel = int(test_labels.isin(novel).sum())
-        novel_frac = n_novel / test.n_obs
-        if novel_frac > max_novel_frac:
-            sys.exit(f"FAIL: novel labels {sorted(novel)} on {n_novel}/{test.n_obs} cells "
-                     f"(fraction {novel_frac:.4f} > threshold {max_novel_frac})")
-        print(f"WARN: novel labels {sorted(novel)} on {n_novel}/{test.n_obs} cells "
-              f"(fraction {novel_frac:.4f} <= threshold {max_novel_frac}); tolerated")
-    else:
-        print("PASS: test label vocabulary is a subset of truth's")
+        # The label's confidence, written by default: a probability for every cell
+        prob_key = f"{label_key}_max_probability"
+        if prob_key in test.obs.columns:
+            prob = test.obs[prob_key].to_numpy()
+            if np.isnan(prob).any() or (prob < 0).any() or (prob > 1).any():
+                sys.exit(f"FAIL: test obs['{prob_key}'] must be a probability for every cell")
+            print(f"PASS: {prob_key} in [0, 1] (median {np.median(prob):.3f})")
 
-    # 4. Per-cell-type proportions must correlate with truth
-    all_labels = sorted(set(truth_labels.unique()) | set(test_labels.unique()))
-    tp = truth_labels.value_counts(normalize=True).reindex(all_labels).fillna(0.0).to_numpy()
-    sp = test_labels.value_counts(normalize=True).reindex(all_labels).fillna(0.0).to_numpy()
-    if len(all_labels) < 2:
-        corr = 1.0  # degenerate single-label case
-    else:
-        with np.errstate(invalid="ignore"):
-            corr = float(np.corrcoef(tp, sp)[0, 1])
-        # corrcoef is NaN when a proportion vector has zero variance (e.g. uniform
-        # distribution): treat identical distributions as a perfect match, otherwise
-        # as no correlation so the threshold check can fail rather than pass on NaN.
-        if np.isnan(corr):
-            corr = 1.0 if np.allclose(tp, sp) else 0.0
-    print("Per-cell-type proportions (truth vs test):")
-    for lab, t, s in zip(all_labels, tp, sp):
-        print(f"  {lab:40s} truth={t:.4f}  test={s:.4f}")
-    print(f"proportion correlation = {corr:.4f} (threshold {min_corr})")
-    if corr < min_corr:
-        sys.exit(f"FAIL: cell-type proportion correlation {corr:.4f} < {min_corr}")
+        # Reject null labels before stringifying: .astype(str) turns NaN into the literal label
+        # "nan", which the novel-label tolerance below would then silently absorb (up to
+        # max_novel_frac of cells), letting a partially-unannotated output pass. Missing
+        # annotations are a hard failure, not a tolerated "novel" label.
+        for name, a in [("truth", truth), ("test", test)]:
+            n_null = int(a.obs[label_key].isna().sum())
+            if n_null:
+                sys.exit(f"FAIL: {name} has {n_null} cells with a null {label_key} label")
+
+        if "~{check_label_distribution}" == "false":
+            print("PASS: structural checks only; label distribution not compared")
+            continue
+
+        truth_labels = truth.obs[label_key].astype(str)
+        test_labels = test.obs[label_key].astype(str)
+
+        # 3. Novel labels (present in test, absent from truth) are tolerated up to a small
+        #    fraction of cells: a broad AIT reference can assign a handful of query cells to
+        #    subclasses outside the truth's vocabulary (e.g. an entorhinal-cortex subclass
+        #    leaking onto a hippocampus query). Fail only when they exceed max_novel_frac.
+        novel = set(test_labels.unique()) - set(truth_labels.unique())
+        if novel:
+            n_novel = int(test_labels.isin(novel).sum())
+            novel_frac = n_novel / test.n_obs
+            if novel_frac > max_novel_frac:
+                sys.exit(f"FAIL: novel labels {sorted(novel)} on {n_novel}/{test.n_obs} cells "
+                         f"(fraction {novel_frac:.4f} > threshold {max_novel_frac})")
+            print(f"WARN: novel labels {sorted(novel)} on {n_novel}/{test.n_obs} cells "
+                  f"(fraction {novel_frac:.4f} <= threshold {max_novel_frac}); tolerated")
+        else:
+            print("PASS: test label vocabulary is a subset of truth's")
+
+        # 4. Per-cell-type proportions must correlate with truth
+        all_labels = sorted(set(truth_labels.unique()) | set(test_labels.unique()))
+        tp = truth_labels.value_counts(normalize=True).reindex(all_labels).fillna(0.0).to_numpy()
+        sp = test_labels.value_counts(normalize=True).reindex(all_labels).fillna(0.0).to_numpy()
+        if len(all_labels) < 2:
+            corr = 1.0  # degenerate single-label case
+        else:
+            with np.errstate(invalid="ignore"):
+                corr = float(np.corrcoef(tp, sp)[0, 1])
+            # corrcoef is NaN when a proportion vector has zero variance (e.g. uniform
+            # distribution): treat identical distributions as a perfect match, otherwise
+            # as no correlation so the threshold check can fail rather than pass on NaN.
+            if np.isnan(corr):
+                corr = 1.0 if np.allclose(tp, sp) else 0.0
+        print("Per-cell-type proportions (truth vs test):")
+        for lab, t, s in zip(all_labels, tp, sp):
+            print(f"  {lab:40s} truth={t:.4f}  test={s:.4f}")
+        print(f"proportion correlation = {corr:.4f} (threshold {min_corr})")
+        if corr < min_corr:
+            sys.exit(f"FAIL: {label_key} cell-type proportion correlation {corr:.4f} < {min_corr}")
 
     print("PASS: scANVI outputs are structurally and distributionally consistent")
     CODE

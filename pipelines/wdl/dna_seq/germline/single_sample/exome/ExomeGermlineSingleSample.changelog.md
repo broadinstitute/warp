@@ -1,3 +1,8 @@
+# 3.2.9
+2026-11-04 (Date of Last Commit)
+
+* Updated the shared ValidateVCF and Reblock tasks to add configurable disk_size and preemptible_tries inputs; no functional impact on this pipeline's outputs
+
 # 3.2.8
 2026-07-31 (Date of Last Commit)
 

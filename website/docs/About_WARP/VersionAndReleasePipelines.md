@@ -31,8 +31,10 @@ Pipeline version numbers are updated based the following  guidelines:
 * Changes to the pipeline that do not qualitatively impact the scientific outputs, but may produce slightly different outputs (no data reprocessing needed).
 
 #### Patch (micro) changes
-* Memory changes, internal refactor or variable name changes, speed or cost optimizations, comments, metadata.
-* Addition of optional inputs.
+* Memory changes, internal refactor or renaming of non-input variables, speed or cost optimizations, comments, metadata.
+* Addition of optional inputs that leave the outputs unchanged when they aren’t specified.
+
+An optional input is one that can be left out of the input JSON. That includes an input declared with a default value in the `input` section, such as `Int atac_expected_cells = 3000`: its type has no `?`, but the default is used whenever the input isn’t specified. The [WDL 1.0 spec](https://github.com/openwdl/wdl/blob/wdl-1.0/SPEC.md#declared-inputs-defaults-and-overrides) calls such an input optional, and `womtool inputs` lists it as `Int (optional, default = 3000)`. An input with an optional type, such as `File? aligned_ATAC_bam`, is also optional. An input with neither a default nor a `?`, such as `String input_id`, is required. A pipeline can still require an optional input at run time for some settings, as Optimus does with `i1_fastq` for v4 chemistry. Changing the default of an existing input isn’t an addition: everyone who leaves the input out gets the new value, so classify that change by its effect on the outputs. Removing a default makes an input required, which is a breaking change.
 
 When pipelines are promoted to the master branch, a script packages the pipeline for release on GitHub. A release contains three components:
 1. A release name comprising the pipeline name and version number listed in the changelog (i.e. SmartSeq2SingleSample_v5.0.0)
