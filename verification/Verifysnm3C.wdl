@@ -14,8 +14,6 @@ workflow Verifysnm3C {
         Array[File] test_unique_reads_cgn_extraction_allc_array
         Array[File] truth_unique_reads_cgn_extraction_allc_array
 
-        Array[File] test_unique_reads_cgn_extraction_allc_extract_array
-        Array[File] truth_unique_reads_cgn_extraction_allc_extract_array
 
         Array[File] test_all_reads_3C_contacts_array
         Array[File] truth_all_reads_3C_contacts_array
@@ -43,14 +41,6 @@ workflow Verifysnm3C {
             input:
                 test_zip   = test_unique_reads_cgn_extraction_allc_array[idx],
                 truth_zip  = truth_unique_reads_cgn_extraction_allc_array[idx]
-        }
-    }
-
-    scatter (idx in range(length(truth_unique_reads_cgn_extraction_allc_extract_array))){
-        call VerifyTasks.CompareCompressedTextFiles as Compare_unique_reads_cgn_extraction_allc_extract_array {
-            input:
-                test_zip   = test_unique_reads_cgn_extraction_allc_extract_array[idx],
-                truth_zip  = truth_unique_reads_cgn_extraction_allc_extract_array[idx]
         }
     }
 

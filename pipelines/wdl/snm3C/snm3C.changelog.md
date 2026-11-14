@@ -1,3 +1,15 @@
+# 5.0.0
+2026-11-13 (Date of Last Commit)
+
+### Breaking changes
+
+* Removed the CGN context-specific ALLC outputs; the unique_reads_cgn_extraction_allc_extract_array and unique_reads_cgn_extraction_tbi_extract_array outputs and the allcools extract-allc step that produced them are no longer part of the pipeline
+
+### Additional changes
+
+* Added a Cytozip task that converts the deduped BAMs to cytozip .cz format using czip bam_to_cz --mode full; the .cz files are emitted as new cz_tar_array and cz_count_tar_array outputs alongside the existing ALLC outputs
+* Added the deduped BAMs as a new deduped_bam_tar_array output; previously they were written to a scratch directory and discarded with the VM
+
 # 4.1.1
 2025-09-19 (Date of Last Commit)
 

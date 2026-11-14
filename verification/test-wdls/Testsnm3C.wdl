@@ -73,10 +73,10 @@ workflow Testsnm3C {
                                     snm3C.reference_version,
                                     snm3C.unique_reads_cgn_extraction_allc_array,
                                     snm3C.unique_reads_cgn_extraction_tbi_array,
-                                    snm3C.unique_reads_cgn_extraction_allc_extract_array,
-                                    snm3C.unique_reads_cgn_extraction_tbi_extract_array,
                                     snm3C.name_sorted_bam_array,
-                                    snm3C.all_reads_3C_contacts_array
+                                    snm3C.all_reads_3C_contacts_array,
+                                    snm3C.cz_tar_array,
+                                    snm3C.cz_count_tar_array
     ])
 
     
@@ -118,13 +118,6 @@ workflow Testsnm3C {
                 truth_path = truth_path
         }
 
-        call Utilities.GetValidationInputs as GetUniqueReadsCgnExtractionAllcExtractArray {
-            input:
-                input_files = snm3C.unique_reads_cgn_extraction_allc_extract_array,
-                results_path = results_path,
-                truth_path = truth_path
-        }
-
         call Utilities.GetValidationInputs as GetAllReads3CContactsArray {
             input:
                 input_files = snm3C.all_reads_3C_contacts_array,
@@ -140,8 +133,6 @@ workflow Testsnm3C {
                 test_name_sorted_bam_array = GetNameSortedBamArray.results_files,
                 truth_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.truth_files,
                 test_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.results_files,
-                truth_unique_reads_cgn_extraction_allc_extract_array = GetUniqueReadsCgnExtractionAllcExtractArray.truth_files,
-                test_unique_reads_cgn_extraction_allc_extract_array = GetUniqueReadsCgnExtractionAllcExtractArray.results_files,
                 truth_all_reads_3C_contacts_array = GetAllReads3CContactsArray.truth_files,
                 test_all_reads_3C_contacts_array = GetAllReads3CContactsArray.results_files,
                 done = CopyToTestResults.done
