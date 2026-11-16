@@ -5,7 +5,7 @@
 #
 # ponytail: intentionally NOT wired into CI yet (the test system is flaky and a
 # blocking gate would add noise, not signal). Run it by hand before a cleanup PR.
-# Future wiring: see AGENTS.md "Unused imports".
+# Future wiring: see agents/wdl-authoring.md "Unused imports".
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
