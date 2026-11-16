@@ -250,10 +250,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/small_callsets/sc1_create_basis_mt_from_vds.wdl
 
-  - name: sc1_create_basis_mt_from_vcf
-    subclass: WDL
-    primaryDescriptorPath: /all_of_us/small_callsets/sc1_create_basis_mt_from_vcf.wdl
-
   - name: sc2_export_basis_mt_to_dense_bed_mts
     subclass: WDL
     primaryDescriptorPath: /all_of_us/small_callsets/sc2_export_basis_mt_to_dense_bed_mts.wdl
@@ -274,9 +270,25 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/small_callsets/sc6_export_split_dense_bed_MTs_to_plink_bed.wdl
 
+  # Phased small callsets: phased per-chromosome VCF in, per-chromosome VCF out.
+  # SC2 and SC4 are forked copies of their VDS-pipeline siblings so the phased path can
+  # diverge without touching VDS production. They carry a _phased suffix because Dockstore
+  # workflow names must be unique across the repo, even though the file names match.
+  - name: sc1_create_basis_mt_from_vcf
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/phased_small_callsets/sc1_create_basis_mt_from_vcf.wdl
+
+  - name: sc2_export_basis_mt_to_dense_bed_mts_phased
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/phased_small_callsets/sc2_export_basis_mt_to_dense_bed_mts.wdl
+
+  - name: sc4_export_dense_bed_MTs_to_split_dense_MTs_phased
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/phased_small_callsets/sc4_export_dense_bed_MTs_to_split_dense_MTs.wdl
+
   - name: sc7_export_split_dense_bed_MTs_to_vcf
     subclass: WDL
-    primaryDescriptorPath: /all_of_us/small_callsets/sc7_export_split_dense_bed_MTs_to_vcf.wdl
+    primaryDescriptorPath: /all_of_us/phased_small_callsets/sc7_export_split_dense_bed_MTs_to_vcf.wdl
 
   - name: SplitMultisampleVcf
     subclass: WDL

@@ -8,9 +8,9 @@
 # that reconstruction step goes away entirely; what's left is the format-agnostic part of the original
 # script (BED annotate/filter, variant_qc, INFO recompute).
 #
-# PROTOTYPE STATUS: this is written for interactive testing on the hail fat box against a small region /
-# single chromosome before it gets wired into a WDL. See sc1_create_basis_mt_from_vds.py for the
-# production VDS-input sibling and the small_callsets README for pipeline context.
+# STATUS: validated end to end in Terra on a phased chr21 test region via
+# sc1_create_basis_mt_from_vcf.wdl. See ../small_callsets/sc1_create_basis_mt_from_vds.py for the
+# VDS-input sibling, and the README in this directory for pipeline context.
 
 
 import argparse
