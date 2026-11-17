@@ -39,8 +39,6 @@ workflow ImputationBeagleBatch {
     Int? error_count_override
     # the following are used to define the resources for Beagle tasks
     Int beagle_cpu
-    Int beagle_phase_memory_in_gb # TODO: remove
-    Int beagle_impute_memory_in_gb # TODO: remove
 
     String beagle_phase_initial_machine_type
     String beagle_phase_retry_machine_type
@@ -70,7 +68,6 @@ workflow ImputationBeagleBatch {
           start = starts_with_overlaps[contig_index][chunk_index],
           end = ends_with_overlaps[contig_index][chunk_index],
           cpu = beagle_cpu,
-          memory_mb = beagle_phase_memory_in_gb * 1024, # TODO: remove
           machine_type = beagle_phase_initial_machine_type,
           allowed_return_codes = beagle_allowed_return_codes
       }
@@ -86,7 +83,6 @@ workflow ImputationBeagleBatch {
             start = starts_with_overlaps[contig_index][chunk_index],
             end = ends_with_overlaps[contig_index][chunk_index],
             cpu = beagle_cpu,
-            memory_mb = beagle_phase_memory_in_gb * 1024, # TODO: remove
             machine_type = beagle_phase_retry_machine_type,
             allowed_return_codes = [0]
         }
@@ -105,7 +101,6 @@ workflow ImputationBeagleBatch {
           end = ends_with_overlaps[contig_index][chunk_index],
           impute_with_allele_probabilities = impute_with_allele_probabilities,
           cpu = beagle_cpu,
-          memory_mb = beagle_impute_memory_in_gb * 1024, # TODO: remove
           machine_type = beagle_impute_initial_machine_type,
           allowed_return_codes = beagle_allowed_return_codes
       }
@@ -122,7 +117,6 @@ workflow ImputationBeagleBatch {
             end = ends_with_overlaps[contig_index][chunk_index],
             impute_with_allele_probabilities = impute_with_allele_probabilities,
             cpu = beagle_cpu,
-            memory_mb = beagle_impute_memory_in_gb * 1024, # TODO: remove
             machine_type = beagle_impute_retry_machine_type,
             allowed_return_codes = [0]
         }
