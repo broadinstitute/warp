@@ -2,10 +2,12 @@ version 1.0
 
 import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
+import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelMerge
 
 workflow Glimpse2LowPassImputation {
     String pipeline_version = "2.1.2"
     String batch_pipeline_version = "1.1.2"
+    String multilevel_merge_pipeline_version = "1.0.5"
     String quota_consumed_version = "1.0.2"
     String input_qc_version = "1.1.2"
 
@@ -46,6 +48,11 @@ workflow Glimpse2LowPassImputation {
 
         # override for cpu used for glimpse phase task. Mostly used to set to 1 for determinism in testing, defaults to 4
         Int? glimpse_phase_cpu_override
+
+        # Multilevel Paste Configuration
+        Array[Int] merge_batch_sizes = [100]        # adjust or add levels if needed
+        Array[Boolean] merge_do_localization = [true]
+        Array[Int] merge_timeouts_min = [0]
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.0.0"
         String glimpse_docker = "us.gcr.io/broad-gotc-prod/imputation-glimpse2:1.3.0-8671138-1785933808"
@@ -124,18 +131,21 @@ workflow Glimpse2LowPassImputation {
                     }
                 }
 
-                call Glimpse2LowPassImputationTasks.MergeSampleChunksVcfsWithPaste as MergeRegion {
+                call MultilevelMerge.MultilevelHierarchicallyMergeVcfs as MergeRegion {
                     input:
-                        input_vcfs = batch_vcfs_for_contig,
-                        input_vcf_indices = batch_vcf_indices_for_contig,
-                        region = region,
-                        output_bcf_basename = output_basename + "." + contigs[contig_idx] + "." + region_id + ".imputed.merged"
+                        vcfs_or_bcfs_array = batch_vcfs_for_contig,
+                        vcf_or_bcf_idxs_array = batch_vcf_indices_for_contig,
+                        regions = [region],
+                        batch_sizes = merge_batch_sizes,
+                        do_localization = merge_do_localization,
+                        timeouts_min = merge_timeouts_min,
+                        output_basename = output_basename + "." + contigs[contig_idx] + "." + region_id + ".imputed.merged"
                 }
 
                 call Glimpse2LowPassImputationTasks.RecomputeAndAnnotate as RecomputeAfInfoAndFilterInfoAndCensorRaf {
                     input:
-                        merged_vcf_or_bcf = MergeRegion.output_bcf,
-                        merged_vcf_or_bcf_index = MergeRegion.output_bcf_index,
+                        merged_vcf_or_bcf = MergeRegion.merged_bcf,
+                        merged_vcf_or_bcf_index = MergeRegion.merged_bcf_idx,
                         annotations = ExtractAnnotations.annotations,
                         num_samples = RunBatch.total_samples,
                         info_filter_threshold = info_filter_for_inclusion,
