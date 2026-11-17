@@ -6,15 +6,20 @@
 # per-chromosome by way of the pipeline running per-chromosome end to end (one chromosome's phased VCF in
 # at SC1, one chromosome's data throughout) -- this script does not split by contig itself.
 #
-# STATUS: not yet run. Open items:
+# STATUS: validated end to end in Terra 2026-11-16 on phased chr21 data. Wrote all three VCFs at
+# 602/5/2020 rows, every genotype phased (`|`, never `/`), sample totals exactly 535,662. Open items:
 #   - SC4's calculate_info() rebuilds `info` from scratch as {AC, AF, AN, homozygote_count}, dropping
-#     GQ/AVSAD/HC. build_phased_vcf_metadata() below still declares GQ/AVSAD/HC, so the declared header
-#     and the actual data have diverged. Pending the GQ/AVSAD/HC-vs-homozygote_count decision, this
-#     metadata may need trimming, or SC4 may need to stop clobbering `info`.
-#   - Whether the LowQual/ExcessHet/NO_HQ_GENOTYPES FILTER definitions are ever actually needed
-#     (SC4 drops any row with a non-empty `filters` field before splitting)
-#   - Whether `##reference=` is needed by anything downstream (confirmed Hail does NOT emit one, and
-#     offers no metadata slot for it -- would require post-processing)
+#     GQ/AVSAD and undoing SC1's HC rename. Confirmed from that real export: Hail does NOT emit header
+#     lines for metadata fields absent from the data, so the HC/AVSAD/GQ entries declared below are
+#     silently skipped -- there is no false-advertising risk. But homozygote_count then ships as
+#     `##INFO=<ID=homozygote_count,Number=.,Type=Integer,Description="">`: blank description (this
+#     metadata is keyed HC, so it never matches) and Number=. where it should be R. Fix by making SC4
+#     merge into `info` rather than replace it -- which also preserves GQ/AVSAD if they are wanted.
+#   - The LowQual/ExcessHet/NO_HQ_GENOTYPES FILTER definitions describe nothing in this data (SC4 drops
+#     any row with a non-empty `filters` field, and zero rows were ever dropped). Harmless to keep.
+#   - `##reference=` is not emitted by Hail and has no metadata slot -- would need post-processing, and
+#     it is not yet established that anything downstream wants it.
+#   - Hail emits the full GRCh38 contig list, alt scaffolds included, into a single-chromosome file.
 #   - Indexing is deliberately NOT done here. Per guidance, index separately with tabix/bcftools as its
 #     own cheap non-Hail task rather than Hail's tabix=True.
 #
