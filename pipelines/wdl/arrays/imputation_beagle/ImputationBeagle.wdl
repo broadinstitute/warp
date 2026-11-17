@@ -38,8 +38,6 @@ workflow ImputationBeagle {
     Int? error_count_override
     # the following are used to define the resources for Beagle tasks
     Int beagle_cpu = 8
-    Int beagle_phase_memory_in_gb = 40 # TODO: remove
-    Int beagle_impute_memory_in_gb = 45 # TODO: remove
 
     String beagle_phase_initial_machine_type = "n2d-standard-8"
     String beagle_phase_retry_machine_type = "n2d-highmem-8"
@@ -145,11 +143,7 @@ workflow ImputationBeagle {
         pipeline_header_line = pipeline_header_line,
         min_dr2_for_inclusion = min_dr2_for_inclusion,
         beagle_cpu = beagle_cpu,
-        
-        # Original memory plumbing (marked for future removal)
-        beagle_phase_memory_in_gb = beagle_phase_memory_in_gb, # TODO: remove
-        beagle_impute_memory_in_gb = beagle_impute_memory_in_gb, # TODO: remove
-        
+
         # Explicit String machine types
         beagle_phase_initial_machine_type = beagle_phase_initial_machine_type,
         beagle_phase_retry_machine_type = beagle_phase_retry_machine_type,

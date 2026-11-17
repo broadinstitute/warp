@@ -1,5 +1,5 @@
 # 1.0.2
-2026-10-30 (Date of Last Commit)
+2026-11-17 (Date of Last Commit)
 
 * Updated a task in the imported ImputationBeagleTasks that is not used in this workflow
 
