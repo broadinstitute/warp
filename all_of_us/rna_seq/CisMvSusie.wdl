@@ -61,6 +61,8 @@ workflow CisMvSusie {
     String docker_image
   }
 
+  String pipeline_version = "aou_beta"
+
   # 1. Sample IDs: everything is read as text and compared before any compute is spent.
     call CheckSamples {
       input:
