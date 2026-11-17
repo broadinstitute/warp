@@ -420,7 +420,8 @@ task PreparePhenotypeBed {
 #   cis_window_associations.tsv.gz: window_id chrom start end modality molecular_trait_id p_value
 #   target_phenotypes.tsv:          window_id modality phenotype_id (expression + splicing only)
 # Gene IDs are taken from: expression -> the ID; splicing -> cis group_id / last ":" field;
-# protein -> the ID after the UniProt prefix. The TSS is the BED "end" column (1-based).
+# protein -> the ID after the UniProt prefix. The TSS comes only from the gene-level
+# expression or protein BEDs; splicing BED coordinates are junction intervals, not TSSs.
 # Window = [TSS - W, TSS + W] in 1-based positions, stored 0-based half-open as the
 # manifest convention requires: start = max(0, TSS - W - 1), end = TSS + W.
 # ---------------------------------------------------------------------------
@@ -524,6 +525,22 @@ task BuildCisWindows {
     }
 
     features <- rbindlist(lapply(modalities, function(mod) read_bed_features(bed_paths[[mod]], mod)))
+    gene_level_genes <- unique(features[modality %in% c("expression", "protein"), gene_id])
+    if (gene_list_path != "NONE") {
+      missing_tss <- setdiff(genes, gene_level_genes)
+      if (length(missing_tss)) {
+        stop(
+          "Supplied gene_list includes genes without expression/protein TSS coordinates: ",
+          paste(utils::head(missing_tss, 10L), collapse = ", "),
+          if (length(missing_tss) > 10L) {
+            sprintf(" (and %d more)", length(missing_tss) - 10L)
+          } else {
+            ""
+          }
+        )
+      }
+    }
+
     n_by <- features[gene_id %in% genes, .N, by = .(gene_id, modality)]
     gene_tbl <- data.table(gene_id = genes)
     for (mod in modalities) {
@@ -532,9 +549,19 @@ task BuildCisWindows {
       set(gene_tbl, j = paste0("n_", mod), value = ifelse(is.na(idx), 0L, n_mod$N[idx]))
     }
     gene_tbl[, n_present := (n_expression > 0L) + (n_splicing > 0L) + (n_protein > 0L)]
-    keep_flag <- gene_tbl$n_present >= min_modalities &
+    modality_flag <- gene_tbl$n_present >= min_modalities &
       (gene_tbl$n_expression > 0L | gene_tbl$n_splicing > 0L)
-    log_msg("%d of %d genes have features in >= %d modalities (including expression or splicing).",
+    missing_tss <- gene_tbl$gene_id[
+      modality_flag & !(gene_tbl$gene_id %in% gene_level_genes)
+    ]
+    if (length(missing_tss)) {
+      log_msg(
+        "Excluding %d genes that meet modality filters but have no expression/protein TSS coordinates.",
+        length(missing_tss)
+      )
+    }
+    keep_flag <- modality_flag & gene_tbl$gene_id %in% gene_level_genes
+    log_msg("%d of %d genes have features in >= %d modalities and a gene-level TSS.",
             sum(keep_flag), nrow(gene_tbl), min_modalities)
     gene_tbl <- gene_tbl[keep_flag]
     gene_tbl <- merge(gene_tbl, overall, by = "gene_id", all.x = TRUE, sort = FALSE)
@@ -551,13 +578,14 @@ task BuildCisWindows {
     feat <- features[gene_id %in% gene_tbl$gene_id]
     feat[, prio := match(modality, modalities)]
     setorder(feat, gene_id, prio)
-    pos <- feat[, .(
+    gene_level_feat <- feat[modality %in% c("expression", "protein")]
+    pos <- gene_level_feat[, .(
       window_chrom = chrom[1L],
       tss = end[1L],
       n_distinct_tss = uniqueN(paste(chrom, end))
     ), by = gene_id]
     if (any(pos$n_distinct_tss > 1L)) {
-      log_msg("WARNING: %d genes have different TSS positions across features; using the first modality that has the gene (expression, splicing, protein).",
+      log_msg("WARNING: %d genes have different TSS positions across expression/protein features; using the first available gene-level coordinate (expression, then protein).",
               sum(pos$n_distinct_tss > 1L))
     }
     pos[, window_start := pmax(0L, tss - window_bp - 1L)]
