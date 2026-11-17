@@ -18,11 +18,18 @@ workflow Multiome {
         String? gex_nhash_id
         String? atac_nhash_id
         Int expected_cells
-        # Configurable h5ad global (uns) metadata key labels + optional additional sample id.
-        # These name the uns KEYS; defaults (applied downstream) preserve prior output.
-        String? input_name
+        # Optional inputs that control the global (uns) metadata written to both the GEX h5ad
+        # and the ATAC snap_metrics h5ad. The *_name inputs set uns KEY labels; when unset, the
+        # keys are the same as before these inputs existed. In both files, the value under the
+        # input_id_name key is this workflow's input_id, without the '_gex'/'_atac' suffix.
+        # Key label for the input_id value (default 'input_id')
+        String? input_id_name
+        # Key label for the gex_nhash_id / atac_nhash_id values (default 'NHashID';
+        # each is written only when its nhash id is set)
         String? nhash_id_name
+        # Optional extra sample id written to both h5ads; when unset, no key is written
         String? additional_sample_id
+        # Key label for the additional_sample_id value (default 'additional_sample_id')
         String? additional_sample_name
 
         # Optimus inputs
@@ -107,7 +114,7 @@ workflow Multiome {
             input_id = input_id + "_gex",
             output_bam_basename = input_id + "_gex",
             gex_nhash_id = gex_nhash_id,
-            input_name = input_name,
+            input_id_name = input_id_name,
             nhash_id_name = nhash_id_name,
             additional_sample_id = additional_sample_id,
             additional_sample_name = additional_sample_name,
@@ -144,7 +151,7 @@ workflow Multiome {
             annotations_gtf = annotations_gtf,
             atac_nhash_id = atac_nhash_id,
             nhash_id_name = select_first([nhash_id_name, "NHashID"]),
-            input_name = select_first([input_name, "input_id"]),
+            input_id_name = select_first([input_id_name, "input_id"]),
             additional_sample_id = select_first([additional_sample_id, ""]),
             additional_sample_name = select_first([additional_sample_name, "additional_sample_id"]),
             input_id_metadata_value = input_id,

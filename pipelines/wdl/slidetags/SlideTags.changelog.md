@@ -1,8 +1,9 @@
-# 2.0.5
-2026-11-02 (Date of Last Commit)
+# 2.1.0
+2026-11-17 (Date of Last Commit)
 
-* Updated the shared Optimus workflow to support configurable h5ad metadata key names; SlideTags does not set the new inputs, so no functional impact on its outputs
-* The `gex_nhash_id` input now tolerates spaces between comma-separated library aliquot IDs (e.g. `LA-x, LA-y`); spaces are stripped before use, so no functional impact
+* Updated the shared Optimus workflow to support configurable h5ad metadata key names; SlideTags does not set the new inputs, so the key names are unchanged
+* When `gex_nhash_id` is unset, the h5ad no longer includes an `NHashID` key with the value `NA`
+* The `gex_nhash_id` input now tolerates spaces between comma-separated library aliquot IDs (e.g. `LA-x, LA-y`); spaces are stripped before use, so output is unchanged for existing inputs
 
 # 2.0.4
 2026-10-08 (Date of Last Commit)

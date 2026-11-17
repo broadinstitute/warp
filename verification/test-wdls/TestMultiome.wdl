@@ -14,6 +14,11 @@ workflow TestMultiome {
       String cloud_provider
       String gex_nhash_id
       String atac_nhash_id
+      # h5ad uns metadata key labels and values
+      String? input_id_name
+      String? nhash_id_name
+      String? additional_sample_id
+      String? additional_sample_name
 
       # Optimus Inputs
       String counting_mode = "sn_rna"
@@ -92,6 +97,10 @@ workflow TestMultiome {
         cloud_provider = cloud_provider,
         gex_nhash_id = gex_nhash_id,
         atac_nhash_id = atac_nhash_id,
+        input_id_name = input_id_name,
+        nhash_id_name = nhash_id_name,
+        additional_sample_id = additional_sample_id,
+        additional_sample_name = additional_sample_name,
         run_peak_calling = run_peak_calling,
         aligned_ATAC_bam = aligned_ATAC_bam,
         expected_cells = expected_cells,

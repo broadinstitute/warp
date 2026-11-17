@@ -66,11 +66,11 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | adapter_seq_read3 | TrimAdapters input: Sequence adapter for read 3 fastq. |
 | vm_size | String defining the Azure virtual machine family for the workflow (default: "Standard_M128s"). 
 | atac_nhash_id | String that represents an optional library aliquot identifier. When used, it is echoed in the h5ad unstructured data. |
-| input_name | Optional name for the `adata.uns` metadata key that stores the `input_id` value; defaults to `input_id`. |
-| nhash_id_name | Optional name for the `adata.uns` metadata key that stores the `atac_nhash_id` value; defaults to `NHashID`. |
-| additional_sample_id | Optional additional sample identifier; when specified, it is echoed in the h5ad unstructured metadata. |
-| additional_sample_name | Optional name for the `adata.uns` metadata key that stores the `additional_sample_id` value; defaults to `additional_sample_id`. |
-| input_id_metadata_value | Optional value to store under the `input_id` metadata key; defaults to `input_id` (the Multiome pipeline uses this to store the un-suffixed base id). |
+| input_id_name | Optional name for the `adata.uns` key in the `snap_metrics` h5ad that stores the `input_id_metadata_value`; default is `input_id`. |
+| input_id_metadata_value | Optional value stored under the `input_id_name` key; default is `input_id`. It does not change output filenames. The Multiome pipeline uses it to store its `input_id` without the `_atac` suffix. |
+| nhash_id_name | Optional name for the `adata.uns` key that stores the `atac_nhash_id` value; default is `NHashID`. The key is written only when `atac_nhash_id` is set. |
+| additional_sample_id | Optional additional sample identifier written to the `snap_metrics` h5ad `adata.uns`; when unset, no key is written. |
+| additional_sample_name | Optional name for the `adata.uns` key that stores the `additional_sample_id` value; default is `additional_sample_id`. |
 | peak_calling | Optional boolean used to determine if the ATAC pipeline should run Peak Calling; default is "false".  | Boolean |
 
 ## ATAC tasks and tools
@@ -108,15 +108,15 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 ### Configurable global metadata keys
 
-The `snap_metrics` h5ad records sample provenance as global metadata in `adata.uns`. By default these keys are `NHashID` (the library aliquot, from `atac_nhash_id`) and `input_id` (the sample id). You can rename the keys and add an optional sample id — none of this changes any metrics or barcodes:
+The `snap_metrics` h5ad records sample provenance as global metadata in `adata.uns`. You can rename these keys and add an optional sample id. None of these inputs changes any metrics, barcodes or output filenames.
 
-| Value input | What it stores | Default key | Input to rename the key |
+| Value | Written when | Default key | Input that renames the key |
 | --- | --- | --- | --- |
-| `atac_nhash_id` | Library aliquot id | `NHashID` | `nhash_id_name` |
-| `input_id` (or `input_id_metadata_value`) | Sample id | `input_id` | `input_name` |
-| `additional_sample_id` (optional) | An extra sample id | `additional_sample_id` | `additional_sample_name` |
+| `input_id_metadata_value` (default: `input_id`) | Always | `input_id` | `input_id_name` |
+| `atac_nhash_id` | `atac_nhash_id` is set | `NHashID` | `nhash_id_name` |
+| `additional_sample_id` | `additional_sample_id` is set | `additional_sample_id` | `additional_sample_name` |
 
-If you leave these inputs unset, the metadata is unchanged from previous versions, except that the `snap_metrics` h5ad now always includes the `input_id` key.
+If you leave these inputs unset, the keys are named as in previous versions, with two differences: the `snap_metrics` h5ad now always includes the `input_id` key, and it no longer includes an empty `NHashID` key when `atac_nhash_id` is unset.
 
 ## Versioning and testing
 

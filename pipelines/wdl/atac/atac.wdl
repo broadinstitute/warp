@@ -24,14 +24,18 @@ workflow ATAC {
     # Additional library aliquot ID
     String? atac_nhash_id
 
-    # Configurable h5ad global (uns) metadata key labels + optional additional sample id.
-    # Defaults preserve prior output: nhash_id_name -> 'NHashID', input_name -> 'input_id'.
+    # Optional inputs that control the global (uns) metadata written to the snap_metrics h5ad.
+    # The *_name inputs set uns KEY labels; their defaults match the keys written before they existed.
+    # Key label for the atac_nhash_id value (written only when atac_nhash_id is set).
     String nhash_id_name = "NHashID"
-    String input_name = "input_id"
+    # Key label for the input_id value (see input_id_metadata_value).
+    String input_id_name = "input_id"
+    # Optional extra sample id; when empty, no key is written.
     String additional_sample_id = ""
+    # Key label for the additional_sample_id value.
     String additional_sample_name = "additional_sample_id"
-    # Value stored for the input_id uns entry; defaults to input_id. Multiome passes the
-    # un-suffixed base id here while input_id carries the '_atac' suffix for filenames.
+    # Value written under the input_id_name key. Defaults to input_id; Multiome passes its
+    # un-suffixed base id here because its input_id carries an '_atac' suffix for filenames.
     String input_id_metadata_value = input_id
 
     #Expected cells from library preparation
@@ -98,6 +102,11 @@ workflow ATAC {
     num_threads_bwa: "Number of threads for bwa-mem2 task (default: 128)"
     mem_size_bwa: "Memory size in GB for bwa-mem2 task (default: 512)"
     cpu_platform_bwa: "CPU platform for bwa-mem2 task (default: Intel Ice Lake)"
+    nhash_id_name: "Key label in the snap_metrics h5ad uns metadata under which atac_nhash_id is stored (default: NHashID). The key is written only when atac_nhash_id is set."
+    input_id_name: "Key label in the snap_metrics h5ad uns metadata under which input_id_metadata_value is stored (default: input_id)."
+    additional_sample_id: "Optional additional sample id written to the snap_metrics h5ad uns metadata. When empty (default), no key is written."
+    additional_sample_name: "Key label in the snap_metrics h5ad uns metadata under which additional_sample_id is stored (default: additional_sample_id)."
+    input_id_metadata_value: "Value stored under the input_id_name key (default: input_id). Does not affect output filenames."
     anchor_cell_calling: "If true, SnapATAC2's OrdMag cell calling uses atac_expected_cells as its expected cell count instead of estimating it from the data; the per-cell library metrics and the snap_metrics h5ad both use the resulting cells (default: false)"
  }
 
@@ -175,7 +184,7 @@ workflow ATAC {
         cell_calling_expected_cells = cell_calling_expected_cells,
         input_id = input_id,
         nhash_id_name = nhash_id_name,
-        input_name = input_name,
+        input_id_name = input_id_name,
         additional_sample_id = additional_sample_id,
         additional_sample_name = additional_sample_name,
         input_id_metadata_value = input_id_metadata_value
@@ -194,7 +203,7 @@ workflow ATAC {
         cell_calling_expected_cells = cell_calling_expected_cells,
         input_id = input_id,
         nhash_id_name = nhash_id_name,
-        input_name = input_name,
+        input_id_name = input_id_name,
         additional_sample_id = additional_sample_id,
         additional_sample_name = additional_sample_name,
         input_id_metadata_value = input_id_metadata_value
@@ -580,9 +589,10 @@ task CreateFragmentFile {
     Int atac_expected_cells
     Int? cell_calling_expected_cells
     String gtf_path = annotations_gtf
-    # Configurable h5ad global (uns) metadata key labels + optional additional sample id
+    # uns metadata key labels, optional extra sample id, and the input_id metadata value;
+    # see the ATAC workflow inputs for how each is used
     String nhash_id_name = "NHashID"
-    String input_name = "input_id"
+    String input_id_name = "input_id"
     String additional_sample_id = ""
     String additional_sample_name = "additional_sample_id"
     String input_id_metadata_value = input_id
@@ -631,7 +641,7 @@ task CreateFragmentFile {
     cell_calling_expected_cells = ~{default="None" cell_calling_expected_cells}
     # Configurable uns metadata key labels + values
     nhash_id_name = "~{nhash_id_name}"
-    input_name = "~{input_name}"
+    input_id_name = "~{input_id_name}"
     additional_sample_id = "~{additional_sample_id}"
     additional_sample_name = "~{additional_sample_name}"
     input_id_metadata_value = "~{input_id_metadata_value}"
@@ -701,9 +711,9 @@ task CreateFragmentFile {
     if atac_nhash_id != "":
         atac_data.uns[nhash_id_name] = atac_nhash_id
 
-    # Store the input_id value under a configurable key label (input_name, default
+    # Store the input_id value under a configurable key label (input_id_name, default
     # 'input_id'). input_id_metadata_value is the base (un-suffixed) id in Multiome.
-    atac_data.uns[input_name] = input_id_metadata_value
+    atac_data.uns[input_id_name] = input_id_metadata_value
 
     # Optional additional sample id, under a configurable key label.
     if additional_sample_id != "":

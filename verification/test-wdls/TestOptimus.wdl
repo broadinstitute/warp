@@ -22,6 +22,12 @@ workflow TestOptimus {
     String? input_name
     String? input_id_metadata_field
     String? input_name_metadata_field
+    # h5ad uns metadata key labels and values
+    String? input_id_name
+    String? nhash_id_name
+    String? additional_sample_id
+    String? additional_sample_name
+    String? input_id_metadata_value
     # organism reference parameters
     File tar_star_reference
     File annotations_gtf
@@ -80,6 +86,11 @@ workflow TestOptimus {
       input_name                 = input_name,
       input_id_metadata_field    = input_id_metadata_field,
       input_name_metadata_field  = input_name_metadata_field,
+      input_id_name              = input_id_name,
+      nhash_id_name              = nhash_id_name,
+      additional_sample_id       = additional_sample_id,
+      additional_sample_name     = additional_sample_name,
+      input_id_metadata_value    = input_id_metadata_value,
       tar_star_reference         = tar_star_reference,
       annotations_gtf            = annotations_gtf,
       tenx_chemistry_version     = tenx_chemistry_version,

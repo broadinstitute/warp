@@ -12,14 +12,18 @@ task OptimusH5adGeneration {
     # user provided id
     String counting_mode = "sc_rna"
     Int expected_cells = 3000
+    # sample name value, written to the uns 'input_name' key
     String? input_name
     String? input_id_metadata_field
     String? input_name_metadata_field
-    # Configurable uns metadata key labels + optional additional sample id
+    # uns key labels and optional extra sample id; see the Optimus workflow inputs.
+    # When unset, the warp-tools scripts use the defaults 'input_id', 'NHashID' and
+    # 'additional_sample_id', and write no additional sample id key.
+    String? input_id_name
     String? nhash_id_name
     String? additional_sample_id
     String? additional_sample_name
-    # value stored for the input_id uns entry (defaults to input_id downstream)
+    # value stored under the input_id_name key (defaults to input_id downstream)
     String? input_id_metadata_value
     # gene annotation file in GTF format
     File annotation_file
@@ -82,6 +86,7 @@ task OptimusH5adGeneration {
           --output_path_for_h5ad "~{input_id}" \
           --input_id ~{input_id} \
           ~{"--input_name " + input_name} \
+          ~{"--input_id_name " + input_id_name} \
           ~{"--input_id_metadata_value " + input_id_metadata_value} \
           ~{"--input_id_metadata_field " + input_id_metadata_field} \
           ~{"--input_name_metadata_field " + input_name_metadata_field} \
@@ -99,6 +104,7 @@ task OptimusH5adGeneration {
           --output_path_for_h5ad "~{input_id}" \
           --input_id ~{input_id} \
           ~{"--input_name " + input_name} \
+          ~{"--input_id_name " + input_id_name} \
           ~{"--input_id_metadata_value " + input_id_metadata_value} \
           ~{"--input_id_metadata_field " + input_id_metadata_field} \
           ~{"--input_name_metadata_field " + input_name_metadata_field} \

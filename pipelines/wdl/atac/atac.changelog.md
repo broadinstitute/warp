@@ -1,7 +1,8 @@
 # 3.1.0
-2026-11-02 (Date of Last Commit)
+2026-11-17 (Date of Last Commit)
 
-* Added optional inputs that let you name the keys in the ATAC snap_metrics h5ad global (`uns`) metadata: `nhash_id_name` names the key holding `atac_nhash_id`, `input_name` names the key holding `input_id`, and `additional_sample_name` names the key holding a new optional `additional_sample_id` value. `input_id_metadata_value` sets the value stored under the `input_id` key. Each name defaults to its current key, so output is unchanged unless you set these inputs, except that the ATAC h5ad now always carries the `input_id` key
+* Added optional inputs that let you name the keys in the ATAC snap_metrics h5ad global (`uns`) metadata: `input_id_name` names the key holding `input_id`, `nhash_id_name` names the key holding `atac_nhash_id`, and `additional_sample_name` names the key holding a new optional `additional_sample_id` value. `input_id_metadata_value` sets the value stored under the `input_id` key. Each name defaults to its current key
+* The snap_metrics h5ad now always includes the `input_id` key, and no longer includes an empty `NHashID` key when `atac_nhash_id` is unset
 * The `atac_nhash_id` input now tolerates spaces between comma-separated library aliquot IDs (e.g. `LA-x, LA-y`); spaces are stripped before use, so output is unchanged for existing inputs
 
 # 3.0.0
