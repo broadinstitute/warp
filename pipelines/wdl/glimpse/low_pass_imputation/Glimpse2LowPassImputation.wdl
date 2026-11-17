@@ -102,8 +102,8 @@ workflow Glimpse2LowPassImputation {
     # Use the raw ligated BCFs (all sites) — every batch is imputed to the same reference panel sites,
     # so site lists are identical across batches and the paste md5sum check will pass.
     scatter(contig_idx in range(length(contigs))) {
-        Array[File] batch_vcfs_for_contig = transpose(RunBatch.imputed_contig_ligated_vcfs)[contig_idx]
-        Array[File] batch_vcf_indices_for_contig = transpose(RunBatch.imputed_contig_ligated_vcf_indices)[contig_idx]
+        Array[File] batch_bcfs_for_contig = transpose(RunBatch.imputed_contig_ligated_bcfs)[contig_idx]
+        Array[File] batch_bcf_indices_for_contig = transpose(RunBatch.imputed_contig_ligated_bcf_indices)[contig_idx]
         Array[File] batch_text_headers_for_contig = transpose(RunBatch.updated_headers)[contig_idx]
 
         # For multiple batches: extract annotations, paste sample columns together, then recompute AF/INFO as weighted averages and apply filters.
@@ -120,11 +120,11 @@ workflow Glimpse2LowPassImputation {
                 String region_id = sub(region, ":", "_")
                 
                 # Extract AF and INFO annotations from each batch before merging so they can be recalculated
-                scatter(batch_annot_idx in range(length(batch_vcfs_for_contig))) {
+                scatter(batch_annot_idx in range(length(batch_bcfs_for_contig))) {
                     call Glimpse2LowPassImputationTasks.ExtractAnnotations {
                         input:
-                            imputed_vcf_or_bcf = batch_vcfs_for_contig[batch_annot_idx],
-                            imputed_vcf_or_bcf_index = batch_vcf_indices_for_contig[batch_annot_idx],
+                            imputed_vcf_or_bcf = batch_bcfs_for_contig[batch_annot_idx],
+                            imputed_vcf_or_bcf_index = batch_bcf_indices_for_contig[batch_annot_idx],
                             batch_index = batch_annot_idx,
                             region = region,
                             docker_extract_annotations = docker_merge
@@ -133,8 +133,8 @@ workflow Glimpse2LowPassImputation {
 
                 call MultilevelMerge.MultilevelHierarchicallyMergeVcfs as MergeRegion {
                     input:
-                        vcfs_or_bcfs_array = batch_vcfs_for_contig,
-                        vcf_or_bcf_idxs_array = batch_vcf_indices_for_contig,
+                        vcfs_or_bcfs_array = batch_bcfs_for_contig,
+                        vcf_or_bcf_idxs_array = batch_bcf_indices_for_contig,
                         regions = [region],
                         batch_sizes = merge_batch_sizes,
                         do_localization = merge_do_localization,
@@ -170,7 +170,7 @@ workflow Glimpse2LowPassImputation {
         if (!multiple_batches) {
             call Glimpse2LowPassImputationTasks.FilterInfoAndCensorRafAndFinalizeVcf {
                 input:
-                    bcf = batch_vcfs_for_contig[0],
+                    bcf = batch_bcfs_for_contig[0],
                     info_filter_threshold = info_filter_for_inclusion,
                     raf_censoring_threshold = raf_censoring_threshold,
                     output_basename = output_basename + "." + contigs[contig_idx] + ".imputed",

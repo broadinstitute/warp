@@ -542,14 +542,14 @@ task ConvertInputArraysToManifest {
 
 task UpdateHeader {
     input {
-        File vcf
+        File bcf
         File ref_dict
         String? pipeline_header_line
         String output_basename
 
         String docker
 
-        Int disk_size_gb = ceil(2.1 * size(vcf, "GiB") + 5)
+        Int disk_size_gb = ceil(2.1 * size(bcf, "GiB") + 5)
         Int mem_gb = 2
         Int cpu = 1
         Int preemptible = 3
@@ -563,7 +563,7 @@ task UpdateHeader {
         set -euxo pipefail
 
         # Set correct reference dictionary
-        bcftools view -h --no-version ~{vcf} > old_header.vcf
+        bcftools view -h --no-version ~{bcf} > old_header.vcf
         java -jar /picard.jar UpdateVcfSequenceDictionary -I old_header.vcf --SD ~{ref_dict} -O updated_header.vcf
 
         # Add pipeline_header_line if provided
@@ -575,8 +575,8 @@ task UpdateHeader {
 
         # Apply the final header (with ref dict and optionally pipeline_header_line) to the VCF
         # Output indexed for downstream use
-        bcftools reheader -h updated_header.vcf -o ~{output_basename}.vcf.gz ~{vcf}
-        bcftools index -t ~{output_basename}.vcf.gz
+        bcftools reheader -h updated_header.vcf -o ~{output_basename}.bcf ~{bcf}
+        bcftools index ~{output_basename}.bcf
     >>>
 
     runtime {
@@ -590,8 +590,8 @@ task UpdateHeader {
     }
 
     output {
-        File output_vcf = "~{output_basename}.vcf.gz"
-        File output_vcf_idx = "~{output_basename}.vcf.gz.tbi"
+        File output_bcf = "~{output_basename}.bcf"
+        File output_bcf_idx = "~{output_basename}.bcf.csi"
         File updated_header = "updated_header.vcf"
     }
 }
