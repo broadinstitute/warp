@@ -36,6 +36,7 @@ workflow CisMvSusie {
     Int cis_window_bp = 1000000
     Int min_modalities = 2
     File? gene_list          # versioned ENSG IDs, one per line; overrides the qval filter
+    Boolean test_mode = false # Restrict BED preparation to gene_list; requires gene_list
     Int? max_genes           # keep only the N most significant genes (useful for tests)
     Int min_shared_samples = 50
 
@@ -77,13 +78,28 @@ workflow CisMvSusie {
 
     # 2. bgzip + tabix + lookup table for each phenotype BED (needed for fast per-gene reads)
     call PreparePhenotypeBed as IndexExpression {
-      input: bed = expression_phenotypes, modality = "expression", docker_image = docker_image
+      input:
+        bed = expression_phenotypes,
+        modality = "expression",
+        gene_list = gene_list,
+        test_mode = test_mode,
+        docker_image = docker_image
     }
     call PreparePhenotypeBed as IndexSplicing {
-      input: bed = splicing_phenotypes, modality = "splicing", docker_image = docker_image
+      input:
+        bed = splicing_phenotypes,
+        modality = "splicing",
+        gene_list = gene_list,
+        test_mode = test_mode,
+        docker_image = docker_image
     }
     call PreparePhenotypeBed as IndexProtein {
-      input: bed = protein_phenotypes, modality = "protein", docker_image = docker_image
+      input:
+        bed = protein_phenotypes,
+        modality = "protein",
+        gene_list = gene_list,
+        test_mode = test_mode,
+        docker_image = docker_image
     }
 
     # 3. Choose genes and build the per-gene window, association and target tables
@@ -364,6 +380,8 @@ task PreparePhenotypeBed {
   input {
     File bed
     String modality
+    File? gene_list
+    Boolean test_mode
     String docker_image
   }
 
@@ -371,6 +389,15 @@ task PreparePhenotypeBed {
     set -euo pipefail
     export LC_ALL=C
     log() { printf '[%s] %s\n' "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" "$*" >&2; }
+    gene_list_path='~{default="" gene_list}'
+
+    if ~{test_mode}; then
+      if [[ -z "${gene_list_path}" || ! -s "${gene_list_path}" ]]; then
+        log "ERROR: test_mode requires a non-empty gene_list."
+        exit 1
+      fi
+      log "Restricting the ~{modality} BED to features in gene_list before sorting and indexing."
+    fi
 
     log "Sorting, bgzipping and indexing the ~{modality} BED."
     { gzip -cdf '~{bed}' || true; } | tr -d '\r' | {
@@ -380,7 +407,46 @@ task PreparePhenotypeBed {
         exit 1
       fi
       printf '%s\n' "${header}"
-      sort -t $'\t' -k1,1 -k2,2n -k3,3n -S 4G -T .
+      if ~{test_mode}; then
+        awk -F '\t' -v modality='~{modality}' -v genes="${gene_list_path}" '
+          BEGIN {
+            while ((getline gene < genes) > 0) {
+              sub(/\r$/, "", gene)
+              gsub(/^[ \t]+|[ \t]+$/, "", gene)
+              if (gene != "" && !(gene in selected)) {
+                selected[gene] = 1
+                n_selected++
+              }
+            }
+            close(genes)
+            if (n_selected == 0) {
+              print "ERROR: gene_list contains no non-empty gene IDs." > "/dev/stderr"
+              failed = 1
+              exit 1
+            }
+          }
+          {
+            feature_id = $4
+            if (modality == "splicing") {
+              sub(/^.*:/, "", feature_id)
+            } else if (modality == "protein") {
+              sub(/^[^_]*_/, "", feature_id)
+            }
+            if (feature_id in selected) {
+              print
+              n_matched++
+            }
+          }
+          END {
+            if (!failed && n_matched == 0) {
+              print "ERROR: no " modality " BED features matched gene_list." > "/dev/stderr"
+              exit 1
+            }
+          }
+        ' | sort -t $'\t' -k1,1 -k2,2n -k3,3n -S 4G -T .
+      else
+        sort -t $'\t' -k1,1 -k2,2n -k3,3n -S 4G -T .
+      fi
     } | bgzip -c > '~{modality}.bed.gz'
     tabix -f -p bed '~{modality}.bed.gz'
     test -s '~{modality}.bed.gz'
