@@ -21,6 +21,7 @@ Read the matching guide before you start:
 | --- | --- |
 | Changelog format and language (entry structure, active voice, sample entries) | [changelog_style.md](website/docs/contribution/contribute_to_warp/changelog_style.md) |
 | Semantic-versioning classification (major/minor/patch) and release packaging | [VersionAndReleasePipelines.md](website/docs/About_WARP/VersionAndReleasePipelines.md) |
+| Updating a warp-tools Docker image: release tag and pin, bump sizing, changelog, merge order | [update_warp_tools_image.md](website/docs/contribution/contribute_to_warp/update_warp_tools_image.md) |
 | Pipeline best practices (automation, testability, portability, scaling, maintainability) | [BestPractices.md](website/docs/About_WARP/BestPractices.md) |
 | Requirements a released pipeline must meet | [PipelineRequirements.md](website/docs/About_WARP/PipelineRequirements.md) |
 | Testing: branch model (develop/staging/master) and how the smart test system selects pipelines | [TestingPipelines.md](website/docs/About_WARP/TestingPipelines.md) |
@@ -89,6 +90,7 @@ Editing a shared task (`tasks/wdl/*.wdl`) forces a version bump on **every** pip
 - **Input validation errors** use the `ErrorWithMessage` task (`tasks/wdl/Utilities.wdl`).
 - **`input_id` output prefix:** a pipeline that emits per-sample artifacts accepts a `String input_id` and prefixes every output filename with `~{input_id}_` (as scANVI, Optimus and Multiome do).
 - **WARP-tools vs inline WDL:** package complex or reusable processing scripts (Python, R, specialized deps, data transforms) into [warp-tools](https://github.com/broadinstitute/warp-tools) Docker images. Use inline WDL only for simple file operations, basic string manipulation, parameter validation, and straightforward conditional logic.
+- **warp-tools image pins:** never write one by hand; use `python3 scripts/image_pins.py release` or `pin` as described in [update_warp_tools_image.md](website/docs/contribution/contribute_to_warp/update_warp_tools_image.md).
 
 ## Git
 

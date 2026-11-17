@@ -1,0 +1,44 @@
+name: WARP Image Pins (advisory)
+
+# Checks the image references a PR adds: each reference to an image in
+# us.gcr.io/broad-gotc-prod should be <image>:<release tag>@sha256:<digest>, with the
+# tag resolving to that digest. Pins written by scripts/image_pins.py pass at once.
+# Advisory (continue-on-error), following AGENTS.md's practice for new scans.
+# Procedure: website/docs/contribution/contribute_to_warp/update_warp_tools_image.md
+
+on:
+  pull_request:
+    branches: [ "develop", "staging", "master" ]
+    paths:
+      - '**/*.wdl'
+      - 'scripts/image_pins.py'
+      - 'scripts/tests/**'
+      - '.github/workflows/check_image_pins.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-image-pins-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check-image-pins:
+    name: Image pins (advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # the check diffs against the base branch
+          persist-credentials: false
+
+      - name: Test scripts/image_pins.py
+        run: python3 -m unittest discover -s scripts/tests -p 'test_*.py'
+
+      - name: Check the image pins this PR adds
+        if: ${{ !cancelled() }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: python3 scripts/image_pins.py check --base "origin/${BASE_REF}"
