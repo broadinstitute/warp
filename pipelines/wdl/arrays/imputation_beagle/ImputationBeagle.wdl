@@ -6,9 +6,9 @@ import "../../../../tasks/wdl/ImputationTasks.wdl" as tasks
 import "../../../../tasks/wdl/ImputationBeagleTasks.wdl" as beagleTasks
 
 workflow ImputationBeagle {
-  String pipeline_version = "4.2.1"
-  String check_chunks_version = "1.0.1"
-  String batch_pipeline_version = "1.0.1"
+  String pipeline_version = "4.2.2"
+  String check_chunks_version = "1.0.2"
+  String batch_pipeline_version = "1.0.2"
   String input_qc_version = "1.3.2"
   String quota_consumed_version = "1.1.2"
 
@@ -38,8 +38,14 @@ workflow ImputationBeagle {
     Int? error_count_override
     # the following are used to define the resources for Beagle tasks
     Int beagle_cpu = 8
-    Int beagle_phase_memory_in_gb = 40
-    Int beagle_impute_memory_in_gb = 45
+    Int beagle_phase_memory_in_gb = 40 # TODO: remove
+    Int beagle_impute_memory_in_gb = 45 # TODO: remove
+
+    String beagle_phase_initial_machine_type = "n2d-standard-8"
+    String beagle_phase_retry_machine_type = "n2d-highmem-8"
+    String beagle_impute_initial_machine_type = "n2d-standard-8"
+    String beagle_impute_retry_machine_type = "n2d-highmem-8"
+    Array[Int] beagle_allowed_return_codes = [0, 137]
 
     # the following are used to set `preemptible = 0` for specific tasks based on number of samples in the input
     Int merge_sample_chunks_vcfs_with_paste_preemptible_sample_cutoff = 10000
@@ -139,8 +145,17 @@ workflow ImputationBeagle {
         pipeline_header_line = pipeline_header_line,
         min_dr2_for_inclusion = min_dr2_for_inclusion,
         beagle_cpu = beagle_cpu,
-        beagle_phase_memory_in_gb = beagle_phase_memory_in_gb,
-        beagle_impute_memory_in_gb = beagle_impute_memory_in_gb
+        
+        # Original memory plumbing (marked for future removal)
+        beagle_phase_memory_in_gb = beagle_phase_memory_in_gb, # TODO: remove
+        beagle_impute_memory_in_gb = beagle_impute_memory_in_gb, # TODO: remove
+        
+        # Explicit String machine types
+        beagle_phase_initial_machine_type = beagle_phase_initial_machine_type,
+        beagle_phase_retry_machine_type = beagle_phase_retry_machine_type,
+        beagle_impute_initial_machine_type = beagle_impute_initial_machine_type,
+        beagle_impute_retry_machine_type = beagle_impute_retry_machine_type,
+        beagle_allowed_return_codes = beagle_allowed_return_codes
     }
   }
 
