@@ -8,17 +8,22 @@ runs and the tag says what it is:
 
 Commands (the script finds the WARP repository from its own location):
 
-  release IMAGE SOURCE VERSION [PATH ...]
-      Tag the build at SOURCE (the warp-tools branch name, any existing tag, or a
-      sha256 digest) as VERSION-<unix timestamp>, then pin every WDL reference to it.
-      VERSION is <image-version>[-<tool-version>], as in the image's docker_build.sh.
-      If that build already carries a VERSION-<timestamp> tag, it is reused.
-      Adding a tag needs registry write access (gcloud auth).
+  release PR [PATH ...]
+      PR is a warp-tools pull request: its number, URL or branch name. For each image
+      that the PR's latest commit built, tag that build <version>-<unix timestamp> and
+      pin the WDLs to it. <version> is the tag the image's docker_build.sh builds, less
+      the timestamp (e.g. 1.7.2-1.5.1). First it checks that the build finished, that the
+      branch tag is that build, and that DOCKER_IMAGE_VERSION was bumped. A build that
+      already has a <version>-<timestamp> tag keeps it. Tagging needs registry write
+      access (gcloud auth).
+        --digest D   release this earlier build of the image instead (the one you tested)
+        --version V  for the images whose docker_build.sh computes part of the tag at build
+                     time (glimpse2, sv-imputation-rust-tools, zcall, illumina-iaap-autocall)
 
   pin IMAGE TAG [PATH ...]
       Pin every WDL reference to an existing tag, without tagging anything.
 
-  Both rewrite every reference to IMAGE, or only those under the given PATHs
+  Both rewrite every reference to the image, or only those under the given PATHs
   (files or directories, e.g. pipelines/wdl/scanvi).
 
   check [--base REF | --all]
@@ -30,6 +35,7 @@ Standard library only.
 """
 
 import argparse
+import calendar
 import json
 import os
 import re
@@ -37,9 +43,11 @@ import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 REGISTRY = "us.gcr.io/broad-gotc-prod"
+WARP_TOOLS = "broadinstitute/warp-tools"
 ROOTS = ("pipelines", "tasks", "verification", "all_of_us", "beta-pipelines", "projects")
 # Shared by ~27 CI path filters: moving its pin starts all of those test suites.
 SHARED = "verification/VerifyTasks.wdl"
@@ -87,18 +95,17 @@ def digest_of(registry, image, ref):
         raise Error("cannot reach the registry: %s" % err.reason)
 
 
-def tags_by_digest(registry, image):
-    """{digest: [tags]} for an image, from the registry's tag list (empty if no such image)."""
+def manifests(registry, image):
+    """{digest: {"tag": [...], "timeUploadedMs": ...}} from the registry's tag list ({} if no such image)."""
     try:
         with _get(_api(registry, "%s/tags/list" % image), "application/json") as response:
-            listing = json.load(response)
+            return json.load(response).get("manifest", {})
     except urllib.error.HTTPError as err:
         if err.code == 404:
             return {}
         raise Error("registry answered HTTP %d listing %s/%s" % (err.code, registry, image))
     except urllib.error.URLError as err:
         raise Error("cannot reach the registry: %s" % err.reason)
-    return {d: m.get("tag", []) for d, m in listing.get("manifest", {}).items()}
 
 
 def add_tag(registry, image, digest, tag):
@@ -111,6 +118,93 @@ def add_tag(registry, image, digest, tag):
         raise Error("gcloud is not installed; tagging needs it (and registry write access)")
     except subprocess.CalledProcessError:
         raise Error("gcloud could not add the tag; check 'gcloud auth list' and your registry write access")
+
+
+# --- warp-tools pull requests (public GitHub reads) ---------------------------------
+
+def _github(url, missing_ok=False):
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "warp-image-pins"}),
+                                    timeout=30) as response:
+            return response.read().decode("utf-8")
+    except urllib.error.HTTPError as err:
+        if err.code == 404 and missing_ok:
+            return None
+        raise Error("GitHub answered HTTP %d for %s" % (err.code, url))
+    except urllib.error.URLError as err:
+        raise Error("cannot reach GitHub: %s" % err.reason)
+
+
+def api(path):
+    return json.loads(_github("https://api.github.com/repos/%s/%s" % (WARP_TOOLS, path)))
+
+
+def raw(sha, path, missing_ok=False):
+    return _github("https://raw.githubusercontent.com/%s/%s/%s" % (WARP_TOOLS, sha, path), missing_ok)
+
+
+def find_pr(ref):
+    """A warp-tools PR from its number, URL or branch name."""
+    number = re.fullmatch(r"(?:https://github\.com/%s/pull/)?#?([0-9]+)(?:/.*)?" % WARP_TOOLS, ref)
+    if number:
+        return api("pulls/" + number.group(1))
+    prs = api("pulls?state=all&head=%s:%s" % (WARP_TOOLS.split("/")[0], urllib.parse.quote(ref, safe="")))
+    if not prs:
+        raise Error("no warp-tools pull request from a branch named %s" % ref)
+    return prs[0]
+
+
+def builds(pr, registry):
+    """[(image, directory, run)] for each image in <registry> that the PR's latest commit built."""
+    sha, found, seen = pr["head"]["sha"], [], set()
+    for run in api("actions/runs?event=pull_request&per_page=100&head_sha=" + sha)["workflow_runs"]:
+        if run["path"] in seen or not re.fullmatch(r"\.github/workflows/build-[^/]+\.yml", run["path"]):
+            continue
+        seen.add(run["path"])  # runs come newest first
+        workflow = raw(sha, run["path"])
+        host, path, directory = (re.search(r"^\s*%s:\s*(\S+)" % key, workflow, re.M)
+                                 for key in ("DOCKER_REGISTRY", "GCR_PATH", "working-directory"))
+        if not (host and path and directory):
+            continue  # pushes nothing (e.g. build-warp-tools-inverse.yml)
+        repository = "%s/%s" % (host.group(1), path.group(1))
+        if not repository.startswith(registry + "/"):
+            raise Error("%s pushes to %s, outside %s" % (run["path"], repository, registry))
+        image = repository[len(registry) + 1:]
+        if run["status"] != "completed":
+            raise Error("the %s build of %s is still running; rerun when it finishes" % (image, sha[:9]))
+        if run["conclusion"] != "success":
+            raise Error("the %s build of %s ended in %s; fix it in the warp-tools PR" % (image, sha[:9], run["conclusion"]))
+        found.append((image, directory.group(1), run))
+    if not found:
+        raise Error("warp-tools PR #%d's latest commit (%s) built no image" % (pr["number"], sha[:9]))
+    return found
+
+
+def assignments(script):
+    """Top-level NAME=value assignments with literal values in a shell script."""
+    values = {}
+    for name, value in re.findall(r'^([A-Z0-9_]+)="?([^"$\s]*)"?[ \t]*(?:#.*)?$', script, re.M):
+        values.setdefault(name, value)
+    return values
+
+
+def image_version(script, where):
+    """<image-version>[-<tool-version>]: the tag docker_build.sh builds, less its timestamp."""
+    values = assignments(script)
+    template = re.search(r'^\s*IMAGE_TAG="([^"]*TIMESTAMP[^"]*)"', script, re.M)
+    if template:
+        tag = re.sub(r"\$\{?([A-Z0-9_]+)\}?", lambda m: values.get(m.group(1), m.group(0)), template.group(1))
+        tag = re.sub(r"-\$\{?TIMESTAMP\}?$", "", tag.rpartition(":")[2])
+        if VERSION_RE.fullmatch(tag):
+            return tag
+    raise Error("cannot work out the version from %s; pass --version" % where)
+
+
+def pushed_by(run, uploaded_ms):
+    """Whether a manifest uploaded at <uploaded_ms> was pushed during <run>."""
+    start, end = (calendar.timegm(time.strptime(run[key], "%Y-%m-%dT%H:%M:%SZ"))
+                  for key in ("created_at", "updated_at"))
+    return start <= int(uploaded_ms) / 1000 <= end + 60
 
 
 # --- finding references in WDLs ---------------------------------------------------
@@ -225,7 +319,7 @@ def check(root, registry, base=None):
             if not is_full and not digest:
                 # A bare "name:tag" may come from another registry; count it only if the image is ours.
                 if name not in ours:
-                    ours[name] = bool(tags_by_digest(registry, name))
+                    ours[name] = bool(manifests(registry, name))
                 if not ours[name]:
                     continue
             if not tag:
@@ -248,42 +342,72 @@ def repo_root():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def release_tag(registry, image, source, version, dry_run):
-    """Tag the build at <source> as <version>-<timestamp> (or reuse one). Returns (tag, digest)."""
+def release_tag(registry, image, digest, version, dry_run):
+    """Tag <digest> as <version>-<timestamp>, or reuse such a tag already on it. Returns the tag."""
     if not VERSION_RE.fullmatch(version):
-        raise Error("VERSION must be <image-version>[-<tool-version>], e.g. 1.7.3-1.5.1")
-    digest = source if re.fullmatch(DIGEST, source) else digest_of(registry, image, source)
-    if digest is None:
-        raise Error("%s/%s:%s not found; is the warp-tools build finished, and is %s the branch name?"
-                    % (registry, image, source, source))
+        raise Error("the version must be <image-version>[-<tool-version>], e.g. 1.7.3-1.5.1, not %s" % version)
     same_version = re.compile(r"%s-[0-9]{10}" % re.escape(version))
-    reuse = sorted(t for t in tags_by_digest(registry, image).get(digest, []) if same_version.fullmatch(t))
+    reuse = sorted(t for t in manifests(registry, image).get(digest, {}).get("tag", []) if same_version.fullmatch(t))
     if reuse:
-        print("Reusing release tag %s, already on %s" % (reuse[0], digest))
-        return reuse[0], digest
+        print("Reusing release tag %s, already on %s/%s@%s" % (reuse[0], registry, image, digest))
+        return reuse[0]
     tag = "%s-%d" % (version, int(time.time()))
     if dry_run:
         print("Would tag %s/%s@%s as %s" % (registry, image, digest, tag))
-        return tag, digest
+        return tag
     add_tag(registry, image, digest, tag)
     if digest_of(registry, image, tag) != digest:
         raise Error("tag %s did not resolve to %s after tagging" % (tag, digest))
     print("Tagged %s/%s@%s as %s" % (registry, image, digest, tag))
-    return tag, digest
+    return tag
+
+
+def release(root, registry, pr_ref, only=(), digest=None, version=None, include_shared=False, dry_run=False):
+    """Tag the builds of a warp-tools PR and pin the WDLs to them."""
+    pr = find_pr(pr_ref)
+    found = builds(pr, registry)
+    if (digest or version) and len(found) > 1:
+        raise Error("--digest and --version need a PR that builds one image; #%d built %s"
+                    % (pr["number"], ", ".join(f[0] for f in found)))
+    if digest and not re.fullmatch(DIGEST, digest):
+        raise Error("--digest must be sha256:<64 hex digits>")
+    plan = []
+    for image, directory, run in found:
+        script = raw(pr["head"]["sha"], directory + "/docker_build.sh")
+        base = raw(pr["base"]["sha"], directory + "/docker_build.sh", missing_ok=True)
+        bumped = assignments(script).get("DOCKER_IMAGE_VERSION")
+        if base is not None and assignments(base).get("DOCKER_IMAGE_VERSION") == bumped:
+            raise Error("%s/docker_build.sh still has DOCKER_IMAGE_VERSION=%s, as on %s; bump it in the PR"
+                        % (directory, bumped, pr["base"]["ref"]))
+        listing = manifests(registry, image)
+        if digest:
+            build = digest
+            if build not in listing:
+                raise Error("%s/%s@%s not found" % (registry, image, build))
+        else:
+            build = digest_of(registry, image, pr["head"]["ref"])
+            if build is None or not pushed_by(run, listing.get(build, {}).get("timeUploadedMs", 0)):
+                raise Error("%s/%s:%s is not the build of %s yet; rerun when its push finishes, or pass --digest"
+                            % (registry, image, pr["head"]["ref"], pr["head"]["sha"][:9]))
+        plan.append((image, build, version or image_version(script, directory + "/docker_build.sh")))
+    for image, build, image_version_ in plan:
+        tag = release_tag(registry, image, build, image_version_, dry_run)
+        changed, skipped = pin(root, registry, image, tag, build, include_shared, dry_run, only)
+        report_pin(registry, image, tag, build, changed, skipped, dry_run)
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--registry", default=REGISTRY, help="default: %(default)s")
     commands = parser.add_subparsers(dest="command", required=True)
-    release = commands.add_parser("release", help="tag a build and pin it")
-    release.add_argument("image", help="registry repository, e.g. warp-tools")
-    release.add_argument("source", help="warp-tools branch name, existing tag, or sha256 digest")
-    release.add_argument("version", help="<image-version>[-<tool-version>], e.g. 1.7.3-1.5.1")
+    release_cmd = commands.add_parser("release", help="tag a warp-tools PR's build and pin it")
+    release_cmd.add_argument("pr", help="warp-tools PR number, URL or branch name")
+    release_cmd.add_argument("--digest", help="release this earlier build of the image instead")
+    release_cmd.add_argument("--version", help="<image-version>[-<tool-version>], if docker_build.sh computes part of its tag")
     pin_cmd = commands.add_parser("pin", help="pin to an existing tag")
     pin_cmd.add_argument("image")
     pin_cmd.add_argument("tag")
-    for sub in (release, pin_cmd):
+    for sub in (release_cmd, pin_cmd):
         sub.add_argument("paths", nargs="*", metavar="PATH", help="only rewrite references under these paths")
         sub.add_argument("--dry-run", action="store_true", help="show the changes; write and tag nothing")
         sub.add_argument("--include-shared-verification", action="store_true", help="also move pins in " + SHARED)
@@ -303,15 +427,16 @@ def main(argv=None):
                     print("::error file=%s,line=%d::%s" % (path, number, message))
             print("%d pin problem(s)" % len(problems) if problems else "All checked pins are tag@digest and resolve.")
             return 1 if problems else 0
-        if args.command == "pin":
-            tag, digest = args.tag, digest_of(registry, args.image, args.tag)
+        if args.command == "release":
+            release(root, registry, args.pr, args.paths, args.digest, args.version,
+                    args.include_shared_verification, args.dry_run)
+        else:
+            digest = digest_of(registry, args.image, args.tag)
             if digest is None:
                 raise Error("%s/%s:%s not found" % (registry, args.image, args.tag))
-        else:
-            tag, digest = release_tag(registry, args.image, args.source, args.version, args.dry_run)
-        changed, skipped = pin(root, registry, args.image, tag, digest,
-                               args.include_shared_verification, args.dry_run, args.paths)
-        report_pin(registry, args.image, tag, digest, changed, skipped, args.dry_run)
+            changed, skipped = pin(root, registry, args.image, args.tag, digest,
+                                   args.include_shared_verification, args.dry_run, args.paths)
+            report_pin(registry, args.image, args.tag, digest, changed, skipped, args.dry_run)
         return 0
     except Error as err:
         print("error: %s" % err, file=sys.stderr)

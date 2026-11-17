@@ -10,18 +10,17 @@ Most WARP pipelines run Docker images built in [warp-tools](https://github.com/b
 
 The example is the scvi-scanvi 1.7.2 update for scANVI.
 
-1. **Change the image in warp-tools and open a PR to `develop`.** Bump `DOCKER_IMAGE_VERSION`, and the tool version if it changed, in the image's `docker_build.sh`. CI pushes the build as `us.gcr.io/broad-gotc-prod/<image>:<branch-name>`; its digest is in the CI "Push image" log.
-2. **Release and pin the build from a WARP branch.** The script tags the build `<version>-<unix-timestamp>` and rewrites the pins. Tagging needs write access to the registry (`gcloud auth`).
+1. **Change the image in warp-tools and open a PR to `develop`.** Bump `DOCKER_IMAGE_VERSION`, and the tool version if it changed, in the image's `docker_build.sh`. CI builds the image and pushes it under the branch name.
+2. **From your WARP branch, release and pin the build.** Once the PR's CI build has finished, pass the script the warp-tools PR (number, URL or branch name):
 
    ```bash
-   python3 scripts/image_pins.py release scvi-scanvi \
-     sha256:a8b3699f2e3ce97aac227c0b8d100b3f4af6ae94fb72c0b14ca58c357a0f9c54 \
-     1.7.2-1.5.1 pipelines/wdl/scanvi
-   # pins us.gcr.io/broad-gotc-prod/scvi-scanvi:1.7.2-1.5.1-<timestamp>@sha256:a8b3699f…
+   python3 scripts/image_pins.py release 222
+   # Tagged us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:… as 1.7.2-1.5.1-<timestamp>
+   # pipelines/wdl/scanvi/scANVI.wdl:77: … -> …/scvi-scanvi:1.7.2-1.5.1-<timestamp>@sha256:…
    ```
 
-   The source can be the warp-tools branch name, but that tag moves with every push to the warp-tools PR, even a README edit. Once a build has been tested, release it by digest. The optional paths limit the rewrite; without them, every reference to the image moves.
-3. **Bump, test and review in WARP.** Bump each affected pipeline and its changelog (see the rules below), validate with womtool and `scripts/validate_release.sh -g origin/staging`, and run the tests: Plumbing, plus Scientific for a minor or major bump. If the image has to change again, push to the warp-tools PR, wait for the new build, and repeat step 2.
+   The script finds what to do from the PR: each image built by its latest commit, the build's digest, and the version from `docker_build.sh`. It refuses if the build hasn't finished or `DOCKER_IMAGE_VERSION` wasn't bumped. It then tags the build `<version>-<unix-timestamp>` and pins every WDL reference to the image; give paths after the PR to pin only some. Tagging needs write access to the registry (`gcloud auth`).
+3. **Bump, test and review in WARP.** Bump each affected pipeline and its changelog (see the rules below), validate with womtool and `scripts/validate_release.sh -g origin/staging`, and run the tests: Plumbing, plus Scientific for a minor or major bump. If the image has to change again, push to the warp-tools PR and repeat step 2 once it has built; pushes that don't change the image need nothing.
 4. **Merge the warp-tools PR, then the WARP PR.**
 
 ## Rules
@@ -39,9 +38,11 @@ These are the only sanctioned ways to tag or pin differently. Release tags still
 
 | Case | What to do |
 | --- | --- |
-| No registry write access | Ask a maintainer who has it to run step 2's command, or to tag the digest for you, then run `pin` (next row). |
+| No registry write access | Ask a maintainer who has it to run step 2. |
+| Release an earlier build than the PR's latest, such as the one you already tested | Add `--digest sha256:<digest>` to step 2. |
+| `docker_build.sh` computes part of the tag at build time (glimpse2, sv-imputation-rust-tools, zcall, illumina-iaap-autocall) | Add `--version <image-version>-<tool-version>` to step 2. |
 | Pin an existing release | `python3 scripts/image_pins.py pin <image> <release-tag> [paths]` pins without tagging. |
-| Tag without the script | `gcloud container images add-tag us.gcr.io/broad-gotc-prod/<image>@sha256:<digest> us.gcr.io/broad-gotc-prod/<image>:<version>-$(date +%s)`, then `pin` that tag. |
+| An image built outside a warp-tools PR | `gcloud container images add-tag us.gcr.io/broad-gotc-prod/<image>@sha256:<digest> us.gcr.io/broad-gotc-prod/<image>:<version>-$(date +%s)`, then `pin` that tag. |
 | Test build under a custom tag | Run the image's warp-tools build workflow by hand with `image_tag`. Never name an existing tag; it would be overwritten. |
 | Local builds | Use `docker build` for local testing. Never push a release-style tag from a laptop. |
 | Azure | `crane copy us.gcr.io/broad-gotc-prod/<image>@sha256:<digest> dsppipelinedev.azurecr.io/<image>:<release-tag>` keeps the digest. |
