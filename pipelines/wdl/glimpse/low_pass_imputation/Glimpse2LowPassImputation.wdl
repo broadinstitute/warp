@@ -139,6 +139,7 @@ workflow Glimpse2LowPassImputation {
                         batch_sizes = merge_batch_sizes,
                         do_localization = merge_do_localization,
                         timeouts_min = merge_timeouts_min,
+                        extra_merge_args = "--info RAF --format GT,DS,GP",
                         output_basename = output_basename + "." + contigs[contig_idx] + "." + region_id + ".imputed.merged"
                 }
 
