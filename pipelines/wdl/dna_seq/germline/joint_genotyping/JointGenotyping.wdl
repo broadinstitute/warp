@@ -1,13 +1,14 @@
 version 1.0
 
 import "../../../../../tasks/wdl/JointGenotypingTasks.wdl" as Tasks
+import "../../../../../tasks/wdl/Utilities.wdl" as Utils
 import "https://raw.githubusercontent.com/broadinstitute/gatk/4.5.0.0/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl" as Filtering
 
 
 # Joint Genotyping for hg38 Whole Genomes and Exomes (has not been tested on hg19)
 workflow JointGenotyping {
 
-  String pipeline_version = "1.7.3"
+  String pipeline_version = "1.7.4"
 
   input {
     File unpadded_intervals_file
@@ -87,6 +88,15 @@ workflow JointGenotyping {
 
   Int unbounded_scatter_count = select_first([top_level_scatter_count, round(unbounded_scatter_count_scale_factor * num_gvcfs)])
   Int scatter_count = if unbounded_scatter_count > 2 then unbounded_scatter_count else 2 #I think weird things happen if scatterCount is 1 -- IntervalListTools is noop?
+
+  # vqsr_snp_filter_level and vqsr_indel_filter_level are only used by VQSR (run_vets = false);
+  # fail fast with a clear message instead of an opaque select_first() error deep in the scatter.
+  if (!run_vets && (!defined(vqsr_snp_filter_level) || !defined(vqsr_indel_filter_level))) {
+    call Utils.ErrorWithMessage as ErrorMessageVqsrFilterLevelsRequired {
+      input:
+        message = "vqsr_snp_filter_level and vqsr_indel_filter_level are required when run_vets is false (VQSR mode). Either supply both values or set run_vets to true to use VETS instead."
+    }
+  }
 
   call Tasks.CheckSamplesUnique {
     input:
