@@ -270,6 +270,7 @@ workflow RunAoUAnvilMergeFilterAndQc {
 
         # Step 5b
         Array[String] final_vcf = Step5b.final_vcf
+        Array[String] final_vcf_index = Step5b.final_vcf_index
         Array[String] step5b_reports = Step5b.report
 
     }
@@ -1289,6 +1290,7 @@ task Step5b {
 
     output {
         String final_vcf = output_final_vcf_url
+        String final_vcf_index = output_final_vcf_url + ".tbi"
         String final_vcf_header = output_final_vcf_header_url
         String report = output_report_url
     }
