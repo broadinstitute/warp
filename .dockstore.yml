@@ -43,6 +43,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /all_of_us/rna_seq/CalculatePhenotypeGroups.wdl
 
+  - name: CisMvSusie
+    subclass: WDL
+    primaryDescriptorPath: /all_of_us/rna_seq/CisMvSusie.wdl
+
   - name: convert_vcf_to_plink_bed
     subclass: WDL
     primaryDescriptorPath: /all_of_us/admixture/convert_vcf_to_plink_bed.wdl
