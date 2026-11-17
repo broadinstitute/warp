@@ -1,8 +1,7 @@
 # 3.1.0
-2026-11-16 (Date of Last Commit)
+2026-11-17 (Date of Last Commit)
 
-* Updated the scvi-scanvi Docker image to 1.7.2: fixes an AIT reference's restored counts being paired with the wrong .var, a dropped training batch during scArches query mapping on small samples, and the ATAC output recording the GEX input's file name in its provenance. See scvi-scanvi.changelog.md's 1.7.2 entry for detail
-* Published as us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:a8b3699f2e3ce97aac227c0b8d100b3f4af6ae94fb72c0b14ca58c357a0f9c54
+* Updated the scvi-scanvi Docker image to 1.7.2-1.5.1-1794949306: fixes an AIT reference's restored counts being paired with the wrong .var, a dropped training batch during scArches query mapping on small samples, and the ATAC output recording the GEX input's file name in its provenance. Outputs change only for a reference subset or reordered after its .raw was recorded, or a query sample of fewer than 128 cells; the ATAC output's uns['scanvi_input_file'] now names the ATAC input. See scvi-scanvi.changelog.md's 1.7.2 entry for detail
 
 # 3.0.0
 2026-11-05 (Date of Last Commit)

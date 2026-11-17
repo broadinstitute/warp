@@ -283,13 +283,13 @@ The annotated matrices keep every `obs` column of their own input (the Optimus Q
 
 ## Runtime configuration
 
-All tasks use the same Docker image, pinned by digest. GPU and CUDA setup is handled by the execution engine; the container does not configure the GPU environment itself.
+All tasks use the same Docker image, pinned by release tag and digest in [scANVI.wdl](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/scanvi/scANVI.wdl). GPU and CUDA setup is handled by the execution engine; the container does not configure the GPU environment itself.
 
 ### Task 1 — `PreprocessReference` (CPU-only, once per run, training only)
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:a8b3699f2e3ce97aac227c0b8d100b3f4af6ae94fb72c0b14ca58c357a0f9c54` |
+| `docker` | The `scvi-scanvi` image pinned in [scANVI.wdl](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/scanvi/scANVI.wdl) |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk` 3 × the reference size + 20 GB, SSD |
 | `memory` | `104 GiB` |
@@ -300,7 +300,7 @@ All tasks use the same Docker image, pinned by digest. GPU and CUDA setup is han
 
 | Attribute | Value |
 | --- | --- |
-| `docker` | `us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:a8b3699f2e3ce97aac227c0b8d100b3f4af6ae94fb72c0b14ca58c357a0f9c54` |
+| `docker` | The `scvi-scanvi` image pinned in [scANVI.wdl](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/scanvi/scANVI.wdl) |
 | `bootDiskSizeGb` | 20 |
 | `disks` | `local-disk` `disk_size`, or sized from the inputs (see [Workflow inputs](#workflow-inputs)), SSD |
 | `memory` | `mem_size` (default `104 GiB`) |
