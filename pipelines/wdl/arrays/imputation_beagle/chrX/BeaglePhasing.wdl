@@ -11,9 +11,9 @@ struct Region {
 
 workflow BeaglePhasing {
     input {
-        # Position-sorted, bgzipped, all-diploid VCF and its tabix index
+        # Position-sorted, bgzipped, all-diploid, single-chromosome VCF.
+        # No index is needed: regions are located by binary search.
         File input_vcf
-        File input_vcf_index
 
         File beagle_jar = "gs://fc-secure-6e8dde96-a72b-47ce-af63-92cadc8fb754/jar/beagle.jar"
         File bref3_jar = "gs://fc-secure-6e8dde96-a72b-47ce-af63-92cadc8fb754/jar/bref3.jar"
@@ -73,14 +73,26 @@ workflow BeaglePhasing {
     }
 
     # ---- Extract every selected region from one copy of the input ----------
+    # Compressed blocks are copied as-is; nothing is decompressed except the
+    # header and the two blocks at each region's edges.
     call ExtractRegions {
         input:
             input_vcf = input_vcf,
-            input_vcf_index = input_vcf_index,
             region_names = selected_names,
             region_intervals = selected_intervals,
             prefix = prefix,
             preemptibles = preemptible_tries
+    }
+
+    # ---- Index the extracted region VCFs -----------------------------------
+    # Nothing downstream reads these indices, so this runs alongside Beagle
+    # and never delays it.
+    scatter (region_vcf in ExtractRegions.region_vcfs) {
+        call IndexVcf as IndexRegionVcf {
+            input:
+                vcf = region_vcf,
+                preemptibles = preemptible_tries
+        }
     }
 
     # ---- Phase each region independently -----------------------------------
@@ -129,13 +141,16 @@ workflow BeaglePhasing {
 
     call IndexVcf {
         input:
-            phased_vcf = ConcatVcfs.merged_vcf,
+            vcf = ConcatVcfs.merged_vcf,
             preemptibles = preemptible_tries
     }
 
     output {
         File phased_vcf = ConcatVcfs.merged_vcf
         File phased_vcf_tbi = IndexVcf.vcf_tbi
+        # Unphased per-region inputs to Beagle and their indices, in region order
+        Array[File] region_vcfs = ExtractRegions.region_vcfs
+        Array[File] region_vcf_tbis = IndexRegionVcf.vcf_tbi
         Array[File] phased_logs = RunBeagle.phased_log
         Array[File] beagle_gc_logs = RunBeagle.gc_log
         File bref3_out = RunBref3.bref3_file
@@ -146,14 +161,14 @@ workflow BeaglePhasing {
 task ExtractRegions {
     input {
         File input_vcf
-        File input_vcf_index
         Array[String] region_names
         Array[String] region_intervals
         String prefix
 
-        String machine_type = "c3d-standard-16"
-        Int memory_gb = 64
-        Int cpu = 16
+        # Almost all of the work is copying bytes, so a small machine is enough
+        String machine_type = "c3d-standard-4"
+        Int memory_gb = 16
+        Int cpu = 4
         # Input plus the extracted copies (together at most about the input size)
         Int disk_size_gb = ceil(size(input_vcf, "GB") * 2.5) + 50
         String disk_type = "SSD"
@@ -165,67 +180,216 @@ task ExtractRegions {
 
         NAMES=(~{sep=" " region_names})
         INTERVALS=(~{sep=" " region_intervals})
-        n=${#NAMES[@]}
-        if [ "$n" -eq 0 ]; then
+        if [ "${#NAMES[@]}" -eq 0 ]; then
             echo "No regions selected: set at least one run flag to true" >&2
             exit 1
         fi
 
-        # tabix needs the index next to the VCF, named <vcf>.tbi
-        ln -s ~{input_vcf} input.vcf.bgz
-        ln -s ~{input_vcf_index} input.vcf.bgz.tbi
+        cat > bgzf_extract.py << 'PYEOF'
+        #!/usr/bin/env python3
+        # Extract position intervals from a position-sorted, single-chromosome BGZF VCF
+        # by copying compressed blocks. No index is used. For each interval:
+        #   1. binary-search the compressed file for the first record at or after the
+        #      interval start, and the first record after the interval end
+        #   2. write a fresh header, then copy every whole block between the two points
+        #      byte for byte; only the two boundary blocks are decompressed and re-cut
+        # Usage: bgzf_extract.py IN.vcf.bgz OUT1 chrom:start-end [OUT2 chrom:start-end ...]
+        import struct
+        import sys
+        import zlib
 
-        # Share the cores between the regions, which are extracted in parallel
-        threads=$(( ~{cpu} / n ))
-        if [ "$threads" -lt 1 ]; then threads=1; fi
-        tabix_threads=""
-        usage=$(tabix --help 2>&1 || true)
-        case "$usage" in
-            *--threads*) tabix_threads="--threads $threads" ;;
-        esac
+        NL = bytes([10])
+        TAB = bytes([9])
+        MAGIC = bytes.fromhex("1f8b08040000000000ff060042430200")
+        EOF_BLOCK = bytes.fromhex("1f8b08040000000000ff0600424302001b0003000000000000000000")
+        HEAD = 64            # bytes of each line needed to read CHROM and POS
+        WINDOW = 256 * 1024  # stop bisecting when the search window is this small
+        COPY = 16 * 1024 * 1024
 
-        extract_region() {
-            local out=$1 interval=$2
-            local range=${interval#*:}
-            # tabix jumps to the region through the index and copies whole lines;
-            # nothing parses the genotype columns. tabix returns records that
-            # OVERLAP the interval, so an indel starting just before it would
-            # land in two regions: keep only records whose POS is inside.
-            # shellcheck disable=SC2086
-            tabix -h $tabix_threads input.vcf.bgz "$interval" \
-                | START=${range%-*} END=${range#*-} perl -ne '
-                    if (/^#/) { print; next; }
-                    my ($pos) = /^[^\t]*\t(\d+)/;
-                    print if $pos >= $ENV{START} && $pos <= $ENV{END};
-                ' \
-                | bgzip -@ "$threads" > "$out"
-        }
 
-        pids=()
-        outs=()
+        def read_block(f, off):
+            # Return (data, next_off) for the block at off, or None if there is none.
+            f.seek(off)
+            hdr = f.read(18)
+            if len(hdr) < 18 or hdr[:16] != MAGIC:
+                return None
+            size = struct.unpack("<H", hdr[16:18])[0] + 1
+            raw = hdr + f.read(size - 18)
+            if len(raw) < size:
+                return None
+            try:
+                return zlib.decompress(raw, 31), off + size
+            except zlib.error:
+                return None
+
+
+        def find_block(f, off, file_size):
+            # Offset of the first real block starting at or after off (file_size if none).
+            while off < file_size:
+                f.seek(off)
+                buf = f.read(WINDOW + 16)
+                i = buf.find(MAGIC)
+                while i != -1:
+                    if read_block(f, off + i) is not None:
+                        return off + i
+                    i = buf.find(MAGIC, i + 1)
+                if len(buf) < WINDOW + 16:
+                    break
+                off += WINDOW
+            return file_size
+
+
+        def line_starts(f, off, file_size):
+            # Yield (block_off, intra, head) for every line that starts at or after the
+            # first newline found from block offset off. head holds the line's first bytes.
+            pending = None
+            off = find_block(f, off, file_size)
+            while off < file_size:
+                blk = read_block(f, off)
+                if blk is None:
+                    raise SystemExit("corrupt BGZF block at offset %d" % off)
+                data, next_off = blk
+                if pending is not None:
+                    pending[2] += data[:HEAD - len(pending[2])]
+                    if len(pending[2]) >= HEAD or NL in pending[2]:
+                        yield pending[0], pending[1], bytes(pending[2])
+                        pending = None
+                i = 0
+                while True:
+                    j = data.find(NL, i)
+                    if j == -1:
+                        break
+                    s = j + 1
+                    if s == len(data):
+                        pending = [next_off, 0, bytearray()]
+                    else:
+                        head = data[s:s + HEAD]
+                        if len(head) >= HEAD or NL in head:
+                            yield off, s, head
+                        else:
+                            pending = [off, s, bytearray(head)]
+                    i = s
+                off = next_off
+
+
+        def line_pos(head, chrom):
+            # -1 for header lines, else POS. The file must hold a single chromosome.
+            if head[:1] == b"#":
+                return -1
+            fields = head.split(TAB)
+            if len(fields) < 3:
+                raise SystemExit("cannot read POS from line starting %r" % head[:40])
+            if fields[0].decode() != chrom:
+                raise SystemExit("found contig %s, expected only %s" % (fields[0].decode(), chrom))
+            return int(fields[1])
+
+
+        def split_point(f, file_size, chrom, boundary):
+            # (block_off, intra, pos) of the first record with POS >= boundary,
+            # or (file_size, 0, None) if there is none.
+            lo, hi = 0, file_size
+            while hi - lo > WINDOW:
+                mid = (lo + hi) // 2
+                first = next(line_starts(f, mid, file_size), None)
+                if first is None or line_pos(first[2], chrom) >= boundary:
+                    hi = mid
+                else:
+                    lo = mid
+            for block_off, intra, head in line_starts(f, lo, file_size):
+                pos = line_pos(head, chrom)
+                if pos >= boundary:
+                    return block_off, intra, pos
+            return file_size, 0, None
+
+
+        def write_blocks(out, data):
+            for i in range(0, len(data), 60000):
+                chunk = data[i:i + 60000]
+                comp = zlib.compressobj(6, zlib.DEFLATED, -15)
+                body = comp.compress(chunk) + comp.flush()
+                out.write(MAGIC + struct.pack("<H", len(body) + 25) + body
+                          + struct.pack("<II", zlib.crc32(chunk), len(chunk)))
+
+
+        def copy_raw(f, out, start, end):
+            f.seek(start)
+            left = end - start
+            while left > 0:
+                buf = f.read(min(COPY, left))
+                if not buf:
+                    raise SystemExit("unexpected end of file while copying")
+                out.write(buf)
+                left -= len(buf)
+
+
+        def main():
+            path = sys.argv[1]
+            jobs = sys.argv[2:]
+            if not jobs or len(jobs) % 2:
+                raise SystemExit(__doc__ or "usage: IN OUT interval [OUT interval ...]")
+            with open(path, "rb") as f:
+                file_size = f.seek(0, 2)
+                # A trailing empty EOF block is not data: never copy it
+                data_end = file_size
+                if file_size >= 28:
+                    f.seek(file_size - 28)
+                    if f.read(28) == EOF_BLOCK:
+                        data_end = file_size - 28
+
+                # Header = everything before the first record
+                chrom0 = jobs[1].split(":")[0]
+                h_block, h_intra, _ = split_point(f, data_end, chrom0, 0)
+                header = bytearray()
+                off = 0
+                while off < h_block:
+                    data, off = read_block(f, off)
+                    header += data
+                if h_intra:
+                    header += read_block(f, h_block)[0][:h_intra]
+
+                failed = False
+                for k in range(0, len(jobs), 2):
+                    out_path, interval = jobs[k], jobs[k + 1]
+                    chrom, rng = interval.split(":")
+                    start, end = (int(x) for x in rng.split("-"))
+                    a_block, a_intra, a_pos = split_point(f, data_end, chrom, start)
+                    b_block, b_intra, _ = split_point(f, data_end, chrom, end + 1)
+                    if (a_block, a_intra) == (b_block, b_intra):
+                        print("%s: no records in %s" % (out_path, interval), file=sys.stderr)
+                        failed = True
+                        continue
+                    with open(out_path, "wb") as out:
+                        write_blocks(out, bytes(header))
+                        if a_block == b_block:
+                            write_blocks(out, read_block(f, a_block)[0][a_intra:b_intra])
+                        else:
+                            raw_start = a_block
+                            if a_intra:
+                                data, raw_start = read_block(f, a_block)
+                                write_blocks(out, data[a_intra:])
+                            copy_raw(f, out, raw_start, b_block)
+                            if b_intra:
+                                write_blocks(out, read_block(f, b_block)[0][:b_intra])
+                        out.write(EOF_BLOCK)
+                    print("%s: %s, first record at %d, %d compressed bytes copied"
+                          % (out_path, interval, a_pos, max(0, b_block - a_block)), file=sys.stderr)
+                if failed:
+                    raise SystemExit("a selected region has no records; set its run flag to false")
+
+
+        if __name__ == "__main__":
+            main()
+        PYEOF
+
+        args=()
         for i in "${!NAMES[@]}"; do
             # Zero-padded index keeps the outputs in region order
             out=$(printf 'region_%03d.%s.%s.vcf.gz' "$i" "~{prefix}" "${NAMES[$i]}")
-            echo "Extracting ${NAMES[$i]} (${INTERVALS[$i]}) -> $out"
-            extract_region "$out" "${INTERVALS[$i]}" &
-            pids+=($!)
-            outs+=("$out")
-        done
-        for pid in "${pids[@]}"; do
-            wait "$pid"
+            args+=("$out" "${INTERVALS[$i]}")
         done
 
-        # Fail here, cheaply, if a selected region has no records
-        empty=0
-        for i in "${!NAMES[@]}"; do
-            found=$( { bgzip -dc "${outs[$i]}" 2>/dev/null || true; } \
-                | { grep -v -m 1 '^#' || true; } | head -c 1 | wc -c )
-            if [ "$found" -eq 0 ]; then
-                echo "Region ${NAMES[$i]} (${INTERVALS[$i]}) has no records; set its run flag to false" >&2
-                empty=1
-            fi
-        done
-        if [ "$empty" -ne 0 ]; then exit 1; fi
+        # Fails if a selected region has no records
+        python3 bgzf_extract.py ~{input_vcf} "${args[@]}"
         ls -l region_*.vcf.gz
     >>>
 
@@ -304,12 +468,13 @@ task ConcatVcfs {
         String out_prefix
         Boolean naive = true
 
-        # Smallest C3D type with local SSD (8 vCPU, 32 GB). Its local SSD capacity is fixed.
-        String machine_type = "c3d-standard-8-lssd"
-        Int memory_gb = 32
-        Int cpu = 8
+        String machine_type = "c3d-standard-4"
+        Int memory_gb = 16
+        Int cpu = 4
         Int disk_size_gb = ceil(size(phased_vcfs, "GB") * 2) + 50
-        String disk_type = "LOCAL"
+        # Persistent SSD: the local SSD of the -lssd machine types was not
+        # usable as the Cromwell work disk (tasks ran out of disk)
+        String disk_type = "SSD"
         Int preemptibles
     }
 
@@ -384,12 +549,13 @@ task ExtractMarkers {
         String chrom
         String prefix
 
-        # Smallest C3D type with local SSD (8 vCPU, 32 GB). Its local SSD capacity is fixed.
-        String machine_type = "c3d-standard-8-lssd"
-        Int memory_gb = 32
-        Int cpu = 8
+        String machine_type = "c3d-standard-4"
+        Int memory_gb = 16
+        Int cpu = 4
         Int disk_size_gb = ceil(size(phased_vcf, "GB") * 2) + 20
-        String disk_type = "LOCAL"
+        # Persistent SSD: the local SSD of the -lssd machine types was not
+        # usable as the Cromwell work disk (tasks ran out of disk)
+        String disk_type = "SSD"
         Int preemptibles
     }
 
@@ -422,28 +588,32 @@ task ExtractMarkers {
 
 task IndexVcf {
     input {
-        File phased_vcf
+        File vcf
 
-        # Smallest C3D type with local SSD (8 vCPU, 32 GB). Its local SSD capacity is fixed.
-        String machine_type = "c3d-standard-8-lssd"
+        String machine_type = "c3d-standard-8"
         Int memory_gb = 32
         Int cpu = 8
-        Int disk_size_gb = ceil(size(phased_vcf, "GB") * 2) + 20
-        String disk_type = "LOCAL"
+        Int disk_size_gb = ceil(size(vcf, "GB") * 2) + 20
+        # Persistent SSD: the local SSD of the -lssd machine types was not
+        # usable as the Cromwell work disk (tasks ran out of disk)
+        String disk_type = "SSD"
         Int preemptibles
     }
+
+    # The index is named after the VCF, so it can sit next to it later
+    String vcf_name = basename(vcf)
 
     command <<<
         set -euo pipefail
 
-        ln -s ~{phased_vcf} input.vcf.gz
+        ln -s ~{vcf} ~{vcf_name}
 
-        echo "Indexing VCF using ~{cpu} threads..."
-        bcftools index --tbi --threads ~{cpu - 1} input.vcf.gz
+        echo "Indexing ~{vcf_name} using ~{cpu} threads..."
+        bcftools index --tbi --threads ~{cpu - 1} ~{vcf_name}
     >>>
 
     output {
-        File vcf_tbi = "input.vcf.gz.tbi"
+        File vcf_tbi = "~{vcf_name}.tbi"
     }
 
     runtime {
