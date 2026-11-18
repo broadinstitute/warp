@@ -118,6 +118,13 @@ workflow Testsnm3C {
                 truth_path = truth_path
         }
 
+        call Utilities.GetValidationInputs as GetCzTarArray {
+            input:
+                input_files = snm3C.cz_tar_array,
+                results_path = results_path,
+                truth_path = truth_path
+        }
+
         call Utilities.GetValidationInputs as GetAllReads3CContactsArray {
             input:
                 input_files = snm3C.all_reads_3C_contacts_array,
@@ -135,6 +142,9 @@ workflow Testsnm3C {
                 test_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.results_files,
                 truth_all_reads_3C_contacts_array = GetAllReads3CContactsArray.truth_files,
                 test_all_reads_3C_contacts_array = GetAllReads3CContactsArray.results_files,
+                truth_cz_tar_array = GetCzTarArray.truth_files,
+                test_cz_tar_array = GetCzTarArray.results_files,
+                cytozip_docker = "us.gcr.io/broad-gotc-prod/cytozip:0.4.5",
                 done = CopyToTestResults.done
         }
     }
