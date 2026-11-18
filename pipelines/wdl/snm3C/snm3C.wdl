@@ -29,6 +29,9 @@ workflow snm3C {
     }
     #docker images
     String m3c_yap_hisat_docker = "m3c-yap-hisat:2.4"
+    # Standalone cytozip image. Folds into m3c-yap-hisat once that image
+    # contains cytozip; see the Cytozip task.
+    String cytozip_docker = "cytozip:0.4.5"
     # Determine docker prefix based on cloud provider
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
     String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
@@ -44,7 +47,7 @@ workflow snm3C {
     }
 
     # version of the pipeline
-    String pipeline_version = "4.1.1"
+    String pipeline_version = "5.0.0"
 
     call Demultiplexing {
         input:
@@ -63,7 +66,7 @@ workflow snm3C {
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 chromosome_sizes = chromosome_sizes,
-                min_read_length = min_read_length,
+                 min_read_length = min_read_length,
                 r1_adapter = r1_adapter,
                 r2_adapter = r2_adapter,
                 r1_left_cut = r1_left_cut,
@@ -94,11 +97,22 @@ workflow snm3C {
                num_upstr_bases = num_upstr_bases,
                num_downstr_bases = num_downstr_bases,
                compress_level = compress_level,
-               chromosome_sizes = chromosome_sizes,
                plate_id = plate_id,
                docker = docker_prefix + m3c_yap_hisat_docker,
                cromwell_root_dir = cromwell_root_dir,
                cloud_provider = cloud_provider
+        }
+        # Converts the deduped BAMs to cytozip .cz, alongside the existing allc
+        # outputs. Separate task only because m3c-yap-hisat lacks cytozip; see
+        # the task definition.
+        call Cytozip {
+            input:
+               deduped_bam_tar = Merge_sort_analyze.deduped_bam_tar,
+               genome_fa = genome_fa,
+               num_upstr_bases = num_upstr_bases,
+               num_downstr_bases = num_downstr_bases,
+               plate_id = plate_id,
+               docker = docker_prefix + cytozip_docker
         }
     }
 
@@ -108,11 +122,8 @@ workflow snm3C {
             unique_reads_cgn_extraction_allc = Merge_sort_analyze.allc,
             unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi,
             all_reads_3C_contacts = Merge_sort_analyze.all_reads_3C_contacts,
-            unique_reads_cgn_extraction_allc_extract = Merge_sort_analyze.extract_allc_output_allc_tar,
-            unique_reads_cgn_extraction_tbi_extract = Merge_sort_analyze.extract_allc_output_tbi_tar,
             plate_id = plate_id,
-            docker = docker_prefix + m3c_yap_hisat_docker,
-            cromwell_root_dir = cromwell_root_dir
+            docker = docker_prefix + m3c_yap_hisat_docker
     }
 
     call Summary {
@@ -124,7 +135,6 @@ workflow snm3C {
             dedup_stats = Merge_sort_analyze.dedup_stats_tar,
             chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats,
             allc_uniq_reads_stats = Merge_sort_analyze.allc_uniq_reads_stats,
-            unique_reads_cgn_extraction_tbi = Merge_sort_analyze.extract_allc_output_tbi_tar,
             plate_id = plate_id,
             docker = docker_prefix + m3c_yap_hisat_docker,
             cromwell_root_dir = cromwell_root_dir,
@@ -142,8 +152,9 @@ workflow snm3C {
         Array[File] unique_reads_cgn_extraction_allc_array = Summary_PerCellOutput.unique_reads_cgn_extraction_allc_array
         Array[File] unique_reads_cgn_extraction_tbi_array = Summary_PerCellOutput.unique_reads_cgn_extraction_tbi_array
         Array[File] all_reads_3C_contacts_array = Summary_PerCellOutput.all_reads_3C_contacts_array
-        Array[File] unique_reads_cgn_extraction_allc_extract_array = Summary_PerCellOutput.unique_reads_cgn_extraction_allc_extract_array
-        Array[File] unique_reads_cgn_extraction_tbi_extract_array = Summary_PerCellOutput.unique_reads_cgn_extraction_tbi_extract_array
+        Array[File] deduped_bam_tar_array = Merge_sort_analyze.deduped_bam_tar
+        Array[File] cz_tar_array = Cytozip.cz_tar
+        Array[File] cz_count_tar_array = Cytozip.cz_count_tar
     }
 }
 
@@ -771,7 +782,6 @@ task Merge_sort_analyze {
         Int num_upstr_bases
         Int num_downstr_bases
         Int compress_level
-        File chromosome_sizes
 
         String cpu_platform = "Intel Ice Lake"
         Int disk_size = 1000
@@ -819,17 +829,9 @@ task Merge_sort_analyze {
       UNIQUE_BAMS=($(ls | grep "\.hisat3n_dna.unique_aligned.bam"))
       SPLIT_BAMS=($(ls | grep "\.hisat3n_dna.split_reads.read_overlap.bam"))
 
-      # for allcools bam-to-allc
-      if [ ~{num_upstr_bases} -eq 0 ]; then
-         mcg_context=CGN
-      else
-         mcg_context=HCGN
-      fi
-
       # make directories
       mkdir ~{cromwell_root_dir}/output_bams
       mkdir ~{cromwell_root_dir}/temp
-      mkdir ~{cromwell_root_dir}/allc-${mcg_context}
 
       task() {
         local file=$1
@@ -902,17 +904,6 @@ task Merge_sort_analyze {
         elapsed=$((end - start))
         echo "Elapsed time to allcools bam-to-allc $elapsed seconds"
 
-        start=$(date +%s)
-        echo "Call allcools extract-all"
-        allcools extract-allc --strandness merge \
-        --allc_path ${sample_id}.allc.tsv.gz \
-        --output_prefix ~{cromwell_root_dir}/allc-${mcg_context}/${sample_id} \
-        --mc_contexts ${mcg_context} \
-        --chrom_size_path ~{chromosome_sizes}
-        end=$(date +%s)
-        elapsed=$((end - start))
-        echo "Elapsed time to allcools extract-all $elapsed seconds"
-
         echo "Remove some bams"
         rm ${sample_id}.hisat3n_dna.all_reads.bam
         rm ${sample_id}.hisat3n_dna.all_reads.pos_sort.bam
@@ -966,6 +957,9 @@ task Merge_sort_analyze {
       tar -cf - ~{cromwell_root_dir}/output_bams/*.matrix.txt | pigz > ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz
       tar -cf - *.hisat3n_dna.all_reads.name_sort.bam | pigz > ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz
 
+      # tar deduped bams + indices (input to bam-to-allc)
+      (cd ~{cromwell_root_dir}/output_bams && tar -cf - *.deduped.bam *.deduped.bam.bai) | pigz > ~{plate_id}.hisat3n_dna.all_reads.deduped_bams.tar.gz
+
       # tar outputs of call_chromatin_contacts
       tar -cf - *.hisat3n_dna.all_reads.3C.contact.tsv.gz | pigz > ~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz
       tar -cf - *.hisat3n_dna.all_reads.dedup_contacts.tsv.gz | pigz > ~{plate_id}.hisat3n_dna.all_reads.dedup_contacts.tar.gz
@@ -975,8 +969,6 @@ task Merge_sort_analyze {
       tar -cf - *.allc.tsv.gz | pigz > ~{plate_id}.allc.tsv.tar.gz
       tar -cf - *.allc.tsv.gz.tbi | pigz > ~{plate_id}.allc.tbi.tar.gz
       tar -cf -  *.allc.tsv.gz.count.csv | pigz > ~{plate_id}.allc.count.tar.gz
-      tar -cf -  ~{cromwell_root_dir}/allc-${mcg_context}/*.gz | pigz > ~{plate_id}.extract-allc.tar.gz
-      tar -cf -  ~{cromwell_root_dir}/allc-${mcg_context}/*.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz
     >>>
 
     runtime {
@@ -997,9 +989,102 @@ task Merge_sort_analyze {
         File dedup_stats_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz"
         File chromatin_contact_stats = "~{plate_id}.chromatin_contact_stats.tar.gz"
         File allc_uniq_reads_stats = "~{plate_id}.allc.count.tar.gz"
-        File extract_allc_output_tbi_tar = "~{plate_id}.extract-allc_tbi.tar.gz"
-        File extract_allc_output_allc_tar  = "~{plate_id}.extract-allc.tar.gz"
+        File deduped_bam_tar = "~{plate_id}.hisat3n_dna.all_reads.deduped_bams.tar.gz"
      }
+}
+
+# Converts the deduped BAMs produced by Merge_sort_analyze into cytozip .cz,
+# emitted alongside the existing allc outputs.
+#
+# This is a separate task only because the m3c-yap-hisat image does not contain
+# cytozip. Once it does, the czip call belongs next to `allcools bam-to-allc`
+# inside Merge_sort_analyze's per-cell task(), reusing the already-localized
+# genome_fa, and this task should be deleted. As a separate task it pays for an
+# extra VM, a ~3 GB genome_fa localization and a redundant samtools faidx on
+# every shard.
+#
+# --mode full stores the same columns as allc (pos,strand,context,mc,cov), needs
+# no reference .cz, and round-trips to byte-identical allc -- verified against
+# the pipeline's own allc output on two scientific-scale cells.
+task Cytozip {
+    input {
+        String plate_id
+        File deduped_bam_tar
+        File genome_fa
+        Int num_upstr_bases
+        Int num_downstr_bases
+        String docker
+
+        # mirrors Merge_sort_analyze so the two run on equivalent hardware
+        String cpu_platform = "Intel Ice Lake"
+        Int disk_size = 1000
+        Int mem_size = 40
+        Int cpu = 16
+        Int preemptible_tries = 2
+    }
+
+    command <<<
+      set -euo pipefail
+      set -x
+      lscpu
+
+      start=$(date +%s)
+      echo "Untar deduped bams"
+      mkdir -p deduped_bams
+      pigz -dc ~{deduped_bam_tar} | tar -xf - -C deduped_bams
+      end=$(date +%s)
+      echo "Elapsed time to untar deduped bams $((end - start)) seconds"
+
+      # Same indexing step Merge_sort_analyze performs; cytozip requires a .fai.
+      start=$(date +%s)
+      echo "Reference and index fasta"
+      mkdir reference
+      cp ~{genome_fa} reference/
+      genome_base=$(basename ~{genome_fa})
+      samtools faidx "reference/$genome_base"
+      end=$(date +%s)
+      echo "Elapsed time to index fasta $((end - start)) seconds"
+
+      # --mode full stores the same columns as allc (pos,strand,context,mc,cov)
+      # and needs no reference .cz, so this task takes no extra inputs.
+      # NOTE: cytozip's --convert_bam_strandness takes a BOOL value rather than
+      # being a bare flag like the allcools one, and already defaults to True,
+      # so it is deliberately not passed.
+      for bam in deduped_bams/*.hisat3n_dna.all_reads.deduped.bam; do
+        sample_id=$(basename "$bam" .hisat3n_dna.all_reads.deduped.bam)
+        echo "$sample_id"
+        start=$(date +%s)
+        echo "Call czip bam_to_cz from deduped.bams"
+        czip bam_to_cz \
+          -I "$bam" \
+          -g "reference/$genome_base" \
+          -O "${sample_id}.cz" \
+          --mode full \
+          --num_upstr_bases ~{num_upstr_bases} \
+          --num_downstr_bases ~{num_downstr_bases} \
+          --save_count_df
+        end=$(date +%s)
+        echo "Elapsed time to czip bam_to_cz $((end - start)) seconds"
+      done
+
+      echo "Tar files."
+      tar -cf - *.cz | pigz > ~{plate_id}.cz.tar.gz
+      tar -cf - *.cz.count.csv | pigz > ~{plate_id}.cz.count.tar.gz
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} SSD"
+        cpu: cpu
+        memory: "${mem_size} GiB"
+        cpuPlatform: cpu_platform
+        preemptible: preemptible_tries
+    }
+
+    output {
+        File cz_tar = "~{plate_id}.cz.tar.gz"
+        File cz_count_tar = "~{plate_id}.cz.count.tar.gz"
+    }
 }
 
 task Summary_PerCellOutput {
@@ -1009,9 +1094,6 @@ task Summary_PerCellOutput {
         Array[File] unique_reads_cgn_extraction_allc
         Array[File] unique_reads_cgn_extraction_tbi
         Array[File] all_reads_3C_contacts
-        Array[File] unique_reads_cgn_extraction_allc_extract
-        Array[File] unique_reads_cgn_extraction_tbi_extract
-        String cromwell_root_dir
 
         String docker
         String plate_id
@@ -1050,8 +1132,6 @@ task Summary_PerCellOutput {
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc}
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
         extract_and_remove ~{sep=' ' all_reads_3C_contacts}
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_allc_extract}
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi_extract}
 
     >>>
 
@@ -1067,8 +1147,6 @@ task Summary_PerCellOutput {
         Array[File] unique_reads_cgn_extraction_allc_array = glob("~{plate_id}.allc.tsv/*")
         Array[File] unique_reads_cgn_extraction_tbi_array = glob("~{plate_id}.allc.tbi/*")
         Array[File] all_reads_3C_contacts_array = glob("~{plate_id}.hisat3n_dna.all_reads.3C.contact/*")
-        Array[File] unique_reads_cgn_extraction_allc_extract_array = glob("~{plate_id}.extract-allc/~{cromwell_root_dir}/allc-CGN/*")
-        Array[File] unique_reads_cgn_extraction_tbi_extract_array = glob("~{plate_id}.extract-allc_tbi/~{cromwell_root_dir}/allc-CGN/*")
     }
 }
 
@@ -1081,7 +1159,6 @@ task Summary {
         Array[File] dedup_stats
         Array[File] chromatin_contact_stats
         Array[File] allc_uniq_reads_stats
-        Array[File] unique_reads_cgn_extraction_tbi
         String plate_id
         String cromwell_root_dir
         String cloud_provider
@@ -1100,11 +1177,9 @@ task Summary {
         if [ ~{cloud_provider} = "gcp" ]; then
             base_directory=~{cromwell_root_dir}
             matrix_files_dir="~{cromwell_root_dir}~{cromwell_root_dir}/output_bams"
-            allc_index_dir="~{cromwell_root_dir}~{cromwell_root_dir}/allc-*"
         else
             base_directory=$WORKING_DIR
             matrix_files_dir="$WORKING_DIR~{cromwell_root_dir}/output_bams"
-            allc_index_dir="$WORKING_DIR~{cromwell_root_dir}/allc-*"
         fi
 
         mkdir $base_directory/fastq
@@ -1131,14 +1206,12 @@ task Summary {
         extract_and_remove ~{sep=' ' dedup_stats}
         extract_and_remove ~{sep=' ' chromatin_contact_stats}
         extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
 
         mv *.trimmed.stats.txt $base_directory/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt $base_directory/bam
         mv $matrix_files_dir/*.hisat3n_dna.all_reads.deduped.matrix.txt $base_directory/bam
         mv *.hisat3n_dna.all_reads.contact_stats.csv $base_directory/hic
         mv *.allc.tsv.gz.count.csv $base_directory/allc
-        mv $allc_index_dir/*.allc.tsv.gz.tbi $base_directory/allc
 
         python3 -c 'from cemba_data.hisat3n import *;snm3c_summary()'
         mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz

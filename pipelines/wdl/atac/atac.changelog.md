@@ -1,3 +1,8 @@
+# 3.0.1
+2026-11-14 (Date of Last Commit)
+
+* Added optional `anchor_cell_calling` input (default `false`). When `true`, the CreateFragmentFile task anchors SnapATAC2's OrdMag cell calling to `atac_expected_cells` instead of letting it estimate the cell count; the per-cell library metrics and the `snap_metrics` h5ad both use the called cells. Default runs are unaffected
+
 # 3.0.0
 2026-10-27 (Date of Last Commit)
 
