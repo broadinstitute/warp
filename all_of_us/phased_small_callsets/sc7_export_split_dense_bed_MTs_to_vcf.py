@@ -88,19 +88,58 @@ def get_bed_names(split_dense_mts_dict: Dict[str, str]) -> list[str]:
     return [k for k in sorted(list(split_dense_mts_dict.keys()))]
 
 
-def create_output_vcfs_dict(version_label: str, task_label: str, bed_names: list[str],
+VALID_CONTIGS = {f'chr{i}' for i in range(1, 23)} | {'chrX', 'chrY', 'chrM'}
+
+
+def require_valid_chromosome(chromosome: str) -> None:
+    """
+    Reject a malformed chromosome label before any work starts.
+
+    This exists because the chromosome now appears in the delivered filename and these runs are
+    submitted by hand, 22 times over. A typo ('chr1 ', 'Chr1', '1') would otherwise ship a
+    mislabelled deliverable that looks perfectly valid.
+
+    Parameters:
+    chromosome (str): The contig label, e.g. "chr1".
+
+    Raises:
+    ValueError: If `chromosome` is not a recognised GRCh38 primary contig.
+    """
+    if chromosome not in VALID_CONTIGS:
+        raise ValueError(
+            f"--chromosome must be one of chr1-chr22, chrX, chrY, chrM -- got: {chromosome!r}. "
+            f"This value goes into the delivered filename, so a typo ships a mislabelled file."
+        )
+
+
+def create_output_vcfs_dict(version_label: str, chromosome: str, bed_names: list[str],
                             output_gs_url: str) -> Dict[str, str]:
     """
     Build the output VCF path for each BED name.
 
+    Layout set by Liz, 2026-11-18 -- outputs land in the Terra workspace bucket as:
+        {bucket}/acaf_threshold_output/v9_phased_acaf_threshold_chr1.vcf.bgz
+        {bucket}/exome_output/v9_phased_exome_chr1.vcf.bgz
+    i.e. one directory per BED, and the chromosome carried in the filename. Because the chromosome is
+    in the path, two chromosomes under the same version_label can no longer collide.
+
+    Note the `.bgz` suffix: hl.export_vcf block-gzips based on the file extension, and tabix/bcftools
+    indexing requires BGZF. A plain `.vcf` would be uncompressed, enormous at this sample count, and
+    not indexable.
+
+    Parameters:
+    version_label (str): Version identifier, e.g. "v9_phased".
+    chromosome (str): Contig label, e.g. "chr1".
+    bed_names (list of str): BED names, e.g. ["acaf_threshold", "clinvar", "exome"].
+    output_gs_url (str): Base gs:// URL -- the Terra workspace bucket.
+
     Returns:
-    Dict[str, str]: A dictionary mapping bed name to output .vcf.bgz path. The .bgz suffix matters --
-                    hl.export_vcf block-gzips based on the file extension.
+    Dict[str, str]: A dictionary mapping bed name to output .vcf.bgz path.
     """
     vcfs_dict = dict()
     for bed_name in bed_names:
-        vcfs_dict[bed_name] = (f'{output_gs_url}/{version_label}/{task_label}/'
-                               f'{version_label}.{task_label}.{bed_name}.vcf.bgz')
+        vcfs_dict[bed_name] = (f'{output_gs_url}/{bed_name}_output/'
+                               f'{version_label}_{bed_name}_{chromosome}.vcf.bgz')
     return vcfs_dict
 
 
@@ -248,7 +287,7 @@ def export_all_to_vcf(split_dense_mts_dict: Dict[str, str], bed_names: list[str]
 
 
 def write_dict_to_json(vcfs_dict: Dict[str, str], output_vcfs_json_file_name: str,
-                       output_gs_url: str, task_label: str, version_label: str,
+                       output_gs_url: str, task_label: str, version_label: str, chromosome: str,
                        overwrite_existing_outputs: bool) -> None:
     """
     Write the bed-name -> VCF path mapping to a json manifest in the output bucket, for the downstream
@@ -258,7 +297,7 @@ def write_dict_to_json(vcfs_dict: Dict[str, str], output_vcfs_json_file_name: st
     None
     """
     vcfs_json_url = (f'{output_gs_url}/{version_label}/{task_label}/'
-                     f'{version_label}.{task_label}.{output_vcfs_json_file_name}')
+                     f'{version_label}.{task_label}.{chromosome}.{output_vcfs_json_file_name}')
     check_output_does_not_exist(vcfs_json_url, overwrite_existing_outputs)
 
     local_file = "store_vcfs_dict.json"
@@ -291,6 +330,8 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('--output_gs_url', help='Base gs:// URL for the output VCFs', required=True)
     parser.add_argument('--version_label', help='Version identifier for the output', required=True)
     parser.add_argument('--task_label', help='Task performed in the script, e.g.: "splitmts2vcf"', required=True)
+    parser.add_argument('--chromosome', help='Contig this run covers, e.g. "chr1". Goes into the '
+                                             'delivered filename.', required=True)
     parser.add_argument('--output_vcfs_json_file_name', help='File name of the output VCFs json manifest, '
                                                              'suffix should be .json', required=True)
     parser.add_argument('--overwrite_existing_outputs', type=lambda x: (str(x).lower() == 'true'), default=False,
@@ -313,9 +354,11 @@ if __name__ == "__main__":
     bed_names = get_bed_names(split_dense_mts_dict)
 
     # Build output VCF paths and export one VCF per BED name
-    vcfs_dict = create_output_vcfs_dict(args.version_label, args.task_label, bed_names, args.output_gs_url)
+    require_valid_chromosome(args.chromosome)
+    vcfs_dict = create_output_vcfs_dict(args.version_label, args.chromosome, bed_names, args.output_gs_url)
     export_all_to_vcf(split_dense_mts_dict, bed_names, vcfs_dict, args.overwrite_existing_outputs)
 
     # Write the manifest of VCF paths for the downstream indexing step
     write_dict_to_json(vcfs_dict, args.output_vcfs_json_file_name, args.output_gs_url,
-                       args.task_label, args.version_label, args.overwrite_existing_outputs)
+                       args.task_label, args.version_label, args.chromosome,
+                       args.overwrite_existing_outputs)

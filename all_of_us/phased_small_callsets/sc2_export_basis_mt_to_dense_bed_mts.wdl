@@ -65,6 +65,7 @@ workflow export_basis_MT_to_bed_dense_MTs {
         String driver_memory  # Memory assigned to the Spark driver
         String output_gs_url  # Google Cloud Storage path for the output MatrixTable
         String output_dense_mts_json_file_name # File name of the bed dense MatrixTables json file, suffix should be .json
+        Boolean overwrite_existing_outputs = false  # If false (default), refuse to overwrite existing outputs
 
         # Cluster Parameters
         # Some of these must be taken from Terra workspace cloud information
@@ -75,7 +76,7 @@ workflow export_basis_MT_to_bed_dense_MTs {
         String region = "us-central1"  # Region for Dataproc, set if running in Terra Cromwell
 
         # VM Parameters
-        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.125"  # Docker image with Hail and Google Cloud SDK
+        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.134"  # Docker image with Hail and Google Cloud SDK
     }
 
     String pipeline_version = "aou_beta"
@@ -100,7 +101,8 @@ workflow export_basis_MT_to_bed_dense_MTs {
             hail_docker = hail_docker,
             region = region,
             output_gs_url = output_gs_url,
-            output_dense_mts_json_file_name = output_dense_mts_json_file_name
+            output_dense_mts_json_file_name = output_dense_mts_json_file_name,
+            overwrite_existing_outputs = overwrite_existing_outputs
     }
 
     output {
@@ -130,6 +132,7 @@ task export_basis_MT_to_bed_dense_MTs {
         String gcs_subnetwork_name
         String hail_docker
         String output_dense_mts_json_file_name
+        Boolean overwrite_existing_outputs
     }
 
     parameter_meta {
@@ -252,6 +255,7 @@ task export_basis_MT_to_bed_dense_MTs {
                         --task_label ~{task_label}
                         --output_dense_mts_json_file_name ~{output_dense_mts_json_file_name}
                         --output_gs_url ~{output_gs_url}
+                        --overwrite_existing_outputs ~{overwrite_existing_outputs}
                         --staging_bucket gs://{cluster_staging_bucket}/{cluster_name}
                     """
 

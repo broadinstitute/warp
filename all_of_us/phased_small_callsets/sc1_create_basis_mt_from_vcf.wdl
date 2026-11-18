@@ -71,7 +71,7 @@ workflow filter_vcf_to_MT_by_bed {
         String region = "us-central1"  # Region for Dataproc, set if running in Terra Cromwell
 
         # VM Parameters
-        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.125"  # Docker image with Hail and Google Cloud SDK
+        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.134"  # Docker image with Hail and Google Cloud SDK
     }
 
     String pipeline_version = "aou_beta"

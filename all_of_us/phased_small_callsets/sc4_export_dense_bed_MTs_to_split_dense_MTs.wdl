@@ -65,6 +65,7 @@ workflow export_dense_bed_MTs_to_split_dense_MTs {
                                          # needs the gs:// URL. A File input would be localized by Cromwell to a
                                          # /mnt/disks/cromwell_root/... path and the gsutil copy would fail.
         String output_split_dense_mts_json_file_name # File name for the split bed dense MatrixTables json file, suffix should be .json
+        Boolean overwrite_existing_outputs = false  # If false (default), refuse to overwrite existing outputs
 
         # Cluster Parameters
         # Some of these must be taken from Terra workspace cloud information
@@ -75,7 +76,7 @@ workflow export_dense_bed_MTs_to_split_dense_MTs {
         String region = "us-central1"  # Region for Dataproc, set if running in Terra Cromwell
 
         # VM Parameters
-        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.125"  # Docker image with Hail and Google Cloud SDK
+        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.134"  # Docker image with Hail and Google Cloud SDK
     }
 
     String pipeline_version = "aou_beta"
@@ -97,7 +98,8 @@ workflow export_dense_bed_MTs_to_split_dense_MTs {
             region = region,
             output_gs_url = output_gs_url,
             input_dense_mts_json_path = input_dense_mts_json_path,
-            output_split_dense_mts_json_file_name = output_split_dense_mts_json_file_name
+            output_split_dense_mts_json_file_name = output_split_dense_mts_json_file_name,
+            overwrite_existing_outputs = overwrite_existing_outputs
                                            }
 
     output {
@@ -124,6 +126,7 @@ task export_dense_bed_MTs_to_split_dense_MTs {
         String hail_docker
         String input_dense_mts_json_path
         String output_split_dense_mts_json_file_name
+        Boolean overwrite_existing_outputs
     }
 
     parameter_meta {
@@ -244,6 +247,7 @@ task export_dense_bed_MTs_to_split_dense_MTs {
                         --input_dense_mts_json_path ~{input_dense_mts_json_path}
                         --output_split_dense_mts_json_file_name ~{output_split_dense_mts_json_file_name}
                         --output_gs_url ~{output_gs_url}
+                        --overwrite_existing_outputs ~{overwrite_existing_outputs}
                         --staging_bucket gs://{cluster_staging_bucket}/{cluster_name}
                     """
 

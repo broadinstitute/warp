@@ -16,6 +16,50 @@ import json
 import subprocess
 
 
+def check_output_does_not_exist(path: str, overwrite_existing_outputs: bool) -> None:
+    """
+    Guard against silently clobbering an existing output. Same convention as
+    sc1_create_basis_mt_from_vcf.py and sc7_export_split_dense_bed_MTs_to_vcf.py.
+
+    This matters more here than it looks: output paths are built from version_label + task_label +
+    bed_name only, with no chromosome in them. Running a second chromosome under the same labels would
+    otherwise replace the first chromosome's outputs with no error and no warning.
+
+    Parameters:
+    path (str): The gs:// path to check.
+    overwrite_existing_outputs (bool): If True, skip the check.
+
+    Raises:
+    FileExistsError: If `path` already exists and overwrite_existing_outputs is False.
+    """
+    if overwrite_existing_outputs:
+        return
+    if hl.hadoop_exists(path):
+        raise FileExistsError(
+            f"Output already exists at {path} and overwrite_existing_outputs is False. "
+            f"Pick a new output path (check that version_label/task_label identify this chromosome), "
+            f"or pass overwrite_existing_outputs=True if you really mean to replace it."
+        )
+
+
+def check_planned_outputs(output_paths, overwrite_existing_outputs: bool) -> None:
+    """
+    Check every planned output BEFORE doing any work, so a collision fails in seconds rather than after
+    the first (expensive) MatrixTable has already been written.
+
+    Parameters:
+    output_paths (iterable of str): Every gs:// path this run intends to write.
+    overwrite_existing_outputs (bool): If True, skip the check.
+
+    Raises:
+    FileExistsError: If any path already exists and overwrite_existing_outputs is False.
+    """
+    paths = list(output_paths)
+    for path in paths:
+        check_output_does_not_exist(path, overwrite_existing_outputs)
+    print(f"Output path check passed for {len(paths)} path(s).")
+
+
 # Set spark and initialize Hail
 def hail_init(executor_memory: str, executor_cores: str, driver_memory: str, reference_genome: str) -> None:
     """
@@ -129,7 +173,8 @@ def create_output_dense_mts_dict(version_label: str, task_label: str, bed_names:
 
 
 # Filter basis MT and write to dense mts by UCSC BED names
-def filter_mt_by_bed_name(bed_names: list, dense_mts_dict: Dict[str,str], basis_dense_mt_dict: Dict) -> None:
+def filter_mt_by_bed_name(bed_names: list, dense_mts_dict: Dict[str,str], basis_dense_mt_dict: Dict,
+                          overwrite_existing_outputs: bool = False) -> None:
     """
     Handles filtering the basis MatrixTable to dense MatrixTables by UCSC BED names, and storing the MatrixTables in specified paths
     
@@ -150,14 +195,16 @@ def filter_mt_by_bed_name(bed_names: list, dense_mts_dict: Dict[str,str], basis_
         print(f'Starting {bed_name.upper()} dense MT (multi): {output_url}')
         mt_url = basis_dense_mt_dict["dense_mt"]
         dense_mt_bed = filter_dense_to_bed(hl.read_matrix_table(mt_url), bed_name, bed_names)
-        dense_mt_bed.write(output_url, overwrite = True)
+        check_output_does_not_exist(output_url, overwrite_existing_outputs)
+        dense_mt_bed.write(output_url, overwrite = overwrite_existing_outputs)
     return
 
 
 # Write dictionary to a json file as output
 # This output will be used as input in the next workflow
 def write_dict_to_json(dense_mts_dict: Dict[str, str], output_dense_mts_json_file_name: str,
-                       output_gs_url: str, task_label: str, version_label: str) -> None:
+                       output_gs_url: str, task_label: str, version_label: str,
+                       overwrite_existing_outputs: bool = False) -> None:
     """
     Convert dictionary to JSON object and write JSON object to file.
 
@@ -174,7 +221,9 @@ def write_dict_to_json(dense_mts_dict: Dict[str, str], output_dense_mts_json_fil
     print('finished writing json file.')
     subprocess.run(["cat", dens_mts_json_file_vm_name])
     dense_mts_json_url = f'{output_gs_url}/{version_label}.{task_label}.{output_dense_mts_json_file_name}'
-    subprocess.run(["gsutil", "-m", "cp", dens_mts_json_file_vm_name, dense_mts_json_url])
+    check_output_does_not_exist(dense_mts_json_url, overwrite_existing_outputs)
+    no_clobber_flag = [] if overwrite_existing_outputs else ["-n"]
+    subprocess.run(["gsutil", "-m", "cp"] + no_clobber_flag + [dens_mts_json_file_vm_name, dense_mts_json_url])
     print('finished copying json file to workspace bucket')
     return
 
@@ -203,6 +252,9 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('--staging_bucket', help='Temporary bucket to hold files on dataproc cluster', required=True)
     parser.add_argument('--output_dense_mts_json_file_name', help='File name of the UCSC BED dense MatrixTables json file, '
                                                            'suffix should be .json', required=True)
+    parser.add_argument('--overwrite_existing_outputs', type=lambda x: (str(x).lower() == 'true'),
+                        default=False,
+                        help='If false (default), refuse to overwrite outputs that already exist.')
     parser.add_argument('--input_basis_dense_mt_json_path', help='URL of the input basis dense mt json file created from '
                                                                  'workflow sc1_filter_vds_to_basis_MT_by_bed. The key '
                                                                  'should be "dense_mt"', required=True)
@@ -228,12 +280,16 @@ if __name__ == "__main__":
                                                   bed_names, args.output_gs_url)
 
     # Load basis dense mt dictionary from basis dense json file
+    # Fail fast: check every planned output before writing anything.
+    check_planned_outputs(list(dense_mts_dict.values()), args.overwrite_existing_outputs)
+
     basis_dense_mt_dict = load_json_to_dict(args.input_basis_dense_mt_json_path)
 
     # Filter basis MT and export to dense mts by UCSC BED names
-    filter_mt_by_bed_name(bed_names, dense_mts_dict, basis_dense_mt_dict)
+    filter_mt_by_bed_name(bed_names, dense_mts_dict, basis_dense_mt_dict,
+                          args.overwrite_existing_outputs)
 
 
     # Write dense mts dictionary to a json file as output
     write_dict_to_json(dense_mts_dict, args.output_dense_mts_json_file_name, args.output_gs_url,
-                       args.task_label, args.version_label)
+                       args.task_label, args.version_label, args.overwrite_existing_outputs)

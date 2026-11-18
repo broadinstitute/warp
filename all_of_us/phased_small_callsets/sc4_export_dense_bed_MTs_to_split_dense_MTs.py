@@ -16,6 +16,50 @@ import json
 import subprocess
 
 
+def check_output_does_not_exist(path: str, overwrite_existing_outputs: bool) -> None:
+    """
+    Guard against silently clobbering an existing output. Same convention as
+    sc1_create_basis_mt_from_vcf.py and sc7_export_split_dense_bed_MTs_to_vcf.py.
+
+    This matters more here than it looks: output paths are built from version_label + task_label +
+    bed_name only, with no chromosome in them. Running a second chromosome under the same labels would
+    otherwise replace the first chromosome's outputs with no error and no warning.
+
+    Parameters:
+    path (str): The gs:// path to check.
+    overwrite_existing_outputs (bool): If True, skip the check.
+
+    Raises:
+    FileExistsError: If `path` already exists and overwrite_existing_outputs is False.
+    """
+    if overwrite_existing_outputs:
+        return
+    if hl.hadoop_exists(path):
+        raise FileExistsError(
+            f"Output already exists at {path} and overwrite_existing_outputs is False. "
+            f"Pick a new output path (check that version_label/task_label identify this chromosome), "
+            f"or pass overwrite_existing_outputs=True if you really mean to replace it."
+        )
+
+
+def check_planned_outputs(output_paths, overwrite_existing_outputs: bool) -> None:
+    """
+    Check every planned output BEFORE doing any work, so a collision fails in seconds rather than after
+    the first (expensive) MatrixTable has already been written.
+
+    Parameters:
+    output_paths (iterable of str): Every gs:// path this run intends to write.
+    overwrite_existing_outputs (bool): If True, skip the check.
+
+    Raises:
+    FileExistsError: If any path already exists and overwrite_existing_outputs is False.
+    """
+    paths = list(output_paths)
+    for path in paths:
+        check_output_does_not_exist(path, overwrite_existing_outputs)
+    print(f"Output path check passed for {len(paths)} path(s).")
+
+
 # Set spark and initialize Hail
 def hail_init(executor_memory: str, executor_cores: str, driver_memory: str, reference_genome: str) -> None:
     """
@@ -125,7 +169,8 @@ def calculate_info(mt: hl.MatrixTable) -> hl.MatrixTable:
 
 
 # Filter variants based on field "filters", split multi_allelic variants and recompute info
-def write_split_mt(mt: hl.MatrixTable, output_path: str) -> None:
+def write_split_mt(mt: hl.MatrixTable, output_path: str,
+                   overwrite_existing_outputs: bool = False) -> None:
     """
     Given a MatrixTable with multi-allelic variants, filter variants based on field "filters", split multi_allelic variants and recompute info.
 
@@ -142,11 +187,13 @@ def write_split_mt(mt: hl.MatrixTable, output_path: str) -> None:
         mt = mt.filter_rows(hl.is_missing(mt.filters) | (hl.len(mt['filters']) == 0), keep=True)
     split = hl.split_multi_hts(mt)
     split = calculate_info(split)
-    split.write(output_path, overwrite=True)
+    check_output_does_not_exist(output_path, overwrite_existing_outputs)
+    split.write(output_path, overwrite=overwrite_existing_outputs)
 
 
 # Export output bed split dense MTs
-def export_to_split_mt(dense_mts_dict, bed_names, split_dense_mts_dict) -> None:
+def export_to_split_mt(dense_mts_dict, bed_names, split_dense_mts_dict,
+                       overwrite_existing_outputs: bool = False) -> None:
     """
     Handles splitting the bed dense MatrixTables to split dense MatrixTables by bed names, and storing the MatrixTables in specified paths
 
@@ -163,7 +210,7 @@ def export_to_split_mt(dense_mts_dict, bed_names, split_dense_mts_dict) -> None:
         # Input is the dense MT for the bed file.  Provided by the user (unfortunately)
         input_url = dense_mts_dict[bed_name]
         print(f'Creating Split MT for {bed_name} ====\n- Input: {input_url}\n- Output: {final_output_url}\n')
-        write_split_mt(hl.read_matrix_table(input_url), final_output_url)
+        write_split_mt(hl.read_matrix_table(input_url), final_output_url, overwrite_existing_outputs)
         print(f'Successfully wrote Split MT for {bed_name} to {final_output_url}\n')
     return
 
@@ -171,7 +218,8 @@ def export_to_split_mt(dense_mts_dict, bed_names, split_dense_mts_dict) -> None:
 # Write dictionary to a json file as output
 # This output will be used as input in the next workflow
 def write_dict_to_json(split_dense_mts_dict: Dict[str, str], output_split_dense_mts_json_file_name: str,
-                       output_gs_url: str, task_label: str, version_label: str) -> None:
+                       output_gs_url: str, task_label: str, version_label: str,
+                       overwrite_existing_outputs: bool = False) -> None:
     """
     Convert a dictionary to a JSON object and write JSON object to file.
 
@@ -195,7 +243,9 @@ def write_dict_to_json(split_dense_mts_dict: Dict[str, str], output_split_dense_
     print('finished writing json file.')
     subprocess.run(["cat", vm_file_to_store_dict])
     split_dense_mts_json_url = f'{output_gs_url}/{version_label}/{task_label}/{version_label}.{task_label}.{output_split_dense_mts_json_file_name}'
-    subprocess.run(["gsutil", "-m", "cp", vm_file_to_store_dict, split_dense_mts_json_url])
+    check_output_does_not_exist(split_dense_mts_json_url, overwrite_existing_outputs)
+    no_clobber_flag = [] if overwrite_existing_outputs else ["-n"]
+    subprocess.run(["gsutil", "-m", "cp"] + no_clobber_flag + [vm_file_to_store_dict, split_dense_mts_json_url])
     print('finished copying json file to workspace bucket')
     return
 
@@ -222,6 +272,9 @@ def parse_arguments() -> argparse.Namespace:
                                                 '"delta_basis_without_ext_aian_prod_gq0"', required=True)
     parser.add_argument('--task_label', help='taks performed in the script, e.g.: denseMTs2splitMTs"', required=True)
     parser.add_argument('--staging_bucket', help='Temporary bucket to hold files on dataproc cluster', required=True)
+    parser.add_argument('--overwrite_existing_outputs', type=lambda x: (str(x).lower() == 'true'),
+                        default=False,
+                        help='If false (default), refuse to overwrite outputs that already exist.')
     parser.add_argument('--output_split_dense_mts_json_file_name', help='File name of the bed split dense MatrixTables json file, '
                                                                  'suffix should be .json', required=True)
     return parser.parse_args()
@@ -247,9 +300,13 @@ if __name__ == "__main__":
     split_dense_mts_dict = create_output_split_dense_mts_dict(args.version_label, args.task_label,
                                                               bed_names, args.output_gs_url)
 
+    # Fail fast: check every planned output before writing anything.
+    check_planned_outputs(list(split_dense_mts_dict.values()), args.overwrite_existing_outputs)
+
     # Export bed split MTs to bucket
-    export_to_split_mt(dense_mts_dict, bed_names, split_dense_mts_dict)
+    export_to_split_mt(dense_mts_dict, bed_names, split_dense_mts_dict,
+                       args.overwrite_existing_outputs)
 
     # Write dense mts dictionary to a json file as output
     write_dict_to_json(split_dense_mts_dict, args.output_split_dense_mts_json_file_name, args.output_gs_url,
-                       args.task_label, args.version_label)
+                       args.task_label, args.version_label, args.overwrite_existing_outputs)

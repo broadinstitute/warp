@@ -45,6 +45,7 @@ workflow export_split_dense_MTs_to_vcf {
         String task_label  # Label to organize output (e.g., "splitmts2vcf")
         String output_gs_url  # Google Cloud Storage path for the output VCFs
         String output_vcfs_json_file_name  # File name of the output VCFs json manifest, suffix .json
+        String chromosome  # Contig this run covers, e.g. "chr1". Goes into the delivered filename.
         Boolean overwrite_existing_outputs = false  # If false (default), refuse to overwrite existing outputs
 
         # Spark sizing -- defaults fit the machine types pinned in the task below
@@ -61,7 +62,7 @@ workflow export_split_dense_MTs_to_vcf {
         String region = "us-central1"  # Region for Dataproc, set if running in Terra Cromwell
 
         # VM Parameters
-        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.125"  # Docker image with Hail and Google Cloud SDK
+        String hail_docker = "gcr.io/broad-dsde-methods/aou-auxiliary/hail_dataproc_wdl:0.2.134"  # Docker image with Hail and Google Cloud SDK
     }
 
     String pipeline_version = "aou_beta"
@@ -74,6 +75,7 @@ workflow export_split_dense_MTs_to_vcf {
             task_label = task_label,
             output_gs_url = output_gs_url,
             output_vcfs_json_file_name = output_vcfs_json_file_name,
+            chromosome = chromosome,
             overwrite_existing_outputs = overwrite_existing_outputs,
             executor_cores = executor_cores,
             executor_memory = executor_memory,
@@ -99,6 +101,7 @@ task export_split_dense_MTs_to_vcf_task {
         String task_label
         String output_gs_url
         String output_vcfs_json_file_name
+        String chromosome
         Boolean overwrite_existing_outputs
         String executor_cores
         String executor_memory
@@ -204,6 +207,7 @@ task export_split_dense_MTs_to_vcf_task {
                         --output_gs_url ~{output_gs_url}
                         --version_label ~{version_label} --task_label ~{task_label}
                         --output_vcfs_json_file_name ~{output_vcfs_json_file_name}
+                        --chromosome ~{chromosome}
                         --overwrite_existing_outputs ~{overwrite_existing_outputs}
                     """
 
