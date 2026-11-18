@@ -88,6 +88,8 @@ workflow ImputationBeagleBatch {
         }
       }
 
+      # check for existence of success_marker before accepting Try1 output
+      # (to avoid truncated or erroneous output from bad attempts that hit an allowed return code)
       File final_phase_vcf = select_first([if defined(Phase_Try1.success_marker) then Phase_Try1.vcf else Phase_Try2.vcf])
 
       call beagleTasks.Impute as Impute_Try1 {
@@ -122,6 +124,8 @@ workflow ImputationBeagleBatch {
         }
       }
 
+      # check for existence of success_marker before accepting Try1 output
+      # (to avoid truncated or erroneous output from bad attempts that hit an allowed return code)
       File final_impute_vcf = select_first([if defined(Impute_Try1.success_marker) then Impute_Try1.vcf else Impute_Try2.vcf])
     
       call beagleTasks.LocalizeAndSubsetVcfToRegion {

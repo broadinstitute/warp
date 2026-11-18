@@ -39,10 +39,10 @@ workflow ImputationBeagle {
     # the following are used to define the resources for Beagle tasks
     Int beagle_cpu = 8
 
-    String beagle_phase_initial_machine_type = "n2d-standard-8"
-    String beagle_phase_retry_machine_type = "n2d-highmem-8"
-    String beagle_impute_initial_machine_type = "n2d-standard-8"
-    String beagle_impute_retry_machine_type = "n2d-highmem-8"
+    String beagle_phase_initial_machine_type = "c3d-standard-8"     # 8CPU, 32GB memory, AMD EPYC Genoa (w/ AVX-512)
+    String beagle_phase_retry_machine_type = "c3d-highmem-8"        # 8CPU, 64GB memory, AMD EPYC Genoa (w/ AVX-512)
+    String beagle_impute_initial_machine_type = "c3d-standard-8"
+    String beagle_impute_retry_machine_type = "c3d-highmem-8"
     Array[Int] beagle_allowed_return_codes = [0, 137]
 
     # the following are used to set `preemptible = 0` for specific tasks based on number of samples in the input
