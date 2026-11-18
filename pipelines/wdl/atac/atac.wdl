@@ -602,6 +602,16 @@ task CreateFragmentFile {
   # provided with or without spaces between entries (e.g. "LA-x, LA-y" -> "LA-x,LA-y").
   String atac_nhash_id_clean = sub(atac_nhash_id, " ", "")
 
+  # The uns metadata values reach the Python script through environment variables set from
+  # single-quoted shell strings, so spaces and characters such as $, `, " and \ are kept as-is
+  # instead of being expanded by the unquoted heredoc or breaking a Python string literal.
+  # Any single quote inside a value is escaped as '\''.
+  String nhash_id_name_quoted = "'" + sub(nhash_id_name, "'", "'\\\\''") + "'"
+  String input_id_name_quoted = "'" + sub(input_id_name, "'", "'\\\\''") + "'"
+  String additional_sample_id_quoted = "'" + sub(additional_sample_id, "'", "'\\\\''") + "'"
+  String additional_sample_name_quoted = "'" + sub(additional_sample_name, "'", "'\\\\''") + "'"
+  String input_id_metadata_value_quoted = "'" + sub(select_first([input_id_metadata_value, input_id]), "'", "'\\\\''") + "'"
+
   parameter_meta {
     bam: "Aligned BAM; the cell barcode is in the tag named by barcode_tag (CB, or BB added by AddBBTag when preindex is true)."
     chrom_sizes: "Text file containing chrom_sizes for genome build (i.e. hg38)."
@@ -618,6 +628,12 @@ task CreateFragmentFile {
     set -euo pipefail
     set -x 
 
+    export UNS_NHASH_ID_NAME=~{nhash_id_name_quoted}
+    export UNS_INPUT_ID_NAME=~{input_id_name_quoted}
+    export UNS_ADDITIONAL_SAMPLE_ID=~{additional_sample_id_quoted}
+    export UNS_ADDITIONAL_SAMPLE_NAME=~{additional_sample_name_quoted}
+    export UNS_INPUT_ID_METADATA_VALUE=~{input_id_metadata_value_quoted}
+
     python3 <<CODE
 
     # import libraries
@@ -629,6 +645,7 @@ task CreateFragmentFile {
     import anndata as ad
     from collections import OrderedDict
     import csv
+    import os
 
     # set parameters
     bam = "~{bam}"
@@ -640,11 +657,11 @@ task CreateFragmentFile {
     expected_cells = ~{atac_expected_cells}
     cell_calling_expected_cells = ~{default="None" cell_calling_expected_cells}
     # Configurable uns metadata key labels + values
-    nhash_id_name = "~{nhash_id_name}"
-    input_id_name = "~{input_id_name}"
-    additional_sample_id = "~{additional_sample_id}"
-    additional_sample_name = "~{additional_sample_name}"
-    input_id_metadata_value = "~{input_id_metadata_value}"
+    nhash_id_name = os.environ["UNS_NHASH_ID_NAME"]
+    input_id_name = os.environ["UNS_INPUT_ID_NAME"]
+    additional_sample_id = os.environ["UNS_ADDITIONAL_SAMPLE_ID"]
+    additional_sample_name = os.environ["UNS_ADDITIONAL_SAMPLE_NAME"]
+    input_id_metadata_value = os.environ["UNS_INPUT_ID_METADATA_VALUE"]
 
     print(mito_list)
     mito_list = mito_list.split(" ")

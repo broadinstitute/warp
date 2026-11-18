@@ -66,6 +66,19 @@ task OptimusH5adGeneration {
   # provided with or without spaces between entries (e.g. "LA-x, LA-y" -> "LA-x,LA-y").
   String gex_nhash_id_clean = sub(select_first([gex_nhash_id, ""]), " ", "")
 
+  # Optional metadata values are passed to the scripts as single-quoted shell arguments so that
+  # spaces and shell characters ($, `, ", ;) reach the script unchanged as one argument. Any single
+  # quote inside a value is escaped as '\''. An unset input produces an empty string, which omits
+  # the option.
+  String input_name_arg = if defined(input_name) then "--input_name '" + sub(select_first([input_name]), "'", "'\\\\''") + "'" else ""
+  String input_id_name_arg = if defined(input_id_name) then "--input_id_name '" + sub(select_first([input_id_name]), "'", "'\\\\''") + "'" else ""
+  String input_id_metadata_value_arg = if defined(input_id_metadata_value) then "--input_id_metadata_value '" + sub(select_first([input_id_metadata_value]), "'", "'\\\\''") + "'" else ""
+  String input_id_metadata_field_arg = if defined(input_id_metadata_field) then "--input_id_metadata_field '" + sub(select_first([input_id_metadata_field]), "'", "'\\\\''") + "'" else ""
+  String input_name_metadata_field_arg = if defined(input_name_metadata_field) then "--input_name_metadata_field '" + sub(select_first([input_name_metadata_field]), "'", "'\\\\''") + "'" else ""
+  String nhash_id_name_arg = if defined(nhash_id_name) then "--nhash_id_name '" + sub(select_first([nhash_id_name]), "'", "'\\\\''") + "'" else ""
+  String additional_sample_id_arg = if defined(additional_sample_id) then "--additional_sample_id '" + sub(select_first([additional_sample_id]), "'", "'\\\\''") + "'" else ""
+  String additional_sample_name_arg = if defined(additional_sample_name) then "--additional_sample_name '" + sub(select_first([additional_sample_name]), "'", "'\\\\''") + "'" else ""
+
   command <<<
     set -euo pipefail
 
@@ -85,11 +98,11 @@ task OptimusH5adGeneration {
           --gene_id  ~{gene_id} \
           --output_path_for_h5ad "~{input_id}" \
           --input_id ~{input_id} \
-          ~{"--input_name " + input_name} \
-          ~{"--input_id_name " + input_id_name} \
-          ~{"--input_id_metadata_value " + input_id_metadata_value} \
-          ~{"--input_id_metadata_field " + input_id_metadata_field} \
-          ~{"--input_name_metadata_field " + input_name_metadata_field} \
+          ~{input_name_arg} \
+          ~{input_id_name_arg} \
+          ~{input_id_metadata_value_arg} \
+          ~{input_id_metadata_field_arg} \
+          ~{input_name_metadata_field_arg} \
           --count_matrix ~{sparse_count_matrix} \
           --expression_data_type "exonic" \
           --pipeline_version ~{pipeline_version} \
@@ -103,11 +116,11 @@ task OptimusH5adGeneration {
           --gene_id  ~{gene_id} \
           --output_path_for_h5ad "~{input_id}" \
           --input_id ~{input_id} \
-          ~{"--input_name " + input_name} \
-          ~{"--input_id_name " + input_id_name} \
-          ~{"--input_id_metadata_value " + input_id_metadata_value} \
-          ~{"--input_id_metadata_field " + input_id_metadata_field} \
-          ~{"--input_name_metadata_field " + input_name_metadata_field} \
+          ~{input_name_arg} \
+          ~{input_id_name_arg} \
+          ~{input_id_metadata_value_arg} \
+          ~{input_id_metadata_field_arg} \
+          ~{input_name_metadata_field_arg} \
           --count_matrix ~{sparse_count_matrix} \
           --expression_data_type "whole_transcript"\
           --pipeline_version ~{pipeline_version} \
@@ -119,9 +132,9 @@ task OptimusH5adGeneration {
      --gex_h5ad "~{input_id}.h5ad" \
      --cellbarcodes ~{cellbarcodes} \
      ~{if gex_nhash_id_clean != "" then "--gex_nhash_id " + gex_nhash_id_clean else ""} \
-     ~{"--nhash_id_name " + nhash_id_name} \
-     ~{"--additional_sample_id " + additional_sample_id} \
-     ~{"--additional_sample_name " + additional_sample_name} \
+     ~{nhash_id_name_arg} \
+     ~{additional_sample_id_arg} \
+     ~{additional_sample_name_arg} \
      --library_csv ~{library_metrics} \
      --input_id ~{input_id} \
      --counting_mode ~{counting_mode} \
