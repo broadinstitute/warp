@@ -55,6 +55,9 @@ workflow CisMvSusie {
     Int mashr_n_pca = 5
     Float mashr_strong_lfsr = 0.05
     Int? mashr_seed
+    # Prior experiment switches; false/false preserves the PCA-only, zero-null baseline.
+    Boolean include_canonical_priors = false
+    Boolean use_mashr_null_weight = false
     Int fit_memory_gb = 16
 
     # One image for every task (build it from cis-mvsusie-docker.zip)
@@ -182,6 +185,8 @@ workflow CisMvSusie {
           mashr_n_pca = mashr_n_pca,
           mashr_strong_lfsr = mashr_strong_lfsr,
           mashr_seed = mashr_seed,
+          include_canonical_priors = include_canonical_priors,
+          use_mashr_null_weight = use_mashr_null_weight,
           memory_gb = fit_memory_gb,
           docker_image = docker_image
       }
@@ -939,6 +944,8 @@ task FitMvSusie {
     Int mashr_n_pca
     Float mashr_strong_lfsr
     Int? mashr_seed
+    Boolean include_canonical_priors
+    Boolean use_mashr_null_weight
     Int memory_gb
     String docker_image
   }
@@ -970,6 +977,8 @@ task FitMvSusie {
       --n-thread ~{n_thread} \
       --mashr-n-pca ~{mashr_n_pca} \
       --mashr-strong-lfsr ~{mashr_strong_lfsr} \
+      ~{if include_canonical_priors then "--include-canonical-priors" else ""} \
+      ~{if use_mashr_null_weight then "--use-mashr-null-weight" else ""} \
       ~{if defined(mashr_seed) then "--mashr-seed " + select_first([mashr_seed]) else ""} \
       --covariate-provenance-output "${output_prefix}.covariate_provenance.tsv.gz" \
       --mashr-output "${output_prefix}.mashr_training.rds" \

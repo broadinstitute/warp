@@ -108,6 +108,8 @@ but BED feature assignment still depends on the feature-ID naming convention.
 | `mashr_n_pca` | `5` | Requested PCA covariance components for learning the mashr prior. |
 | `mashr_strong_lfsr` | `0.05` | Strong-association selection threshold used during prior learning. Not a global output significance filter. |
 | `mashr_seed` | Unset | Optional seed passed to prior learning. |
+| `include_canonical_priors` | `false` | Adds mashr canonical cross-outcome covariance patterns alongside the learned PCA covariances. |
+| `use_mashr_null_weight` | `false` | Uses mashr's estimated all-outcomes-null weight in the mvSuSiE prior instead of forcing it to zero. |
 | `fit_memory_gb` | `16` | Memory request for `FitMvSusie` only. |
 
 ## Every task and call instance
@@ -187,9 +189,22 @@ covariate TSVs.
 
 ### FitMvSusie details
 
-The current container scripts calculate marginal SNP/outcome associations,
-learn a joint mashr PCA-based prior for that window, and convert the prior for
-mvSuSiE. Prior learning is per gene/window, not pooled across every gene.
+The current container scripts calculate marginal SNP/outcome associations and
+learn a joint mashr prior for that window. By default, the prior uses PCA-based
+covariances and forces the mvSuSiE null-component weight to zero, matching the
+original behavior. The two optional switches independently add mashr's
+canonical cross-outcome covariance patterns and/or use mashr's estimated null
+weight. Canonical covariances are generic patterns across outcomes, not
+annotation-based variant priors. Prior learning is per gene/window, not pooled
+across every gene.
+
+The fit metadata records the selected prior mode, the number of PCA/canonical
+covariances, mashr's estimated null weight, and the null weight actually passed
+to mvSuSiE. The per-window QC table also records the prior name, canonical
+covariance count, null-weight switch, estimated null weight, and applied null
+weight. Enabling either switch requires rebuilding the Docker image with the
+updated `fit_window.R`, model/prior scripts, and `trans_window_prior_modes.R`;
+with both switches false, no additional command-line options are sent.
 
 Fitting uses standardized predictors, no additional model intercept, fixed
 initial residual covariance from the prepared outcomes, and fixed learned prior
