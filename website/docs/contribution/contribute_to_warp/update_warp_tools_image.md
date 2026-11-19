@@ -10,7 +10,7 @@ Most WARP pipelines run Docker images built in [warp-tools](https://github.com/b
 
 The example is the scvi-scanvi 1.7.2 update for scANVI.
 
-1. **Change the image in warp-tools and open a PR to `develop`.** Bump `DOCKER_IMAGE_VERSION`, and the tool version if it changed, in the image's `docker_build.sh`. CI builds the image and pushes it under the branch name.
+1. **Change the image in warp-tools and open a PR to `develop`.** Bump `DOCKER_IMAGE_VERSION`, and the tool version if it changed, in the image's `docker_build.sh`, and [tidy the image](#tidy-as-you-go) in the same PR. CI builds the image and pushes it under the branch name.
 2. **From your WARP branch, tag and pin the build.** Once the PR's CI build has finished, pass the script the warp-tools PR (number, URL or branch name):
 
    ```bash
@@ -20,7 +20,7 @@ The example is the scvi-scanvi 1.7.2 update for scANVI.
    #   pipelines/wdl/scanvi/scANVI.wdl:77: … -> …/scvi-scanvi:1.7.2-1.5.1-<timestamp>@sha256:…
    ```
 
-   The script finds what to do from the PR: each image built by its latest commit, the build's digest, and the version from `docker_build.sh`. It refuses if the build hasn't finished or `DOCKER_IMAGE_VERSION` wasn't bumped. It then gives the build the version tag `<version>-<unix-timestamp>` and pins every WDL reference to the image; give paths after the PR to pin only some. Run it again after another build and the same tag moves to the new build, so a PR leaves one version tag per image. Tagging needs write access to the registry (`gcloud auth`).
+   The script finds what to do from the PR: each image built by its latest commit, the build's digest, and the version from `docker_build.sh`. It refuses if the build hasn't finished, if `DOCKER_IMAGE_VERSION` wasn't bumped or is below a version already in the registry, or if a tool version in `docker_build.sh` differs from the Dockerfile's `ARG` default that CI builds with. It then gives the build the version tag `<version>-<unix-timestamp>` and pins every WDL reference to the image; give paths after the PR to pin only some. Run it again after another build and the same tag moves to the new build, so a PR leaves one version tag per image. Tagging needs write access to the registry (`gcloud auth`).
 3. **Bump, test and review in WARP.** Bump each affected pipeline and its changelog (see the rules below), validate with womtool and `scripts/validate_release.sh -g origin/staging`, and run the tests: Plumbing, plus Scientific for a minor or major bump. If the image has to change again, push to the warp-tools PR and repeat step 2 once it has built; pushes that don't change the image need nothing.
 4. **Merge the warp-tools PR, then the WARP PR.** The merge fixes the version tag where it is.
 
@@ -32,6 +32,15 @@ The example is the scvi-scanvi 1.7.2 update for scANVI.
 - **Changelog:** name the image, the version tag, what changed in the image and the effect on outputs, for example "Updated the scvi-scanvi image to 1.7.2-1.5.1-&lt;timestamp&gt;, which fixes how an AIT reference's counts are restored; outputs may differ slightly, with no reprocessing needed". Leave the digest to the WDL.
 - **Shared verification pins:** the script skips `verification/VerifyTasks.wdl`, which is in about 27 test path filters; don't move it in a feature PR.
 - **Docs pages** link to the WDL instead of copying image tags or digests.
+
+## Tidy as you go
+
+Each image drops what's left of the old process the next time it changes, in the two PRs that change it anyway, so the cleanup costs no extra builds or version bumps. After pinning, the script lists what's left for the image:
+
+- **In the warp-tools PR:** delete the image's `docker_versions.tsv`, make its `docker_build.sh` build locally only, and replace a version tag copied into its README with a link to the WARP WDL. See warp-tools' [BUILDING.md](https://github.com/broadinstitute/warp-tools/blob/develop/BUILDING.md#tidying-an-image).
+- **In WARP:** `pin` has already rewritten every pin of the image, in every pipeline. Replace a version tag copied into a docs page with a link to the WDL.
+
+Pins of images that aren't changing stay as they are until then; `python3 scripts/image_pins.py check --all` lists them. Don't sweep them: each pin you change means a version bump for every pipeline that imports the file.
 
 ## Outside the standard workflow
 

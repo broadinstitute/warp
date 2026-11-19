@@ -13,11 +13,14 @@ Commands (the script finds the WARP repository from its own location):
       that the PR's latest commit built, give that build the version tag
       <version>-<unix timestamp> and pin the WDLs to it. <version> is the tag the image's
       docker_build.sh builds, less the timestamp (e.g. 1.7.2-1.5.1). First it checks that
-      the build finished, that the branch tag is that build, and that DOCKER_IMAGE_VERSION
-      was bumped. A build that already has a <version>-<timestamp> tag keeps it. While the
-      PR is open, rerunning after another build moves the PR's tag to the new build, so a
-      PR leaves one version tag per image; once the PR merges or closes, its tags stay
-      fixed. Tagging needs registry write access (gcloud auth).
+      the build finished, that the branch tag is that build, that DOCKER_IMAGE_VERSION was
+      bumped and isn't below a version already in the registry, and that docker_build.sh's
+      tool versions match the Dockerfile ARG defaults CI builds with. A build that already
+      has a <version>-<timestamp> tag keeps it. While the PR is open, rerunning after
+      another build moves the PR's tag to the new build, so a PR leaves one version tag per
+      image; once the PR merges or closes, its tags stay fixed. Tagging needs registry write
+      access (gcloud auth). Afterwards it lists what is left to tidy for the image
+      (docker_versions.tsv, push lines, copied tags).
         --digest D   pin this earlier build of the image instead (the one you tested)
         --version V  for the images whose docker_build.sh computes part of the tag at build
                      time (glimpse2, sv-imputation-rust-tools, zcall, illumina-iaap-autocall)
@@ -190,16 +193,42 @@ def assignments(script):
     return values
 
 
-def image_version(script, where):
-    """<image-version>[-<tool-version>]: the tag docker_build.sh builds, less its timestamp."""
-    values = assignments(script)
+def dockerfile_args(text):
+    """ARG defaults in a Dockerfile, {NAME: value}; the first default of a name wins."""
+    values = {}
+    for line in re.sub(r"\\\n", " ", text).splitlines():
+        if re.match(r"\s*ARG\s", line):
+            for name, value in re.findall(r'([A-Za-z0-9_]+)=("[^"]*"|[^\s"]*)', line):
+                values.setdefault(name, value.strip('"'))
+    return values
+
+
+def image_version(script, where, dockerfile=""):
+    """<image-version>[-<tool-version>]: the tag docker_build.sh builds, less its timestamp.
+
+    CI builds the Dockerfile without build args, so a version that is also an ARG there
+    must match the ARG's default."""
+    values, args = assignments(script), dockerfile_args(dockerfile)
+
+    def value(match):
+        name = match.group(1)
+        if name in values and name in args and values[name] != args[name]:
+            raise Error("%s sets %s=%s, but CI builds the Dockerfile's ARG %s=%s; make them agree"
+                        % (where, name, values[name], name, args[name]))
+        return values.get(name, args.get(name, match.group(0)))
     template = re.search(r'^\s*IMAGE_TAG="([^"]*TIMESTAMP[^"]*)"', script, re.M)
     if template:
-        tag = re.sub(r"\$\{?([A-Z0-9_]+)\}?", lambda m: values.get(m.group(1), m.group(0)), template.group(1))
+        tag = re.sub(r"\$\{?([A-Z0-9_]+)\}?", value, template.group(1))
         tag = re.sub(r"-\$\{?TIMESTAMP\}?$", "", tag.rpartition(":")[2])
         if VERSION_RE.fullmatch(tag):
             return tag
     raise Error("cannot work out the version from %s; pass --version" % where)
+
+
+def release(version):
+    """(major, minor, patch) at the start of a version or tag; None if it doesn't start with one."""
+    match = re.match(r"([0-9]+)\.([0-9]+)\.([0-9]+)(?:-|$)", version)
+    return tuple(int(n) for n in match.groups()) if match else None
 
 
 def pushed_by(run, uploaded_ms):
@@ -416,11 +445,43 @@ def pin_pr(root, registry, pr_ref, only=(), digest=None, version=None, include_s
             if build is None or not pushed_by(run, listing.get(build, {}).get("timeUploadedMs", 0)):
                 raise Error("%s/%s:%s is not the build of %s yet; rerun when its push finishes, or pass --digest"
                             % (registry, image, pr["head"]["ref"], pr["head"]["sha"][:9]))
-        plan.append((image, build, version or image_version(script, directory + "/docker_build.sh")))
-    for image, build, image_version_ in plan:
+        dockerfile = raw(pr["head"]["sha"], directory + "/Dockerfile", missing_ok=True) or ""
+        image_version_ = version or image_version(script, directory + "/docker_build.sh", dockerfile)
+        released = max(filter(None, (release(t) for m in listing.values() for t in m.get("tag", []))), default=None)
+        if released and release(image_version_) and release(image_version_) < released:
+            raise Error("version %s is below %s, already in %s/%s; set DOCKER_IMAGE_VERSION above it"
+                        % (image_version_, ".".join(map(str, released)), registry, image))
+        plan.append((image, directory, script, build, image_version_))
+    for image, directory, script, build, image_version_ in plan:
         tag = version_tag(root, registry, image, build, image_version_, pr["state"] == "open", dry_run)
         changed, skipped = pin(root, registry, image, tag, build, include_shared, dry_run, only)
         report_pin(registry, image, tag, build, changed, skipped, dry_run)
+        report_cleanup(root, registry, pr, image, directory, script)
+
+
+def report_cleanup(root, registry, pr, image, directory, script):
+    """List what is left to tidy for <image>. Advice only: nothing here stops a pin."""
+    copied = r"%s/%s[:@]([0-9]|sha256:[0-9a-f])" % (re.escape(registry), re.escape(image))
+    where, todo = "warp-tools PR #%d: " % pr["number"], []
+    try:
+        if raw(pr["head"]["sha"], directory + "/docker_versions.tsv", missing_ok=True) is not None:
+            todo.append(where + "delete %s/docker_versions.tsv" % directory)
+        if re.search(r"^[^#]*\b(?:docker|podman) push\b|quay\.io|docker_versions\.tsv", script, re.M):
+            todo.append(where + "make %s/docker_build.sh build locally only (drop its push, Quay and "
+                        "docker_versions.tsv lines)" % directory)
+        readme = raw(pr["head"]["sha"], directory + "/README.md", missing_ok=True) or ""
+        if re.search(copied, readme) or "docker_versions.tsv" in readme:
+            todo.append(where + "%s/README.md copies a version tag or points to docker_versions.tsv; link to "
+                        "the WARP WDL instead" % directory)
+    except Error as err:
+        todo.append("(could not read the warp-tools PR: %s)" % err)
+    docs = subprocess.run(["git", "-C", root, "grep", "-l", "-E", copied, "--", "*.md", ":!*changelog.md",
+                           ":!website/docs/contribution/"], capture_output=True, text=True)
+    todo += ["WARP: %s copies a version tag; link to the WDL instead" % path for path in docs.stdout.split()]
+    if todo:
+        print("Left to tidy for %s, best done in these PRs (update_warp_tools_image.md, Tidy as you go):" % image)
+        for line in todo:
+            print("  " + line)
 
 
 def main(argv=None):

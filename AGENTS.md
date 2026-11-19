@@ -90,7 +90,7 @@ Editing a shared task (`tasks/wdl/*.wdl`) forces a version bump on **every** pip
 - **Input validation errors** use the `ErrorWithMessage` task (`tasks/wdl/Utilities.wdl`).
 - **`input_id` output prefix:** a pipeline that emits per-sample artifacts accepts a `String input_id` and prefixes every output filename with `~{input_id}_` (as scANVI, Optimus and Multiome do).
 - **WARP-tools vs inline WDL:** package complex or reusable processing scripts (Python, R, specialized deps, data transforms) into [warp-tools](https://github.com/broadinstitute/warp-tools) Docker images. Use inline WDL only for simple file operations, basic string manipulation, parameter validation, and straightforward conditional logic.
-- **warp-tools image pins:** never write one by hand; use `python3 scripts/image_pins.py pin` as described in [update_warp_tools_image.md](website/docs/contribution/contribute_to_warp/update_warp_tools_image.md).
+- **warp-tools image pins:** never write one by hand; use `python3 scripts/image_pins.py pin` as described in [update_warp_tools_image.md](website/docs/contribution/contribute_to_warp/update_warp_tools_image.md). Older pins convert when their image next changes; don't sweep them.
 
 ## Git
 

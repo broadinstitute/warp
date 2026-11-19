@@ -123,6 +123,16 @@ class PinTest(Repo):
         with self.assertRaises(image_pins.Error):  # computed at build time: needs --version
             image_pins.image_version('DOCKER_IMAGE_VERSION=4.0.1\n IMAGE_TAG="$DOCKER_IMAGE_VERSION-$N-$TIMESTAMP"\n', "x")
 
+    def test_image_version_follows_the_dockerfile(self):
+        script = ('DOCKER_IMAGE_VERSION=1.0.0\nSTAR_VERSION=2.7.10a\n'
+                  '  IMAGE_TAG="$DOCKER_IMAGE_VERSION-$STAR_VERSION-$TIMESTAMP"\n')
+        dockerfile = "FROM ubuntu\nARG SAMTOOLS_VERSION=1.11 \\\n    STAR_VERSION=%s\n"
+        self.assertEqual(image_pins.image_version(script, "x", dockerfile % "2.7.10a"), "1.0.0-2.7.10a")
+        with self.assertRaisesRegex(image_pins.Error, "STAR_VERSION=2.7.11a; make them agree"):
+            image_pins.image_version(script, "x", dockerfile % "2.7.11a")
+        only_arg = 'DOCKER_IMAGE_VERSION=1.0.0\n  IMAGE_TAG="$DOCKER_IMAGE_VERSION-$SAMTOOLS_VERSION-$TIMESTAMP"\n'
+        self.assertEqual(image_pins.image_version(only_arg, "x", dockerfile % "2.7.11a"), "1.0.0-1.11")
+
 
 PR = {"number": 7, "head": {"ref": "bwa-fix", "sha": "h" * 40}, "base": {"ref": "develop", "sha": "b" * 40}}
 WORKFLOW = ("env:\n  DOCKER_REGISTRY: us.gcr.io\n  GCR_PATH: broad-gotc-prod/bwa\n"
@@ -132,13 +142,15 @@ BUILD = 'DOCKER_IMAGE_VERSION=%s\nBWA_VERSION="0.7.18"\n    IMAGE_TAG="$DOCKER_I
 
 class PinPrTest(Repo):
     def pin_pr(self, status="completed", base_version="1.0.0", uploaded=1794902700000, tags=(), old_tags=(),
-               state="open", on_develop=False, **kwargs):
+               state="open", on_develop=False, extra_files=None, **kwargs):
         run = {"path": ".github/workflows/build-bwa.yml", "status": status, "conclusion": "success",
                "created_at": "2026-11-17T08:00:00Z", "updated_at": "2026-11-17T08:10:00Z"}  # 1794902400-3000 s
         runs = {"workflow_runs": [run, dict(run, path=".github/workflows/trivy.yml")]}
         files = {(PR["head"]["sha"], ".github/workflows/build-bwa.yml"): WORKFLOW,
                  (PR["head"]["sha"], "3rd-party-tools/bwa/docker_build.sh"): BUILD % "1.1.0",
-                 (PR["base"]["sha"], "3rd-party-tools/bwa/docker_build.sh"): BUILD % base_version}
+                 (PR["base"]["sha"], "3rd-party-tools/bwa/docker_build.sh"): BUILD % base_version,
+                 **{(PR["head"]["sha"], "3rd-party-tools/bwa/" + k): v for k, v in (extra_files or {}).items()}}
+        self.out = io.StringIO()
         self.tagged, registry = [], {"bwa-fix": NEW}
 
         def add_tag(_, image, digest, tag):
@@ -151,7 +163,7 @@ class PinPrTest(Repo):
                 mock.patch.object(image_pins, "manifests", lambda r, i: {
                     NEW: {"tag": ["bwa-fix", *tags], "timeUploadedMs": str(uploaded)}, OLD: {"tag": list(old_tags)}}), \
                 mock.patch.object(image_pins, "pinned_on", lambda *a: on_develop), \
-                mock.patch.object(image_pins, "add_tag", add_tag), contextlib.redirect_stdout(io.StringIO()):
+                mock.patch.object(image_pins, "add_tag", add_tag), contextlib.redirect_stdout(self.out):
             image_pins.pin_pr(self.root, REG, "https://github.com/broadinstitute/warp-tools/pull/7", **kwargs)
 
     def test_tags_the_pr_build_and_pins_it(self):
@@ -181,11 +193,25 @@ class PinPrTest(Repo):
                                 ({"base_version": "1.1.0"}, "bump it"),
                                 ({"uploaded": 1794800000000}, "not the build"),
                                 ({"old_tags": ["1.1.0-0.7.18-1795000000"], "on_develop": True},
-                                 "pinned on origin/develop")):
+                                 "pinned on origin/develop"),
+                                ({"old_tags": ["1.2.0-0.7.17-1700000000"]}, "below 1.2.0"),
+                                ({"extra_files": {"Dockerfile": "ARG BWA_VERSION=0.7.19\n"}}, "make them agree")):
             with self.assertRaisesRegex(image_pins.Error, message):
                 self.pin_pr(**kwargs)
         self.assertEqual(self.tagged, [])
         self.assertEqual(self.read("tasks/wdl/Align.wdl"), FILES["tasks/wdl/Align.wdl"])
+
+
+    def test_lists_what_is_left_to_tidy(self):
+        self.pin_pr(only=["tasks"])
+        self.assertNotIn("Left to tidy", self.out.getvalue())
+        self.pin_pr(only=["tasks"], extra_files={
+            "docker_versions.tsv": "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463\n",
+            "README.md": "docker pull us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463\n"})
+        tidy = self.out.getvalue().split("Left to tidy for bwa")[1]
+        self.assertIn("warp-tools PR #7: delete 3rd-party-tools/bwa/docker_versions.tsv", tidy)
+        self.assertIn("README.md copies a version tag or points to docker_versions.tsv", tidy)
+        self.assertNotIn("build locally only", tidy)
 
 
 class CommandLineTest(Repo):
