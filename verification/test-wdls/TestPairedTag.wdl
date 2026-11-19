@@ -12,6 +12,11 @@ workflow TestPairedTag {
       String input_id
       String gex_nhash_id
       String atac_nhash_id
+      # h5ad uns metadata key labels and values
+      String? input_id_name
+      String? nhash_id_name
+      String? additional_sample_id
+      String? additional_sample_name
 
       # Optimus Inputs
       String counting_mode = "sn_rna"
@@ -95,6 +100,10 @@ workflow TestPairedTag {
         cloud_provider = cloud_provider,
         gex_nhash_id = gex_nhash_id,
         atac_nhash_id = atac_nhash_id,
+        input_id_name = input_id_name,
+        nhash_id_name = nhash_id_name,
+        additional_sample_id = additional_sample_id,
+        additional_sample_name = additional_sample_name,
         aligned_ATAC_bam = aligned_ATAC_bam,
         atac_expected_cells = atac_expected_cells,
         atac_anchor_cell_calling = atac_anchor_cell_calling

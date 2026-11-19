@@ -1,3 +1,11 @@
+# 8.1.0
+2026-11-17 (Date of Last Commit)
+
+* Added optional inputs that let you name the keys in the ATAC and GEX h5ad global (`uns`) metadata, and supply an optional sample id: `input_id_name`, `nhash_id_name`, `additional_sample_name`, and `additional_sample_id`. Each name defaults to its current key. The GEX changes require the updated warp-tools Docker image
+* The value stored under the `input_id` key in both h5ads is now the Multiome `input_id`, without the `_gex`/`_atac` suffix, so both files match; output filenames are unchanged
+* The ATAC h5ad now always includes the `input_id` key. When `gex_nhash_id` or `atac_nhash_id` is unset, the matching h5ad no longer includes an `NHashID` key (previously `NA` in the GEX h5ad and empty in the ATAC h5ad)
+* The `gex_nhash_id` and `atac_nhash_id` inputs now tolerate spaces between comma-separated library aliquot IDs (e.g. `LA-x, LA-y`); spaces are stripped before use, so output is unchanged for existing inputs
+
 # 8.0.0
 2026-10-26 (Date of Last Commit)
 

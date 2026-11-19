@@ -1,3 +1,8 @@
+# 2.2.10
+2026-11-02 (Date of Last Commit)
+
+* Updated the shared H5adUtils.wdl used for h5ad generation to support configurable metadata key names; no functional impact on Smart-seq2 outputs
+
 # 2.2.9
 2026-09-16 (Date of Last Commit)
 

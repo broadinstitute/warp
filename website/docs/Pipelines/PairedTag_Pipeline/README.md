@@ -62,6 +62,10 @@ The Paired-Tag workflow inputs are specified in JSON configuration files. Exampl
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | String |
 | gex_nhash_id | Optional identifier that can be used to demarcate the gene expression library aliquot or sample. |
 | atac_nhash_id |  Optional identifier that can be used to demarcate the ATAC library aliquot or sample. |
+| input_id_name | Optional name for the `adata.uns` key, in both the GEX and ATAC h5ads, that stores the `input_id` value; default is `input_id`. | String |
+| nhash_id_name | Optional name for the `adata.uns` key that stores the `gex_nhash_id` (GEX h5ad) and `atac_nhash_id` (ATAC h5ad) values; default is `NHashID`. Each key is written only when its ID is set. | String |
+| additional_sample_id | Optional additional sample identifier written to `adata.uns` in both the GEX and ATAC h5ads; when unset, no key is written. | String |
+| additional_sample_name | Optional name for the `adata.uns` key that stores the `additional_sample_id` value; default is `additional_sample_id`. | String |
 | counting_mode | Optional string that determines whether the Optimus (GEX) pipeline should be run in single-cell mode (sc_rna) or single-nucleus mode (sn_rna); default is "sn_rna". | String |
 | gex_r1_fastq | Array of read 1 FASTQ files representing a single GEX 10x library. | Array[File] |
 | gex_r2_fastq | Array of read 2 FASTQ files representing a single GEX 10x library.| Array[File] |
@@ -128,6 +132,27 @@ The Paired-Tag workflow calls two WARP subworkflows and an additional task which
 | multimappers_Rescue_matrix | `UniqueAndMult-Rescue.mtx` | Optional output produced when `soloMultiMappers` is "Rescue"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. |
 | multimappers_PropUnique_matrix | `UniqueAndMult-PropUnique.mtx` | Optional output produced when `soloMultiMappers` is "PropUnique"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.|
 
+### Configurable global metadata keys
+
+Both the GEX and ATAC output h5ads record sample provenance as global metadata in `adata.uns`. You can rename these keys and add an optional sample id. None of these inputs changes any counts, metrics, barcodes or output filenames.
+
+| Value | Written when | Default key | Input that renames the key |
+| --- | --- | --- | --- |
+| `input_id` | Always | `input_id` | `input_id_name` |
+| `gex_nhash_id` (GEX h5ad) / `atac_nhash_id` (ATAC h5ad) | That ID is set | `NHashID` | `nhash_id_name` |
+| `additional_sample_id` | `additional_sample_id` is set | `additional_sample_id` | `additional_sample_name` |
+
+The value under the `input_id` key is the Paired-Tag `input_id` without the `_gex` or `_atac` suffix, so it matches in both h5ads. Output filenames still use the suffixed IDs.
+
+If you leave these inputs unset, the keys are named as in previous versions, with these differences:
+- The `input_id` value has no `_gex` or `_atac` suffix.
+- The ATAC h5ad now always includes the `input_id` key.
+- When `gex_nhash_id` or `atac_nhash_id` is unset, the matching h5ad no longer includes an `NHashID` key (previously `NA` in the GEX h5ad and empty in the ATAC h5ad).
+
+
+:::caution Choosing key names
+The `input_id_name`, `nhash_id_name` and `additional_sample_name` values must be different from each other and must not match a key the pipeline writes itself. Reserved keys: in the GEX h5ad, `expression_data_type`, `optimus_output_schema_version`, `pipeline_version`, `reference_gtf_file`, `whitelist`, `input_name`, `input_id_metadata_field` and `input_name_metadata_field`; in the ATAC h5ad, `reference_gtf_file`, `reference_sequences`, `library_tsse`, `frac_overlap_TSS` and `TSS_profile`. The pipeline doesn't check this, and a clashing key is silently overwritten by another value.
+:::
 
 ## Versioning and testing
 

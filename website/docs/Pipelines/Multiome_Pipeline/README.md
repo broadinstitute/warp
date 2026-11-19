@@ -61,6 +61,10 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | atac_nhash_id | Optional identifier for the library aliquot; when specified, the workflow will echo the ID in the ATAC output h5ads (in the adata.uns section) and in the library-level metrics CSV. 
 | expected_cells | Required integer; the number of cells loaded for library preparation. There is no default. Used as the denominator of the GEX `percent_target` and `percent_usable` metrics and of `atac_percent_target`, and as the ATAC cell-calling anchor when `atac_anchor_cell_calling` is `true`; it does not change which GEX cells are called. These percentages can exceed 100% when more cells are called than `expected_cells`. | Integer |
 | atac_anchor_cell_calling | Optional boolean; default is `false`. When `true`, the ATAC workflow passes `expected_cells` to SnapATAC2's OrdMag cell calling as the expected number of cells instead of letting it estimate the count from the data (the estimate can collapse to a few hundred cells when a small number of barcodes are far deeper than real nuclei). OrdMag still decides which barcodes are cells, so the final count can differ from `expected_cells`. In both modes the ATAC per-cell library metrics and the ATAC h5ad use the called cells. See the [ATAC Overview](../ATAC/README.md) for details. | Boolean |
+| input_id_name | Optional name for the `adata.uns` key, in both the GEX and ATAC h5ads, that stores the `input_id` value; default is `input_id`. | String |
+| nhash_id_name | Optional name for the `adata.uns` key that stores the `gex_nhash_id` (GEX h5ad) and `atac_nhash_id` (ATAC h5ad) values; default is `NHashID`. Each key is written only when its ID is set. | String |
+| additional_sample_id | Optional additional sample identifier (for example, a barcoded cell sample ID) written to `adata.uns` in both the GEX and ATAC h5ads; when unset, no key is written. | String |
+| additional_sample_name | Optional name for the `adata.uns` key that stores the `additional_sample_id` value; default is `additional_sample_id`. | String |
 | annotations_gtf | GTF file containing gene annotations used for GEX cell metric calculation and ATAC fragment metrics; must match the GTF used to build the STAR aligner. | File |
 | gex_r1_fastq | Array of read 1 FASTQ files representing a single GEX 10x library. | Array[File] |
 | gex_r2_fastq | Array of read 2 FASTQ files representing a single GEX 10x library.| Array[File] |
@@ -163,6 +167,29 @@ adata = anndata.read_h5ad("<file_name>.h5ad")
 print(adata.uns["whitelists"])
 ```
 
+### Configurable global metadata keys
+
+Both the GEX and ATAC output h5ads record sample provenance as global metadata in `adata.uns`. You can rename these keys and add an optional sample id. None of these inputs changes any counts, metrics, barcodes or output filenames.
+
+| Value | Written when | Default key | Input that renames the key |
+| --- | --- | --- | --- |
+| `input_id` | Always | `input_id` | `input_id_name` |
+| `gex_nhash_id` (GEX h5ad) / `atac_nhash_id` (ATAC h5ad) | That ID is set | `NHashID` | `nhash_id_name` |
+| `additional_sample_id` | `additional_sample_id` is set | `additional_sample_id` | `additional_sample_name` |
+
+For example, setting `input_id_name = "Local_Name_and_Job_ID"`, `nhash_id_name = "Library_Aliquot_ID"` and `additional_sample_name = "Barcoded_Cell_Sample_ID"` writes those three keys to `adata.uns`.
+
+The value under the `input_id` key is the Multiome `input_id` without the `_gex` or `_atac` suffix, so it matches in both h5ads. Output filenames still use the suffixed IDs.
+
+If you leave these inputs unset, the keys are named as in previous versions, with these differences:
+- The `input_id` value has no `_gex` or `_atac` suffix.
+- The ATAC h5ad now always includes the `input_id` key.
+- When `gex_nhash_id` or `atac_nhash_id` is unset, the matching h5ad no longer includes an `NHashID` key (previously `NA` in the GEX h5ad and empty in the ATAC h5ad).
+
+
+:::caution Choosing key names
+The `input_id_name`, `nhash_id_name` and `additional_sample_name` values must be different from each other and must not match a key the pipeline writes itself. Reserved keys: in the GEX h5ad, `expression_data_type`, `optimus_output_schema_version`, `pipeline_version`, `reference_gtf_file`, `whitelist`, `input_name`, `input_id_metadata_field` and `input_name_metadata_field`; in the ATAC h5ad, `reference_gtf_file`, `reference_sequences`, `library_tsse`, `frac_overlap_TSS` and `TSS_profile`; and `whitelists` in both h5ads. The pipeline doesn't check this, and a clashing key is silently overwritten by another value.
+:::
 
 ## Versioning and testing
 

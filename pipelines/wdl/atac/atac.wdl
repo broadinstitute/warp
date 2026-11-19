@@ -24,6 +24,20 @@ workflow ATAC {
     # Additional library aliquot ID
     String? atac_nhash_id
 
+    # Optional inputs that control the global (uns) metadata written to the snap_metrics h5ad.
+    # The *_name inputs set uns KEY labels; their defaults match the keys written before they existed.
+    # Key label for the atac_nhash_id value (written only when atac_nhash_id is set).
+    String nhash_id_name = "NHashID"
+    # Key label for the input_id value (see input_id_metadata_value).
+    String input_id_name = "input_id"
+    # Optional extra sample id; when empty, no key is written.
+    String additional_sample_id = ""
+    # Key label for the additional_sample_id value.
+    String additional_sample_name = "additional_sample_id"
+    # Value written under the input_id_name key. Defaults to input_id; Multiome passes its
+    # un-suffixed base id here because its input_id carries an '_atac' suffix for filenames.
+    String input_id_metadata_value = input_id
+
     #Expected cells from library preparation
     Int atac_expected_cells
     # If true, anchor SnapATAC2's cell calling to atac_expected_cells instead of letting it estimate the cell count
@@ -57,7 +71,7 @@ workflow ATAC {
     File? aligned_ATAC_bam
   }
 
-  String pipeline_version = "3.0.0"
+  String pipeline_version = "3.1.0"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -88,6 +102,11 @@ workflow ATAC {
     num_threads_bwa: "Number of threads for bwa-mem2 task (default: 128)"
     mem_size_bwa: "Memory size in GB for bwa-mem2 task (default: 512)"
     cpu_platform_bwa: "CPU platform for bwa-mem2 task (default: Intel Ice Lake)"
+    nhash_id_name: "Key label in the snap_metrics h5ad uns metadata under which atac_nhash_id is stored (default: NHashID). The key is written only when atac_nhash_id is set."
+    input_id_name: "Key label in the snap_metrics h5ad uns metadata under which input_id_metadata_value is stored (default: input_id)."
+    additional_sample_id: "Optional additional sample id written to the snap_metrics h5ad uns metadata. When empty (default), no key is written."
+    additional_sample_name: "Key label in the snap_metrics h5ad uns metadata under which additional_sample_id is stored (default: additional_sample_id). input_id_name, nhash_id_name and additional_sample_name must differ from each other and from the keys the pipeline writes (reference_gtf_file, reference_sequences, library_tsse, frac_overlap_TSS, TSS_profile); clashing keys are overwritten without error."
+    input_id_metadata_value: "Value stored under the input_id_name key (default: input_id). Does not affect output filenames."
     anchor_cell_calling: "If true, SnapATAC2's OrdMag cell calling uses atac_expected_cells as its expected cell count instead of estimating it from the data; the per-cell library metrics and the snap_metrics h5ad both use the resulting cells (default: false)"
  }
 
@@ -163,7 +182,12 @@ workflow ATAC {
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
         cell_calling_expected_cells = cell_calling_expected_cells,
-        input_id = input_id
+        input_id = input_id,
+        nhash_id_name = nhash_id_name,
+        input_id_name = input_id_name,
+        additional_sample_id = additional_sample_id,
+        additional_sample_name = additional_sample_name,
+        input_id_metadata_value = input_id_metadata_value
     }
   }
   if (!preindex) {
@@ -177,7 +201,12 @@ workflow ATAC {
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
         cell_calling_expected_cells = cell_calling_expected_cells,
-        input_id = input_id
+        input_id = input_id,
+        nhash_id_name = nhash_id_name,
+        input_id_name = input_id_name,
+        additional_sample_id = additional_sample_id,
+        additional_sample_name = additional_sample_name,
+        input_id_metadata_value = input_id_metadata_value
     }
     if (peak_calling) {
       call peakcalling.PeakCalling as PeakCalling{
@@ -560,7 +589,28 @@ task CreateFragmentFile {
     Int atac_expected_cells
     Int? cell_calling_expected_cells
     String gtf_path = annotations_gtf
+    # uns metadata key labels, optional extra sample id, and the input_id metadata value;
+    # see the ATAC workflow inputs for how each is used
+    String nhash_id_name = "NHashID"
+    String input_id_name = "input_id"
+    String additional_sample_id = ""
+    String additional_sample_name = "additional_sample_id"
+    String input_id_metadata_value = input_id
   }
+
+  # Normalize nhash_id: strip spaces so comma-separated library aliquot IDs can be
+  # provided with or without spaces between entries (e.g. "LA-x, LA-y" -> "LA-x,LA-y").
+  String atac_nhash_id_clean = sub(atac_nhash_id, " ", "")
+
+  # The uns metadata values reach the Python script through environment variables set from
+  # single-quoted shell strings, so spaces and characters such as $, `, " and \ are kept as-is
+  # instead of being expanded by the unquoted heredoc or breaking a Python string literal.
+  # Any single quote inside a value is escaped as '\''.
+  String nhash_id_name_quoted = "'" + sub(nhash_id_name, "'", "'\\\\''") + "'"
+  String input_id_name_quoted = "'" + sub(input_id_name, "'", "'\\\\''") + "'"
+  String additional_sample_id_quoted = "'" + sub(additional_sample_id, "'", "'\\\\''") + "'"
+  String additional_sample_name_quoted = "'" + sub(additional_sample_name, "'", "'\\\\''") + "'"
+  String input_id_metadata_value_quoted = "'" + sub(select_first([input_id_metadata_value, input_id]), "'", "'\\\\''") + "'"
 
   parameter_meta {
     bam: "Aligned BAM; the cell barcode is in the tag named by barcode_tag (CB, or BB added by AddBBTag when preindex is true)."
@@ -578,6 +628,12 @@ task CreateFragmentFile {
     set -euo pipefail
     set -x 
 
+    export UNS_NHASH_ID_NAME=~{nhash_id_name_quoted}
+    export UNS_INPUT_ID_NAME=~{input_id_name_quoted}
+    export UNS_ADDITIONAL_SAMPLE_ID=~{additional_sample_id_quoted}
+    export UNS_ADDITIONAL_SAMPLE_NAME=~{additional_sample_name_quoted}
+    export UNS_INPUT_ID_METADATA_VALUE=~{input_id_metadata_value_quoted}
+
     python3 <<CODE
 
     # import libraries
@@ -589,16 +645,23 @@ task CreateFragmentFile {
     import anndata as ad
     from collections import OrderedDict
     import csv
+    import os
 
     # set parameters
     bam = "~{bam}"
     input_id = "~{input_id}"
     chrom_sizes = "~{chrom_sizes}"
     atac_gtf = "~{annotations_gtf}"
-    atac_nhash_id = "~{atac_nhash_id}"
+    atac_nhash_id = "~{atac_nhash_id_clean}"
     mito_list = "~{sep=' ' mito_list}"
     expected_cells = ~{atac_expected_cells}
     cell_calling_expected_cells = ~{default="None" cell_calling_expected_cells}
+    # Configurable uns metadata key labels + values
+    nhash_id_name = os.environ["UNS_NHASH_ID_NAME"]
+    input_id_name = os.environ["UNS_INPUT_ID_NAME"]
+    additional_sample_id = os.environ["UNS_ADDITIONAL_SAMPLE_ID"]
+    additional_sample_name = os.environ["UNS_ADDITIONAL_SAMPLE_NAME"]
+    input_id_metadata_value = os.environ["UNS_INPUT_ID_METADATA_VALUE"]
 
     print(mito_list)
     mito_list = mito_list.split(" ")
@@ -650,7 +713,7 @@ task CreateFragmentFile {
     flattened_data = [(metric if metric == 'NHashID' else str(metric).lower(), value) for metric, value in flattened_data]
     
     # Write to CSV
-    csv_file_path = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
+    csv_file_path = "~{input_id}_~{atac_nhash_id_clean}_library_metrics.csv"
     with open(csv_file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(flattened_data)  # Write data
@@ -658,8 +721,20 @@ task CreateFragmentFile {
     print(f"Dictionary successfully written to {csv_file_path}")
 
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
-    # Add nhash_id to h5ad file as unstructured metadata
-    atac_data.uns['NHashID'] = atac_nhash_id
+    # Add nhash_id to h5ad file as unstructured metadata, under a configurable key
+    # label (nhash_id_name, default 'NHashID' to preserve prior output).
+    # Only add the uns key when a value is provided, so we don't write an empty
+    # global-metadata key. The library metrics CSV above is unaffected.
+    if atac_nhash_id != "":
+        atac_data.uns[nhash_id_name] = atac_nhash_id
+
+    # Store the input_id value under a configurable key label (input_id_name, default
+    # 'input_id'). input_id_metadata_value is the base (un-suffixed) id in Multiome.
+    atac_data.uns[input_id_name] = input_id_metadata_value
+
+    # Optional additional sample id, under a configurable key label.
+    if additional_sample_id != "":
+        atac_data.uns[additional_sample_name] = additional_sample_id
 
     # Add GTF to uns field
     # Original path from args.annotation_file
@@ -694,6 +769,6 @@ task CreateFragmentFile {
     File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
     File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
     File Snap_metrics = "~{input_id}.metrics.h5ad"
-    File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
+    File atac_library_metrics = "~{input_id}_~{atac_nhash_id_clean}_library_metrics.csv"
   }
 }

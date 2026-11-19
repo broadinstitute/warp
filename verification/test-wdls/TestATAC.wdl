@@ -18,6 +18,12 @@ workflow TestATAC {
       String cloud_provider
       # Additional library aliquot ID
       String? atac_nhash_id
+      # h5ad uns metadata key labels and values (defaults match the ATAC workflow)
+      String nhash_id_name = "NHashID"
+      String input_id_name = "input_id"
+      String additional_sample_id = ""
+      String additional_sample_name = "additional_sample_id"
+      String input_id_metadata_value = input_id
 
       #Expected cells from library preparation
       Int atac_expected_cells
@@ -70,6 +76,11 @@ workflow TestATAC {
         input_id = input_id,
         cloud_provider = cloud_provider,
         atac_nhash_id = atac_nhash_id,
+        nhash_id_name = nhash_id_name,
+        input_id_name = input_id_name,
+        additional_sample_id = additional_sample_id,
+        additional_sample_name = additional_sample_name,
+        input_id_metadata_value = input_id_metadata_value,
         atac_expected_cells = atac_expected_cells,
         anchor_cell_calling = anchor_cell_calling,
         preindex = preindex,
