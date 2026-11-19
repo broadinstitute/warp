@@ -1,7 +1,7 @@
 name: WARP Image Pins (advisory)
 
 # Checks the image references a PR adds: each reference to an image in
-# us.gcr.io/broad-gotc-prod should be <image>:<release tag>@sha256:<digest>, with the
+# us.gcr.io/broad-gotc-prod should be <image>:<version tag>@sha256:<digest>, with the
 # tag resolving to that digest. Pins written by scripts/image_pins.py pass at once.
 # Advisory (continue-on-error), following AGENTS.md's practice for new scans.
 # Procedure: website/docs/contribution/contribute_to_warp/update_warp_tools_image.md

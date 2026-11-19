@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
-"""Release and pin warp-tools images in WARP's WDLs.
+"""Tag and pin warp-tools images in WARP's WDLs.
 
-A WARP pin names a release tag and the digest it points at, so the digest fixes what
-runs and the tag says what it is:
+A WARP pin names a version tag and the digest it points at, so the digest fixes what
+runs and the tag says which image version it is:
 
-    us.gcr.io/broad-gotc-prod/<image>:<release tag>@sha256:<digest>
+    us.gcr.io/broad-gotc-prod/<image>:<version tag>@sha256:<digest>
 
 Commands (the script finds the WARP repository from its own location):
 
-  release PR [PATH ...]
+  pin PR [PATH ...]
       PR is a warp-tools pull request: its number, URL or branch name. For each image
-      that the PR's latest commit built, tag that build <version>-<unix timestamp> and
-      pin the WDLs to it. <version> is the tag the image's docker_build.sh builds, less
-      the timestamp (e.g. 1.7.2-1.5.1). First it checks that the build finished, that the
-      branch tag is that build, and that DOCKER_IMAGE_VERSION was bumped. A build that
-      already has a <version>-<timestamp> tag keeps it. Tagging needs registry write
-      access (gcloud auth).
-        --digest D   release this earlier build of the image instead (the one you tested)
+      that the PR's latest commit built, give that build the version tag
+      <version>-<unix timestamp> and pin the WDLs to it. <version> is the tag the image's
+      docker_build.sh builds, less the timestamp (e.g. 1.7.2-1.5.1). First it checks that
+      the build finished, that the branch tag is that build, and that DOCKER_IMAGE_VERSION
+      was bumped. A build that already has a <version>-<timestamp> tag keeps it. Tagging
+      needs registry write access (gcloud auth).
+        --digest D   pin this earlier build of the image instead (the one you tested)
         --version V  for the images whose docker_build.sh computes part of the tag at build
                      time (glimpse2, sv-imputation-rust-tools, zcall, illumina-iaap-autocall)
 
-  pin IMAGE TAG [PATH ...]
+  pin IMAGE:TAG [PATH ...]
       Pin every WDL reference to an existing tag, without tagging anything.
 
   Both rewrite every reference to the image, or only those under the given PATHs
@@ -323,7 +323,7 @@ def check(root, registry, base=None):
                 if not ours[name]:
                     continue
             if not tag:
-                problems.append((path, number, "%s has a digest but no release tag" % name))
+                problems.append((path, number, "%s has a digest but no tag" % name))
             elif not digest:
                 problems.append((path, number, "%s:%s has no digest; pin <tag>@sha256:<digest>" % (name, tag)))
             else:
@@ -342,14 +342,14 @@ def repo_root():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def release_tag(registry, image, digest, version, dry_run):
+def version_tag(registry, image, digest, version, dry_run):
     """Tag <digest> as <version>-<timestamp>, or reuse such a tag already on it. Returns the tag."""
     if not VERSION_RE.fullmatch(version):
         raise Error("the version must be <image-version>[-<tool-version>], e.g. 1.7.3-1.5.1, not %s" % version)
     same_version = re.compile(r"%s-[0-9]{10}" % re.escape(version))
     reuse = sorted(t for t in manifests(registry, image).get(digest, {}).get("tag", []) if same_version.fullmatch(t))
     if reuse:
-        print("Reusing release tag %s, already on %s/%s@%s" % (reuse[0], registry, image, digest))
+        print("Reusing version tag %s, already on %s/%s@%s" % (reuse[0], registry, image, digest))
         return reuse[0]
     tag = "%s-%d" % (version, int(time.time()))
     if dry_run:
@@ -362,7 +362,7 @@ def release_tag(registry, image, digest, version, dry_run):
     return tag
 
 
-def release(root, registry, pr_ref, only=(), digest=None, version=None, include_shared=False, dry_run=False):
+def pin_pr(root, registry, pr_ref, only=(), digest=None, version=None, include_shared=False, dry_run=False):
     """Tag the builds of a warp-tools PR and pin the WDLs to them."""
     pr = find_pr(pr_ref)
     found = builds(pr, registry)
@@ -391,7 +391,7 @@ def release(root, registry, pr_ref, only=(), digest=None, version=None, include_
                             % (registry, image, pr["head"]["ref"], pr["head"]["sha"][:9]))
         plan.append((image, build, version or image_version(script, directory + "/docker_build.sh")))
     for image, build, image_version_ in plan:
-        tag = release_tag(registry, image, build, image_version_, dry_run)
+        tag = version_tag(registry, image, build, image_version_, dry_run)
         changed, skipped = pin(root, registry, image, tag, build, include_shared, dry_run, only)
         report_pin(registry, image, tag, build, changed, skipped, dry_run)
 
@@ -400,17 +400,15 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--registry", default=REGISTRY, help="default: %(default)s")
     commands = parser.add_subparsers(dest="command", required=True)
-    release_cmd = commands.add_parser("release", help="tag a warp-tools PR's build and pin it")
-    release_cmd.add_argument("pr", help="warp-tools PR number, URL or branch name")
-    release_cmd.add_argument("--digest", help="release this earlier build of the image instead")
-    release_cmd.add_argument("--version", help="<image-version>[-<tool-version>], if docker_build.sh computes part of its tag")
-    pin_cmd = commands.add_parser("pin", help="pin to an existing tag")
-    pin_cmd.add_argument("image")
-    pin_cmd.add_argument("tag")
-    for sub in (release_cmd, pin_cmd):
-        sub.add_argument("paths", nargs="*", metavar="PATH", help="only rewrite references under these paths")
-        sub.add_argument("--dry-run", action="store_true", help="show the changes; write and tag nothing")
-        sub.add_argument("--include-shared-verification", action="store_true", help="also move pins in " + SHARED)
+    pin_cmd = commands.add_parser("pin", help="tag a warp-tools PR's build and pin it, or pin an existing tag")
+    pin_cmd.add_argument("target", metavar="PR|IMAGE:TAG",
+                         help="a warp-tools PR's number, URL or branch name; or IMAGE:TAG, an existing tag")
+    pin_cmd.add_argument("paths", nargs="*", metavar="PATH", help="only rewrite references under these paths")
+    pin_cmd.add_argument("--digest", help="with a PR: pin this earlier build of the image instead")
+    pin_cmd.add_argument("--version", help="with a PR: <image-version>[-<tool-version>], if docker_build.sh "
+                                           "computes part of its tag")
+    pin_cmd.add_argument("--dry-run", action="store_true", help="show the changes; write and tag nothing")
+    pin_cmd.add_argument("--include-shared-verification", action="store_true", help="also move pins in " + SHARED)
     check_cmd = commands.add_parser("check", help="report pins that break the rule")
     scope = check_cmd.add_mutually_exclusive_group()
     scope.add_argument("--base", default="origin/develop", help="check lines added since REF (default %(default)s)")
@@ -427,16 +425,21 @@ def main(argv=None):
                     print("::error file=%s,line=%d::%s" % (path, number, message))
             print("%d pin problem(s)" % len(problems) if problems else "All checked pins are tag@digest and resolve.")
             return 1 if problems else 0
-        if args.command == "release":
-            release(root, registry, args.pr, args.paths, args.digest, args.version,
-                    args.include_shared_verification, args.dry_run)
-        else:
-            digest = digest_of(registry, args.image, args.tag)
-            if digest is None:
-                raise Error("%s/%s:%s not found" % (registry, args.image, args.tag))
-            changed, skipped = pin(root, registry, args.image, args.tag, digest,
-                                   args.include_shared_verification, args.dry_run, args.paths)
-            report_pin(registry, args.image, args.tag, digest, changed, skipped, args.dry_run)
+        # IMAGE:TAG never looks like a PR: git branch names cannot contain ":".
+        existing = re.fullmatch(r"(?:%s/)?(%s):(%s)" % (re.escape(registry), NAME, TAG), args.target)
+        if not existing:
+            pin_pr(root, registry, args.target, args.paths, args.digest, args.version,
+                   args.include_shared_verification, args.dry_run)
+            return 0
+        if args.digest or args.version:
+            raise Error("--digest and --version go with a warp-tools PR, not an existing tag")
+        image, tag = existing.groups()
+        digest = digest_of(registry, image, tag)
+        if digest is None:
+            raise Error("%s/%s:%s not found" % (registry, image, tag))
+        changed, skipped = pin(root, registry, image, tag, digest,
+                               args.include_shared_verification, args.dry_run, args.paths)
+        report_pin(registry, image, tag, digest, changed, skipped, args.dry_run)
         return 0
     except Error as err:
         print("error: %s" % err, file=sys.stderr)

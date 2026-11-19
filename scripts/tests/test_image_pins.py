@@ -3,6 +3,8 @@
 Run from the WARP root: python3 -m unittest discover -s scripts/tests -p 'test_*.py'
 """
 
+import contextlib
+import io
 import os
 import subprocess
 import sys
@@ -115,8 +117,8 @@ WORKFLOW = ("env:\n  DOCKER_REGISTRY: us.gcr.io\n  GCR_PATH: broad-gotc-prod/bwa
 BUILD = 'DOCKER_IMAGE_VERSION=%s\nBWA_VERSION="0.7.18"\n    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$BWA_VERSION-$TIMESTAMP"\n'
 
 
-class ReleaseTest(Repo):
-    def release(self, status="completed", base_version="1.0.0", uploaded=1794902700000, tags=(), **kwargs):
+class PinPrTest(Repo):
+    def pin_pr(self, status="completed", base_version="1.0.0", uploaded=1794902700000, tags=(), **kwargs):
         run = {"path": ".github/workflows/build-bwa.yml", "status": status, "conclusion": "success",
                "created_at": "2026-11-17T08:00:00Z", "updated_at": "2026-11-17T08:10:00Z"}  # 1794902400-3000 s
         runs = {"workflow_runs": [run, dict(run, path=".github/workflows/trivy.yml")]}
@@ -134,29 +136,46 @@ class ReleaseTest(Repo):
                 mock.patch.object(image_pins, "manifests", lambda r, i: {
                     NEW: {"tag": ["bwa-fix", *tags], "timeUploadedMs": str(uploaded)}, OLD: {"tag": []}}), \
                 mock.patch.object(image_pins, "add_tag", add_tag):
-            image_pins.release(self.root, REG, "https://github.com/broadinstitute/warp-tools/pull/7", **kwargs)
+            image_pins.pin_pr(self.root, REG, "https://github.com/broadinstitute/warp-tools/pull/7", **kwargs)
 
-    def test_release_tags_the_pr_build_and_pins_it(self):
-        self.release(only=["tasks"])
+    def test_tags_the_pr_build_and_pins_it(self):
+        self.pin_pr(only=["tasks"])
         self.assertRegex(self.tagged[0], r"^1\.1\.0-0\.7\.18-[0-9]{10}$")
         self.assertIn('"%s/bwa:%s@%s"' % (REG, self.tagged[0], NEW), self.read("tasks/wdl/Align.wdl"))
         self.assertEqual(self.read("pipelines/wdl/p/P.wdl"), FILES["pipelines/wdl/p/P.wdl"])
 
-    def test_release_reuses_a_tag_and_takes_overrides(self):
-        self.release(tags=["1.1.0-0.7.18-1795000000"])
+    def test_reuses_a_tag_and_takes_overrides(self):
+        self.pin_pr(tags=["1.1.0-0.7.18-1795000000"])
         self.assertEqual(self.tagged, [])
         self.assertIn('"bwa:1.1.0-0.7.18-1795000000@%s"' % NEW, self.read("pipelines/wdl/p/P.wdl"))
-        self.release(digest=OLD, version="1.1.0-x", uploaded=0)  # an earlier build: no upload-time check
+        self.pin_pr(digest=OLD, version="1.1.0-x", uploaded=0)  # an earlier build: no upload-time check
         self.assertRegex(self.tagged[0], r"^1\.1\.0-x-[0-9]{10}$")
 
-    def test_release_refuses(self):
+    def test_refuses(self):
         for kwargs, message in (({"status": "in_progress"}, "still running"),
                                 ({"base_version": "1.1.0"}, "bump it"),
                                 ({"uploaded": 1794800000000}, "not the build")):
             with self.assertRaisesRegex(image_pins.Error, message):
-                self.release(**kwargs)
+                self.pin_pr(**kwargs)
         self.assertEqual(self.tagged, [])
         self.assertEqual(self.read("tasks/wdl/Align.wdl"), FILES["tasks/wdl/Align.wdl"])
+
+
+class CommandLineTest(Repo):
+    def test_pin_takes_a_pr_or_an_existing_tag(self):
+        prs, tag = [], "1.1.0-0.7.18-1795000000"
+        with mock.patch.object(image_pins, "repo_root", lambda: self.root), \
+                mock.patch.object(image_pins, "digest_of", lambda r, i, ref: NEW if (i, ref) == ("bwa", tag) else None), \
+                mock.patch.object(image_pins, "pin_pr", lambda *a: prs.append(a[2])), \
+                contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(image_pins.main(["pin", "%s/bwa:%s" % (REG, tag), "tasks"]), 0)
+            self.assertEqual(image_pins.main(["pin", "https://github.com/broadinstitute/warp-tools/pull/7"]), 0)
+            self.assertEqual(image_pins.main(["pin", "bwa-fix", "--dry-run"]), 0)
+            self.assertEqual(image_pins.main(["pin", "bwa:missing"]), 1)
+            self.assertEqual(image_pins.main(["pin", "bwa:%s" % tag, "--digest", OLD]), 1)
+        self.assertIn('"%s/bwa:%s@%s"' % (REG, tag, NEW), self.read("tasks/wdl/Align.wdl"))
+        self.assertEqual(self.read("pipelines/wdl/p/P.wdl"), FILES["pipelines/wdl/p/P.wdl"])
+        self.assertEqual(prs, ["https://github.com/broadinstitute/warp-tools/pull/7", "bwa-fix"])
 
 
 if __name__ == "__main__":
