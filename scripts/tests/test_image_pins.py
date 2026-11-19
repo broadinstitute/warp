@@ -53,6 +53,19 @@ class Repo(unittest.TestCase):
             return handle.read()
 
 
+class PinnedOnTest(Repo):
+    def test_pinned_on_reads_a_git_ref(self):
+        git = lambda *a: subprocess.run(["git", "-C", self.root, "-c", "user.name=t", "-c", "user.email=t@t", *a],
+                                        check=True, capture_output=True)
+        git("init", "-q", "-b", "main")
+        git("add", ".")
+        git("commit", "-qm", "base")
+        self.assertTrue(image_pins.pinned_on(self.root, "main", "bwa", "1.0.0-0.7.17-1660770463"))
+        self.assertFalse(image_pins.pinned_on(self.root, "main", "bwa", "1.1.0-0.7.18-1795000000"))
+        with self.assertRaisesRegex(image_pins.Error, "cannot read"):
+            image_pins.pinned_on(self.root, "origin/develop", "bwa", "x")
+
+
 class PinTest(Repo):
     def test_pin_rewrites_full_and_bare_references(self):
         changed, skipped = image_pins.pin(self.root, REG, "bwa", "1.1.0-0.7.18-1795000000", NEW)
@@ -118,7 +131,8 @@ BUILD = 'DOCKER_IMAGE_VERSION=%s\nBWA_VERSION="0.7.18"\n    IMAGE_TAG="$DOCKER_I
 
 
 class PinPrTest(Repo):
-    def pin_pr(self, status="completed", base_version="1.0.0", uploaded=1794902700000, tags=(), **kwargs):
+    def pin_pr(self, status="completed", base_version="1.0.0", uploaded=1794902700000, tags=(), old_tags=(),
+               state="open", on_develop=False, **kwargs):
         run = {"path": ".github/workflows/build-bwa.yml", "status": status, "conclusion": "success",
                "created_at": "2026-11-17T08:00:00Z", "updated_at": "2026-11-17T08:10:00Z"}  # 1794902400-3000 s
         runs = {"workflow_runs": [run, dict(run, path=".github/workflows/trivy.yml")]}
@@ -130,12 +144,14 @@ class PinPrTest(Repo):
         def add_tag(_, image, digest, tag):
             self.tagged.append(tag)
             registry[tag] = digest
-        with mock.patch.object(image_pins, "api", lambda path: PR if path.startswith("pulls/") else runs), \
+        pr = dict(PR, state=state)
+        with mock.patch.object(image_pins, "api", lambda path: pr if path.startswith("pulls/") else runs), \
                 mock.patch.object(image_pins, "raw", lambda sha, path, missing_ok=False: files.get((sha, path))), \
                 mock.patch.object(image_pins, "digest_of", lambda r, i, ref: registry.get(ref)), \
                 mock.patch.object(image_pins, "manifests", lambda r, i: {
-                    NEW: {"tag": ["bwa-fix", *tags], "timeUploadedMs": str(uploaded)}, OLD: {"tag": []}}), \
-                mock.patch.object(image_pins, "add_tag", add_tag):
+                    NEW: {"tag": ["bwa-fix", *tags], "timeUploadedMs": str(uploaded)}, OLD: {"tag": list(old_tags)}}), \
+                mock.patch.object(image_pins, "pinned_on", lambda *a: on_develop), \
+                mock.patch.object(image_pins, "add_tag", add_tag), contextlib.redirect_stdout(io.StringIO()):
             image_pins.pin_pr(self.root, REG, "https://github.com/broadinstitute/warp-tools/pull/7", **kwargs)
 
     def test_tags_the_pr_build_and_pins_it(self):
@@ -151,10 +167,21 @@ class PinPrTest(Repo):
         self.pin_pr(digest=OLD, version="1.1.0-x", uploaded=0)  # an earlier build: no upload-time check
         self.assertRegex(self.tagged[0], r"^1\.1\.0-x-[0-9]{10}$")
 
+    def test_moves_its_tag_while_the_pr_is_open(self):
+        earlier = "1.1.0-0.7.18-1795000000"  # on the PR's previous build
+        self.pin_pr(old_tags=[earlier, "1.0.0-0.7.17-1660770463"], only=["tasks"])
+        self.assertEqual(self.tagged, [earlier])
+        self.assertIn('"%s/bwa:%s@%s"' % (REG, earlier, NEW), self.read("tasks/wdl/Align.wdl"))
+        self.pin_pr(old_tags=[earlier], state="closed")  # merged: the tag stays, the build gets its own
+        self.assertRegex(self.tagged[0], r"^1\.1\.0-0\.7\.18-[0-9]{10}$")
+        self.assertNotEqual(self.tagged[0], earlier)
+
     def test_refuses(self):
         for kwargs, message in (({"status": "in_progress"}, "still running"),
                                 ({"base_version": "1.1.0"}, "bump it"),
-                                ({"uploaded": 1794800000000}, "not the build")):
+                                ({"uploaded": 1794800000000}, "not the build"),
+                                ({"old_tags": ["1.1.0-0.7.18-1795000000"], "on_develop": True},
+                                 "pinned on origin/develop")):
             with self.assertRaisesRegex(image_pins.Error, message):
                 self.pin_pr(**kwargs)
         self.assertEqual(self.tagged, [])

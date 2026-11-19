@@ -20,14 +20,14 @@ The example is the scvi-scanvi 1.7.2 update for scANVI.
    #   pipelines/wdl/scanvi/scANVI.wdl:77: … -> …/scvi-scanvi:1.7.2-1.5.1-<timestamp>@sha256:…
    ```
 
-   The script finds what to do from the PR: each image built by its latest commit, the build's digest, and the version from `docker_build.sh`. It refuses if the build hasn't finished or `DOCKER_IMAGE_VERSION` wasn't bumped. It then gives the build the version tag `<version>-<unix-timestamp>` and pins every WDL reference to the image; give paths after the PR to pin only some. Tagging needs write access to the registry (`gcloud auth`).
+   The script finds what to do from the PR: each image built by its latest commit, the build's digest, and the version from `docker_build.sh`. It refuses if the build hasn't finished or `DOCKER_IMAGE_VERSION` wasn't bumped. It then gives the build the version tag `<version>-<unix-timestamp>` and pins every WDL reference to the image; give paths after the PR to pin only some. Run it again after another build and the same tag moves to the new build, so a PR leaves one version tag per image. Tagging needs write access to the registry (`gcloud auth`).
 3. **Bump, test and review in WARP.** Bump each affected pipeline and its changelog (see the rules below), validate with womtool and `scripts/validate_release.sh -g origin/staging`, and run the tests: Plumbing, plus Scientific for a minor or major bump. If the image has to change again, push to the warp-tools PR and repeat step 2 once it has built; pushes that don't change the image need nothing.
-4. **Merge the warp-tools PR, then the WARP PR.**
+4. **Merge the warp-tools PR, then the WARP PR.** The merge fixes the version tag where it is.
 
 ## Rules
 
 - **Pins** are always `<image>:<version-tag>@sha256:<digest>`, written by the script. Never pin `latest`, a branch tag, a bare tag or a bare digest. The advisory `Image pins` check reports any that aren't.
-- **Version tags never move.** A fix is a new image version with a new tag. The script never retags; it reuses a build's existing tag for the same version.
+- **Version tags are fixed once their warp-tools PR merges.** Until then, `pin` moves the PR's tag to the build it pins, and the `Image pins` check flags any branch still pinned to an earlier one. The script won't move a tag that `develop` pins. After the merge, a fix is a new image version with a new tag.
 - **Version bump:** minor by default, because a rebuilt image may shift outputs slightly; major when outputs change qualitatively; patch, with a "No functional impact" entry, for a pipeline that only imports an edited WDL and runs no task using the new image. See [Version and Release Pipelines](../../About_WARP/VersionAndReleasePipelines.md).
 - **Changelog:** name the image, the version tag, what changed in the image and the effect on outputs, for example "Updated the scvi-scanvi image to 1.7.2-1.5.1-&lt;timestamp&gt;, which fixes how an AIT reference's counts are restored; outputs may differ slightly, with no reprocessing needed". Leave the digest to the WDL.
 - **Shared verification pins:** the script skips `verification/VerifyTasks.wdl`, which is in about 27 test path filters; don't move it in a feature PR.
@@ -35,7 +35,7 @@ The example is the scvi-scanvi 1.7.2 update for scANVI.
 
 ## Outside the standard workflow
 
-These are the only sanctioned ways to tag or pin differently. Version tags still never move, and a merged pin is still `<image>:<version-tag>@sha256:<digest>`.
+These are the only sanctioned ways to tag or pin differently. Only `pin` moves a version tag, and only while its PR is open; a merged pin is still `<image>:<version-tag>@sha256:<digest>`.
 
 | Case | What to do |
 | --- | --- |

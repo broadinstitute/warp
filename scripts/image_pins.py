@@ -14,8 +14,10 @@ Commands (the script finds the WARP repository from its own location):
       <version>-<unix timestamp> and pin the WDLs to it. <version> is the tag the image's
       docker_build.sh builds, less the timestamp (e.g. 1.7.2-1.5.1). First it checks that
       the build finished, that the branch tag is that build, and that DOCKER_IMAGE_VERSION
-      was bumped. A build that already has a <version>-<timestamp> tag keeps it. Tagging
-      needs registry write access (gcloud auth).
+      was bumped. A build that already has a <version>-<timestamp> tag keeps it. While the
+      PR is open, rerunning after another build moves the PR's tag to the new build, so a
+      PR leaves one version tag per image; once the PR merges or closes, its tags stay
+      fixed. Tagging needs registry write access (gcloud auth).
         --digest D   pin this earlier build of the image instead (the one you tested)
         --version V  for the images whose docker_build.sh computes part of the tag at build
                      time (glimpse2, sv-imputation-rust-tools, zcall, illumina-iaap-autocall)
@@ -331,8 +333,8 @@ def check(root, registry, base=None):
                 if actual is None:
                     problems.append((path, number, "tag %s:%s not found in %s" % (name, tag, registry)))
                 elif actual != digest:
-                    problems.append((path, number, "tag %s:%s points at %s, not the pinned digest"
-                                     % (name, tag, actual)))
+                    problems.append((path, number, "tag %s:%s points at %s, not the pinned digest; "
+                                     "rerun scripts/image_pins.py pin" % (name, tag, actual)))
     return problems
 
 
@@ -342,23 +344,48 @@ def repo_root():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def version_tag(registry, image, digest, version, dry_run):
-    """Tag <digest> as <version>-<timestamp>, or reuse such a tag already on it. Returns the tag."""
+def pinned_on(root, ref, image, tag):
+    """Whether any WDL at git <ref> pins <image>:<tag>."""
+    found = subprocess.run(["git", "-C", root, "grep", "-q", "-F", "-e", "%s:%s" % (image, tag), ref, "--", "*.wdl"],
+                           capture_output=True, text=True)
+    if found.returncode > 1:
+        raise Error("cannot read %s to check the tag isn't in use: %s" % (ref, found.stderr.strip()))
+    return found.returncode == 0
+
+
+def version_tag(root, registry, image, digest, version, pr_open, dry_run):
+    """The version tag for <digest>, <version>-<timestamp>. Returns the tag.
+
+    A tag already on <digest> is reused. While the warp-tools PR is open, the tag of an
+    earlier build of the same version moves to <digest>, so iterating on the PR leaves one
+    tag; once the PR has merged or closed, no tag moves."""
     if not VERSION_RE.fullmatch(version):
         raise Error("the version must be <image-version>[-<tool-version>], e.g. 1.7.3-1.5.1, not %s" % version)
     same_version = re.compile(r"%s-[0-9]{10}" % re.escape(version))
-    reuse = sorted(t for t in manifests(registry, image).get(digest, {}).get("tag", []) if same_version.fullmatch(t))
+    tags = {t: d for d, m in manifests(registry, image).items() for t in m.get("tag", []) if same_version.fullmatch(t)}
+    reuse = sorted(t for t, d in tags.items() if d == digest)
     if reuse:
         print("Reusing version tag %s, already on %s/%s@%s" % (reuse[0], registry, image, digest))
         return reuse[0]
-    tag = "%s-%d" % (version, int(time.time()))
+    if pr_open and tags:
+        tag = max(tags)  # the newest; normally the only one
+        if pinned_on(root, "origin/develop", image, tag):
+            raise Error("%s:%s is pinned on origin/develop, so version %s is out; bump DOCKER_IMAGE_VERSION "
+                        "in the warp-tools PR" % (image, tag, version))
+        verbs, what = ("Would move", "Moved"), "version tag %s from @%s to %s/%s@%s" % (
+            tag, tags[tag], registry, image, digest)
+    else:
+        tag = "%s-%d" % (version, int(time.time()))
+        verbs, what = ("Would tag", "Tagged"), "%s/%s@%s as %s" % (registry, image, digest, tag)
+        if tags:
+            print("The warp-tools PR is no longer open, so %s stays where it is" % ", ".join(sorted(tags)))
     if dry_run:
-        print("Would tag %s/%s@%s as %s" % (registry, image, digest, tag))
+        print(verbs[0], what)
         return tag
     add_tag(registry, image, digest, tag)
     if digest_of(registry, image, tag) != digest:
         raise Error("tag %s did not resolve to %s after tagging" % (tag, digest))
-    print("Tagged %s/%s@%s as %s" % (registry, image, digest, tag))
+    print(verbs[1], what)
     return tag
 
 
@@ -391,7 +418,7 @@ def pin_pr(root, registry, pr_ref, only=(), digest=None, version=None, include_s
                             % (registry, image, pr["head"]["ref"], pr["head"]["sha"][:9]))
         plan.append((image, build, version or image_version(script, directory + "/docker_build.sh")))
     for image, build, image_version_ in plan:
-        tag = version_tag(registry, image, build, image_version_, dry_run)
+        tag = version_tag(root, registry, image, build, image_version_, pr["state"] == "open", dry_run)
         changed, skipped = pin(root, registry, image, tag, build, include_shared, dry_run, only)
         report_pin(registry, image, tag, build, changed, skipped, dry_run)
 
