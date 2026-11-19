@@ -142,12 +142,16 @@ BUILD = 'DOCKER_IMAGE_VERSION=%s\nBWA_VERSION="0.7.18"\n    IMAGE_TAG="$DOCKER_I
 
 class PinPrTest(Repo):
     def pin_pr(self, status="completed", base_version="1.0.0", uploaded=1794902700000, tags=(), old_tags=(),
-               state="open", on_develop=False, extra_files=None, **kwargs):
+               state="open", on_develop=False, extra_files=None, script=None, built="h" * 40, **kwargs):
+        # The newest run comes first; <built> is the commit it built, "h"*40 being the PR's head.
         run = {"path": ".github/workflows/build-bwa.yml", "status": status, "conclusion": "success",
-               "created_at": "2026-11-17T08:00:00Z", "updated_at": "2026-11-17T08:10:00Z"}  # 1794902400-3000 s
-        runs = {"workflow_runs": [run, dict(run, path=".github/workflows/trivy.yml")]}
+               "head_sha": built, "created_at": "2026-11-17T08:00:00Z",
+               "updated_at": "2026-11-17T08:10:00Z"}  # 1794902400-3000 s
+        runs = {"workflow_runs": [dict(run, head_sha="x" * 40, status="in_progress"),  # another PR's commit
+                                  run, dict(run, path=".github/workflows/trivy.yml")]}
+        commits = [{"sha": "e" * 40}, {"sha": "h" * 40}]
         files = {(PR["head"]["sha"], ".github/workflows/build-bwa.yml"): WORKFLOW,
-                 (PR["head"]["sha"], "3rd-party-tools/bwa/docker_build.sh"): BUILD % "1.1.0",
+                 (PR["head"]["sha"], "3rd-party-tools/bwa/docker_build.sh"): script or BUILD % "1.1.0",
                  (PR["base"]["sha"], "3rd-party-tools/bwa/docker_build.sh"): BUILD % base_version,
                  **{(PR["head"]["sha"], "3rd-party-tools/bwa/" + k): v for k, v in (extra_files or {}).items()}}
         self.out = io.StringIO()
@@ -157,7 +161,9 @@ class PinPrTest(Repo):
             self.tagged.append(tag)
             registry[tag] = digest
         pr = dict(PR, state=state)
-        with mock.patch.object(image_pins, "api", lambda path: pr if path.startswith("pulls/") else runs), \
+        def api(path):
+            return commits if "/commits" in path else pr if path.startswith("pulls/") else runs
+        with mock.patch.object(image_pins, "api", api), \
                 mock.patch.object(image_pins, "raw", lambda sha, path, missing_ok=False: files.get((sha, path))), \
                 mock.patch.object(image_pins, "digest_of", lambda r, i, ref: registry.get(ref)), \
                 mock.patch.object(image_pins, "manifests", lambda r, i: {
@@ -178,6 +184,12 @@ class PinPrTest(Repo):
         self.assertIn('"bwa:1.1.0-0.7.18-1795000000@%s"' % NEW, self.read("pipelines/wdl/p/P.wdl"))
         self.pin_pr(digest=OLD, version="1.1.0-x", uploaded=0)  # an earlier build: no upload-time check
         self.assertRegex(self.tagged[0], r"^1\.1\.0-x-[0-9]{10}$")
+
+    def test_takes_the_newest_build_among_the_pr_commits(self):
+        self.pin_pr(built="e" * 40, only=["tasks"])  # the head commit changed no build input
+        self.assertIn('"%s/bwa:%s@%s"' % (REG, self.tagged[0], NEW), self.read("tasks/wdl/Align.wdl"))
+        with self.assertRaisesRegex(image_pins.Error, "has no image build"):
+            self.pin_pr(built="y" * 40)
 
     def test_moves_its_tag_while_the_pr_is_open(self):
         earlier = "1.1.0-0.7.18-1795000000"  # on the PR's previous build
@@ -205,13 +217,16 @@ class PinPrTest(Repo):
     def test_lists_what_is_left_to_tidy(self):
         self.pin_pr(only=["tasks"])
         self.assertNotIn("Left to tidy", self.out.getvalue())
-        self.pin_pr(only=["tasks"], extra_files={
-            "docker_versions.tsv": "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463\n",
+        with open(os.path.join(self.root, "tasks/wdl/Align.wdl"), "a") as handle:
+            handle.write('# String acr_docker_prefix = "dsppipelinedev.azurecr.io/"\n')
+        quay = BUILD % "1.1.0" + 'QUAY_URL="quay.io/broadinstitute/bwa"\ndocker push "$GCR_URL:$IMAGE_TAG"\n'
+        self.pin_pr(only=["tasks"], script=quay, tags=["1.1.0-0.7.18-1795000000"], extra_files={
             "README.md": "docker pull us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463\n"})
         tidy = self.out.getvalue().split("Left to tidy for bwa")[1]
-        self.assertIn("warp-tools PR #7: delete 3rd-party-tools/bwa/docker_versions.tsv", tidy)
-        self.assertIn("README.md copies a version tag or points to docker_versions.tsv", tidy)
-        self.assertNotIn("build locally only", tidy)
+        self.assertIn("drop the Quay and docker_versions.tsv lines from 3rd-party-tools/bwa/docker_build.sh", tidy)
+        self.assertIn("make 3rd-party-tools/bwa/docker_build.sh build locally only", tidy)
+        self.assertIn("3rd-party-tools/bwa/README.md copies a version tag", tidy)
+        self.assertIn("WARP: tasks/wdl/Align.wdl still names ACR images", tidy)
 
 
 class CommandLineTest(Repo):

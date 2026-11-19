@@ -12,7 +12,7 @@ Read the matching guide before you start:
 | --- | --- |
 | Debugging a failed Terra/WDL pipeline test (submission URL → the exact failing task/metric, via the `fiss-mcp` tools) | [agents/fiss-mcp-runbook.md](agents/fiss-mcp-runbook.md) |
 | Adding or changing a Plumbing/Scientific test, test inputs, a `Verify*` compare task, or a `.github/workflows/test_*.yml` | [agents/ci-tests.md](agents/ci-tests.md) |
-| WDL work beyond a small edit: GPU tasks, preemptibility, multi-cloud, renaming files, dead imports, optional-input defaults, Optimus chemistry | [agents/wdl-authoring.md](agents/wdl-authoring.md) |
+| WDL work beyond a small edit: GPU tasks, preemptibility, retired Azure branches, renaming files, dead imports, optional-input defaults, Optimus chemistry | [agents/wdl-authoring.md](agents/wdl-authoring.md) |
 | Pipeline docs pages and the Docusaurus site | [agents/pipeline-docs.md](agents/pipeline-docs.md) |
 
 ## Authoritative References

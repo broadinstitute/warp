@@ -37,8 +37,12 @@ The example is the scvi-scanvi 1.7.2 update for scANVI.
 
 Each image drops what's left of the old process the next time it changes, in the two PRs that change it anyway, so the cleanup costs no extra builds or version bumps. After pinning, the script lists what's left for the image:
 
-- **In the warp-tools PR:** delete the image's `docker_versions.tsv`, make its `docker_build.sh` build locally only, and replace a version tag copied into its README with a link to the WARP WDL. See warp-tools' [BUILDING.md](https://github.com/broadinstitute/warp-tools/blob/develop/BUILDING.md#tidying-an-image).
-- **In WARP:** `pin` has already rewritten every pin of the image, in every pipeline. Replace a version tag copied into a docs page with a link to the WDL.
+- **In the warp-tools PR:** make the image's `docker_build.sh` build locally only, and replace a version tag copied into its README with a link to the WARP WDL. See warp-tools' [BUILDING.md](https://github.com/broadinstitute/warp-tools/blob/develop/BUILDING.md#tidying-an-image).
+- **In WARP:** `pin` has already rewritten every pin of the image, in every pipeline. Drop the Azure branch of each pipeline you bump (see [Azure](#azure)), and replace a version tag copied into a docs page with a link to the WDL.
+
+### Azure
+
+WARP no longer runs on Azure, but some pipelines still name ACR images (`*.azurecr.io`) and Azure blob URLs for `cloud_provider = "azure"`. When you next change such a pipeline, delete those strings and point its images at GCR. Keep the `cloud_provider` input so existing configurations still run, but accept only `"gcp"`; removing the input would break callers and needs a major version. `pin` names the WDLs it changed that still carry ACR images.
 
 Pins of images that aren't changing stay as they are until then; `python3 scripts/image_pins.py check --all` lists them. Don't sweep them: each pin you change means a version bump for every pipeline that imports the file.
 
@@ -55,4 +59,3 @@ These are the only sanctioned ways to tag or pin differently. Only `pin` moves a
 | An image built outside a warp-tools PR | `gcloud container images add-tag us.gcr.io/broad-gotc-prod/<image>@sha256:<digest> us.gcr.io/broad-gotc-prod/<image>:<version>-$(date +%s)`, then `pin` that tag. |
 | Test build under a custom tag | Run the image's warp-tools build workflow by hand with `image_tag`. Never name an existing tag; it would be overwritten. |
 | Local builds | Use `docker build` for local testing. Never push a version tag from a laptop. |
-| Azure | `crane copy us.gcr.io/broad-gotc-prod/<image>@sha256:<digest> dsppipelinedev.azurecr.io/<image>:<version-tag>` keeps the digest. |
