@@ -105,7 +105,7 @@ workflow ATAC {
     nhash_id_name: "Key label in the snap_metrics h5ad uns metadata under which atac_nhash_id is stored (default: NHashID). The key is written only when atac_nhash_id is set."
     input_id_name: "Key label in the snap_metrics h5ad uns metadata under which input_id_metadata_value is stored (default: input_id)."
     additional_sample_id: "Optional additional sample id written to the snap_metrics h5ad uns metadata. When empty (default), no key is written."
-    additional_sample_name: "Key label in the snap_metrics h5ad uns metadata under which additional_sample_id is stored (default: additional_sample_id)."
+    additional_sample_name: "Key label in the snap_metrics h5ad uns metadata under which additional_sample_id is stored (default: additional_sample_id). input_id_name, nhash_id_name and additional_sample_name must differ from each other and from the keys the pipeline writes (reference_gtf_file, reference_sequences, library_tsse, frac_overlap_TSS, TSS_profile); clashing keys are overwritten without error."
     input_id_metadata_value: "Value stored under the input_id_name key (default: input_id). Does not affect output filenames."
     anchor_cell_calling: "If true, SnapATAC2's OrdMag cell calling uses atac_expected_cells as its expected cell count instead of estimating it from the data; the per-cell library metrics and the snap_metrics h5ad both use the resulting cells (default: false)"
  }

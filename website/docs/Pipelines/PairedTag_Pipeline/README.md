@@ -150,6 +150,10 @@ If you leave these inputs unset, the keys are named as in previous versions, wit
 - When `gex_nhash_id` or `atac_nhash_id` is unset, the matching h5ad no longer includes an `NHashID` key (previously `NA` in the GEX h5ad and empty in the ATAC h5ad).
 
 
+:::caution Choosing key names
+The `input_id_name`, `nhash_id_name` and `additional_sample_name` values must be different from each other and must not match a key the pipeline writes itself. Reserved keys: in the GEX h5ad, `expression_data_type`, `optimus_output_schema_version`, `pipeline_version`, `reference_gtf_file`, `whitelist`, `input_name`, `input_id_metadata_field` and `input_name_metadata_field`; in the ATAC h5ad, `reference_gtf_file`, `reference_sequences`, `library_tsse`, `frac_overlap_TSS` and `TSS_profile`. The pipeline doesn't check this, and a clashing key is silently overwritten by another value.
+:::
+
 ## Versioning and testing
 
 All Paired-Tag pipeline releases are documented in the [Paired-Tag changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/paired_tag/PairedTag.wdl) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/tree/develop/pipelines/wdl/paired_tag/test_inputs). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). Note that paired-tag tests are still in development.

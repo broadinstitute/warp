@@ -276,6 +276,10 @@ print(adata.uns["whitelist"])
 
 If you leave these inputs unset, the keys are named as in previous versions, except that the h5ad no longer includes an `NHashID` key with the value `NA` when `gex_nhash_id` is unset.
 
+:::caution Choosing key names
+The `input_id_name`, `nhash_id_name` and `additional_sample_name` values must be different from each other and must not match a key the pipeline writes itself. Reserved keys: `expression_data_type`, `optimus_output_schema_version`, `pipeline_version`, `reference_gtf_file`, `whitelist`, `input_name`, `input_id_metadata_field` and `input_name_metadata_field`. The pipeline doesn't check this, and a clashing key is silently overwritten by another value.
+:::
+
 #### 7. Optional: Run CellBender
 This task runs when the `run_cellbender` input is set to true. CellBender is a tool for removing background UMIs and thereby helps to flag empty drops. Learn more in the [CellBender documentation](https://cellbender.readthedocs.io/en/latest/).
 

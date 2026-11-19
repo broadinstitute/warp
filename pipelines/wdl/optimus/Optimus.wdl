@@ -143,7 +143,7 @@ workflow Optimus {
     input_id_name: "uns global-metadata KEY label under which the input_id value is stored; defaults to 'input_id' when unset"
     nhash_id_name: "uns global-metadata KEY label under which gex_nhash_id is stored; defaults to 'NHashID' when unset"
     additional_sample_id: "Optional additional sample id value written to the h5ad uns global metadata"
-    additional_sample_name: "uns global-metadata KEY label under which additional_sample_id is stored; defaults to 'additional_sample_id' when unset"
+    additional_sample_name: "uns global-metadata KEY label under which additional_sample_id is stored; defaults to 'additional_sample_id' when unset. input_id_name, nhash_id_name and additional_sample_name must differ from each other and from the keys the pipeline writes (expression_data_type, optimus_output_schema_version, pipeline_version, reference_gtf_file, whitelist, input_name, input_id_metadata_field, input_name_metadata_field); clashing keys are overwritten without error"
     input_id_metadata_value: "Value stored under the input_id_name uns key; defaults to input_id when unset (used to pass the un-suffixed base id from Multiome)"
     tar_star_reference: "star genome reference"
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"

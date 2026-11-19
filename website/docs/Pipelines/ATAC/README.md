@@ -118,6 +118,10 @@ The `snap_metrics` h5ad records sample provenance as global metadata in `adata.u
 
 If you leave these inputs unset, the keys are named as in previous versions, with two differences: the `snap_metrics` h5ad now always includes the `input_id` key, and it no longer includes an empty `NHashID` key when `atac_nhash_id` is unset.
 
+:::caution Choosing key names
+The `input_id_name`, `nhash_id_name` and `additional_sample_name` values must be different from each other and must not match a key the pipeline writes itself. Reserved keys: `reference_gtf_file`, `reference_sequences`, `library_tsse`, `frac_overlap_TSS` and `TSS_profile`. The pipeline doesn't check this, and a clashing key is silently overwritten by another value.
+:::
+
 ## Versioning and testing
 
 All ATAC pipeline releases are documented in the [ATAC changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/wdl/multiome/atac.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/tree/master/pipelines/wdl/multiome/test_inputs). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
