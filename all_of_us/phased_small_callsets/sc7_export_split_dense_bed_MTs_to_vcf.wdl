@@ -213,12 +213,30 @@ task export_split_dense_MTs_to_vcf_task {
 
                     print("Running: " + submit_cmd)
                     submit_cmd = ' '.join(submit_cmd.split())
-                    os.popen(submit_cmd).read()
+                    # Capture output, THEN check the exit status. os.popen(...).read() alone
+                    # discards it, so a failed Dataproc job left this script exiting 0 and the
+                    # task was only caught by its declared output file being missing -- which
+                    # silently passes whenever a manifest from a previous run is still sitting
+                    # at the staged path.
+                    submit_pipe = os.popen(submit_cmd)
+                    print(submit_pipe.read())
+                    submit_status = submit_pipe.close()
+                    if submit_status is not None:
+                        raise RuntimeError(
+                            'Dataproc job failed with exit status ' + str(submit_status) +
+                            '. See the driveroutput logs linked above for the job traceback.')
 
                     print("Copying results out of staging bucket...")
-                    staging_cmd = f'gsutil cp -r ~{output_gs_url}/~{version_label}/~{task_label}/~{version_label}.~{task_label}.~{output_vcfs_json_file_name}  ~{version_label}.~{task_label}.~{output_vcfs_json_file_name}'
+                    staging_cmd = f'gsutil cp -r ~{output_gs_url}/~{version_label}/~{task_label}/~{version_label}.~{task_label}.~{chromosome}.~{output_vcfs_json_file_name}  ~{version_label}.~{task_label}.~{chromosome}.~{output_vcfs_json_file_name}'
                     print(staging_cmd)
-                    os.popen(staging_cmd).read()
+                    staging_pipe = os.popen(staging_cmd)
+                    print(staging_pipe.read())
+                    staging_status = staging_pipe.close()
+                    if staging_status is not None:
+                        raise RuntimeError(
+                            'Failed to copy the manifest out of the output bucket (exit status ' +
+                            str(staging_status) + '). The Dataproc job succeeded, so the manifest '
+                            'is most likely not at the path this WDL expects.')
                     break
 
         except Exception as e:
@@ -234,7 +252,7 @@ task export_split_dense_MTs_to_vcf_task {
     >>>
 
     output {
-        File vcfs_json_file = "~{version_label}.~{task_label}.~{output_vcfs_json_file_name}"
+        File vcfs_json_file = "~{version_label}.~{task_label}.~{chromosome}.~{output_vcfs_json_file_name}"
     }
 
     runtime {
