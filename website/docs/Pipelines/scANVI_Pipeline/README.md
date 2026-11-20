@@ -283,7 +283,7 @@ The annotated matrices keep every `obs` column of their own input (the Optimus Q
 
 ## Runtime configuration
 
-All tasks use the same Docker image, pinned by release tag and digest in [scANVI.wdl](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/scanvi/scANVI.wdl). GPU and CUDA setup is handled by the execution engine; the container does not configure the GPU environment itself.
+All tasks use the same Docker image, pinned by tag and digest in [scANVI.wdl](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/scanvi/scANVI.wdl). GPU and CUDA setup is handled by the execution engine; the container does not configure the GPU environment itself.
 
 ### Task 1 — `PreprocessReference` (CPU-only, once per run, training only)
 
