@@ -132,6 +132,10 @@ top-level workflow outputs; see the output reference below.
 | `SummarizeMvSusie` | Per gene | `window_id`; prepared RDS; fit RDS | Calls `summarize_window.R`; extracts variant PIPs, credible-set summaries/members, component-feature support, and preprocessing/fitting QC; prefixes output filenames with the gene ID. | `variant_pip`, `credible_sets`, `credible_set_members`, `component_feature_support` -> `<gene>.<type>.tsv.gz`; `window_qc` -> `<gene>.window_qc.tsv`. This QC is distinct from phenotype-preparation QC above. |
 | `PlotMvSusie` | Per gene | `window_id`; prepared RDS; fit RDS | Calls `plot_window_mvsusie.R`; plots conditional effects with credible-set annotation, non-sentinel variants included, and LFSR cutoff 0.05; sorts by credible set. Current script requires one numeric chromosome. | `effect_plot_png` -> `<gene>.effect_plot.png`; `effect_plot_pdf` -> `<gene>.effect_plot.pdf`; `effect_plot_rds` -> `<gene>.effect_plot.rds`. |
 
+For windows with more than 14 credible sets, `PlotMvSusie` supplies a larger
+color palette rather than limiting the sets shown. Plots can be regenerated
+from the saved prepared-window and fit RDS files without refitting the model.
+
 ### BuildCisWindows details
 
 1. Read cis results and assign genes. Missing/unparseable q-values and nominal
