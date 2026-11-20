@@ -133,7 +133,11 @@ top-level workflow outputs; see the output reference below.
 | `PlotMvSusie` | Per gene | `window_id`; prepared RDS; fit RDS | Calls `plot_window_mvsusie.R`; plots conditional effects with credible-set annotation, non-sentinel variants included, and LFSR cutoff 0.05; sorts by credible set. Current script requires one numeric chromosome. | `effect_plot_png` -> `<gene>.effect_plot.png`; `effect_plot_pdf` -> `<gene>.effect_plot.pdf`; `effect_plot_rds` -> `<gene>.effect_plot.rds`. |
 
 For windows with more than 14 credible sets, `PlotMvSusie` supplies a larger
-color palette rather than limiting the sets shown. Plots can be regenerated
+color palette rather than limiting the sets shown. If no credible sets are
+reported or no credible-set effects pass the plot's LFSR cutoff, the PNG and
+PDF instead show a labeled variant PIP plot and state why. The RDS preserves
+the absent effect plot and records `rendered_plot_type = "pip_only"`.
+Plots can be regenerated
 from the saved prepared-window and fit RDS files without refitting the model.
 
 ### BuildCisWindows details
