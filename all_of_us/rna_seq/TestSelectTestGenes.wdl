@@ -12,6 +12,8 @@ workflow TestSelectTestGenes {
     Int min_variants = 8000
     Int max_variants = 14000
     Int n_candidates = 10
+    Int pilot_panel_size = 25
+    String pilot_reference_gene = ""
     String docker_image
   }
 
@@ -27,6 +29,8 @@ workflow TestSelectTestGenes {
       min_variants = min_variants,
       max_variants = max_variants,
       n_candidates = n_candidates,
+      pilot_panel_size = pilot_panel_size,
+      pilot_reference_gene = pilot_reference_gene,
       docker_image = docker_image
   }
 
@@ -35,6 +39,7 @@ workflow TestSelectTestGenes {
     File candidates_no_protein = SelectTestGenes.candidates_no_protein
     File suggested_gene_all_modalities = SelectTestGenes.suggested_gene_all_modalities
     File suggested_gene_no_protein = SelectTestGenes.suggested_gene_no_protein
+    File pilot_gene_list = SelectTestGenes.pilot_gene_list
   }
 }
 
@@ -50,8 +55,12 @@ task SelectTestGenes {
     Int min_variants
     Int max_variants
     Int n_candidates
+    Int pilot_panel_size
+    String pilot_reference_gene
     String docker_image
   }
+
+  File reference_gene_file = write_lines([pilot_reference_gene])
 
   command <<<
     set -euo pipefail
@@ -71,6 +80,9 @@ task SelectTestGenes {
     max_variants <- as.integer(a[9])
     n_out <- as.integer(a[10])
     out_dir <- a[11]
+    panel_size <- as.integer(a[12])
+    if (is.na(panel_size) || panel_size < 1L) stop("pilot_panel_size must be positive.")
+    reference_gene <- trimws(paste(readLines(a[13]), collapse = "\n"))
     dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
     gene_from_feature <- function(mod, id) {
@@ -181,6 +193,39 @@ task SelectTestGenes {
     writeLines(if (nrow(B)) B$gene_id[1L] else character(), file.path(out_dir, "suggested_gene_no_protein.txt"))
     if (!nrow(A)) log_msg("WARNING: no all-modality candidates. Loosen the junction or variant limits.")
     if (!nrow(B)) log_msg("WARNING: no no-protein candidates. Loosen the junction or variant limits.")
+
+    panel <- w[!is.na(gene_id) & nzchar(gene_id)]
+    panel[, best_q := pmin(q_expression, q_splicing, q_protein, na.rm = TRUE)]
+    panel <- panel[best_q < qval_threshold &
+        ((!is.na(q_expression) & !is.na(q_splicing)) |
+         (!is.na(q_protein) & (!is.na(q_expression) | !is.na(q_splicing))))]
+    selected <- character()
+    if (nrow(panel)) {
+      panel[, modality_group := paste(!is.na(q_expression), !is.na(q_splicing), !is.na(q_protein))]
+      panel[, strength_group := ifelse(best_q < qval_threshold / 10, "strong", "borderline")]
+      junction_median <- median(panel$n_junctions, na.rm = TRUE)
+      panel[, junction_group := ifelse(is.na(n_junctions), "unknown",
+          ifelse(n_junctions <= junction_median, "low", "high"))]
+      setorder(panel, gene_id)
+      # Take one gene per stratum before taking a second, while candidates last.
+      panel[, slot := seq_len(.N), by = .(modality_group, strength_group, junction_group)]
+      setorder(panel, slot, gene_id)
+      selected <- panel$gene_id
+    }
+    if (nzchar(reference_gene)) {
+      if (reference_gene %in% selected) {
+        selected <- c(reference_gene, selected[selected != reference_gene])
+      } else {
+        log_msg("WARNING: reference gene %s is not eligible for the pilot panel.", reference_gene)
+      }
+    }
+    selected <- head(selected, panel_size)
+    writeLines(selected, file.path(out_dir, "pilot_gene_list.txt"))
+    log_msg("Pilot panel: selected %d of %d requested genes (%d eligible).",
+            length(selected), panel_size, nrow(panel))
+    if (length(selected) < panel_size) {
+      log_msg("WARNING: pilot_gene_list has fewer genes than requested.")
+    }
     RSCRIPT
 
     mkdir -p out
@@ -188,10 +233,10 @@ task SelectTestGenes {
       '~{expression_cis_results}' '~{splicing_cis_results}' '~{protein_cis_results}' \
       '~{qval_threshold}' '~{cis_window_bp}' \
       '~{min_junctions}' '~{max_junctions}' '~{min_variants}' '~{max_variants}' \
-      '~{n_candidates}' out
+      '~{n_candidates}' out '~{pilot_panel_size}' '~{reference_gene_file}'
     echo "All-modality suggestion: $(cat out/suggested_gene_all_modalities.txt)" >&2
     echo "No-protein suggestion: $(cat out/suggested_gene_no_protein.txt)" >&2
-    echo "Pass a suggested_gene_*.txt output file as gene_list and set only_select_test_genes = false." >&2
+    echo "Pass pilot_gene_list.txt or a suggested_gene_*.txt file as CisMvSusie.gene_list." >&2
   >>>
 
   output {
@@ -199,6 +244,7 @@ task SelectTestGenes {
     File candidates_no_protein = "out/test_candidates_no_protein.tsv"
     File suggested_gene_all_modalities = "out/suggested_gene_all_modalities.txt"
     File suggested_gene_no_protein = "out/suggested_gene_no_protein.txt"
+    File pilot_gene_list = "out/pilot_gene_list.txt"
   }
 
   runtime {

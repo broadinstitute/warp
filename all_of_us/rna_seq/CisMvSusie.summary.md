@@ -278,7 +278,19 @@ the relevant task outputs in Terra/Cromwell metadata when needed.
 The [standalone preparation test](TestPrepareMvSusieInput.wdl) takes already
 prepared window files; it does not start from the three original BEDs.
 [TestSelectTestGenes.wdl](TestSelectTestGenes.wdl) is an independent candidate
-selection helper, not a call within this workflow.
+selection helper, not a call within this workflow. Its `pilot_gene_list` output
+contains up to `pilot_panel_size` gene IDs (default 25), one per line. It draws
+from genes with cis results in at least two modalities and a q-value below
+`qval_threshold` in at least one, without the smoke-test junction and variant
+limits. Selection alternates among groups defined by modality availability,
+best q-value (strong if below one-tenth of `qval_threshold`, borderline
+otherwise), and reported junction count (at or below the median, above it,
+or unknown). Set `pilot_reference_gene` to put an eligible reference gene
+first. The helper logs shortfalls; actual BED features and TSS availability
+are checked separately by CisMvSusie.
+
+Use the same `pilot_gene_list` as `CisMvSusie.gene_list` for both prior modes,
+and leave `max_genes` unset so the full panel can run.
 
 ## Resource requests and scaling
 
