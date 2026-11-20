@@ -74,7 +74,7 @@ workflow scANVI {
   String pipeline_version = "3.1.0"
 
   # Docker image (same container for every task; only the label-transfer task gets GPUs attached)
-  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi:1.7.2-1.5.1-1794949306@sha256:a8b3699f2e3ce97aac227c0b8d100b3f4af6ae94fb72c0b14ca58c357a0f9c54"
+  String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi:1.7.3-1.5.1-1795208591@sha256:9592538d8de7755496d308762d7ae466f29bc804dff6b9e706440151046361dc"
 
   # Multiome or GEX-only is decided here, once for every sample, by whether ATAC files were given.
   Boolean multiome = length(atac_h5ads) > 0
@@ -256,20 +256,24 @@ def normalize_reference(ref, label_cols_override, batch_col_override):
         print(f"  AIT reference detected (schema_version={ref.uns.get('schema_version')}, "
               f"hierarchy levels={list(ref.uns['hierarchy'])}).")
 
-    # AIT files store counts in .raw and have no .X; .raw.var loses the gene symbols,
-    # so take the matrix from .raw but keep the (aligned) gene-symbol .var.
+    # AIT files store counts in .raw and have no .X. Read gene names from .raw.var (its index, or
+    # 'gene' / 'gene_name' when Allen AIT reset .raw.var.index to '0'..'N-1') rather than ref.var,
+    # so counts stay aligned column-for-column with gene names even if ref was subset or reordered.
     if ref.X is None:
         if ref.raw is None:
             raise SystemExit("ERROR: reference has neither .X nor .raw; cannot obtain counts.")
-        if ref.raw.n_vars != ref.n_vars:
-            raise SystemExit(
-                f"ERROR: reference .raw n_vars ({ref.raw.n_vars}) != .var n_vars ({ref.n_vars}); "
-                "cannot align raw counts to gene symbols.")
-        print("  Reference has no .X; materializing counts from .raw (with .var gene symbols).")
-        counts = ref.raw.X
-        if hasattr(counts, "tocsr"):
-            counts = counts.tocsr()
-        ref = ad.AnnData(X=counts, obs=ref.obs.copy(), var=ref.var.copy(), uns=dict(ref.uns))
+        print("  Reference has no .X; materializing counts and gene names from .raw.")
+        rvar = ref.raw.var.copy()
+        if len(rvar) > 0 and all(s.isdigit() for s in rvar.index.astype(str)):
+            gcol = next((c for c in ("gene", "gene_name", "gene_symbol", "feature_name", "ensembl_id", "gene_id")
+                         if c in rvar.columns), None)
+            if gcol is None:
+                raise SystemExit(
+                    "ERROR: reference .raw.var has a numeric index and no gene-name column "
+                    f"(columns: {list(rvar.columns)}); cannot align .raw.X to gene names.")
+            rvar.index = rvar[gcol].astype(str).to_numpy()
+        counts = ref.raw.X.tocsr() if hasattr(ref.raw.X, "tocsr") else ref.raw.X
+        ref = ad.AnnData(X=counts, obs=ref.obs.copy(), var=rvar, uns=dict(ref.uns))
 
     # Resolve label/batch columns: explicit override > AIT default > PBMC default.
     levels = label_cols_override or (["subclass"] if is_ait else ["final_annotation"])
