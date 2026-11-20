@@ -8,19 +8,19 @@ Most WARP pipelines run Docker images built in [warp-tools](https://github.com/b
 
 ## Workflow
 
-The example is the scvi-scanvi 1.7.2 update for scANVI.
+The example is the scvi-scanvi 1.7.3 update for scANVI 3.1.0.
 
 1. **Change the image in warp-tools and open a PR to `develop`.** Bump `DOCKER_IMAGE_VERSION`, and the tool version if it changed, in the image's `docker_build.sh`, and [tidy the image](#tidy-as-you-go) in the same PR. CI builds the image and pushes it under the branch name.
 2. **From your WARP branch, tag and pin the build.** Once the PR's CI build has finished, pass the script the warp-tools PR (number, URL or branch name):
 
    ```bash
-   python3 scripts/image_pins.py pin 222
-   # Tagged us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:… as 1.7.2-1.5.1-<timestamp>
-   # Pinned …/scvi-scanvi:1.7.2-1.5.1-<timestamp>@sha256:…
-   #   pipelines/wdl/scanvi/scANVI.wdl:77: … -> …/scvi-scanvi:1.7.2-1.5.1-<timestamp>@sha256:…
+   python3 scripts/image_pins.py pin 228
+   # Tagged us.gcr.io/broad-gotc-prod/scvi-scanvi@sha256:… as 1.7.3-1.5.1-<timestamp>
+   # Pinned …/scvi-scanvi:1.7.3-1.5.1-<timestamp>@sha256:…
+   #   pipelines/wdl/scanvi/scANVI.wdl:77: … -> …/scvi-scanvi:1.7.3-1.5.1-<timestamp>@sha256:…
    ```
 
-   The script finds what to do from the PR: each image built by its latest commit, the build's digest, and the version from `docker_build.sh`. It refuses if the build hasn't finished, if `DOCKER_IMAGE_VERSION` wasn't bumped or is below a version already in the registry, or if a tool version in `docker_build.sh` differs from the Dockerfile's `ARG` default that CI builds with. It then gives the build the version tag `<version>-<unix-timestamp>` and pins every WDL reference to the image; give paths after the PR to pin only some. Run it again after another build and the same tag moves to the new build, so a PR leaves one version tag per image. Tagging needs write access to the registry (`gcloud auth`).
+   The script finds what to do from the PR: the newest build of each image it changed, that build's digest, and the version from `docker_build.sh`. It refuses if the build hasn't finished, if `DOCKER_IMAGE_VERSION` wasn't bumped or is below a version already in the registry, or if a tool version in `docker_build.sh` differs from the Dockerfile's `ARG` default that CI builds with. It then gives the build the version tag `<version>-<unix-timestamp>` and pins every WDL reference to the image; give paths after the PR to pin only some. Run it again after another build and the same tag moves to the new build, so a PR leaves one version tag per image. Tagging needs write access to the registry (`gcloud auth`).
 3. **Bump, test and review in WARP.** Bump each affected pipeline and its changelog (see the rules below), validate with womtool and `scripts/validate_release.sh -g origin/staging`, and run the tests: Plumbing, plus Scientific for a minor or major bump. If the image has to change again, push to the warp-tools PR and repeat step 2 once it has built; pushes that don't change the image need nothing.
 4. **Merge the warp-tools PR, then the WARP PR.** The merge fixes the version tag where it is.
 
@@ -29,7 +29,7 @@ The example is the scvi-scanvi 1.7.2 update for scANVI.
 - **Pins** are always `<image>:<version-tag>@sha256:<digest>`, written by the script. Never pin `latest`, a branch tag, a bare tag or a bare digest. The advisory `Image pins` check reports any that aren't.
 - **Version tags are fixed once their warp-tools PR merges.** Until then, `pin` moves the PR's tag to the build it pins, and the `Image pins` check flags any branch still pinned to an earlier one. The script won't move a tag that `develop` pins. After the merge, a fix is a new image version with a new tag.
 - **Version bump:** minor by default, because a rebuilt image may shift outputs slightly; major when outputs change qualitatively; patch, with a "No functional impact" entry, for a pipeline that only imports an edited WDL and runs no task using the new image. See [Version and Release Pipelines](../../About_WARP/VersionAndReleasePipelines.md).
-- **Changelog:** name the image, the version tag, what changed in the image and the effect on outputs, for example "Updated the scvi-scanvi image to 1.7.2-1.5.1-&lt;timestamp&gt;, which fixes how an AIT reference's counts are restored; outputs may differ slightly, with no reprocessing needed". Leave the digest to the WDL.
+- **Changelog:** name the image, the version tag, what changed in the image and the effect on outputs, for example "Updated the scvi-scanvi image to 1.7.3-1.5.1-&lt;timestamp&gt;, which fixes how an AIT reference's counts are restored; outputs may differ slightly, with no reprocessing needed". Leave the digest to the WDL.
 - **Shared verification pins:** the script skips `verification/VerifyTasks.wdl`, which is in about 27 test path filters; don't move it in a feature PR.
 - **Docs pages** link to the WDL instead of copying image tags or digests.
 

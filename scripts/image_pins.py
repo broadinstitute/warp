@@ -10,9 +10,9 @@ Commands (the script finds the WARP repository from its own location):
 
   pin PR [PATH ...]
       PR is a warp-tools pull request: its number, URL or branch name. For each image
-      that the PR's latest commit built, give that build the version tag
+      the PR built, give its newest build the version tag
       <version>-<unix timestamp> and pin the WDLs to it. <version> is the tag the image's
-      docker_build.sh builds, less the timestamp (e.g. 1.7.2-1.5.1). First it checks that
+      docker_build.sh builds, less the timestamp (e.g. 1.7.3-1.5.1). First it checks that
       the build finished, that the branch tag is that build, that DOCKER_IMAGE_VERSION was
       bumped and isn't below a version already in the registry, and that docker_build.sh's
       tool versions match the Dockerfile ARG defaults CI builds with. A build that already
