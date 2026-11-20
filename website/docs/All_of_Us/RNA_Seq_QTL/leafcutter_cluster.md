@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 6
 slug: /All_of_Us/RNA_Seq_QTL/leafcutter_cluster
 title: Leafcutter Clustering
 className: aou-doc-page

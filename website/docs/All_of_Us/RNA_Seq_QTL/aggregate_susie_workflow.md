@@ -1,5 +1,5 @@
 ---
-sidebar_position: 6
+sidebar_position: 8
 slug: /All_of_Us/RNA_Seq_QTL/aggregate_susie_workflow
 title: Aggregate SuSiE Workflow
 className: aou-doc-page
