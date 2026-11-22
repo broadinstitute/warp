@@ -67,9 +67,8 @@ The snm3C workflow requires a JSON configuration file specifying the input files
 | r2_left_cut | Optional integer describing the number of bases to be trimmed from the beginning of read 2 with Cutadapt; default is 10. |
 | r2_right_cut | Optional integer describing the number of bases to be trimmed from the end of read 2 with Cutadapt; default is 10. |
 | min_read_length | Optional integer; if a read length is smaller than `min_read_length`, both paired-end reads will be discarded; default is 30.  |
-| num_upstr_bases | Optional integer describing the number of bases upstream of the C base to include in ALLC file context column created using ALLCools; default is 0. |
-| num_downstr_bases | Optional integer describing the number of bases downstream of the C base to include in ALLC file context column created using ALLCools; default is 2. |
-| compress_level | Optional integer describing the compression level for the output ALLC file; default is 5. |
+| num_upstr_bases | Optional integer describing the number of bases upstream of the C base to include in the `.cz` context column; default is 0. |
+| num_downstr_bases | Optional integer describing the number of bases downstream of the C base to include in the `.cz` context column; default is 2. |
 
 
 ## snm3C tasks and tools
@@ -80,7 +79,7 @@ Overall, the snm3C workflow:
 1. Demultiplexes reads.
 2. Sorts, filters, trims, and aligns paired-end reads, and separates unmapped, uniquely aligned, and multi-aligned reads.
 3. Aligns unmapped, single-end reads and removes overlapping reads.
-4. Merges mapped reads, calls chromatin contacts, and creates ALLC files.
+4. Merges mapped reads, calls chromatin contacts, and creates cytozip `.cz` files.
 5. Creates summary output file.
 
 The tools each snm3C task employs are detailed in the table below. 
@@ -92,7 +91,7 @@ To see specific tool parameters, select the [workflow WDL link](https://github.c
 | Demultiplexing | Cutadapt | [Cutadapt](https://cutadapt.readthedocs.io/en/stable/) | Performs demultiplexing to cell-level FASTQ files based on random primer indices. |
 | Hisat-paired-end | Cutadapt, HISAT-3N, [hisat3n_general.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/hisat3n_general.py), [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py) | [Cutadapt](https://cutadapt.readthedocs.io/en/stable/), [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/), python3 | Sorts, filters, and trims reads using the `r1_adapter`, `r2_adapter`, `r1_left_cut`, `r1_right_cut`, `r2_left_cut`, and `r2_right_cut` input parameters; performs paired-end read alignment; imports 2 custom python3 scripts developed by Hanqing Liu and calls the `separate_unique_and_multi_align_reads()` and `split_hisat3n_unmapped_reads()` functions to separate unmapped, uniquely aligned, multi-aligned reads from HISAT-3N BAM file, then splits the unmapped reads FASTQ file by all possible enzyme cut sites and output new R1 and R2 FASTQ files; unmapped reads are stored in unmapped FASTQ files and uniquely and multi-aligned reads are stored in separate BAM files. |
 | Hisat_single_end | HISAT-3N, [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py) | [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/), python3 | Performs single-end alignment of unmapped reads to maximize read mapping, imports a custom python3 script developed by Hanqing Liu, and calls the `remove_overlap_read_parts()` function to remove overlapping reads from the split alignment BAM file produced during single-end alignment. |
-| Merge_sort_analyze | merge, sort, MarkDuplicates, [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py), bam-to-allc | [samtools](https://www.htslib.org/), [Picard](https://broadinstitute.github.io/picard/), python3, [ALLCools](https://lhqing.github.io/ALLCools/intro.html) | Merges and sorts all mapped reads from the paired-end and single-end alignments; creates a position-sorted BAM file and a name-sorted BAM file; removes duplicate reads from the position-sorted, merged BAM file; imports a custom python3 script developed by Hanqing Liu and calls the `call_chromatin_contacts()` function to call chromatin contacts from the name-sorted, merged BAM file; reads are considered chromatin contacts if they are greater than 2,500 base pairs apart; creates an ALLC file with a list of methylation points. |
+| Merge_sort_analyze | merge, sort, MarkDuplicates, [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py), bam_to_cz | [samtools](https://www.htslib.org/), [Picard](https://broadinstitute.github.io/picard/), python3, [cytozip](https://github.com/DingWB/cytozip) | Merges and sorts all mapped reads from the paired-end and single-end alignments; creates a position-sorted BAM file and a name-sorted BAM file; removes duplicate reads from the position-sorted, merged BAM file; imports a custom python3 script developed by Hanqing Liu and calls the `call_chromatin_contacts()` function to call chromatin contacts from the name-sorted, merged BAM file; reads are considered chromatin contacts if they are greater than 2,500 base pairs apart; creates a cytozip `.cz` file with a list of methylation points. |
 | Cytozip | bam_to_cz | [cytozip](https://github.com/DingWB/cytozip) | Converts the deduplicated BAM files into cytozip `.cz` format, a compact columnar representation of the methylation calls that is emitted alongside the ALLC outputs. |
 | Summary_PerCellOutput | Custom function | bash | Untar files needed at per cell level. |
 | Summary | [summary.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/summary.py) | python3 | Imports a custom python3 script developed by Hanqing Liu and calls the `snm3c_summary()` function to generate a single, summary file for the pipeline in CSV format; contains trimming, mapping, deduplication, chromatin contact, and AllC site statistics. |
@@ -123,7 +122,7 @@ In the next step of the pipeline, the `Hisat_single_end ` task uses [HISAT-3N](h
 
 After the second alignment step, the task imports a custom python3 script ([hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py)) developed by Hanqing Liu. The task calls the script's `remove_overlap_read_parts()` function to remove overlapping reads from the BAM file produced during single-end alignment and output another BAM file.
 
-#### 4. Merges mapped reads, calls chromatin contacts, and creates ALLC files
+#### 4. Merges mapped reads, calls chromatin contacts, and creates cytozip `.cz` files
 
 **Merged mapped reads**
 The `Merge_sort_analyze` task uses [samtools](https://www.htslib.org/) to merge and sort all of the mapped reads from the paired-end and single-end alignments into a single BAM file. The BAM file is output as both a position-sorted and a name-sorted BAM file.
@@ -133,12 +132,10 @@ After merging, the task uses Picard's MarkDuplicates tool to remove duplicate re
 **Calls chromatin contacts**
 Next, the pipeline imports a custom python3 script ([hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py)) developed by Hanqing Liu. The task calls the script's `call_chromatin_contacts()` function to call chromatin contacts from the name-sorted, merged BAM file. If reads are greater than 2,500 base pairs apart, they are considered chromatin contacts. If reads are less than 2,500 base pairs apart, they are considered the same fragment. 
 
-**Creates ALLC files**
-After calling chromatin contacts, the task uses the [ALLCools](https://lhqing.github.io/ALLCools/intro.html) `bam-to-allc` function to create an ALLC file from the deduplicated BAM file that contains a list of methylation points. The `num_upstr_bases` and `num_downstr_bases` input parameters are used to define the number of bases upstream and downstream of the C base to include in the ALLC context column.
+**Creates cytozip `.cz` files**
+After calling chromatin contacts, the task uses [cytozip](https://github.com/DingWB/cytozip) `bam_to_cz` to create a `.cz` file from the deduplicated BAM file that contains a list of methylation points. The `num_upstr_bases` and `num_downstr_bases` input parameters are used to define the number of bases upstream and downstream of the C base to include in the context column.
 
-### Cytozip
-
-The `Cytozip` task uses [cytozip](https://github.com/DingWB/cytozip) `bam_to_cz` to convert the deduplicated BAM files into `.cz` format. The `.cz` files are substantially smaller than the equivalent ALLC files and are emitted in addition to them, so existing ALLC consumers are unaffected. The task runs in `--mode full`, which stores the same columns as ALLC (`pos`, `strand`, `context`, `mc`, `cov`), requires no external reference file to read, and converts back to ALLC losslessly.
+The task runs in `--mode full`, which stores the same columns as ALLC (`pos`, `strand`, `context`, `mc`, `cov`), requires no external reference file to read, and converts back to ALLC losslessly with `czip to_bgzip` for any consumer that needs the ALLC format.
 
 #### 6. Creates summary output file
 In the last step of the pipeline, the `summary` task imports a custom python3 script ([summary.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/summary.py)) developed by Hanqing Liu. The task calls the script's `snm3c_summary()` function to generate a single, summary file for the pipeline in CSV format; contains trimming, mapping, deduplication, chromatin contact, and AllC site statistics. This is the main output of the pipeline.
@@ -151,14 +148,12 @@ The following table lists the output variables and files produced by the pipelin
 | ------ | ------ | ------ |
 | MappingSummary | `<plate_id>_MappingSummary.csv.gz` | Mapping summary file in CSV format. |
 | name_sorted_bams | `<plate_id>.hisat3n_dna.all_reads.name_sort.tar.gz` | Array of tarred files containing name-sorted, merged BAM files. |
-| unique_reads_cgn_extraction_allc | `<plate_id>.allc.tsv.tar.gz` | Array of tarred files containing list of methylation points. |
-| unique_reads_cgn_extraction_tbi | `<plate_id>.allc.tbi.tar.gz` | Array of tarred files containing ALLC index files. |
 | reference_version | `<plate_id>.reference_version.txt` | Array of tarred files containing the genomic reference version used. |
 | all_reads_dedup_contacts | `<plate_id>.hisat3n_dna.all_reads.dedup_contacts.tar.gz` | Array of tarred TSV files containing deduplicated chromatin contacts. |
 | all_reads_3C_contacts | `<plate_id>.hisat3n_dna.all_reads.3C.contact.tar.gz` | Array of tarred TSV files containing chromatin contacts in Hi-C format. |
 | chromatin_contact_stats | `<plate_id>.chromatin_contact_stats.tar.gz` | Array of tarred files containing chromatin contact statistics. |
 | deduped_bam_tar_array | `<plate_id>.hisat3n_dna.all_reads.deduped_bams.tar.gz` | Array of tarred files containing the deduplicated, position-sorted BAM files and their indices. |
-| cz_tar_array | `<plate_id>.cz.tar.gz` | Array of tarred files containing per-cell [cytozip](https://github.com/DingWB/cytozip) `.cz` files, a compact columnar representation of the methylation calls. Produced with `czip bam_to_cz --mode full`, which stores the same columns as ALLC and converts back to ALLC losslessly. |
+| cz_array | `<cell_id>.cz` | Array of per-cell [cytozip](https://github.com/DingWB/cytozip) `.cz` files, a compact columnar representation of the methylation calls. Produced with `czip bam_to_cz --mode full`, which stores the same columns as ALLC and converts back to ALLC losslessly. |
 | cz_count_tar_array | `<plate_id>.cz.count.tar.gz` | Array of tarred CSV files containing per-cell methylation counts by sequence context, as produced by cytozip. |
 
 
