@@ -42,4 +42,4 @@ WholeGenomeGermlineSingleSample	 3.3.9	2026-11-04
 WholeGenomeReprocessing	 3.3.9	2026-11-04 
 atac	 3.0.1	2026-11-14 
 scANVI	 3.1.0	2026-11-20 
-snm3C	 6.0.0	2026-11-22 
+snm3C	 5.0.0	2026-11-22 
