@@ -174,6 +174,9 @@ fp.close()
 # Copy the file to gs space
 run_subprocess(f"gcloud storage cp {local_fname} {final_vcf_header_url}", f"Error copying header - {local_fname} to {final_vcf_header_url}")
 
+# Coalesce shards before VCF export + single-node tabix indexing
+mt_fil = mt_fil.naive_coalesce(16)
+
 # Write VCF, building the tabix index during the export.
 # The index is written next to the VCF as <final_vcf_url>.tbi
 hl.export_vcf(mt_fil,
