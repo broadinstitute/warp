@@ -12,9 +12,19 @@ task OptimusH5adGeneration {
     # user provided id
     String counting_mode = "sc_rna"
     Int expected_cells = 3000
+    # sample name value, written to the uns 'input_name' key
     String? input_name
     String? input_id_metadata_field
     String? input_name_metadata_field
+    # uns key labels and optional extra sample id; see the Optimus workflow inputs.
+    # When unset, the warp-tools scripts use the defaults 'input_id', 'NHashID' and
+    # 'additional_sample_id', and write no additional sample id key.
+    String? input_id_name
+    String? nhash_id_name
+    String? additional_sample_id
+    String? additional_sample_name
+    # value stored under the input_id_name key (defaults to input_id downstream)
+    String? input_id_metadata_value
     # gene annotation file in GTF format
     File annotation_file
     File? cellbarcodes
@@ -52,6 +62,23 @@ task OptimusH5adGeneration {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
+  # Normalize nhash_id: strip spaces so comma-separated library aliquot IDs can be
+  # provided with or without spaces between entries (e.g. "LA-x, LA-y" -> "LA-x,LA-y").
+  String gex_nhash_id_clean = sub(select_first([gex_nhash_id, ""]), " ", "")
+
+  # Optional metadata values are passed to the scripts as single-quoted shell arguments so that
+  # spaces and shell characters ($, `, ", ;) reach the script unchanged as one argument. Any single
+  # quote inside a value is escaped as '\''. An unset input produces an empty string, which omits
+  # the option.
+  String input_name_arg = if defined(input_name) then "--input_name '" + sub(select_first([input_name]), "'", "'\\\\''") + "'" else ""
+  String input_id_name_arg = if defined(input_id_name) then "--input_id_name '" + sub(select_first([input_id_name]), "'", "'\\\\''") + "'" else ""
+  String input_id_metadata_value_arg = if defined(input_id_metadata_value) then "--input_id_metadata_value '" + sub(select_first([input_id_metadata_value]), "'", "'\\\\''") + "'" else ""
+  String input_id_metadata_field_arg = if defined(input_id_metadata_field) then "--input_id_metadata_field '" + sub(select_first([input_id_metadata_field]), "'", "'\\\\''") + "'" else ""
+  String input_name_metadata_field_arg = if defined(input_name_metadata_field) then "--input_name_metadata_field '" + sub(select_first([input_name_metadata_field]), "'", "'\\\\''") + "'" else ""
+  String nhash_id_name_arg = if defined(nhash_id_name) then "--nhash_id_name '" + sub(select_first([nhash_id_name]), "'", "'\\\\''") + "'" else ""
+  String additional_sample_id_arg = if defined(additional_sample_id) then "--additional_sample_id '" + sub(select_first([additional_sample_id]), "'", "'\\\\''") + "'" else ""
+  String additional_sample_name_arg = if defined(additional_sample_name) then "--additional_sample_name '" + sub(select_first([additional_sample_name]), "'", "'\\\\''") + "'" else ""
+
   command <<<
     set -euo pipefail
 
@@ -71,9 +98,11 @@ task OptimusH5adGeneration {
           --gene_id  ~{gene_id} \
           --output_path_for_h5ad "~{input_id}" \
           --input_id ~{input_id} \
-          ~{"--input_name " + input_name} \
-          ~{"--input_id_metadata_field " + input_id_metadata_field} \
-          ~{"--input_name_metadata_field " + input_name_metadata_field} \
+          ~{input_name_arg} \
+          ~{input_id_name_arg} \
+          ~{input_id_metadata_value_arg} \
+          ~{input_id_metadata_field_arg} \
+          ~{input_name_metadata_field_arg} \
           --count_matrix ~{sparse_count_matrix} \
           --expression_data_type "exonic" \
           --pipeline_version ~{pipeline_version} \
@@ -87,9 +116,11 @@ task OptimusH5adGeneration {
           --gene_id  ~{gene_id} \
           --output_path_for_h5ad "~{input_id}" \
           --input_id ~{input_id} \
-          ~{"--input_name " + input_name} \
-          ~{"--input_id_metadata_field " + input_id_metadata_field} \
-          ~{"--input_name_metadata_field " + input_name_metadata_field} \
+          ~{input_name_arg} \
+          ~{input_id_name_arg} \
+          ~{input_id_metadata_value_arg} \
+          ~{input_id_metadata_field_arg} \
+          ~{input_name_metadata_field_arg} \
           --count_matrix ~{sparse_count_matrix} \
           --expression_data_type "whole_transcript"\
           --pipeline_version ~{pipeline_version} \
@@ -100,7 +131,10 @@ task OptimusH5adGeneration {
     python3 /warptools/scripts/add_library_tso_doublets.py \
      --gex_h5ad "~{input_id}.h5ad" \
      --cellbarcodes ~{cellbarcodes} \
-     ~{"--gex_nhash_id " + gex_nhash_id} \
+     ~{if gex_nhash_id_clean != "" then "--gex_nhash_id " + gex_nhash_id_clean else ""} \
+     ~{nhash_id_name_arg} \
+     ~{additional_sample_id_arg} \
+     ~{additional_sample_name_arg} \
      --library_csv ~{library_metrics} \
      --input_id ~{input_id} \
      --counting_mode ~{counting_mode} \
@@ -115,7 +149,7 @@ task OptimusH5adGeneration {
     CODE
 
 
-    mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_library_metrics.csv
+    mv library_metrics.csv ~{input_id}_~{gex_nhash_id_clean}_library_metrics.csv
 
   >>>
 
@@ -130,7 +164,7 @@ task OptimusH5adGeneration {
 
   output {
     File h5ad_output = "~{input_id}.h5ad"
-    File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
+    File library_metrics = "~{input_id}_~{gex_nhash_id_clean}_library_metrics.csv"
     File whitelist_name_file = "whitelist_input.txt"
   }
 }
@@ -192,6 +226,10 @@ task SingleNucleusOptimusH5adOutput {
         preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
     }
 
+    # Normalize nhash_id: strip spaces so comma-separated library aliquot IDs can be
+    # provided with or without spaces between entries (e.g. "LA-x, LA-y" -> "LA-x,LA-y").
+    String gex_nhash_id_clean = sub(select_first([gex_nhash_id, ""]), " ", "")
+
     command <<<
         set -euo pipefail
 
@@ -221,7 +259,7 @@ task SingleNucleusOptimusH5adOutput {
         python3 /warptools/scripts/add_library_tso_doublets.py \
         --gex_h5ad "~{input_id}.h5ad" \
         --cellbarcodes ~{cellbarcodes} \
-        ~{"--gex_nhash_id " + gex_nhash_id} \
+        ~{if gex_nhash_id_clean != "" then "--gex_nhash_id " + gex_nhash_id_clean else ""} \
         --library_csv ~{library_metrics} \
         --input_id ~{input_id} \
         --counting_mode ~{counting_mode} \
@@ -235,7 +273,7 @@ task SingleNucleusOptimusH5adOutput {
         CODE
 
 
-        mv library_metrics.csv ~{input_id}_~{gex_nhash_id}_library_metrics.csv
+        mv library_metrics.csv ~{input_id}_~{gex_nhash_id_clean}_library_metrics.csv
 
     >>>
     runtime {
@@ -249,7 +287,7 @@ task SingleNucleusOptimusH5adOutput {
 
     output {
         File h5ad_output = "~{input_id}.h5ad"
-        File library_metrics = "~{input_id}_~{gex_nhash_id}_library_metrics.csv"
+        File library_metrics = "~{input_id}_~{gex_nhash_id_clean}_library_metrics.csv"
         File whitelist_name_file = "whitelist_input.txt"
     }
 }

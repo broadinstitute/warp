@@ -28,9 +28,23 @@ workflow Optimus {
     # String for additional library aliquot ID
     String? gex_nhash_id
     String output_bam_basename = input_id
+    # Sample name value (e.g. an HCA biomaterial_id), written to the h5ad uns 'input_name' key
     String? input_name
     String? input_id_metadata_field
     String? input_name_metadata_field
+    # Optional inputs that control the global (uns) metadata written to the h5ad.
+    # The *_name inputs set uns KEY labels; when unset, the keys are the same as before they existed.
+    # Key label for the input_id value (default 'input_id'; see input_id_metadata_value)
+    String? input_id_name
+    # Key label for the gex_nhash_id value (default 'NHashID'; written only when gex_nhash_id is set)
+    String? nhash_id_name
+    # Optional extra sample id; when unset, no key is written
+    String? additional_sample_id
+    # Key label for the additional_sample_id value (default 'additional_sample_id')
+    String? additional_sample_name
+    # Value written under the input_id_name key (default input_id). Multiome passes its
+    # un-suffixed base id here because its input_id carries a '_gex' suffix for filenames.
+    String? input_id_metadata_value
     # organism reference parameters
     File tar_star_reference
     File annotations_gtf
@@ -81,7 +95,7 @@ workflow Optimus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "9.3.0"
+  String pipeline_version = "9.4.0"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -103,7 +117,8 @@ workflow Optimus {
   String pytools_docker = "pytools:1.0.0-1661263730"
   String empty_drops_docker = "empty-drops@sha256:1fb1ed150ca891247cb326f502d8136fd127caf7ca1a86eb674b8d3b75bc1c3a"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
-  String warp_tools_docker = "warp-tools:2.7.1"
+  # TODO: testing tag for the h5ad metadata changes; replace with the official warp-tools release before merge
+  String warp_tools_docker = "warp-tools:2.7.1-multiom-metadata-20261001-132326"
   String star_merge_docker = "star-merge-npz:1.3.0"
   String samtools_star = "samtools-star:1.0.0-1.11-2.7.11a-1731516196"
   String samtools_star_python = "samtools-star-python:1.0.0"
@@ -123,8 +138,13 @@ workflow Optimus {
     i1_fastq: "index read used for demultiplexing; required when tenx_chemistry_version is 4"
     input_id: "name of sample matching this file, inserted into read group header"
     input_id_metadata_field: "String that describes the metadata field containing the input_id"
-    input_name: "User provided sample name or cell_names"
+    input_name: "User provided sample name or cell_names; written as the value of the h5ad uns 'input_name' key"
     input_name_metadata_field: "String that describes the metadata field containing the input_name"
+    input_id_name: "uns global-metadata KEY label under which the input_id value is stored; defaults to 'input_id' when unset"
+    nhash_id_name: "uns global-metadata KEY label under which gex_nhash_id is stored; defaults to 'NHashID' when unset"
+    additional_sample_id: "Optional additional sample id value written to the h5ad uns global metadata"
+    additional_sample_name: "uns global-metadata KEY label under which additional_sample_id is stored; defaults to 'additional_sample_id' when unset. input_id_name, nhash_id_name and additional_sample_name must differ from each other and from the keys the pipeline writes (expression_data_type, optimus_output_schema_version, pipeline_version, reference_gtf_file, whitelist, input_name, input_id_metadata_field, input_name_metadata_field); clashing keys are overwritten without error"
+    input_id_metadata_value: "Value stored under the input_id_name uns key; defaults to input_id when unset (used to pass the un-suffixed base id from Multiome)"
     tar_star_reference: "star genome reference"
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
     whitelist: "10x genomics cell barcode allowlist"
@@ -227,6 +247,11 @@ workflow Optimus {
       input_name = input_name,
       input_id_metadata_field = input_id_metadata_field,
       input_name_metadata_field = input_name_metadata_field,
+      input_id_name = input_id_name,
+      nhash_id_name = nhash_id_name,
+      additional_sample_id = additional_sample_id,
+      additional_sample_name = additional_sample_name,
+      input_id_metadata_value = input_id_metadata_value,
       annotation_file = annotations_gtf,
       library_metrics = STARsoloFastq.library_metrics,
       cellbarcodes = STARsoloFastq.outputbarcodes,

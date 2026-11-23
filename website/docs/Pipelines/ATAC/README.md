@@ -66,6 +66,11 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | adapter_seq_read3 | TrimAdapters input: Sequence adapter for read 3 fastq. |
 | vm_size | String defining the Azure virtual machine family for the workflow (default: "Standard_M128s"). 
 | atac_nhash_id | String that represents an optional library aliquot identifier. When used, it is echoed in the h5ad unstructured data. |
+| input_id_name | Optional name for the `adata.uns` key in the `snap_metrics` h5ad that stores the `input_id_metadata_value`; default is `input_id`. |
+| input_id_metadata_value | Optional value stored under the `input_id_name` key; default is `input_id`. It does not change output filenames. The Multiome pipeline uses it to store its `input_id` without the `_atac` suffix. |
+| nhash_id_name | Optional name for the `adata.uns` key that stores the `atac_nhash_id` value; default is `NHashID`. The key is written only when `atac_nhash_id` is set. |
+| additional_sample_id | Optional additional sample identifier written to the `snap_metrics` h5ad `adata.uns`; when unset, no key is written. |
+| additional_sample_name | Optional name for the `adata.uns` key that stores the `additional_sample_id` value; default is `additional_sample_id`. |
 | peak_calling | Optional boolean used to determine if the ATAC pipeline should run Peak Calling; default is "false".  | Boolean |
 
 ## ATAC tasks and tools
@@ -100,6 +105,22 @@ To see specific tool parameters, select the task WDL link in the table; then vie
  library_metrics | `<input_id>`_`<atac_nhash_id>`_library_metrics.csv | CSV file containing library-level metrics. Read more in the [Library Metrics Overview](library-metrics.md) |
 | snap_cellbybin | `<input_id>`.cellbybin.h5ad | h5ad (Anndata) containing peaks (called by MACS3) per cluster. [SnapATAC2](https://github.com/kaizhang/SnapATAC2). |
 | snap_cellbypeak | `<input_id>`.cellbypeak.h5ad | h5ad (Anndata) containing merged peaks (called by MACS3) per cluster and count matrix of insertion sites per peak and cell. [SnapATAC2](https://github.com/kaizhang/SnapATAC2).|
+
+### Configurable global metadata keys
+
+The `snap_metrics` h5ad records sample provenance as global metadata in `adata.uns`. You can rename these keys and add an optional sample id. None of these inputs changes any metrics, barcodes or output filenames.
+
+| Value | Written when | Default key | Input that renames the key |
+| --- | --- | --- | --- |
+| `input_id_metadata_value` (default: `input_id`) | Always | `input_id` | `input_id_name` |
+| `atac_nhash_id` | `atac_nhash_id` is set | `NHashID` | `nhash_id_name` |
+| `additional_sample_id` | `additional_sample_id` is set | `additional_sample_id` | `additional_sample_name` |
+
+If you leave these inputs unset, the keys are named as in previous versions, with two differences: the `snap_metrics` h5ad now always includes the `input_id` key, and it no longer includes an empty `NHashID` key when `atac_nhash_id` is unset.
+
+:::caution Choosing key names
+The `input_id_name`, `nhash_id_name` and `additional_sample_name` values must be different from each other and must not match a key the pipeline writes itself. Reserved keys: `reference_gtf_file`, `reference_sequences`, `library_tsse`, `frac_overlap_TSS` and `TSS_profile`. The pipeline doesn't check this, and a clashing key is silently overwritten by another value.
+:::
 
 ## Versioning and testing
 
