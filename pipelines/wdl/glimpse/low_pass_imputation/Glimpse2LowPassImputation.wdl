@@ -7,7 +7,7 @@ import "./LowPassMultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelMe
 workflow Glimpse2LowPassImputation {
     String pipeline_version = "2.1.2"
     String batch_pipeline_version = "1.1.2"
-    String multilevel_merge_pipeline_version = "1.0.6"
+    String multilevel_merge_pipeline_version = "1.0.0"
     String quota_consumed_version = "1.0.2"
     String input_qc_version = "1.1.2"
 

@@ -2,6 +2,7 @@
 2026-10-27 (Date of Last Commit)
 
 * Moved UpdateHeader from top-level workflow into this workflow
+* Ligate now emits BCF instead of VCF
 
 # 1.1.1
 2026-09-23 (Date of Last Commit)

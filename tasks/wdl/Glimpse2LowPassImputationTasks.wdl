@@ -1,107 +1,5 @@
 version 1.0
 
-task MergeSampleChunksVcfsWithPaste {
-    input {
-        Array[File] input_vcfs
-        Array[File] input_vcf_indices
-        String region
-        String output_bcf_basename
-
-        Int disk_size_gb = ceil(2.2 * size(input_vcfs, "GiB") + 50)
-        Int mem_gb = 8
-        Int cpu = 4
-        Int preemptible = 3
-    }
-
-    command <<<
-        set -euxo pipefail
-
-        vcfs=(~{sep=" " input_vcfs})
-
-        # Parse region bounds for awk filtering
-        REGION="~{region}"
-        START=$(echo $REGION | cut -d':' -f2 | cut -d'-' -f1)
-        END=$(echo $REGION | cut -d'-' -f2)
-
-        mkfifo fifo_0
-        mkfifo fifo_to_paste_0
-
-        i=1
-
-        fifos_to_paste=()
-        md5sums=()
-
-        # Extract header lines excluding the #CHROM line
-        bcftools view -h --no-version ${vcfs[0]} | awk '!/^#CHROM/' > header.vcf
-        
-        # Extract the base #CHROM line (columns 1-9 plus batch 0 samples)
-        bcftools view -h "${vcfs[0]}" | grep '^#CHROM' > chrom_0.txt
-        chrom_files=("chrom_0.txt")
-
-        # Use tabix + awk to mimic bcftools view --regions-overlap 0 at raw text speed
-        tabix ${vcfs[0]} ~{region} | awk -v s=$START -v e=$END '$2 >= s && $2 <= e' > fifo_0 &
-        cat fifo_0 | tee fifo_to_paste_0 | cut -f1-5,9 | md5sum > md5sum_0 &
-
-        for vcf_or_bcf in "${vcfs[@]:1}"; do
-            fifo_name="fifo_$i"
-            mkfifo "$fifo_name"
-
-            fifo_name_to_md5="fifo_to_md5_$i"
-            mkfifo "$fifo_name_to_md5"
-
-            fifo_name_to_paste="fifo_to_paste_$i"
-            mkfifo "$fifo_name_to_paste"
-            fifos_to_paste+=("$fifo_name_to_paste")
-
-            file_name_md5sum="md5sum_$i"
-            md5sums+=("$file_name_md5sum")
-
-            # Extract just the sample columns (10+) from the header for this batch
-            bcftools view -h "$vcf_or_bcf" | grep '^#CHROM' | cut -f 10- > "chrom_$i.txt"
-            chrom_files+=("chrom_$i.txt")
-
-            tabix ${vcf_or_bcf} ~{region} | awk -v s=$START -v e=$END '$2 >= s && $2 <= e' > "$fifo_name" &
-            cat "$fifo_name" | tee "$fifo_name_to_md5" | cut -f 10- > "$fifo_name_to_paste" &
-            cut -f1-5,9 "$fifo_name_to_md5" | md5sum > "$file_name_md5sum" &
-
-            ((i++))
-        done
-
-        # Horizontally merge the #CHROM line fragments to match the data body
-        paste "${chrom_files[@]}" > full_chrom_line.txt
-
-        mkfifo fifo_to_cat
-
-        paste fifo_to_paste_0 "${fifos_to_paste[@]}" | tee fifo_to_cat | awk 'NR % 5000000 == 0' | cut -f 1-5 &
-
-        # Feed the header, merged #CHROM line, and merged data body into bcftools
-        cat header.vcf full_chrom_line.txt fifo_to_cat | bcftools view -Ob --write-index=csi -o "~{output_bcf_basename}.bcf"
-
-        for md5sum_file in "${md5sums[@]}"; do
-            diff <(cat md5sum_0) <(cat $md5sum_file) >> /dev/null || (echo "Fields 1-5,9 do not match for $md5sum_file" && exit 1)
-        done
-
-        for fifo in fifo_*; do
-            rm $fifo
-        done
-    >>>
-
-    runtime {
-        docker: "us.gcr.io/broad-dsde-methods/bcftools_bgzip:beagle_imputation_v1.0.0"
-        disks: "local-disk " + disk_size_gb + " HDD"
-        memory: mem_gb + " GiB"
-        cpu: cpu
-        preemptible: preemptible
-        maxRetries: 1
-        noAddress: true
-    }
-
-    output {
-        File output_bcf = "~{output_bcf_basename}.bcf"
-        File output_bcf_index = "~{output_bcf_basename}.bcf.csi"
-    }
-}
-
 task ExtractAnnotations {
     input {
         File imputed_vcf_or_bcf
@@ -326,10 +224,6 @@ task CreateContigRegions {
         Int shard_size_bp = 25000000
 
         Int preemptible = 3
-    }
-    
-    meta {
-        volatile: true
     }
 
     command <<<
@@ -582,11 +476,7 @@ task GatherVcfsNoIndex {
         Int memory_mb = 10000
         Int disk_size_gb = ceil(3*size(input_vcfs, "GiB")) + 10
     }
-    
-    meta {
-        volatile: true
-    }
-    
+
     Int command_mem = memory_mb - 1500
     Int max_heap = memory_mb - 1000
 
@@ -621,10 +511,6 @@ task CollectQCMetrics {
         String docker = "mirror.gcr.io/hailgenetics/hail:0.2.126-py3.11"
         Int cpu = 4
         Int mem_gb = 8
-    }
-
-    meta {
-        volatile: true
     }
 
     parameter_meta {

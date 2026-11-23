@@ -580,10 +580,6 @@ task GlimpseLigate {
         String docker
     }
 
-    meta {
-        volatile: true
-    }
-
     command <<<
         set -xeuo pipefail
 

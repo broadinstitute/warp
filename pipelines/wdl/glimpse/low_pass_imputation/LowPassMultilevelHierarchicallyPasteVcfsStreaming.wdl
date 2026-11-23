@@ -7,7 +7,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
     # It may be treated as independent code, but consider applying changes in both places when appropriate.
 
     # if this changes, update the multilevel_merge_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.0.6"
+    String pipeline_version = "1.0.0"
 
     input {
         Array[String]? vcfs_or_bcfs_array
