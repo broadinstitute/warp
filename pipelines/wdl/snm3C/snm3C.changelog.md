@@ -1,3 +1,20 @@
+# 5.0.0
+2026-11-22 (Date of Last Commit)
+
+### Breaking changes
+
+* Replaced the ALLC outputs with cytozip .cz; the pipeline now calls czip bam_to_cz instead of allcools bam-to-allc, and the unique_reads_cgn_extraction_allc_array and unique_reads_cgn_extraction_tbi_array outputs are replaced by cz_array and cz_count_tar_array
+* Removed the CGN context-specific ALLC outputs; the unique_reads_cgn_extraction_allc_extract_array and unique_reads_cgn_extraction_tbi_extract_array outputs and the allcools extract-allc step that produced them are no longer part of the pipeline
+* Removed the compress_level input, which configured ALLC output compression and has no cytozip equivalent
+* Changed the UniqueMappingRate, MultiMappingRate and OverallMappingRate columns of MappingSummary; the cemba_data revision in the new Docker image no longer adds the single-end mate count to the paired-end read total when computing the denominator, so these three rates increase, and all mapping rates are now reported to two decimal places instead of being rounded to whole numbers
+
+### Additional changes
+
+* Updated the m3c-yap-hisat Docker image to 2.5, which adds cytozip 0.4.5 and updates cemba_data to a revision whose snm3c_summary can build MappingSummary from cytozip counts
+* Changed the Summary task to call snm3c_summary with mc_format set to cz so that methylation metrics are read from the cytozip count files
+* Added the deduped BAMs as a new deduped_bam_tar_array output; previously they were written to a scratch directory and discarded with the VM
+* Added eighteen Lambda context columns to MappingSummary, which the new cemba_data revision emits for the lambda spike-in; they are zero for references without a chrL contig
+
 # 4.1.1
 2025-09-19 (Date of Last Commit)
 

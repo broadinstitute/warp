@@ -26,7 +26,6 @@ workflow Testsnm3C {
       Int min_read_length = 30
       Int num_upstr_bases = 0
       Int num_downstr_bases = 2
-      Int compress_level = 5
       Int batch_number = 6
 
       # These values will be determined and injected into the inputs by the scala test framework
@@ -58,7 +57,6 @@ workflow Testsnm3C {
           min_read_length = min_read_length,
           num_upstr_bases = num_upstr_bases,
           num_downstr_bases = num_downstr_bases,
-          compress_level = compress_level,
           batch_number = batch_number
 
     }
@@ -71,12 +69,10 @@ workflow Testsnm3C {
                                     ],
                                     # Array[File] outputs
                                     snm3C.reference_version,
-                                    snm3C.unique_reads_cgn_extraction_allc_array,
-                                    snm3C.unique_reads_cgn_extraction_tbi_array,
-                                    snm3C.unique_reads_cgn_extraction_allc_extract_array,
-                                    snm3C.unique_reads_cgn_extraction_tbi_extract_array,
                                     snm3C.name_sorted_bam_array,
-                                    snm3C.all_reads_3C_contacts_array
+                                    snm3C.all_reads_3C_contacts_array,
+                                    snm3C.cz_array,
+                                    snm3C.cz_count_tar_array
     ])
 
     
@@ -111,16 +107,10 @@ workflow Testsnm3C {
                 results_path = results_path,
                 truth_path = truth_path
         }
-        call Utilities.GetValidationInputs as GetUniqueReadsCgnExtractionAllcArray {
-            input:
-                input_files = snm3C.unique_reads_cgn_extraction_allc_array,
-                results_path = results_path,
-                truth_path = truth_path
-        }
 
-        call Utilities.GetValidationInputs as GetUniqueReadsCgnExtractionAllcExtractArray {
+        call Utilities.GetValidationInputs as GetCzArray {
             input:
-                input_files = snm3C.unique_reads_cgn_extraction_allc_extract_array,
+                input_files = snm3C.cz_array,
                 results_path = results_path,
                 truth_path = truth_path
         }
@@ -138,12 +128,11 @@ workflow Testsnm3C {
                 test_mapping_summary = GetMappingSummary.results_file,
                 truth_name_sorted_bam_array = GetNameSortedBamArray.truth_files,
                 test_name_sorted_bam_array = GetNameSortedBamArray.results_files,
-                truth_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.truth_files,
-                test_unique_reads_cgn_extraction_allc_array = GetUniqueReadsCgnExtractionAllcArray.results_files,
-                truth_unique_reads_cgn_extraction_allc_extract_array = GetUniqueReadsCgnExtractionAllcExtractArray.truth_files,
-                test_unique_reads_cgn_extraction_allc_extract_array = GetUniqueReadsCgnExtractionAllcExtractArray.results_files,
                 truth_all_reads_3C_contacts_array = GetAllReads3CContactsArray.truth_files,
                 test_all_reads_3C_contacts_array = GetAllReads3CContactsArray.results_files,
+                truth_cz_array = GetCzArray.truth_files,
+                test_cz_array = GetCzArray.results_files,
+                cytozip_docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.5",
                 done = CopyToTestResults.done
         }
     }
