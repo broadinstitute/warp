@@ -110,6 +110,8 @@ but BED feature assignment still depends on the feature-ID naming convention.
 | `mashr_seed` | Unset | Optional seed passed to prior learning. |
 | `include_canonical_priors` | `false` | Adds mashr canonical cross-outcome covariance patterns alongside the learned PCA covariances. |
 | `use_mashr_null_weight` | `false` | Uses mashr's estimated all-outcomes-null weight in the mvSuSiE prior instead of forcing it to zero. |
+| `use_susie_leads` | `false` | Uses univariate SuSiE credible-set lead variants to train PCA covariances, falling back to the existing selection if too few match. |
+| `expression_susie_results`, `splicing_susie_results`, `protein_susie_results` | Unset | Annotated univariate credible-set TSVs, all three required when `use_susie_leads` is true. |
 | `fit_memory_gb` | `16` | Memory request for `FitMvSusie` only. |
 
 ## Every task and call instance
@@ -128,6 +130,7 @@ top-level workflow outputs; see the output reference below.
 | `PrepareWindowGenotypes` | Per gene | `window_id`; association table; full dosage and index | Resolves exactly one interval; creates local dosage/index symlinks; validates dosage header; queries tabix for all variants in the interval; requires at least one variant. Does not subset sample columns here. | `window_dosage` -> `output/<gene>.window_dosage.tsv`; `window_manifest` -> `output/<gene>.window_manifest.tsv`. |
 | `PrepareWindowPhenotypes` | Per gene | `window_id`; association and target tables; all three indexed BED/index/lookup triples; task input `top_n` (default 100000) | Calls `prepare_trans_window.R`; selects features by ID using lookups/tabix; combines selected modality rows and aligns contributing sample columns; writes manifest and access/retention QC. | `window_phenotypes` -> `output/<gene>.window_phenotypes.tsv`; `phenotype_data` -> `output/<gene>.window_phenotypes.bed.gz`; `window_qc` -> `output/<gene>.window_qc.tsv`. |
 | `PrepareMvSusieInput` (`MvSusieInput.PrepareMvSusieInput`) | Per gene | `window_id`; window manifest; feature manifest; window dosage; combined phenotype BED; three covariate files; workflow's shared sample list as `keep_samples`; both preprocessing thresholds | Imported task calls `prepare_window.R`; aligns samples, removes incomplete samples, transforms outcomes, adjusts genotypes/outcomes for covariates, filters unusable columns, and saves matrices plus QC/provenance. | `prepared_window` -> `<gene>.prepared_window.rds`; `covariate_provenance` -> `<gene>.preparation_covariate_provenance.tsv.gz`; `preparation_stdout` and `preparation_stderr` -> `<gene>.preparation.stdout.log` / `.stderr.log`. |
+| `PrepareSusieLeads` | Once, when enabled | Three annotated SuSiE TSVs | Selects the highest component-specific `pip` per modality, molecular trait, and credible set, breaking ties deterministically. | `leads` -> `susie_leads.tsv`, passed to each fit. |
 | `FitMvSusie` | Per gene | `window_id`; prepared RDS; all model settings in the model-control table; `memory_gb` from `fit_memory_gb` | Copies the prepared RDS; calls `fit_window.R` to learn a mashr prior and run greedy mvSuSiE fitting; writes history, provenance, fit bundles, and captured logs. | `prepared_window_output`, `mvsusie_fit`, `mashr_training`, `greedy_L_history`, `covariate_provenance`, `run_stdout`, `run_stderr`, `session_info`; details below. |
 | `SummarizeMvSusie` | Per gene | `window_id`; prepared RDS; fit RDS | Calls `summarize_window.R`; extracts variant PIPs, credible-set summaries/members, component-feature support, and preprocessing/fitting QC; prefixes output filenames with the gene ID. | `variant_pip`, `credible_sets`, `credible_set_members`, `component_feature_support` -> `<gene>.<type>.tsv.gz`; `window_qc` -> `<gene>.window_qc.tsv`. This QC is distinct from phenotype-preparation QC above. |
 | `PlotMvSusie` | Per gene | `window_id`; prepared RDS; fit RDS | Calls `plot_window_mvsusie.R`; plots conditional effects with credible-set annotation, non-sentinel variants included, and LFSR cutoff 0.05; sorts by credible set. Current script requires one numeric chromosome. | `effect_plot_png` -> `<gene>.effect_plot.png`; `effect_plot_pdf` -> `<gene>.effect_plot.pdf`; `effect_plot_rds` -> `<gene>.effect_plot.rds`. |
@@ -205,6 +208,22 @@ canonical cross-outcome covariance patterns and/or use mashr's estimated null
 weight. Canonical covariances are generic patterns across outcomes, not
 annotation-based variant priors. Prior learning is per gene/window, not pooled
 across every gene.
+
+With `use_susie_leads = true`, the workflow matches the selected leads to the
+gene's retained outcome IDs and variants (chromosome, position, REF and ALT).
+It uses the corresponding marginal effects and standard errors computed from
+the prepared matrices, not SuSiE posterior means and standard deviations.
+Duplicate leads are counted once. If fewer unique variants match than
+`mashr_n_pca`, the existing strong-association selection is used and the
+fallback is recorded. Mixture weights are still fit using all cis-window
+variants; no 100,000-variant background or new null-correlation estimation is
+introduced. Genome build, alleles and phenotype IDs must be consistent across
+the univariate and multivariate inputs; allele swaps are not harmonized.
+
+The QC columns `covariance_training_source`, `susie_lead_mode`,
+`susie_lead_sets`, `susie_unmatched_leads`, `susie_matched_variants`, and
+`susie_lead_fallback` distinguish actual SuSiE-based fits from fallbacks.
+Treat fallback genes separately in comparisons.
 
 The fit metadata records the selected prior mode, the number of PCA/canonical
 covariances, mashr's estimated null weight, and the null weight actually passed

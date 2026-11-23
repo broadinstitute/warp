@@ -25,6 +25,11 @@ workflow CisMvSusie {
     File splicing_cis_results
     File protein_cis_results
 
+    # Annotated univariate SuSiE credible-set results (required when using SuSiE leads)
+    File? expression_susie_results
+    File? splicing_susie_results
+    File? protein_susie_results
+
     # One covariate file per modality (covariates as rows, samples as columns)
     File expression_covariates
     File splicing_covariates
@@ -58,6 +63,7 @@ workflow CisMvSusie {
     # Prior experiment switches; false/false preserves the PCA-only, zero-null baseline.
     Boolean include_canonical_priors = false
     Boolean use_mashr_null_weight = false
+    Boolean use_susie_leads = false
     Int fit_memory_gb = 16
 
     # One image for every task (build it from cis-mvsusie-docker.zip)
@@ -65,6 +71,16 @@ workflow CisMvSusie {
   }
 
   String pipeline_version = "aou_beta"
+
+  if (use_susie_leads) {
+    call PrepareSusieLeads {
+      input:
+        expression_susie_results = expression_susie_results,
+        splicing_susie_results = splicing_susie_results,
+        protein_susie_results = protein_susie_results,
+        docker_image = docker_image
+    }
+  }
 
   # 1. Sample IDs: everything is read as text and compared before any compute is spent.
     call CheckSamples {
@@ -187,6 +203,7 @@ workflow CisMvSusie {
           mashr_seed = mashr_seed,
           include_canonical_priors = include_canonical_priors,
           use_mashr_null_weight = use_mashr_null_weight,
+          susie_leads = PrepareSusieLeads.leads,
           memory_gb = fit_memory_gb,
           docker_image = docker_image
       }
@@ -925,6 +942,43 @@ task PrepareWindowPhenotypes {
 }
 
 # ---------------------------------------------------------------------------
+# Select one univariate lead per credible set once, before the per-gene scatter.
+# ---------------------------------------------------------------------------
+task PrepareSusieLeads {
+  input {
+    File? expression_susie_results
+    File? splicing_susie_results
+    File? protein_susie_results
+    String docker_image
+  }
+
+  command <<<
+    set -euo pipefail
+    expression='~{default="" expression_susie_results}'
+    splicing='~{default="" splicing_susie_results}'
+    protein='~{default="" protein_susie_results}'
+    if [[ -z "$expression" || -z "$splicing" || -z "$protein" ]]; then
+      echo "ERROR: use_susie_leads requires annotated SuSiE results for all three modalities." >&2
+      exit 1
+    fi
+    Rscript /opt/mvsusie/scripts/susie_leads.R \
+      "$expression" "$splicing" "$protein" susie_leads.tsv
+  >>>
+
+  output {
+    File leads = "susie_leads.tsv"
+  }
+
+  runtime {
+    docker: docker_image
+    cpu: 2
+    memory: "16 GiB"
+    disks: "local-disk 500 SSD"
+    bootDiskSizeGb: 30
+  }
+}
+
+# ---------------------------------------------------------------------------
 # FitMvSusie, SummarizeMvSusie, PlotMvSusie: the collaborator's tasks. The only changes
 # are the memory parameter on FitMvSusie and the log message that reports it.
 # ---------------------------------------------------------------------------
@@ -946,6 +1000,7 @@ task FitMvSusie {
     Int? mashr_seed
     Boolean include_canonical_priors
     Boolean use_mashr_null_weight
+    File? susie_leads
     Int memory_gb
     String docker_image
   }
@@ -963,6 +1018,11 @@ task FitMvSusie {
     log "Starting joint mvSuSiE for ~{window_id}. The task has ~{memory_gb} GiB of memory."
     log "Greedy L starts at ~{start_L}, increases by ~{step_L}, and stops at ~{max_L}; the cutoff is ~{greedy_lbf_cutoff}."
     log "The fit is verbose. Iteration updates will be present in the task log."
+    susie_leads_path='~{default="" susie_leads}'
+    susie_args=()
+    if [[ -n "$susie_leads_path" ]]; then
+      susie_args=(--susie-leads "$susie_leads_path")
+    fi
     Rscript /opt/mvsusie/scripts/fit_window.R \
       --prepared "${output_prefix}.prepared_window.rds" \
       --window-id ~{window_id} \
@@ -979,6 +1039,7 @@ task FitMvSusie {
       --mashr-strong-lfsr ~{mashr_strong_lfsr} \
       ~{if include_canonical_priors then "--include-canonical-priors" else ""} \
       ~{if use_mashr_null_weight then "--use-mashr-null-weight" else ""} \
+      "${susie_args[@]}" \
       ~{if defined(mashr_seed) then "--mashr-seed " + select_first([mashr_seed]) else ""} \
       --covariate-provenance-output "${output_prefix}.covariate_provenance.tsv.gz" \
       --mashr-output "${output_prefix}.mashr_training.rds" \
