@@ -69,6 +69,7 @@ DIGEST = r"sha256:[0-9a-f]{64}"
 REF_TAIL = r"(?::(?P<tag>%s))?(?:@(?P<digest>%s))?\s*" % (TAG, DIGEST)
 VERSION_RE = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9_.]+)*")
 LITERAL_RE = re.compile(r"\"([^\"\n]*)\"|'([^'\n]*)'")
+HOST_RE = re.compile(r"[\"']([a-z0-9-]+(?:\.[a-z0-9-]+)+)/")  # the registry host opening an image string
 
 
 class Error(Exception):
@@ -471,8 +472,9 @@ def report_cleanup(root, registry, image, changed):
     todo = []
     for path in sorted({line.split(":")[0] for line in changed}):
         with open(os.path.join(root, path), encoding="utf-8") as handle:
-            if "azurecr.io" in handle.read():
-                todo.append("%s still names ACR images; drop its Azure branch" % path)
+            hosts = {match.group(1) for match in HOST_RE.finditer(handle.read())}
+        if any(host.endswith(".azurecr.io") for host in hosts):
+            todo.append("%s still names ACR images; drop its Azure branch" % path)
     copied = r"%s/%s[:@]([0-9]|sha256:[0-9a-f])" % (re.escape(registry), re.escape(image))
     docs = subprocess.run(["git", "-C", root, "grep", "-l", "-E", copied, "--", "*.md", ":!*changelog.md",
                            ":!website/docs/contribution/"], capture_output=True, text=True)
