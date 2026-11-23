@@ -19,8 +19,7 @@ Commands (the script finds the WARP repository from its own location):
       has a <version>-<timestamp> tag keeps it. While the PR is open, rerunning after
       another build moves the PR's tag to the new build, so a PR leaves one version tag per
       image; once the PR merges or closes, its tags stay fixed. Tagging needs registry write
-      access (gcloud auth). Afterwards it lists what is left to tidy for the image (push
-      lines in docker_build.sh, copied version tags, ACR images in the WDLs it changed).
+      access (gcloud auth).
         --digest D   pin this earlier build of the image instead (the one you tested)
         --version V  for the images whose docker_build.sh computes part of the tag at build
                      time (glimpse2, sv-imputation-rust-tools, zcall, illumina-iaap-autocall)
@@ -29,7 +28,8 @@ Commands (the script finds the WARP repository from its own location):
       Pin every WDL reference to an existing tag, without tagging anything.
 
   Both rewrite every reference to the image, or only those under the given PATHs
-  (files or directories, e.g. pipelines/wdl/scanvi).
+  (files or directories, e.g. pipelines/wdl/scanvi), then list what is left to tidy in
+  WARP: ACR images in the WDLs they changed, and docs that copy the image's tag.
 
   check [--base REF | --all]
       Report pins that are not <image>:<tag>@sha256:<digest> with the tag resolving to
@@ -160,7 +160,7 @@ def find_pr(ref):
 
 
 def builds(pr, registry):
-    """[(image, directory, run, ci_runs_script)] for each image in <registry> that the PR builds.
+    """[(image, directory, run)] for each image in <registry> that the PR builds.
 
     A commit that changes none of an image's build inputs (its README, say) starts no build,
     so each image's newest build run among the PR's commits is its latest build."""
@@ -186,7 +186,7 @@ def builds(pr, registry):
             raise Error("the %s build of %s is still running; rerun when it finishes" % (image, built))
         if run["conclusion"] != "success":
             raise Error("the %s build of %s ended in %s; fix it in the warp-tools PR" % (image, built, run["conclusion"]))
-        found.append((image, directory.group(1), run, "docker_build.sh" in workflow))
+        found.append((image, directory.group(1), run))
     if not found:
         raise Error("warp-tools PR #%d has no image build" % pr["number"])
     return found
@@ -435,7 +435,7 @@ def pin_pr(root, registry, pr_ref, only=(), digest=None, version=None, include_s
     if digest and not re.fullmatch(DIGEST, digest):
         raise Error("--digest must be sha256:<64 hex digits>")
     plan = []
-    for image, directory, run, ci_runs_script in found:
+    for image, directory, run in found:
         script = raw(pr["head"]["sha"], directory + "/docker_build.sh")
         base = raw(pr["base"]["sha"], directory + "/docker_build.sh", missing_ok=True)
         bumped = assignments(script).get("DOCKER_IMAGE_VERSION")
@@ -458,37 +458,27 @@ def pin_pr(root, registry, pr_ref, only=(), digest=None, version=None, include_s
         if released and release(image_version_) and release(image_version_) < released:
             raise Error("version %s is below %s, already in %s/%s; set DOCKER_IMAGE_VERSION above it"
                         % (image_version_, ".".join(map(str, released)), registry, image))
-        plan.append((image, directory, script, ci_runs_script, build, image_version_))
-    for image, directory, script, ci_runs_script, build, image_version_ in plan:
+        plan.append((image, build, image_version_))
+    for image, build, image_version_ in plan:
         tag = version_tag(root, registry, image, build, image_version_, pr["state"] == "open", dry_run)
         changed, skipped = pin(root, registry, image, tag, build, include_shared, dry_run, only)
         report_pin(registry, image, tag, build, changed, skipped, dry_run)
-        report_cleanup(root, registry, pr, image, directory, script, ci_runs_script,
-                       sorted({line.split(":")[0] for line in changed}))
+        report_cleanup(root, registry, image, changed)
 
 
-def report_cleanup(root, registry, pr, image, directory, script, ci_runs_script, changed_paths):
-    """List what is left to tidy for <image>. Advice only: nothing here stops a pin."""
-    copied = r"%s/%s[:@]([0-9]|sha256:[0-9a-f])" % (re.escape(registry), re.escape(image))
-    where, todo = "warp-tools PR #%d: " % pr["number"], []
-    if re.search(r"quay\.io|docker_versions\.tsv", script):
-        todo.append(where + "drop the Quay and docker_versions.tsv lines from %s/docker_build.sh" % directory)
-    if not ci_runs_script and re.search(r"^[^#]*\b(?:docker|podman) push\b", script, re.M):
-        todo.append(where + "make %s/docker_build.sh build locally only (drop its docker push)" % directory)
-    try:
-        if re.search(copied, raw(pr["head"]["sha"], directory + "/README.md", missing_ok=True) or ""):
-            todo.append(where + "%s/README.md copies a version tag; link to the WARP WDL instead" % directory)
-    except Error as err:
-        todo.append("(could not read the warp-tools PR: %s)" % err)
-    for path in changed_paths:
+def report_cleanup(root, registry, image, changed):
+    """List what is left to tidy in WARP for <image>. Advice only: nothing here stops a pin."""
+    todo = []
+    for path in sorted({line.split(":")[0] for line in changed}):
         with open(os.path.join(root, path), encoding="utf-8") as handle:
             if "azurecr.io" in handle.read():
-                todo.append("WARP: %s still names ACR images; drop its Azure branch" % path)
+                todo.append("%s still names ACR images; drop its Azure branch" % path)
+    copied = r"%s/%s[:@]([0-9]|sha256:[0-9a-f])" % (re.escape(registry), re.escape(image))
     docs = subprocess.run(["git", "-C", root, "grep", "-l", "-E", copied, "--", "*.md", ":!*changelog.md",
                            ":!website/docs/contribution/"], capture_output=True, text=True)
-    todo += ["WARP: %s copies a version tag; link to the WDL instead" % path for path in docs.stdout.split()]
+    todo += ["%s copies a version tag; link to the WDL instead" % path for path in docs.stdout.split()]
     if todo:
-        print("Left to tidy for %s, best done in these PRs (update_warp_tools_image.md, Tidy as you go):" % image)
+        print("Left to tidy for %s (update_warp_tools_image.md, Tidy as you go):" % image)
         for line in todo:
             print("  " + line)
 
@@ -537,6 +527,7 @@ def main(argv=None):
         changed, skipped = pin(root, registry, image, tag, digest,
                                args.include_shared_verification, args.dry_run, args.paths)
         report_pin(registry, image, tag, digest, changed, skipped, args.dry_run)
+        report_cleanup(root, registry, image, changed)
         return 0
     except Error as err:
         print("error: %s" % err, file=sys.stderr)

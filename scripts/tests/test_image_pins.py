@@ -142,7 +142,7 @@ BUILD = 'DOCKER_IMAGE_VERSION=%s\nBWA_VERSION="0.7.18"\n    IMAGE_TAG="$DOCKER_I
 
 class PinPrTest(Repo):
     def pin_pr(self, status="completed", base_version="1.0.0", uploaded=1794902700000, tags=(), old_tags=(),
-               state="open", on_develop=False, extra_files=None, script=None, built="h" * 40, **kwargs):
+               state="open", on_develop=False, extra_files=None, built="h" * 40, **kwargs):
         # The newest run comes first; <built> is the commit it built, "h"*40 being the PR's head.
         run = {"path": ".github/workflows/build-bwa.yml", "status": status, "conclusion": "success",
                "head_sha": built, "created_at": "2026-11-17T08:00:00Z",
@@ -151,7 +151,7 @@ class PinPrTest(Repo):
                                   run, dict(run, path=".github/workflows/trivy.yml")]}
         commits = [{"sha": "e" * 40}, {"sha": "h" * 40}]
         files = {(PR["head"]["sha"], ".github/workflows/build-bwa.yml"): WORKFLOW,
-                 (PR["head"]["sha"], "3rd-party-tools/bwa/docker_build.sh"): script or BUILD % "1.1.0",
+                 (PR["head"]["sha"], "3rd-party-tools/bwa/docker_build.sh"): BUILD % "1.1.0",
                  (PR["base"]["sha"], "3rd-party-tools/bwa/docker_build.sh"): BUILD % base_version,
                  **{(PR["head"]["sha"], "3rd-party-tools/bwa/" + k): v for k, v in (extra_files or {}).items()}}
         self.out = io.StringIO()
@@ -219,14 +219,16 @@ class PinPrTest(Repo):
         self.assertNotIn("Left to tidy", self.out.getvalue())
         with open(os.path.join(self.root, "tasks/wdl/Align.wdl"), "a") as handle:
             handle.write('# String acr_docker_prefix = "dsppipelinedev.azurecr.io/"\n')
-        quay = BUILD % "1.1.0" + 'QUAY_URL="quay.io/broadinstitute/bwa"\ndocker push "$GCR_URL:$IMAGE_TAG"\n'
-        self.pin_pr(only=["tasks"], script=quay, tags=["1.1.0-0.7.18-1795000000"], extra_files={
-            "README.md": "docker pull us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463\n"})
-        tidy = self.out.getvalue().split("Left to tidy for bwa")[1]
-        self.assertIn("drop the Quay and docker_versions.tsv lines from 3rd-party-tools/bwa/docker_build.sh", tidy)
-        self.assertIn("make 3rd-party-tools/bwa/docker_build.sh build locally only", tidy)
-        self.assertIn("3rd-party-tools/bwa/README.md copies a version tag", tidy)
-        self.assertIn("WARP: tasks/wdl/Align.wdl still names ACR images", tidy)
+        os.makedirs(os.path.join(self.root, "website/docs"))
+        for path in ("website/docs/Bwa.md", "pipelines/wdl/p/P.changelog.md"):  # a changelog may name a tag
+            with open(os.path.join(self.root, path), "w") as handle:
+                handle.write("Runs %s/bwa:1.0.0-0.7.17-1660770463.\n" % REG)
+        subprocess.run(["git", "init", "-q", self.root], check=True)
+        subprocess.run(["git", "-C", self.root, "add", "-A"], check=True)  # git grep reads tracked files
+        self.pin_pr(only=["tasks"], tags=["1.1.0-0.7.18-1795000000"])
+        tidy = self.out.getvalue().split("Left to tidy for bwa")[1].splitlines()
+        self.assertEqual(tidy[1:], ["  tasks/wdl/Align.wdl still names ACR images; drop its Azure branch",
+                                    "  website/docs/Bwa.md copies a version tag; link to the WDL instead"])
 
 
 class CommandLineTest(Repo):

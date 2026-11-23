@@ -10,7 +10,7 @@ Most WARP pipelines run Docker images built in [warp-tools](https://github.com/b
 
 The example is the scvi-scanvi 1.7.3 update for scANVI 3.1.0.
 
-1. **Change the image in warp-tools and open a PR to `develop`.** Bump `DOCKER_IMAGE_VERSION`, and the tool version if it changed, in the image's `docker_build.sh`, and [tidy the image](#tidy-as-you-go) in the same PR. CI builds the image and pushes it under the branch name.
+1. **Change the image in warp-tools and open a PR to `develop`.** Bump `DOCKER_IMAGE_VERSION`, and the tool version if it changed, in the image's `docker_build.sh`. CI builds the image and pushes it under the branch name.
 2. **From your WARP branch, tag and pin the build.** Once the PR's CI build has finished, pass the script the warp-tools PR (number, URL or branch name):
 
    ```bash
@@ -31,20 +31,16 @@ The example is the scvi-scanvi 1.7.3 update for scANVI 3.1.0.
 - **Version bump:** minor by default, because a rebuilt image may shift outputs slightly; major when outputs change qualitatively; patch, with a "No functional impact" entry, for a pipeline that only imports an edited WDL and runs no task using the new image. See [Version and Release Pipelines](../../About_WARP/VersionAndReleasePipelines.md).
 - **Changelog:** name the image, the version tag, what changed in the image and the effect on outputs, for example "Updated the scvi-scanvi image to 1.7.3-1.5.1-&lt;timestamp&gt;, which fixes how an AIT reference's counts are restored; outputs may differ slightly, with no reprocessing needed". Leave the digest to the WDL.
 - **Shared verification pins:** the script skips `verification/VerifyTasks.wdl`, which is in about 27 test path filters; don't move it in a feature PR.
-- **Docs pages** link to the WDL instead of copying image tags or digests.
+- **One record:** the WDL pin is the only record of which build a pipeline runs. Docs pages, here and in warp-tools, link to the WDL instead of copying a tag or digest, so a new pin needs no other change.
 
 ## Tidy as you go
 
-Each image drops what's left of the old process the next time it changes, in the two PRs that change it anyway, so the cleanup costs no extra builds or version bumps. After pinning, the script lists what's left for the image:
-
-- **In the warp-tools PR:** make the image's `docker_build.sh` build locally only, and replace a version tag copied into its README with a link to the WARP WDL. See warp-tools' [BUILDING.md](https://github.com/broadinstitute/warp-tools/blob/develop/BUILDING.md#tidying-an-image).
-- **In WARP:** `pin` has already rewritten every pin of the image, in every pipeline. Drop the Azure branch of each pipeline you bump (see [Azure](#azure)), and replace a version tag copied into a docs page with a link to the WDL.
+- **warp-tools:** leftover `docker_build.sh` push lines and version tags copied into READMEs can go any time, several images in one PR, because those files start no build. See warp-tools' [BUILDING.md](https://github.com/broadinstitute/warp-tools/blob/develop/BUILDING.md#tidying-an-image).
+- **WARP:** `pin` rewrites every pin of the image. In each pipeline you bump, also drop its Azure branch (see [Azure](#azure)) and replace a version tag copied into a docs page with a link to the WDL; `pin` lists both. Pins of images that aren't changing wait for their pipeline's next change, and `python3 scripts/image_pins.py check --all` lists them. Don't sweep them: each pin you change means a version bump for every pipeline that imports the file.
 
 ### Azure
 
-WARP no longer runs on Azure, but some pipelines still name ACR images (`*.azurecr.io`) and Azure blob URLs for `cloud_provider = "azure"`. When you next change such a pipeline, delete those strings and point its images at GCR. Keep the `cloud_provider` input so existing configurations still run, but accept only `"gcp"`; removing the input would break callers and needs a major version. `pin` names the WDLs it changed that still carry ACR images.
-
-Pins of images that aren't changing stay as they are until then; `python3 scripts/image_pins.py check --all` lists them. Don't sweep them: each pin you change means a version bump for every pipeline that imports the file.
+WARP no longer runs on Azure, but some pipelines still name ACR images (`*.azurecr.io`) and Azure blob URLs for `cloud_provider = "azure"`. When you next change such a pipeline, delete those strings and point its images at GCR. Keep the `cloud_provider` input so existing configurations still run, but accept only `"gcp"`; removing the input would break callers and needs a major version.
 
 ## Outside the standard workflow
 
