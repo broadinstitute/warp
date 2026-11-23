@@ -1,12 +1,13 @@
 version 1.0
 
-import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputationTasks
-
-# NOTE: We assume we are merging squared-off single-sample VCFs (enforced by checking that the number of records in each VCF is identical when localizing shards with bcftools view)
+# NOTE: We assume we are merging squared-off VCFs (enforced by checking that the number of records in each VCF is identical when localizing shards with bcftools view)
 
 workflow MultilevelHierarchicallyMergeVcfs {
-    # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "1.0.5"
+    # This was forked from version 1.0.6 of ../sv_imputation/MultilevelHierarchicallyPasteVcfsStreaming.wdl.
+    # It may be treated as independent code, but consider applying changes in both places when appropriate.
+
+    # if this changes, update the multilevel_merge_pipeline_version value in Glimpse2LowPassImputation.wdl
+    String pipeline_version = "1.0.6"
 
     input {
         Array[String]? vcfs_or_bcfs_array
@@ -19,13 +20,13 @@ workflow MultilevelHierarchicallyMergeVcfs {
         Array[Int] timeouts_min  # Timeouts in minutes per level. Set to 0 to disable. e.g., [720, 720]
         String output_basename
 
-        String extra_merge_args = "--info ID,RAF --format GT,DS,GP"
+        String extra_merge_args = "--info RAF --format GT,DS,GP"
 
         String extra_concat_args = "--naive"
     }
 
     Array[String] vcfs_in = if defined(vcfs_or_bcfs_array) then select_first([vcfs_or_bcfs_array]) else read_lines(select_first([vcfs_or_bcfs_fofn]))
-    Array[String] vcf_idxs_in = if defined(vcf_or_bcf_idxs_array) then select_first([vcf_or_bcf_idxs_array]) else read_lines(select_first([vcfs_or_bcfs_fofn]))
+    Array[String] vcf_idxs_in = if defined(vcf_or_bcf_idxs_array) then select_first([vcf_or_bcf_idxs_array]) else read_lines(select_first([vcf_or_bcf_idxs_fofn]))
 
     call CreateBatches as L0_Batches {
         input:
@@ -139,7 +140,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
     }
 
     # concatenate all regions together
-    call Glimpse2SVImputationTasks.ConcatBcfs {
+    call ConcatBcfs {
         input:
             bcfs = final_region_bcf,
             bcf_idxs = final_region_idx,
@@ -352,6 +353,44 @@ task MergeVcfs {
         preemptible:            select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
         maxRetries:             select_first([runtime_attr.max_retries,       default_attr.max_retries])
         docker:                 select_first([runtime_attr.docker,            default_attr.docker])
+        noAddress: true
+    }
+}
+
+task ConcatBcfs {
+    input{
+        Array[File] bcfs
+        Array[File] bcf_idxs
+        String output_basename
+        String? extra_args
+
+        Int preemptible = 3
+    }
+
+    Int disk_gb = ceil(2.1 * size(bcfs, "GiB")) + 10
+
+    command <<<
+        set -euox pipefail
+
+        bcftools concat \
+            -f ~{write_lines(bcfs)} \
+            ~{extra_args} \
+            -Ob -o ~{output_basename}.bcf
+        bcftools index ~{output_basename}.bcf
+    >>>
+
+    output {
+        File concatenated_bcf = "~{output_basename}.bcf"
+        File concatenated_bcf_idx = "~{output_basename}.bcf.csi"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "4 GiB"
+        disks: "local-disk " + disk_gb + " SSD"
+        preemptible: preemptible
+        maxRetries: 1
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
         noAddress: true
     }
 }

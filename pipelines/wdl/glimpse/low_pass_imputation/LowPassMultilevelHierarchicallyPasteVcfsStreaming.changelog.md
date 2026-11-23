@@ -1,3 +1,10 @@
+# 1.0.6
+2026-11-23 (Date of Last Commit)
+
+* Fixed an erroneous assignment of `vcf_idxs_in` that used `vcf_or_bcf_fofn` instead of `vcf_or_bcf_idxs_fofn`
+* Added copy of `Glimpse2SVImputationTasks.ConcatBcfs` task
+* Removed `INFO/ID` from `extra_merge_args` and updated SV-specific comments
+
 # 1.0.5
 2026-10-30 (Date of Last Commit)
 

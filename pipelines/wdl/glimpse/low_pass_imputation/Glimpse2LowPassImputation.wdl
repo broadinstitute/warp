@@ -2,12 +2,12 @@ version 1.0
 
 import "./Glimpse2LowPassImputationBatch.wdl" as Glimpse2LowPassImputationBatch
 import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
-import "./MultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelMerge
+import "./LowPassMultilevelHierarchicallyPasteVcfsStreaming.wdl" as MultilevelMerge
 
 workflow Glimpse2LowPassImputation {
     String pipeline_version = "2.1.2"
     String batch_pipeline_version = "1.1.2"
-    String multilevel_merge_pipeline_version = "1.0.5"
+    String multilevel_merge_pipeline_version = "1.0.6"
     String quota_consumed_version = "1.0.2"
     String input_qc_version = "1.1.2"
 
