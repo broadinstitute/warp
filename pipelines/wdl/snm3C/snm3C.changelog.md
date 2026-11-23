@@ -1,4 +1,4 @@
-# 6.0.0
+# 5.0.0
 2026-11-22 (Date of Last Commit)
 
 ### Breaking changes
