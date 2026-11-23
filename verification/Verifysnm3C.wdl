@@ -79,8 +79,10 @@ task CompareCzFiles {
         String docker
     }
 
-    Float file_size = size(test_cz, "GiB") + size(truth_cz, "GiB")
-    Int disk_size = ceil(file_size * 10) + 20
+    # kept as one expression: a private declaration that references another
+    # private declaration is not reliably in scope when Cromwell evaluates the
+    # runtime block, and fails with "No suitable input for 'file_size'"
+    Int disk_size = ceil((size(test_cz, "GiB") + size(truth_cz, "GiB")) * 10) + 20
 
     command <<<
         set -uo pipefail
