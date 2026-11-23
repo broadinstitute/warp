@@ -1,3 +1,9 @@
+# 3.1.0
+2026-11-20 (Date of Last Commit)
+
+* Fixed `PreprocessReference` restoring gene names from `.raw.var` (its index, or `.raw.var['gene']` when Allen AIT files reset `.raw.var.index` to `'0'..'N-1'`) rather than pairing `.raw.X` with `ref.var`, so counts stay aligned to gene symbols even if the reference was subset or reordered after `.raw` was recorded
+* Updated the scvi-scanvi Docker image to 1.7.3-1.5.1-1795208591 (from 1.7.1): fixes `make_reference_only_model` restoring Allen AIT `.raw` gene symbols, a dropped training batch during scArches query mapping on samples smaller than `batch_size` (128), and the ATAC output recording the GEX input's file name in `uns['scanvi_input_file']`, while pinning `umap-learn 0.5.12` (`umap-learn 0.6.0` in 1.7.2 failed on samples of 8,192 cells or more). Outputs change only for a reference subset or reordered after its `.raw` was recorded, or a query sample of fewer than 128 cells; the ATAC output's `uns['scanvi_input_file']` now names the ATAC input. See `scvi-scanvi.changelog.md` entries 1.7.2 and 1.7.3 for detail
+
 # 3.0.0
 2026-11-05 (Date of Last Commit)
 
