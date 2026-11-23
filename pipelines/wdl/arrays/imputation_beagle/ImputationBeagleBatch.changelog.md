@@ -1,3 +1,8 @@
+# 1.0.2
+2026-11-17 (Date of Last Commit)
+
+* Use predefined machine types with WDL-implemented retry for Phase and Impute tasks.
+
 # 1.0.1
 2026-10-26 (Date of Last Commit)
 
