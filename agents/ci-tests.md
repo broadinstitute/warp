@@ -52,7 +52,9 @@ The branch model (develop/staging/master) and how the smart test system selects 
   ```
 
   When adding a regression test input, wire its path into the relevant workflow so CI picks it up.
+- **Filters match the whole PR**, not the latest push: once a PR touches a pipeline, every push reruns that pipeline's Terra test, even a docs-only fix, and deleting any file under `pipelines/wdl/<name>/` runs that test once. Batch follow-up fixes into one push.
 - **Cancel scope** — `warp_test_workflow.yml` runs in concurrency group `warp-test-<pipeline_name>-<branch>` with `cancel-in-progress`, so a push to a PR branch or a manual dispatch of the same pipeline on that branch cancels that pipeline's running test there (e.g. a long manual Scientific or truth run). Re-running *other* pipelines' failed jobs is safe.
+- **CodeQL** runs on every PR and fails it on a high-severity alert, advisory scripts included. A Python `"<host>" in text` test trips `py/incomplete-url-substring-sanitization`; parse the host and test `host.endswith(".<domain>")`, as `report_cleanup` in `scripts/image_pins.py` does.
 - **Release builds** — `./scripts/build_pipeline_release.sh -w pipeline.wdl -v version -o output_dir`.
 
 ## Stale CI path filters
