@@ -1,3 +1,8 @@
+# 1.7.4
+2026-11-16 (Date of Last Commit)
+
+* Added an explicit check that fails fast with a meaningful error message if run_vets is false (VQSR mode) and vqsr_snp_filter_level or vqsr_indel_filter_level is not supplied, instead of an opaque select_first() error
+
 # 1.7.3
 2025-08-11 (Date of Last Commit)
 

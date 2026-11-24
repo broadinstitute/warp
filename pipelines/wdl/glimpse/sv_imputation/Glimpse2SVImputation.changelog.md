@@ -1,3 +1,8 @@
+# 1.1.5
+2026-11-23 (Date of Last Commit)
+
+* Fixed an erroneous assignment of `vcf_idxs_in` that used `vcfs_or_bcfs_fofn` instead of `vcf_or_bcf_idxs_fofn` in MultilevelHierarchicallyPasteVcfsStreaming
+
 # 1.1.4
 2026-10-30 (Date of Last Commit)
 

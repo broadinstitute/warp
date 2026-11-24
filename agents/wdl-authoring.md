@@ -86,22 +86,14 @@ command <<CODE
 CODE
 ```
 
-## Multi-cloud support
+## Azure (retired)
 
-Pipelines support GCP/Azure via a `cloud_provider` input. The pattern varies by pipeline origin:
-
-**Broad-origin pipelines** (DNA-seq, arrays, genotyping) maintain docker registries and validate `cloud_provider` at runtime:
+WARP no longer runs on Azure. Don't add ACR images (`*.azurecr.io`), Azure blob URLs or `cloud_provider == "azure"` branches. When you change a pipeline that still has them, drop them in the same PR ([Tidy as you go](../website/docs/contribution/contribute_to_warp/update_warp_tools_image.md#azure)): point its images at GCR, keep the `cloud_provider` input so callers' configurations still run, and accept only `"gcp"`:
 
 ```wdl
-String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
-```
-
-**Error handling:** use the `ErrorWithMessage` task for input validation. For broad-origin pipelines validating `cloud_provider`:
-
-```wdl
-if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+if (cloud_provider != "gcp") {
   call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
-    input: message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+    input: message = "cloud_provider must be 'gcp'; Azure is no longer supported."
   }
 }
 ```

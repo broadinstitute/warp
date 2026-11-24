@@ -18,7 +18,7 @@ Expect a pipeline's documentation to be split across two places. This isn't an e
 
   Plus a sibling `_category_.json` when creating a new category.
 
-**Do not hardcode version information.** Pipeline documentation, especially the header table on the docs-site page, should not contain hardcoded version numbers or dates. This information becomes stale. Instead, link to the pipeline's `.changelog.md` file as the single source of truth for versioning.
+**Do not hardcode version information.** Pipeline documentation, especially the header table on the docs-site page, should not contain hardcoded version numbers or dates. This information becomes stale. Instead, link to the pipeline's `.changelog.md` file as the single source of truth for versioning. The same goes for Docker images: link to the WDL that pins an image instead of copying its tag or digest, which goes stale at the next pin.
 
 When you change a pipeline's interface, update the docs-site page so its inputs/outputs stay accurate, and make sure the slim in-repo README still points correctly.
 
