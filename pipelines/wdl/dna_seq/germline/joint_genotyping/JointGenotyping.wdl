@@ -8,7 +8,7 @@ import "https://raw.githubusercontent.com/broadinstitute/gatk/4.5.0.0/scripts/vc
 # Joint Genotyping for hg38 Whole Genomes and Exomes (has not been tested on hg19)
 workflow JointGenotyping {
 
-  String pipeline_version = "1.7.4"
+  String pipeline_version = "1.7.5"
 
   input {
     File unpadded_intervals_file
@@ -212,7 +212,7 @@ workflow JointGenotyping {
       " --resource:omni,training=true,calibration=true " + omni_resource_vcf + 
       " --resource:1000G,training=true " + one_thousand_genomes_resource_vcf +
       " --resource:mills,training=true,calibration=true " + mills_resource_vcf + " "
-    String extract_extra_args = if defined(targets_interval_list) then " -L " + targets_interval_list + " " else "" #only train the model over the targets, apply the model to everything
+    String extract_extra_args = if defined(targets_interval_list) then " -L " + select_first([targets_interval_list]) + " " else "" #only train the model over the targets, apply the model to everything
 
     call Filtering.JointVcfFiltering as TrainAndApplyVETS {
       input:

@@ -46,7 +46,7 @@ workflow TestArrayImputationQC {
     call WriteMapToTsv {
       input:
         input_map = {
-          "passes_qc": InputQC.passes_qc,
+          "passes_qc": "~{InputQC.passes_qc}",
           "qc_messages": select_first([InputQC.qc_messages, "null"])
         }
     }

@@ -85,8 +85,8 @@ task SampleFastq {
     set -euo pipefail
     
     # Cat files for each r1 and r2 together
-    cat ~{sep=' ' read1_fastq} > r1.fastq.gz
-    cat ~{sep=' ' read2_fastq} > r2.fastq.gz
+    cat ~{read1_fastq} > r1.fastq.gz
+    cat ~{read2_fastq} > r2.fastq.gz
     
     # Call samplefastq
     # outputs fastq files with reads that have valid barcodes

@@ -160,9 +160,9 @@ task Funcotate {
       -O ~{output_vcf} \
       ~{true="-L" false="" defined(interval_list)} ~{default="" interval_list} \
       ~{true="--transcript-selection-mode" false="" defined(transcript_selection_mode)} ~{default="" transcript_selection_mode} \
-      ~{true="--transcript-list" false="" defined(transcript_selection_list)} ~{default="" sep=" --transcript-list " transcript_selection_list} \
-      ~{true="--annotation-default" false="" defined(annotation_defaults)} ~{default="" sep=" --annotation-default " annotation_defaults} \
-      ~{true="--annotation-override" false="" defined(annotation_overrides)} ~{default="" sep=" --annotation-override " annotation_overrides} \
+      ~{sep=" " prefix("--transcript-list ", select_first([transcript_selection_list, []]))} \
+      ~{sep=" " prefix("--annotation-default ", select_first([annotation_defaults, []]))} \
+      ~{sep=" " prefix("--annotation-override ", select_first([annotation_overrides, []]))} \
       ~{true="--remove-filtered-variants" false="" filter_funcotations} \
       ~{default="" extra_args}
   >>>

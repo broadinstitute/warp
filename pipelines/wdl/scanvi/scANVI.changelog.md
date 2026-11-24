@@ -1,3 +1,8 @@
+# 3.1.1
+2026-11-24 (Date of Last Commit)
+
+* Fixed WDL type errors reported by the Sprocket linter in shared tasks (for example, typed `cpu` runtime values as `Int` and unwrapped optional values with `select_first`); no functional impact on pipeline outputs
+
 # 3.1.0
 2026-11-20 (Date of Last Commit)
 

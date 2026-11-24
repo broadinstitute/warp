@@ -431,9 +431,9 @@ task ValidateSamFile {
       OUTPUT=~{report_filename} \
       REFERENCE_SEQUENCE=~{ref_fasta} \
       ~{"MAX_OUTPUT=" + max_output} \
-      IGNORE=~{default="null" sep=" IGNORE=" ignore} \
+      ~{sep=" " prefix("IGNORE=", select_first([ignore, ["null"]]))} \
       MODE=VERBOSE \
-      ~{default='SKIP_MATE_VALIDATION=false' true='SKIP_MATE_VALIDATION=true' false='SKIP_MATE_VALIDATION=false' is_outlier_data} \
+      ~{true='SKIP_MATE_VALIDATION=true' false='SKIP_MATE_VALIDATION=false' select_first([is_outlier_data, false])} \
       IS_BISULFITE_SEQUENCED=false
   }
   runtime {
@@ -503,7 +503,7 @@ task CollectRawWgsMetrics {
   Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + additional_disk
 
   Int memory_size = ceil((if (disk_size < 110) then 5 else 7) * memory_multiplier)
-  String java_memory_size = (memory_size - 1) * 1000
+  Int java_memory_size = (memory_size - 1) * 1000
 
   command {
     java -Xms~{java_memory_size}m -jar /usr/picard/picard.jar \

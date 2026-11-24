@@ -1,3 +1,9 @@
+# 1.2.4
+2026-11-24 (Date of Last Commit)
+
+* Updated the GetFingerprintingIntervalIndices task to output `indices_to_fingerprint` as `Array[Int]` (read with `read_json`) to match how callers use it; no functional impact on pipeline outputs
+* Fixed WDL type errors reported by the Sprocket linter in shared tasks (for example, typed `cpu` runtime values as `Int` and unwrapped optional values with `select_first`); no functional impact on pipeline outputs
+
 # 1.2.3
 2025-08-11 (Date of Last Commit)
 

@@ -81,7 +81,7 @@ workflow Optimus {
   }
 
   # Version of this pipeline
-  String pipeline_version = "9.3.0"
+  String pipeline_version = "9.3.1"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -228,7 +228,7 @@ workflow Optimus {
       input_id_metadata_field = input_id_metadata_field,
       input_name_metadata_field = input_name_metadata_field,
       annotation_file = annotations_gtf,
-      library_metrics = STARsoloFastq.library_metrics,
+      input_library_metrics = STARsoloFastq.library_metrics,
       cellbarcodes = STARsoloFastq.outputbarcodes,
       cell_metrics = CellMetrics.cell_metrics,
       gene_metrics = GeneMetrics.gene_metrics,

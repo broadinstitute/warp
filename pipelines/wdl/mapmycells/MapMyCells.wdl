@@ -8,7 +8,7 @@ workflow MapMyCells {
         allowNestedInputs: true
     }
 
-    String pipeline_version = "0.1.0"
+    String pipeline_version = "0.1.1"
 
     input {
         File query_h5ad
