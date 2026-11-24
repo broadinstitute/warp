@@ -71,7 +71,7 @@ workflow scANVI {
 
   }
 
-  String pipeline_version = "3.1.0"
+  String pipeline_version = "3.1.1"
 
   # Docker image (same container for every task; only the label-transfer task gets GPUs attached)
   String docker = "us.gcr.io/broad-gotc-prod/scvi-scanvi:1.7.3-1.5.1-1795208591@sha256:9592538d8de7755496d308762d7ae466f29bc804dff6b9e706440151046361dc"

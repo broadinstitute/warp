@@ -1,3 +1,9 @@
+# 2.0.5
+2026-11-24 (Date of Last Commit)
+
+* Renamed the `library_metrics` input of the OptimusH5adGeneration and SingleNucleusOptimusH5adOutput tasks to `input_library_metrics` so it no longer shares a name with the task output
+* Fixed WDL type errors reported by the Sprocket linter in shared tasks (for example, typed `cpu` runtime values as `Int` and unwrapped optional values with `select_first`); no functional impact on pipeline outputs
+
 # 2.0.4
 2026-10-08 (Date of Last Commit)
 
