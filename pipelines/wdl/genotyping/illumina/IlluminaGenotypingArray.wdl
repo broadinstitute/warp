@@ -21,7 +21,7 @@ import "../../../../tasks/wdl/Qc.wdl" as Qc
 
 workflow IlluminaGenotypingArray {
 
-  String pipeline_version = "1.12.27"
+  String pipeline_version = "1.12.28"
 
   input {
     String sample_alias

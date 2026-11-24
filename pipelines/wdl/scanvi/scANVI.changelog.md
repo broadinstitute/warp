@@ -1,0 +1,80 @@
+# 3.1.0
+2026-11-20 (Date of Last Commit)
+
+* Fixed `PreprocessReference` restoring gene names from `.raw.var` (its index, or `.raw.var['gene']` when Allen AIT files reset `.raw.var.index` to `'0'..'N-1'`) rather than pairing `.raw.X` with `ref.var`, so counts stay aligned to gene symbols even if the reference was subset or reordered after `.raw` was recorded
+* Updated the scvi-scanvi Docker image to 1.7.3-1.5.1-1795208591 (from 1.7.1): fixes `make_reference_only_model` restoring Allen AIT `.raw` gene symbols, a dropped training batch during scArches query mapping on samples smaller than `batch_size` (128), and the ATAC output recording the GEX input's file name in `uns['scanvi_input_file']`, while pinning `umap-learn 0.5.12` (`umap-learn 0.6.0` in 1.7.2 failed on samples of 8,192 cells or more). Outputs change only for a reference subset or reordered after its `.raw` was recorded, or a query sample of fewer than 128 cells; the ATAC output's `uns['scanvi_input_file']` now names the ATAC input. See `scvi-scanvi.changelog.md` entries 1.7.2 and 1.7.3 for detail
+
+# 3.0.0
+2026-11-05 (Date of Last Commit)
+
+### Breaking changes
+
+* Removed the placeholder sample-metadata obs columns (biosample_id, donor_id, species, disease, organ, library_preparation_protocol, their ontology labels, data_modality and sex); sample metadata is joined downstream
+* Changed the sample inputs to arrays paired by position: input_ids, gex_h5ads and atac_h5ads replace input_id, gex_h5ad and atac_h5ad
+* Changed the outputs to arrays with one entry per sample: gex_annotated_h5ads, atac_annotated_h5ads and scanvi_models_out replace gex_annotated_h5ad, atac_annotated_h5ad and scanvi_model_out
+* Removed the scanvi_predictions_h5ad output; its labels and latents are in the annotated matrices
+* Named outputs after their input files (sample.h5ad gives sample_annotated.h5ad and, when training, sample_scanvi_model.tar.gz); input file names must be distinct
+* Added label levels: ref_label_columns (a list) replaces ref_label_column, and a level such as subclass puts its labels in obs['subclass'] instead of obs['final_annotation'] and its confidence in obs['subclass_max_probability']
+* Changed the model archive to hold one scVI model plus one SCANVI model per level; archives in the old single-model form are refused
+* Removed bucket mode (input_bucket, gex_filename, atac_filename and ref_filename)
+* Changed the annotated matrices to the Single Cell Portal form: counts in .raw, log2(CPM + 1) in .X, and per level a 30-dimensional scVI latent (obsm['X_scVI_subclass'] for the subclass level) and a 2-column UMAP in obsm, with X_umap set to the first level's; read counts from .raw
+* Removed the PreprocessFilter task and its nested inputs; preprocessing runs inside the label-transfer task
+* Changed the label-transfer task to run every sample on one machine, by default 16 CPUs and 104 GiB instead of 32 CPUs and 120 GiB
+
+### Additional changes
+
+* Updated the scvi-scanvi image to 1.7.1 (scvi-tools 1.5.1, snapatac2 2.10.0, scanpy 1.12.5, anndata 0.13.4, scipy 1.18.1, numpy 2.5.4, torch 2.15.0, all pinned), which may shift labels and embeddings slightly
+* Added the optional seed input for reproducible training
+* Added scArches query mapping for supplied models that do not know a sample's batch, with the optional query_max_epochs input (default 100)
+* Added gene matching by Ensembl ID: a supplied model whose genes are Ensembl IDs is matched through the sample's ensembl_ids column, and the log reports how many of the model's genes the sample has
+* Made ref_h5ad optional; it is needed only to train
+* Added the PreprocessReference task, which prepares the reference once per training run
+* Added run provenance to each output's uns: scanvi_input_id, scanvi_input_file, scanvi_model, scanvi_levels and scanvi_versions
+* Added input checks that fail the run early when the input arrays do not line up, ids repeat, file names collide or a file is not an h5ad
+* Changed output_max_probability to default to true
+* Changed disk_size to optional; when unset, the disk is sized from the inputs
+* Changed model-archive extraction to Python's safe data filter
+* Added gzip compression to every output h5ad
+
+# 2.1.0
+2026-07-09 (Date of Last Commit)
+
+* Added an optional batch_size input (default 128) that sets the SCVI/SCANVI minibatch size in both multiome and GEX-only modes. Lower it to fit a high-cardinality reference on a small GPU (SCANVI activation memory scales with batch_size x number of labels); raise it on a large-VRAM cloud GPU. Default 128 is scvi-tools' own default, so existing outputs are unchanged.
+* Output metadata: added a `data_modality` obs field ("Simultaneous profiling of gene expression and open chromatin from the same cell.") and corrected the library-prep ontology label to "10x multiome" (`library_preparation_protocol` = "EFO_0030059", `library_preparation_protocol__ontology_label` = "10x multiome"), in the container's finalize_output.
+* Reworked the label-transfer step: moved its logic into the container (new label_transfer_from_preprocessed.py entry point) so the WDL task is a one-line command, and split it into a GPU task (MultiomeLabelTransfer) and a CPU-only task (MultiomeLabelTransferCpu) selected by gpu_count. This makes gpu_count = 0 a real CPU-only run (e.g. supplied-model prediction) — Cromwell rejects a gpuCount of 0 and cannot conditionally omit the GPU runtime attributes from a single task, so the CPU path needs its own task. Both tasks run the identical command; scvi-tools auto-detects the accelerator. GPU runtime attributes also switched to portable camelCase (gpuType/gpuCount/nvidiaDriverVersion).
+* Updated the pinned scvi-scanvi docker image to the sc-scanvi-gex-only build that includes the label_transfer_from_preprocessed.py entry point (and the batch_size / metadata changes above).
+
+# 2.0.0
+2026-06-30 (Date of Last Commit)
+
+* MAJOR: the pipeline now emits a reusable model. Every run outputs its trained (or loaded) SCANVI model as scanvi_model_out — a saved model directory (.tar.gz, ~tens of MB, no bundled adata), in the same format the pipeline accepts as input. Reusing that model to run inference on similar data means reprocessing through the pipeline, so this is a qualitative change to the outputs (major per VersionAndReleasePipelines.md).
+* Added an optional scanvi_model input: when provided, the label-transfer task loads it and predicts instead of training SCVI/SCANVI — valid when the model matches the incoming data/reference. Auto-detected (no flag).
+* Exposed gpu_count (default 2) plus mem_size/nthreads/disk_size as inputs so a supplied-model prediction run can be right-sized to a small CPU box (gpu_count=0); default training/inference resources are unchanged.
+* Added an optional output_max_probability input (default false). When true, every output h5ad gains a max_probability obs column holding the per-cell maximum SCANVI posterior probability (the confidence of the assigned label), computed from lvae.predict(soft=True). Default false leaves existing outputs unchanged.
+* Added support for AIT (Allen Institute Taxonomy) schema reference atlases. AIT references are auto-detected (uns['schema_version'] + uns['hierarchy']) and adapted in PreprocessFilter: counts are materialized from .raw (AIT files have no .X) using the gene symbols from .var, the cell-type label is taken from a chosen taxonomy level, and the batch from a chosen obs column.
+* Added optional ref_label_column and ref_batch_column inputs to select the reference label/batch columns. Defaults: AIT references use subclass/donor_id; PBMC-style references use final_annotation/batch (existing behavior unchanged).
+* Added a genome input (hg38 default, mm10, mm39) for the ATAC cell-by-bin -> gene-activity conversion, enabling mouse multiome references; default hg38 keeps existing human runs unchanged.
+
+# 1.1.0
+2026-06-27 (Date of Last Commit)
+
+* Made the ATAC h5ad input optional. When no ATAC h5ad is provided (direct-file mode) or no ATAC object is found in the input bucket (bucket mode), the pipeline auto-detects GEX-only mode and trains/annotates from the reference atlas using gene expression and reference data alone, without using ATAC.
+* Added run_gex_only_model to the scvi-scanvi container to train SCVI/SCANVI on GEX + reference only
+* PreprocessFilter skips ATAC loading, barcode reindexing, shared-barcode subsetting, and gene-activity conversion in GEX-only mode
+* Made preprocessed_atac_activity_h5ad and atac_annotated_h5ad optional outputs (null in GEX-only mode)
+* Added a GEX-only example inputs file (example_inputs/scANVI.gex_only.json)
+* Added an optional max_epochs input that caps SCVI/SCANVI training epochs in both multiome and GEX-only modes (defaults to the container value of 500 when unset)
+
+# 1.0.0
+2026-04-17 (Date of Last Commit)
+
+* Initial release of the ScviScanvi pipeline for cell type label transfer on Multiome data
+* Integrated SCVI and SCANVI models using the scvi-scanvi docker image (1.0.0-1.2-1756234975)
+* Test GPU support for accelerated model training
+* Outputs SCANVI predictions, annotated ATAC, and annotated GEX h5ad files
+* Added PreprocessFilter task to handle all h5ad preprocessing and filtering as a separate CPU-only step before GPU model training
+* Moved column patching (star_IsCell, gex_barcodes), GEX cell/gene filtering, ATAC barcode reindexing, shared barcode subsetting, batch/modality tagging, and gene activity matrix conversion out of the monolithic MultiomeLabelTransfer task
+* Simplified MultiomeLabelTransfer task to accept preprocessed h5ad files directly; removed inline Python patching and bucket resolution logic
+* Hardcode GPU configuration in runtime block for MultiomeLabelTransfer; no GPU needed for PreprocessFilter
+* added test_cuda.wdl to the tasks directory
+

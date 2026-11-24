@@ -224,9 +224,12 @@ task Reblock {
     String? annotations_to_remove_command
     Float? tree_score_cutoff
     Boolean move_filters_to_genotypes = false
+    Int preemptible_tries = 0
+    Int memory_size_mb = 3750
+    Int? disk_size_gb
   }
 
-  Int disk_size = ceil((size(gvcf, "GiB")) * 4) + additional_disk
+  Int disk_size = select_first([disk_size_gb, ceil(size(gvcf, "GiB") * 4) + additional_disk])
 
 
   command {
@@ -251,10 +254,10 @@ task Reblock {
   }
 
   runtime {
-    memory: "3750 MiB"
+    memory: "~{memory_size_mb} MiB"
     disks: "local-disk " + disk_size + " HDD"
     bootDiskSizeGb: 15
-    preemptible: 3
+    preemptible: preemptible_tries
     docker: docker_path
   }
 

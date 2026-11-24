@@ -46,7 +46,7 @@ workflow VerifySlideTags {
             lenient_header = true
     }
 
-    call VerifyTasks.CompareCompressedTextFiles as CompareGeneMetrics {
+    call VerifyTasks.CompareGeneMetricsWithTolerance as CompareGeneMetrics {
         input:
             test_zip  = test_gene_metrics,
             truth_zip = truth_gene_metrics

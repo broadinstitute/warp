@@ -73,3 +73,62 @@ html[data-theme='dark'] {
   font-size: 95%;
 }
 
+/* All of Us docs styling */
+.aou-hero {
+  background: linear-gradient(120deg, #0ea5a8 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin: 0.75rem 0 1.25rem;
+  box-shadow: 0 8px 18px rgba(13, 56, 93, 0.18);
+}
+
+.aou-hero p {
+  margin: 0;
+}
+
+.aou-callout {
+  border-left: 4px solid #0ea5a8;
+  background-color: rgba(14, 165, 168, 0.08);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+}
+
+html[data-theme='dark'] .aou-callout {
+  background-color: rgba(14, 165, 168, 0.16);
+  border-left-color: #67e8f9;
+}
+
+html[data-theme='light'] .aou-folder-text {
+  color: #0b3f78;
+}
+
+html[data-theme='light'] .aou-folder-text h1,
+html[data-theme='light'] .aou-folder-text h2,
+html[data-theme='light'] .aou-folder-text h3,
+html[data-theme='light'] .aou-folder-text h4,
+html[data-theme='light'] .aou-folder-text h5,
+html[data-theme='light'] .aou-folder-text h6,
+html[data-theme='light'] .aou-folder-text p,
+html[data-theme='light'] .aou-folder-text li {
+  color: #0b3f78;
+}
+
+html[data-theme='light'] .aou-folder-text a {
+  color: #0f5fa8;
+}
+
+html[data-theme='light'][class*='docs-doc-id-All_of_Us/'] .theme-doc-markdown > header > h1 {
+  color: #0b3f78;
+}
+
+html[data-theme='light'] .aou-folder-text .aou-hero,
+html[data-theme='light'] .aou-folder-text .aou-hero p,
+html[data-theme='light'] .aou-folder-text .aou-hero strong,
+html[data-theme='light'] .aou-folder-text .aou-hero h1,
+html[data-theme='light'] .aou-folder-text .aou-hero h2,
+html[data-theme='light'] .aou-folder-text .aou-hero h3 {
+  color: #ffffff;
+}
+

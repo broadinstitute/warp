@@ -1,3 +1,33 @@
+# 2.0.4
+2026-10-08 (Date of Last Commit)
+
+* Added optional `emptydrops_seed` input, passed to Optimus, that makes emptyDrops p-values reproducible when `counting_mode` = "sc_rna"; unset (the default) keeps the existing nondeterministic behavior. Default `sn_rna` runs are unaffected
+
+# 2.0.3
+2026-09-16 (Date of Last Commit)
+
+* Updated the warp-tools Docker image to 2.7.1 (Debian bookworm base); no functional impact on pipeline outputs
+
+# 2.0.2
+2026-07-10 (Date of Last Commit)
+
+* Bumped for the shared `checkOptimusInput` change: an unspecified `tenx_chemistry_subversion` now defaults to the `v4_TRU` (Cell Ranger v9.0+) whitelist; affects v4 runs only
+
+# 2.0.1
+2026-05-15 (Date of Last Commit)
+
+* Updated shared dependency CheckInputs.wdl to support 10x v4 (GEM-X) chemistry; no functional impact on SlideTags outputs
+
+# 2.0.0
+2026-04-02 (Date of Last Commit)
+
+* Removed the `count_exons` input from the SlideTags workflow following its removal from Optimus v9.0.0. Default behavior is unchanged (the default was `false`).
+
+# 1.0.9
+2026-04-21 (Date of Last Commit)
+
+* Updated PairedTag to align with upstream task dependency changes; this does not affect the outputs of the pipeline
+
 # 1.0.8
 2026-02-24 (Date of Last Commit)
 

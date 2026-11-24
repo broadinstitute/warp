@@ -1,0 +1,3 @@
+# All of Us Small Callsets Pipeline
+
+Documentation for the Small Callsets workflows in this directory now lives on the WARP documentation site. For the high-level analysis overview, workflow run order, callset definitions (Exome, ClinVar, and ACAF threshold), and BED-construction notes, please see: [https://broadinstitute.github.io/warp/docs/All_of_Us/Small_Callsets/overview](https://broadinstitute.github.io/warp/docs/All_of_Us/Small_Callsets/overview).

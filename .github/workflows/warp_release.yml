@@ -52,6 +52,7 @@ jobs:
         echo "Getting all changed pipelines since last commit before releasing from develop"
         previous_commit_hash=$(git rev-parse HEAD^1)
         changed_pipelines=$(get_modified_pipelines ${previous_commit_hash})
+        echo ${changed_pipelines[@]}
         echo branch: ${BRANCH_NAME} previous_commit_hash: ${previous_commit_hash} env: ${ENV}
         if [[ -n ${ENV} ]]; then
             if [[ -n ${changed_pipelines[@]} ]]; then

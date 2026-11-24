@@ -35,6 +35,8 @@ on:
       - '.github/workflows/test_whole_genome_germline_single_sample.yml'
       - '.github/workflows/warp_test_workflow.yml'
       - 'scripts/firecloud_api/firecloud_api.py'
+      # dependencies imported by the test WDL but previously unwatched
+      - 'tasks/wdl/UnmappedBamToAlignedBam.wdl'
 
 
   # Allows you to run this workflow manually from the Actions tab

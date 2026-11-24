@@ -10,7 +10,7 @@ workflow run_admixture {
 
     String pipeline_version="aou_9.0.2"
 
-    call run_admixture_task {
+    call run_admixture {
         input:
             bed=bed,
             bim=bim,
@@ -18,11 +18,11 @@ workflow run_admixture {
     }
 
     output {
-        File admixture_Q = run_admixture_task.Q
-        File admixture_P = run_admixture_task.P
+        File admixture_Q = run_admixture.Q
+        File admixture_P = run_admixture.P
     }
 }
-task run_admixture_task {
+task run_admixture {
     input {
         File bed
         File bim
@@ -51,7 +51,7 @@ task run_admixture_task {
     runtime {
         docker: "mussmann/admixpipe:3.0"
         memory: mem_gb + " GB" # Was 31 GB originally, increased for local ancestry
-        cpu: num_cpus
+        cpu: "~{num_cpus}"
         disks: "local-disk 500 HDD"
     }
 }

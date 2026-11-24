@@ -10,6 +10,7 @@ on:
     ####################################
     paths:
       - 'pipelines/wdl/arrays/imputation_beagle/**'
+      - '!pipelines/wdl/arrays/imputation_beagle/README.md'
       - '!pipelines/wdl/arrays/imputation_beagle/input_qc/**'
       - 'structs/imputation/ImputationBeagleStructs.wdl'
       - 'tasks/wdl/ImputationTasks.wdl'
@@ -20,6 +21,8 @@ on:
       - 'tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl'
       - '.github/workflows/test_imputation_beagle.yml'
       - '.github/workflows/warp_test_workflow.yml'
+      # dependencies imported by the test WDL but previously unwatched
+      - 'verification/VerifyTasks.wdl'
 
 
   # Allows you to run this workflow manually from the Actions tab

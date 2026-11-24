@@ -1,0 +1,557 @@
+version 1.0
+
+task ExtractAnnotations {
+    input {
+        File imputed_vcf_or_bcf
+        File imputed_vcf_or_bcf_index
+        Int batch_index
+        String? region
+
+        String docker_extract_annotations
+        Int disk_size_gb = ceil(2 * size(imputed_vcf_or_bcf, "GiB") + 50)
+        Int mem_gb = 2
+        Int cpu = 1
+        Int preemptible = 3
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        # Ensure index is localized so bcftools can use it if needed
+        ls ~{imputed_vcf_or_bcf_index} > /dev/null
+
+        printf 'CHROM\tPOS\tREF\tALT\tAF\tINFO\n' | bgzip -c > annotations_batch_~{batch_index}.tsv.gz
+        bcftools query ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/AF\t%INFO/INFO\n' ~{imputed_vcf_or_bcf} | bgzip -c >> annotations_batch_~{batch_index}.tsv.gz
+    >>>
+
+    runtime {
+        docker: docker_extract_annotations
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+        maxRetries: 1
+        noAddress: true
+    }
+
+    output {
+        File annotations = "annotations_batch_~{batch_index}.tsv.gz"
+    }
+}
+
+task RecomputeAndAnnotate {
+    input {
+        File merged_vcf_or_bcf
+        File merged_vcf_or_bcf_index
+        Array[File] annotations
+
+        Array[Int] num_samples
+
+        String output_basename
+        Float info_filter_threshold
+        Float raf_censoring_threshold
+        String? region
+
+        String docker_merge
+        Int disk_size_gb = ceil(2.2 * size(merged_vcf_or_bcf, "GiB") + size(annotations, "GiB") + 50)
+        Int mem_gb = 6
+        Int cpu = 1
+        Int preemptible = 3
+        Int chunk_size = 100000
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        cat <<EOF > script.py
+import pandas as pd
+import numpy as np
+
+input_filenames = ['~{sep="', '" annotations}']
+num_samples = [~{sep=", " num_samples}]
+if len(num_samples) != len(input_filenames):
+    raise RuntimeError('The number of input annotations does not match the number of input number of samples.')
+
+total_samples = sum(num_samples)
+num_batches = len(input_filenames)
+chunk_size = ~{chunk_size}
+
+# Stream all annotation files in parallel chunks rather than loading everything into memory at once.
+# This keeps memory usage proportional to chunk_size * num_batches rather than total_sites * num_batches.
+readers = [pd.read_csv(f, sep='\t', chunksize=chunk_size) for f in input_filenames]
+
+with open('aggregated_annotations.tsv', 'w') as out:
+    for chunks in zip(*readers):
+        # Validate that all batches have identical sites for this chunk
+        ref_loci = chunks[0][['CHROM', 'POS', 'REF', 'ALT']].reset_index(drop=True)
+        for i, chunk in enumerate(chunks[1:], 1):
+            if not ref_loci.equals(chunk[['CHROM', 'POS', 'REF', 'ALT']].reset_index(drop=True)):
+                raise RuntimeError(f'Sites in chunk do not match between batch 0 and batch {i}. '
+                                   f'First mismatch at: {ref_loci[~ref_loci.eq(chunk[["CHROM","POS","REF","ALT"]].reset_index(drop=True)).all(axis=1)].head(1).to_dict("records")}')
+
+        # Vectorized weighted AF across batches
+        agg_af = sum(chunks[i]['AF'].values * num_samples[i] for i in range(num_batches)) / total_samples
+
+        # Vectorized weighted INFO across batches
+        numerator = sum(
+            (1 - chunks[i]['INFO'].values) * 2 * num_samples[i] * chunks[i]['AF'].values * (1 - chunks[i]['AF'].values)
+            for i in range(num_batches)
+        )
+        denominator = 2 * total_samples * agg_af * (1 - agg_af)
+        # INFO is defined as 1 for monomorphic sites (AF == 0 or AF == 1)
+        polymorphic = (agg_af != 0) & (agg_af != 1)
+        agg_info = np.where(polymorphic, 1 - np.divide(numerator, denominator, where=polymorphic, out=np.zeros_like(denominator)), 1.0)
+
+        def round_to_n_sig_figs_and_clip(x, n):
+            if x == 0:
+                return 0.0
+            return np.clip(round(float(x), n - 1 - int(np.floor(np.log10(abs(x))))), 0.0, 1.0)
+
+        result = ref_loci.copy()
+        # Cap AF and INFO values at 3 sig-figs and clip to [0, 1] (note floating-point math can yield negative epsilons for agg_info above)
+        result['AF'] = np.vectorize(round_to_n_sig_figs_and_clip)(agg_af, 3)
+        result['INFO'] = np.vectorize(round_to_n_sig_figs_and_clip)(agg_info, 3)
+        result.to_csv(out, sep='\t', header=False, index=False)
+EOF
+        python3 script.py
+
+        bgzip aggregated_annotations.tsv
+        tabix -s1 -b2 -e2 aggregated_annotations.tsv.gz
+
+        PIPE="bcftools annotate -a aggregated_annotations.tsv.gz -c CHROM,POS,REF,ALT,AF,INFO ~{if defined(region) then "--regions-overlap 0 -r " + region else ""} ~{merged_vcf_or_bcf} -Ou"
+
+        if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            PIPE="$PIPE | bcftools filter -i \"INFO/INFO >= ~{info_filter_threshold}\" -Ou"
+        fi
+
+        if awk -v t="~{raf_censoring_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            PIPE="$PIPE | bcftools annotate -x INFO/RAF -i 'INFO/RAF<=~{raf_censoring_threshold}' --keep-sites -Ou"
+        fi
+
+        eval "$PIPE | bcftools view -Oz --write-index -o \"~{output_basename}.vcf.gz##idx##~{output_basename}.vcf.gz.tbi\""
+        
+        echo "Calculating MD5..."
+        md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
+    >>>
+
+    runtime {
+        docker: docker_merge
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+        maxRetries: 1
+        noAddress: true
+    }
+
+    output {
+        File merged_imputed_vcf = "~{output_basename}.vcf.gz"
+        File merged_imputed_vcf_idx = "~{output_basename}.vcf.gz.tbi"
+        File merged_imputed_vcf_md5sum = "~{output_basename}.md5sum"
+        File aggregated_annotations = "aggregated_annotations.tsv.gz"
+    }
+}
+
+task FilterInfoAndCensorRafAndFinalizeVcf {
+    input {
+        File bcf
+        String output_basename
+        Float info_filter_threshold
+        Float raf_censoring_threshold
+        File updated_header
+
+        Int disk_gb = ceil(3.1 * size(bcf, "GiB")) + 10
+        Int preemptible = 3
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        PIPE="bcftools view ~{bcf} -Ou"
+
+        if awk -v t="~{info_filter_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            echo "Applying INFO >= ~{info_filter_threshold} filter..."
+            PIPE="$PIPE | bcftools filter -i \"INFO/INFO >= ~{info_filter_threshold}\" -Ou"
+        fi
+
+        if awk -v t="~{raf_censoring_threshold}" 'BEGIN { exit !(t > 0.0) }'; then
+            echo "Censoring RAF <= ~{raf_censoring_threshold}..."
+            PIPE="$PIPE | bcftools annotate -x INFO/RAF -i 'INFO/RAF<=~{raf_censoring_threshold}' --keep-sites -Ou"
+        fi
+
+        eval "$PIPE | bcftools view -Oz -o temp.vcf.gz"
+
+        # Extract current header
+        bcftools view -h temp.vcf.gz > current_header.vcf
+        
+        # Extract Picard-sorted ##contig lines from donor header
+        grep '^##contig=' ~{updated_header} > sorted_contigs.txt
+        
+        # Strip unsorted ##contig lines from current header
+        grep -v '^##contig=' current_header.vcf > stripped_header.vcf
+        
+        # Splice sorted contigs into current header before the #CHROM line
+        awk '/^#CHROM/ {system("cat sorted_contigs.txt")} {print}' stripped_header.vcf > final_header.vcf
+
+        bcftools reheader -h final_header.vcf -o ~{output_basename}.vcf.gz temp.vcf.gz
+        bcftools index -t ~{output_basename}.vcf.gz
+
+        echo "Calculating MD5..."
+        md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
+    >>>
+
+    output {
+        File filtered_vcf = "~{output_basename}.vcf.gz"
+        File filtered_vcf_idx = "~{output_basename}.vcf.gz.tbi"
+        File filtered_vcf_md5sum = "~{output_basename}.md5sum"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "4 GiB"
+        disks: "local-disk " + disk_gb + " SSD"
+        preemptible: preemptible
+        maxRetries: 1
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        noAddress: true
+    }
+}
+
+task CreateContigRegions {
+    input {
+        File fasta_index
+        String contig
+        Int shard_size_bp = 25000000
+
+        Int preemptible = 3
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        python3 <<EOF
+        import sys
+
+        contig = "~{contig}"
+        shard_size = ~{shard_size_bp}
+
+        with open("~{fasta_index}", "r") as f:
+            for line in f:
+                parts = line.strip().split('\t')
+                if parts[0] == contig:
+                    length = int(parts[1])
+                    for start in range(1, length + 1, shard_size):
+                        end = min(start + shard_size - 1, length)
+                        print(f"{contig}:{start}-{end}")
+                    sys.exit(0)
+                    
+        print(f"Contig {contig} not found in FASTA index", file=sys.stderr)
+        sys.exit(1)
+        EOF
+    >>>
+    
+    output {
+        Array[String] regions = read_lines(stdout())
+    }
+    
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        memory: "1 GiB"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        preemptible: preemptible
+        maxRetries: 1
+        noAddress: true
+    }
+}
+
+task ConcatAndFinalizeVcfs {
+    input {
+        Array[File] vcfs
+        String output_basename
+        String? extra_args
+        File updated_header
+    }
+
+    Int disk_gb = ceil(3.1 * size(vcfs, "GiB")) + 10
+    Int preemptible = 3
+
+    command <<<
+        set -euxo pipefail
+
+        # on-the-fly indexing is not allowed with --naive, so we do it separately afterwards
+        bcftools concat \
+            -f ~{write_lines(vcfs)} \
+            ~{extra_args} \
+            -Oz -o temp.vcf.gz
+
+        # Extract current header containing the full sample list
+        bcftools view -h temp.vcf.gz > current_header.vcf
+        
+        # Extract Picard-sorted ##contig lines from donor header
+        grep '^##contig=' ~{updated_header} > sorted_contigs.txt
+        
+        # Strip unsorted ##contig lines from current header
+        grep -v '^##contig=' current_header.vcf > stripped_header.vcf
+        
+        # Splice sorted contigs into current header before the #CHROM line
+        awk '/^#CHROM/ {system("cat sorted_contigs.txt")} {print}' stripped_header.vcf > final_header.vcf
+
+        bcftools reheader -h final_header.vcf -o ~{output_basename}.vcf.gz temp.vcf.gz
+        bcftools index -t ~{output_basename}.vcf.gz
+
+        echo "Calculating MD5..."
+        md5sum ~{output_basename}.vcf.gz | awk '{ print $1 }' > ~{output_basename}.md5sum
+    >>>
+
+    output {
+        File concatenated_vcf = "~{output_basename}.vcf.gz"
+        File concatenated_vcf_idx = "~{output_basename}.vcf.gz.tbi"
+        File concatenated_vcf_md5sum = "~{output_basename}.md5sum"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "4 GiB"
+        disks: "local-disk " + disk_gb + " SSD"
+        preemptible: preemptible
+        maxRetries: 1
+        docker: "us.gcr.io/broad-gotc-prod/bcftools-vcftools:2.0.0-1.24-0.1.17-1784569943"
+        noAddress: true
+    }
+}
+
+task SplitCramManifestIntoBatches {
+    input {
+        Int batch_size
+        File cram_manifest
+    }
+
+    command <<<
+        cat <<EOF > script.py
+        import sys
+        import pandas as pd
+
+        batch_size = ~{batch_size}
+
+        # Read the manifest
+        df = pd.read_csv("~{cram_manifest}", sep='\t')
+
+        # Check for required columns
+        required_cols = ['cram_path', 'cram_index_path']
+        missing_cols = [col for col in required_cols if col not in df.columns]
+
+        if missing_cols:
+            print(f"Missing required columns in the CRAM manifest: {', '.join(missing_cols)}.", file=sys.stderr)
+            exit(1)
+
+        chunk_num = 0
+        for i in range(0, len(df), ~{batch_size}):
+            df_chunk = df[i : i + batch_size]
+            df_chunk.to_csv(f"chunk_{chunk_num:04d}.tsv", sep='\t', index=False)
+            chunk_num += 1
+
+        EOF
+        python3 script.py
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        disks: "local-disk 10 HDD"
+        memory: "1 GiB"
+        preemptible: 3
+        maxRetries: 1
+        noAddress: true
+    }
+
+    output {
+        Array[File] cram_manifest_batches = glob("chunk_*")
+    }
+}
+
+task ConvertInputArraysToManifest {
+    input {
+        Array[String] cram_paths
+        Array[String] cram_index_paths
+        String output_filename = "manifest.tsv"
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        python3 << 'EOF'
+        import sys
+
+        cram_paths = ['~{sep="', '" cram_paths}']
+        cram_index_paths = ['~{sep="', '" cram_index_paths}']
+
+        # Validate all arrays have the same length
+        if not (len(cram_paths) == len(cram_index_paths)):
+            print(f"ERROR: Input arrays have different lengths: cram_paths={len(cram_paths)}, cram_index_paths={len(cram_index_paths)}", file=sys.stderr)
+            sys.exit(1)
+
+        # Write TSV with headers
+        with open('~{output_filename}', 'w') as f:
+            f.write("cram_path\tcram_index_path\n")
+            for cram_path, cram_index_path in zip(cram_paths, cram_index_paths):
+                f.write(f"{cram_path}\t{cram_index_path}\n")
+        EOF
+    >>>
+
+    runtime {
+        docker: "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        cpu: 1
+        memory: "1 GiB"
+        disks: "local-disk 10 HDD"
+        preemptible: 3
+        maxRetries: 1
+        noAddress: true
+    }
+
+    output {
+        File output_manifest = "~{output_filename}"
+    }
+}
+
+task UpdateHeader {
+    input {
+        File bcf
+        File ref_dict
+        String? pipeline_header_line
+        String output_basename
+
+        String docker
+
+        Int disk_size_gb = ceil(2.1 * size(bcf, "GiB") + 5)
+        Int mem_gb = 2
+        Int cpu = 1
+        Int preemptible = 3
+    }
+
+    command <<<
+        set -euxo pipefail
+
+        # Set correct reference dictionary
+        bcftools view -h --no-version ~{bcf} > old_header.vcf
+        java -jar /picard.jar UpdateVcfSequenceDictionary -I old_header.vcf --SD ~{ref_dict} -O updated_header.vcf
+
+        # Add pipeline_header_line if provided
+        if [ -n "~{default="" pipeline_header_line}" ]; then
+            TOTAL_LINES=$(wc -l < "updated_header.vcf")
+            REMOVED_COMMENT_CHARACTER_HEADER_LINE=$(echo "~{pipeline_header_line}" | sed 's/^#*//')
+            sed -i "${TOTAL_LINES}i\##${REMOVED_COMMENT_CHARACTER_HEADER_LINE}" updated_header.vcf
+        fi
+
+        # Apply the final header (with ref dict and optionally pipeline_header_line) to the VCF
+        # Output indexed for downstream use
+        bcftools reheader -h updated_header.vcf -o ~{output_basename}.bcf ~{bcf}
+        bcftools index ~{output_basename}.bcf
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk " + disk_size_gb + " SSD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+        maxRetries: 1
+        noAddress: true
+    }
+
+    output {
+        File output_bcf = "~{output_basename}.bcf"
+        File output_bcf_idx = "~{output_basename}.bcf.csi"
+        File updated_header = "updated_header.vcf"
+    }
+}
+
+task GatherVcfsNoIndex {
+    input {
+        Array[File] input_vcfs
+        String output_vcf_basename
+
+        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+        Int cpu = 2
+        Int memory_mb = 10000
+        Int disk_size_gb = ceil(3*size(input_vcfs, "GiB")) + 10
+    }
+
+    Int command_mem = memory_mb - 1500
+    Int max_heap = memory_mb - 1000
+
+    command <<<
+        set -euxo pipefail
+
+        gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+        GatherVcfs \
+        -I ~{sep=' -I ' input_vcfs} \
+        --REORDER_INPUT_BY_FIRST_VARIANT \
+        -O ~{output_vcf_basename}.vcf.gz
+    >>>
+    runtime {
+        docker: gatk_docker
+        disks: "local-disk ${disk_size_gb} SSD"
+        memory: "${memory_mb} MiB"
+        cpu: cpu
+        maxRetries: 1
+        noAddress: true
+    }
+    output {
+        File output_vcf = "~{output_vcf_basename}.vcf.gz"
+    }
+}
+
+task CollectQCMetrics {
+    input {
+        File imputed_vcf
+        String output_basename
+
+        Int preemptible = 0
+        String docker = "mirror.gcr.io/hailgenetics/hail:0.2.126-py3.11"
+        Int cpu = 4
+        Int mem_gb = 8
+    }
+
+    parameter_meta {
+        imputed_vcf: {
+                         localization_optional: true
+                     }
+    }
+
+    Int disk_size_gb = ceil(2*size(imputed_vcf, "GiB") + 50)
+
+    command <<<
+        set -euxo pipefail
+
+        cat <<'EOF' > script.py
+        import hail as hl
+        import pandas as pd
+
+        # Calculate metrics
+        hl.init(default_reference='GRCh38', idempotent=True)
+        vcf = hl.import_vcf('~{imputed_vcf}', force_bgz=True)
+        qc = hl.sample_qc(vcf)
+        qc_pd = qc.cols().flatten() \
+        .rename({'sample_qc.' + col: col for col in list(qc['sample_qc'])}) \
+        .rename({'s': 'sample_id'}) \
+        .to_pandas()
+        qc_pd.to_csv('~{output_basename}.qc_metrics.tsv', sep='\t', index=False, float_format='%.4f')
+        EOF
+        python3 script.py
+    >>>
+
+    runtime {
+        docker: docker
+        disks: "local-disk " + disk_size_gb + " HDD"
+        memory: mem_gb + " GiB"
+        cpu: cpu
+        preemptible: preemptible
+        maxRetries: 1
+        noAddress: true
+    }
+
+    output {
+        File qc_metrics = "~{output_basename}.qc_metrics.tsv"
+    }
+}

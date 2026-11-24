@@ -7,7 +7,7 @@ slug: /Pipelines/Multiome_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Multiome v5.11.0](https://github.com/broadinstitute/warp/releases) | February, 2025 | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues).  |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/multiome/Multiome.changelog.md) for version information. | See changelog | WARP Pipelines | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues).   |
 
 ![Multiome_diagram](./multiome_diagram.png)
 
@@ -59,7 +59,8 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
 | gex_nhash_id | Optional identifier for the library aliquot; when specified, the gene expression workflow will echo the ID in the gene expression output h5ads (in the adata.uns section) and in the library-level metrics CSV. |
 | atac_nhash_id | Optional identifier for the library aliquot; when specified, the workflow will echo the ID in the ATAC output h5ads (in the adata.uns section) and in the library-level metrics CSV. 
-| expected_cells | Number of cells loaded for library preparation; default is set to 3000. | Integer |
+| expected_cells | Required integer; the number of cells loaded for library preparation. There is no default. Used as the denominator of the GEX `percent_target` and `percent_usable` metrics and of `atac_percent_target`, and as the ATAC cell-calling anchor when `atac_anchor_cell_calling` is `true`; it does not change which GEX cells are called. These percentages can exceed 100% when more cells are called than `expected_cells`. | Integer |
+| atac_anchor_cell_calling | Optional boolean; default is `false`. When `true`, the ATAC workflow passes `expected_cells` to SnapATAC2's OrdMag cell calling as the expected number of cells instead of letting it estimate the count from the data (the estimate can collapse to a few hundred cells when a small number of barcodes are far deeper than real nuclei). OrdMag still decides which barcodes are cells, so the final count can differ from `expected_cells`. In both modes the ATAC per-cell library metrics and the ATAC h5ad use the called cells. See the [ATAC Overview](../ATAC/README.md) for details. | Boolean |
 | annotations_gtf | GTF file containing gene annotations used for GEX cell metric calculation and ATAC fragment metrics; must match the GTF used to build the STAR aligner. | File |
 | gex_r1_fastq | Array of read 1 FASTQ files representing a single GEX 10x library. | Array[File] |
 | gex_r2_fastq | Array of read 2 FASTQ files representing a single GEX 10x library.| Array[File] |
@@ -69,10 +70,11 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | counting_mode | Optional string that determines whether the Optimus (GEX) pipeline should be run in single-cell mode (sc_rna) or single-nucleus mode (sn_rna); default is "sn_rna". | String |
 | tenx_chemistry_version | Optional integer for the Optimus (GEX) pipeline specifying the 10x version chemistry the data was generated with; validated by examination of the first read 1 FASTQ file read structure; default is "3". | Integer |
 | emptydrops_lower | Optional threshold for UMIs for the Optimus (GEX) pipeline that empty drops tool should consider for determining cell; data below threshold is not removed; default is "100". | Integer |
+| emptydrops_seed | Optional random seed passed to Optimus that makes emptyDrops p-values reproducible (only used when `counting_mode` = "sc_rna"); leave unset for the default nondeterministic behavior. | Integer |
 | force_no_check | Optional boolean for the Optimus (GEX) pipeline indicating if the pipeline should perform checks; default is "false". | Boolean |
 | ignore_r1_read_length | Optional boolean for the Optimus (GEX) pipeline indicating if the pipeline should ignore barcode chemistry check; if "true", the workflow will not ensure the `10x_chemistry_version` input matches the chemistry in the read 1 FASTQ; default is "false". | Boolean |
 | star_strand_mode | Optional string for the Optimus (GEX) pipeline for performing STARsolo alignment on forward stranded, reverse stranded, or unstranded data; default is "Forward". | String |
-| count_exons | Optional boolean for the Optimus (GEX) pipeline indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**; if "true" in sc_rna mode, the workflow will return an error; default is "false".  | Boolean |
+| count_exons | **Deprecated and removed in Multiome v7.0.0.** This parameter is no longer accepted by the workflow; sn_rna mode now always produces a single whole-transcript count matrix. | N/A |
 | soloMultiMappers | Optional string describing whether or not the Optimus (GEX) pipeline should run STARsolo with the `--soloMultiMappers` flag. | String |
 | atac_r1_fastq | Array of read 1 paired-end FASTQ files representing a single 10x multiome ATAC library. | Array[File] |
 | atac_r2_fastq | Array of barcodes FASTQ files representing a single 10x multiome ATAC library. | Array[File] |
@@ -85,6 +87,15 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | run_peak_calling | Optional boolean used to determine if the ATAC pipeline should run Peak Calling; default is `false`. When set to true, the pipeline takes the ATAC h5ad produced by the JoinBarcodes task and performs peak calling to produce a cell by bin matrix and a cell by peak matrix. | Boolean |
 | vm_size | String defining the Azure virtual machine family for the workflow (default: "Standard_M128s"). | String |
 
+:::warning BWA machine size not available in your region/project
+The ATAC component sizes the BWA-mem2 alignment machine from three inputs — `num_threads_bwa` (default 128), `mem_size_bwa` (default 512 GiB), and `cpu_platform_bwa` (default "Intel Ice Lake") — that are internal to the ATAC subworkflow and are **not** exposed as top-level Multiome inputs. If a Multiome run fails immediately at the `Atac.GetNumSplits` or `Atac.BWAPairedEndAlignment` task with no execution logs, the requested VM shape is likely unavailable (quota or capacity) in your project/region. Override the three inputs directly on the ATAC subworkflow using Cromwell/Terra's nested-input syntax, e.g.:
+
+```json
+"Multiome.Atac.num_threads_bwa": "16",
+"Multiome.Atac.mem_size_bwa": "64",
+"Multiome.Atac.cpu_platform_bwa": "Intel Cascade Lake"
+```
+:::
 
 #### Sample inputs for analyses in a Terra Workspace
 

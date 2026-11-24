@@ -16,7 +16,6 @@ on:
       - 'tasks/wdl/FastqProcessing.wdl'
       - 'tasks/wdl/PairedTagUtils.wdl'
       - 'pipelines/wdl/optimus/Optimus.wdl'
-      - 'tasks/wdl/FastqProcessing.wdl'
       - 'tasks/wdl/StarAlign.wdl'
       - 'tasks/wdl/Metrics.wdl'
       - 'tasks/wdl/RunEmptyDrops.wdl'
@@ -34,6 +33,9 @@ on:
       - '.github/workflows/test_multiome.yml'
       - '.github/workflows/warp_test_workflow.yml'
       - 'scripts/firecloud_api/firecloud_api.py'
+      # dependencies imported by the test WDL but previously unwatched
+      - 'pipelines/wdl/atac/atac.wdl'
+      - 'pipelines/wdl/peak_calling/PeakCalling.wdl'
 
 
   # Allows you to run this workflow manually from the Actions tab

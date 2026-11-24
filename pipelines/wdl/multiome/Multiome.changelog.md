@@ -1,3 +1,40 @@
+# 8.0.0
+2026-10-26 (Date of Last Commit)
+
+* Removed the default of 3000 from the `expected_cells` input; it is now required and is passed to both Optimus and ATAC
+* Updated the ATAC workflow to 3.0.0
+* Added optional `atac_anchor_cell_calling` input (default `false`), passed to ATAC, that anchors ATAC cell calling to `expected_cells` instead of letting SnapATAC2 estimate the cell count; the ATAC library metrics and the ATAC h5ad both use the called cells. Default runs are unaffected
+
+# 7.0.4
+2026-10-08 (Date of Last Commit)
+
+* Added optional `emptydrops_seed` input, passed to Optimus, that makes emptyDrops p-values reproducible when `counting_mode` = "sc_rna"; unset (the default) keeps the existing nondeterministic behavior. Default `sn_rna` runs are unaffected
+
+# 7.0.3
+2026-09-16 (Date of Last Commit)
+
+* Updated the warp-tools Docker image to 2.7.1 (Debian bookworm base); no functional impact on pipeline outputs
+
+# 7.0.2
+2026-07-10 (Date of Last Commit)
+
+* Bumped for the shared `checkOptimusInput` change: an unspecified `tenx_chemistry_subversion` now defaults to the `v4_TRU` (Cell Ranger v9.0+) whitelist; affects v4 runs only
+
+# 7.0.1
+2026-05-15 (Date of Last Commit)
+
+* Updated shared dependency CheckInputs.wdl to support 10x v4 (GEM-X) chemistry; no functional impact on Multiome outputs
+
+# 7.0.0
+2026-04-02 (Date of Last Commit)
+
+* Removed the `count_exons` input from the Multiome workflow following its removal from Optimus v9.0.0. Default behavior is unchanged (the default was `false`).
+
+# 6.1.6
+2026-04-21 (Date of Last Commit)
+
+* Updated internal task dependency versions for this release; this does not affect the outputs of the pipeline
+
 # 6.1.5
 2026-02-24 (Date of Last Commit)
 

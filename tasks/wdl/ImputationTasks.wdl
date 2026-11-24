@@ -361,7 +361,7 @@ task UpdateHeader {
     Boolean disable_sequence_dictionary_validation = true
     String? pipeline_header_line
 
-    Int disk_size_gb = ceil(4*(size(vcf, "GiB") + size(vcf_index, "GiB"))) + 20
+    Int disk_size_gb = ceil(6*(size(vcf, "GiB") + size(vcf_index, "GiB"))) + 25
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
     Int cpu = 1
     Int memory_mb = 6000
@@ -378,8 +378,8 @@ task UpdateHeader {
     UpdateVCFSequenceDictionary \
     --source-dictionary ~{ref_dict} \
     --output ~{basename}.vcf.gz \
-    --replace -V ~{vcf} \
-    ~{disable_sequence_dict_validation_flag}
+    ~{disable_sequence_dict_validation_flag} \
+    --replace -V ~{vcf}
 
     ## update header with pipeline_header_line if provided
     if [ -n "~{default="" pipeline_header_line}" ]; then

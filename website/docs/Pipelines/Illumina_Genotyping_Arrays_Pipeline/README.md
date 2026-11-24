@@ -7,7 +7,7 @@ slug: /Pipelines/Illumina_Genotyping_Arrays_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Version 1.12.17](https://github.com/broadinstitute/warp/releases) | March, 2024 | Elizabeth Kiernan | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues). |
+| See [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/wdl/genotyping/illumina/IlluminaGenotypingArray.changelog.md) for version information. | See changelog | Elizabeth Kiernan | Please [file an issue in WARP](https://github.com/broadinstitute/warp/issues).  |
 
 ![The Illumina Genotyping Array Pipeline](./IlluminaGenotyping.png)
 
@@ -29,7 +29,7 @@ The latest release of the workflow, example data, and dependencies are available
 
 ### Inputs
 
-The workflow requires that each input is specified in a JSON file. All sample and reference files should be stored in cloud storage, such as a Google Bucket, and the path to the file location should be specified in the JSON. 
+Workflow inputs are specified in a JSON file. All sample and reference files should be stored in cloud storage, such as a Google Bucket, and the path to the file location should be specified in the JSON.
 
 Some tasks, such as rare variant calling, fingerprinting, and genotype concordance, are optional. 
 

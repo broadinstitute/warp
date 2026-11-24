@@ -1,6 +1,3 @@
 # All of Us Pipelines
-This folder contains a public selection of WDL workflows developed for analyzing genomic data from the All of Us Research Program. These workflows are provided for use by the broader research community.
 
-Each workflow resides in its own folder and includes the WDL file, documentation, scripts, and input examples as applicable.
-
-Please note: These workflows represent a snapshot of the pipelines used in All of Us and are not actively maintained or developed within the WARP repository.
+Documentation for the All of Us workflows in this directory now lives on the WARP documentation site. For an overview of the available pipelines, reproducibility notes, versioning guidance, and links to the individual workflow pages, please see the All of Us documentation: https://broadinstitute.github.io/warp/docs/All_of_Us/overview

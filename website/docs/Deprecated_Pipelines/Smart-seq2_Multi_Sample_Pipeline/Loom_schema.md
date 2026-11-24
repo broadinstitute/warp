@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # What's in the Smart-seq2 Multi Sample Pipeline Loom File?
 
-The Loom is the Smart-seq2 Multi Sample pipeline's default cell-by-gene matrix. It is an HDF5 file generated using [Loompy v.3.0.6](http://loompy.org/) that is an aggregate of the individual output Loom files from the [Smart-seq2 Single Sample pipeline](../Smart-seq2_Single_Sample_Pipeline/README).
+The Loom is the Smart-seq2 Multi Sample pipeline's default cell-by-gene matrix. It is an HDF5 file generated using [Loompy v.3.0.6](http://loompy.org/) that is an aggregate of the individual output Loom files from the [Smart-seq2 Single Sample pipeline](../Smart-seq2_Single_Sample_Pipeline/README.md).
 
 Overall, the Loom contains global attributes detailing information about the Loom and workflow used to generate it ([Table 1](#table-1-global-attributes)), column attributes detailing metrics for individual cells ([Table 2](#table-2-column-attributes-cell-metrics)), and row metrics detailing metrics for individual genes ([Table 3](#table-3-row-attributes-gene-metrics)).
 

@@ -1,3 +1,8 @@
+# 2.2.9
+2026-11-04 (Date of Last Commit)
+
+* Updated the shared ValidateVCF task to accept a configurable disk_size; no functional impact on this pipeline's outputs
+
 # 2.2.8
 2026-01-21 (Date of Last Commit)
 

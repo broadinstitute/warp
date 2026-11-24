@@ -6,7 +6,7 @@ import "../../../../../../tasks/wdl/Utilities.wdl" as utils
 
 workflow ReblockGVCF {
 
-  String pipeline_version = "2.4.4"
+  String pipeline_version = "2.4.5"
 
   input {
     File gvcf
@@ -25,7 +25,7 @@ workflow ReblockGVCF {
 
   String gvcf_basename = basename(gvcf, gvcf_file_extension)
   # docker images
-  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+  String gatk_docker_gcp = "us-central1-docker.pkg.dev/broad-dsde-methods/gvs/gatk:2026-10-09-gatkbase-lite-eb22e934c887"
   String gatk_docker_aws = "broadinstitute/gatk:4.6.1.0"
   String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_aws
 

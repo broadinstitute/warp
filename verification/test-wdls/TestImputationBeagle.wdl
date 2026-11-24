@@ -9,8 +9,8 @@ import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 workflow TestImputationBeagle {
 
     input {
-      Int chunkLength = 25000000
-      Int chunkOverlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
+      Int chunk_length = 25000000
+      Int chunk_overlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
       Int sample_chunk_size = 1000 # this is the number of samples that will be processed in parallel in each chunked scatter
       Float min_dr2_for_inclusion = 0.0 # minimum imputation quality (DR2) for a variant to be included in the output VCF
       
@@ -34,8 +34,8 @@ workflow TestImputationBeagle {
   
     call ImputationBeagle.ImputationBeagle {
       input:
-        chunkLength = chunkLength,
-        chunkOverlaps = chunkOverlaps,
+        chunk_length = chunk_length,
+        chunk_overlaps = chunk_overlaps,
         sample_chunk_size = sample_chunk_size,
         min_dr2_for_inclusion = min_dr2_for_inclusion,
         multi_sample_vcf = multi_sample_vcf,
@@ -49,10 +49,8 @@ workflow TestImputationBeagle {
     
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
-                                    [ # File outputs
-                                    ImputationBeagle.imputed_multi_sample_vcf,
-                                    ImputationBeagle.imputed_hom_ref_sites_only_vcf
-                                    ]
+                                    # File outputs
+                                    ImputationBeagle.imputed_multi_sample_vcfs,
     ])
 
     
@@ -82,34 +80,25 @@ workflow TestImputationBeagle {
 
     # This is achieved by passing each desired file/array[files] to GetValidationInputs
     if (!update_truth){
-        call Utilities.GetValidationInputs as GetMetrics {
-          input:
-            input_files = pipeline_metrics,
-            results_path = results_path,
-            truth_path = truth_path
-        }
-        call Utilities.GetValidationInputs as GetImputedMultiSampleVcf {
-          input:
-            input_file = ImputationBeagle.imputed_multi_sample_vcf,
-            results_path = results_path,
-            truth_path = truth_path
-        }
-        call Utilities.GetValidationInputs as GetImputedSitesOnlyVcf {
-          input:
-            input_file = ImputationBeagle.imputed_hom_ref_sites_only_vcf,
-            results_path = results_path,
-            truth_path = truth_path
-        }
-
+      call Utilities.GetValidationInputs as GetMetrics {
+        input:
+          input_files = pipeline_metrics,
+          results_path = results_path,
+          truth_path = truth_path
+      }
+      call Utilities.GetValidationInputs as GetImputedMultiSampleVcf {
+        input:
+          input_files = ImputationBeagle.imputed_multi_sample_vcfs,
+          results_path = results_path,
+          truth_path = truth_path
+      }
 
       call VerifyImputationBeagle.VerifyImputationBeagle as Verify {
         input:
           truth_metrics = GetMetrics.truth_files, 
           test_metrics = GetMetrics.results_files,
-          multi_sample_truth_vcf = GetImputedMultiSampleVcf.truth_file,
-          multi_sample_test_vcf = GetImputedMultiSampleVcf.results_file,
-          hom_ref_truth_vcf = GetImputedSitesOnlyVcf.truth_file,
-          hom_ref_test_vcf = GetImputedSitesOnlyVcf.results_file,
+          multi_sample_truth_vcfs = GetImputedMultiSampleVcf.truth_files,
+          multi_sample_test_vcfs = GetImputedMultiSampleVcf.results_files,
           done = CopyToTestResults.done
       }
     }

@@ -40,8 +40,10 @@ All changelog notes should be bulleted (no period at the end of the final senten
 
 Examples of bullet points:
 
-- "Updated the WDL with the latest docker image”
+- "Updated the warp-tools image to 2.8.0-1795370000 (Debian security updates); outputs may differ slightly, with no reprocessing needed"
 - "Added an output to the WDL. Users will now see this output after running the WDL"
+
+A bullet for a Docker image update names the image, its version tag, what changed in the image and the effect on outputs (see [Updating a warp-tools Image](./update_warp_tools_image.md)).
 
 For all bullet points, use active voice instead of passive voice. Examples are shown below.
 
@@ -111,4 +113,9 @@ The following is the markdown format required for non-major changelog version up
 * Updated the documentation with additional information for the README and additional files for Loom schema and BAM tags
 * Updated the Zarr output
 
+## Syntax issues
 
+Not all valid markdown can be parsed and displayed in the release notes on GitHub. The following are known syntax issues:
+
+- code snippets, specified with the `` ` `` character, are not supported (even when escaped)
+- double quotes need to be escaped: `\"`
