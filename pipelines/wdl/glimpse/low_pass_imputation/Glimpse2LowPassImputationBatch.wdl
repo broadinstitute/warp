@@ -4,9 +4,11 @@ version 1.0
 # to approximately 1000 samples and be used as a subworkflow for Glimpse2LowPassImputation.wdl,
 # which can handle larger sample sizes by splitting into batches and then merging results.
 
+import "../../../../tasks/wdl/Glimpse2LowPassImputationTasks.wdl" as Glimpse2LowPassImputationTasks
+
 workflow Glimpse2LowPassImputationBatch {
     # if this changes, update the batch_pipeline_version value in Glimpse2LowPassImputation.wdl
-    String pipeline_version = "1.1.1"
+    String pipeline_version = "1.1.2"
 
     input {
 
@@ -19,6 +21,9 @@ workflow Glimpse2LowPassImputationBatch {
         File fasta
         File fasta_index
         String output_basename
+
+        File ref_dict
+        String pipeline_header_line = ""
 
         Boolean impute_reference_only_variants = false
         Boolean call_indels = false
@@ -157,11 +162,21 @@ workflow Glimpse2LowPassImputationBatch {
                 output_basename = output_basename,
                 docker = glimpse_docker
         }
+
+        call Glimpse2LowPassImputationTasks.UpdateHeader {
+            input:
+                bcf = GlimpseLigate.imputed_bcf,
+                ref_dict = ref_dict,
+                pipeline_header_line = pipeline_header_line,
+                output_basename = output_basename + "." + contigs[contig_index] + ".imputed",
+                docker = glimpse_docker
+        }
     }
 
     output {
-        Array[File] imputed_contig_ligated_vcfs = GlimpseLigate.imputed_vcf
-        Array[File] imputed_contig_ligated_vcf_indices = GlimpseLigate.imputed_vcf_index
+        Array[File] imputed_contig_ligated_bcfs = UpdateHeader.output_bcf
+        Array[File] imputed_contig_ligated_bcf_indices = UpdateHeader.output_bcf_idx
+        Array[File] updated_headers = UpdateHeader.updated_header
         Int total_samples = SplitCramManifestIntoBatchesOfStrings.total_samples
     }
 }
@@ -213,6 +228,7 @@ task SplitCramManifestIntoBatchesOfStrings {
         disks: "local-disk 10 HDD"
         memory: "1 GiB"
         preemptible: 3
+        maxRetries: 1
         noAddress: true
     }
 
@@ -248,6 +264,7 @@ task ComputeShardsAndMemoryPerShard {
 
     runtime {
         docker : "us.gcr.io/broad-dsde-methods/python-data-slim:1.0"
+        maxRetries: 1
         noAddress: true
     }
 
@@ -569,10 +586,10 @@ task GlimpseLigate {
         NPROC=$(nproc)
         echo "nproc reported ${NPROC} CPUs, using that number as the threads argument for GLIMPSE."
 
-        /bin/GLIMPSE2_ligate --input ~{write_lines(imputed_chunks)} --output ~{output_basename}.imputed.vcf.gz --threads ${NPROC}
+        /bin/GLIMPSE2_ligate --input ~{write_lines(imputed_chunks)} --output ~{output_basename}.imputed.bcf --threads ${NPROC}
 
         # GLIMPSE2_ligate creates an index, but it is not compatible with GATK tools so we regenerate it with tabix
-        tabix -f ~{output_basename}.imputed.vcf.gz
+        bcftools index -f ~{output_basename}.imputed.bcf
     >>>
 
     runtime {
@@ -586,7 +603,7 @@ task GlimpseLigate {
     }
 
     output {
-        File imputed_vcf = "~{output_basename}.imputed.vcf.gz"
-        File imputed_vcf_index = "~{output_basename}.imputed.vcf.gz.tbi"
+        File imputed_bcf = "~{output_basename}.imputed.bcf"
+        File imputed_bcf_index = "~{output_basename}.imputed.bcf.csi"
     }
 }

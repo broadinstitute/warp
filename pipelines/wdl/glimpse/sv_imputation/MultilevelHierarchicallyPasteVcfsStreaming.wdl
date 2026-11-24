@@ -5,8 +5,8 @@ import "../../../../tasks/wdl/Glimpse2SVImputationTasks.wdl" as Glimpse2SVImputa
 # NOTE: We assume we are merging squared-off single-sample VCFs (enforced by checking that the number of records in each VCF is identical when localizing shards with bcftools view)
 
 workflow MultilevelHierarchicallyMergeVcfs {
-    # if this changes, update the multi_level_paste_pipeline_version value in PreprocessPLsGVCF.wdl
-    String pipeline_version = "1.0.5"
+    # if this changes, update the multilevel_merge_pipeline_version value in PreprocessPLsGVCF.wdl and Glimpse2SVImputation.wdl
+    String pipeline_version = "1.0.6"
 
     input {
         Array[String]? vcfs_or_bcfs_array
@@ -25,7 +25,7 @@ workflow MultilevelHierarchicallyMergeVcfs {
     }
 
     Array[String] vcfs_in = if defined(vcfs_or_bcfs_array) then select_first([vcfs_or_bcfs_array]) else read_lines(select_first([vcfs_or_bcfs_fofn]))
-    Array[String] vcf_idxs_in = if defined(vcf_or_bcf_idxs_array) then select_first([vcf_or_bcf_idxs_array]) else read_lines(select_first([vcfs_or_bcfs_fofn]))
+    Array[String] vcf_idxs_in = if defined(vcf_or_bcf_idxs_array) then select_first([vcf_or_bcf_idxs_array]) else read_lines(select_first([vcf_or_bcf_idxs_fofn]))
 
     call CreateBatches as L0_Batches {
         input:
